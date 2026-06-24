@@ -1,0 +1,45 @@
+'use client';
+import * as React from 'react';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useListboxItemContext } from '../item/ListboxItemContext';
+
+/**
+ * A drag handle within a listbox item for initiating drag-and-drop reordering.
+ * Renders a `<div>` element.
+ *
+ * When placed inside a `Listbox.Item` within `Listbox.DragAndDropProvider`,
+ * the drag operation will be restricted to start only from this handle
+ * whenever the provider allows dragging for that item.
+ *
+ * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
+ */
+export const ListboxItemDragHandle = React.forwardRef(function ListboxItemDragHandle(
+  componentProps: ListboxItemDragHandle.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { className, render, style, ...elementProps } = componentProps;
+  const { dragHandleRef } = useListboxItemContext();
+
+  return useRenderElement('div', componentProps, {
+    ref: [forwardedRef, dragHandleRef],
+    props: [
+      {
+        'aria-hidden': true,
+      },
+      elementProps,
+    ],
+  });
+});
+
+export interface ListboxItemDragHandleState {}
+
+export interface ListboxItemDragHandleProps extends BaseUIComponentProps<
+  'div',
+  ListboxItemDragHandleState
+> {}
+
+export namespace ListboxItemDragHandle {
+  export type State = ListboxItemDragHandleState;
+  export type Props = ListboxItemDragHandleProps;
+}
