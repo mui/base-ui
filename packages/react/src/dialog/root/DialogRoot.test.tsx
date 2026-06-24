@@ -1442,6 +1442,48 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByRole('dialog')).not.toBe(null);
       expect(handleOpenChange.mock.calls.length).toBe(0);
     });
+
+    it('does not close when two touches are lifted simultaneously on touchend', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 });
+      const touch1End = createTouch(outside, { clientX: 50, clientY: 56 });
+      const touch2End = createTouch(outside, { clientX: 70, clientY: 76 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1End, touch2End],
+      });
+
+      fireEvent.touchEnd(outside, {
+        bubbles: true,
+        changedTouches: [touch1End, touch2End],
+        touches: [],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
   });
 
   it.skipIf(isJSDOM)(
