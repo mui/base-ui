@@ -325,9 +325,12 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  *
  * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
  * trigger is claimed as the active trigger. When the active trigger id is still registered but its
- * element changed, the active element is refreshed. When the active trigger unregisters, the
- * default path preserves existing ownership so non-closing popup families do not silently claim a
- * different trigger while staying open.
+ * element changed, the active element is refreshed. When the active trigger id is missing from the
+ * registry but the same element is still registered under a different id (e.g. the rendered trigger
+ * carries its own DOM `id` that differs from Base UI's internal trigger id), the active id is
+ * reassociated to the registered id instead of being treated as lost. When the active trigger
+ * unregisters, the default path preserves existing ownership so non-closing popup families do not
+ * silently claim a different trigger while staying open.
  *
  * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
  * after a microtask so a same-tick replacement trigger with the same id can register first.
