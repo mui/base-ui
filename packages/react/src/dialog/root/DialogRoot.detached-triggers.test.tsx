@@ -520,6 +520,80 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('No payload');
     });
 
+    it('notifies persistent detached triggers after resetting the handle store on remount', async () => {
+      const testDialog = Dialog.createHandle();
+
+      const HeaderTrigger = React.memo(function HeaderTrigger() {
+        return (
+          <Dialog.Trigger handle={testDialog} id="trigger">
+            Trigger
+          </Dialog.Trigger>
+        );
+      });
+
+      function RouteRoot() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+
+            {mounted && (
+              <Dialog.Root handle={testDialog}>
+                <Dialog.Portal>
+                  <Dialog.Popup>
+                    Dialog Content
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      function App() {
+        return (
+          <React.Fragment>
+            <HeaderTrigger />
+            <RouteRoot />
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Unmount root' }),
+      );
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+      expect(trigger).not.toHaveAttribute('aria-controls');
+    });
+
     it('resets stale controlled open state when a handle-backed root remounts uncontrolled', async () => {
       const testDialog = Dialog.createHandle();
 

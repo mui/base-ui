@@ -67,10 +67,12 @@ export function usePopupStore<
   }
 
   const store = externalStore ?? internalStoreRef.current!;
+  const notifyAfterInitializeRef = React.useRef(false);
 
   useOnFirstRender(() => {
-    if (externalStore !== undefined) {
-      initializeExternalStore?.(store);
+    if (externalStore !== undefined && initializeExternalStore !== undefined) {
+      initializeExternalStore(store);
+      notifyAfterInitializeRef.current = true;
     }
   });
 
@@ -82,6 +84,13 @@ export function usePopupStore<
     nested,
     onOpenChange: store.setOpen,
   });
+
+  useIsoLayoutEffect(() => {
+    if (notifyAfterInitializeRef.current) {
+      notifyAfterInitializeRef.current = false;
+      store.notifyAll();
+    }
+  }, [store]);
 
   return { store, internalStore: internalStoreRef.current };
 }
