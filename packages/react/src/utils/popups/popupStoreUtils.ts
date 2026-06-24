@@ -368,7 +368,17 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     if (activeTriggerId) {
       const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
       if (!activeTriggerElement) {
-        lostActiveTriggerId = activeTriggerId;
+        for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
+          if (triggerElement === store.state.activeTriggerElement) {
+            stateUpdates.activeTriggerId = triggerId;
+            stateUpdates.activeTriggerElement = triggerElement;
+            break;
+          }
+        }
+
+        if (stateUpdates.activeTriggerId === undefined) {
+          lostActiveTriggerId = activeTriggerId;
+        }
       } else if (activeTriggerElement !== store.state.activeTriggerElement) {
         stateUpdates.activeTriggerElement = activeTriggerElement;
       }

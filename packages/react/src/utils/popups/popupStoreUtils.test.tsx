@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -350,15 +351,40 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushMicrotasks();
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
     expect(store.state.triggerCount).toBe(2);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('keeps the popup open when the active trigger element is registered with another id', async () => {
+    const store = createStore();
+    const element = document.createElement('button');
+    element.id = 'dom-id';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'dom-id',
+      activeTriggerElement: element,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-id" store={store} element={element} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.activeTriggerId).toBe('registered-id');
+    expect(store.state.activeTriggerElement).toBe(element);
     expect(store.state.open).toBe(true);
     expect(store.setOpen).not.toHaveBeenCalled();
   });
