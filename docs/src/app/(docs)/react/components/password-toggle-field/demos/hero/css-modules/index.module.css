@@ -1,0 +1,121 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.Input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2rem;
+  margin: 0;
+  padding: 0 2rem 0 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Toggle {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
