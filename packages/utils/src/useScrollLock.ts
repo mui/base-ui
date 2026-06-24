@@ -12,6 +12,12 @@ let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
 
+function isPageScrollLocked(win: Window, html: Element, body: Element) {
+  return /hidden|clip/.test(
+    win.getComputedStyle(html).overflowY + win.getComputedStyle(body).overflowY,
+  );
+}
+
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -249,11 +255,11 @@ class ScrollLocker {
 
     const doc = ownerDocument(referenceElement);
     const html = doc.documentElement;
-    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+    const body = doc.body;
+    const win = ownerWindow(html);
 
-    // If the site author already hid overflow on <html>, respect it and bail out.
-    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
-      this.restore = NOOP;
+    if (isPageScrollLocked(win, html, body)) {
+      this.restore = this.observePageScrollUnlock(referenceElement);
       return;
     }
 
@@ -268,6 +274,45 @@ class ScrollLocker {
     this.restore = hasOverlayScrollbars
       ? preventScrollOverlayScrollbars(referenceElement)
       : preventScrollInsetScrollbars(referenceElement);
+  }
+
+  private observePageScrollUnlock(referenceElement: Element | null) {
+    if (typeof MutationObserver !== 'function') {
+      return NOOP;
+    }
+
+    const doc = ownerDocument(referenceElement);
+    const html = doc.documentElement;
+    const body = doc.body;
+    const win = ownerWindow(html);
+
+    const observerOptions: MutationObserverInit = {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    };
+
+    const observer = new MutationObserver(() => {
+      if (
+        this.lockCount === 0 ||
+        this.restore !== disconnect ||
+        isPageScrollLocked(win, html, body)
+      ) {
+        return;
+      }
+
+      disconnect();
+      this.restore = null;
+      this.lock(referenceElement);
+    });
+
+    function disconnect() {
+      observer.disconnect();
+    }
+
+    observer.observe(html, observerOptions);
+    observer.observe(body, observerOptions);
+
+    return disconnect;
   }
 }
 
