@@ -336,7 +336,7 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    */
   payload?: Payload | undefined;
   /**
-   * How long to wait before opening the tooltip. Specified in milliseconds.
+   * How long to wait before opening the tooltip on hover. Specified in milliseconds.
    * @default 600
    */
   delay?: number | undefined;
