@@ -349,6 +349,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   const { closeOnActiveTriggerUnmount = false } = options;
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
+  // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
+  // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
+  const reactiveActiveTriggerId = store.useState('activeTriggerId');
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -427,7 +430,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, closeOnActiveTriggerUnmount]);
+  }, [open, store, reactiveTriggerCount, reactiveActiveTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**

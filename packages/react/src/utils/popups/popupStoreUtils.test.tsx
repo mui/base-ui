@@ -389,6 +389,44 @@ describe('useTriggerRegistration', () => {
     expect(store.setOpen).not.toHaveBeenCalled();
   });
 
+  it('reassociates the active trigger when ownership moves to another rendered-id trigger while open', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+    second.id = 'dom-id-2';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'registered-1',
+      activeTriggerElement: first,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-1" store={store} element={first} />
+        <TestTrigger id="registered-2" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-1');
+
+    // A handoff to the second trigger updates the active id from its DOM id (as `setPopupOpenState`
+    // does), without changing `open` or `triggerCount`.
+    act(() => {
+      store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
+    });
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-2');
+    expect(store.state.activeTriggerElement).toBe(second);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
   it('preserves active trigger ownership without closing by default', async () => {
     const store = createStore();
     const first = document.createElement('button');
