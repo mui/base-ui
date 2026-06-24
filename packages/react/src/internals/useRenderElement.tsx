@@ -87,7 +87,8 @@ function useRenderElementProps<
   /* eslint-disable react-hooks/rules-of-hooks */
   if (typeof document !== 'undefined') {
     if (!enabled) {
-      useMergedRefs(null, null);
+      // Called only to keep the hook order stable when disabled; the merged ref is unused.
+      void useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
       outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
