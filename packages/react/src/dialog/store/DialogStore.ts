@@ -59,8 +59,8 @@ export class DialogStore<Payload> extends ReactStore<
     floatingId?: string | undefined,
     nested = false,
   ) {
-    const state = createInitialState<Payload>(initialState);
     const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(initialState);
 
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
@@ -77,10 +77,7 @@ export class DialogStore<Payload> extends ReactStore<
       },
       selectors,
     );
-    this.triggerElements = triggerElements;
   }
-
-  private triggerElements: PopupTriggerMap;
 
   public setOpen = (
     nextOpen: boolean,
@@ -115,7 +112,7 @@ export class DialogStore<Payload> extends ReactStore<
 
   public initialize(initialState?: Partial<State<Payload>>) {
     const state = createInitialState<Payload>(initialState);
-    state.floatingRootContext = createPopupFloatingRootContext(this.triggerElements);
+    state.floatingRootContext = createPopupFloatingRootContext(this.context.triggerElements);
 
     if (process.env.NODE_ENV !== 'production') {
       // A handle store can outlive a single Root instance, so the dev-only controlledness cache
