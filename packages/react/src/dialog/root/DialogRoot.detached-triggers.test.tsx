@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor, within } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -502,7 +502,9 @@ describe('<Dialog.Root />', () => {
         expect(screen.getByText('Dialog Content')).toBeVisible();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Unmount root' }),
+      );
       expect(screen.queryByText('Dialog Content')).toBe(null);
 
       await user.click(screen.getByRole('button', { name: 'Remount uncontrolled root' }));
