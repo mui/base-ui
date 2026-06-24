@@ -370,6 +370,9 @@ type ReturnValue = Dialog.Handle<Payload>;
 
 A handle to control a Dialog imperatively and to associate detached triggers with it.
 
+The imperative methods on the handle require the associated root component using the same handle to be mounted.
+Calls made before the root is attached to the handle are not queued for a later mount.
+
 **Constructor Parameters:**
 
 | Parameter | Type                   | Default | Description |
