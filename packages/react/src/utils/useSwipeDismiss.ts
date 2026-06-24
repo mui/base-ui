@@ -564,7 +564,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     pendingSwipeRef.current = true;
     pendingSwipeStartPosRef.current = startPos;
     swipeFromScrollableRef.current = false;
-    sawPrimaryButtonsOnMoveRef.current = false;
+    sawPrimaryButtonsOnMoveRef.current = !('touches' in event);
 
     const allowedToStart = canStart
       ? canStart(startPos, {

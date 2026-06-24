@@ -6,6 +6,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -102,7 +103,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const closedOffsetRef = React.useRef<number | null>(null);
   const appliedSwipeStylesRef = React.useRef(false);
   const popupTransitionRef = React.useRef<string | null>(null);
-  const releaseGuardCleanupRef = React.useRef<(() => void) | null>(null);
+  const releaseGuardCleanupRef = React.useRef<() => void>(NOOP);
 
   const swipeAreaId = useBaseUiId(componentProps.id);
   const registerTrigger = useTriggerRegistration(swipeAreaId, store);
@@ -119,17 +120,17 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const enabled = !disabled && (!open || swipeActive);
 
   function disableDismissForSwipe() {
-    releaseGuardCleanupRef.current?.();
+    releaseGuardCleanupRef.current();
     store.context.outsidePressEnabledRef.current = false;
   }
 
   function enableDismissAfterRelease() {
-    releaseGuardCleanupRef.current?.();
+    releaseGuardCleanupRef.current();
 
     const doc = ownerDocument(swipeAreaRef.current);
 
     function restore() {
-      releaseGuardCleanupRef.current = null;
+      releaseGuardCleanupRef.current = NOOP;
       doc.removeEventListener('pointerdown', restore, true);
       store.context.outsidePressEnabledRef.current = true;
     }
@@ -407,7 +408,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   React.useEffect(() => {
     return () => {
-      releaseGuardCleanupRef.current?.();
+      releaseGuardCleanupRef.current();
       store.context.outsidePressEnabledRef.current = true;
     };
   }, [store]);

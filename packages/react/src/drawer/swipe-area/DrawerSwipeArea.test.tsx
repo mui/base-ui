@@ -112,6 +112,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     pointerId: 1,
     clientX: stepX,
     clientY: stepY,
+    buttons: 1,
     pointerType: 'mouse',
     ...(useTimeStamp ? { timeStamp } : null),
   });
@@ -126,6 +127,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
+    buttons: 1,
     pointerType: 'mouse',
     ...(useTimeStamp ? { timeStamp } : null),
   });
@@ -572,6 +574,11 @@ describe('<Drawer.SwipeArea />', () => {
     await render(
       <Drawer.Root>
         <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
       </Drawer.Root>,
     );
 
@@ -598,17 +605,15 @@ describe('<Drawer.SwipeArea />', () => {
     });
     await flushMicrotasks();
 
-    fireEvent.pointerUp(swipeArea, {
-      pointerId: 1,
-      clientX: 10,
-      clientY: 40,
-      buttons: 0,
-      pointerType: 'mouse',
-      timeStamp: 32,
-    });
-    await flushMicrotasks();
-
+    // No trailing `pointerup` follows; the released move must finish the gesture by itself.
     expect(swipeArea).toHaveAttribute('data-open', '');
+    expect(swipeArea).not.toHaveAttribute('data-swiping');
+
+    pressOutside();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
   });
 
   it('opens on a quick flick that lands its whole travel in a single touch move', async () => {
