@@ -60,9 +60,7 @@ export class DialogStore<Payload> extends ReactStore<
     nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(initialState);
-
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+    const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);
 
     super(
       state,
@@ -111,8 +109,7 @@ export class DialogStore<Payload> extends ReactStore<
   };
 
   public initialize(initialState?: Partial<State<Payload>>) {
-    const state = createInitialState<Payload>(initialState);
-    state.floatingRootContext = createPopupFloatingRootContext(this.context.triggerElements);
+    const state = createInitialState<Payload>(initialState, this.context.triggerElements);
 
     if (process.env.NODE_ENV !== 'production') {
       // A handle store can outlive a single Root instance, so the dev-only controlledness cache
@@ -148,8 +145,13 @@ export class DialogStore<Payload> extends ReactStore<
   }
 }
 
-function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
-  return {
+function createInitialState<Payload>(
+  initialState: Partial<State<Payload>> = {},
+  triggerElements?: PopupTriggerMap | undefined,
+  floatingId?: string | undefined,
+  nested = false,
+): State<Payload> {
+  const state: State<Payload> = {
     ...createInitialPopupStoreState<Payload>(),
     modal: true,
     disablePointerDismissal: false,
@@ -164,4 +166,10 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     role: 'dialog',
     ...initialState,
   };
+
+  if (triggerElements !== undefined) {
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+  }
+
+  return state;
 }
