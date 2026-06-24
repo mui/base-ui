@@ -133,7 +133,11 @@ export class DialogStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
+    const store = usePopupStore<
+      Readonly<State<Payload>>,
+      Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+      DialogStore<Payload>
+    >(
       externalStore,
       (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
       true,
