@@ -6,7 +6,7 @@ import { REASONS } from '../../internals/reasons';
  * A handle to control a Dialog imperatively and to associate detached triggers with it.
  *
  * The imperative methods on the handle require the associated root component using the same handle to be mounted.
- * Calls made before the root is attached to the handle are not queued for a later mount.
+ * Calls made before the root is attached to the handle are ignored; the store is reset when the root first mounts.
  */
 export class DialogHandle<Payload> {
   /**
