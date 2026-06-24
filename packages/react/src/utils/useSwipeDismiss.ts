@@ -769,124 +769,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     });
   }
 
-  const handleMove = useStableCallback((event: SwipeDismissMoveEvent) => {
-    const currentPos = getPrimaryPointerPosition(event);
-    if (!currentPos) {
-      return;
-    }
-
-    if (!('touches' in event)) {
-      const hasPrimaryButton = hasPrimaryMouseButton(event.buttons);
-      if (hasPrimaryButton) {
-        sawPrimaryButtonsOnMoveRef.current = true;
-      }
-
-      // Cancel the swipe if a non-primary button takes over the interaction.
-      // This handles cases where a right-click interrupts dragging.
-      const lostPrimaryButtonDuringSwipe =
-        event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current;
-      if ((event.buttons !== 0 && !hasPrimaryButton) || lostPrimaryButtonDuringSwipe) {
-        cancelSwipeInteraction(event);
-        return;
-      }
-    }
-
-    if (!isSwiping && pendingSwipeRef.current) {
-      if (
-        !isTouchLikeEvent(event) &&
-        (event.defaultPrevented || event.nativeEvent.defaultPrevented)
-      ) {
-        resetPendingSwipeState();
-        return;
-      }
-
-      const allowedToStart = canStart
-        ? canStart(currentPos, {
-            nativeEvent: event.nativeEvent as SwipeDismissNativeEvent,
-            direction: primaryDirection,
-          })
-        : true;
-
-      if (allowedToStart) {
-        const pendingStartPos = pendingSwipeStartPosRef.current;
-        let ignoreScrollableOnStart = false;
-        if (isTouchLikeEvent(event)) {
-          const element = elementRef.current;
-          if (pendingStartPos && element) {
-            const target = getTargetAtPoint(currentPos, event.nativeEvent);
-            const doc = ownerDocument(element);
-            const body = doc.body;
-            const scrollTarget = body ? findGestureScrollableTouchTarget(target, body) : null;
-
-            if (
-              scrollTarget &&
-              (contains(element, scrollTarget) || contains(scrollTarget, element))
-            ) {
-              const deltaX = currentPos.x - pendingStartPos.x;
-              const deltaY = currentPos.y - pendingStartPos.y;
-              const canSwipeFromEdge = canSwipeFromScrollEdgeOnPendingMove(
-                scrollTarget,
-                deltaX,
-                deltaY,
-              );
-
-              if (canSwipeFromEdge === false) {
-                return;
-              }
-
-              if (canSwipeFromEdge === true) {
-                ignoreScrollableOnStart = true;
-              }
-            }
-          }
-        }
-
-        const started = startSwipeAtPosition(event, currentPos, {
-          ignoreScrollableTarget: ignoreScrollableOnStart,
-          ignoreScrollableAncestors: ignoreScrollableOnStart,
-        });
-        if (started) {
-          if (pendingStartPos && ignoreScrollableOnStart) {
-            // Preserve displacement between touchstart and the move that activates swipe from
-            // a scroll-edge so quick flicks can dismiss.
-            clearPendingSwipeStartState();
-            dragStartPosRef.current = pendingStartPos;
-            swipeCancelBaselineRef.current = pendingStartPos;
-            lastMovePosRef.current = pendingStartPos;
-            isFirstPointerMoveRef.current = false;
-          } else {
-            // Start from the current in-bounds position without dropping follow-up move
-            // displacement; this avoids jumps when entering from outside the element while
-            // keeping swipe tracking responsive on the next move.
-            clearPendingSwipeStartState();
-            swipeFromScrollableRef.current = false;
-          }
-        }
-      }
-    }
-
-    const previousPos = lastMovePosRef.current;
-    const movement =
-      previousPos === null
-        ? { x: 0, y: 0 }
-        : { x: currentPos.x - previousPos.x, y: currentPos.y - previousPos.y };
-
-    lastMovePosRef.current = currentPos;
-    handleMoveCore(event, currentPos, movement);
-  });
-
-  // Feeds a native touchmove into the swipe pipeline. Used by consumers that claim the gesture
-  // in a capture-phase listener and stop it from reaching React's delegated touch handlers.
-  const moveNative = useStableCallback((nativeEvent: TouchEvent, currentTarget: HTMLElement) => {
-    handleMove({
-      touches: nativeEvent.touches,
-      currentTarget,
-      nativeEvent,
-      defaultPrevented: nativeEvent.defaultPrevented,
-      timeStamp: nativeEvent.timeStamp,
-    });
-  });
-
   const handleEnd = useStableCallback((event: SwipeDismissEndEvent) => {
     if (!enabled) {
       return;
@@ -1025,6 +907,146 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       syncDragStyles(false);
       updateSwipeProgress(0, progressDetails);
     }
+  });
+
+  const handleMove = useStableCallback((event: SwipeDismissMoveEvent) => {
+    const currentPos = getPrimaryPointerPosition(event);
+    if (!currentPos) {
+      return;
+    }
+
+    let endAfterMove = false;
+
+    if (!('touches' in event)) {
+      const hasPrimaryButton = hasPrimaryMouseButton(event.buttons);
+      if (hasPrimaryButton) {
+        sawPrimaryButtonsOnMoveRef.current = true;
+      }
+
+      // Cancel the swipe if a non-primary button takes over the interaction.
+      // This handles cases where a right-click interrupts dragging.
+      if (event.buttons !== 0 && !hasPrimaryButton) {
+        cancelSwipeInteraction(event);
+        return;
+      }
+
+      // A `buttons: 0` pointermove means the primary button was already released, so the gesture is
+      // over even if no pointerup reached us. On fast trackpad flicks this trailing move is
+      // dispatched just before pointerup; treat it as the release (mirroring touchend) instead of
+      // cancelling and snapping the element back.
+      if (event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current) {
+        if (!isSwipingRef.current) {
+          // The gesture never activated — discard it.
+          handleEnd(event);
+          return;
+        }
+        // This release move can itself carry the threshold-crossing displacement (and the peak
+        // release velocity), so let it flow through `handleMoveCore` below to update the drag
+        // offset / velocity sample, then commit the release afterwards.
+        endAfterMove = true;
+      }
+    }
+
+    if (!isSwiping && pendingSwipeRef.current) {
+      if (
+        !isTouchLikeEvent(event) &&
+        (event.defaultPrevented || event.nativeEvent.defaultPrevented)
+      ) {
+        resetPendingSwipeState();
+        return;
+      }
+
+      const allowedToStart = canStart
+        ? canStart(currentPos, {
+            nativeEvent: event.nativeEvent as SwipeDismissNativeEvent,
+            direction: primaryDirection,
+          })
+        : true;
+
+      if (allowedToStart) {
+        const pendingStartPos = pendingSwipeStartPosRef.current;
+        let ignoreScrollableOnStart = false;
+        if (isTouchLikeEvent(event)) {
+          const element = elementRef.current;
+          if (pendingStartPos && element) {
+            const target = getTargetAtPoint(currentPos, event.nativeEvent);
+            const doc = ownerDocument(element);
+            const body = doc.body;
+            const scrollTarget = body ? findGestureScrollableTouchTarget(target, body) : null;
+
+            if (
+              scrollTarget &&
+              (contains(element, scrollTarget) || contains(scrollTarget, element))
+            ) {
+              const deltaX = currentPos.x - pendingStartPos.x;
+              const deltaY = currentPos.y - pendingStartPos.y;
+              const canSwipeFromEdge = canSwipeFromScrollEdgeOnPendingMove(
+                scrollTarget,
+                deltaX,
+                deltaY,
+              );
+
+              if (canSwipeFromEdge === false) {
+                return;
+              }
+
+              if (canSwipeFromEdge === true) {
+                ignoreScrollableOnStart = true;
+              }
+            }
+          }
+        }
+
+        const started = startSwipeAtPosition(event, currentPos, {
+          ignoreScrollableTarget: ignoreScrollableOnStart,
+          ignoreScrollableAncestors: ignoreScrollableOnStart,
+        });
+        if (started) {
+          if (pendingStartPos && ignoreScrollableOnStart) {
+            // Preserve displacement between touchstart and the move that activates swipe from
+            // a scroll-edge so quick flicks can dismiss.
+            clearPendingSwipeStartState();
+            dragStartPosRef.current = pendingStartPos;
+            swipeCancelBaselineRef.current = pendingStartPos;
+            lastMovePosRef.current = pendingStartPos;
+            isFirstPointerMoveRef.current = false;
+          } else {
+            // Start from the current in-bounds position without dropping follow-up move
+            // displacement; this avoids jumps when entering from outside the element while
+            // keeping swipe tracking responsive on the next move.
+            clearPendingSwipeStartState();
+            swipeFromScrollableRef.current = false;
+          }
+        }
+      }
+    }
+
+    const previousPos = lastMovePosRef.current;
+    const movement =
+      previousPos === null
+        ? { x: 0, y: 0 }
+        : { x: currentPos.x - previousPos.x, y: currentPos.y - previousPos.y };
+
+    lastMovePosRef.current = currentPos;
+    handleMoveCore(event, currentPos, movement);
+
+    // `endAfterMove` is only set in the non-touch branch above; the `'touches'` guard re-narrows the
+    // event type for `handleEnd` after the shared move handling has run.
+    if (endAfterMove && !('touches' in event)) {
+      handleEnd(event);
+    }
+  });
+
+  // Feeds a native touchmove into the swipe pipeline. Used by consumers that claim the gesture
+  // in a capture-phase listener and stop it from reaching React's delegated touch handlers.
+  const moveNative = useStableCallback((nativeEvent: TouchEvent, currentTarget: HTMLElement) => {
+    handleMove({
+      touches: nativeEvent.touches,
+      currentTarget,
+      nativeEvent,
+      defaultPrevented: nativeEvent.defaultPrevented,
+      timeStamp: nativeEvent.timeStamp,
+    });
   });
 
   const getDragStyles = React.useCallback((): React.CSSProperties => {

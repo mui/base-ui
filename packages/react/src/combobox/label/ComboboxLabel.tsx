@@ -70,10 +70,10 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
   });
 });
 
-export type ComboboxLabelState = FieldRoot.State;
+export interface ComboboxLabelState extends FieldRoot.State {}
 
 export interface ComboboxLabelProps extends Omit<
-  BaseUIComponentProps<'div', ComboboxLabel.State>,
+  BaseUIComponentProps<'div', ComboboxLabelState>,
   'id'
 > {}
 

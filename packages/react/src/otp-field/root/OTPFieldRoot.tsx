@@ -199,16 +199,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     validation.change(value);
 
-    const pendingCompleteValue = pendingCompleteValueRef.current;
-
-    if (pendingCompleteValue != null) {
-      pendingCompleteValueRef.current = null;
-
-      if (pendingCompleteValue.value === value) {
-        completeValue(value, pendingCompleteValue.eventDetails);
-      }
-    }
-
     const pendingFocus = pendingFocusRef.current;
 
     if (pendingFocus != null) {
@@ -216,6 +206,16 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
       if (pendingFocus.value === value) {
         focusInput(pendingFocus.index);
+      }
+    }
+
+    const pendingCompleteValue = pendingCompleteValueRef.current;
+
+    if (pendingCompleteValue != null) {
+      pendingCompleteValueRef.current = null;
+
+      if (pendingCompleteValue.value === value) {
+        completeValue(value, pendingCompleteValue.eventDetails);
       }
     }
   });

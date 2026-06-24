@@ -1335,6 +1335,105 @@ describe('<Slider.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM || isWebKit)(
+      'does not call onValueCommitted on outside taps after a touch interaction',
+      async () => {
+        const handleValueCommitted = vi.fn();
+
+        await render(<TestSlider defaultValue={0} onValueCommitted={handleValueCommitted} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        // Drag the slider with touch.
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
+        );
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
+        );
+        fireEvent.touchEnd(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
+
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+
+        // Tapping elsewhere on the page must not commit again.
+        fireEvent.touchStart(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 80, clientY: 50 }]),
+        );
+        fireEvent.touchEnd(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 80, clientY: 50 }]),
+        );
+
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+
+    it.skipIf(isJSDOM || isWebKit)(
+      'removes the document touchend listener after a touch interaction',
+      async () => {
+        await render(<TestSlider defaultValue={0} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const addedListeners: EventListenerOrEventListenerObject[] = [];
+        const removedListeners: EventListenerOrEventListenerObject[] = [];
+        const originalAdd = document.addEventListener.bind(document);
+        const originalRemove = document.removeEventListener.bind(document);
+        const addEventListenerSpy = vi
+          .spyOn(document, 'addEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              addedListeners.push(listener);
+            }
+            return originalAdd(type, listener, options);
+          });
+        const removeEventListenerSpy = vi
+          .spyOn(document, 'removeEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              removedListeners.push(listener);
+            }
+            return originalRemove(type, listener, options);
+          });
+
+        try {
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+          );
+
+          // Every `touchend` listener that was added must have been removed.
+          expect(addedListeners.length).toBeGreaterThan(0);
+          expect(addedListeners.every((listener) => removedListeners.includes(listener))).toBe(
+            true,
+          );
+        } finally {
+          addEventListenerSpy.mockRestore();
+          removeEventListenerSpy.mockRestore();
+        }
+      },
+    );
+
     it.skipIf(isJSDOM)('should hedge against a dropped mouseup event', async () => {
       const handleValueChange = vi.fn();
 

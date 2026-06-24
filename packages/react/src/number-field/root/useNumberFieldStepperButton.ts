@@ -72,7 +72,10 @@ export function useNumberFieldStepperButton(
   });
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled,
+    // Read-only steppers are exposed as unavailable through button disabled semantics, while
+    // `data-readonly` (from `state`) is preserved for styling. `aria-readonly` isn't valid on the
+    // `button` role, so it's intentionally not set.
+    disabled: disabled || readOnly,
     native: nativeButton,
     focusableWhenDisabled: true,
   });

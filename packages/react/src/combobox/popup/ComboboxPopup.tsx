@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -21,6 +22,7 @@ import { StateAttributesMapping } from '../../internals/getStateAttributesProps'
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
+import { getComboboxPopupId } from '../root/utils';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
   ...popupStateMapping,
@@ -51,8 +53,18 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
   const modal = useStore(store, selectors.modal);
+  const rootId = useStore(store, selectors.id);
 
   const empty = filteredItems.length === 0;
+  const popupId = elementProps.id ?? (inputInsidePopup ? getComboboxPopupId(rootId) : undefined);
+
+  useIsoLayoutEffect(() => {
+    // Prefer the rendered DOM id, which a `render` prop element or function may override.
+    store.set('popupId', store.state.popupRef.current?.id || popupId);
+    return () => {
+      store.set('popupId', undefined);
+    };
+  }, [store, popupId]);
 
   useOpenChangeComplete({
     open,
@@ -78,6 +90,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: [forwardedRef, store.state.popupRef],
     props: [
       {
+        id: popupId,
         role: inputInsidePopup ? 'dialog' : 'presentation',
         tabIndex: -1,
         onFocus(event) {

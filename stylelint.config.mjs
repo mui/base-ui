@@ -29,12 +29,21 @@ export default {
         'declaration-property-value-no-unknown': null,
         // Remove when ready
         'keyframes-name-pattern': null,
+        // `:has()` can be heavy on perf, be cautious
+        'selector-pseudo-class-disallowed-list': ['has'],
       },
     },
     {
       files: ['docs/src/app/[(]docs[)]/**/demos/**/*.css'],
       rules: {
         [noUnknownDemoColorsRuleName]: true,
+        'selector-pseudo-class-disallowed-list': null,
+      },
+    },
+    {
+      files: ['docs/src/app/[(]private[)]/**/*'],
+      rules: {
+        'selector-pseudo-class-disallowed-list': null,
       },
     },
     {

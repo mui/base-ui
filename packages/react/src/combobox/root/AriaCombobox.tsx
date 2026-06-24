@@ -29,6 +29,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
+  ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
@@ -60,6 +61,7 @@ import {
   removeItem,
   selectedValueIncludes,
 } from '../../internals/itemEquality';
+import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
@@ -277,17 +279,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           break;
         }
 
-        const candidateItems =
-          filterQuery === ''
-            ? group.items
-            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
-
-        if (candidateItems.length === 0) {
-          continue;
-        }
-
         const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
-        const itemsToTake = candidateItems.slice(0, remainingLimit);
+        const itemsToTake = filterQuery === '' ? group.items.slice(0, remainingLimit) : [];
+
+        if (filterQuery !== '') {
+          for (const item of group.items) {
+            if (itemsToTake.length >= remainingLimit) {
+              break;
+            }
+            if (filter(item, filterQuery, itemToStringLabel)) {
+              itemsToTake.push(item);
+            }
+          }
+        }
 
         if (itemsToTake.length > 0) {
           const newGroup = { ...group, items: itemsToTake };
@@ -393,6 +397,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         itemProps: EMPTY_OBJECT,
         positionerElement: null,
         listElement: null,
+        popupId: undefined,
         triggerElement: null,
         inputElement: null,
         inputGroupElement: null,
@@ -696,6 +701,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
         setSelectedValue(nextValue, eventDetails);
 
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
         if (!wasFiltering) {
           return;
@@ -708,6 +717,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
       } else {
         setSelectedValue(itemValue, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         setOpen(false, eventDetails);
       }
     },
@@ -922,6 +936,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
+  function isSelectedValueDirty(value: Value | Value[] | null) {
+    const initialValue = validityData.initialValue;
+
+    if (Array.isArray(value) && Array.isArray(initialValue)) {
+      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
+        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
+      );
+    }
+
+    return value !== initialValue;
+  }
+
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -935,7 +961,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(selectedValue !== validityData.initialValue);
+    setDirty(isSelectedValueDirty(selectedValue));
 
     validation.change(selectedValue);
 
@@ -1278,10 +1304,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
-            clearErrors(name);
-
             const nextValue = event.currentTarget.value;
+            const nextValueLower = nextValue.toLowerCase();
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+            const findSerializedMatchIndex = () =>
+              valuesRef.current.findIndex(
+                (candidate) =>
+                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
+                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+              );
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1290,40 +1322,44 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
 
               if (selectionMode === 'none') {
-                setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
-                validation.change(nextValue);
                 return;
               }
 
-              const matchingValue = valuesRef.current.find((v) => {
-                // Try matching by value first (e.g., "US" for country code)
-                const candidateValue = stringifyAsValue(v, itemToStringValue);
-                if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
-                  return true;
-                }
-                // Also try matching by label for browser autofill compatibility
-                // (browsers autofill with displayed text like "United States", not the underlying value)
-                const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
-                if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
-                  return true;
-                }
-                return false;
-              });
+              // Preserve the original serialized matching, then fall back to rendered text,
+              // which browsers can autofill for primitive values like `value="US">United States`.
+              let matchingIndex = findSerializedMatchIndex();
 
+              if (matchingIndex === -1) {
+                matchingIndex = valuesRef.current.findIndex((_, index) => {
+                  const renderedLabel = labelsRef.current[index];
+                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                });
+              }
+
+              const matchingValue =
+                matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
               if (matchingValue != null) {
-                setDirty(matchingValue !== validityData.initialValue);
+                // `setSelectedValue` may be canceled by `onValueChange`; rely on
+                // `useValueChanged` to mark the field dirty and run validation only
+                // when the value actually changes.
                 setSelectedValue?.(matchingValue, details);
-                validation.change(matchingValue);
               }
             }
 
-            if (items) {
-              handleChange();
-            } else {
+            // Only single-selection autofill matches against the registered values/labels.
+            // `multiple` ignores autofill and `none` just writes the input value, so avoid the
+            // sticky `forceMounted` mount (which never resets) for those modes.
+            if (single) {
               forceMount();
-              queueMicrotask(handleChange);
+              if (items && findSerializedMatchIndex() === -1) {
+                // `forceMount` only refreshes the derived labels for the `items` prop. When
+                // serialized matching misses, also mount the list so rendered labels (which can
+                // differ from the serialized values) are registered for autofill matching.
+                store.set('forceMounted', true);
+              }
             }
+            queueMicrotask(handleChange);
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
@@ -1347,11 +1383,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   return (
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          <ComboboxInputValueContext.Provider value={inputValue}>
-            {children}
-          </ComboboxInputValueContext.Provider>
-        </ComboboxDerivedItemsContext.Provider>
+        <ComboboxHasItemsContext.Provider value={hasItems}>
+          <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+            <ComboboxInputValueContext.Provider value={inputValue}>
+              {children}
+            </ComboboxInputValueContext.Provider>
+          </ComboboxDerivedItemsContext.Provider>
+        </ComboboxHasItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -1531,7 +1569,15 @@ interface ComboboxRootProps<ItemValue> {
    */
   virtualized?: boolean | undefined;
   /**
-   * Whether the list is rendered inline without using the popup.
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Combobox.Root inline open>`
+   *
+   * In a `Combobox.Root` > `Dialog.Root` composition, bind the Combobox's `open` and
+   * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+   * component resets its transient state (filter query, highlighted item, and input value) when
+   * the dialog closes.
    * @default false
    */
   inline?: boolean | undefined;
@@ -1539,6 +1585,8 @@ interface ComboboxRootProps<ItemValue> {
    * Determines if the popup enters a modal state when open.
    * - `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    * @default false
    */
   modal?: boolean | undefined;

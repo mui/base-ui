@@ -26,6 +26,7 @@ import { useClick, useTypeahead } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import { getComboboxPopupId } from '../root/utils';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -69,6 +70,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const storedPopupId = useStore(store, selectors.popupId);
   const triggerProps = useStore(store, selectors.triggerProps);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
@@ -92,6 +94,16 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
+
+  let ariaControls: string | undefined;
+
+  if (open && inputInsidePopup) {
+    // Fall back to the default id while the popup registers its own (custom ids are stored once the
+    // popup mounts), so `aria-controls` is set on the same commit `open` becomes `true`.
+    ariaControls = storedPopupId ?? getComboboxPopupId(rootId);
+  } else if (open) {
+    ariaControls = listElement?.id;
+  }
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -161,7 +173,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
-        'aria-controls': open ? listElement?.id : undefined,
+        'aria-controls': ariaControls,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': ariaLabelledBy,
         onPointerDown: trackPointerType,

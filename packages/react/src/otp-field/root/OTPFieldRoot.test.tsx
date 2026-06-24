@@ -1,13 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
+import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<OTPFieldPreview />', () => {
+describe('<OTPField.Root />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
@@ -1245,6 +1245,31 @@ describe('<OTPFieldPreview />', () => {
         } finally {
           consoleErrorSpy.mockRestore();
         }
+      });
+
+      it('keeps focus on the first invalid field when auto-submit is blocked', async () => {
+        await render(
+          <Form>
+            <Field.Root name="email" validate={() => 'Required'}>
+              <Field.Label>Email</Field.Label>
+              <Field.Control />
+              <Field.Error />
+            </Field.Root>
+            <Field.Root name="otp">
+              <OTPField autoSubmit />
+            </Field.Root>
+          </Form>,
+        );
+
+        const emailInput = screen.getByRole('textbox', { name: 'Email' });
+        const otpInputs = screen
+          .getAllByRole<HTMLInputElement>('textbox')
+          .filter((input) => input !== emailInput);
+
+        fireEvent.change(otpInputs[0], { target: { value: '123456' } });
+
+        expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+        expect(emailInput).toHaveFocus();
       });
 
       it('does not submit the owning form before the OTP becomes complete when enabled', async () => {
