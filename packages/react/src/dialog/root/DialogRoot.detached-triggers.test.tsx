@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor, within } from '@mui/internal-test-utils';
@@ -407,8 +407,12 @@ describe('<Dialog.Root />', () => {
 
         return (
           <div>
-            <Dialog.Trigger handle={testDialog}>Trigger 1</Dialog.Trigger>
-            <Dialog.Trigger handle={testDialog}>Trigger 2</Dialog.Trigger>
+            <Dialog.Trigger handle={testDialog} id="trigger-1">
+              Trigger 1
+            </Dialog.Trigger>
+            <Dialog.Trigger handle={testDialog} id="trigger-2">
+              Trigger 2
+            </Dialog.Trigger>
             {!mounted && (
               <button type="button" onClick={() => setMounted(true)}>
                 Remount root
@@ -432,8 +436,10 @@ describe('<Dialog.Root />', () => {
       }
 
       const { user } = await render(<App />);
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await user.click(trigger1);
       await waitFor(() => {
         expect(screen.getByText('Dialog Content')).toBeVisible();
       });
@@ -443,11 +449,75 @@ describe('<Dialog.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByText('Dialog Content')).toBe(null);
+      await waitFor(() => {
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
 
-      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await user.click(trigger1);
       await waitFor(() => {
         expect(screen.getByText('Dialog Content')).toBeVisible();
       });
+
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger1.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('resets stale payload when a handle-backed root remounts', async () => {
+      const testDialog = Dialog.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+
+            {mounted && (
+              <Dialog.Root handle={testDialog}>
+                {({ payload }: NumberPayload) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <Dialog.Portal>
+                      <Dialog.Popup>
+                        Dialog Content
+                        <button type="button" onClick={() => setMounted(false)}>
+                          Unmount root
+                        </button>
+                      </Dialog.Popup>
+                    </Dialog.Portal>
+                  </React.Fragment>
+                )}
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await act(() => testDialog.openWithPayload(8));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('8');
+
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Unmount root' }),
+      );
+      expect(screen.queryByTestId('payload')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
     });
 
     it('resets stale controlled open state when a handle-backed root remounts uncontrolled', async () => {
@@ -509,6 +579,73 @@ describe('<Dialog.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Remount uncontrolled root' }));
       expect(screen.queryByText('Dialog Content')).toBe(null);
+    });
+
+    it('does not warn when a handle-backed root remounts controlled after being uncontrolled', async () => {
+      const testDialog = Dialog.createHandle();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        function App() {
+          const [mode, setMode] = React.useState<'uncontrolled' | 'unmounted' | 'controlled'>(
+            'uncontrolled',
+          );
+
+          return (
+            <div>
+              <Dialog.Trigger handle={testDialog} id="trigger">
+                Trigger
+              </Dialog.Trigger>
+              <button type="button" onClick={() => setMode('unmounted')}>
+                Unmount root
+              </button>
+              {mode === 'unmounted' && (
+                <button type="button" onClick={() => setMode('controlled')}>
+                  Remount controlled root
+                </button>
+              )}
+
+              {mode === 'uncontrolled' && (
+                <Dialog.Root handle={testDialog}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Dialog Content</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+
+              {mode === 'controlled' && (
+                <Dialog.Root handle={testDialog} open triggerId="trigger">
+                  <Dialog.Portal>
+                    <Dialog.Popup>Dialog Content</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+
+        await user.click(screen.getByRole('button', { name: 'Remount controlled root' }));
+        await waitFor(() => {
+          expect(screen.getByText('Dialog Content')).toBeVisible();
+        });
+
+        expect(
+          consoleError.mock.calls.some(([message]) => {
+            return (
+              typeof message === 'string' &&
+              message.includes('controlled state of openProp') &&
+              message.includes('controlled')
+            );
+          }),
+        ).toBe(false);
+      } finally {
+        consoleError.mockRestore();
+      }
     });
 
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {

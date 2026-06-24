@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor, within } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { DialogStore } from '../../dialog/store/DialogStore';
@@ -643,6 +643,66 @@ describe('<AlertDialog.Root />', () => {
       await user.click(trigger3);
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).not.toBe(null);
+      });
+    });
+
+    it('resets the handle store when the root remounts after being unmounted while open', async () => {
+      const testDialog = AlertDialog.createHandle();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <AlertDialog.Trigger handle={testDialog} id="trigger">
+              Trigger
+            </AlertDialog.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+
+            {mounted && (
+              <AlertDialog.Root handle={testDialog}>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup>
+                    Alert dialog content
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+
+      let popup = await screen.findByRole('alertdialog');
+      expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+
+      await user.click(within(popup).getByRole('button', { name: 'Unmount root' }));
+      expect(screen.queryByRole('alertdialog')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByRole('alertdialog')).toBe(null);
+      expect(testDialog.store.select('role')).toBe('alertdialog');
+      expect(testDialog.store.select('disablePointerDismissal')).toBe(true);
+
+      await user.click(trigger);
+
+      popup = await screen.findByRole('alertdialog');
+      expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.toBe(null);
       });
     });
 
