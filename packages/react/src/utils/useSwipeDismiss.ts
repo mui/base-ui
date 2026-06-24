@@ -1050,12 +1050,16 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   });
 
   const getDragStyles = React.useCallback((): React.CSSProperties => {
+    // Read `isSwipingRef`, not the lagging `isSwiping` state, to match the imperative writer
+    // `syncDragStyles`. Otherwise a render that commits before `setSwiping(true)` flushes strips the
+    // transform it just wrote, flashing the popup to its resting position for a frame.
+    const swiping = isSwipingRef.current;
     const dragOffset = dragOffsetRef.current;
     const initialTransform = initialTransformRef.current;
     const deltaX = dragOffset.x - initialTransform.x;
     const deltaY = dragOffset.y - initialTransform.y;
 
-    if (!isSwiping && deltaX === 0 && deltaY === 0 && !dragDismissed) {
+    if (!swiping && deltaX === 0 && deltaY === 0 && !dragDismissed) {
       return {
         [movementCssVars.x]: '0px',
         [movementCssVars.y]: '0px',
@@ -1063,14 +1067,14 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     return {
-      transition: isSwiping ? 'none' : undefined,
+      transition: swiping ? 'none' : undefined,
       // While swiping, freeze the element at its current visual transform so it doesn't snap to the
       // end position.
-      transform: isSwiping ? getDragTransform(dragOffset, initialTransform.scale) : undefined,
+      transform: swiping ? getDragTransform(dragOffset, initialTransform.scale) : undefined,
       [movementCssVars.x]: `${deltaX}px`,
       [movementCssVars.y]: `${deltaY}px`,
     } as React.CSSProperties;
-  }, [dragDismissed, isSwiping, movementCssVars]);
+  }, [dragDismissed, movementCssVars]);
 
   const getPointerProps = React.useCallback(() => {
     if (!enabled) {

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -90,7 +91,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   } = componentProps;
 
   const { store } = useDialogRootContext();
-  const { swipeDirection, frontmostHeight } = useDrawerRootContext();
+  const { swipeDirection, frontmostHeight, swipeAreaActiveRef } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
 
   const [swipeActive, setSwipeActive] = React.useState(false);
@@ -239,6 +240,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       frontmostHeight: openProgress > 0 ? frontmostHeight : 0,
     });
     appliedSwipeStylesRef.current = true;
+    swipeAreaActiveRef.current = true;
   }
 
   const clearSwipeStyles = useStableCallback(() => {
@@ -263,6 +265,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
     providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
     appliedSwipeStylesRef.current = false;
+    swipeAreaActiveRef.current = false;
   });
 
   function openDrawer(event?: PointerEvent | TouchEvent) {
@@ -378,6 +381,15 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
+
+  // The commit that opens the drawer re-renders the popup, resetting `--swipe-movement-*` to `0px`
+  // (the viewport isn't swiping). Re-assert after the DOM mutation but before paint. No deps: must
+  // run on every commit the swipe area participates in.
+  useIsoLayoutEffect(() => {
+    if (swipeActive && appliedSwipeStylesRef.current) {
+      applySwipeMovement();
+    }
+  });
 
   React.useEffect(() => {
     if (!enabled) {

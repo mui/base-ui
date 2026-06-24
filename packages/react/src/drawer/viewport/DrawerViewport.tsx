@@ -80,6 +80,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     notifyParentSwipeProgressChange,
     frontmostHeight,
     snapToSequentialPoints,
+    swipeAreaActiveRef,
   } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
   const {
@@ -973,11 +974,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [notifyParentSwipeProgressChange, open]);
 
   React.useEffect(() => {
-    if (open) {
+    // Skip while `Drawer.SwipeArea` is driving the open: `resetSwipe` zeroes the popup's
+    // `--swipe-movement-*` (via `syncDragStyles(false)`), flashing it fully open for a frame.
+    if (open && !swipeAreaActiveRef.current) {
       resetSwipe();
       clearSwipeRelease();
     }
-  }, [clearSwipeRelease, open, resetSwipe]);
+  }, [clearSwipeRelease, open, resetSwipe, swipeAreaActiveRef]);
 
   React.useEffect(() => {
     const backdropElement = backdropRef.current;
