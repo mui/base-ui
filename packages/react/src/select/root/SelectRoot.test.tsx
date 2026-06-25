@@ -2858,6 +2858,43 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('does not force-mount the popup on a programmatic value change when items are provided', async () => {
+    function App() {
+      const [value, setValue] = React.useState<string | null>(null);
+      return (
+        <div>
+          <button type="button" onClick={() => setValue('b')}>
+            set
+          </button>
+          <Select.Root items={{ a: 'Apple', b: 'Banana' }} value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">Apple</Select.Item>
+                  <Select.Item value="b">Banana</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'set' }));
+
+    // The label resolves directly from `items`, so the popup must stay unmounted instead of
+    // being force-mounted (which would leave it in the DOM permanently).
+    expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+    expect(screen.getByTestId('value')).toHaveTextContent('Banana');
+  });
+
   describe('Form', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {

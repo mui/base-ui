@@ -209,11 +209,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
   useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
+    // Ensure the selected label can be resolved for programmatic value changes. When `items` is
+    // provided, `Select.Value` resolves the label directly from `items` without the list mounted,
+    // and closed-trigger typeahead/autofill force-mount through their own paths. Mounting here would
+    // otherwise be sticky and keep the popup in the DOM forever once a controlled value settles
+    // after mount (e.g. an async/preference-resolved value applied in an effect after hydration).
+    if (value !== initialValueRef.current && items == null) {
       store.set('forceMount', true);
     }
-  }, [store, value]);
+  }, [store, value, items]);
 
   useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
