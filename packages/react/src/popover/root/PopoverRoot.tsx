@@ -59,6 +59,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
+    store.context.inlineRectCoordsRef.current = undefined;
   });
 
   store.useSyncedValues({
