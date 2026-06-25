@@ -68,11 +68,12 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
   protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
     const { inlineRectCoordsRef } = this.context;
 
-    // Capture the hovered inline-rect coordinates so the card anchors to the
-    // exact point on the link that was hovered.
     const event = eventDetails.event;
-    if (
-      nextOpen &&
+    if (!nextOpen) {
+      // Clear immediately so reopening before the close transition finishes
+      // captures coordinates for the newly hovered line.
+      inlineRectCoordsRef.current = undefined;
+    } else if (
       eventDetails.reason === REASONS.triggerHover &&
       eventDetails.trigger &&
       'clientX' in event &&
