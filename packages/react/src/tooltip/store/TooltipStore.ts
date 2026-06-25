@@ -2,6 +2,7 @@ import type * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { type InlineRectCoords, updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -33,6 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -79,7 +81,35 @@ export class TooltipStore<Payload> extends BasePopupStore<
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    /*
+     Capture the hovered inline-rect coordinates so the tooltip anchors to the
+     exact line of a multiline trigger that was hovered.
+    */
+    const { inlineRectCoordsRef } = this.context;
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      event != null &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
     return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
+
+  protected prepareUnmount() {
+    this.context.inlineRectCoordsRef.current = undefined;
+    return {};
   }
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
@@ -133,5 +163,6 @@ function createInitialState<Payload>(
 function createInitialContext(): Context {
   return {
     ...createPopupStoreContext(),
+    inlineRectCoordsRef: { current: undefined },
   };
 }
