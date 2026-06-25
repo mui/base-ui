@@ -2,12 +2,12 @@
 
 @layer base {
   /* Scope body styles to only apply when docs layout is present */
-  body:has(.RootLayout) {
+  body {
     position: relative; /* iOS 26 `position: absolute` backdrops */
     min-width: 320px;
     line-height: 1.5;
     /* It's also the iOS footer overscroll background */
-    background-color: var(--color-background);
+    background-color: var(--color-content);
     color: var(--color-foreground);
   }
 }
@@ -22,27 +22,6 @@
 
     @media (--show-side-nav) {
       --root-layout-padding-x: 3rem;
-
-      &::before,
-      &::after {
-        content: '';
-        position: absolute;
-        background-color: var(--color-gridline);
-        height: 1px;
-        right: 0;
-        left: 0;
-      }
-
-      &::before {
-        top: var(--header-height);
-        margin-top: -1px;
-      }
-
-      &::after {
-        bottom: var(--header-height);
-        margin-bottom: -1px;
-        z-index: 1;
-      }
     }
   }
 
@@ -57,26 +36,6 @@
     @media (--show-side-nav) {
       padding-block: var(--header-height);
       padding-bottom: 0;
-
-      &::before,
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 1px;
-        background-color: var(--color-gridline);
-      }
-
-      &::before {
-        left: 0;
-        margin-left: -1px;
-      }
-
-      &::after {
-        right: 0;
-        margin-right: -1px;
-      }
     }
   }
 
@@ -85,19 +44,6 @@
     flex-grow: 1;
     flex-direction: column;
     background-color: var(--color-content);
-  }
-
-  .RootLayoutFooter {
-    @media (--lg) {
-      background-color: var(--color-background);
-      width: 100%;
-      height: var(--header-height);
-      position: absolute;
-      z-index: 1;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
   }
 
   .ContentLayoutRoot {
@@ -133,6 +79,7 @@
 
     @media (--show-side-nav) {
       margin: 0;
+      grid-column: 2;
     }
 
     @media (--show-quick-nav) {

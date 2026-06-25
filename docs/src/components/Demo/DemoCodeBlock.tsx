@@ -8,6 +8,7 @@ interface DemoCodeBlockProps {
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
+  collapsibleTriggerRef: React.Ref<HTMLSpanElement>;
   copyButton: React.ReactNode;
 }
 
@@ -37,6 +38,7 @@ export function DemoCodeBlock({
   selectedFileLines,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
+  collapsibleTriggerRef,
   copyButton,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
@@ -71,12 +73,6 @@ export function DemoCodeBlock({
           <div className="DemoSourceBrowser">{selectedFile}</div>
         </Collapsible.Panel>
 
-        {!collapsibleOpen && (
-          <Collapsible.Trigger className="DemoCollapseButton">
-            <span className="DemoCollapseButtonVisual">Show code</span>
-          </Collapsible.Trigger>
-        )}
-
         {collapsibleOpen && (
           <React.Fragment>
             <ScrollArea.Corner />
@@ -85,6 +81,15 @@ export function DemoCodeBlock({
           </React.Fragment>
         )}
         {copyButton}
+
+        <Collapsible.Trigger
+          className="DemoCollapseButton"
+          data-sticky={collapsibleOpen ? '' : undefined}
+        >
+          <span ref={collapsibleTriggerRef} className="DemoCollapseButtonVisual">
+            {collapsibleOpen ? 'Hide code' : 'Show code'}
+          </span>
+        </Collapsible.Trigger>
       </Root>
     </div>
   );

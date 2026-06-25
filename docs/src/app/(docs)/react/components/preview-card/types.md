@@ -142,7 +142,7 @@ type PreviewCardPortalState = {};
 
 ### Backdrop
 
-An overlay displayed beneath the popup.
+A presentational overlay displayed beneath the popup.
 Renders a `<div>` element.
 
 **Backdrop Props:**
@@ -246,13 +246,15 @@ Renders a `<div>` element.
 
 **Positioner CSS Variables:**
 
-| Variable             | Type     | Description                                                                            |
-| :------------------- | :------- | :------------------------------------------------------------------------------------- |
-| `--anchor-height`    | `number` | The anchor's height.                                                                   |
-| `--anchor-width`     | `number` | The anchor's width.                                                                    |
-| `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
-| `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
-| `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+| Variable              | Type     | Description                                                                                                                            |
+| :-------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `--anchor-height`     | `number` | The anchor's height.                                                                                                                   |
+| `--anchor-width`      | `number` | The anchor's width.                                                                                                                    |
+| `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                                 |
+| `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                                  |
+| `--positioner-height` | `number` | The height of the preview card's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the preview card's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                                 |
 
 ### Positioner.Props
 

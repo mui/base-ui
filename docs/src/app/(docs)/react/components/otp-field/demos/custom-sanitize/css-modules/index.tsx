@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import { useInvalidFeedback } from '../useInvalidFeedback';
 import styles from './index.module.css';
 
@@ -56,7 +56,7 @@ export default function OTPFieldCustomNormalizeDemo() {
           <OTPField.Input
             key={index}
             className={`${styles.Input} ${activeInvalidIndex === index ? invalidClassName : ''}`.trim()}
-            aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            aria-label={index === 0 ? undefined : `Character ${index + 1} of ${CODE_LENGTH}`}
             onFocus={() => {
               setFocusedIndex(index);
             }}

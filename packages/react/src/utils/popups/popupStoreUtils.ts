@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -164,6 +165,77 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
   return () => preventUnmountOnClose;
 }
 
+/**
+ * Runs the shared open-change sequence for a popup store: notifies `onOpenChange`,
+ * honors cancellation, dispatches the floating root change, maps the reason to an
+ * `instantType`, and commits the state update (synchronously for hover so
+ * `getAnimations()` observes it). Stores supply their own differences via
+ * `extraState` (e.g. the last change reason) and `onBeforeDispatch` (e.g. updating
+ * inline-rect coordinates).
+ */
+export function applyPopupOpenChange<
+  State extends PopupStoreState<unknown> & {
+    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
+  },
+  EventDetails extends BaseUIChangeEventDetails<string>,
+>(
+  store: {
+    readonly context: Pick<PopupStoreContext<EventDetails>, 'onOpenChange'>;
+    readonly state: Pick<PopupStoreState<unknown>, 'floatingRootContext'>;
+    update(state: Partial<State>): void;
+  },
+  nextOpen: boolean,
+  eventDetails: EventDetails & { preventUnmountOnClose(): void },
+  options: {
+    onBeforeDispatch?: (() => void) | undefined;
+    extraState?: Partial<State> | undefined;
+  } = {},
+): void {
+  const reason = eventDetails.reason;
+  const isHover = reason === REASONS.triggerHover;
+  const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
+  const isDismissClose =
+    !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
+
+  const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(eventDetails);
+
+  store.context.onOpenChange?.(nextOpen, eventDetails);
+
+  if (eventDetails.isCanceled) {
+    return;
+  }
+
+  options.onBeforeDispatch?.();
+
+  store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+
+  const changeState = () => {
+    // Spread `extraState` first so `open` always reflects `nextOpen`, keeping it in
+    // sync with the value already passed to `dispatchOpenChange`/`setPopupOpenState`.
+    const updatedState: Partial<PopupStoreState<unknown>> & {
+      instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
+    } = { ...options.extraState, open: nextOpen };
+
+    if (isFocusOpen) {
+      updatedState.instantType = 'focus';
+    } else if (isDismissClose) {
+      updatedState.instantType = 'dismiss';
+    } else if (isHover) {
+      updatedState.instantType = undefined;
+    }
+
+    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger, shouldPreventUnmountOnClose());
+    store.update(updatedState as Partial<State>);
+  };
+
+  if (isHover) {
+    // Flush synchronously for hover so `node.getAnimations()` sees the new state.
+    ReactDOM.flushSync(changeState);
+  } else {
+    changeState();
+  }
+}
+
 export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
   store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
   openProp: boolean | undefined,
@@ -253,9 +325,12 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  *
  * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
  * trigger is claimed as the active trigger. When the active trigger id is still registered but its
- * element changed, the active element is refreshed. When the active trigger unregisters, the
- * default path preserves existing ownership so non-closing popup families do not silently claim a
- * different trigger while staying open.
+ * element changed, the active element is refreshed. When the active trigger id is missing from the
+ * registry but the same element is still registered under a different id (e.g. the rendered trigger
+ * carries its own DOM `id` that differs from Base UI's internal trigger id), the active id is
+ * reassociated to the registered id instead of being treated as lost. When the active trigger
+ * unregisters, the default path preserves existing ownership so non-closing popup families do not
+ * silently claim a different trigger while staying open.
  *
  * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
  * after a microtask so a same-tick replacement trigger with the same id can register first.
@@ -274,6 +349,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   const { closeOnActiveTriggerUnmount = false } = options;
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
+  // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
+  // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
+  const activeTriggerId = store.useState('activeTriggerId');
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -290,19 +368,29 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.triggerCount = triggerCount;
     }
 
-    const activeTriggerId = store.select('activeTriggerId');
+    const currentActiveTriggerId = store.select('activeTriggerId');
     let lostActiveTriggerId: string | null = null;
 
-    if (activeTriggerId) {
-      const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
+    if (currentActiveTriggerId) {
+      const activeTriggerElement = store.context.triggerElements.getById(currentActiveTriggerId);
       if (!activeTriggerElement) {
-        lostActiveTriggerId = activeTriggerId;
+        for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
+          if (triggerElement === store.state.activeTriggerElement) {
+            stateUpdates.activeTriggerId = triggerId;
+            stateUpdates.activeTriggerElement = triggerElement;
+            break;
+          }
+        }
+
+        if (stateUpdates.activeTriggerId === undefined) {
+          lostActiveTriggerId = currentActiveTriggerId;
+        }
       } else if (activeTriggerElement !== store.state.activeTriggerElement) {
         stateUpdates.activeTriggerElement = activeTriggerElement;
       }
     }
 
-    if (!lostActiveTriggerId && !activeTriggerId && triggerCount === 1) {
+    if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -342,7 +430,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, closeOnActiveTriggerUnmount]);
+  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**

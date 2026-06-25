@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
+  applyPopupOpenChange,
   createInitialPopupStoreState,
   PopupStoreContext,
   PopupStoreState,
@@ -16,6 +18,8 @@ import {
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 type TestStore = ReactStore<
@@ -347,15 +351,78 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushMicrotasks();
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
     expect(store.state.triggerCount).toBe(2);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('keeps the popup open when the active trigger element is registered with another id', async () => {
+    const store = createStore();
+    const element = document.createElement('button');
+    element.id = 'dom-id';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'dom-id',
+      activeTriggerElement: element,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-id" store={store} element={element} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.activeTriggerId).toBe('registered-id');
+    expect(store.state.activeTriggerElement).toBe(element);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('reassociates the active trigger when ownership moves to another rendered-id trigger while open', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+    second.id = 'dom-id-2';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'registered-1',
+      activeTriggerElement: first,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-1" store={store} element={first} />
+        <TestTrigger id="registered-2" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-1');
+
+    // A handoff to the second trigger updates the active id from its DOM id (as `setPopupOpenState`
+    // does), without changing `open` or `triggerCount`.
+    act(() => {
+      store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
+    });
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-2');
+    expect(store.state.activeTriggerElement).toBe(second);
     expect(store.state.open).toBe(true);
     expect(store.setOpen).not.toHaveBeenCalled();
   });
@@ -487,5 +554,141 @@ describe('usePopupInteractionProps', () => {
     expect(store.state.inactiveTriggerProps).toEqual({});
     expect(store.state.popupProps).not.toBe(popupProps);
     expect(store.state.popupProps).toEqual({});
+  });
+});
+
+describe('applyPopupOpenChange', () => {
+  type OpenChangeState = PopupStoreState<unknown> & {
+    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
+    openChangeReason?: string;
+  };
+  type OpenChangeDetails = BaseUIChangeEventDetails<string> & { preventUnmountOnClose(): void };
+
+  function createOpenChangeStore() {
+    const order: string[] = [];
+    const { floatingRootContext } = createInitialPopupStoreState();
+
+    const dispatchOpenChange = vi
+      .spyOn(floatingRootContext, 'dispatchOpenChange')
+      .mockImplementation(() => {
+        order.push('dispatchOpenChange');
+      });
+    const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
+      order.push('onOpenChange');
+    });
+    const update = vi.fn((_state: Partial<OpenChangeState>) => {
+      order.push('update');
+    });
+
+    const store = {
+      context: { onOpenChange },
+      state: { floatingRootContext },
+      update,
+    };
+
+    return { store, order, onOpenChange, dispatchOpenChange, update };
+  }
+
+  function createDetails(reason: string) {
+    return createChangeEventDetails(reason) as OpenChangeDetails;
+  }
+
+  it('runs the full sequence in order when the change is not canceled', () => {
+    const { store, order, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
+    const details = createDetails(REASONS.triggerFocus);
+    const onBeforeDispatch = vi.fn(() => {
+      order.push('onBeforeDispatch');
+    });
+
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(store, true, details, {
+      onBeforeDispatch,
+    });
+
+    expect(onOpenChange).toHaveBeenCalledWith(true, details);
+    expect(dispatchOpenChange).toHaveBeenCalledWith(true, details);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(order).toEqual(['onOpenChange', 'onBeforeDispatch', 'dispatchOpenChange', 'update']);
+  });
+
+  it('notifies onOpenChange but short-circuits before dispatch when canceled', () => {
+    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
+    onOpenChange.mockImplementation((_open, details) => {
+      details.cancel();
+    });
+    const onBeforeDispatch = vi.fn();
+
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      store,
+      true,
+      createDetails(REASONS.triggerPress),
+      { onBeforeDispatch },
+    );
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1);
+    expect(onBeforeDispatch).not.toHaveBeenCalled();
+    expect(dispatchOpenChange).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('merges extraState into the update with `open` always reflecting nextOpen', () => {
+    const { store, update } = createOpenChangeStore();
+
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      store,
+      true,
+      createDetails(REASONS.triggerFocus),
+      {
+        // `open: false` here must be overridden by `nextOpen` (true).
+        extraState: { open: false, openChangeReason: REASONS.triggerFocus },
+      },
+    );
+
+    const updatedState = update.mock.calls[0][0];
+    expect(updatedState.open).toBe(true);
+    expect(updatedState.openChangeReason).toBe(REASONS.triggerFocus);
+  });
+
+  it('maps the change reason to instantType', () => {
+    const focusStore = createOpenChangeStore();
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      focusStore.store,
+      true,
+      createDetails(REASONS.triggerFocus),
+    );
+    expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
+
+    const pressStore = createOpenChangeStore();
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      pressStore.store,
+      false,
+      createDetails(REASONS.triggerPress),
+    );
+    expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
+
+    const escapeStore = createOpenChangeStore();
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      escapeStore.store,
+      false,
+      createDetails(REASONS.escapeKey),
+    );
+    expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
+
+    const hoverStore = createOpenChangeStore();
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      hoverStore.store,
+      true,
+      createDetails(REASONS.triggerHover),
+    );
+    const hoverState = hoverStore.update.mock.calls[0][0];
+    expect('instantType' in hoverState).toBe(true);
+    expect(hoverState.instantType).toBeUndefined();
+
+    const noneStore = createOpenChangeStore();
+    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
+      noneStore.store,
+      true,
+      createDetails(REASONS.none),
+    );
+    expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
   });
 });

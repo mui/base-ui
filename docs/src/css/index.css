@@ -244,6 +244,12 @@
     --header-height: 3rem;
   }
 
+  @media (--show-side-nav) {
+    :root {
+      --header-height: 4rem;
+    }
+  }
+
   /* ═══ Dark mode overrides ═══ */
 
   @media (prefers-color-scheme: dark) {
