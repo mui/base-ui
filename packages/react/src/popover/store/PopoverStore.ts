@@ -11,12 +11,14 @@ import { NullStore } from '../../utils/NullStore';
 import {
   attachPreventUnmountOnClose,
   createInitialPopupStoreState,
+  type InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
   type PopupTriggerStoreKeys,
   createPopupOpenState,
+  updateInlineRectCoords,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -41,6 +43,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -125,6 +128,29 @@ export class PopoverStore<Payload> extends ReactStore<
 
     if (eventDetails.isCanceled) {
       return;
+    }
+
+    /*
+     Capture the hovered inline-rect coordinates so the popover anchors to the
+     exact line of a multiline trigger that was hovered.
+    */
+    const { inlineRectCoordsRef } = this.context;
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      isHover &&
+      eventDetails.trigger &&
+      event != null &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
     }
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
@@ -225,5 +251,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     triggerElements,
+    inlineRectCoordsRef: { current: undefined }
   };
 }
