@@ -27,7 +27,7 @@ export default function ContextMenuWithMenuDemo() {
           <Menu.Portal>
             <Menu.Positioner align="end" sideOffset={8} className={styles.Positioner}>
               <Menu.Popup className={styles.Popup}>
-                <SharedMenuItems Item={Menu.Item} Separator={Menu.Separator} />
+                <SharedMenuItems />
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -37,7 +37,7 @@ export default function ContextMenuWithMenuDemo() {
       <ContextMenu.Portal>
         <ContextMenu.Positioner className={styles.Positioner}>
           <ContextMenu.Popup className={styles.Popup}>
-            <SharedMenuItems Item={ContextMenu.Item} Separator={ContextMenu.Separator} />
+            <SharedMenuItems type="context-menu" />
           </ContextMenu.Popup>
         </ContextMenu.Positioner>
       </ContextMenu.Portal>
@@ -47,11 +47,9 @@ export default function ContextMenuWithMenuDemo() {
 
 const actions = ['Preview', 'Download', 'Copy link', 'Rename'];
 
-function SharedMenuItems(props: {
-  Item: typeof Menu.Item | typeof ContextMenu.Item;
-  Separator: typeof Menu.Separator | typeof ContextMenu.Separator;
-}) {
-  const { Item, Separator } = props;
+function SharedMenuItems({ type = 'menu' }: { type?: 'menu' | 'context-menu' }) {
+  const Item = type === 'context-menu' ? ContextMenu.Item : Menu.Item;
+  const Separator = type === 'context-menu' ? ContextMenu.Separator : Menu.Separator;
   return (
     <React.Fragment>
       {actions.map((action) => (
