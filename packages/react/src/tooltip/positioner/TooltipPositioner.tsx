@@ -9,6 +9,7 @@ import type {
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 
 /**
@@ -32,7 +33,14 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    positioning: { side: componentProps.side ?? 'top' },
+    positioning: {
+      side: componentProps.side ?? 'top',
+      // Cursor tracking uses a virtual point instead of the trigger's line boxes.
+      inline:
+        trackCursorAxis === 'none'
+          ? createInlineMiddleware(store.context.inlineRectCoordsRef)
+          : undefined,
+    },
     state: { instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType },
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
