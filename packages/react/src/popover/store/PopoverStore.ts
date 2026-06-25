@@ -134,14 +134,13 @@ export class PopoverStore<Payload> extends BasePopupStore<
       });
     }
 
-    /*
-     Capture the hovered inline-rect coordinates so the popover anchors to the
-     exact line of a multiline trigger that was hovered.
-    */
     const { inlineRectCoordsRef } = this.context;
     const event = eventDetails.event;
-    if (
-      nextOpen &&
+    if (!nextOpen) {
+      // Clear immediately so reopening before the close transition finishes
+      // captures coordinates for the newly hovered line.
+      inlineRectCoordsRef.current = undefined;
+    } else if (
       eventDetails.reason === REASONS.triggerHover &&
       eventDetails.trigger &&
       event != null &&
