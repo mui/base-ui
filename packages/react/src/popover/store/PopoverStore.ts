@@ -17,6 +17,7 @@ import {
   createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
+import { type InlineRectCoords, updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
@@ -40,6 +41,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
   // Only read when a trigger is pressed, so it isn't reactive state.
   stickIfOpen: boolean;
 };
@@ -120,6 +122,29 @@ export class PopoverStore<Payload> extends BasePopupStore<
       });
     }
 
+    /*
+     Capture the hovered inline-rect coordinates so the popover anchors to the
+     exact line of a multiline trigger that was hovered.
+    */
+    const { inlineRectCoordsRef } = this.context;
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      event != null &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
     let instantType: State<Payload>['instantType'];
     if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
       instantType = 'click';
@@ -134,6 +159,7 @@ export class PopoverStore<Payload> extends BasePopupStore<
 
   protected prepareUnmount() {
     this.context.stickIfOpen = true;
+    this.context.inlineRectCoordsRef.current = undefined;
     return { openChangeReason: null };
   }
 }
@@ -189,5 +215,6 @@ function createInitialContext(): Context {
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
+    inlineRectCoordsRef: { current: undefined },
   };
 }
