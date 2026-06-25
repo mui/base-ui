@@ -79,11 +79,15 @@ export class PreviewCardStore<Payload> extends ReactStore<
       eventDetails as PreviewCardRoot.ChangeEventDetails,
       {
         onBeforeDispatch() {
-          // Capture the hovered inline-rect coordinates so the card anchors to the
-          // exact point on the link that was hovered.
           const event = eventDetails.event;
-          if (
-            nextOpen &&
+          if (!nextOpen) {
+            // Clear immediately on close so that reopening on a different line before the
+            // close transition finishes re-captures fresh coordinates instead of reusing
+            // the previously hovered line.
+            inlineRectCoordsRef.current = undefined;
+          } else if (
+            // Capture the hovered inline-rect coordinates so the card anchors to the
+            // exact point on the link that was hovered.
             eventDetails.reason === REASONS.triggerHover &&
             eventDetails.trigger &&
             'clientX' in event &&

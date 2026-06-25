@@ -16,7 +16,11 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { usePopupHandleStore, getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  usePopupHandleStore,
+  getInlineRectTriggerProps,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
