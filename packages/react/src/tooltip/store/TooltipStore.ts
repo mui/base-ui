@@ -85,12 +85,16 @@ export class TooltipStore<Payload> extends ReactStore<
       {
         extraState: { openChangeReason: eventDetails.reason },
         onBeforeDispatch: () => {
-          // Capture the hovered inline-rect coordinates so the tooltip anchors to the
-          // exact line of a multiline trigger that was hovered.
           const { inlineRectCoordsRef } = this.context;
           const event = eventDetails.event;
-          if (
-            nextOpen &&
+          if (!nextOpen) {
+            // Clear immediately on close so that reopening on a different line before the
+            // close transition finishes re-captures fresh coordinates instead of reusing
+            // the previously hovered line.
+            inlineRectCoordsRef.current = undefined;
+          } else if (
+            // Capture the hovered inline-rect coordinates so the tooltip anchors to the
+            // exact line of a multiline trigger that was hovered.
             eventDetails.reason === REASONS.triggerHover &&
             eventDetails.trigger &&
             event != null &&
