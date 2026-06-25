@@ -7,10 +7,12 @@ import {
   applyPopupOpenChange,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -28,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -65,6 +68,7 @@ export class TooltipStore<Payload> extends ReactStore<
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
         triggerElements,
+        inlineRectCoordsRef: { current: undefined },
       },
       selectors,
     );
@@ -78,7 +82,31 @@ export class TooltipStore<Payload> extends ReactStore<
       this,
       nextOpen,
       eventDetails as TooltipRoot.ChangeEventDetails,
-      { extraState: { openChangeReason: eventDetails.reason } },
+      {
+        extraState: { openChangeReason: eventDetails.reason },
+        onBeforeDispatch: () => {
+          // Capture the hovered inline-rect coordinates so the tooltip anchors to the
+          // exact line of a multiline trigger that was hovered.
+          const { inlineRectCoordsRef } = this.context;
+          const event = eventDetails.event;
+          if (
+            nextOpen &&
+            eventDetails.reason === REASONS.triggerHover &&
+            eventDetails.trigger &&
+            event != null &&
+            'clientX' in event &&
+            'clientY' in event &&
+            inlineRectCoordsRef.current?.element !== eventDetails.trigger
+          ) {
+            updateInlineRectCoords(
+              inlineRectCoordsRef,
+              eventDetails.trigger,
+              event.clientX,
+              event.clientY,
+            );
+          }
+        },
+      },
     );
   };
 
