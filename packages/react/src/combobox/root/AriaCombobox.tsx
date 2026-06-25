@@ -40,6 +40,7 @@ import { useRegisterFieldControl } from '../../internals/field-register-control/
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
+import { COMBOBOX_CREATE_ITEM, isComboboxCreateItem } from './utils/createItem';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -120,6 +121,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     formAutoComplete,
     locale,
     submitOnItemClick = false,
+    creatable = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -346,6 +348,38 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
+  // Grouped lists are not supported in this spike, so creatable is disabled for them.
+  const shouldShowCreate = React.useMemo(() => {
+    if (!creatable || isGrouped) {
+      return false;
+    }
+
+    if (typeof creatable === 'function') {
+      return creatable(query, flatFilteredItems);
+    }
+
+    const trimmedQuery = query.trim();
+    if (trimmedQuery === '') {
+      return false;
+    }
+
+    // Hide when the query exactly matches an existing item, using the same label resolution as the
+    // internal filter.
+    const hasExactMatch = flatFilteredItems.some((item) => {
+      const label = stringifyAsLabel(item, itemToStringLabel);
+      return label.length === trimmedQuery.length && collatorFilter.contains(label, trimmedQuery);
+    });
+
+    return !hasExactMatch;
+  }, [creatable, isGrouped, query, flatFilteredItems, itemToStringLabel, collatorFilter]);
+
+  const flatFilteredItemsWithCreate: Value[] = React.useMemo(() => {
+    if (!shouldShowCreate) {
+      return flatFilteredItems;
+    }
+    return [...flatFilteredItems, COMBOBOX_CREATE_ITEM];
+  }, [flatFilteredItems, shouldShowCreate]);
+
   const store = useRefWithInit(
     () =>
       new Store<StoreState>({
@@ -415,6 +449,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setIndices: NOOP,
         onItemHighlighted: NOOP,
         handleSelection: NOOP,
+        handleCreate: NOOP,
         forceMount: NOOP,
         requestSubmit: NOOP,
       }),
@@ -463,9 +498,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const forceMount = useStableCallback(() => {
     if (items) {
-      // Ensure typeahead works on a closed list.
-      labelsRef.current = flatFilteredItems.map((item) =>
-        stringifyAsLabel(item, itemToStringLabel),
+      // Ensure typeahead works on a closed list. The create entry has no label to match against.
+      labelsRef.current = flatFilteredItemsWithCreate.map((item) =>
+        isComboboxCreateItem(item) ? '' : stringifyAsLabel(item, itemToStringLabel),
       );
     } else {
       store.set('forceMounted', true);
@@ -560,7 +595,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (
         eventDetails.reason === 'escape-key' &&
         hasItems &&
-        flatFilteredItems.length === 0 &&
+        flatFilteredItemsWithCreate.length === 0 &&
         !store.state.emptyRef.current
       ) {
         eventDetails.allowPropagation();
@@ -674,6 +709,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         itemValue = valuesRef.current[activeIndex];
       }
 
+      // The create entry owns its own selection path (`handleCreate`); never commit it as a value.
+      if (isComboboxCreateItem(itemValue)) {
+        return;
+      }
+
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
@@ -736,6 +776,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
+  });
+
+  // Selection path for the create entry: close the popup without committing a value. A dedicated
+  // path with its own event details avoids the single-select gotcha where the value-commit and the
+  // close share one event details object, so canceling the commit would also cancel the close.
+  const handleCreate = useStableCallback((event: MouseEvent | PointerEvent | KeyboardEvent) => {
+    const overrideEvent = selectionEventRef.current ?? event;
+    selectionEventRef.current = null;
+    setOpen(false, createChangeEventDetails(REASONS.createItemPress, overrideEvent));
   });
 
   const handleUnmount = useStableCallback(() => {
@@ -837,10 +886,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = flatFilteredItems;
-      listRef.current.length = flatFilteredItems.length;
+      valuesRef.current = flatFilteredItemsWithCreate;
+      listRef.current.length = flatFilteredItemsWithCreate.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [items, flatFilteredItemsWithCreate]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -860,7 +909,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredItems ? flatFilteredItems : valuesRef.current;
+    const candidateItems = shouldUseFlatFilteredItems
+      ? flatFilteredItemsWithCreate
+      : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -912,7 +963,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlightMode,
     hasFilteredItemsProp,
     hasItems,
-    flatFilteredItems,
+    flatFilteredItemsWithCreate,
     inline,
     open,
     store,
@@ -931,10 +982,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
   React.useEffect(() => {
-    if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
+    if (hasItems && autoHighlightMode && flatFilteredItemsWithCreate.length === 0) {
       setIndices({ activeIndex: null });
     }
-  }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
+  }, [hasItems, autoHighlightMode, flatFilteredItemsWithCreate.length, setIndices]);
 
   function isSelectedValueDirty(value: Value | Value[] | null) {
     const initialValue = validityData.initialValue;
@@ -1166,6 +1217,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       setIndices,
       onItemHighlighted,
       handleSelection,
+      handleCreate,
       forceMount,
       requestSubmit,
     });
@@ -1246,10 +1298,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () => ({
       query,
       hasItems,
+      // `filteredItems` excludes the create entry so consumers mapping the list don't render it as a
+      // regular item; it lives in `valuesRef`/`listRef` for navigation, and `ComboboxCollection`
+      // appends the create render itself.
       filteredItems,
       flatFilteredItems,
+      shouldShowCreate,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems, shouldShowCreate],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1549,6 +1605,19 @@ interface ComboboxRootProps<ItemValue> {
       ) => boolean)
     | undefined;
   /**
+   * Whether to append a synthetic "create" entry to the filtered list, letting users add a new
+   * option from the current query. Render the entry with `Combobox.CreateItem` (the `List` render
+   * function receives `meta.create === true` for it).
+   * - `true`: show the entry whenever the query is non-empty and does not exactly match an existing
+   *   item (compared using the same label resolution the component uses internally).
+   * - `(query, items) => boolean`: override the default visibility/dedup. Return `true` to show the
+   *   create entry. `items` is the currently filtered list.
+   *
+   * Not supported with grouped items.
+   * @default false
+   */
+  creatable?: boolean | ((query: string, items: readonly ItemValue[]) => boolean) | undefined;
+  /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
@@ -1678,6 +1747,7 @@ export namespace AriaCombobox {
     | typeof REASONS.triggerPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
+    | typeof REASONS.createItemPress
     | typeof REASONS.closePress
     | typeof REASONS.escapeKey
     | typeof REASONS.listNavigation

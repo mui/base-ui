@@ -6,6 +6,7 @@ export const triggerFocus = 'trigger-focus' as const;
 
 export const outsidePress = 'outside-press' as const;
 export const itemPress = 'item-press' as const;
+export const createItemPress = 'create-item-press' as const;
 export const closePress = 'close-press' as const;
 export const linkPress = 'link-press' as const;
 export const clearPress = 'clear-press' as const;

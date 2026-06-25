@@ -26,11 +26,11 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 ) {
   const { render, className, style, children: childrenProp, ...elementProps } = componentProps;
 
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, shouldShowCreate } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();
   const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
 
-  const children = filteredItems.length === 0 ? childrenProp : null;
+  const children = filteredItems.length === 0 && !shouldShowCreate ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.state.emptyRef, emptyRef],

@@ -35,6 +35,10 @@ export type {
   ComboboxRowState as AutocompleteRowState,
 } from '../combobox/row/ComboboxRow';
 export type {
+  ComboboxCreateItemProps as AutocompleteCreateItemProps,
+  ComboboxCreateItemState as AutocompleteCreateItemState,
+} from '../combobox/create-item/ComboboxCreateItem';
+export type {
   ComboboxArrowProps as AutocompleteArrowProps,
   ComboboxArrowState as AutocompleteArrowState,
 } from '../combobox/arrow/ComboboxArrow';

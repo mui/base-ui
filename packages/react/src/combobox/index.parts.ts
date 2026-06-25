@@ -15,6 +15,7 @@ export { ComboboxIcon as Icon } from './icon/ComboboxIcon';
 export { ComboboxGroup as Group } from './group/ComboboxGroup';
 export { ComboboxGroupLabel as GroupLabel } from './group-label/ComboboxGroupLabel';
 export { ComboboxItem as Item } from './item/ComboboxItem';
+export { ComboboxCreateItem as CreateItem } from './create-item/ComboboxCreateItem';
 export { ComboboxItemIndicator as ItemIndicator } from './item-indicator/ComboboxItemIndicator';
 export { ComboboxChips as Chips } from './chips/ComboboxChips';
 export { ComboboxChip as Chip } from './chip/ComboboxChip';
