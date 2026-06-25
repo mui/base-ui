@@ -30,6 +30,9 @@ import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
+const AVAILABLE_WIDTH_VAR = '--available-width';
+const AVAILABLE_HEIGHT_VAR = '--available-height';
+
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
   const logicalRight = isRtl ? 'inline-start' : 'inline-end';
@@ -337,8 +340,8 @@ export function useAnchorPositioning(
         }
 
         const floatingStyle = floating.style;
-        floatingStyle.setProperty('--available-width', `${availableWidth}px`);
-        floatingStyle.setProperty('--available-height', `${availableHeight}px`);
+        floatingStyle.setProperty(AVAILABLE_WIDTH_VAR, `${availableWidth}px`);
+        floatingStyle.setProperty(AVAILABLE_HEIGHT_VAR, `${availableHeight}px`);
 
         // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
         const dpr = ownerWindow(floating).devicePixelRatio || 1;
@@ -456,9 +459,20 @@ export function useAnchorPositioning(
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
-    const base = adaptiveOrigin
+    const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
       ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
       : { position: resolvedPosition, ...originalFloatingStyles };
+    // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
+    // resolve to a valid length on the first positioning pass, before `size()` writes the real
+    // values. Without a fallback the unresolved `var()` invalidates the whole declaration, so the
+    // popup is measured unconstrained while `flip()` picks its side, against the full content
+    // height rather than the capped one. Seeded unconditionally (not only while `!isPositioned`):
+    // the keys must stay present with a constant value so React's per-property style diff never
+    // rewrites them after mount, preserving the px values `size()` sets imperatively. Moving them
+    // into the `!isPositioned` branch makes React remove them once positioned, wiping `size()`'s
+    // values and leaving the popup unconstrained.
+    base[AVAILABLE_WIDTH_VAR] = '100vw';
+    base[AVAILABLE_HEIGHT_VAR] = '100vh';
     if (!isPositioned) {
       base.opacity = 0;
     }
