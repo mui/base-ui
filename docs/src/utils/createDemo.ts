@@ -15,6 +15,8 @@ import { Demo as DemoContent } from '../components/Demo/Demo';
  */
 export const createDemo = createDemoFactory({
   DemoContent,
+  controlled: true,
+  initialDisabled: process.env.DEPLOY_ENV !== 'development',
 });
 
 /**
@@ -26,4 +28,6 @@ export const createDemo = createDemoFactory({
  */
 export const createDemoWithVariants = createDemoWithVariantsFactory({
   DemoContent,
+  controlled: true,
+  initialDisabled: process.env.DEPLOY_ENV !== 'development',
 });

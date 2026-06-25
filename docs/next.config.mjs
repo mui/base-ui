@@ -106,13 +106,19 @@ const nextConfig = {
         loaders: [
           {
             loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-            options: { emphasisOptions: { focusFramesMaxSize: 6 } },
+            options: {
+              emphasisOptions: { focusFramesMaxSize: 6 },
+              requireClient: './src/utils/createDemoClient',
+            },
           },
         ],
       },
       './src/demo-data/*/index.ts': {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
+      },
+      './src/app/**/demos/*/client.ts': {
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighterClient'],
       },
     },
   },
@@ -138,7 +144,10 @@ const nextConfig = {
         defaultLoaders.babel,
         {
           loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-          options: { emphasisOptions: { focusFramesMaxSize: 6 } },
+          options: {
+            emphasisOptions: { focusFramesMaxSize: 6 },
+            requireClient: '@mui/internal-core-docs/utils/createDemoClient',
+          },
         },
       ],
     });
@@ -147,6 +156,13 @@ const nextConfig = {
       use: [
         defaultLoaders.babel,
         '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+      ],
+    });
+    config.module.rules.push({
+      test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]client\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighterClient',
       ],
     });
 
