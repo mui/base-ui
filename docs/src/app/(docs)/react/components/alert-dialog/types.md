@@ -369,19 +369,13 @@ type ReturnValue = AlertDialog.Handle<Payload>;
 A handle to control an Alert Dialog imperatively and to associate detached triggers with it.
 
 The imperative methods on the handle require an AlertDialog.Root using the same handle to be mounted.
-Calls made before the root is attached to the handle are ignored; the store is reset when the root first mounts.
-
-**Constructor Parameters:**
-
-| Parameter | Type                   | Default | Description                              |
-| :-------- | :--------------------- | :------ | :--------------------------------------- |
-| store?    | `DialogStore<Payload>` | -       | Internal store holding the dialog state. |
+Calls made before the root is attached to the handle are ignored; the root owns fresh state when it mounts.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+| Property | Type      | Modifiers | Description                                                                                    |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -389,8 +383,7 @@ Calls made before the root is attached to the handle are ignored; the store is r
 function open(triggerId: string | null): void;
 ```
 
-Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
+Opens the dialog, optionally associating it with a trigger.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -398,14 +391,17 @@ This method should only be called in an event handler or an effect (not during r
 function openWithPayload(payload: Payload): void;
 ```
 
-Opens the dialog and sets the payload.
-Does not associate the dialog with any trigger.
+Opens the dialog with the given payload, without associating it with any trigger.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the dialog.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

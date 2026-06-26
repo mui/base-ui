@@ -799,6 +799,70 @@ describe('<Drawer.Root />', () => {
     expect(screen.getByTestId('payload').textContent).toBe('2');
   });
 
+  it('attaches fresh root state when a handle-backed root remounts', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    function App() {
+      const [mounted, setMounted] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <Drawer.Trigger handle={handle} id="trigger" payload={1}>
+            Trigger
+          </Drawer.Trigger>
+          {!mounted && (
+            <button type="button" onClick={() => setMounted(true)}>
+              Remount root
+            </button>
+          )}
+          {mounted && (
+            <Drawer.Root handle={handle}>
+              {({ payload }: { payload: number | undefined }) => (
+                <React.Fragment>
+                  <span data-testid="payload">{payload ?? 'No payload'}</span>
+                  <Drawer.Portal>
+                    <Drawer.Viewport>
+                      <Drawer.Popup>
+                        Drawer content
+                        <button type="button" onClick={() => setMounted(false)}>
+                          Unmount root
+                        </button>
+                      </Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                </React.Fragment>
+              )}
+            </Drawer.Root>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+    await user.click(screen.getByRole('button', { name: 'Trigger' }));
+    await waitFor(() => {
+      expect(screen.getByText('Drawer content')).toBeVisible();
+    });
+    expect(screen.getByTestId('payload').textContent).toBe('1');
+
+    await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+    expect(handle.isOpen).toBe(false);
+    expect(screen.queryByText('Drawer content')).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'Remount root' }));
+    expect(screen.getByTestId('payload').textContent).toBe('No payload');
+    expect(screen.queryByText('Drawer content')).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'Trigger' }));
+    await waitFor(() => {
+      expect(screen.getByText('Drawer content')).toBeVisible();
+    });
+    expect(screen.getByTestId('payload').textContent).toBe('1');
+  });
+
   it('synchronizes trigger aria-controls with the popup id', async () => {
     const { user } = await render(
       <Drawer.Root>

@@ -42,6 +42,21 @@ describe('PopupTriggerMap', () => {
     expect(map.size).toBe(0);
   });
 
+  it('clears all registered elements', () => {
+    const map = new PopupTriggerMap();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    map.add('first', first);
+    map.add('second', second);
+    map.clear();
+
+    expect(map.size).toBe(0);
+    expect(map.getById('first')).toBeUndefined();
+    expect(map.hasElement(first)).toBe(false);
+    expect(map.hasElement(second)).toBe(false);
+  });
+
   it('does not duplicate when the same element is added twice with the same id', () => {
     const map = new PopupTriggerMap();
     const button = document.createElement('button');

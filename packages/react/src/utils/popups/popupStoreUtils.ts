@@ -48,6 +48,11 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
+type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
+  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
+  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
+>;
+
 export function usePopupStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
@@ -56,7 +61,6 @@ export function usePopupStore<
   externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
-  initializeExternalStore?: ((store: Store) => void) | undefined,
 ) {
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -67,14 +71,6 @@ export function usePopupStore<
   }
 
   const store = externalStore ?? internalStoreRef.current!;
-  const notifyAfterInitializeRef = React.useRef(false);
-
-  useOnFirstRender(() => {
-    if (externalStore !== undefined && initializeExternalStore !== undefined) {
-      initializeExternalStore(store);
-      notifyAfterInitializeRef.current = true;
-    }
-  });
 
   useSyncedFloatingRootContext({
     popupStore: store,
@@ -84,13 +80,6 @@ export function usePopupStore<
     nested,
     onOpenChange: store.setOpen,
   });
-
-  useIsoLayoutEffect(() => {
-    if (notifyAfterInitializeRef.current) {
-      notifyAfterInitializeRef.current = false;
-      store.notifyAll();
-    }
-  }, [store]);
 
   return { store, internalStore: internalStoreRef.current };
 }
@@ -102,7 +91,7 @@ export function usePopupStore<
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
+  store: PopupTriggerDataStore<State>,
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
   const registeredElementIdRef = React.useRef<string | null>(null);
@@ -282,7 +271,7 @@ export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
 export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: PopupTriggerDataStore<State>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);

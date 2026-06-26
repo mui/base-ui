@@ -4,7 +4,6 @@ import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor, within } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { DialogStore } from '../../dialog/store/DialogStore';
 import { REASONS } from '../../internals/reasons';
 
 describe('<AlertDialog.Root />', () => {
@@ -646,7 +645,7 @@ describe('<AlertDialog.Root />', () => {
       });
     });
 
-    it('resets the handle store when the root remounts after being unmounted while open', async () => {
+    it('attaches fresh root state when the root remounts after being unmounted while open', async () => {
       const testDialog = AlertDialog.createHandle();
 
       function App() {
@@ -692,8 +691,6 @@ describe('<AlertDialog.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByRole('alertdialog')).toBe(null);
-      expect(testDialog.store.select('role')).toBe('alertdialog');
-      expect(testDialog.store.select('disablePointerDismissal')).toBe(true);
 
       await user.click(trigger);
 
@@ -866,13 +863,28 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe('imperative actions on the handle', () => {
-    it('enforces alert dialog state when constructed with a plain store', () => {
-      const store = new DialogStore();
-      const handle = new AlertDialog.Handle(store);
+    it('enforces alert dialog state for handle-backed roots', async () => {
+      const handle = AlertDialog.createHandle();
 
-      expect(handle.store.select('modal')).toBe(true);
-      expect(handle.store.select('disablePointerDismissal')).toBe(true);
-      expect(handle.store.select('role')).toBe('alertdialog');
+      const { user } = await render(
+        <React.Fragment>
+          <AlertDialog.Trigger handle={handle}>Open</AlertDialog.Trigger>
+          <AlertDialog.Root handle={handle}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>Content</AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      expect(await screen.findByRole('alertdialog')).not.toBe(null);
+
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      });
     });
 
     it('keeps the alert dialog open when the backdrop is clicked', async () => {

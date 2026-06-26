@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore, useStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
@@ -10,7 +11,6 @@ import {
   PopupStoreState,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -48,6 +48,11 @@ const selectors = {
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   role: createSelector((state: State<unknown>) => state.role),
 };
+
+export type DialogHandleStore<Payload> = Pick<
+  DialogStore<Payload>,
+  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
+>;
 
 export class DialogStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
@@ -107,47 +112,69 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.update(updatedState);
   };
+}
 
-  public initialize(initialState?: Partial<State<Payload>>) {
-    const state = createInitialState<Payload>(initialState, this.context.triggerElements);
+/**
+ * Immutable closed store used by detached handle-backed triggers while no root is attached.
+ * @internal
+ */
+export class NullDialogStore<Payload> implements DialogHandleStore<Payload> {
+  readonly state: Readonly<State<Payload>>;
 
-    if (process.env.NODE_ENV !== 'production') {
-      // A handle store can outlive a single Root instance, so the dev-only controlledness cache
-      // must not carry over when the next Root attaches to the same store.
-      delete (this as { controlledValues?: Map<keyof State<Payload>, boolean> | undefined })
-        .controlledValues;
-    }
+  readonly context: Context;
 
-    // Avoid notifying detached trigger subscribers while Dialog.Root is rendering.
-    this.state = state;
+  constructor(triggerElements: PopupTriggerMap) {
+    this.state = Object.freeze(createInitialState<Payload>(undefined, triggerElements));
+    this.context = Object.freeze({
+      popupRef: React.createRef<HTMLElement>(),
+      backdropRef: React.createRef<HTMLDivElement>(),
+      internalBackdropRef: React.createRef<HTMLDivElement>(),
+      outsidePressEnabledRef: { current: true },
+      triggerElements,
+      onOpenChange: undefined,
+      onOpenChangeComplete: undefined,
+    });
   }
 
-  static useStore<Payload>(
-    externalStore: DialogStore<Payload> | undefined,
-    initialState?: Partial<State<Payload>>,
-  ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore<
-      Readonly<State<Payload>>,
-      Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-      DialogStore<Payload>
-    >(
-      externalStore,
-      (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
-      true,
-      (storeInstance) => {
-        storeInstance.initialize(initialState);
-      },
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
+  subscribe = () => NOOP;
 
-    return store;
-  }
+  getSnapshot = () => this.state;
+
+  select: DialogStore<Payload>['select'] = ((key: keyof typeof selectors, a1, a2, a3) => {
+    return (
+      selectors[key] as (
+        state: Readonly<State<Payload>>,
+        a1?: unknown,
+        a2?: unknown,
+        a3?: unknown,
+      ) => unknown
+    )(this.state, a1, a2, a3);
+  }) as DialogStore<Payload>['select'];
+
+  update() {}
+
+  set() {}
+
+  useState: DialogStore<Payload>['useState'] = ((key: keyof typeof selectors, a1, a2, a3) => {
+    React.useDebugValue(key);
+    return useStore(
+      this,
+      selectors[key] as (
+        state: Readonly<State<Payload>>,
+        a1?: unknown,
+        a2?: unknown,
+        a3?: unknown,
+      ) => unknown,
+      a1,
+      a2,
+      a3,
+    );
+  }) as DialogStore<Payload>['useState'];
 }
 
 function createInitialState<Payload>(
-  initialState: Partial<State<Payload>> = {},
-  triggerElements?: PopupTriggerMap | undefined,
+  initialState: Partial<State<Payload>> | undefined,
+  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
   nested = false,
 ): State<Payload> {
@@ -167,9 +194,7 @@ function createInitialState<Payload>(
     ...initialState,
   };
 
-  if (triggerElements !== undefined) {
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
-  }
+  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

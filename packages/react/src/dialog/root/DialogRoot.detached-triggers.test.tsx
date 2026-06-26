@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor, within } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -10,6 +10,300 @@ describe('<Dialog.Root />', () => {
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  describe('handle-backed root ownership', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('ignores imperative handle calls made before a root is attached', async () => {
+      const handle = Dialog.createHandle<number>();
+
+      handle.open('trigger');
+      handle.openWithPayload(8);
+      handle.close();
+
+      expect(handle.isOpen).toBe(false);
+
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Trigger handle={handle} id="trigger" payload={1}>
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Root handle={handle}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <span data-testid="payload">{payload ?? 'No payload'}</span>
+                <Dialog.Portal>
+                  <Dialog.Popup>Dialog Content</Dialog.Popup>
+                </Dialog.Portal>
+              </React.Fragment>
+            )}
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
+    it('does not attach a replacement root store from an abandoned transition render', async () => {
+      const handle = Dialog.createHandle<number>();
+      const replacementRender = vi.fn();
+      const never = new Promise(() => {});
+
+      function SuspendingReplacement(): React.JSX.Element {
+        replacementRender();
+        throw never;
+      }
+
+      function App() {
+        const [showReplacement, setShowReplacement] = React.useState(false);
+        const [, startTransition] = React.useTransition();
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle} id="trigger" payload={5}>
+              Trigger
+            </Dialog.Trigger>
+            <button
+              type="button"
+              onClick={() => {
+                startTransition(() => {
+                  setShowReplacement(true);
+                });
+              }}
+            >
+              Start replacement
+            </button>
+            <button type="button" onClick={() => setShowReplacement(false)}>
+              Cancel replacement
+            </button>
+
+            <Dialog.Root handle={handle} modal={false} disablePointerDismissal>
+              {({ payload }: NumberPayload) => (
+                <Dialog.Portal>
+                  <Dialog.Popup>
+                    Current dialog
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+
+            <React.Suspense fallback={<div>Loading</div>}>
+              {showReplacement && (
+                <Dialog.Root handle={handle} modal={false} disablePointerDismissal>
+                  <SuspendingReplacement />
+                  <Dialog.Portal>
+                    <Dialog.Popup>Replacement dialog</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByText('Current dialog')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('5');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(handle.isOpen).toBe(true);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Start replacement' }));
+      expect(replacementRender).toHaveBeenCalled();
+
+      expect(screen.queryByText('Replacement dialog')).toBe(null);
+      expect(screen.getByText('Current dialog')).toBeVisible();
+      expect(screen.getByTestId('payload').textContent).toBe('5');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(handle.isOpen).toBe(true);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel replacement' }));
+
+      expect(screen.queryByText('Replacement dialog')).toBe(null);
+      expect(screen.getByText('Current dialog')).toBeVisible();
+      expect(screen.getByTestId('payload').textContent).toBe('5');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(handle.isOpen).toBe(true);
+    });
+
+    it('attaches a fresh root store when the handle prop changes to a previously dirtied handle', async () => {
+      const handleA = Dialog.createHandle<number>();
+      const handleB = Dialog.createHandle<number>();
+
+      function App() {
+        const [phase, setPhase] = React.useState<'dirty' | 'main'>('dirty');
+        const [handle, setHandle] = React.useState(handleA);
+
+        if (phase === 'dirty') {
+          return (
+            <Dialog.Root handle={handleB}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  <span data-testid="dirty-payload">{payload ?? 'No payload'}</span>
+                  <Dialog.Portal>
+                    <Dialog.Popup>
+                      Dirty dialog
+                      <button type="button" onClick={() => setPhase('main')}>
+                        Unmount dirty root
+                      </button>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                </React.Fragment>
+              )}
+            </Dialog.Root>
+          );
+        }
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle} id="trigger" payload={1}>
+              Trigger
+            </Dialog.Trigger>
+            <button type="button" onClick={() => setHandle(handleB)}>
+              Switch to handle B
+            </button>
+            <Dialog.Root handle={handle}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  <span data-testid="payload">{payload ?? 'No payload'}</span>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Dialog Content</Dialog.Popup>
+                  </Dialog.Portal>
+                </React.Fragment>
+              )}
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await act(() => handleB.openWithPayload(8));
+      await waitFor(() => {
+        expect(screen.getByText('Dirty dialog')).toBeVisible();
+      });
+      expect(screen.getByTestId('dirty-payload').textContent).toBe('8');
+
+      await user.click(screen.getByRole('button', { name: 'Unmount dirty root' }));
+      expect(handleB.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await user.click(screen.getByRole('button', { name: 'Switch to handle B' }));
+      expect(handleB.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('keeps a handle-backed dialog open and controllable across handle swaps on a live root', async () => {
+      const handleA = Dialog.createHandle();
+      const handleB = Dialog.createHandle();
+
+      function App() {
+        const [handle, setHandle] = React.useState(handleA);
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <button type="button" onClick={() => setHandle(handleA)}>
+              Use handle A
+            </button>
+            <button type="button" onClick={() => setHandle(handleB)}>
+              Use handle B
+            </button>
+            <Dialog.Root handle={handle} modal={false} disablePointerDismissal>
+              <Dialog.Portal>
+                <Dialog.Popup>Dialog Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      // The store is owned by the Root, so swapping the handle re-attaches it without resetting state.
+      await user.click(screen.getByRole('button', { name: 'Use handle B' }));
+      expect(screen.getByText('Dialog Content')).toBeVisible();
+      expect(handleB.isOpen).toBe(true);
+      expect(handleA.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(
+          screen.getByRole('dialog').getAttribute('id'),
+        );
+      });
+
+      // Swapping back to a previously-attached handle keeps working (no stale registrations).
+      await user.click(screen.getByRole('button', { name: 'Use handle A' }));
+      expect(screen.getByText('Dialog Content')).toBeVisible();
+      expect(handleA.isOpen).toBe(true);
+      expect(handleB.isOpen).toBe(false);
+
+      // The currently-attached handle controls the live dialog.
+      await act(() => handleA.close());
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+      });
+    });
+
+    it('registers a detached trigger declared after the root', async () => {
+      const handle = Dialog.createHandle();
+
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Root handle={handle}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Trigger handle={handle} id="trigger">
+            Trigger
+          </Dialog.Trigger>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+    });
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
@@ -399,7 +693,7 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('resets the handle store when the root remounts after being unmounted while open', async () => {
+    it('attaches fresh root state when the root remounts after being unmounted while open', async () => {
       const testDialog = Dialog.createHandle();
 
       function App() {
@@ -520,7 +814,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('No payload');
     });
 
-    it('notifies persistent detached triggers after resetting the handle store on remount', async () => {
+    it('notifies persistent detached triggers after attaching fresh root state on remount', async () => {
       const testDialog = Dialog.createHandle();
 
       const HeaderTrigger = React.memo(function HeaderTrigger() {
