@@ -128,6 +128,45 @@ describe('<Switch.Root />', () => {
           });
         },
       );
+
+      it.skipIf(isJSDOM)(
+        `does not emit extra blur and focus events when restoring :focus-visible with ${key}`,
+        async () => {
+          const focusSpy = vi.fn((event) => event.target);
+          const blurSpy = vi.fn((event) => event.target);
+          const { userEvent: nativeUser } = await import('vitest/browser');
+
+          await render(
+            <Switch.Root
+              onFocus={focusSpy}
+              onBlur={blurSpy}
+              style={{ display: 'inline-block', width: 20, height: 20 }}
+            />,
+          );
+
+          const switchEl = screen.getByRole('switch');
+
+          await act(async () => nativeUser.click(switchEl));
+          expect(switchEl).toHaveAttribute('aria-checked', 'true');
+          expect(switchEl).toHaveFocus();
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledTimes(1);
+          });
+          expect(focusSpy.mock.results[0]?.value).toBe(switchEl);
+          expect(blurSpy).not.toHaveBeenCalled();
+
+          await act(async () => nativeUser.keyboard(`[${key}]`));
+          expect(switchEl).toHaveAttribute('aria-checked', 'false');
+          expect(switchEl).toHaveFocus();
+
+          await waitFor(() => {
+            expect(switchEl.matches(':focus-visible')).toBe(true);
+          });
+          expect(focusSpy).toHaveBeenCalledTimes(1);
+          expect(blurSpy).not.toHaveBeenCalled();
+        },
+      );
     });
   });
 

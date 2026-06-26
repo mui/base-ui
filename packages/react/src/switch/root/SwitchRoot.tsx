@@ -7,7 +7,11 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  NonNativeButtonProps,
+} from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useButton } from '../../internals/use-button';
@@ -132,24 +136,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-readonly': readOnly || undefined,
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
-    onFocus(event) {
-      const isRestoringFocusVisible = restoringFocusVisibleRef.current;
-      restoringFocusVisibleRef.current = false;
-
+    onFocus() {
       if (!disabled) {
         setFocused(true);
       }
-
-      if (isRestoringFocusVisible) {
-        event.stopPropagation();
-      }
     },
-    onBlur(event) {
-      if (restoringFocusVisibleRef.current) {
-        event.stopPropagation();
-        return;
-      }
-
+    onBlur() {
       const element = inputRef.current;
       if (!element || disabled) {
         return;
@@ -206,6 +198,24 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           metaKey: event.metaKey,
         }),
       );
+    },
+  };
+
+  const focusVisibleRestoreGuardProps: React.ComponentPropsWithRef<'span'> = {
+    onFocus(event) {
+      const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+      restoringFocusVisibleRef.current = false;
+
+      if (isRestoringFocusVisible) {
+        (event as unknown as BaseUIEvent<React.FocusEvent>).preventBaseUIHandler();
+        event.stopPropagation();
+      }
+    },
+    onBlur(event) {
+      if (restoringFocusVisibleRef.current) {
+        (event as unknown as BaseUIEvent<React.FocusEvent>).preventBaseUIHandler();
+        event.stopPropagation();
+      }
     },
   };
 
@@ -271,6 +281,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     props: [
       rootProps,
       elementProps,
+      focusVisibleRestoreGuardProps,
       getButtonProps,
       (props) => validation.getValidationProps(disabled, props),
     ],
