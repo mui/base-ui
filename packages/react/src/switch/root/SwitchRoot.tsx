@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 
 /**
  * Represents the switch itself.
@@ -78,6 +79,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const restoringFocusVisibleRef = React.useRef(false);
 
   const id = useBaseUiId();
 
@@ -130,12 +132,24 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-readonly': readOnly || undefined,
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
-    onFocus() {
+    onFocus(event) {
+      const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+      restoringFocusVisibleRef.current = false;
+
       if (!disabled) {
         setFocused(true);
       }
+
+      if (isRestoringFocusVisible) {
+        event.stopPropagation();
+      }
     },
-    onBlur() {
+    onBlur(event) {
+      if (restoringFocusVisibleRef.current) {
+        event.stopPropagation();
+        return;
+      }
+
       const element = inputRef.current;
       if (!element || disabled) {
         return;
@@ -146,6 +160,29 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
       if (validationMode === 'onBlur') {
         validation.commit(element.checked);
+      }
+    },
+    onKeyDown(event) {
+      if (
+        nativeButton ||
+        readOnly ||
+        disabled ||
+        event.defaultPrevented ||
+        event.target !== event.currentTarget ||
+        (event.key !== 'Enter' && event.key !== ' ')
+      ) {
+        return;
+      }
+
+      const element = event.currentTarget;
+
+      if (!matchesFocusVisible(element)) {
+        restoringFocusVisibleRef.current = true;
+        element.blur();
+        element.focus({
+          preventScroll: true,
+          focusVisible: true,
+        });
       }
     },
     onClick(event) {

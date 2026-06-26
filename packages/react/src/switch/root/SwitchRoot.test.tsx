@@ -84,6 +84,50 @@ describe('<Switch.Root />', () => {
         await user.keyboard(`[${key}]`);
         expect(switchEl).toHaveAttribute('aria-checked', 'true');
       });
+
+      it.skipIf(isJSDOM)(`preserves :focus-visible after ${key} key activation`, async () => {
+        const { userEvent: nativeUser } = await import('vitest/browser');
+        await render(<Switch.Root />);
+
+        const switchEl = screen.getByRole('switch');
+
+        await act(async () => nativeUser.keyboard('[Tab]'));
+        expect(switchEl).toHaveFocus();
+
+        await waitFor(() => {
+          expect(switchEl.matches(':focus-visible')).toBe(true);
+        });
+
+        await act(async () => nativeUser.keyboard(`[${key}]`));
+        expect(switchEl).toHaveAttribute('aria-checked', 'true');
+        expect(switchEl).toHaveFocus();
+
+        await waitFor(() => {
+          expect(switchEl.matches(':focus-visible')).toBe(true);
+        });
+      });
+
+      it.skipIf(isJSDOM)(
+        `shows :focus-visible after ${key} key activation following a pointer press`,
+        async () => {
+          const { userEvent: nativeUser } = await import('vitest/browser');
+          await render(<Switch.Root style={{ display: 'inline-block', width: 20, height: 20 }} />);
+
+          const switchEl = screen.getByRole('switch');
+
+          await act(async () => nativeUser.click(switchEl));
+          expect(switchEl).toHaveAttribute('aria-checked', 'true');
+          expect(switchEl).toHaveFocus();
+
+          await act(async () => nativeUser.keyboard(`[${key}]`));
+          expect(switchEl).toHaveAttribute('aria-checked', 'false');
+          expect(switchEl).toHaveFocus();
+
+          await waitFor(() => {
+            expect(switchEl.matches(':focus-visible')).toBe(true);
+          });
+        },
+      );
     });
   });
 
