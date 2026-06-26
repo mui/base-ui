@@ -54,7 +54,11 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
-                <SearchTrigger containedScroll enableKeyboardShortcut />
+                <SearchTrigger
+                  containedScroll
+                  enableKeyboardShortcut
+                  keyboardShortcutMediaQuery="(min-width: 64rem)"
+                />
               </div>
             </header>
             <main id="main" className="bui-d-c">
