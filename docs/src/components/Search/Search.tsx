@@ -17,6 +17,7 @@ interface SearchProps {
   children?: React.ReactNode | ((props: SearchRenderProps) => React.ReactNode);
   triggerProps?: Omit<Dialog.Trigger.Props, 'children' | 'handle'>;
   enableKeyboardShortcut?: boolean;
+  keyboardShortcutMediaQuery?: string;
   containedScroll?: boolean;
 }
 
@@ -24,6 +25,7 @@ export function Search({
   children,
   triggerProps,
   enableKeyboardShortcut = false,
+  keyboardShortcutMediaQuery,
   containedScroll = false,
 }: SearchProps) {
   const [handle] = React.useState(() => Dialog.createHandle());
@@ -47,6 +49,10 @@ export function Search({
       }
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        if (keyboardShortcutMediaQuery && !window.matchMedia(keyboardShortcutMediaQuery).matches) {
+          return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -58,7 +64,7 @@ export function Search({
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [enableKeyboardShortcut, handle, triggerId]);
+  }, [enableKeyboardShortcut, handle, keyboardShortcutMediaQuery, triggerId]);
 
   return (
     <React.Fragment>
