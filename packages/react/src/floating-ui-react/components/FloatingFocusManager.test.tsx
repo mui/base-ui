@@ -798,7 +798,7 @@ describe('FloatingFocusManager', () => {
 
       /* eslint-disable testing-library/prefer-screen-queries */
       // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
+      // https://github.com/react/react/pull/32441
       test.skipIf(!isJSDOM)('tabs from the popover to the next element in the iframe', async () => {
         render(<IframeApp />);
 
@@ -819,7 +819,7 @@ describe('FloatingFocusManager', () => {
       });
 
       // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
+      // https://github.com/react/react/pull/32441
       test.skipIf(!isJSDOM)(
         'shift+tab from the popover to the previous element in the iframe',
         async () => {
