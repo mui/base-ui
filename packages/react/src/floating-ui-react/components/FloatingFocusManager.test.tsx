@@ -1616,6 +1616,86 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference-sibling-2')).not.toHaveAttribute('data-base-ui-inert');
       });
 
+      test('renders the aria-owns owner without changing regular reference semantics', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal>
+                {open && (
+                  <FloatingFocusManager context={context} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const reference = screen.getByTestId('reference');
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const portalNodeId = portalNode?.id ?? '';
+        const owner = document.querySelector('span[aria-owns]');
+
+        expect(portalNodeId).not.toBe('');
+        expect(owner).not.toHaveAttribute('role');
+        expect(owner).toHaveAttribute('aria-owns', portalNodeId);
+        expect(reference).not.toHaveAttribute('aria-owns');
+      });
+
+      test('supports setting the aria-owns owner role explicitly', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal portalOwnerRole="group">
+                {open && (
+                  <FloatingFocusManager context={context} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(document.querySelector('span[aria-owns]')).toHaveAttribute('role', 'group');
+      });
+
       test('shift+tab', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);

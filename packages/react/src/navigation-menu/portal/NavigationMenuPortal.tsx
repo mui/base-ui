@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
+import type { PortalCommonProps } from '../../floating-ui-react';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
 
@@ -33,7 +34,7 @@ export const NavigationMenuPortal = React.forwardRef(function NavigationMenuPort
 
 export interface NavigationMenuPortalState {}
 
-export interface NavigationMenuPortalProps extends FloatingPortal.Props<NavigationMenuPortalState> {
+export interface NavigationMenuPortalProps extends PortalCommonProps<NavigationMenuPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
@@ -42,7 +43,7 @@ export interface NavigationMenuPortalProps extends FloatingPortal.Props<Navigati
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<NavigationMenuPortalState>['container'] | undefined;
+  container?: PortalCommonProps<NavigationMenuPortalState>['container'] | undefined;
 }
 
 export namespace NavigationMenuPortal {

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
+import type { PortalCommonProps } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
 
@@ -19,22 +20,26 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   const { store } = useMenuRootContext();
   const mounted = store.useState('mounted');
+  const parent = store.useState('parent');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
     return null;
   }
 
+  const portalOwnerRole = parent.type === 'menu' || parent.type === 'menubar' ? 'group' : undefined;
+
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      {/* The hidden `aria-owns` owner needs `group` only under role-constrained parents. */}
+      <FloatingPortal ref={forwardedRef} {...portalProps} portalOwnerRole={portalOwnerRole} />
     </MenuPortalContext.Provider>
   );
 });
 
 export interface MenuPortalState {}
 
-export interface MenuPortalProps extends FloatingPortal.Props<MenuPortalState> {
+export interface MenuPortalProps extends PortalCommonProps<MenuPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
