@@ -1297,7 +1297,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
             (inputRef.current || triggerElement)?.focus();
           },
-          // Handle browser autofill.
+          // Handle browser auhttps://github.com/react/react
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {

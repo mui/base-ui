@@ -692,7 +692,7 @@ describe('FloatingFocusManager', () => {
 
         await userEvent.click(screen.getByTestId('close'));
 
-        await waitFor(() => {
+        ahttps://github.com/react/react
           expect(screen.queryByTestId('close')).toBeNull();
         });
 
@@ -713,7 +713,7 @@ describe('FloatingFocusManager', () => {
                   <a href="#">popover link 2</a>
                 </div>
               )}
-            >
+         https://github.com/react/react
               <button>Open</button>
             </Popover>
             <a href="#">next iframe link</a>
