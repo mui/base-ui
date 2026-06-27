@@ -72,18 +72,21 @@ export function useAnimationsFinished(
               return;
             }
 
-            const currentAnimations = resolvedElement.getAnimations();
+            if (signal?.aborted) {
+              return;
+            }
 
-            if (
-              !signal?.aborted &&
-              currentAnimations.length > 0 &&
-              currentAnimations.some(
-                (animation) => animation.pending || animation.playState !== 'finished',
-              )
-            ) {
+            const currentAnimations = resolvedElement.getAnimations();
+            const hasActiveAnimations = currentAnimations.some(
+              (animation) => animation.pending || animation.playState !== 'finished',
+            );
+
+            if (hasActiveAnimations) {
               // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
               // In such cases, we need to re-check if any new animations have started.
               exec();
+            } else {
+              done();
             }
           });
       }

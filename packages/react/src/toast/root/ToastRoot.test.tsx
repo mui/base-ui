@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
@@ -189,6 +189,56 @@ describe('<Toast.Root />', () => {
     await user.keyboard('{Escape}');
 
     expect(screen.queryByTestId('root')).toBe(null);
+  });
+
+  it('removes the toast when a closing animation is aborted and no animations remain', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    try {
+      const { user } = await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+
+      const toastRoot = screen.getByTestId('root');
+      let getAnimationsCallCount = 0;
+
+      Object.defineProperty(toastRoot, 'getAnimations', {
+        configurable: true,
+        value: vi.fn(() => {
+          getAnimationsCallCount += 1;
+
+          if (getAnimationsCallCount === 1) {
+            return [
+              {
+                finished: Promise.reject(new Error('Animation was aborted')),
+                pending: false,
+                playState: 'idle',
+              },
+            ];
+          }
+
+          return [];
+        }),
+      });
+
+      await user.click(screen.getByLabelText('close-press'));
+
+      expect(toastRoot).toHaveAttribute('data-ending-style');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('root')).toBe(null);
+      });
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
