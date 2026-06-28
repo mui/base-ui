@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, screen, fireEvent, reactMajor, waitFor } from '@mui/internal-test-utils';
+import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -89,96 +89,6 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '  ' } });
       expect(onValueChange.mock.calls[0][0]).toBe(null);
-    });
-  });
-
-  describe('prop: valueChangeAction', () => {
-    it.skipIf(reactMajor <= 18)(
-      'updates the controlled value optimistically while valueChangeAction is pending',
-      async () => {
-        const resolvers: Array<() => void> = [];
-        const handleValueChangeAction = vi.fn(
-          async (_previousValue: number | null, nextValue: number | null) => {
-            await new Promise<void>((resolve) => {
-              resolvers.push(resolve);
-            });
-            return nextValue;
-          },
-        );
-
-        function App() {
-          const [value, updateValue, isPending] = React.useActionState(
-            handleValueChangeAction,
-            1 as number | null,
-          );
-
-          return (
-            <React.Fragment>
-              <span data-testid="pending">{String(isPending)}</span>
-              <NumberField value={value} valueChangeAction={updateValue} />
-            </React.Fragment>
-          );
-        }
-
-        await render(<App />);
-
-        const input = screen.getByRole('textbox');
-        const incrementButton = screen.getByRole('button', { name: 'Increase' });
-
-        fireEvent.click(incrementButton);
-
-        await waitFor(() => {
-          expect(screen.getByTestId('pending')).toHaveTextContent('true');
-        });
-        expect(input).toHaveValue('2');
-
-        fireEvent.click(incrementButton);
-
-        await waitFor(() => {
-          expect(input).toHaveValue('3');
-        });
-
-        await act(async () => {
-          resolvers.shift()?.();
-          await Promise.resolve();
-        });
-
-        await waitFor(() => {
-          expect(handleValueChangeAction).toHaveBeenCalledTimes(2);
-        });
-
-        await act(async () => {
-          resolvers.shift()?.();
-          await Promise.resolve();
-        });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('pending')).toHaveTextContent('false');
-        });
-        expect(input).toHaveValue('3');
-      },
-    );
-
-    it('does not call valueChangeAction when onValueChange cancels the change', async () => {
-      const handleValueChangeAction = vi.fn();
-
-      await render(
-        <NumberField
-          value={1}
-          onValueChange={(_nextValue, eventDetails) => {
-            eventDetails.cancel();
-          }}
-          valueChangeAction={handleValueChangeAction}
-        />,
-      );
-
-      const input = screen.getByRole('textbox');
-      const incrementButton = screen.getByRole('button', { name: 'Increase' });
-
-      fireEvent.click(incrementButton);
-
-      expect(input).toHaveValue('1');
-      expect(handleValueChangeAction).not.toHaveBeenCalled();
     });
   });
 

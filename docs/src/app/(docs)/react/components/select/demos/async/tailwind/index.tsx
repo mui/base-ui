@@ -79,12 +79,7 @@ export default function ExampleSelect() {
         className="flex max-w-64 flex-col items-start gap-1 text-sm leading-5 text-neutral-600 dark:text-neutral-400"
         aria-live="polite"
       >
-        {isPending ? (
-          <span className="inline-flex items-center gap-1">
-            <SpinnerIcon className="size-4 animate-spin" aria-hidden />
-            Saving...
-          </span>
-        ) : null}
+        {isPending ? <span>Saving...</span> : null}
         <p className="m-0">Saved plan: {savedPlan}</p>
       </div>
     </div>
@@ -143,15 +138,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m2.5 8.5 4 4 7-9" />
-    </svg>
-  );
-}
-
-function SpinnerIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
-      <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }

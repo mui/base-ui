@@ -1,4 +1,4 @@
-# Async actions
+# Async Actions
 
 <Subtitle>A guide to handling async component interactions with React actions.</Subtitle>
 <Meta
@@ -11,12 +11,9 @@ Use action props when a component interaction performs async work. Regular callb
 Base UI provides action props for async interaction points:
 
 - `Button` uses `clickAction` for async clicks.
-- `Input` uses `valueChangeAction` for async value changes.
 - `Select` uses `valueChangeAction` for async value changes.
-- `NumberField` uses `valueChangeAction` for async value changes.
-- `Switch` uses `checkedChangeAction` for async checked changes.
 
-The action is run in a React transition. For value-like components, Base UI also applies the next value optimistically while the action is pending, so the interface reflects the user's intent immediately.
+The action is run in a React transition. Select also applies the next value optimistically while the action is pending, so the interface reflects the user's intent immediately.
 
 ## Why use actions?
 
@@ -129,88 +126,18 @@ async function saveValueAction(nextValue) {
 
 Actions do not make this behavior impossible with regular callbacks. They make the responsive version the default shape instead of requiring every component consumer to write this coordination code.
 
-### Input autosave
-
-Input is a common case where manual async state gets complicated quickly. A text field may save on every change, but the user should still be able to keep typing while the save is pending.
-
-A naive regular callback waits for the save before committing the next controlled value:
-
-```tsx
-function handleNameChange(nextName) {
-  saveName(nextName).then(() => setName(nextName));
-}
-
-<Input value={name} onValueChange={handleNameChange} />;
-```
-
-This makes the input lag behind the user's typing. To fix that with regular callbacks, you need a separate optimistic value, a pending flag, stale request cancellation, and rollback behavior:
-
-```tsx
-const [savedName, setSavedName] = React.useState(initialName);
-const [inputValue, setInputValue] = React.useState(initialName);
-const [isSaving, setIsSaving] = React.useState(false);
-const abortRef = React.useRef<AbortController | null>(null);
-
-function handleNameChange(nextName) {
-  abortRef.current?.abort();
-  abortRef.current = new AbortController();
-
-  setInputValue(nextName);
-  setIsSaving(true);
-
-  saveName(nextName, {
-    signal: abortRef.current.signal,
-  })
-    .then((name) => {
-      setSavedName(name);
-      setInputValue(name);
-    })
-    .catch(() => setInputValue(savedName))
-    .finally(() => setIsSaving(false));
-}
-
-<Input value={inputValue} onValueChange={handleNameChange} />;
-```
-
-With an action, React owns the pending state and Base UI keeps the input value optimistic while the action is pending:
-
-```tsx
-const abortRef = React.useRef<AbortController | null>(null);
-
-const [name, dispatchNameChange, isPending] = React.useActionState(
-  (previousName, { value: nextName, signal }) =>
-    saveName(nextName, { signal })
-      .then(() => nextName)
-      .catch(() => previousName),
-  initialName,
-);
-
-async function saveNameAction(nextName) {
-  abortRef.current?.abort();
-  abortRef.current = new AbortController();
-
-  await dispatchNameChange({
-    value: nextName,
-    signal: abortRef.current.signal,
-  });
-}
-
-<Input value={name} valueChangeAction={saveNameAction} />;
-```
-
-The input stays responsive without duplicating the displayed value in local state. The committed value is whatever the action returns, stale requests are aborted before the next action is queued, and `isPending` is tied to the actual save.
-
 ## When to use regular callbacks
 
 Use regular callback props when the work is synchronous:
 
 ```tsx
-<Switch.Root
-  checked={enabled}
-  onCheckedChange={(nextEnabled) => {
-    setEnabled(nextEnabled);
+<Button
+  onClick={() => {
+    setOpen(true);
   }}
-/>
+>
+  Open
+</Button>
 ```
 
 Also use regular callbacks for observation and cancellation:
@@ -228,20 +155,15 @@ Also use regular callbacks for observation and cancellation:
 Use action props when the interaction itself performs async work:
 
 ```tsx
-const [enabled, saveEnabled, isPending] = React.useActionState(
-  (previousEnabled, nextEnabled: boolean) =>
-    saveSetting(nextEnabled)
-      .then(() => nextEnabled)
-      .catch(() => previousEnabled),
-  initialEnabled,
+const [message, save, isPending] = React.useActionState(
+  () => saveSettings().then(() => 'Saved'),
+  null,
 );
 
-<Switch.Root checked={enabled} checkedChangeAction={saveEnabled}>
-  <Switch.Thumb />
-</Switch.Root>;
+<Button clickAction={save}>Save</Button>;
 ```
 
-The switch updates optimistically while the save is pending, and `isPending` comes from React instead of a separate flag.
+React owns the pending state, and Button guards against duplicate activations while the returned promise is pending.
 
 ## Canceling stale work
 
@@ -271,11 +193,8 @@ export const metadata = {
     'Optimistic UI',
     'Pending State',
     'Async Components',
-    'Async Input',
     'Async Select',
-    'Async Switch',
     'Async Button',
-    'Async Number Field',
     'React Transitions',
     'Headless Components Async',
   ],

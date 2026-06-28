@@ -71,12 +71,7 @@ export default function ExampleSelect() {
         </Select.Portal>
       </Select.Root>
       <div className={styles.Status} aria-live="polite">
-        {isPending ? (
-          <span className={styles.Pending}>
-            <SpinnerIcon className={styles.Spinner} aria-hidden />
-            Saving...
-          </span>
-        ) : null}
+        {isPending ? <span>Saving...</span> : null}
         <p className={styles.Saved}>Saved plan: {savedPlan}</p>
       </div>
     </div>
@@ -135,15 +130,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m2.5 8.5 4 4 7-9" />
-    </svg>
-  );
-}
-
-function SpinnerIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
-      <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }

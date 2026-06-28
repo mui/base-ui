@@ -24,8 +24,6 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { runActionInTransition } from '../../internals/runActionInTransition';
-import { useOptimisticValue } from '../../internals/useOptimisticValue';
 
 /**
  * Represents the switch itself.
@@ -48,7 +46,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: nameProp,
     nativeButton = false,
     onCheckedChange,
-    checkedChangeAction,
     readOnly = false,
     required = false,
     disabled: disabledProp = false,
@@ -91,14 +88,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
   const hiddenInputId = nativeButton ? undefined : controlId;
 
-  const [committedChecked, setCheckedState] = useControlled({
+  const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
     default: Boolean(defaultChecked),
     name: 'Switch',
     state: 'checked',
   });
-  const [optimisticChecked, setOptimisticChecked] = useOptimisticValue(committedChecked);
-  const checked = checkedChangeAction ? optimisticChecked : committedChecked;
 
   useRegisterFieldControl(switchRef, id, checked, undefined, !disabled, nameProp);
 
@@ -211,12 +206,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         }
 
         setCheckedState(nextChecked);
-        if (checkedChangeAction) {
-          runActionInTransition(async () => {
-            setOptimisticChecked(nextChecked);
-            await checkedChangeAction(nextChecked, eventDetails);
-          });
-        }
       },
       onFocus() {
         switchRef.current?.focus();
@@ -325,19 +314,6 @@ export interface SwitchRootProps
    */
   onCheckedChange?:
     | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
-    | undefined;
-  /**
-   * Async function that is executed when the switch is activated or deactivated.
-   * It runs in a React Transition and updates the switch optimistically while pending.
-   *
-   * Use this when the checked change needs to perform async work, such as sending
-   * the new checked state to a server.
-   */
-  checkedChangeAction?:
-    | ((
-        checked: boolean,
-        eventDetails: SwitchRoot.ChangeEventDetails,
-      ) => void | PromiseLike<unknown>)
     | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.

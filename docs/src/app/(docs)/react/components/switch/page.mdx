@@ -7,14 +7,12 @@
 />
 
 import { DemoSwitchHero } from './demos/hero';
-import { DemoSwitchAsync } from './demos/async';
 
 <DemoSwitchHero />
 
 ## Usage guidelines
 
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a switch](#labeling-a-switch) and the [forms guide](/react/handbook/forms).
-- **Async work**: Use `checkedChangeAction` instead of `onCheckedChange` for async checked changes so React manages pending state and optimistic updates. See [Async](#async).
 
 ## Anatomy
 
@@ -27,16 +25,6 @@ import { Switch } from '@base-ui/react/switch';
   <Switch.Thumb />
 </Switch.Root>;
 ```
-
-## Async
-
-Use the `checkedChangeAction` prop for checked changes that perform async work. Switch runs the action in a React transition and updates the checked state optimistically while the action is pending.
-
-See the [Async actions guide](/react/handbook/async-actions) for details.
-
-This example saves a setting to a server and aborts stale requests when the user toggles again before the previous save finishes.
-
-<DemoSwitchAsync />
 
 ## Examples
 

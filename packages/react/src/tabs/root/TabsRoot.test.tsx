@@ -435,55 +435,6 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('calls changeAction after changing the selected value', async () => {
-      const changeAction = vi.fn();
-
-      const { user } = await render(
-        <Tabs.Root data-testid="root" defaultValue="account" changeAction={changeAction}>
-          <Tabs.List>
-            <Tabs.Tab value="account">Account</Tabs.Tab>
-            <Tabs.Tab value="billing">Billing</Tabs.Tab>
-          </Tabs.List>
-          <Tabs.Panel value="account">Account panel</Tabs.Panel>
-          <Tabs.Panel value="billing">Billing panel</Tabs.Panel>
-        </Tabs.Root>,
-      );
-
-      const billingTab = screen.getByRole('tab', { name: 'Billing' });
-
-      await user.click(billingTab);
-
-      expect(changeAction.mock.calls.length).toBe(1);
-      expect(changeAction.mock.calls[0][0]).toBe('billing');
-      expect(billingTab).toHaveAttribute('aria-selected', 'true');
-    });
-
-    it('does not call changeAction when onValueChange cancels the change', async () => {
-      const changeAction = vi.fn();
-
-      const { user } = await render(
-        <Tabs.Root
-          defaultValue="account"
-          changeAction={changeAction}
-          onValueChange={(_value, eventDetails) => {
-            eventDetails.cancel();
-          }}
-        >
-          <Tabs.List>
-            <Tabs.Tab value="account">Account</Tabs.Tab>
-            <Tabs.Tab value="billing">Billing</Tabs.Tab>
-          </Tabs.List>
-          <Tabs.Panel value="account">Account panel</Tabs.Panel>
-          <Tabs.Panel value="billing">Billing panel</Tabs.Panel>
-        </Tabs.Root>,
-      );
-
-      await user.click(screen.getByRole('tab', { name: 'Billing' }));
-
-      expect(changeAction.mock.calls.length).toBe(0);
-      expect(screen.getByRole('tab', { name: 'Account' })).toHaveAttribute('aria-selected', 'true');
-    });
-
     it('when `activateOnFocus = true` should call onValueChange on pointerdown', async () => {
       const handleChange = vi.fn();
       const handlePointerDown = vi.fn();

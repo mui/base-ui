@@ -204,20 +204,3 @@
 .Saved {
   margin: 0;
 }
-
-.Pending {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.Spinner {
-  flex: none;
-  animation: spin 700ms linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}

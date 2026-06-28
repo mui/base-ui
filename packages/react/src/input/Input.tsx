@@ -22,16 +22,6 @@ export interface InputProps extends BaseUIComponentProps<'input', InputState> {
    */
   onValueChange?: ((value: string, eventDetails: Input.ChangeEventDetails) => void) | undefined;
   /**
-   * Async function that is executed when the `value` changes.
-   * It runs in a React Transition and updates the input optimistically while pending.
-   *
-   * Use this when the value change needs to perform async work, such as sending
-   * the new value to a server.
-   */
-  valueChangeAction?:
-    | ((value: string, eventDetails: Input.ChangeEventDetails) => void | PromiseLike<unknown>)
-    | undefined;
-  /**
    * The default value of the input. Use when uncontrolled.
    */
   defaultValue?: Field.Control.Props['defaultValue'] | undefined;

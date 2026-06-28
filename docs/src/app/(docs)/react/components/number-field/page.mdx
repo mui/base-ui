@@ -8,14 +8,12 @@
 />
 
 import { DemoNumberFieldHero } from './demos/hero';
-import { DemoNumberFieldAsync } from './demos/async';
 
 <DemoNumberFieldHero />
 
 ## Usage guidelines
 
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
-- **Async work**: Use `valueChangeAction` instead of `onValueChange` for async value changes so React manages pending state and optimistic updates. See [Async](#async).
 
 ## Anatomy
 
@@ -35,16 +33,6 @@ import { NumberField } from '@base-ui/react/number-field';
   </NumberField.Group>
 </NumberField.Root>;
 ```
-
-## Async
-
-Use the `valueChangeAction` prop for value changes that perform async work. Number Field runs the action in a React transition and updates the displayed value optimistically while the action is pending.
-
-See the [Async actions guide](/react/handbook/async-actions) for details.
-
-This example recalculates a server-derived total whenever the quantity changes.
-
-<DemoNumberFieldAsync />
 
 ## API reference
 
