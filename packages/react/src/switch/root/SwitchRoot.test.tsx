@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { Field } from '@base-ui/react/field';
@@ -209,6 +209,95 @@ describe('<Switch.Root />', () => {
       expect(input.checked).toBe(false);
       expect(switchElement).not.toHaveAttribute('data-dirty');
       expect(switchElement).not.toHaveAttribute('data-filled');
+    });
+  });
+
+  describe('prop: checkedChangeAction', () => {
+    it.skipIf(reactMajor <= 18)(
+      'updates the controlled checked state optimistically while checkedChangeAction is pending',
+      async () => {
+        const resolvers: Array<() => void> = [];
+        const handleCheckedChangeAction = vi.fn(
+          async (_previousChecked: boolean, nextChecked: boolean) => {
+            await new Promise<void>((resolve) => {
+              resolvers.push(resolve);
+            });
+            return nextChecked;
+          },
+        );
+
+        function App() {
+          const [checked, updateChecked, isPending] = React.useActionState(
+            handleCheckedChangeAction,
+            false,
+          );
+
+          return (
+            <React.Fragment>
+              <span data-testid="pending">{String(isPending)}</span>
+              <Switch.Root checked={checked} checkedChangeAction={updateChecked}>
+                <Switch.Thumb />
+              </Switch.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const switchElement = screen.getByRole('switch');
+
+        await user.click(switchElement);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('pending')).toHaveTextContent('true');
+        });
+        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+
+        await user.click(switchElement);
+
+        await waitFor(() => {
+          expect(switchElement).toHaveAttribute('aria-checked', 'false');
+        });
+
+        await act(async () => {
+          resolvers.shift()?.();
+          await Promise.resolve();
+        });
+
+        await waitFor(() => {
+          expect(handleCheckedChangeAction).toHaveBeenCalledTimes(2);
+        });
+
+        await act(async () => {
+          resolvers.shift()?.();
+          await Promise.resolve();
+        });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('pending')).toHaveTextContent('false');
+        });
+        expect(switchElement).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it('does not call checkedChangeAction when onCheckedChange cancels the change', async () => {
+      const handleCheckedChangeAction = vi.fn();
+      const { user } = await render(
+        <Switch.Root
+          checked={false}
+          onCheckedChange={(_nextChecked, eventDetails) => {
+            eventDetails.cancel();
+          }}
+          checkedChangeAction={handleCheckedChangeAction}
+        />,
+      );
+
+      const switchElement = screen.getByRole('switch');
+
+      await user.click(switchElement);
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+      expect(handleCheckedChangeAction).not.toHaveBeenCalled();
     });
   });
 

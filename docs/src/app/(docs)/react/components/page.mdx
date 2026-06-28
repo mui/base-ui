@@ -302,10 +302,11 @@ A button component that can be rendered as another tag or focusable when disable
     - Rendering as another tag
     - Rendering links as buttons
     - Loading states
+    - Async
   - API reference
 - Exports:
   - Button
-    - Props: className, focusableWhenDisabled, nativeButton, render, style
+    - Props: className, clickAction, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
 - Types: Button.Props, Button.State
 
@@ -811,7 +812,7 @@ A component that provides labeling and validation for form controls.
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Control
-    - Props: className, defaultValue, onValueChange, render, style
+    - Props: className, defaultValue, onValueChange, render, style, valueChangeAction
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Label
     - Props: className, nativeLabel, render, style
@@ -889,6 +890,7 @@ A native input element that automatically works with [Field](/react/components/f
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Async
   - API reference
 - Exports:
   - Input
@@ -1155,6 +1157,7 @@ A numeric input element with increment and decrement buttons, and a scrub area.
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Async
   - API reference
     - Root
     - ScrubArea
@@ -1165,7 +1168,7 @@ A numeric input element with increment and decrement buttons, and a scrub area.
     - Increment
 - Exports:
   - Number Field - Root
-    - Props: allowOutOfRange, allowWheelScrub, className, defaultValue, disabled, form, format, id, inputRef, largeStep, locale, max, min, name, onValueChange, onValueCommitted, readOnly, render, required, smallStep, snapOnStep, step, style, value
+    - Props: allowOutOfRange, allowWheelScrub, className, defaultValue, disabled, form, format, id, inputRef, largeStep, locale, max, min, name, onValueChange, onValueCommitted, readOnly, render, required, smallStep, snapOnStep, step, style, value, valueChangeAction
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
   - Number Field - Input
     - Props: aria-roledescription, className, render, style
@@ -1507,6 +1510,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Placeholder values
     - Multiple selection
     - Object values
+    - Async
     - Grouped
   - API reference
     - Root
@@ -1530,7 +1534,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Separator
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value, valueChangeAction
   - Select - Trigger
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -1672,6 +1676,7 @@ A control that indicates whether a setting is on or off.
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Async
   - Examples
     - Labeling a switch
     - Rendering as a native button
@@ -1681,7 +1686,7 @@ A control that indicates whether a setting is on or off.
     - Thumb
 - Exports:
   - Switch - Root
-    - Props: checked, className, defaultChecked, disabled, form, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
+    - Props: checked, checkedChangeAction, className, defaultChecked, disabled, form, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Switch - Thumb
     - Props: className, render, style
@@ -1713,7 +1718,7 @@ A component for toggling between related panels on the same page.
     - Panel
 - Exports:
   - Tabs - Root
-    - Props: className, defaultValue, onValueChange, orientation, render, style, value
+    - Props: changeAction, className, defaultValue, onValueChange, orientation, render, style, value
     - Data Attributes: data-activation-direction, data-orientation
   - Tabs - List
     - Props: activateOnFocus, className, loopFocus, render, style

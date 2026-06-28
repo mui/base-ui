@@ -11,6 +11,7 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
+import { runActionInTransition } from '../../internals/runActionInTransition';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -29,6 +30,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
+    changeAction,
     defaultValue: defaultValueProp = 0,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
@@ -133,6 +135,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       setValue(newValue);
+      if (changeAction) {
+        runActionInTransition(changeAction, newValue, eventDetails);
+      }
     },
   );
 
@@ -456,6 +461,16 @@ export interface TabsRootState {
 }
 
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
+  /**
+   * Event handler called when the value changes.
+   * The action is run in a React transition when supported.
+   */
+  changeAction?:
+    | ((
+        value: TabsTab.Value,
+        eventDetails: TabsRoot.ChangeEventDetails,
+      ) => void | PromiseLike<unknown>)
+    | undefined;
   /**
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.

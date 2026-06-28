@@ -17,6 +17,8 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement } from '../../floating-ui-react/utils';
+import { runActionInTransition } from '../../internals/runActionInTransition';
+import { useOptimisticValue } from '../../internals/useOptimisticValue';
 
 /**
  * The form control to label and validate.
@@ -40,6 +42,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     value: valueProp,
     disabled: disabledProp = false,
     onValueChange,
+    valueChangeAction,
     defaultValue,
     autoFocus = false,
     style,
@@ -97,10 +100,21 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const isControlled = valueProp !== undefined;
-  const value = isControlled ? valueUnwrapped : undefined;
+  const [optimisticValue, setOptimisticValue] = useOptimisticValue(valueUnwrapped);
+  let value = valueUnwrapped;
+  if (valueChangeAction) {
+    value = optimisticValue;
+  }
   const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
-  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput, !disabled, nameProp);
+  useRegisterFieldControl(
+    validation.inputRef,
+    id,
+    isControlled ? value : undefined,
+    getValueFromInput,
+    !disabled,
+    nameProp,
+  );
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -116,7 +130,21 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+          onValueChange?.(inputValue, eventDetails);
+
+          if (eventDetails.isCanceled) {
+            return;
+          }
+
+          if (valueChangeAction) {
+            runActionInTransition(async () => {
+              setOptimisticValue(inputValue);
+              await valueChangeAction(inputValue, eventDetails);
+            });
+          }
+
           // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
@@ -162,6 +190,19 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
    */
   onValueChange?:
     | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Async function that is executed when the `value` changes.
+   * It runs in a React Transition and updates the control optimistically while pending.
+   *
+   * Use this when the value change needs to perform async work, such as sending
+   * the new value to a server.
+   */
+  valueChangeAction?:
+    | ((
+        value: string,
+        eventDetails: FieldControl.ChangeEventDetails,
+      ) => void | PromiseLike<unknown>)
     | undefined;
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }

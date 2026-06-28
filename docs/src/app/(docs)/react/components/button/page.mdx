@@ -16,6 +16,7 @@ import { DemoButtonHero } from './demos/hero';
 
 - **Submit buttons**: Unlike the native button element, `type="submit"` must be specified on Button for it to act as a submit button.
 - **Links**: The Button component enforces button semantics (`role="button"`, keyboard interaction, disabled state). It should not be used for links. See [Rendering links as buttons](#rendering-links-as-buttons) below.
+- **Async work**: Use `clickAction` instead of `onClick` for async work so React manages pending state. See [Async](#async).
 
 ## Anatomy
 
@@ -55,6 +56,16 @@ For buttons that enter a loading state after being clicked, specify the `focusab
 import { DemoButtonLoading } from './demos/loading';
 
 <DemoButtonLoading />
+
+### Async
+
+Use the `clickAction` prop for click handlers that perform async work. Base UI runs the action in a React transition and ignores repeated activations while the returned promise is pending.
+
+See the [Async actions guide](/react/handbook/async-actions) for details.
+
+import { DemoButtonAsync } from './demos/async';
+
+<DemoButtonAsync />
 
 ## API reference
 

@@ -19,6 +19,8 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { runActionInTransition } from '../../internals/runActionInTransition';
+import { useOptimisticValue } from '../../internals/useOptimisticValue';
 import {
   getNumberLocaleDetails,
   PERMILLE,
@@ -66,6 +68,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     defaultValue,
     value: valueProp,
     onValueChange: onValueChangeProp,
+    valueChangeAction,
     onValueCommitted: onValueCommittedProp,
     allowWheelScrub = false,
     snapOnStep = false,
@@ -107,14 +110,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+  const [committedValue, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const value = valueUnwrapped ?? null;
+  const [optimisticValue, setOptimisticValue] = useOptimisticValue(committedValue);
+  const value = (valueChangeAction ? optimisticValue : committedValue) ?? null;
   const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
@@ -248,6 +252,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         }
 
         setValueUnwrapped(validatedValue);
+        if (valueChangeAction) {
+          runActionInTransition(async () => {
+            setOptimisticValue(validatedValue);
+            await valueChangeAction(validatedValue, details);
+          });
+        }
         setDirty(validatedValue !== validityData.initialValue);
         hasPendingCommitRef.current = true;
       }
@@ -625,6 +635,19 @@ export interface NumberFieldRootProps extends Omit<
    */
   onValueChange?:
     | ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Async function that is executed when the number value changes.
+   * It runs in a React Transition and updates the field optimistically while pending.
+   *
+   * Use this when the value change needs to perform async work, such as sending the new
+   * value to a server.
+   */
+  valueChangeAction?:
+    | ((
+        value: number | null,
+        eventDetails: NumberFieldRoot.ChangeEventDetails,
+      ) => void | PromiseLike<unknown>)
     | undefined;
   /**
    * Callback function that is fired when the value is committed.

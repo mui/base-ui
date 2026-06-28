@@ -7,12 +7,14 @@
 <Meta name="description" content="A high-quality, unstyled React input component." />
 
 import { DemoInputHero } from './demos/hero';
+import { DemoInputAsync } from './demos/async';
 
 <DemoInputHero />
 
 ## Usage guidelines
 
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Async work**: Use `valueChangeAction` instead of `onValueChange` for async value changes so React manages pending state and optimistic updates. See [Async](#async).
 
 ## Anatomy
 
@@ -23,6 +25,16 @@ import { Input } from '@base-ui/react/input';
 
 <Input />;
 ```
+
+## Async
+
+Use the `valueChangeAction` prop for value changes that perform async work. Input runs the action in a React transition and updates the displayed value optimistically while the action is pending.
+
+See the [Async actions guide](/react/handbook/async-actions) for details.
+
+This example saves the input value to a server and aborts stale requests when the user keeps typing before the previous save finishes.
+
+<DemoInputAsync />
 
 ## API reference
 
