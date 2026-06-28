@@ -589,6 +589,10 @@ describe('<Select.Root />', () => {
     );
 
     it('does not call valueChangeAction when onValueChange cancels the change', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const handleValueChangeAction = vi.fn();
 
       const { user } = await render(
