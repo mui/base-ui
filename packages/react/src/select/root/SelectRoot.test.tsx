@@ -616,10 +616,18 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
+      await act(async () => {
+        await flushMicrotasks();
+      });
       await user.click(screen.getByRole('option', { name: 'b' }));
+      await act(async () => {
+        await flushMicrotasks();
+      });
 
       expect(handleValueChangeAction.mock.calls.length).toBe(0);
-      expect(trigger).toHaveTextContent('a');
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('a');
+      });
     });
   });
 
