@@ -168,7 +168,7 @@ Renders a `<button>` element.
 
 | Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                          |
 | :----------- | :------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| handle       | `DrawerHandle<Payload>`                                                                      | -       | A handle to associate the trigger with a drawer.&#xA;Can be created with the Drawer.createHandle() method.                                                                                           |
+| handle       | `Drawer.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a drawer.&#xA;Can be created with the Drawer.createHandle() method.                                                                                           |
 | nativeButton | `boolean`                                                                                    | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).            |
 | payload      | `Payload`                                                                                    | -       | A payload to pass to the drawer when it is opened.                                                                                                                                                   |
 | id           | `string`                                                                                     | -       | ID of the trigger. In addition to being forwarded to the rendered element,&#xA;it is also used to specify the active trigger for drawers in controlled mode (with the Drawer.Root `triggerId` prop). |
@@ -476,7 +476,7 @@ type DrawerViewportState = {
 
 ### createHandle
 
-Creates a new handle to connect a Dialog.Root with detached Dialog.Trigger components.
+Creates a new handle to connect a Drawer.Root with detached Drawer.Trigger components.
 
 **Return Value:**
 
@@ -486,8 +486,8 @@ type ReturnValue = Drawer.Handle<Payload>;
 
 ### Handle
 
-Controls a Dialog imperatively and associates detached `Dialog.Trigger` components with a
-`Dialog.Root`. Create one with `Dialog.createHandle()` and pass it to the `handle` prop of the
+Controls a Drawer imperatively and associates detached `Drawer.Trigger` components with a
+`Drawer.Root`. Create one with `Drawer.createHandle()` and pass it to the `handle` prop of the
 root and of any triggers rendered outside of it.
 
 The imperative methods take effect only while a root using this handle is mounted; calls made
