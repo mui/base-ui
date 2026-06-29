@@ -99,6 +99,9 @@ For simple, one-off interactions, place the `<AlertDialog.Trigger>` inside `<Ale
 However, if defining the alert dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<AlertDialog.Trigger>` outside of `<AlertDialog.Root>` and linking them with a `handle` created by the `AlertDialog.createHandle()` function.
 
+The imperative methods on the handle, such as `open()` and `openWithPayload()`, require an `<AlertDialog.Root>` using the same handle to be mounted.
+Calls made before the root is attached to the handle are ignored; the root owns fresh state each time it mounts.
+
 ```jsx title="Detached triggers"
 const demoAlertDialog = AlertDialog.createHandle();
 

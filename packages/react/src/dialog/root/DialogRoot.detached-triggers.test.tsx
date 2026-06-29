@@ -59,6 +59,82 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('1');
     });
 
+    it('ignores imperative handle calls made after the root is detached', async () => {
+      const handle = Dialog.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle} id="trigger" payload={1}>
+              Trigger
+            </Dialog.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+            {mounted && (
+              <Dialog.Root handle={handle}>
+                {({ payload }: NumberPayload) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <Dialog.Portal>
+                      <Dialog.Popup>
+                        Dialog Content
+                        <button type="button" onClick={() => setMounted(false)}>
+                          Unmount root
+                        </button>
+                      </Dialog.Popup>
+                    </Dialog.Portal>
+                  </React.Fragment>
+                )}
+              </Dialog.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Unmount root' }),
+      );
+      expect(handle.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.openWithPayload(8);
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(3);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeVisible();
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
     it('does not attach a replacement root store from an abandoned transition render', async () => {
       const handle = Dialog.createHandle<number>();
       const replacementRender = vi.fn();

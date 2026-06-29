@@ -799,6 +799,60 @@ describe('<Drawer.Root />', () => {
     expect(screen.getByTestId('payload').textContent).toBe('2');
   });
 
+  it('supports imperative actions with handles', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    await render(
+      <div>
+        <Drawer.Trigger handle={handle} id="trigger-1" payload={1}>
+          Trigger 1
+        </Drawer.Trigger>
+        <Drawer.Trigger handle={handle} id="trigger-2" payload={2}>
+          Trigger 2
+        </Drawer.Trigger>
+        <Drawer.Root handle={handle}>
+          {({ payload }: { payload: number | undefined }) => (
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="content">{payload}</Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          )}
+        </Drawer.Root>
+      </div>,
+    );
+
+    const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+    expect(screen.queryByRole('dialog')).toBe(null);
+
+    await act(() => handle.open('trigger-2'));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+    });
+
+    expect(screen.getByTestId('content').textContent).toBe('2');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+
+    await act(() => handle.close());
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+
+    await act(() => handle.openWithPayload(8));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+    });
+    expect(screen.getByTestId('content').textContent).toBe('8');
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('attaches fresh root state when a handle-backed root remounts', async () => {
     const handle = Drawer.createHandle<number>();
 
@@ -839,28 +893,54 @@ describe('<Drawer.Root />', () => {
     }
 
     const { user } = await render(<App />);
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
 
     expect(screen.getByTestId('payload').textContent).toBe('No payload');
 
-    await user.click(screen.getByRole('button', { name: 'Trigger' }));
+    await user.click(trigger);
     await waitFor(() => {
       expect(screen.getByText('Drawer content')).toBeVisible();
     });
     expect(screen.getByTestId('payload').textContent).toBe('1');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
 
     await user.click(screen.getByRole('button', { name: 'Unmount root' }));
     expect(handle.isOpen).toBe(false);
     expect(screen.queryByText('Drawer content')).toBe(null);
 
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    handle.openWithPayload(8);
+    handle.open('trigger');
+    handle.close();
+    const detachedWarnings = consoleWarn.mock.calls.filter(
+      ([message]) =>
+        typeof message === 'string' && message.includes('no root using this handle is mounted'),
+    );
+    consoleWarn.mockRestore();
+
+    expect(handle.isOpen).toBe(false);
+    expect(detachedWarnings).toHaveLength(3);
+
     await user.click(screen.getByRole('button', { name: 'Remount root' }));
     expect(screen.getByTestId('payload').textContent).toBe('No payload');
     expect(screen.queryByText('Drawer content')).toBe(null);
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(trigger).not.toHaveAttribute('aria-controls');
 
-    await user.click(screen.getByRole('button', { name: 'Trigger' }));
+    await user.click(trigger);
     await waitFor(() => {
       expect(screen.getByText('Drawer content')).toBeVisible();
     });
     expect(screen.getByTestId('payload').textContent).toBe('1');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
   });
 
   it('synchronizes trigger aria-controls with the popup id', async () => {
