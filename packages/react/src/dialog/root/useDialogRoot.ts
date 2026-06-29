@@ -80,8 +80,18 @@ export function DialogInteractions({
       if ('button' in event && event.button !== 0) {
         return false;
       }
-      if ('touches' in event && event.touches.length !== 1) {
-        return false;
+      if ('touches' in event) {
+        // Outside press can be handled on `touchend`, where the lifted point is
+        // reported in `changedTouches` and `touches` contains any remaining
+        // active points. Treat it as a single-finger tap only when exactly one
+        // touch ended and no other fingers are still down.
+        if (event.type === 'touchend') {
+          if (event.changedTouches.length !== 1 || event.touches.length !== 0) {
+            return false;
+          }
+        } else if (event.touches.length !== 1) {
+          return false;
+        }
       }
 
       const target = getTarget(event) as Element | null;

@@ -57,6 +57,36 @@ describe('<Tooltip.Trigger />', () => {
     expect(screen.getByText('Content')).not.toBe(null);
   });
 
+  it('opens when the rendered trigger element has its own id', async () => {
+    const { user } = await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger
+          delay={0}
+          closeDelay={0}
+          render={<button id="custom-button" data-testid="trigger" type="button" />}
+        >
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    expect(trigger).toHaveAttribute('id', 'custom-button');
+
+    await user.hover(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).not.toBe(null);
+    });
+    expect(trigger).toHaveAttribute('data-popup-open');
+  });
+
   it.skipIf(isJSDOM)(
     'opens on delayed hover when rendered as a disabled toolbar button',
     async () => {

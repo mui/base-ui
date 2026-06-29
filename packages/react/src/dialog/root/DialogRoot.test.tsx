@@ -1340,6 +1340,152 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('touch outside press', () => {
+    function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
+      return new Touch({ identifier: 1, target, ...point });
+    }
+
+    // Simulates a finger tapping outside the dialog: a `touchstart`, a small
+    // (~6px) `touchmove` that marks the press as a dismiss without crossing the
+    // 10px threshold that would dismiss during the move itself, and a `touchend`
+    // whose lifted point is reported in `changedTouches` (`touches` is empty),
+    // mirroring real browsers.
+    function tapOutside(element: HTMLElement) {
+      const start = { clientX: 50, clientY: 50 };
+      const end = { clientX: 50, clientY: 56 };
+
+      fireEvent.touchStart(element, {
+        bubbles: true,
+        touches: [createTouch(element, start)],
+      });
+
+      fireEvent.touchMove(element, {
+        bubbles: true,
+        touches: [createTouch(element, end)],
+      });
+
+      fireEvent.touchEnd(element, {
+        bubbles: true,
+        changedTouches: [createTouch(element, end)],
+      });
+    }
+
+    async function expectClosesOnTouchTapOutside(modal: false | 'trap-focus') {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={modal} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      tapOutside(screen.getByTestId('outside'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    }
+
+    it('closes a non-modal dialog without a backdrop', async () => {
+      await expectClosesOnTouchTapOutside(false);
+    });
+
+    it('closes a trap-focus dialog without a backdrop', async () => {
+      await expectClosesOnTouchTapOutside('trap-focus');
+    });
+
+    it('does not close when another touch is still active on touchend', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 });
+      const touch1End = createTouch(outside, { clientX: 50, clientY: 56 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1End, touch2Start],
+      });
+
+      fireEvent.touchEnd(outside, {
+        bubbles: true,
+        changedTouches: [touch1End],
+        touches: [touch2Start],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('does not close when two touches are lifted simultaneously on touchend', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 });
+      const touch1End = createTouch(outside, { clientX: 50, clientY: 56 });
+      const touch2End = createTouch(outside, { clientX: 70, clientY: 76 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1End, touch2End],
+      });
+
+      fireEvent.touchEnd(outside, {
+        bubbles: true,
+        changedTouches: [touch1End, touch2End],
+        touches: [],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+  });
+
   it.skipIf(isJSDOM)(
     'returns focus to the menu trigger when a detached dialog trigger unmounts',
     async () => {
