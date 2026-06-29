@@ -173,6 +173,18 @@ function pressOutside(target: Element = document.body) {
   fireEvent.click(target);
 }
 
+// A real touch tap dispatches `pointerdown` alongside `touchstart`/`touchend`, so the swipe-open
+// guard re-enables on that fresh `pointerdown` before the dismissal fires — touch outside presses
+// dismiss just like mouse ones.
+function pressOutsideTouch(target: Element = document.body) {
+  const touch = createTouch(target, { clientX: 0, clientY: 0 });
+  fireEvent.pointerDown(target, { button: 0, buttons: 1, pointerId: 1, pointerType: 'touch' });
+  fireEvent.touchStart(target, { touches: [touch] });
+  fireEvent.touchEnd(target, { changedTouches: [touch], touches: [] });
+  fireEvent.pointerUp(target, { button: 0, buttons: 0, pointerId: 1, pointerType: 'touch' });
+  fireEvent.click(target);
+}
+
 async function swipeUp(element: HTMLElement, startY: number, endY: number, options?: SwipeOptions) {
   return swipe(element, { x: 10, y: startY }, { x: 10, y: endY }, options);
 }
@@ -343,6 +355,39 @@ describe('<Drawer.SwipeArea />', () => {
     });
 
     pressOutside();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+
+    expect(swipeArea).toHaveAttribute('data-closed', '');
+  });
+
+  it('re-enables outside press dismissal for a touch outside press after opening by swipe', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    await swipeUp(swipeArea, 120, 40, { input: 'touch' });
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    // A touch outside press fires `pointerdown` alongside `touchstart`/`touchend`, so it must
+    // re-enable dismissal and close the swipe-opened drawer the same way a mouse press does.
+    pressOutsideTouch();
 
     await waitFor(() => {
       expect(screen.queryByTestId('popup')).toBe(null);
