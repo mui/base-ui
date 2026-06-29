@@ -4585,6 +4585,42 @@ describe('<Select.Root />', () => {
       expect(valueEl.textContent).toBe('avocado');
     });
 
+    it('commits typeahead on a closed trigger when items are provided', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root
+            items={{ apple: 'Apple', cherry: 'Cherry' }}
+            value={value}
+            onValueChange={setValue}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="cherry">Cherry</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // The popup is never opened. With `items` provided the value-change effect no longer
+      // force-mounts, so this pins the load-bearing claim that the trigger's own onFocus
+      // force-mount still registers the list for closed-trigger typeahead.
+      await act(async () => trigger.focus());
+      await user.keyboard('c');
+      expect(valueEl.textContent).toBe('Cherry');
+    });
+
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
