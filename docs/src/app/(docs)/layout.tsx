@@ -8,7 +8,7 @@ import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
-import { Header, titleMap } from 'docs/src/components/Header';
+import { Header } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
@@ -83,7 +83,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       }
                                       external={page.tags?.includes('External')}
                                     >
-                                      {(page.title && titleMap[page.title]) || page.title}
+                                      {page.title}
                                       {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
                                       {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNewPage && !isPreviewPage && !isPrivatePage && (

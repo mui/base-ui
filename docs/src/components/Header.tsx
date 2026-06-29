@@ -6,8 +6,6 @@ import { MobileNavContent } from './MobileNavContent';
 import { SkipNav } from './SkipNav';
 import './Header.css';
 
-export { titleMap } from './MobileNavContent';
-
 export const HEADER_HEIGHT_MOBILE = 48;
 export const HEADER_HEIGHT_DESKTOP = 64;
 

@@ -52,9 +52,17 @@ export function HeaderSearch({ mobileNavContent }: HeaderSearchProps) {
 
         if (visibleTarget === desktopTriggerRef.current) {
           if (!desktopHandle.isOpen) {
+            if (mobileHandle.isOpen) {
+              mobileHandle.close();
+            }
+
             desktopHandle.open(desktopTriggerId);
           }
         } else if (!mobileHandle.isOpen) {
+          if (desktopHandle.isOpen) {
+            desktopHandle.close();
+          }
+
           mobileHandle.open(mobileTriggerId);
         }
       }
@@ -73,7 +81,7 @@ export function HeaderSearch({ mobileNavContent }: HeaderSearchProps) {
         id={desktopTriggerId}
         ref={desktopTriggerRef}
         handle={desktopHandle}
-        className="HeaderSearchDesktopTrigger SearchTrigger"
+        className="HeaderSearchTrigger HeaderSearchDesktopTrigger"
       >
         <SearchTriggerContent isCmd={isCmd} />
       </Dialog.Trigger>
@@ -87,7 +95,7 @@ export function HeaderSearch({ mobileNavContent }: HeaderSearchProps) {
           id={mobileTriggerId}
           ref={mobileTriggerRef}
           handle={mobileHandle}
-          className="HeaderSearchMobileTrigger HeaderButton HeaderNavTrigger MobileNavHeaderTrigger"
+          className="HeaderSearchTrigger HeaderSearchMobileTrigger"
         >
           <MobileNavTriggerContent />
         </Drawer.Trigger>
