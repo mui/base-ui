@@ -4,85 +4,9 @@ import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Drawer } from '@base-ui/react/drawer';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
-
-const LazyDrawer = React.lazy(() =>
-  import('./MobileNavDrawer').then((module) => ({ default: module.MobileNavDrawer })),
-);
-
-interface RootProps extends Omit<Drawer.Root.Props, 'children' | 'handle'> {
-  children?: React.ReactNode;
-  triggerClassName?: string;
-  trigger: React.ReactNode;
-  triggerProps?: Omit<Drawer.Trigger.Props, 'children' | 'handle'>;
-  enableKeyboardShortcut?: boolean;
-  keyboardShortcutMediaQuery?: string;
-}
-
-export function Root({
-  children,
-  trigger,
-  triggerClassName,
-  triggerProps,
-  enableKeyboardShortcut = false,
-  keyboardShortcutMediaQuery,
-  onOpenChange,
-  ...props
-}: RootProps) {
-  const [handle] = React.useState(() => Drawer.createHandle());
-  const generatedTriggerId = React.useId();
-  const triggerId = triggerProps?.id ?? generatedTriggerId;
-
-  React.useEffect(() => {
-    if (!enableKeyboardShortcut) {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        if (keyboardShortcutMediaQuery && !window.matchMedia(keyboardShortcutMediaQuery).matches) {
-          return;
-        }
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (!handle.isOpen) {
-          handle.open(triggerId);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [enableKeyboardShortcut, handle, keyboardShortcutMediaQuery, triggerId]);
-
-  const contextValue = React.useMemo(() => ({ handle }), [handle]);
-
-  return (
-    <MobileNavContext.Provider value={contextValue}>
-      <Drawer.Trigger
-        {...triggerProps}
-        id={triggerId}
-        handle={handle}
-        className={clsx(triggerClassName, triggerProps?.className)}
-      >
-        {trigger}
-      </Drawer.Trigger>
-      <React.Suspense fallback={null}>
-        <LazyDrawer handle={handle} onOpenChange={onOpenChange} {...props}>
-          {children}
-        </LazyDrawer>
-      </React.Suspense>
-    </MobileNavContext.Provider>
-  );
-}
 
 export function Section(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('MobileNavSection', props.className)} />;
@@ -111,53 +35,66 @@ export function Item({ href, external, ...props }: ItemProps) {
   const { handle } = React.useContext(MobileNavContext);
   const pathname = usePathname();
   const active = props.active ?? pathname === href;
+  const scrollTimeout = useTimeout();
 
-  const LinkComponent = external ? 'a' : NextLink;
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (href !== window.location.pathname || isModifiedEvent(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    handle?.close();
+    scrollTimeout.start(500, () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  };
+
+  const handleNavigate = () => {
+    ReactDOM.flushSync(() => handle?.close());
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const linkProps = {
+    ariaCurrent: active ? ('page' as const) : undefined,
+    dataActive: active ? '' : undefined,
+    className: 'MobileNavLink',
+    href,
+    rel: props.rel,
+    onClick: handleClick,
+  };
 
   return (
     <li {...props} className={clsx('MobileNavItem', props.className)}>
-      <LinkComponent
-        aria-current={active ? 'page' : undefined}
-        data-active={active ? '' : undefined}
-        className="MobileNavLink"
-        href={href}
-        rel={props.rel}
-        // We handle scroll manually
-        scroll={external ? undefined : false}
-        onClick={() => {
-          if (href === window.location.pathname) {
-            // If the URL is the same, close, wait a little, and scroll to top smoothly
-            handle?.close();
-            setTimeout(() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 500);
-          } else {
-            // Otherwise, wait for the URL change before closing and scroll up instantly
-            onUrlChange(() => {
-              ReactDOM.flushSync(() => handle?.close());
-              window.scrollTo({ top: 0, behavior: 'instant' });
-            });
-          }
-        }}
-      >
-        {props.children}
-      </LinkComponent>
+      {external ? (
+        <a
+          aria-current={linkProps.ariaCurrent}
+          data-active={linkProps.dataActive}
+          className={linkProps.className}
+          href={linkProps.href}
+          rel={linkProps.rel}
+          onClick={linkProps.onClick}
+        >
+          {props.children}
+        </a>
+      ) : (
+        <NextLink
+          aria-current={linkProps.ariaCurrent}
+          data-active={linkProps.dataActive}
+          className={linkProps.className}
+          href={linkProps.href}
+          rel={linkProps.rel}
+          // We handle scroll manually.
+          scroll={false}
+          onClick={linkProps.onClick}
+          onNavigate={handleNavigate}
+        >
+          {props.children}
+        </NextLink>
+      )}
     </li>
   );
 }
 
-function onUrlChange(callback: () => void) {
-  const initialUrl = window.location.href;
-
-  function rafRecursively() {
-    requestAnimationFrame(() => {
-      if (initialUrl === window.location.href) {
-        rafRecursively();
-      } else {
-        callback();
-      }
-    });
-  }
-
-  rafRecursively();
+function isModifiedEvent(event: React.MouseEvent<HTMLAnchorElement>) {
+  return event.metaKey || event.altKey || event.ctrlKey || event.shiftKey;
 }

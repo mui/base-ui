@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as MobileNav from './MobileNav';
 import { sitemap } from '../app/sitemap';
 import { GitHubIcon } from '../icons/GitHubIcon';
-import { MagnifyingGlassIcon } from '../icons/MagnifyingGlassIcon';
 import { NpmIcon } from '../icons/NpmIcon';
 
 export const titleMap: Record<string, string> = {
@@ -10,29 +9,14 @@ export const titleMap: Record<string, string> = {
 };
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
-const smallViewportQuery = '(max-width: 63.999rem)';
 
-interface DocsMobileNavProps {
-  triggerClassName: string;
-}
-
-export function DocsMobileNav({ triggerClassName }: DocsMobileNavProps) {
+export function MobileNavContent() {
   if (!sitemap) {
     return null;
   }
 
   return (
-    <MobileNav.Root
-      triggerClassName={triggerClassName}
-      trigger={
-        <React.Fragment>
-          <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
-          Navigation
-        </React.Fragment>
-      }
-      enableKeyboardShortcut
-      keyboardShortcutMediaQuery={smallViewportQuery}
-    >
+    <React.Fragment>
       {Object.entries(sitemap.data).map(([name, section]) => (
         <MobileNav.Section key={name}>
           <MobileNav.Heading>{name}</MobileNav.Heading>
@@ -83,6 +67,6 @@ export function DocsMobileNav({ triggerClassName }: DocsMobileNavProps) {
           </MobileNav.Item>
         </MobileNav.List>
       </MobileNav.Section>
-    </MobileNav.Root>
+    </React.Fragment>
   );
 }

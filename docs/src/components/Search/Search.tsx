@@ -5,8 +5,8 @@ import { platform } from '@base-ui/utils/platform';
 import './Search.css';
 
 const sitemapPromise = () => import('../../app/sitemap');
-const LazySearchBar = React.lazy(() =>
-  import('./SearchBar').then((module) => ({ default: module.SearchBar })),
+const LazySearchDialog = React.lazy(() =>
+  import('./SearchDialog').then((module) => ({ default: module.SearchDialog })),
 );
 
 interface SearchRenderProps {
@@ -72,7 +72,11 @@ export function Search({
         {typeof children === 'function' ? children({ isCmd }) : children}
       </Dialog.Trigger>
       <React.Suspense fallback={null}>
-        <LazySearchBar handle={handle} sitemap={sitemapPromise} containedScroll={containedScroll} />
+        <LazySearchDialog
+          handle={handle}
+          sitemap={sitemapPromise}
+          containedScroll={containedScroll}
+        />
       </React.Suspense>
     </React.Fragment>
   );

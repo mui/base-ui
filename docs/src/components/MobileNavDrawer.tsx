@@ -26,7 +26,12 @@ interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'han
   handle: Drawer.Handle<unknown>;
 }
 
-export function MobileNavDrawer({ children, handle, onOpenChange, ...props }: MobileNavDrawerProps) {
+export function MobileNavDrawer({
+  children,
+  handle,
+  onOpenChange,
+  ...props
+}: MobileNavDrawerProps) {
   const [searchValue, setSearchValue] = React.useState('');
 
   const handleOpenChange = React.useCallback(
