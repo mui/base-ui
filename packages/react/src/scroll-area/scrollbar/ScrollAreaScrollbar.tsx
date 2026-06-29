@@ -165,6 +165,13 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
         const maxThumbOffsetY =
           scrollbarYRef.current.offsetHeight - thumbHeight - scrollbarYOffset - thumbYOffset;
+        // A short or heavily padded track can drive `maxThumbOffsetY` to zero or
+        // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
+        // would yield a non-finite (`Infinity`/`NaN`) or inverted `scrollTop`.
+        if (maxThumbOffsetY <= 0) {
+          return;
+        }
+
         const scrollRatioY = clickY / maxThumbOffsetY;
         const newScrollTop = scrollRatioY * (scrollableContentHeight - viewportHeight);
 
@@ -184,6 +191,11 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
         const maxThumbOffsetX =
           scrollbarXRef.current.offsetWidth - thumbWidth - scrollbarXOffset - thumbXOffset;
+        // See the vertical case: guard against a non-positive offset.
+        if (maxThumbOffsetX <= 0) {
+          return;
+        }
+
         const scrollRatioX = clickX / maxThumbOffsetX;
 
         let newScrollLeft: number;
