@@ -279,17 +279,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           break;
         }
 
-        const candidateItems =
-          filterQuery === ''
-            ? group.items
-            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
-
-        if (candidateItems.length === 0) {
-          continue;
-        }
-
         const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
-        const itemsToTake = candidateItems.slice(0, remainingLimit);
+        const itemsToTake = filterQuery === '' ? group.items.slice(0, remainingLimit) : [];
+
+        if (filterQuery !== '') {
+          for (const item of group.items) {
+            if (itemsToTake.length >= remainingLimit) {
+              break;
+            }
+            if (filter(item, filterQuery, itemToStringLabel)) {
+              itemsToTake.push(item);
+            }
+          }
+        }
 
         if (itemsToTake.length > 0) {
           const newGroup = { ...group, items: itemsToTake };
@@ -1297,7 +1299,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
           // Handle browser autofill.
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
-            // Workaround for https://github.com/facebook/react/issues/9023
+            // Workaround for https://github.com/react/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
               return;
             }
@@ -1583,6 +1585,8 @@ interface ComboboxRootProps<ItemValue> {
    * Determines if the popup enters a modal state when open.
    * - `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    * @default false
    */
   modal?: boolean | undefined;

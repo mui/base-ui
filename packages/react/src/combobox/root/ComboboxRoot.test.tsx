@@ -5142,6 +5142,61 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('option', { name: 'blueberry' })).toBe(null);
     });
 
+    it('stops filtering grouped items once the limit is reached', async () => {
+      const items = [
+        {
+          value: 'groupA',
+          items: ['banana', 'apple', 'apricot', 'avocado'],
+        },
+        {
+          value: 'groupB',
+          items: ['artichoke', 'banana', 'blueberry'],
+        },
+      ];
+
+      const filter = vi.fn((itemValue: string, query: string) => itemValue.startsWith(query));
+
+      const { user } = await render(
+        <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(group) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                      <Combobox.Collection>
+                        {(item) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.Collection>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      filter.mockClear();
+
+      await user.type(screen.getByTestId('input'), 'a');
+      await flushMicrotasks();
+
+      const filteredItemValues = filter.mock.calls.map(([itemValue]) => itemValue);
+
+      expect(filteredItemValues).not.toContain('avocado');
+      expect(filteredItemValues).not.toContain('artichoke');
+      expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
+      expect(screen.getByRole('option', { name: 'apricot' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'avocado' })).toBe(null);
+      expect(screen.queryByRole('option', { name: 'artichoke' })).toBe(null);
+    });
+
     it('shows all items when limit is -1 (default)', async () => {
       const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
       await render(

@@ -708,7 +708,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
 
-      enqueueFocus(elToFocus, {
+      // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
+      void enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
           // This focus is queued on the next animation frame. If the floating element has closed
@@ -957,7 +958,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           onFocus={(event) => {
             if (modal) {
               const els = getTabbableContent();
-              enqueueFocus(els[els.length - 1]);
+              // enqueueFocus returns a rAF-cancel function we don't need here.
+              void enqueueFocus(els[els.length - 1]);
             } else if (portalContext?.portalNode) {
               preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
@@ -977,7 +979,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ref={mergedAfterGuardRef}
           onFocus={(event) => {
             if (modal) {
-              enqueueFocus(getTabbableContent()[0]);
+              // enqueueFocus returns a rAF-cancel function we don't need here.
+              void enqueueFocus(getTabbableContent()[0]);
             } else if (portalContext?.portalNode) {
               if (closeOnFocusOut) {
                 preventReturnFocusRef.current = true;

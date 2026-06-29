@@ -134,7 +134,9 @@ function update<I>(forkRef: ForkRef<I>, refs: InputRef<I>[]) {
               if (typeof cleanupCallback === 'function') {
                 cleanupCallback();
               } else {
-                ref(null);
+                // Legacy ref with no attach-time cleanup: detach by calling it with `null`.
+                // It returns nothing; React 19 cleanups are handled in the branch above.
+                void ref(null);
               }
               break;
             }
