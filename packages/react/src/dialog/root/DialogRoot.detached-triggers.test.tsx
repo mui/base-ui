@@ -1398,6 +1398,62 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('7');
     });
 
+    it('stops resolving a handle-A trigger after the root switches to handle B', async () => {
+      const handleA = Dialog.createHandle<number>();
+      const handleB = Dialog.createHandle<number>();
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        function App() {
+          const [handle, setHandle] = React.useState(handleA);
+          return (
+            <div>
+              <Dialog.Trigger handle={handleA} id="a" payload={1}>
+                A trigger
+              </Dialog.Trigger>
+              <button type="button" onClick={() => setHandle(handleB)}>
+                Switch root to B
+              </button>
+              <Dialog.Root handle={handle} modal={false} disablePointerDismissal>
+                <Dialog.Portal>
+                  <Dialog.Popup>Dialog Content</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const aTrigger = screen.getByRole('button', { name: 'A trigger' });
+
+        // Positive control: while the root is on handle A, opening by the A-trigger's id associates it.
+        await act(() => handleA.open('a'));
+        await waitFor(() => {
+          expect(screen.getByText('Dialog Content')).toBeVisible();
+        });
+        expect(aTrigger).toHaveAttribute('aria-expanded', 'true');
+        await act(() => handleA.close());
+        await waitFor(() => {
+          expect(screen.queryByText('Dialog Content')).toBe(null);
+        });
+
+        // The A-trigger stays mounted on handle A; only the root moves to handle B.
+        await user.click(screen.getByRole('button', { name: 'Switch root to B' }));
+
+        // Handle B's root must no longer resolve the handle-A trigger: the trigger followed its own
+        // handle's store off the root's store, so open-by-id finds nothing and warns.
+        consoleWarn.mockClear();
+        await act(() => handleB.open('a'));
+        await waitFor(() => {
+          expect(screen.getByText('Dialog Content')).toBeVisible();
+        });
+        expect(aTrigger).toHaveAttribute('aria-expanded', 'false');
+        expect(consoleWarn).toHaveBeenCalled();
+      } finally {
+        consoleWarn.mockRestore();
+      }
+    });
+
     it('sets the payload assosiated with the trigger', async () => {
       const dialog = Dialog.createHandle<number>();
       await render(

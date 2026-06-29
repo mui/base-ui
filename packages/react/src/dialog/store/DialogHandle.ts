@@ -13,9 +13,9 @@ import { REASONS } from '../../internals/reasons';
 export class DialogHandle<Payload> {
   /**
    * Closed, never-attached store handed to detached triggers while no root is attached, so they can
-   * render and register without a mounted root. Its trigger map doubles as the pending-registration
-   * buffer: detached triggers register into it, and the entries are drained into the real store when
-   * a root attaches.
+   * render and register without a mounted root. Triggers register into whichever store `store`
+   * currently resolves to, so while detached they live in this store's trigger map and migrate
+   * themselves to the root's store (and back) as it attaches/detaches.
    */
   private readonly fallbackStore = new DialogStore<Payload>();
 
@@ -127,46 +127,19 @@ export class DialogHandle<Payload> {
   }
 
   /**
-   * Attaches a root's store to this handle and drains any trigger registrations captured while
-   * detached into it. Returns a cleanup function that detaches the store again. Called by `Dialog.Root`.
+   * Points the handle at a root's store and notifies subscribers so detached triggers re-render and
+   * re-register into it (their registration ref re-fires on the store-pointer change). Returns a
+   * cleanup function that detaches the store again. Called by `Dialog.Root`.
    * @internal
    */
   attachStore(newStore: DialogStore<Payload>) {
-    const previousStore = this.attachedStore;
-
-    if (previousStore !== newStore) {
+    if (this.attachedStore !== newStore) {
       this.attachedStore = newStore;
-
-      // Triggers that mounted before this root registered into the fallback store's trigger map.
-      // Their registration ref is a stable callback that does not re-fire when the store pointer
-      // swaps, so draining here is the only path that moves them into the attached store. Do it
-      // before notifying subscribers so the store is immediately consistent for its trigger-derived
-      // logic (e.g. resolving an imperative `open(triggerId)` or the active trigger).
-      const pending = this.fallbackStore.context.triggerElements;
-      const { triggerElements } = newStore.context;
-      for (const [id, element] of pending.entries()) {
-        triggerElements.add(id, element);
-      }
-      pending.clear();
-
-      newStore.set('triggerCount', triggerElements.size);
       this.notifyStoreListeners();
     }
 
     return () => {
       if (this.attachedStore === newStore) {
-        // Move the still-registered triggers back into the pending buffer. Detached triggers can
-        // outlive the root (e.g. a persistent header trigger while a route-owned root unmounts);
-        // their registration ref is a stable callback that does not re-fire on the store-pointer
-        // swap, so without this they would be lost when the store is destroyed and the next root
-        // would attach with an empty trigger map — breaking imperative open-by-id / payload / ARIA
-        // until the trigger is clicked. The departing store's own map is left intact (it may survive
-        // a handle swap), and re-draining on the next attach is idempotent.
-        const pending = this.fallbackStore.context.triggerElements;
-        for (const [id, element] of newStore.context.triggerElements.entries()) {
-          pending.add(id, element);
-        }
-
         this.attachedStore = null;
         this.notifyStoreListeners();
       }
