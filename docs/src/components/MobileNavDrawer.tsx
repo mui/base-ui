@@ -310,10 +310,7 @@ function MobileNavPopupImpl({
     (group: SearchResults[number]) => (
       <Autocomplete.Group key={group.group} items={group.items} className="MobileNavSection">
         {group.group !== 'Default' && (
-          <Autocomplete.GroupLabel
-            id={`mobile-nav-search-group-${group.group}`}
-            className="MobileNavHeading"
-          >
+          <Autocomplete.GroupLabel className="MobileNavHeading">
             {normalizeGroup(group.group)}
           </Autocomplete.GroupLabel>
         )}

@@ -317,7 +317,7 @@ export function SearchDialog({
     (group: SearchResults[number]) => (
       <Autocomplete.Group key={group.group} items={group.items} className="SearchGroup">
         {group.group !== 'Default' && (
-          <Autocomplete.GroupLabel id={`search-group-${group.group}`} className="SearchGroupLabel">
+          <Autocomplete.GroupLabel className="SearchGroupLabel">
             {normalizeGroup(group.group)}
           </Autocomplete.GroupLabel>
         )}
