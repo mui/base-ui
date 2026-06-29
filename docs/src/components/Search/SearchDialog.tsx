@@ -15,8 +15,10 @@ import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
+import './Search.css';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+const defaultSitemapPromise = () => import('../../app/sitemap');
 
 // Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0)
 // Used to match the behavior of rehypeConcatHeadings on the Releases page
@@ -82,17 +84,17 @@ const EmptyState = React.memo(function EmptyState() {
   return <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>;
 });
 
-export interface SearchBarProps {
+export interface SearchDialogProps {
   handle: Dialog.Handle<unknown>;
-  sitemap: () => Promise<{ sitemap?: Sitemap }>;
+  sitemap?: () => Promise<{ sitemap?: Sitemap }>;
   containedScroll?: boolean;
 }
 
-export function SearchBar({
+export function SearchDialog({
   handle,
-  sitemap: sitemapImport,
+  sitemap: sitemapImport = defaultSitemapPromise,
   containedScroll = false,
-}: SearchBarProps) {
+}: SearchDialogProps) {
   const [dialogOpen, setDialogOpen] = React.useState(handle.isOpen);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);

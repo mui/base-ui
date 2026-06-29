@@ -118,13 +118,9 @@
     }
   }
 
-  .HeaderDesktopActions {
-    display: none;
-    gap: 1.5rem;
-
-    @media (--lg) {
-      display: flex;
-    }
+  .HeaderSearch {
+    display: flex;
+    align-items: center;
 
     @media (--show-quick-nav) {
       /* Align the search trigger's text with the right sidebar (quick nav) text.
@@ -134,10 +130,16 @@
     }
   }
 
-  .HeaderMobileActions {
+  .HeaderSearch .HeaderSearchDesktopTrigger {
+    display: none;
+
+    @media (--lg) {
+      display: inline-flex;
+    }
+  }
+
+  .HeaderSearch .HeaderSearchMobileTrigger {
     display: flex;
-    align-items: center;
-    gap: 1rem;
 
     @media (--lg) {
       display: none;
