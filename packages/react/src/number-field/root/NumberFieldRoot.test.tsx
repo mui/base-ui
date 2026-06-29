@@ -550,6 +550,78 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[1][0]).toBe(12);
     });
 
+    it('accepts multi-character currency symbols while typing (e.g. pt-BR BRL)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { style: 'currency', currency: 'BRL' };
+      await render(
+        <NumberField
+          defaultValue={1234.56}
+          locale="pt-BR"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      const formatted = new Intl.NumberFormat('pt-BR', format).format(1234.56);
+
+      // Type a trailing digit. Previously every keystroke was rejected because the multi-character
+      // `R$` symbol failed the per-character validation in the change handler.
+      fireEvent.change(input, { target: { value: `${formatted}7` } });
+
+      expect(input).toHaveValue(`${formatted}7`);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1234.567);
+    });
+
+    it('accepts multi-character unit symbols while typing (e.g. km/h)', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          locale="en-US"
+          format={{ style: 'unit', unit: 'kilometer-per-hour' }}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // The `km/h` unit must not block editing the numeric region.
+      fireEvent.change(input, { target: { value: '1 km/h' } });
+      fireEvent.change(input, { target: { value: '12 km/h' } });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(12);
+    });
+
+    it('accepts exponent separators while typing (scientific notation)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { notation: 'scientific' };
+      await render(<NumberField locale="en-US" format={format} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      // `1.5E3` should parse to 1500 rather than being rejected for the `E` separator.
+      fireEvent.change(input, { target: { value: '1.5E3' } });
+
+      expect(input).toHaveValue('1.5E3');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1500);
+    });
+
+    it('ignores bidi/format control characters in the value (e.g. RTL exponent signs)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { notation: 'scientific' };
+      await render(<NumberField locale="en-US" format={format} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      // RTL locales (e.g. fa-IR) insert a U+200E LEFT-TO-RIGHT MARK around the exponent sign in
+      // scientific notation. Inject one into an otherwise-valid value so the test is deterministic
+      // across ICU versions: the validator must ignore the control character rather than reject it.
+      fireEvent.change(input, { target: { value: '5E\u200E-1' } });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(0.5);
+    });
+
     it('allows deleting trailing currency symbols with locale literals', async () => {
       const onValueChange = vi.fn();
       const format: Intl.NumberFormatOptions = {
