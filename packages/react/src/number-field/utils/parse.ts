@@ -91,7 +91,7 @@ export const ANY_PLUS_RE = new RegExp(ANY_PLUS_CLASS, 'gu');
 export const ANY_MINUS_DETECT_RE = new RegExp(ANY_MINUS_CLASS);
 export const ANY_PLUS_DETECT_RE = new RegExp(ANY_PLUS_CLASS);
 
-// A representative value with two grouping separators and a fractional part, so that the formatter
+// A representative value with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
 // so the locale-detail and allowed-character derivations enumerate the same parts.
 const SAMPLE_FORMAT_NUMBER = 11111.1;
