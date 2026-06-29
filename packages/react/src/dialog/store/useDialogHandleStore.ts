@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import type { DialogHandle } from './DialogHandle';
-import type { DialogStore } from './DialogStore';
+import type { DialogHandleStore } from './DialogStore';
 
 export function useDialogHandleStore<Payload>(
   handle: DialogHandle<Payload> | undefined,
-): DialogStore<Payload> | undefined {
+): DialogHandleStore<Payload> | undefined {
   const subscribe = React.useCallback(
     (listener: () => void) => {
       if (handle === undefined) {

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore, useStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
@@ -47,6 +48,16 @@ const selectors = {
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   role: createSelector((state: State<unknown>) => state.role),
 };
+
+/**
+ * The subset of `DialogStore` that detached handle-backed triggers rely on. Both the real
+ * `DialogStore` and the inert `NullDialogStore` satisfy it, so a trigger can read from whichever
+ * store the handle currently exposes.
+ */
+export type DialogHandleStore<Payload> = Pick<
+  DialogStore<Payload>,
+  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
+>;
 
 export class DialogStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
@@ -106,6 +117,68 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.update(updatedState);
   };
+}
+
+/**
+ * Inert, immutable, closed store handed to detached handle-backed triggers while no root is
+ * attached, so they can render and register without a mounted root. Reads always reflect a closed
+ * dialog and mutations are no-ops; its own trigger map holds detached registrations until they
+ * migrate to the attached root's store.
+ * @internal
+ */
+export class NullDialogStore<Payload> implements DialogHandleStore<Payload> {
+  readonly state: Readonly<State<Payload>>;
+
+  readonly context: Context;
+
+  constructor() {
+    const triggerElements = new PopupTriggerMap();
+    this.state = Object.freeze(createInitialState<Payload>(undefined, triggerElements));
+    this.context = Object.freeze({
+      popupRef: React.createRef<HTMLElement>(),
+      backdropRef: React.createRef<HTMLDivElement>(),
+      internalBackdropRef: React.createRef<HTMLDivElement>(),
+      outsidePressEnabledRef: { current: true },
+      triggerElements,
+      onOpenChange: undefined,
+      onOpenChangeComplete: undefined,
+    });
+  }
+
+  subscribe = () => NOOP;
+
+  getSnapshot = () => this.state;
+
+  select: DialogStore<Payload>['select'] = ((key: keyof typeof selectors, a1, a2, a3) => {
+    return (
+      selectors[key] as (
+        state: Readonly<State<Payload>>,
+        a1?: unknown,
+        a2?: unknown,
+        a3?: unknown,
+      ) => unknown
+    )(this.state, a1, a2, a3);
+  }) as DialogStore<Payload>['select'];
+
+  update() {}
+
+  set() {}
+
+  useState: DialogStore<Payload>['useState'] = ((key: keyof typeof selectors, a1, a2, a3) => {
+    React.useDebugValue(key);
+    return useStore(
+      this,
+      selectors[key] as (
+        state: Readonly<State<Payload>>,
+        a1?: unknown,
+        a2?: unknown,
+        a3?: unknown,
+      ) => unknown,
+      a1,
+      a2,
+      a3,
+    );
+  }) as DialogStore<Payload>['useState'];
 }
 
 function createInitialState<Payload>(

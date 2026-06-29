@@ -1,4 +1,4 @@
-import { DialogStore } from './DialogStore';
+import { DialogStore, NullDialogStore, type DialogHandleStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -12,12 +12,13 @@ import { REASONS } from '../../internals/reasons';
  */
 export class DialogHandle<Payload> {
   /**
-   * Closed, never-attached store handed to detached triggers while no root is attached, so they can
-   * render and register without a mounted root. Triggers register into whichever store `store`
-   * currently resolves to, so while detached they live in this store's trigger map and migrate
-   * themselves to the root's store (and back) as it attaches/detaches.
+   * Inert, closed store handed to detached triggers while no root is attached, so they can render
+   * and register without a mounted root. Its reads always reflect a closed dialog and its mutations
+   * are no-ops. Triggers register into whichever store `store` currently resolves to, so while
+   * detached they live in this store's trigger map and migrate themselves to the root's store (and
+   * back) as it attaches/detaches.
    */
-  private readonly fallbackStore = new DialogStore<Payload>();
+  private readonly fallbackStore = new NullDialogStore<Payload>();
 
   /**
    * Store owned by the currently mounted root, or `null` when no root is attached. Imperative
@@ -119,7 +120,9 @@ export class DialogHandle<Payload> {
    * Whether the dialog is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
+    // The fallback store is always closed, so reading through `store` is equivalent to guarding on
+    // `attachedStore` and keeps `isOpen` and `store` reading from the same source.
+    return this.store.select('open');
   }
 
   /**
@@ -127,7 +130,7 @@ export class DialogHandle<Payload> {
    * used while no root is attached.
    * @internal
    */
-  get store(): DialogStore<Payload> {
+  get store(): DialogHandleStore<Payload> {
     return this.attachedStore ?? this.fallbackStore;
   }
 
