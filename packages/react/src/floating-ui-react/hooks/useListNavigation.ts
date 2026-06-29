@@ -447,9 +447,10 @@ export function useListNavigation(
             // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
             // on open even when the consumer passes an empty `disabledIndices` array. Passing it
             // would regress that behavior (see mui/base-ui#2604).
-            // macOS Safari VoiceOver can miss this first focus event as a freshly mounted
-            // submenu enters the accessibility tree. Delay only DOM focus; activeIndex still
-            // updates immediately so visual highlight and navigation state are not delayed.
+            // With macOS VoiceOver, WebKit can miss this first focus event as a freshly
+            // mounted submenu enters the accessibility tree. Delay only DOM focus for this
+            // engine-specific path; activeIndex still updates immediately so visual highlight
+            // and navigation state are not delayed.
             delayInitialFocusRef.current =
               platform.os.mac &&
               platform.screenReader.voiceOver &&

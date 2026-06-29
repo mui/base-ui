@@ -3,6 +3,7 @@ import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { REASONS } from '../../internals/reasons';
 import { isMacVoiceOver } from '../utils/isMacVoiceOver';
 
 vi.mock('../utils/isMacVoiceOver', () => {
@@ -172,6 +173,49 @@ describe('<Menu.SubmenuTrigger />', () => {
 
       const submenu = await screen.findByTestId('submenu');
 
+      expect(submenuTrigger).toHaveFocus();
+      expect(submenuTrigger).toHaveAttribute('data-popup-open');
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
+      expect(submenuTrigger).not.toHaveAttribute('aria-controls');
+      expect(submenu).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it.each([
+      ['Enter', '[Enter]'],
+      ['Space', '[Space]'],
+    ])('defers the ARIA relationship when opened with %s', async (_keyName, key) => {
+      const handleOpenChange = vi.fn();
+
+      const { user } = await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot onOpenChange={handleOpenChange}>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu" />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = screen.getByText('More');
+
+      await user.click(submenuTrigger);
+      await user.keyboard(key);
+
+      const submenu = await screen.findByTestId('submenu');
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleOpenChange.mock.lastCall?.[0]).toBe(true);
+      expect(handleOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerPress);
       expect(submenuTrigger).toHaveFocus();
       expect(submenuTrigger).toHaveAttribute('data-popup-open');
       expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
