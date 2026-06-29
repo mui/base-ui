@@ -350,7 +350,7 @@ export function useCollapsiblePanel(
 
     // React only supports a boolean for the `hidden` attribute and forces
     // legit string values to booleans so we have to force it back in the DOM
-    // when necessary: https://github.com/facebook/react/issues/24740
+    // when necessary: https://github.com/react/react/issues/24740
     panel.setAttribute('hidden', 'until-found');
   }, [hidden, hiddenUntilFound]);
 

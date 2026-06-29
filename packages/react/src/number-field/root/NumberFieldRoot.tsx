@@ -490,7 +490,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             inputRef.current?.focus();
           },
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
-            // Workaround for https://github.com/facebook/react/issues/9023
+            // Workaround for https://github.com/react/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
               return;
             }
@@ -515,7 +515,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         min={min}
         max={max}
         // stepMismatch validation is broken unless an explicit `min` is added.
-        // See https://github.com/facebook/react/issues/12334.
+        // See https://github.com/react/react/issues/12334.
         step={stepProp}
         disabled={disabled}
         readOnly={readOnly}
