@@ -607,24 +607,16 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(1500);
     });
 
-    it('accepts bidi format controls in the value (RTL scientific notation)', async () => {
+    it('ignores bidi/format control characters in the value (e.g. RTL exponent signs)', async () => {
       const onValueChange = vi.fn();
       const format: Intl.NumberFormatOptions = { notation: 'scientific' };
-      await render(
-        <NumberField
-          defaultValue={0.1}
-          locale="fa-IR"
-          format={format}
-          onValueChange={onValueChange}
-        />,
-      );
+      await render(<NumberField locale="en-US" format={format} onValueChange={onValueChange} />);
       const input = screen.getByRole('textbox');
 
-      // The fa-IR scientific form of a sub-1 value has a negative exponent whose minus sign is
-      // preceded by a U+200E control character. Editing the value must not be rejected for it.
-      const formatted = new Intl.NumberFormat('fa-IR', format).format(0.5);
-      expect(Array.from(formatted).some((ch) => /\p{Cf}/u.test(ch))).toBe(true);
-      fireEvent.change(input, { target: { value: formatted } });
+      // RTL locales (e.g. fa-IR) insert a U+200E LEFT-TO-RIGHT MARK around the exponent sign in
+      // scientific notation. Inject one into an otherwise-valid value so the test is deterministic
+      // across ICU versions: the validator must ignore the control character rather than reject it.
+      fireEvent.change(input, { target: { value: '5E\u200E-1' } });
 
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.calls[0][0]).toBe(0.5);
