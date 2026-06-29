@@ -10,6 +10,7 @@ import type {
   SearchResults,
   Sitemap,
 } from '@mui/internal-docs-infra/useSearch/types';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from './QuickNav/rehypeSlug.mjs';
 
@@ -33,16 +34,118 @@ export function MobileNavDrawer({
   ...props
 }: MobileNavDrawerProps) {
   const [searchValue, setSearchValue] = React.useState('');
+  const ga = useGoogleAnalytics();
+  const searchQueryRef = React.useRef('');
+  const resultCountRef = React.useRef(0);
+  const attemptRef = React.useRef(0);
+  const selectedResultRef = React.useRef<SearchResult | null>(null);
+  const lastTrackedQueryRef = React.useRef('');
+  const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (queryDebounceRef.current) {
+        clearTimeout(queryDebounceRef.current);
+      }
+    };
+  }, []);
+
+  const handleOpenDrawer = React.useCallback(() => {
+    searchQueryRef.current = '';
+    resultCountRef.current = 0;
+    attemptRef.current = 0;
+    selectedResultRef.current = null;
+    lastTrackedQueryRef.current = '';
+    if (queryDebounceRef.current) {
+      clearTimeout(queryDebounceRef.current);
+      queryDebounceRef.current = null;
+    }
+    ga?.trackEvent({ category: 'search', action: 'open' });
+  }, [ga]);
+
+  const handleCloseDrawer = React.useCallback(() => {
+    if (queryDebounceRef.current) {
+      clearTimeout(queryDebounceRef.current);
+      queryDebounceRef.current = null;
+    }
+
+    if (searchQueryRef.current) {
+      const selected = selectedResultRef.current;
+      ga?.trackEvent({
+        category: 'search',
+        action: selected ? 'select' : 'dismiss',
+        label: searchQueryRef.current,
+        params: {
+          search_term: searchQueryRef.current,
+          result_count: resultCountRef.current,
+          attempt: attemptRef.current,
+          ...(selected
+            ? {
+                selected_result: selected.title || selected.slug,
+                selected_type: selected.type || '',
+              }
+            : { failed: searchQueryRef.current }),
+        },
+      });
+      lastTrackedQueryRef.current = searchQueryRef.current;
+    }
+
+    setSearchValue('');
+  }, [ga]);
+
+  const handleResultCountChange = React.useCallback((resultCount: number) => {
+    resultCountRef.current = resultCount;
+  }, []);
+
+  const handleSearchValueChange = React.useCallback(
+    (value: string) => {
+      if (queryDebounceRef.current) {
+        clearTimeout(queryDebounceRef.current);
+        queryDebounceRef.current = null;
+      }
+
+      const previousLength = searchQueryRef.current?.length ?? 0;
+      searchQueryRef.current = value;
+      if (value) {
+        if (previousLength === 0 && value.length > 0) {
+          attemptRef.current += 1;
+        }
+
+        queryDebounceRef.current = setTimeout(() => {
+          if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
+            ga?.trackEvent({
+              category: 'search',
+              action: 'query',
+              label: searchQueryRef.current,
+              params: {
+                search_term: searchQueryRef.current,
+                result_count: resultCountRef.current,
+                attempt: attemptRef.current,
+              },
+            });
+            lastTrackedQueryRef.current = searchQueryRef.current;
+          }
+        }, 1500);
+      }
+    },
+    [ga],
+  );
+
+  const handleResultSelect = React.useCallback((result: SearchResult | null) => {
+    selectedResultRef.current = result;
+  }, []);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
       onOpenChange?.(nextOpen, eventDetails);
 
-      if (!nextOpen) {
-        setSearchValue('');
+      if (nextOpen) {
+        handleOpenDrawer();
+      } else {
+        handleCloseDrawer();
       }
     },
-    [onOpenChange],
+    [handleCloseDrawer, handleOpenDrawer, onOpenChange],
   );
 
   return (
@@ -56,6 +159,9 @@ export function MobileNavDrawer({
               <MobileNavPopupImpl
                 handle={handle}
                 searchValue={searchValue}
+                onResultCountChange={handleResultCountChange}
+                onResultSelect={handleResultSelect}
+                onSearchValueChange={handleSearchValueChange}
                 setSearchValue={setSearchValue}
               >
                 {children}
@@ -85,6 +191,9 @@ function normalizeGroup(group: string) {
 interface MobileNavPopupImplProps extends React.PropsWithChildren {
   handle: Drawer.Handle<unknown>;
   searchValue: string;
+  onResultCountChange: (resultCount: number) => void;
+  onResultSelect: (result: SearchResult | null) => void;
+  onSearchValueChange: (value: string) => void;
   setSearchValue: (value: string) => void;
 }
 
@@ -92,6 +201,9 @@ function MobileNavPopupImpl({
   children,
   handle,
   searchValue,
+  onResultCountChange,
+  onResultSelect,
+  onSearchValueChange,
   setSearchValue,
 }: MobileNavPopupImplProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -112,8 +224,10 @@ function MobileNavPopupImpl({
     React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
 
   React.useEffect(() => {
+    const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
+    onResultCountChange(totalResults);
     setSearchResults(results);
-  }, [results]);
+  }, [onResultCountChange, results]);
 
   const itemToStringValue = React.useCallback(
     (item: SearchResult | null) => (item ? item.title || item.slug : ''),
@@ -122,26 +236,32 @@ function MobileNavPopupImpl({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
+      onSearchValueChange(value);
       setSearchValue(value);
       await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
     },
-    [search, setSearchValue],
+    [onSearchValueChange, search, setSearchValue],
   );
 
   const handleClearSearch = React.useCallback(async () => {
+    onSearchValueChange('');
     setSearchValue('');
     await search('', { groupBy: { properties: ['group'], maxResult: 5 } });
     inputRef.current?.focus();
-  }, [search, setSearchValue]);
+  }, [onSearchValueChange, search, setSearchValue]);
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
   }, []);
 
-  const handleResultNavigate = React.useCallback(() => {
-    handle.close();
-    setSearchValue('');
-  }, [handle, setSearchValue]);
+  const handleResultNavigate = React.useCallback(
+    (result: SearchResult) => {
+      onResultSelect(result);
+      handle.close();
+      setSearchValue('');
+    },
+    [handle, onResultSelect, setSearchValue],
+  );
 
   const handleAutocompleteOpenChange = React.useCallback(
     (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
@@ -150,12 +270,13 @@ function MobileNavPopupImpl({
       }
 
       if (searchValue) {
+        onSearchValueChange('');
         setSearchValue('');
       } else {
         handle.close();
       }
     },
-    [handle, searchValue, setSearchValue],
+    [handle, onSearchValueChange, searchValue, setSearchValue],
   );
 
   const handleKeyDownCapture = React.useCallback(
@@ -163,6 +284,7 @@ function MobileNavPopupImpl({
       if (event.key === 'Escape' && searchValue) {
         event.preventDefault();
         event.stopPropagation();
+        onSearchValueChange('');
         setSearchValue('');
         return;
       }
@@ -181,7 +303,7 @@ function MobileNavPopupImpl({
 
       window.open(buildResultUrl(highlightedResult), '_blank', 'noopener,noreferrer');
     },
-    [buildResultUrl, searchValue, setSearchValue],
+    [buildResultUrl, onSearchValueChange, searchValue, setSearchValue],
   );
 
   const renderResultsList = React.useCallback(
@@ -203,7 +325,7 @@ function MobileNavPopupImpl({
               render={
                 <NextLink
                   href={buildResultUrl(result)}
-                  onNavigate={handleResultNavigate}
+                  onNavigate={() => handleResultNavigate(result)}
                   tabIndex={-1}
                 />
               }
