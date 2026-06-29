@@ -72,13 +72,13 @@
 .Toggle {
   box-sizing: border-box;
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+  top: 1px;
+  right: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  height: calc(100% - 2px);
+  aspect-ratio: 1;
   padding: 0;
   margin: 0;
   border: none;
