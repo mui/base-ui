@@ -20,6 +20,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
+  getFormatParts,
   getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
@@ -145,43 +146,52 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
-    const { decimal, group, currency, literal } = getNumberLocaleDetails(locale, format);
+    const parts = getFormatParts(locale, format);
 
     const keys = new Set<string>();
     BASE_NON_NUMERIC_SYMBOLS.forEach((symbol) => keys.add(symbol));
+
+    // Integer formats omit the decimal from `parts`, so fall back to the locale's separator in that
+    // case; it must stay typeable regardless of whether the format renders a fraction.
+    const decimal =
+      parts.find((part) => part.type === 'decimal')?.value ??
+      getNumberLocaleDetails(locale, format).decimal;
     if (decimal) {
       keys.add(decimal);
     }
-    if (group) {
-      keys.add(group);
-      if (SPACE_SEPARATOR_RE.test(group)) {
+
+    // Allow every non-digit character the formatter renders — separators, currency symbols, units
+    // (e.g. `km/h`, `°C`), exponent separators, and locale literals — decomposed per character
+    // because the input validates the typed string one character at a time. Deriving these from
+    // the formatter covers multi-character and locale-specific symbols of every part type
+    // uniformly. `compact` suffixes (e.g. `K`/`M`) are excluded because `parseNumber` can't reverse
+    // them, so allowing them would yield a silently incorrect value.
+    parts.forEach((part) => {
+      if (
+        part.type === 'integer' ||
+        part.type === 'fraction' ||
+        part.type === 'exponentInteger' ||
+        part.type === 'compact'
+      ) {
+        return;
+      }
+      Array.from(part.value).forEach((char) => keys.add(char));
+      if (SPACE_SEPARATOR_RE.test(part.value)) {
         keys.add(' ');
       }
-    }
+    });
 
     const allowPercentSymbols =
       formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'percent');
     const allowPermilleSymbols =
       formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'permille');
 
+    // Tolerate percent/permille variants the formatter doesn't emit but users may type or paste.
     if (allowPercentSymbols) {
       PERCENTAGES.forEach((key) => keys.add(key));
     }
     if (allowPermilleSymbols) {
       PERMILLE.forEach((key) => keys.add(key));
-    }
-
-    if (formatStyle === 'currency' && currency) {
-      keys.add(currency);
-    }
-
-    if (literal) {
-      // Some locales (e.g. de-DE) insert a literal space character between the number
-      // and the symbol, so allow those characters to be typed/removed.
-      Array.from(literal).forEach((char) => keys.add(char));
-      if (SPACE_SEPARATOR_RE.test(literal)) {
-        keys.add(' ');
-      }
     }
 
     // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
@@ -480,7 +490,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             inputRef.current?.focus();
           },
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
-            // Workaround for https://github.com/facebook/react/issues/9023
+            // Workaround for https://github.com/react/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
               return;
             }
@@ -505,7 +515,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         min={min}
         max={max}
         // stepMismatch validation is broken unless an explicit `min` is added.
-        // See https://github.com/facebook/react/issues/12334.
+        // See https://github.com/react/react/issues/12334.
         step={stepProp}
         disabled={disabled}
         readOnly={readOnly}
