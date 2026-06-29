@@ -155,6 +155,18 @@ export class DialogHandle<Payload> {
 
     return () => {
       if (this.attachedStore === newStore) {
+        // Move the still-registered triggers back into the pending buffer. Detached triggers can
+        // outlive the root (e.g. a persistent header trigger while a route-owned root unmounts);
+        // their registration ref is a stable callback that does not re-fire on the store-pointer
+        // swap, so without this they would be lost when the store is destroyed and the next root
+        // would attach with an empty trigger map — breaking imperative open-by-id / payload / ARIA
+        // until the trigger is clicked. The departing store's own map is left intact (it may survive
+        // a handle swap), and re-draining on the next attach is idempotent.
+        const pending = this.fallbackStore.context.triggerElements;
+        for (const [id, element] of newStore.context.triggerElements.entries()) {
+          pending.add(id, element);
+        }
+
         this.attachedStore = null;
         this.notifyStoreListeners();
       }

@@ -1325,6 +1325,79 @@ describe('<Dialog.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
+    it('associates an imperative open-by-id with a persistent detached trigger after the root remounts', async () => {
+      const dialog = Dialog.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Dialog.Trigger handle={dialog} id="trigger" payload={7}>
+              Trigger
+            </Dialog.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+            {mounted && (
+              <Dialog.Root handle={dialog}>
+                {({ payload }: { payload: number | undefined }) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <Dialog.Portal>
+                      <Dialog.Popup>
+                        Dialog Content
+                        <button type="button" onClick={() => setMounted(false)}>
+                          Unmount root
+                        </button>
+                      </Dialog.Popup>
+                    </Dialog.Portal>
+                  </React.Fragment>
+                )}
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+      expect(screen.getByTestId('payload').textContent).toBe('7');
+
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Unmount root' }),
+      );
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      // The trigger stayed mounted across the remount, so an imperative open-by-id must still
+      // associate it (ARIA + payload), not open unassociated.
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+      expect(screen.getByTestId('payload').textContent).toBe('7');
+    });
+
     it('sets the payload assosiated with the trigger', async () => {
       const dialog = Dialog.createHandle<number>();
       await render(
