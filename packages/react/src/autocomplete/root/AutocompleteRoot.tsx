@@ -173,7 +173,13 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'actionsRef'
   | 'onOpenChange'
   | 'openOnInputClick'
+  | 'form'
 > {
+  /**
+   * Identifies the form that owns the internal input.
+   * Useful when the autocomplete is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.

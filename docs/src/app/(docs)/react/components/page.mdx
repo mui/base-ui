@@ -393,6 +393,7 @@ A collapsible panel controlled by a button.
 - Exports:
   - Collapsible - Root
     - Props: className, defaultOpen, disabled, onOpenChange, open, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Collapsible - Trigger
     - Props: className, nativeButton, render, style
     - Data Attributes: data-panel-open
@@ -566,7 +567,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -578,7 +579,7 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Context Menu - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
@@ -965,7 +966,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Menu - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
@@ -1348,7 +1349,7 @@ A popup that appears when a link is hovered, showing a preview for sighted users
   - Preview Card - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Preview Card - Popup
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
@@ -1943,6 +1944,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
     - Positioner
     - Popup
     - Arrow
+    - Viewport
   - createHandle
     - Handle
 - Exports:
@@ -1958,7 +1960,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
   - Tooltip - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Tooltip - Popup
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
