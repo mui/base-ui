@@ -4,10 +4,6 @@ import { sitemap } from '../app/sitemap';
 import { GitHubIcon } from '../icons/GitHubIcon';
 import { NpmIcon } from '../icons/NpmIcon';
 
-export const titleMap: Record<string, string> = {
-  'About Base\xa0UI': 'About',
-};
-
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
 export function MobileNavContent() {
@@ -37,9 +33,7 @@ export function MobileNavContent() {
                     }
                     external={page.tags?.includes('External')}
                   >
-                    <span className="MobileNavLinkText">
-                      {(page.title && titleMap[page.title]) || page.title}
-                    </span>
+                    <span className="MobileNavLinkText">{page.title}</span>
                     {isPrivatePage && <MobileNav.Badge>Private</MobileNav.Badge>}
                     {isPreviewPage && <MobileNav.Badge>Preview</MobileNav.Badge>}
                     {isNewPage && !isPreviewPage && !isPrivatePage && (
