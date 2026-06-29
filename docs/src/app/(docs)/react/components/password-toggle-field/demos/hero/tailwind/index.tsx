@@ -17,7 +17,7 @@ export default function ExamplePasswordToggleField() {
         />
         <PasswordToggleField.Toggle
           aria-label="Show password"
-          className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-none border-none bg-transparent text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
+          className="absolute top-px right-px flex h-[calc(100%-2px)] aspect-square items-center justify-center rounded-none border-none bg-transparent text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
           render={(props, state) => (
             <button type="button" {...props}>
               {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
