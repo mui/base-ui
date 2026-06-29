@@ -661,6 +661,66 @@ describe('<Drawer.SwipeArea />', () => {
     });
   });
 
+  it('commits a released-move quick flick exactly once when a real pointerup trails it', async () => {
+    // The `buttons: 0` move finishes the gesture by itself, but a real browser still delivers the
+    // trailing `pointerup` afterwards. That second `handleEnd` must be a no-op: the flick stays open
+    // and does not re-commit the release (no double open-change, no spurious close).
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root onOpenChange={handleOpenChange}>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+      timeStamp: 0,
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 40,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 16,
+    });
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-open', '');
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange.mock.calls[0][0]).toBe(true);
+
+    // The trailing `pointerup` a real browser still delivers must not re-run the release.
+    fireEvent.pointerUp(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 40,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 32,
+    });
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-open', '');
+    expect(swipeArea).not.toHaveAttribute('data-swiping');
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+  });
+
   it('opens on a quick flick that lands its whole travel in a single touch move', async () => {
     // A fast touch flick on a low-refresh-rate display can produce a single `touchmove` carrying
     // the entire travel between `touchstart` and `touchend`. The first-move latency calibration
