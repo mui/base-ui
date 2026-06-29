@@ -31,24 +31,38 @@ export default function ExamplePasswordToggleField() {
 
 function EyeIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="block" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path
-        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
+        d="M1.333 8s2.334-4.667 6.667-4.667S14.667 8 14.667 8 12.333 12.667 8 12.667 1.333 8 1.333 8Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1"
       />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1" />
     </svg>
   );
 }
 
 function EyeOffIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="block" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path
-        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.4 5.2A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.4 3.3M6.2 6.2A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 3-.5"
+        d="M2 2l12 12M7.067 7.067a2 2 0 0 0 2.8 2.8M6.267 3.467A6.467 6.467 0 0 1 8 3.333c4.333 0 6.667 4.667 6.667 4.667a11.333 11.333 0 0 1-1.6 2.2M4.133 4.133A11.333 11.333 0 0 0 1.333 8s2.334 4.667 6.667 4.667a6.467 6.467 0 0 0 2-.334"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1"
       />
     </svg>
   );
