@@ -612,6 +612,101 @@ describe('<Drawer.SwipeArea />', () => {
     expect(swipeArea).toHaveAttribute('data-open', '');
   });
 
+  it.skipIf(isJSDOM)(
+    'keeps the swipe-area movement on the popup when re-grabbed during close',
+    async () => {
+      // Regression guard for the swipe-area re-grab flash. When the swipe area drives the open, the
+      // popup's `--drawer-swipe-movement-*` are written imperatively by `applySwipeMovement`, but
+      // the viewport's open-reset effect would otherwise zero them
+      // (`resetSwipe` -> `syncDragStyles(false)`) on the same commit that flips `open` true,
+      // flashing the popup fully open for a frame. The shared `swipeAreaActiveRef` must make the
+      // viewport skip that reset while the swipe area owns the gesture.
+      //
+      // The flash only reproduces on a *re-grab*, i.e. when the popup is already mounted as the open
+      // commit lands. A real exit animation keeps the popup mounted (`mounted` stays true) through
+      // the close, so the re-grab below drives a fresh open while it is still in the DOM.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes swipe-regrab-exit {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .swipe-regrab-popup {
+          height: 200px;
+        }
+
+        .swipe-regrab-popup[data-ending-style] {
+          animation: swipe-regrab-exit 200ms;
+        }
+      `;
+
+      try {
+        await render(
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Drawer.Root>
+              <Drawer.SwipeArea data-testid="swipe-area" />
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup className="swipe-regrab-popup" data-testid="popup">
+                    <Drawer.Close>Close</Drawer.Close>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.Root>
+          </div>,
+        );
+
+        const swipeArea = screen.getByTestId('swipe-area');
+
+        await swipeUp(swipeArea, 220, 20);
+        expect(swipeArea).toHaveAttribute('data-open', '');
+
+        const popup = screen.getByTestId('popup');
+
+        // Begin closing; the exit animation keeps the popup mounted while it plays.
+        await act(async () => {
+          screen.getByRole('button', { name: 'Close' }).click();
+        });
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+
+        // Re-grab while the popup is still mounted mid-exit. A single move that locks the direction,
+        // re-opens the drawer, and writes the movement (200 - 80 = 120px of remaining travel) on the
+        // commit that flips `open` back to true.
+        fireEvent.pointerDown(swipeArea, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 10,
+          clientY: 120,
+          pointerType: 'mouse',
+        });
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: 40,
+          buttons: 1,
+          pointerType: 'mouse',
+        });
+        await flushMicrotasks();
+
+        expect(swipeArea).toHaveAttribute('data-open', '');
+        // The viewport's open-reset must not have clobbered the swipe area's value back to `0px`.
+        expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('120px');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    },
+  );
+
   it('opens on a quick flick whose only move is already released (buttons: 0)', async () => {
     // On a fast flick — especially on a low-refresh-rate display — the pointer can be lifted before
     // the first `pointermove` is sampled, so the single move arrives with `buttons: 0` and no
