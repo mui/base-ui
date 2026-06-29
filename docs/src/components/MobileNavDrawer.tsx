@@ -12,7 +12,6 @@ import type {
 } from '@mui/internal-docs-infra/useSearch/types';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from './QuickNav/rehypeSlug.mjs';
-import { MobileNavContext } from './MobileNavContext';
 
 const sitemapPromise: () => Promise<{ sitemap?: Sitemap }> = () => import('../app/sitemap');
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
@@ -27,16 +26,35 @@ interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'han
   handle: Drawer.Handle<unknown>;
 }
 
-export function MobileNavDrawer({ children, handle, ...props }: MobileNavDrawerProps) {
+export function MobileNavDrawer({ children, handle, onOpenChange, ...props }: MobileNavDrawerProps) {
+  const [searchValue, setSearchValue] = React.useState('');
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
+      onOpenChange?.(nextOpen, eventDetails);
+
+      if (!nextOpen) {
+        setSearchValue('');
+      }
+    },
+    [onOpenChange],
+  );
+
   return (
-    <Drawer.Root swipeDirection="down" {...props} handle={handle}>
+    <Drawer.Root swipeDirection="down" {...props} handle={handle} onOpenChange={handleOpenChange}>
       <Drawer.VirtualKeyboardProvider>
         <Drawer.Portal>
           <Drawer.Backdrop className="MobileNavBackdrop" />
           <Drawer.Viewport className="MobileNavViewport">
             <Drawer.Popup className="MobileNavPopup">
               <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
-              <MobileNavPopupImpl>{children}</MobileNavPopupImpl>
+              <MobileNavPopupImpl
+                handle={handle}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+              >
+                {children}
+              </MobileNavPopupImpl>
             </Drawer.Popup>
           </Drawer.Viewport>
         </Drawer.Portal>
@@ -59,8 +77,18 @@ function normalizeGroup(group: string) {
   return group.replace(/\s+Pages$/, '').replace(/^React\s+/, '');
 }
 
-function MobileNavPopupImpl(props: React.PropsWithChildren) {
-  const { handle, searchValue, setSearchValue } = React.useContext(MobileNavContext);
+interface MobileNavPopupImplProps extends React.PropsWithChildren {
+  handle: Drawer.Handle<unknown>;
+  searchValue: string;
+  setSearchValue: (value: string) => void;
+}
+
+function MobileNavPopupImpl({
+  children,
+  handle,
+  searchValue,
+  setSearchValue,
+}: MobileNavPopupImplProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const hasQuery = searchValue.trim() !== '';
@@ -106,7 +134,7 @@ function MobileNavPopupImpl(props: React.PropsWithChildren) {
   }, []);
 
   const handleResultNavigate = React.useCallback(() => {
-    handle?.close();
+    handle.close();
     setSearchValue('');
   }, [handle, setSearchValue]);
 
@@ -119,7 +147,7 @@ function MobileNavPopupImpl(props: React.PropsWithChildren) {
       if (searchValue) {
         setSearchValue('');
       } else {
-        handle?.close();
+        handle.close();
       }
     },
     [handle, searchValue, setSearchValue],
@@ -249,7 +277,7 @@ function MobileNavPopupImpl(props: React.PropsWithChildren) {
                 </div>
               ) : (
                 <nav aria-label="Docs navigation" className="MobileNavPanel">
-                  {props.children}
+                  {children}
                 </nav>
               )}
             </ScrollArea.Content>

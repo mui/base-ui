@@ -33,19 +33,7 @@ export function Root({
 }: RootProps) {
   const [handle] = React.useState(() => Drawer.createHandle());
   const generatedTriggerId = React.useId();
-  const [searchValue, setSearchValue] = React.useState('');
   const triggerId = triggerProps?.id ?? generatedTriggerId;
-
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
-      onOpenChange?.(nextOpen, eventDetails);
-
-      if (!nextOpen) {
-        setSearchValue('');
-      }
-    },
-    [onOpenChange],
-  );
 
   React.useEffect(() => {
     if (!enableKeyboardShortcut) {
@@ -75,10 +63,7 @@ export function Root({
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [enableKeyboardShortcut, handle, keyboardShortcutMediaQuery, triggerId]);
 
-  const contextValue = React.useMemo(
-    () => ({ handle, searchValue, setSearchValue }),
-    [handle, searchValue],
-  );
+  const contextValue = React.useMemo(() => ({ handle }), [handle]);
 
   return (
     <MobileNavContext.Provider value={contextValue}>
@@ -91,7 +76,7 @@ export function Root({
         {trigger}
       </Drawer.Trigger>
       <React.Suspense fallback={null}>
-        <LazyDrawer handle={handle} onOpenChange={handleOpenChange} {...props}>
+        <LazyDrawer handle={handle} onOpenChange={onOpenChange} {...props}>
           {children}
         </LazyDrawer>
       </React.Suspense>
