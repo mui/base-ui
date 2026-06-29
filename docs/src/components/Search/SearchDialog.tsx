@@ -354,6 +354,7 @@ export function SearchDialog({
               data-open={dialogOpen}
               className="SearchPopupContained"
             >
+              <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
               <Autocomplete.Root
                 items={searchResults.results}
                 onValueChange={handleValueChange}
@@ -411,6 +412,7 @@ export function SearchDialog({
                     data-open={dialogOpen}
                     className="SearchPopupDefault"
                   >
+                    <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
                     <Autocomplete.Root
                       items={searchResults.results}
                       onValueChange={handleValueChange}
