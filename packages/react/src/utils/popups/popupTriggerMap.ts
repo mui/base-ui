@@ -55,14 +55,6 @@ export class PopupTriggerMap {
   }
 
   /**
-   * Removes all registered trigger elements.
-   */
-  public clear() {
-    this.elementsSet.clear();
-    this.idMap.clear();
-  }
-
-  /**
    * Whether the given element is registered as a trigger.
    */
   public hasElement(element: Element): boolean {

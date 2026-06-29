@@ -18,11 +18,18 @@ describe('<Dialog.Root />', () => {
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Dialog.createHandle<number>();
 
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.openWithPayload(8);
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(3);
 
       const { user } = await render(
         <React.Fragment>

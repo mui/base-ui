@@ -40,10 +40,16 @@ export class DialogHandle<Payload> {
    */
   open(triggerId: string | null) {
     if (this.attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: DialogHandle.open() was called while no root using this handle is mounted. ' +
+            'The call was ignored; mount a root with this handle before opening it imperatively.',
+        );
+      }
       return;
     }
 
-    // While a root is attached, registered triggers live in its store (the pending buffer is empty).
+    // While a root is attached, registered triggers live in its store, so resolve the trigger from there.
     const triggerElement = triggerId
       ? (this.attachedStore.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
@@ -71,6 +77,12 @@ export class DialogHandle<Payload> {
    */
   openWithPayload(payload: Payload) {
     if (this.attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: DialogHandle.openWithPayload() was called while no root using this handle is mounted. ' +
+            'The call and its payload were ignored; mount a root with this handle before opening it imperatively.',
+        );
+      }
       return;
     }
 
@@ -88,6 +100,12 @@ export class DialogHandle<Payload> {
    */
   close() {
     if (this.attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: DialogHandle.close() was called while no root using this handle is mounted. ' +
+            'The call was ignored.',
+        );
+      }
       return;
     }
 
@@ -134,6 +152,13 @@ export class DialogHandle<Payload> {
    */
   attachStore(newStore: DialogStore<Payload>) {
     if (this.attachedStore !== newStore) {
+      if (process.env.NODE_ENV !== 'production' && this.attachedStore !== null) {
+        console.warn(
+          'Base UI: A handle is attached to more than one mounted root at the same time. ' +
+            'The most recently mounted root takes over and the previous one stops being controlled by the handle. ' +
+            'A handle should be used by a single root that stays mounted for the lifetime of the handle.',
+        );
+      }
       this.attachedStore = newStore;
       this.notifyStoreListeners();
     }

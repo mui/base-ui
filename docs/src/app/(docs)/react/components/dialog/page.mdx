@@ -195,7 +195,7 @@ However, if defining the dialog's content next to its trigger is not practical, 
 This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and linking them with a `handle` created by the `Dialog.createHandle()` function.
 
 The imperative methods on the handle, such as `open()` and `openWithPayload()`, require a `<Dialog.Root>` using the same handle to be mounted.
-Calls made before the root is attached to the handle are ignored; the store is reset when the root first mounts.
+Calls made before the root is attached to the handle are ignored; the root owns fresh state each time it mounts.
 
 ```jsx title="Detached triggers"
 const demoDialog = Dialog.createHandle();
