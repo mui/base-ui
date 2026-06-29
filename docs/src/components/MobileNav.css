@@ -170,14 +170,6 @@
 
   .MobileNavSearchInputRoot {
     position: relative;
-    display: flex;
-    min-width: 0;
-    flex: 1;
-    align-items: center;
-    gap: var(--space-8);
-    height: var(--space-40);
-    border-radius: var(--radius-8);
-    background-color: var(--gray-c1);
   }
 
   .MobileNavSearchIcon {
@@ -188,19 +180,19 @@
     transform: translateY(-50%);
     width: var(--space-16);
     height: var(--space-16);
-    flex-shrink: 0;
     color: var(--gray-p1);
     pointer-events: none;
   }
 
   .MobileNavSearchInput {
-    position: absolute;
-    inset: 0;
+    display: block;
     box-sizing: border-box;
     min-width: 0;
     width: 100%;
+    height: var(--space-40);
     border: 0;
-    background: transparent;
+    border-radius: var(--radius-8);
+    background-color: var(--gray-c1);
     padding-left: var(--space-32);
     padding-right: var(--space-32);
     font: inherit;
@@ -219,7 +211,6 @@
     z-index: 1;
     transform: translateY(-50%);
     display: flex;
-    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     width: var(--space-24);
@@ -237,14 +228,12 @@
     @media (hover: hover) {
       &:hover {
         background-color: var(--gray-c3);
-        color: var(--gray-t2);
       }
     }
 
     @media not (hover: hover) {
       &:active {
         background-color: var(--gray-c2);
-        color: var(--gray-t2);
       }
     }
 
@@ -254,38 +243,44 @@
     }
   }
 
-  .MobileNavContent {
-    display: flex;
-    flex: 1 1 auto;
+  .MobileNavContent,
+  .MobileNavScrollAreaRoot,
+  .MobileNavScrollAreaViewport {
     min-width: 0;
     min-height: 0;
+  }
+
+  .MobileNavContent,
+  .MobileNavScrollAreaRoot {
+    display: flex;
+  }
+
+  .MobileNavContent {
+    flex: 1 1 auto;
     touch-action: auto;
   }
 
   .MobileNavScrollAreaRoot {
     position: relative;
-    display: flex;
     flex: 1;
-    min-width: 0;
-    min-height: 0;
   }
 
   .MobileNavScrollAreaViewport {
     flex: 1;
-    min-width: 0;
-    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
     padding-bottom: var(--drawer-keyboard-inset, 0);
     scroll-padding-bottom: var(--drawer-keyboard-inset, 0);
-    outline: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
+    }
   }
 
   .MobileNavScrollAreaContent {
-    max-width: 100%;
     min-width: 0 !important;
-    overflow-x: hidden;
   }
 
   .MobileNavScrollbar {
@@ -325,7 +320,8 @@
     }
   }
 
-  .MobileNavPanel {
+  .MobileNavPanel,
+  .MobileNavSearchResults {
     padding-block: var(--space-12) calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
   }
 
@@ -356,9 +352,8 @@
 
   .MobileNavLink,
   .MobileNavSearchOption {
-    flex-grow: 1;
     display: flex;
-    gap: 4px;
+    gap: var(--space-4);
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
@@ -386,11 +381,9 @@
   }
 
   .MobileNavSearchOption {
-    position: relative;
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    max-width: 100%;
     overflow: hidden;
     cursor: default;
     -webkit-user-select: none;
@@ -475,11 +468,6 @@
     @media (min-height: 27rem) {
       display: flex;
     }
-  }
-
-  .MobileNavSearchResults {
-    outline: 0;
-    padding-block: var(--space-12) calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
   }
 
   .MobileNavEmptyState {
