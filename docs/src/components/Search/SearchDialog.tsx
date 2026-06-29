@@ -87,13 +87,11 @@ const EmptyState = React.memo(function EmptyState() {
 export interface SearchDialogProps {
   handle: Dialog.Handle<unknown>;
   sitemap?: () => Promise<{ sitemap?: Sitemap }>;
-  containedScroll?: boolean;
 }
 
 export function SearchDialog({
   handle,
   sitemap: sitemapImport = defaultSitemapPromise,
-  containedScroll = false,
 }: SearchDialogProps) {
   const [dialogOpen, setDialogOpen] = React.useState(handle.isOpen);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -346,108 +344,60 @@ export function SearchDialog({
     <Dialog.Root handle={handle} open={dialogOpen} onOpenChange={handleCloseDialog}>
       <Dialog.Portal>
         <Dialog.Backdrop className="SearchBackdrop" />
-        {containedScroll ? (
-          <Dialog.Viewport className="SearchViewportContained">
-            <Dialog.Popup
-              ref={popupRef}
-              initialFocus={inputRef}
-              data-open={dialogOpen}
-              className="SearchPopupContained"
+        <Dialog.Viewport className="SearchViewport">
+          <Dialog.Popup
+            ref={popupRef}
+            initialFocus={inputRef}
+            data-open={dialogOpen}
+            className="SearchPopup"
+          >
+            <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
+            <Autocomplete.Root
+              items={searchResults.results}
+              onValueChange={handleValueChange}
+              onOpenChange={handleAutocompleteEscape}
+              onItemHighlighted={handleItemHighlighted}
+              open
+              inline
+              itemToStringValue={itemToStringValue}
+              filter={null}
+              autoHighlight="always"
+              keepHighlight
             >
-              <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
-              <Autocomplete.Root
-                items={searchResults.results}
-                onValueChange={handleValueChange}
-                onOpenChange={handleAutocompleteEscape}
-                onItemHighlighted={handleItemHighlighted}
-                open
-                inline
-                itemToStringValue={itemToStringValue}
-                filter={null}
-                autoHighlight="always"
-                keepHighlight
-              >
-                <div className="SearchHeadContained">{searchInput}</div>
-                <div className="SearchBody">
-                  <ScrollArea.Root className="SearchScrollAreaRoot">
-                    <ScrollArea.Viewport className="SearchScrollAreaViewport">
-                      <ScrollArea.Content style={{ minWidth: '100%' }}>
-                        {searchResults.results.length === 0 ? (
-                          <EmptyState />
-                        ) : (
-                          <Autocomplete.List
-                            className="SearchList"
-                            onKeyDownCapture={handleKeyDownCapture}
-                          >
-                            {renderResultsList}
-                          </Autocomplete.List>
-                        )}
-                      </ScrollArea.Content>
-                    </ScrollArea.Viewport>
-                    <ScrollArea.Scrollbar className="SearchScrollbar ">
-                      <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                    </ScrollArea.Scrollbar>
-                  </ScrollArea.Root>
+              <div className="SearchHead">{searchInput}</div>
+              <div className="SearchBody">
+                <ScrollArea.Root className="SearchScrollAreaRoot">
+                  <ScrollArea.Viewport className="SearchScrollAreaViewport">
+                    <ScrollArea.Content style={{ minWidth: '100%' }}>
+                      {searchResults.results.length === 0 ? (
+                        <EmptyState />
+                      ) : (
+                        <Autocomplete.List
+                          className="SearchList"
+                          onKeyDownCapture={handleKeyDownCapture}
+                        >
+                          {renderResultsList}
+                        </Autocomplete.List>
+                      )}
+                    </ScrollArea.Content>
+                  </ScrollArea.Viewport>
+                  <ScrollArea.Scrollbar className="SearchScrollbar ">
+                    <ScrollArea.Thumb className="SearchScrollbarThumb" />
+                  </ScrollArea.Scrollbar>
+                </ScrollArea.Root>
+              </div>
+              <div className="SearchFooter">
+                <div className="SearchFooterHint">
+                  <kbd aria-label="Enter" className="SearchFooterEnter">
+                    <CornerDownLeft size={12} />
+                  </kbd>
+                  <span>Go to page</span>
                 </div>
-                <div className="SearchFooter">
-                  <div className="SearchFooterHint">
-                    <kbd aria-label="Enter" className="SearchFooterEnter">
-                      <CornerDownLeft size={12} />
-                    </kbd>
-                    <span>Go to page</span>
-                  </div>
-                </div>
-              </Autocomplete.Root>
-              <Dialog.Close className="SearchClose">Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Viewport>
-        ) : (
-          <Dialog.Viewport className="SearchViewportDefault">
-            <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
-              <ScrollArea.Viewport className="SearchRootScrollable">
-                <ScrollArea.Content className="SearchContentWrap">
-                  <Dialog.Popup
-                    ref={popupRef}
-                    initialFocus={inputRef}
-                    data-open={dialogOpen}
-                    className="SearchPopupDefault"
-                  >
-                    <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
-                    <Autocomplete.Root
-                      items={searchResults.results}
-                      onValueChange={handleValueChange}
-                      onOpenChange={handleAutocompleteEscape}
-                      onItemHighlighted={handleItemHighlighted}
-                      open
-                      inline
-                      itemToStringValue={itemToStringValue}
-                      filter={null}
-                      autoHighlight
-                    >
-                      <div className="SearchHeadDefault">{searchInput}</div>
-                      <div>
-                        {searchResults.results.length === 0 ? (
-                          <EmptyState />
-                        ) : (
-                          <Autocomplete.List
-                            className="SearchListDefault"
-                            onKeyDownCapture={handleKeyDownCapture}
-                          >
-                            {renderResultsList}
-                          </Autocomplete.List>
-                        )}
-                      </div>
-                    </Autocomplete.Root>
-                    <Dialog.Close className="SearchClose">Close</Dialog.Close>
-                  </Dialog.Popup>
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className="SearchScrollbar ">
-                <ScrollArea.Thumb className="SearchScrollbarThumb" />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
-          </Dialog.Viewport>
-        )}
+              </div>
+            </Autocomplete.Root>
+            <Dialog.Close className="SearchClose">Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );

@@ -86,7 +86,7 @@ export function HeaderSearch({ mobileNavContent }: HeaderSearchProps) {
         <SearchTriggerContent isCmd={isCmd} />
       </Dialog.Trigger>
       <React.Suspense fallback={null}>
-        <LazySearchDialog handle={desktopHandle} containedScroll />
+        <LazySearchDialog handle={desktopHandle} />
       </React.Suspense>
 
       {/* Mobile nav/search */}

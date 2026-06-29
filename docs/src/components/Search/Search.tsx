@@ -17,19 +17,12 @@ interface SearchProps {
   children?: React.ReactNode | ((props: SearchRenderProps) => React.ReactNode);
   triggerProps?: Omit<Dialog.Trigger.Props, 'children' | 'handle'>;
   enableKeyboardShortcut?: boolean;
-  keyboardShortcutMediaQuery?: string;
-  containedScroll?: boolean;
 }
 
-export function Search({
-  children,
-  triggerProps,
-  enableKeyboardShortcut = false,
-  keyboardShortcutMediaQuery,
-  containedScroll = false,
-}: SearchProps) {
+export function Search({ children, triggerProps, enableKeyboardShortcut = false }: SearchProps) {
   const [handle] = React.useState(() => Dialog.createHandle());
   const generatedTriggerId = React.useId();
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -49,7 +42,7 @@ export function Search({
       }
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        if (keyboardShortcutMediaQuery && !window.matchMedia(keyboardShortcutMediaQuery).matches) {
+        if (!isVisible(triggerRef.current)) {
           return;
         }
 
@@ -64,20 +57,20 @@ export function Search({
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [enableKeyboardShortcut, handle, keyboardShortcutMediaQuery, triggerId]);
+  }, [enableKeyboardShortcut, handle, triggerId]);
 
   return (
     <React.Fragment>
-      <Dialog.Trigger {...triggerProps} id={triggerId} handle={handle}>
+      <Dialog.Trigger {...triggerProps} ref={triggerRef} id={triggerId} handle={handle}>
         {typeof children === 'function' ? children({ isCmd }) : children}
       </Dialog.Trigger>
       <React.Suspense fallback={null}>
-        <LazySearchDialog
-          handle={handle}
-          sitemap={sitemapPromise}
-          containedScroll={containedScroll}
-        />
+        <LazySearchDialog handle={handle} sitemap={sitemapPromise} />
       </React.Suspense>
     </React.Fragment>
   );
+}
+
+function isVisible(element: HTMLElement | null) {
+  return Boolean(element?.getClientRects().length);
 }

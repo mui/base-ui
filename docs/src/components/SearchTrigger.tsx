@@ -7,9 +7,7 @@ import './SearchTrigger.css';
 
 interface SearchTriggerProps {
   className?: string;
-  containedScroll?: boolean;
   enableKeyboardShortcut?: boolean;
-  keyboardShortcutMediaQuery?: string;
   /** Render a square icon-only button instead of the labelled trigger. */
   iconOnly?: boolean;
 }
