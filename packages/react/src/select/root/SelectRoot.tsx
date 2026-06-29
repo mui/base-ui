@@ -208,21 +208,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     ? Array.isArray(value) && value.length > 0
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
-  // Depend on whether `items` is provided rather than the `items` reference, so an unstable
-  // `items` prop (e.g. an inline object) doesn't re-run the effect below on every render.
-  const hasItemsProp = items != null;
-
-  useIsoLayoutEffect(() => {
-    // Ensure the selected label can be resolved for programmatic value changes. When `items` is
-    // provided, `Select.Value` resolves the label directly from `items` without the list mounted,
-    // and closed-trigger typeahead/autofill force-mount through their own paths. Mounting here would
-    // otherwise be sticky and keep the popup in the DOM forever once a controlled value settles
-    // after mount (e.g. an async/preference-resolved value applied in an effect after hydration).
-    if (value !== initialValueRef.current && !hasItemsProp) {
-      store.set('forceMount', true);
-    }
-  }, [store, value, hasItemsProp]);
-
   useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
   }, [hasSelectedValue, setFilled]);

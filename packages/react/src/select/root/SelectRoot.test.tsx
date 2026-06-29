@@ -2858,17 +2858,28 @@ describe('<Select.Root />', () => {
     });
   });
 
-  it('does not force-mount the popup on a programmatic value change when items are provided', async () => {
+  it('does not force-mount the popup on a programmatic value change', async () => {
     function App() {
-      const [value, setValue] = React.useState<string | null>(null);
+      const [withItems, setWithItems] = React.useState<string | null>(null);
+      const [withoutItems, setWithoutItems] = React.useState<string | null>(null);
       return (
         <div>
-          <button type="button" onClick={() => setValue('b')}>
+          <button
+            type="button"
+            onClick={() => {
+              setWithItems('b');
+              setWithoutItems('b');
+            }}
+          >
             set
           </button>
-          <Select.Root items={{ a: 'Apple', b: 'Banana' }} value={value} onValueChange={setValue}>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value data-testid="value" />
+          <Select.Root
+            items={{ a: 'Apple', b: 'Banana' }}
+            value={withItems}
+            onValueChange={setWithItems}
+          >
+            <Select.Trigger>
+              <Select.Value data-testid="items-value" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -2879,20 +2890,34 @@ describe('<Select.Root />', () => {
               </Select.Positioner>
             </Select.Portal>
           </Select.Root>
+          <Select.Root value={withoutItems} onValueChange={setWithoutItems}>
+            <Select.Trigger>
+              <Select.Value data-testid="plain-value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
         </div>
       );
     }
 
     const { user } = await render(<App />);
 
-    expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
 
     await user.click(screen.getByRole('button', { name: 'set' }));
 
-    // The label resolves directly from `items`, so the popup must stay unmounted instead of
-    // being force-mounted (which would leave it in the DOM permanently).
-    expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
-    expect(screen.getByTestId('value')).toHaveTextContent('Banana');
+    // A programmatic value change must not force-mount the popup (which would leave it in the DOM
+    // permanently). The label resolves without the list mounted, with or without `items`.
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+    expect(screen.getByTestId('items-value')).toHaveTextContent('Banana');
+    expect(screen.getByTestId('plain-value')).toHaveTextContent('b');
   });
 
   describe('Form', () => {
