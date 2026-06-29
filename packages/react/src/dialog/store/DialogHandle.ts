@@ -1,7 +1,6 @@
-import { DialogStore, NullDialogStore, type DialogHandleStore } from './DialogStore';
+import { DialogStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { PopupTriggerMap } from '../../utils/popups';
 
 /**
  * Controls a Dialog imperatively and associates detached `Dialog.Trigger` components with a
@@ -13,16 +12,12 @@ import { PopupTriggerMap } from '../../utils/popups';
  */
 export class DialogHandle<Payload> {
   /**
-   * Trigger registrations captured while no root store is attached. Detached triggers register here
-   * (through the fallback store) and the entries are drained into the real store when a root attaches.
+   * Closed, never-attached store handed to detached triggers while no root is attached, so they can
+   * render and register without a mounted root. Its trigger map doubles as the pending-registration
+   * buffer: detached triggers register into it, and the entries are drained into the real store when
+   * a root attaches.
    */
-  private readonly pendingTriggerRegistrations = new PopupTriggerMap();
-
-  /**
-   * Inert, closed store handed to detached triggers while no root is attached, so they can render
-   * and register without a mounted root. Backed by `pendingTriggerRegistrations`.
-   */
-  private readonly fallbackStore = new NullDialogStore<Payload>(this.pendingTriggerRegistrations);
+  private readonly fallbackStore = new DialogStore<Payload>();
 
   /**
    * Store owned by the currently mounted root, or `null` when no root is attached. Imperative
@@ -114,7 +109,7 @@ export class DialogHandle<Payload> {
    * used while no root is attached.
    * @internal
    */
-  get store(): DialogHandleStore<Payload> {
+  get store(): DialogStore<Payload> {
     return this.attachedStore ?? this.fallbackStore;
   }
 
@@ -142,16 +137,17 @@ export class DialogHandle<Payload> {
     if (previousStore !== newStore) {
       this.attachedStore = newStore;
 
-      // Triggers that mounted before this root registered into the pending buffer (via the fallback
-      // store). Their registration ref is a stable callback that does not re-fire when the store
-      // pointer swaps, so draining here is the only path that moves them into the attached store.
-      // Do it before notifying subscribers so the store is immediately consistent for its
-      // trigger-derived logic (e.g. resolving an imperative `open(triggerId)` or the active trigger).
+      // Triggers that mounted before this root registered into the fallback store's trigger map.
+      // Their registration ref is a stable callback that does not re-fire when the store pointer
+      // swaps, so draining here is the only path that moves them into the attached store. Do it
+      // before notifying subscribers so the store is immediately consistent for its trigger-derived
+      // logic (e.g. resolving an imperative `open(triggerId)` or the active trigger).
+      const pending = this.fallbackStore.context.triggerElements;
       const { triggerElements } = newStore.context;
-      for (const [id, element] of this.pendingTriggerRegistrations.entries()) {
+      for (const [id, element] of pending.entries()) {
         triggerElements.add(id, element);
       }
-      this.pendingTriggerRegistrations.clear();
+      pending.clear();
 
       newStore.set('triggerCount', triggerElements.size);
       this.notifyStoreListeners();

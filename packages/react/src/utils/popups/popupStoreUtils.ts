@@ -48,11 +48,6 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
-type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
-  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
-  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
->;
-
 export function usePopupStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
@@ -91,7 +86,7 @@ export function usePopupStore<
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
-  store: PopupTriggerDataStore<State>,
+  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
   const registeredElementIdRef = React.useRef<string | null>(null);
@@ -271,7 +266,7 @@ export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
 export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
-  store: PopupTriggerDataStore<State>,
+  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);

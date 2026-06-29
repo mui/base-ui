@@ -373,8 +373,7 @@ Controls a Dialog imperatively and associates detached `Dialog.Trigger` componen
 root and of any triggers rendered outside of it.
 
 The imperative methods take effect only while a root using this handle is mounted; calls made
-before a root attaches (or after it unmounts) are ignored. Each attached root owns fresh state,
-so dialog state never leaks from one mounted root to the next.
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
