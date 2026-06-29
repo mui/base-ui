@@ -124,6 +124,7 @@ describe('useSwipeDismiss', () => {
 
       fireEvent.pointerMove(scroll, {
         pointerId: 1,
+        buttons: 1,
         clientX: 0,
         clientY: 150,
         bubbles: true,
@@ -161,6 +162,7 @@ describe('useSwipeDismiss', () => {
     // First move establishes the baseline (iOS pointermove delay handling).
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 100,
       bubbles: true,
@@ -173,6 +175,7 @@ describe('useSwipeDismiss', () => {
     // Move up (unsupported) should not block the default touch scroll behavior.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 50,
       bubbles: true,
@@ -189,6 +192,7 @@ describe('useSwipeDismiss', () => {
     // Once a supported direction is detected, touchmove should still not be prevented.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 150,
       bubbles: true,
@@ -229,6 +233,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 0,
       bubbles: true,
@@ -240,6 +245,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 50,
       clientY: 0,
       bubbles: true,
@@ -280,6 +286,7 @@ describe('useSwipeDismiss', () => {
     // Baseline move.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 0,
       bubbles: true,
@@ -291,6 +298,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 50,
       clientY: 0,
       bubbles: true,
@@ -305,6 +313,7 @@ describe('useSwipeDismiss', () => {
     // Move past the starting point in the opposite direction; progress is clamped to 0.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: -10,
       clientY: 0,
       bubbles: true,
@@ -319,6 +328,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: -20,
       clientY: 0,
       bubbles: true,
@@ -353,6 +363,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 100,
       bubbles: true,
@@ -364,6 +375,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 50,
       bubbles: true,
@@ -648,6 +660,7 @@ describe('useSwipeDismiss', () => {
     // Baseline move.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 0,
       bubbles: true,
@@ -660,6 +673,7 @@ describe('useSwipeDismiss', () => {
     // Move beyond the custom 10px threshold.
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 20,
       bubbles: true,
@@ -1118,6 +1132,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 0,
       bubbles: true,
@@ -1129,6 +1144,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(element, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 20,
       bubbles: true,
@@ -1198,6 +1214,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1100));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 0,
         clientY: 0,
         bubbles: true,
@@ -1211,6 +1228,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1200));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 50,
         clientY: 0,
         bubbles: true,
@@ -1287,6 +1305,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1100));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 0,
         clientY: 0,
         bubbles: true,
@@ -1300,6 +1319,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1200));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 50,
         clientY: 0,
         bubbles: true,
@@ -1313,6 +1333,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1216));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 70,
         clientY: 0,
         bubbles: true,
@@ -1389,6 +1410,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1005));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 0,
         clientY: 0,
         bubbles: true,
@@ -1402,6 +1424,7 @@ describe('useSwipeDismiss', () => {
       vi.setSystemTime(new Date(1010));
       fireEvent.pointerMove(element, {
         pointerId: 1,
+        buttons: 1,
         clientX: 30,
         clientY: 0,
         bubbles: true,
@@ -1477,6 +1500,7 @@ describe('useSwipeDismiss', () => {
 
     fireEvent.pointerMove(child, {
       pointerId: 1,
+      buttons: 1,
       clientX: 0,
       clientY: 150,
       bubbles: true,

@@ -259,10 +259,19 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
 
     if (cornerEl) {
+      // Bail when the size is unchanged (like `setThumbSize` above); otherwise a
+      // fresh object literal on every scroll frame rebuilds the root context and
+      // re-renders every scroll-area part.
       if (scrollbarXHidden || scrollbarYHidden) {
-        setCornerSize({ width: 0, height: 0 });
+        setCornerSize((prevSize) =>
+          prevSize.width === 0 && prevSize.height === 0 ? prevSize : { width: 0, height: 0 },
+        );
       } else if (!scrollbarXHidden && !scrollbarYHidden) {
-        setCornerSize({ width: nextCornerWidth, height: nextCornerHeight });
+        setCornerSize((prevSize) =>
+          prevSize.width === nextCornerWidth && prevSize.height === nextCornerHeight
+            ? prevSize
+            : { width: nextCornerWidth, height: nextCornerHeight },
+        );
       }
     }
 

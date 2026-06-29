@@ -564,7 +564,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     pendingSwipeRef.current = true;
     pendingSwipeStartPosRef.current = startPos;
     swipeFromScrollableRef.current = false;
-    sawPrimaryButtonsOnMoveRef.current = false;
+    sawPrimaryButtonsOnMoveRef.current = !('touches' in event);
 
     const allowedToStart = canStart
       ? canStart(startPos, {
@@ -604,14 +604,21 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     if (isFirstPointerMoveRef.current) {
-      // Adjust the starting position to the current position on the first move
-      // to account for the delay between pointerdown and the first pointermove on iOS.
-      dragStartPosRef.current = position;
-      const moveTime = getValidTimeStamp(event.timeStamp);
-      if (moveTime !== null) {
-        swipeStartTimeRef.current = moveTime;
-      }
       isFirstPointerMoveRef.current = false;
+      // Reset the drag origin to the first move's position to absorb the gap between the press and
+      // the first move event — notably on iOS touch, where the first `touchmove` arrives already
+      // offset from the `touchstart` — which would otherwise make the dragged element jump. This
+      // only matters when an element follows the pointer; when `trackDrag` is false (e.g. the
+      // swipe-area, which only opens the drawer) keep the original press position so a quick flick
+      // still registers: on a low-refresh-rate display the whole travel can land in this single
+      // first move, and discarding it would drop the gesture.
+      if (trackDrag) {
+        dragStartPosRef.current = position;
+        const moveTime = getValidTimeStamp(event.timeStamp);
+        if (moveTime !== null) {
+          swipeStartTimeRef.current = moveTime;
+        }
+      }
     }
 
     const clientX = position.x;
