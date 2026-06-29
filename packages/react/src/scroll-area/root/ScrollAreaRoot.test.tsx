@@ -887,7 +887,12 @@ describe('<ScrollArea.Root />', () => {
       let commitCount = 0;
       function ContextProbe() {
         React.useContext(ScrollAreaRootContext);
-        commitCount += 1;
+        // Count committed renders in an effect rather than in the render body:
+        // under StrictMode/concurrent rendering the render function can run
+        // multiple times or be discarded without committing.
+        React.useEffect(() => {
+          commitCount += 1;
+        });
         return null;
       }
 
