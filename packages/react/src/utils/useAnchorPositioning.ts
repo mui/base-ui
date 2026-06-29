@@ -462,6 +462,7 @@ export function useAnchorPositioning(
     const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
       ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
       : { position: resolvedPosition, ...originalFloatingStyles };
+
     // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
     // resolve to a valid length on the first positioning pass, before `size()` writes the real
     // values. Without a fallback the unresolved `var()` invalidates the whole declaration, so the
@@ -473,6 +474,7 @@ export function useAnchorPositioning(
     // values and leaving the popup unconstrained.
     base[AVAILABLE_WIDTH_VAR] = '100vw';
     base[AVAILABLE_HEIGHT_VAR] = '100vh';
+
     if (!isPositioned) {
       base.opacity = 0;
     }
