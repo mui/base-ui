@@ -2425,6 +2425,7 @@ describe('<Drawer.Viewport />', () => {
       await flushMicrotasks();
 
       fireEvent.pointerMove(viewport, {
+        buttons: 1,
         pointerId: 1,
         clientX: 0,
         clientY: 8,
