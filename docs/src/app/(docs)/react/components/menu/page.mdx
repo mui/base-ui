@@ -326,7 +326,7 @@ The menu also supports content transitions.
 This is useful when different triggers display different content within the same menu.
 
 To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
-This part renders a `div` with `data-activation-direction`, containing space-separated horizontal (`left` or `right`) and vertical (`up` or `down`) values so you can make direction-aware animations.
+This part renders a `div` with `data-activation-direction`, containing up to two space-separated tokens — a horizontal (`left` or `right`) and a vertical (`up` or `down`) value — so you can make direction-aware animations.
 
 Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
 
@@ -368,6 +368,8 @@ import { TypesMenu } from './types';
 ### Viewport
 
 <TypesMenu.Viewport />
+
+The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
 
 ### Arrow
 

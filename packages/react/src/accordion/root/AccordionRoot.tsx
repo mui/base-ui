@@ -6,7 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -41,8 +40,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     style,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -130,12 +127,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        dir: direction,
-      },
-      elementProps,
-    ],
+    props: elementProps,
     stateAttributesMapping: rootStateAttributesMapping,
   });
 

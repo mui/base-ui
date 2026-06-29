@@ -55,6 +55,77 @@ describe('<Progress.Root />', () => {
     });
   });
 
+  describe('range', () => {
+    it('normalizes the formatted value, aria-valuetext, and indicator within a custom range', async () => {
+      const expected = (0.5).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={20} max={40} value={30}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      expect(screen.getByTestId('indicator').style.width).toBe('50%');
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+    });
+
+    it('clamps aria-valuenow, the value text, and the indicator when the value overshoots max', async () => {
+      const expected = (1).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={0} max={40} value={50}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '40');
+      expect(progressbar).toHaveAttribute('aria-valuemax', '40');
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('indicator').style.width).toBe('100%');
+    });
+
+    it('reports complete when the value reaches or exceeds max', async () => {
+      await render(
+        <Progress.Root min={0} max={40} value={45}>
+          <Progress.Track>
+            <Progress.Indicator />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      expect(screen.getByRole('progressbar')).toHaveAttribute('data-complete');
+    });
+
+    it('normalizes aria attributes when min equals max', async () => {
+      const expected = (0).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={5} max={5} value={5}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '5');
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
+  });
+
   describe('prop: format', () => {
     it('formats the value', async () => {
       const format: Intl.NumberFormatOptions = {
@@ -78,6 +149,26 @@ describe('<Progress.Root />', () => {
       const progressbar = screen.getByRole('progressbar');
       expect(value).toHaveTextContent(formatValue(30));
       expect(progressbar).toHaveAttribute('aria-valuetext', formatValue(30));
+    });
+
+    it('reflects format changes without lagging a commit', async () => {
+      const usd: Intl.NumberFormatOptions = { style: 'currency', currency: 'USD' };
+      const eur: Intl.NumberFormatOptions = { style: 'currency', currency: 'EUR' };
+      function formatValue(v: number, options: Intl.NumberFormatOptions) {
+        return new Intl.NumberFormat(undefined, options).format(v);
+      }
+
+      const { setProps } = await render(
+        <Progress.Root value={30} format={usd}>
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+
+      const value = screen.getByTestId('value');
+      expect(value).toHaveTextContent(formatValue(30, usd));
+
+      await setProps({ format: eur });
+      expect(value).toHaveTextContent(formatValue(30, eur));
     });
   });
 
