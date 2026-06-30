@@ -297,6 +297,7 @@ export function SearchDialog({
         <Autocomplete.Input
           id="search-input"
           ref={inputRef}
+          aria-label="Search"
           placeholder="Search"
           className="SearchInput"
           onKeyDownCapture={handleKeyDownCapture}
