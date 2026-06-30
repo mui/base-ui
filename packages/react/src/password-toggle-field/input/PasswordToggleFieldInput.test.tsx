@@ -112,6 +112,32 @@ describe('<PasswordToggleField.Input />', () => {
     expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'second');
   });
 
+  it('hides on reset when a form is wrapped around the input after it mounts', async () => {
+    function App(props: { withForm: boolean }) {
+      const field = (
+        <PasswordToggleField.Root defaultVisible>
+          <PasswordToggleField.Input />
+          <PasswordToggleField.Toggle />
+        </PasswordToggleField.Root>
+      );
+      return props.withForm ? <form>{field}</form> : <div>{field}</div>;
+    }
+
+    const { setProps } = await render(<App withForm={false} />);
+
+    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
+    expect(document.querySelector('input')!.form).toBe(null);
+
+    await setProps({ withForm: true });
+
+    const input = document.querySelector('input')!;
+    expect(input.form).not.toBe(null);
+
+    fireEvent.reset(input.form!);
+
+    expect(document.querySelector('input')).toHaveAttribute('type', 'password');
+  });
+
   describe('Field integration', () => {
     it('is labeled by Field.Label', async () => {
       await render(
