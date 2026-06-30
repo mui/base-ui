@@ -53,7 +53,7 @@
 
   .MobileNavPopup {
     --mobile-nav-item-height: var(--space-40);
-    --mobile-nav-item-padding-x: var(--space-32);
+    --mobile-nav-item-padding-x: var(--space-28);
     position: relative;
     z-index: 1;
     display: flex;
@@ -61,8 +61,8 @@
     width: 100%;
     height: calc(100dvh - var(--space-4));
     max-height: calc(100dvh - var(--space-4));
-    border-top-left-radius: var(--radius-24); /* Mimic iOS bottom sheets */
-    border-top-right-radius: var(--radius-24); /* Mimic iOS bottom sheets */
+    border-top-left-radius: 36px; /* Mimic iOS bottom sheets */
+    border-top-right-radius: 36px; /* Mimic iOS bottom sheets */
     background-color: var(--color-popup);
     color: var(--gray-t2);
     outline: 0;
@@ -133,12 +133,12 @@
   .MobileNavSearchIcon {
     position: absolute;
     top: 50%;
-    left: var(--space-16);
+    left: var(--space-12);
     z-index: 1;
     transform: translateY(-50%);
     width: var(--space-16);
     height: var(--space-16);
-    color: var(--gray-p1);
+    color: var(--gray-t1);
     pointer-events: none;
   }
 
@@ -151,7 +151,7 @@
     border: 0;
     border-radius: var(--radius-pill);
     background-color: var(--gray-c1);
-    padding-left: var(--space-40);
+    padding-left: var(--space-36);
     padding-right: var(--space-32);
     font: inherit;
     color: var(--gray-t2);
@@ -159,7 +159,7 @@
   }
 
   .MobileNavSearchInput::placeholder {
-    color: var(--gray-p1);
+    color: var(--gray-t1);
   }
 
   .MobileNavClearSearch {
