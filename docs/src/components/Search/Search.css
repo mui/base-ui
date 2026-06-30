@@ -64,7 +64,6 @@
     display: block;
     height: 2.875rem;
     border-radius: var(--radius-6);
-    cursor: text;
   }
 
   .SearchInputIcon {
