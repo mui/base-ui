@@ -1763,7 +1763,11 @@ describe('<Dialog.Root />', () => {
           expect(screen.getByText('Dialog Content')).toBeVisible();
         });
         expect(aTrigger).toHaveAttribute('aria-expanded', 'false');
-        expect(consoleWarn).toHaveBeenCalled();
+        expect(
+          consoleWarn.mock.calls.some(
+            ([message]) => typeof message === 'string' && message.includes('No trigger found'),
+          ),
+        ).toBe(true);
       } finally {
         consoleWarn.mockRestore();
       }
