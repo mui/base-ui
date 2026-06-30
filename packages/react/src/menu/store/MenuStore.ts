@@ -2,10 +2,10 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
+import { NullStore } from '../../utils/NullStore';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -106,28 +106,21 @@ const selectors = {
   ),
 };
 
-export class MenuStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
-  Context,
-  typeof selectors
-> {
+type Selectors = typeof selectors;
+
+/**
+ * The store view that detached handle-backed triggers read from. Both the real `MenuStore` and the
+ * inert fallback store satisfy it, so a trigger can read from whichever store the handle currently
+ * exposes. It is the base `ReactStore` (with the menu state, context, and selectors) plus `setOpen`,
+ * which lives on the concrete stores rather than the base; on the detached fallback store every
+ * mutation — including `setOpen` — is a no-op.
+ */
+export type MenuHandleStore<Payload> = ReactStore<Readonly<State<Payload>>, Context, Selectors> &
+  Pick<MenuStore<Payload>, 'setOpen'>;
+
+export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
   constructor(initialState?: Partial<State<Payload>>) {
-    super(
-      { ...createInitialState(), ...initialState },
-      {
-        positionerRef: React.createRef<HTMLElement | null>(),
-        popupRef: React.createRef<HTMLElement | null>(),
-        typingRef: { current: false },
-        itemDomElements: { current: [] },
-        itemLabels: { current: [] },
-        allowMouseUpTriggerRef: { current: false },
-        triggerFocusTargetRef: React.createRef<HTMLElement>(),
-        beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-        onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
-      },
-      selectors,
-    );
+    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
@@ -173,19 +166,44 @@ export class MenuStore<Payload> extends ReactStore<
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  public static useStore<Payload>(
-    externalStore: MenuStore<Payload> | undefined,
-    initialState: Partial<State<Payload>>,
-  ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const internalStore = useRefWithInit(() => {
-      return new MenuStore<Payload>(initialState);
-    }).current;
-
-    return externalStore ?? internalStore;
-  }
-
   private unsubscribeParentListener: (() => void) | null = null;
+}
+
+/**
+ * Inert fallback store used by detached handle-backed triggers while no `Menu.Root` is attached.
+ * Its `setOpen` is a no-op (matching the inert reads/writes of `NullStore`), so a trigger can hand
+ * it to focus-guard helpers that expect `setOpen` without it ever taking effect while detached.
+ */
+class NullMenuStore<Payload> extends NullStore<Readonly<State<Payload>>, Context, Selectors> {
+  setOpen() {}
+}
+
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no `Menu.Root` is
+ * attached. It preserves a menu-specific trigger registry in context so detached triggers can
+ * register before migrating to the live root store.
+ */
+export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+  return new NullMenuStore<Payload>(
+    Object.freeze(createInitialState<Payload>()),
+    Object.freeze(createInitialContext()),
+    selectors,
+  );
+}
+
+function createInitialContext(): Context {
+  return {
+    positionerRef: React.createRef<HTMLElement | null>(),
+    popupRef: React.createRef<HTMLElement | null>(),
+    typingRef: { current: false },
+    itemDomElements: { current: [] },
+    itemLabels: { current: [] },
+    allowMouseUpTriggerRef: { current: false },
+    triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
+    onOpenChangeComplete: undefined,
+    triggerElements: new PopupTriggerMap(),
+  };
 }
 
 function createInitialState<Payload>(): State<Payload> {
