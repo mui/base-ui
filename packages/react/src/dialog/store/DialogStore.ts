@@ -8,6 +8,7 @@ import {
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
+  PopupTriggerDataStore,
   PopupStoreState,
   PopupTriggerMap,
   setPopupOpenState,
@@ -54,10 +55,7 @@ const selectors = {
  * `DialogStore` and the inert fallback store satisfy it, so a trigger can read from whichever
  * store the handle currently exposes.
  */
-export type DialogHandleStore<Payload> = Pick<
-  DialogStore<Payload>,
-  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
->;
+export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>>;
 
 export class DialogStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,

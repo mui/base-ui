@@ -24,6 +24,7 @@ import {
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreSelectors,
+  PopupTriggerDataStore,
 } from './store';
 
 export const FOCUSABLE_POPUP_PROPS = {
@@ -47,15 +48,6 @@ type PopupStoreWithOpen<
 > = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
-
-/**
- * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
- * that an inert store (e.g. the dialog handle's fallback store) can be passed while detached.
- */
-type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
-  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
-  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
->;
 
 export function usePopupStore<
   State extends PopupStoreState<unknown>,

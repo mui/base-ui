@@ -121,9 +121,7 @@ export class DialogHandle<Payload> {
    * Whether the dialog is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    // The fallback store is always closed, so reading through `store` is equivalent to guarding on
-    // `attachedStore` and keeps `isOpen` and `store` reading from the same source.
-    return this.store.select('open');
+    return this.attachedStore?.select('open') ?? false;
   }
 
   /**
