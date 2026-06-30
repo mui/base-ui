@@ -217,7 +217,7 @@ A drawer can be controlled by a trigger located either inside or outside the `<D
 However, if defining the drawer's content next to its trigger is not practical, you can use a detached trigger. This involves placing the `<Drawer.Trigger>` outside of `<Drawer.Root>` and linking them with a `handle` created by the `Drawer.createHandle()` function.
 
 The imperative methods on the handle, such as `open()` and `openWithPayload()`, require a `<Drawer.Root>` using the same handle to be mounted.
-Calls made before the root is attached to the handle are ignored; the root owns fresh state each time it mounts.
+Calls made while no root is attached to the handle, before one mounts or after it unmounts, are ignored; the root owns fresh state each time it mounts.
 
 ```jsx title="Detached triggers"
 const demoDrawer = Drawer.createHandle();

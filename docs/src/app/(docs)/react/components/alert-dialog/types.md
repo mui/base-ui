@@ -366,10 +366,12 @@ type ReturnValue = AlertDialog.Handle<Payload>;
 
 ### Handle
 
-A handle to control an Alert Dialog imperatively and to associate detached triggers with it.
+Controls an Alert Dialog imperatively and associates detached `AlertDialog.Trigger` components with
+an `AlertDialog.Root`. Create one with `AlertDialog.createHandle()` and pass it to the `handle`
+prop of the root and of any triggers rendered outside of it.
 
-The imperative methods on the handle require an AlertDialog.Root using the same handle to be mounted.
-Calls made before the root is attached to the handle are ignored; the root owns fresh state when it mounts.
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
