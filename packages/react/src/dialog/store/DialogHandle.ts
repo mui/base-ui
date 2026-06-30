@@ -1,3 +1,4 @@
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { DialogStore, NullDialogStore, type DialogHandleStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -155,18 +156,37 @@ export class DialogHandle<Payload> {
    */
   attachStore(newStore: DialogStore<Payload>) {
     if (this.attachedStore !== newStore) {
-      if (process.env.NODE_ENV !== 'production' && this.attachedStore !== null) {
-        console.warn(
-          'Base UI: A handle is attached to more than one mounted root at the same time. ' +
-            'The most recently mounted root takes over and the previous one stops being controlled by the handle. ' +
-            'A handle should be used by a single root that stays mounted for the lifetime of the handle.',
-        );
-      }
       this.attachedStore = newStore;
       this.notifyStoreListeners();
     }
 
+    if (process.env.NODE_ENV !== 'production') {
+      // The overlap bookkeeping only exists in development; the fields are created lazily so they
+      // never appear on instances in production (like `controlledValues` in `ReactStore`).
+      const dev = this as any;
+      dev.attachedRootCount = (dev.attachedRootCount ?? 0) + 1;
+      if (dev.attachedRootCount > 1) {
+        // More than one root is attached at once. This is usually a transient overlap during an
+        // animated route transition, where the outgoing root unmounts a frame after the incoming
+        // one mounts. Defer the check by a frame so a clean handoff doesn't warn, and only warn if
+        // the overlap is still present once the transition has settled (the previous root didn't
+        // unmount).
+        (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
+          if (dev.attachedRootCount > 1) {
+            console.warn(
+              'Base UI: A handle is attached to more than one mounted root at the same time. ' +
+                'The most recently mounted root takes over and the previous one stops being controlled by the handle. ' +
+                'A handle should be used by a single root that stays mounted for the lifetime of the handle.',
+            );
+          }
+        });
+      }
+    }
+
     return () => {
+      if (process.env.NODE_ENV !== 'production') {
+        (this as any).attachedRootCount -= 1;
+      }
       if (this.attachedStore === newStore) {
         this.attachedStore = null;
         this.notifyStoreListeners();

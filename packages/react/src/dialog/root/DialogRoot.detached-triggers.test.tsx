@@ -6,7 +6,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Root />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -386,6 +386,81 @@ describe('<Dialog.Root />', () => {
       expect(trigger.getAttribute('aria-controls')).toBe(
         screen.getByRole('dialog').getAttribute('id'),
       );
+    });
+
+    describe('multiple roots sharing one handle', () => {
+      // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
+      clock.withFakeTimers();
+
+      const overlapWarned = (consoleWarn: ReturnType<typeof vi.spyOn>) =>
+        consoleWarn.mock.calls.some(
+          ([message]: unknown[]) =>
+            typeof message === 'string' && message.includes('more than one mounted root'),
+        );
+
+      it('does not warn when one root replaces another during a route transition', async () => {
+        const handle = Dialog.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        function TransitioningRoots({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Dialog.Root key="outgoing" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Outgoing</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <Dialog.Root key="incoming" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Incoming</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await render(<TransitioningRoots phase="outgoing" />);
+        // The incoming root mounts while the outgoing one is still mounted (overlap)...
+        await setProps({ phase: 'overlap' });
+        // ...then the outgoing root unmounts, completing a clean handoff, all before the deferred
+        // check runs.
+        await setProps({ phase: 'incoming' });
+
+        clock.tick(20);
+
+        expect(overlapWarned(consoleWarn)).toBe(false);
+        consoleWarn.mockRestore();
+      });
+
+      it('warns when a handle stays attached to more than one mounted root', async () => {
+        const handle = Dialog.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await render(
+          <React.Fragment>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>First</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>Second</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>,
+        );
+
+        // Both roots stay mounted, so the deferred check still sees the overlap and warns.
+        clock.tick(20);
+
+        expect(overlapWarned(consoleWarn)).toBe(true);
+        consoleWarn.mockRestore();
+      });
     });
   });
 
