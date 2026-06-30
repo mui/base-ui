@@ -24,11 +24,13 @@ const SEMVER_PATTERN =
 
 interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'handle'> {
   children?: React.ReactNode;
+  focusMobileSearchOnOpenRef: React.RefObject<boolean>;
   handle: Drawer.Handle<unknown>;
 }
 
 export function MobileNavDrawer({
   children,
+  focusMobileSearchOnOpenRef,
   handle,
   onOpenChange,
   ...props
@@ -41,6 +43,8 @@ export function MobileNavDrawer({
   const selectedResultRef = React.useRef<SearchResult | null>(null);
   const lastTrackedQueryRef = React.useRef('');
   const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const popupRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     return () => {
@@ -154,10 +158,17 @@ export function MobileNavDrawer({
         <Drawer.Portal>
           <Drawer.Backdrop className="MobileNavBackdrop" />
           <Drawer.Viewport className="MobileNavViewport">
-            <Drawer.Popup className="MobileNavPopup">
+            <Drawer.Popup
+              ref={popupRef}
+              className="MobileNavPopup"
+              initialFocus={() =>
+                focusMobileSearchOnOpenRef.current ? inputRef.current : popupRef.current
+              }
+            >
               <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
               <MobileNavPopupImpl
                 handle={handle}
+                inputRef={inputRef}
                 searchValue={searchValue}
                 onResultCountChange={handleResultCountChange}
                 onResultSelect={handleResultSelect}
@@ -190,6 +201,7 @@ function normalizeGroup(group: string) {
 
 interface MobileNavPopupImplProps extends React.PropsWithChildren {
   handle: Drawer.Handle<unknown>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   searchValue: string;
   onResultCountChange: (resultCount: number) => void;
   onResultSelect: (result: SearchResult | null) => void;
@@ -200,13 +212,13 @@ interface MobileNavPopupImplProps extends React.PropsWithChildren {
 function MobileNavPopupImpl({
   children,
   handle,
+  inputRef,
   searchValue,
   onResultCountChange,
   onResultSelect,
   onSearchValueChange,
   setSearchValue,
 }: MobileNavPopupImplProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const hasQuery = searchValue.trim() !== '';
   const { results, search, defaultResults, buildResultUrl } = useSearch({
@@ -248,7 +260,7 @@ function MobileNavPopupImpl({
     setSearchValue('');
     await search('', { groupBy: { properties: ['group'], maxResult: 5 } });
     inputRef.current?.focus();
-  }, [onSearchValueChange, search, setSearchValue]);
+  }, [inputRef, onSearchValueChange, search, setSearchValue]);
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
@@ -351,12 +363,7 @@ function MobileNavPopupImpl({
       autoHighlight={hasQuery}
     >
       <div className="MobileNavSearchHeader">
-        <div className="MobileNavChromeRow">
-          <div className="MobileNavHandle" />
-          <Drawer.Close aria-label="Close the navigation" className="MobileNavClose">
-            Close
-          </Drawer.Close>
-        </div>
+        <div className="MobileNavHandle" />
         <div className="MobileNavSearchInputRoot">
           <MagnifyingGlassIcon className="MobileNavSearchIcon" />
           <Autocomplete.Input
