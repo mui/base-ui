@@ -215,7 +215,7 @@
 
   .SearchBody {
     display: flex;
-    min-height: 0;
+    min-height: 4.5rem;
     flex: 1;
   }
 
