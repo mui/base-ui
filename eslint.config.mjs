@@ -120,9 +120,16 @@ export default defineConfig(
   {
     files: [`packages/*/src/**/*${EXTENSION_TS}`],
     ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`, `test/**/*${EXTENSION_TS}`],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: dirname,
+      },
+    },
     rules: {
       'mui/add-undef-to-optional': 'error',
       'mui/disallow-react-api-in-server-components': 'error',
+      'mui/no-floating-cleanup': 'error',
     },
   },
   {

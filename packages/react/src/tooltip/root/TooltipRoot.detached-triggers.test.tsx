@@ -157,6 +157,49 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
+    it('hands off open state and payload to a trigger with its own DOM id while open', async () => {
+      await render(
+        <Tooltip.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <Tooltip.Trigger payload={1} delay={0} closeDelay={0}>
+                Trigger 1
+              </Tooltip.Trigger>
+              <Tooltip.Trigger
+                payload={2}
+                delay={0}
+                closeDelay={0}
+                render={<button id="custom-button" type="button" />}
+              >
+                Trigger 2
+              </Tooltip.Trigger>
+
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </React.Fragment>
+          )}
+        </Tooltip.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      // Focus handoff keeps the popup open across the switch, so `open`/`triggerCount` do not change.
+      await act(async () => trigger1.focus());
+      await flushMicrotasks();
+      expect(screen.getByTestId('content').textContent).toBe('1');
+
+      await act(async () => trigger2.focus());
+      await flushMicrotasks();
+      expect(trigger2).toHaveAttribute('data-popup-open');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+    });
+
     it('should close when the active trigger unmounts', async () => {
       let removeFirstTrigger: () => void = () => {};
 

@@ -168,7 +168,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      setInputRef(fallbackInput);
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
     }
   });
 

@@ -76,6 +76,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   });
 
   const isNestedDrawerOpenRef = React.useRef(false);
+  const swipeAreaActiveRef = React.useRef(false);
 
   const setActiveSnapPoint = useStableCallback(
     (
@@ -172,6 +173,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      swipeAreaActiveRef,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -210,6 +212,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       setActiveSnapPoint,
       snapPoints,
       snapToSequentialPoints,
+      swipeAreaActiveRef,
       swipeDirection,
     ],
   );

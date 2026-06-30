@@ -63,6 +63,7 @@ async function simulateTimedRightSwipe(
 
     vi.setSystemTime(new Date(moveTime));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: startX + 1,
       clientY: 100,
@@ -74,6 +75,7 @@ async function simulateTimedRightSwipe(
 
     vi.setSystemTime(new Date(endTime - 1));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: endX,
       clientY: 100,
@@ -115,6 +117,7 @@ async function simulateTimedRightSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: startX + 1,
     clientY: 100,
@@ -128,6 +131,7 @@ async function simulateTimedRightSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: endX,
     clientY: 100,
@@ -177,6 +181,7 @@ async function simulateTimedDownSwipe(
 
     vi.setSystemTime(new Date(moveTime));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: startY + 1,
@@ -189,6 +194,7 @@ async function simulateTimedDownSwipe(
     if (resolvedSettleTime !== null) {
       vi.setSystemTime(new Date(resolvedSettleTime));
       fireEvent.pointerMove(element, {
+        buttons: 1,
         pointerId: 1,
         clientX: 100,
         clientY: settleY,
@@ -201,6 +207,7 @@ async function simulateTimedDownSwipe(
 
     vi.setSystemTime(new Date(endTime - 1));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: endY,
@@ -247,6 +254,7 @@ async function simulateTimedDownSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: 100,
     clientY: startY + 1,
@@ -262,6 +270,7 @@ async function simulateTimedDownSwipe(
     });
 
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: settleY,
@@ -277,6 +286,7 @@ async function simulateTimedDownSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: 100,
     clientY: endY,
@@ -324,7 +334,7 @@ async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[])
     }
 
     if (step.type === 'move') {
-      fireEvent.pointerMove(element, baseEvent);
+      fireEvent.pointerMove(element, { ...baseEvent, buttons: 1 });
       return;
     }
 

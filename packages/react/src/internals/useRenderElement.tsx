@@ -87,7 +87,8 @@ function useRenderElementProps<
   /* eslint-disable react-hooks/rules-of-hooks */
   if (typeof document !== 'undefined') {
     if (!enabled) {
-      useMergedRefs(null, null);
+      // Called only to keep the hook order stable when disabled; the merged ref is unused.
+      void useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
       outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
@@ -121,9 +122,9 @@ function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined
 }
 
 // The symbol React uses internally for lazy components
-// https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
 //
-// TODO delete once https://github.com/facebook/react/issues/32392 is fixed
+// TODO delete once https://github.com/react/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
 const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
 const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
@@ -147,10 +148,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     mergedProps.ref = props.ref;
 
     let newElement = render;
-
-    // Workaround for https://github.com/facebook/react/issues/32392
+    // Workaround for https://github.com/react/react/issues/32392
     // This works because the toArray() logic unwrap lazy element type in
-    // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+    // https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
     if (newElement?.$$typeof === REACT_LAZY_TYPE) {
       const children = React.Children.toArray(render);
       newElement = children[0] as BaseUIComponentProps<T, S>['render'];
