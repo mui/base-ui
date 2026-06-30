@@ -17,7 +17,7 @@ const LazyMobileNavDrawer = React.lazy(() =>
   import('./MobileNavDrawer').then((module) => ({ default: module.MobileNavDrawer })),
 );
 
-type OpenTarget = 'desktop' | 'mobile';
+type OpenTarget = 'desktop' | 'mobile' | 'mobile-search';
 type DialogTriggerClickEvent = Parameters<NonNullable<Dialog.Trigger.Props['onClick']>>[0];
 type DrawerTriggerClickEvent = Parameters<NonNullable<Drawer.Trigger.Props['onClick']>>[0];
 
@@ -38,6 +38,7 @@ export function SearchControls({
   const mobileTriggerId = React.useId();
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const focusMobileSearchOnOpenRef = React.useRef(false);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
 
   const isCmd = React.useSyncExternalStore(
@@ -65,7 +66,7 @@ export function SearchControls({
         event.preventDefault();
         event.stopPropagation();
 
-        setOpenTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile');
+        setOpenTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile-search');
       }
     };
 
@@ -87,6 +88,8 @@ export function SearchControls({
         desktopHandle.open(desktopTriggerId);
       }
     } else if (hasMobileNav && !mobileHandle.isOpen) {
+      focusMobileSearchOnOpenRef.current = openTarget === 'mobile-search';
+
       if (desktopHandle.isOpen) {
         desktopHandle.close();
       }
@@ -141,7 +144,12 @@ export function SearchControls({
             Navigation
           </Drawer.Trigger>
           <React.Suspense fallback={null}>
-            <LazyMobileNavDrawer handle={mobileHandle}>{mobileNavContent}</LazyMobileNavDrawer>
+            <LazyMobileNavDrawer
+              handle={mobileHandle}
+              focusMobileSearchOnOpenRef={focusMobileSearchOnOpenRef}
+            >
+              {mobileNavContent}
+            </LazyMobileNavDrawer>
           </React.Suspense>
         </MobileNavContext.Provider>
       )}
