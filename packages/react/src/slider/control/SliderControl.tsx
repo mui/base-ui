@@ -176,7 +176,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const control = controlRef.current;
     const thumbIndex = pressedThumbIndexRef.current;
 
-    if (!control || (!range && (thumbIndex < 0 || thumbIndex >= values.length))) {
+    if (!control || thumbIndex < 0 || thumbIndex >= values.length) {
+      if (thumbIndex >= values.length) {
+        currentInteractionValueRef.current = null;
+      }
       return null;
     }
 
@@ -206,10 +209,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
         thumbIndex,
         didSwap: false,
       };
-    }
-
-    if (thumbIndex < 0 || thumbIndex >= values.length) {
-      return null;
     }
 
     const collisionResult = resolveThumbCollision({
@@ -366,6 +365,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
+
+    if (pressedThumbIndexRef.current >= values.length) {
+      currentInteractionValueRef.current = null;
+    }
 
     if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
