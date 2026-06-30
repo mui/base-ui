@@ -225,7 +225,9 @@ export type PopupStoreSelectors = typeof popupStoreSelectors;
 
 /**
  * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
- * that an inert store can be passed while detached.
+ * that an inert store can be passed while detached. `set`/`update` are included only for
+ * trigger-count and trigger-data bookkeeping; on a detached (inert) store they are intentionally
+ * no-ops, so a write through this type is not guaranteed to be durable.
  */
 export type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
   ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,

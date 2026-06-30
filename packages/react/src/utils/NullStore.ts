@@ -13,6 +13,9 @@ export class NullStore<
   Context = Record<string, never>,
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends ReactStore<State, Context, Selectors> {
+  // `update`/`set`/`notifyAll` funnel through `setState` in the base `Store`, so overriding
+  // `setState` alone would neutralize them today. They are overridden explicitly so the store stays
+  // inert even if a future base-class change stops routing a mutator through `setState`.
   setState(_newState: State) {}
 
   update(_changes: Partial<State>) {}

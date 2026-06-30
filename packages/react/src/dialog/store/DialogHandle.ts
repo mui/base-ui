@@ -165,10 +165,10 @@ export class DialogHandle<Payload> {
       dev.attachedRootCount = (dev.attachedRootCount ?? 0) + 1;
       if (dev.attachedRootCount > 1) {
         // More than one root is attached at once. This is usually a transient overlap during an
-        // animated route transition, where the outgoing root unmounts a frame after the incoming
-        // one mounts. Defer the check by a frame so a clean handoff doesn't warn, and only warn if
-        // the overlap is still present once the transition has settled (the previous root didn't
-        // unmount).
+        // animated route transition, where the outgoing root unmounts shortly after the incoming
+        // one mounts. Defer the check by a frame and only warn if the overlap is still present once
+        // the transition has settled (the previous root didn't unmount), so a clean handoff doesn't
+        // warn regardless of the exact unmount timing.
         (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
           if (dev.attachedRootCount > 1) {
             console.warn(

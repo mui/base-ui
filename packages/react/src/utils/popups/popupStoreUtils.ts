@@ -301,10 +301,11 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
     }
   });
 
-  // Intentionally NOT stable: the identity changes with `[store, triggerId]` (via
-  // `baseRegisterTrigger`), so when a handle-backed trigger's store pointer swaps, the merged ref
-  // re-fires — unregistering from the previous store and registering into the new one. This lets a
-  // detached trigger follow its handle's currently-attached store across attach/detach/remount.
+  // Intentionally NOT stable. Its identity is derived from `baseRegisterTrigger`, which is keyed on
+  // `[store, id]`, so when a handle-backed trigger's store pointer swaps the merged ref re-fires —
+  // unregistering from the previous store and registering into the new one. This lets a detached
+  // trigger follow its handle's currently-attached store across attach/detach/remount. (A stable
+  // callback would keep its identity and never re-fire on a store swap.)
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
       baseRegisterTrigger(element);

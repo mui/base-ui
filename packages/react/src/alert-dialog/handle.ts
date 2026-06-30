@@ -9,6 +9,8 @@ import { DialogHandle } from '../dialog/store/DialogHandle';
  * before a root attaches (or after it unmounts) are ignored.
  */
 export class AlertDialogHandle<Payload> extends DialogHandle<Payload> {
+  // Nominal brand: makes this handle type distinct from `DialogHandle` and sibling handles so they
+  // can't be passed interchangeably. Type-only; has no runtime presence.
   private readonly __alertDialogBrand!: never;
 }
 

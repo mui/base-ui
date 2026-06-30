@@ -699,9 +699,10 @@ describe('<AlertDialog.Root />', () => {
       expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
 
       await user.click(screen.getByRole('presentation', { hidden: true }));
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      expect(testDialog.isOpen).toBe(true);
     });
 
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
