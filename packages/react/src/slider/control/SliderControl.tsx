@@ -366,7 +366,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
 
-    if (pressedThumbIndexRef.current >= values.length) {
+    // If the value array shrank or grew mid-drag, the cached interaction value no longer
+    // matches the current thumbs (the pressed index can still be in range), so dropping it
+    // keeps a stale or malformed array from being committed on release.
+    const interactionValue = currentInteractionValueRef.current;
+    if (Array.isArray(interactionValue) && interactionValue.length !== values.length) {
       currentInteractionValueRef.current = null;
     }
 
