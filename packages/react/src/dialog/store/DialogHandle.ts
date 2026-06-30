@@ -1,5 +1,5 @@
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { DialogStore, NullDialogStore, type DialogHandleStore } from './DialogStore';
+import { DialogStore, createNullDialogStore, type DialogHandleStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -19,7 +19,7 @@ export class DialogHandle<Payload> {
    * detached they live in this store's trigger map and migrate themselves to the root's store (and
    * back) as it attaches/detaches.
    */
-  private readonly fallbackStore = new NullDialogStore<Payload>();
+  private readonly fallbackStore = createNullDialogStore<Payload>();
 
   /**
    * Store owned by the currently mounted root, or `null` when no root is attached. Imperative

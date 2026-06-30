@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { createSelector, ReactStore, useStore } from '@base-ui/utils/store';
-import { NOOP } from '@base-ui/utils/empty';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
+import { NullStore } from '../../utils/NullStore';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
@@ -51,7 +51,7 @@ const selectors = {
 
 /**
  * The subset of `DialogStore` that detached handle-backed triggers rely on. Both the real
- * `DialogStore` and the inert `NullDialogStore` satisfy it, so a trigger can read from whichever
+ * `DialogStore` and the inert fallback store satisfy it, so a trigger can read from whichever
  * store the handle currently exposes.
  */
 export type DialogHandleStore<Payload> = Pick<
@@ -72,19 +72,7 @@ export class DialogStore<Payload> extends ReactStore<
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);
 
-    super(
-      state,
-      {
-        popupRef: React.createRef<HTMLElement>(),
-        backdropRef: React.createRef<HTMLDivElement>(),
-        internalBackdropRef: React.createRef<HTMLDivElement>(),
-        outsidePressEnabledRef: { current: true },
-        triggerElements,
-        onOpenChange: undefined,
-        onOpenChangeComplete: undefined,
-      },
-      selectors,
-    );
+    super(state, createInitialContext(triggerElements), selectors);
   }
 
   public setOpen = (
@@ -120,65 +108,18 @@ export class DialogStore<Payload> extends ReactStore<
 }
 
 /**
- * Inert, immutable, closed store handed to detached handle-backed triggers while no root is
- * attached, so they can render and register without a mounted root. Reads always reflect a closed
- * dialog and mutations are no-ops; its own trigger map holds detached registrations until they
- * migrate to the attached root's store.
- * @internal
+ * Creates the inert fallback store used by detached handle-backed triggers while no
+ * `Dialog.Root` is attached. It preserves a dialog-specific trigger registry in context so
+ * detached triggers can register before migrating to the live root store.
  */
-export class NullDialogStore<Payload> implements DialogHandleStore<Payload> {
-  readonly state: Readonly<State<Payload>>;
+export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
 
-  readonly context: Context;
-
-  constructor() {
-    const triggerElements = new PopupTriggerMap();
-    this.state = Object.freeze(createInitialState<Payload>(undefined, triggerElements));
-    this.context = Object.freeze({
-      popupRef: React.createRef<HTMLElement>(),
-      backdropRef: React.createRef<HTMLDivElement>(),
-      internalBackdropRef: React.createRef<HTMLDivElement>(),
-      outsidePressEnabledRef: { current: true },
-      triggerElements,
-      onOpenChange: undefined,
-      onOpenChangeComplete: undefined,
-    });
-  }
-
-  subscribe = () => NOOP;
-
-  getSnapshot = () => this.state;
-
-  select: DialogStore<Payload>['select'] = ((key: keyof typeof selectors, a1, a2, a3) => {
-    return (
-      selectors[key] as (
-        state: Readonly<State<Payload>>,
-        a1?: unknown,
-        a2?: unknown,
-        a3?: unknown,
-      ) => unknown
-    )(this.state, a1, a2, a3);
-  }) as DialogStore<Payload>['select'];
-
-  update() {}
-
-  set() {}
-
-  useState: DialogStore<Payload>['useState'] = ((key: keyof typeof selectors, a1, a2, a3) => {
-    React.useDebugValue(key);
-    return useStore(
-      this,
-      selectors[key] as (
-        state: Readonly<State<Payload>>,
-        a1?: unknown,
-        a2?: unknown,
-        a3?: unknown,
-      ) => unknown,
-      a1,
-      a2,
-      a3,
-    );
-  }) as DialogStore<Payload>['useState'];
+  return new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
+    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
+    selectors,
+  );
 }
 
 function createInitialState<Payload>(
@@ -206,4 +147,16 @@ function createInitialState<Payload>(
   state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
+}
+
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
+  return {
+    popupRef: React.createRef<HTMLElement>(),
+    backdropRef: React.createRef<HTMLDivElement>(),
+    internalBackdropRef: React.createRef<HTMLDivElement>(),
+    outsidePressEnabledRef: { current: true },
+    triggerElements,
+    onOpenChange: undefined,
+    onOpenChangeComplete: undefined,
+  };
 }

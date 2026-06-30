@@ -50,7 +50,7 @@ type PopupStoreWithOpen<
 
 /**
  * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
- * that an inert store (e.g. the dialog handle's `NullDialogStore`) can be passed while detached.
+ * that an inert store (e.g. the dialog handle's fallback store) can be passed while detached.
  */
 type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
   ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,

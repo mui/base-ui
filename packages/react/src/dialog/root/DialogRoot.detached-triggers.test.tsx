@@ -436,6 +436,43 @@ describe('<Dialog.Root />', () => {
         consoleWarn.mockRestore();
       });
 
+      it('keeps the newer root attached after the older root unmounts', async () => {
+        const handle = Dialog.createHandle();
+
+        function TransitioningRoots({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Dialog.Root key="outgoing" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Outgoing</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <Dialog.Root key="incoming" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Incoming</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await render(<TransitioningRoots phase="outgoing" />);
+        await setProps({ phase: 'overlap' });
+        await setProps({ phase: 'incoming' });
+
+        clock.tick(20);
+
+        await act(() => handle.open(null));
+
+        expect(screen.getByText('Incoming')).toBeVisible();
+        expect(screen.queryByText('Outgoing')).toBe(null);
+        expect(handle.isOpen).toBe(true);
+      });
+
       it('warns when a handle stays attached to more than one mounted root', async () => {
         const handle = Dialog.createHandle();
         const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});

@@ -1,10 +1,11 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor, within } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
@@ -870,6 +871,7 @@ describe('<AlertDialog.Root />', () => {
         <React.Fragment>
           <AlertDialog.Trigger handle={handle}>Open</AlertDialog.Trigger>
           <AlertDialog.Root handle={handle}>
+            <AlertDialogState data-testid="alert-dialog-state" />
             <AlertDialog.Portal>
               <AlertDialog.Popup>Content</AlertDialog.Popup>
             </AlertDialog.Portal>
@@ -877,14 +879,23 @@ describe('<AlertDialog.Root />', () => {
         </React.Fragment>,
       );
 
+      expect(screen.getByTestId('alert-dialog-state')).toHaveAttribute('data-modal', 'true');
+      expect(screen.getByTestId('alert-dialog-state')).toHaveAttribute(
+        'data-disable-pointer-dismissal',
+        'true',
+      );
+      expect(screen.getByTestId('alert-dialog-state')).toHaveAttribute('data-role', 'alertdialog');
+
       await user.click(screen.getByRole('button', { name: 'Open' }));
 
       expect(await screen.findByRole('alertdialog')).not.toBe(null);
+      expect(handle.isOpen).toBe(true);
 
       await user.click(screen.getByRole('presentation', { hidden: true }));
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      expect(handle.isOpen).toBe(true);
     });
 
     it('keeps the alert dialog open when the backdrop is clicked', async () => {
@@ -910,10 +921,10 @@ describe('<AlertDialog.Root />', () => {
 
       const backdrop = await screen.findByRole('presentation', { hidden: true });
       await user.click(backdrop);
+      await flushMicrotasks();
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      expect(handle.isOpen).toBe(true);
     });
 
     it('opens and closes the dialog', async () => {
@@ -1214,3 +1225,19 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 });
+
+function AlertDialogState(props: React.HTMLAttributes<HTMLDivElement>) {
+  const { store } = useDialogRootContext();
+  const modal = store.useState('modal');
+  const disablePointerDismissal = store.useState('disablePointerDismissal');
+  const role = store.useState('role');
+
+  return (
+    <div
+      {...props}
+      data-modal={modal}
+      data-disable-pointer-dismissal={disablePointerDismissal}
+      data-role={role}
+    />
+  );
+}
