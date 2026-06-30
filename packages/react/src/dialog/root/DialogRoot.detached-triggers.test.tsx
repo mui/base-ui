@@ -473,6 +473,51 @@ describe('<Dialog.Root />', () => {
         expect(handle.isOpen).toBe(true);
       });
 
+      it('restores control to the previous root when a newer overlapping root detaches', async () => {
+        const handle = Dialog.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        function TransitioningRoots({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Dialog.Root key="outgoing" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Outgoing</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <Dialog.Root key="incoming" handle={handle}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Incoming</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await render(<TransitioningRoots phase="outgoing" />);
+        // The incoming root mounts while the outgoing one is still mounted (overlap)...
+        await setProps({ phase: 'overlap' });
+        // ...then the transition is canceled: the newer (incoming) root unmounts first while the
+        // older (outgoing) root stays mounted.
+        await setProps({ phase: 'outgoing' });
+
+        clock.tick(20);
+
+        // The still-mounted outgoing root regains control of the handle instead of being left inert.
+        await act(() => handle.open(null));
+
+        expect(screen.getByText('Outgoing')).toBeVisible();
+        expect(screen.queryByText('Incoming')).toBe(null);
+        expect(handle.isOpen).toBe(true);
+        // A canceled transient overlap should not warn.
+        expect(overlapWarned(consoleWarn)).toBe(false);
+        consoleWarn.mockRestore();
+      });
+
       it('keeps the root attached through Strict Mode effect replay', async () => {
         const handle = Dialog.createHandle();
         const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});

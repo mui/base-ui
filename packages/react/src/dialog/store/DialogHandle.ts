@@ -22,8 +22,16 @@ export class DialogHandle<Payload> {
   private readonly fallbackStore = createNullDialogStore<Payload>();
 
   /**
-   * Store owned by the currently mounted root, or `null` when no root is attached. Imperative
-   * methods are no-ops while this is `null`.
+   * Stores of every root currently using this handle, in attach order. A handle is meant to be used
+   * by a single mounted root, but roots can transiently overlap (e.g. during an animated route
+   * transition), so this stack lets `attachStore`'s cleanup restore the previous root instead of
+   * leaving a still-mounted root uncontrollable when a newer overlapping root detaches first.
+   */
+  private readonly attachedStores: DialogStore<Payload>[] = [];
+
+  /**
+   * Store of the root that currently controls the handle: the most recently attached one still
+   * mounted, or `null` when no root is attached. Imperative methods are no-ops while this is `null`.
    */
   private attachedStore: DialogStore<Payload> | null = null;
 
@@ -153,24 +161,21 @@ export class DialogHandle<Payload> {
    * @internal
    */
   attachStore(newStore: DialogStore<Payload>) {
-    if (this.attachedStore !== newStore) {
-      this.attachedStore = newStore;
-      this.notifyStoreListeners();
-    }
+    this.attachedStores.push(newStore);
+    this.setActiveStore(newStore);
 
     if (process.env.NODE_ENV !== 'production') {
-      // The overlap bookkeeping only exists in development; the fields are created lazily so they
-      // never appear on instances in production (like `controlledValues` in `ReactStore`).
-      const dev = this as any;
-      dev.attachedRootCount = (dev.attachedRootCount ?? 0) + 1;
-      if (dev.attachedRootCount > 1) {
+      if (this.attachedStores.length > 1) {
         // More than one root is attached at once. This is usually a transient overlap during an
         // animated route transition, where the outgoing root unmounts shortly after the incoming
         // one mounts. Defer the check by a frame and only warn if the overlap is still present once
-        // the transition has settled (the previous root didn't unmount), so a clean handoff doesn't
+        // the transition has settled (more than one root stayed mounted), so a clean handoff doesn't
         // warn regardless of the exact unmount timing.
+        // The warning frame only exists in development; it is created lazily so it never appears on
+        // instances in production (like `controlledValues` in `ReactStore`).
+        const dev = this as any;
         (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
-          if (dev.attachedRootCount > 1) {
+          if (this.attachedStores.length > 1) {
             console.warn(
               'Base UI: A handle is attached to more than one mounted root at the same time. ' +
                 'The most recently mounted root takes over and the previous one stops being controlled by the handle. ' +
@@ -182,14 +187,26 @@ export class DialogHandle<Payload> {
     }
 
     return () => {
-      if (process.env.NODE_ENV !== 'production') {
-        (this as any).attachedRootCount -= 1;
+      const index = this.attachedStores.lastIndexOf(newStore);
+      if (index !== -1) {
+        this.attachedStores.splice(index, 1);
       }
-      if (this.attachedStore === newStore) {
-        this.attachedStore = null;
-        this.notifyStoreListeners();
-      }
+      // Restore control to the most recently attached root that is still mounted (or detach fully if
+      // none remain). Clearing unconditionally would leave a still-mounted older root uncontrollable
+      // when a newer overlapping root detaches first (e.g. a canceled route transition).
+      this.setActiveStore(this.attachedStores[this.attachedStores.length - 1] ?? null);
     };
+  }
+
+  /**
+   * Sets the store that currently controls the handle and notifies subscribers when it changes, so
+   * detached triggers re-render and migrate their registration to the new store.
+   */
+  private setActiveStore(store: DialogStore<Payload> | null) {
+    if (this.attachedStore !== store) {
+      this.attachedStore = store;
+      this.notifyStoreListeners();
+    }
   }
 
   /**
