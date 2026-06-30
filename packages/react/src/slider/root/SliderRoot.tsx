@@ -19,7 +19,7 @@ import { clamp } from '../../internals/clamp';
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { type CompositeMetadata } from '../../internals/composite/list/CompositeListContext';
+import { type CompositeMetadata } from '../../internals/composite';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';

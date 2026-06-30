@@ -53,17 +53,6 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   });
 
   const unregister = useStableCallback((node: Element) => {
-    const metadata = map.get(node);
-
-    if (controlledRef.current === true && metadata?.index != null) {
-      // Controlled indexes can leave holes, so clear the unmounted slot explicitly.
-      delete elementsRef.current[metadata.index];
-
-      if (labelsRef) {
-        delete labelsRef.current[metadata.index];
-      }
-    }
-
     map.delete(node);
 
     if (map.size === 0) {
@@ -136,16 +125,25 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
-      const isControlled = controlledRef.current === true;
-      const nextLength = isControlled ? getMaxIndexLength(sortedMap) : sortedMap.size;
+      // Rebuild from the sorted map, but keep the arrays sparse so a large
+      // controlled index doesn't allocate a dense array up to it.
+      elementsRef.current = [];
+      if (labelsRef) {
+        labelsRef.current = [];
+      }
 
-      if (elementsRef.current.length !== nextLength) {
-        elementsRef.current.length = nextLength;
-      }
-      if (labelsRef && labelsRef.current.length !== nextLength) {
-        labelsRef.current.length = nextLength;
-      }
-      nextIndexRef.current = nextLength;
+      sortedMap.forEach((metadata, node) => {
+        if (metadata.index != null) {
+          elementsRef.current[metadata.index] = node as HTMLElement;
+
+          if (labelsRef) {
+            labelsRef.current[metadata.index] =
+              metadata.label ?? metadata.textRef?.current?.textContent ?? node.textContent ?? null;
+          }
+        }
+      });
+
+      nextIndexRef.current = elementsRef.current.length;
     }
 
     onMapChange(sortedMap);
@@ -154,16 +152,12 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     return () => {
       elementsRef.current = [];
-    };
-  }, [elementsRef]);
 
-  useIsoLayoutEffect(() => {
-    return () => {
       if (labelsRef) {
         labelsRef.current = [];
       }
     };
-  }, [labelsRef]);
+  }, [elementsRef, labelsRef]);
 
   const subscribeMapChange = useStableCallback((fn) => {
     listeners.add(fn);
@@ -209,21 +203,6 @@ function sortByDocumentPosition(a: Element, b: Element) {
   }
 
   return 0;
-}
-
-// Controlled indexes can be sparse if, for example, an item in the middle suspends.
-// So, we might receive [0, 2] and length should be 3.
-function getMaxIndexLength<Metadata>(map: Map<Element, CompositeMetadata<Metadata>>) {
-  let maxIndex = -1;
-
-  map.forEach((metadata) => {
-    const index = metadata.index;
-    if (index != null && index > maxIndex) {
-      maxIndex = index;
-    }
-  });
-
-  return maxIndex + 1;
 }
 
 function disableEslintWarning(_: any) {}

@@ -3,6 +3,8 @@ import * as React from 'react';
 
 export type CompositeMetadata<CustomMetadata> = {
   index?: number | null | undefined;
+  label?: string | null | undefined;
+  textRef?: React.RefObject<HTMLElement | null> | undefined;
 } & CustomMetadata;
 
 export interface CompositeListContextValue<Metadata> {
