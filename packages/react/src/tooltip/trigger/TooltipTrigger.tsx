@@ -11,6 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
+import { useTooltipHandleStore } from '../store/useTooltipHandleStore';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
   safePolygon,
@@ -93,7 +94,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   } = componentProps;
 
   const rootContext = useTooltipRootContext(true);
-  const store = handle?.store ?? rootContext;
+  const handleStore = useTooltipHandleStore(handle);
+  const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',

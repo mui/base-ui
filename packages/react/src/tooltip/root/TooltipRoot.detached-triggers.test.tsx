@@ -19,7 +19,199 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
+
+  describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('ignores imperative handle calls made before a root is attached', async () => {
+      const handle = Tooltip.createHandle<number>();
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      await render(
+        <div>
+          <Tooltip.Trigger handle={handle} id="trigger" payload={1}>
+            Trigger
+          </Tooltip.Trigger>
+          <Tooltip.Root handle={handle}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <span data-testid="payload">{payload ?? 'No payload'}</span>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </React.Fragment>
+            )}
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('ignores imperative handle calls made after the root is detached', async () => {
+      const handle = Tooltip.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Tooltip.Trigger handle={handle} id="trigger" payload={1}>
+              Trigger
+            </Tooltip.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+            {mounted && (
+              <Tooltip.Root handle={handle}>
+                {({ payload }: NumberPayload) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                    <Tooltip.Portal>
+                      <Tooltip.Positioner>
+                        <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+                      </Tooltip.Positioner>
+                    </Tooltip.Portal>
+                  </React.Fragment>
+                )}
+              </Tooltip.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+
+      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      expect(handle.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
+    it('registers a detached trigger declared after the root', async () => {
+      const handle = Tooltip.createHandle();
+
+      await render(
+        <div>
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+          <Tooltip.Trigger handle={handle} id="trigger">
+            Trigger
+          </Tooltip.Trigger>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    describe('multiple roots sharing one handle', () => {
+      // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
+      clock.withFakeTimers();
+
+      it('warns when a handle stays attached to more than one mounted root', async () => {
+        const handle = Tooltip.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await render(
+          <div>
+            <Tooltip.Root handle={handle}>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>First</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+            <Tooltip.Root handle={handle}>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>Second</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </div>,
+        );
+
+        // Both roots stay mounted, so the deferred check still sees the overlap and warns.
+        clock.tick(20);
+
+        const overlapWarned = consoleWarn.mock.calls.some(
+          ([message]) =>
+            typeof message === 'string' && message.includes('more than one mounted root'),
+        );
+        expect(overlapWarned).toBe(true);
+        consoleWarn.mockRestore();
+      });
+    });
+  });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };

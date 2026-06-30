@@ -13,6 +13,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
+import { usePopoverHandleStore } from '../store/usePopoverHandleStore';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
@@ -46,7 +47,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopoverHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',

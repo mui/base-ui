@@ -32,6 +32,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
+import { useMenuHandleStore } from '../store/useMenuHandleStore';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
@@ -67,7 +68,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = useMenuHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
