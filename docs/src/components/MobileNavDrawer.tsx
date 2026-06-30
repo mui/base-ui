@@ -243,14 +243,24 @@ function MobileNavPopupImpl({
       scrollAreaViewportRef.current?.scrollTo({ top: 0, left: 0 });
     }
 
+    if (!hasQuery) {
+      highlightedResultRef.current = undefined;
+    }
+
     hadQueryRef.current = hasQuery;
   }, [hasQuery]);
 
   React.useEffect(() => {
+    if (!hasQuery) {
+      onResultCountChange(0);
+      setSearchResults(defaultResults);
+      return;
+    }
+
     const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
     onResultCountChange(totalResults);
     setSearchResults(results);
-  }, [onResultCountChange, results]);
+  }, [defaultResults, hasQuery, onResultCountChange, results]);
 
   const itemToStringValue = React.useCallback(
     (item: SearchResult | null) => (item ? item.title || item.slug : ''),
