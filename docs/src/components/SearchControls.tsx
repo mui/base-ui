@@ -17,7 +17,9 @@ const LazyMobileNavDrawer = React.lazy(() =>
   import('./MobileNavDrawer').then((module) => ({ default: module.MobileNavDrawer })),
 );
 
-type ShortcutTarget = 'desktop' | 'mobile';
+type OpenTarget = 'desktop' | 'mobile';
+type DialogTriggerClickEvent = Parameters<NonNullable<Dialog.Trigger.Props['onClick']>>[0];
+type DrawerTriggerClickEvent = Parameters<NonNullable<Drawer.Trigger.Props['onClick']>>[0];
 
 interface SearchControlsProps {
   desktopTriggerClassName?: string;
@@ -36,7 +38,7 @@ export function SearchControls({
   const mobileTriggerId = React.useId();
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const [shortcutTarget, setShortcutTarget] = React.useState<ShortcutTarget | null>(null);
+  const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -63,7 +65,7 @@ export function SearchControls({
         event.preventDefault();
         event.stopPropagation();
 
-        setShortcutTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile');
+        setOpenTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile');
       }
     };
 
@@ -72,11 +74,11 @@ export function SearchControls({
   }, []);
 
   React.useEffect(() => {
-    if (shortcutTarget === null) {
+    if (openTarget === null) {
       return;
     }
 
-    if (shortcutTarget === 'desktop') {
+    if (openTarget === 'desktop') {
       if (!desktopHandle.isOpen) {
         if (mobileHandle.isOpen) {
           mobileHandle.close();
@@ -92,17 +94,27 @@ export function SearchControls({
       mobileHandle.open(mobileTriggerId);
     }
 
-    setShortcutTarget(null);
+    setOpenTarget(null);
   }, [
     desktopHandle,
     desktopTriggerId,
     hasMobileNav,
     mobileHandle,
     mobileTriggerId,
-    shortcutTarget,
+    openTarget,
   ]);
 
   const mobileContextValue = React.useMemo(() => ({ handle: mobileHandle }), [mobileHandle]);
+
+  const handleDesktopTriggerClick = React.useCallback((event: DialogTriggerClickEvent) => {
+    event?.preventBaseUIHandler();
+    setOpenTarget('desktop');
+  }, []);
+
+  const handleMobileTriggerClick = React.useCallback((event: DrawerTriggerClickEvent) => {
+    event?.preventBaseUIHandler();
+    setOpenTarget('mobile');
+  }, []);
 
   return (
     <React.Fragment>
@@ -111,6 +123,7 @@ export function SearchControls({
         ref={desktopTriggerRef}
         handle={desktopHandle}
         className={clsx('SearchTrigger', desktopTriggerClassName)}
+        onClick={handleDesktopTriggerClick}
       >
         Search
         <span className="SearchTriggerShortcut">
@@ -129,6 +142,7 @@ export function SearchControls({
             ref={mobileTriggerRef}
             handle={mobileHandle}
             className={clsx('SearchTrigger', mobileTriggerClassName)}
+            onClick={handleMobileTriggerClick}
           >
             <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
             Navigation
