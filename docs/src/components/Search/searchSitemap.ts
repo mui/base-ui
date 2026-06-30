@@ -13,9 +13,3 @@ export function loadSearchSitemap() {
 
   return searchSitemapPromise;
 }
-
-export function preloadSearchSitemap() {
-  void loadSearchSitemap().catch(() => {
-    // Ignore speculative preload failures. Opening search will retry through loadSearchSitemap().
-  });
-}

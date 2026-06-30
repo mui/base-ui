@@ -5,7 +5,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
 import { platform } from '@base-ui/utils/platform';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
-import { loadSearchSitemap, preloadSearchSitemap } from './Search/searchSitemap';
+import { loadSearchSitemap } from './Search/searchSitemap';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 import './SearchTrigger.css';
@@ -63,10 +63,6 @@ export function SearchControls({
         event.preventDefault();
         event.stopPropagation();
 
-        if (visibleTarget === desktopTriggerRef.current) {
-          preloadSearchSitemap();
-        }
-
         setShortcutTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile');
       }
     };
@@ -115,8 +111,6 @@ export function SearchControls({
         ref={desktopTriggerRef}
         handle={desktopHandle}
         className={clsx('SearchTrigger', desktopTriggerClassName)}
-        onFocus={preloadSearchSitemap}
-        onPointerEnter={preloadSearchSitemap}
       >
         Search
         <span className="SearchTriggerShortcut">
