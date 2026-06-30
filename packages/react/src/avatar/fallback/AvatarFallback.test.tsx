@@ -103,7 +103,7 @@ describe('<Avatar.Fallback />', () => {
       expect(screen.queryByText('AC')).not.toBe(null);
     });
 
-    it('shows the fallback when delay changes to undefined', async () => {
+    it('shows the fallback when delay changes to 0', async () => {
       (useImageLoadingStatus as Mock).mockReturnValue('error');
 
       function Test(props: { delay?: number }) {
@@ -119,7 +119,7 @@ describe('<Avatar.Fallback />', () => {
 
       expect(screen.queryByText('AC')).toBe(null);
 
-      await setProps({ delay: undefined });
+      await setProps({ delay: 0 });
 
       expect(screen.queryByText('AC')).not.toBe(null);
     });
