@@ -53,6 +53,27 @@ describe('<PasswordToggleField.Root />', () => {
       expect(input).toHaveAttribute('type', 'text');
     });
 
+    it('does not flip the type locally when controlled (click only notifies)', async () => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <PasswordToggleField.Root visible={false} onVisibleChange={onVisibleChange}>
+          <PasswordToggleField.Input />
+          <PasswordToggleField.Toggle />
+        </PasswordToggleField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+
+      await act(async () => {
+        screen.getByRole('button').click();
+      });
+
+      // The controlled `visible` prop wins: the click reports the request but the type stays put.
+      expect(onVisibleChange.mock.calls.length).toBe(1);
+      expect(onVisibleChange.mock.calls[0][0]).toBe(true);
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
     it('does not emit data-visible on the root (reserved for element visibility)', async () => {
       await render(
         <PasswordToggleField.Root data-testid="root" defaultVisible>
@@ -82,7 +103,7 @@ describe('<PasswordToggleField.Root />', () => {
       expect(onVisibleChange.mock.calls.length).toBe(1);
       expect(onVisibleChange.mock.calls[0][0]).toBe(true);
       expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.none);
-      expect(onVisibleChange.mock.calls[0][1].event).toBeInstanceOf(Event);
+      expect(onVisibleChange.mock.calls[0][1].event).toBeInstanceOf(MouseEvent);
     });
 
     it('does not change visibility when the event is canceled', async () => {

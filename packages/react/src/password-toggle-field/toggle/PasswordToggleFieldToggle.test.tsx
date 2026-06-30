@@ -139,6 +139,45 @@ describe('<PasswordToggleField.Toggle />', () => {
     });
   });
 
+  describe('prop: nativeButton', () => {
+    it('toggles the password visibility when rendered as a non-native button', async () => {
+      await render(
+        <PasswordToggleField.Root>
+          <PasswordToggleField.Input />
+          <PasswordToggleField.Toggle nativeButton={false} render={<span />} />
+        </PasswordToggleField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      const button = screen.getByRole('button');
+
+      await act(async () => {
+        button.click();
+      });
+      expect(input).toHaveAttribute('type', 'text');
+    });
+
+    it('expresses disabled via aria-disabled and does not toggle when disabled', async () => {
+      await render(
+        <PasswordToggleField.Root>
+          <PasswordToggleField.Input />
+          <PasswordToggleField.Toggle nativeButton={false} render={<span />} disabled />
+        </PasswordToggleField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      const button = screen.getByRole('button');
+
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).not.toBeDisabled();
+
+      await act(async () => {
+        button.click();
+      });
+      expect(input).toHaveAttribute('type', 'password');
+    });
+  });
+
   describe.skipIf(isJSDOM)('focus management', () => {
     it('keeps focus on the input when toggled with a pointer', async () => {
       await render(
@@ -182,7 +221,7 @@ describe('<PasswordToggleField.Toggle />', () => {
     });
   });
 
-  it.skipIf(isJSDOM)('restores the caret position after toggling with a pointer', async () => {
+  it.skipIf(isJSDOM)('preserves the caret position after toggling with a pointer', async () => {
     await render(
       <PasswordToggleField.Root>
         <PasswordToggleField.Input defaultValue="hunter2" />
@@ -200,6 +239,8 @@ describe('<PasswordToggleField.Toggle />', () => {
 
     await userEvent.click(button);
 
+    // No explicit restoration: `mousedown` is prevented so focus never leaves the input, and
+    // the browser keeps the selection across the `password`/`text` swap on its own.
     expect(input.selectionStart).toBe(2);
     expect(input.selectionEnd).toBe(4);
   });
