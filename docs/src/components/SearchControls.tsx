@@ -95,14 +95,7 @@ export function SearchControls({
     }
 
     setOpenTarget(null);
-  }, [
-    desktopHandle,
-    desktopTriggerId,
-    hasMobileNav,
-    mobileHandle,
-    mobileTriggerId,
-    openTarget,
-  ]);
+  }, [desktopHandle, desktopTriggerId, hasMobileNav, mobileHandle, mobileTriggerId, openTarget]);
 
   const mobileContextValue = React.useMemo(() => ({ handle: mobileHandle }), [mobileHandle]);
 
