@@ -17,18 +17,11 @@
     -moz-osx-font-smoothing: grayscale;
     color: currentColor;
     text-align: left;
-    border-radius: var(--radius-6);
+    white-space: nowrap;
+    border-radius: var(--radius-8);
     -webkit-user-select: none;
     user-select: none;
     outline: 0;
-
-    /* Square icon-only variant (used where there's no room for the label) */
-    &.SearchTriggerIconOnly {
-      width: 1.75rem;
-      justify-content: center;
-      padding-inline: 0;
-      margin: 0;
-    }
   }
 
   .SearchTriggerIcon {

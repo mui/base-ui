@@ -130,47 +130,7 @@
     }
   }
 
-  .HeaderSearchTrigger {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-4);
-    width: fit-content;
-    height: 1.75rem;
-    padding: 0.25rem 0.5rem;
-    margin: -0.25rem -0.5rem;
-    border: 0;
-    border-radius: var(--radius-6);
-    background: transparent;
-    font-family: var(--font-sans);
-    font-weight: var(--font-weight-400);
-    font-size: var(--font-size-15);
-    line-height: 1.375rem;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: currentColor;
-    text-align: left;
-    white-space: nowrap;
-    -webkit-user-select: none;
-    user-select: none;
-    outline: 0;
-
-    & kbd {
-      font: inherit;
-    }
-
-    @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c1);
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid currentColor;
-      outline-offset: -1px;
-    }
-  }
-
-  .HeaderSearch .HeaderSearchDesktopTrigger {
+  .HeaderSearchDesktopTrigger {
     display: none;
 
     @media (--lg) {
@@ -178,7 +138,7 @@
     }
   }
 
-  .HeaderSearch .HeaderSearchMobileTrigger {
+  .HeaderSearchMobileTrigger {
     display: flex;
 
     @media (--lg) {
