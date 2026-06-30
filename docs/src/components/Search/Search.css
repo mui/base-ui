@@ -250,7 +250,7 @@
 
   .SearchFooter {
     border-top: 1px solid var(--gray-c1);
-    padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
     display: flex;
     font-size: var(--font-size-13);
     line-height: 1;
