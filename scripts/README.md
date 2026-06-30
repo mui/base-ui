@@ -56,3 +56,20 @@ Once the docs are deployed, lift the merge freeze on the Base UI Slack channel.
 
 After the documentation deployment is done, review, and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/base-ui/releases)
 Make sure to check the **Set as a pre-release** checkbox if publishing an unstable version.
+
+## Partial Release
+
+Partial release means you are publishing only certain packages meant to be share with another repo in `mui` org without advertising it to users. So we don't publish any GitHub release for it as well as don't have changelogs (yet).
+
+### Bump versions
+
+1. Bump the versions of the desired packages (`@base-ui/utils`). Make sure to add the `release` label.
+2. Create a PR
+3. Merge once approved and CI is green.
+
+### Release the packages
+
+1. Run `pnpm release:publish:internal` and select the merged PR's sha or paste the `sha` directly.
+2. This triggers the CI to only publish whitelisted packages in [`.github/workflows/publish.yml`](../.github/workflows/publish.yml#L67)
+3. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the URL which can be opened to see the latest workflow run.
+4. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiate.**
