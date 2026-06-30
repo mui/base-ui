@@ -76,10 +76,6 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
   );
 });
 
-const EmptyState = React.memo(function EmptyState() {
-  return <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>;
-});
-
 export interface SearchDialogProps {
   handle: Dialog.Handle<unknown>;
   sitemap?: SearchSitemapLoader;
@@ -345,7 +341,9 @@ export function SearchDialog({
   let searchResultsContent: React.ReactNode = null;
 
   if (searchResults.results.length === 0 && hasSearchValue) {
-    searchResultsContent = <EmptyState />;
+    searchResultsContent = (
+      <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>
+    );
   } else if (searchResults.results.length > 0) {
     searchResultsContent = (
       <Autocomplete.List className="SearchList" onKeyDownCapture={handleKeyDownCapture}>
