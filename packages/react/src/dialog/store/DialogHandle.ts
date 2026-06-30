@@ -59,9 +59,15 @@ export class DialogHandle<Payload> {
       return;
     }
 
-    // While a root is attached, registered triggers live in its store, so resolve the trigger from there.
+    // Registered triggers normally live in the attached root's store. During the commit in which a
+    // root first attaches, a still-mounted detached trigger has not re-registered into the root store
+    // yet (it migrates on its next render), but it is still registered in the fallback store. Fall
+    // back to that map so an imperative open-by-id (e.g. called from a layout effect in the same
+    // commit the root mounts) stays associated with the requested trigger instead of opening
+    // unassociated and letting another detached trigger claim the open popup first.
     const triggerElement = triggerId
-      ? (this.attachedStore.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
+      ? ((this.attachedStore.context.triggerElements.getById(triggerId) ??
+          this.fallbackStore.context.triggerElements.getById(triggerId)) as HTMLElement | undefined)
       : undefined;
 
     if (process.env.NODE_ENV !== 'production') {

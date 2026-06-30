@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { act, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -386,6 +387,55 @@ describe('<Dialog.Root />', () => {
       expect(trigger.getAttribute('aria-controls')).toBe(
         screen.getByRole('dialog').getAttribute('id'),
       );
+    });
+
+    it('associates the requested trigger when opened by id in the same commit a root attaches', async () => {
+      const handle = Dialog.createHandle<number>();
+
+      function OpenOnMount() {
+        // A layout effect runs in the same commit the root first attaches, after the root's attach
+        // effect but before the detached triggers have re-registered into the root's store.
+        useIsoLayoutEffect(() => {
+          handle.open('trigger');
+        }, []);
+        return null;
+      }
+
+      await render(
+        <React.Fragment>
+          <Dialog.Trigger handle={handle} id="other" payload={9}>
+            Other
+          </Dialog.Trigger>
+          <Dialog.Trigger handle={handle} id="trigger" payload={5}>
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Root handle={handle}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <span data-testid="payload">{payload ?? 'No payload'}</span>
+                <Dialog.Portal>
+                  <Dialog.Popup>Dialog Content</Dialog.Popup>
+                </Dialog.Portal>
+              </React.Fragment>
+            )}
+          </Dialog.Root>
+          <OpenOnMount />
+        </React.Fragment>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      // The requested trigger is associated (ARIA + its own payload), not the other detached trigger.
+      const requestedTrigger = screen.getByRole('button', { name: 'Trigger', hidden: true });
+      const otherTrigger = screen.getByRole('button', { name: 'Other', hidden: true });
+      expect(requestedTrigger).toHaveAttribute('aria-expanded', 'true');
+      expect(requestedTrigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+      expect(otherTrigger).not.toHaveAttribute('aria-controls');
+      expect(screen.getByTestId('payload').textContent).toBe('5');
     });
 
     describe('multiple roots sharing one handle', () => {
