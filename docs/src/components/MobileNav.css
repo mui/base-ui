@@ -344,10 +344,6 @@
     outline-offset: -2px;
   }
 
-  .MobileNavLink[data-active] {
-    font-weight: var(--font-weight-700);
-  }
-
   @media (hover: hover) {
     .MobileNavLink:not([data-active]):hover .MobileNavLinkText {
       text-decoration: underline;
