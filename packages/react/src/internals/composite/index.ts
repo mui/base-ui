@@ -1,6 +1,6 @@
 export { CompositeItem } from './item/CompositeItem';
 export { CompositeList } from './list/CompositeList';
-export type { CompositeMetadata } from './list/CompositeList';
+export type { CompositeMetadata } from './list/CompositeListContext';
 export { CompositeListContext, useCompositeListContext } from './list/CompositeListContext';
 export type { CompositeListContextValue } from './list/CompositeListContext';
 export { CompositeRoot } from './root/CompositeRoot';

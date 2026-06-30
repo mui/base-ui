@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useCompositeListContext } from './CompositeListContext';
+import { type CompositeMetadata, useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number | undefined;
@@ -36,20 +36,20 @@ export function useCompositeListItem<Metadata>(
     useCompositeListContext();
 
   const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
-    externalIndex ??
-      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
-        ? () => {
-            if (indexRef.current === -1) {
-              const newIndex = nextIndexRef.current;
-              nextIndexRef.current += 1;
-              indexRef.current = newIndex;
-            }
-            return indexRef.current;
-          }
-        : -1),
-  );
+  const [computedIndex, setIndex] = React.useState<number>(() => {
+    if (externalIndex != null || indexGuessBehavior !== IndexGuessBehavior.GuessFromOrder) {
+      return -1;
+    }
 
+    if (indexRef.current === -1) {
+      const newIndex = nextIndexRef.current;
+      nextIndexRef.current += 1;
+      indexRef.current = newIndex;
+    }
+    return indexRef.current;
+  });
+
+  const index = externalIndex ?? computedIndex;
   const componentRef = React.useRef<Element | null>(null);
 
   const ref = React.useCallback(
@@ -71,13 +71,13 @@ export function useCompositeListItem<Metadata>(
   );
 
   useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
-    }
-
     const node = componentRef.current;
     if (node) {
-      register(node, metadata);
+      const registeredMetadata: CompositeMetadata<Metadata> = {
+        ...(metadata ?? ({} as Metadata)),
+        index: externalIndex,
+      };
+      register(node, registeredMetadata);
       return () => {
         unregister(node);
       };

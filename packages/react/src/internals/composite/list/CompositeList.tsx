@@ -1,14 +1,11 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
+import { error } from '@base-ui/utils/error';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { CompositeListContext } from './CompositeListContext';
-
-export type CompositeMetadata<CustomMetadata> = {
-  index?: number | null | undefined;
-} & CustomMetadata;
+import { type CompositeMetadata, CompositeListContext } from './CompositeListContext';
 
 /**
  * Provides context for a list of items in a composite component.
@@ -20,6 +17,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const onMapChange = useStableCallback(onMapChangeProp);
 
   const nextIndexRef = React.useRef(0);
+  const controlledRef = React.useRef<boolean | null>(null);
   const listeners = useRefWithInit(createListeners).current;
 
   // We use a stable `map` to avoid O(n^2) re-allocation costs for large lists.
@@ -35,14 +33,43 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
-  const register = useStableCallback((node: Element, metadata: Metadata) => {
-    map.set(node, metadata ?? null);
+  const register = useStableCallback((node: Element, metadata: CompositeMetadata<Metadata>) => {
+    const isControlled = metadata.index !== undefined;
+
+    if (controlledRef.current === null) {
+      controlledRef.current = isControlled;
+    } else if (controlledRef.current !== isControlled) {
+      error(
+        `A CompositeList is mixing controlled and uncontrolled indexes.`,
+        `Decide between using a controlled or uncontrolled index prop for all items in the CompositeList.`,
+        "The nature of the state is determined during the first render. It's considered controlled if the value is not `undefined`.",
+        'More info: https://fb.me/react-controlled-components',
+      );
+    }
+
+    map.set(node, metadata);
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
   const unregister = useStableCallback((node: Element) => {
+    const metadata = map.get(node);
+
+    if (controlledRef.current === true && metadata?.index != null) {
+      // Controlled indexes can leave holes, so clear the unmounted slot explicitly.
+      delete elementsRef.current[metadata.index];
+
+      if (labelsRef) {
+        delete labelsRef.current[metadata.index];
+      }
+    }
+
     map.delete(node);
+
+    if (map.size === 0) {
+      controlledRef.current = null;
+    }
+
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
@@ -52,6 +79,16 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const isControlled = controlledRef.current === true;
+
+    if (isControlled) {
+      const sortedNodes = Array.from(map.entries())
+        .filter(([node]) => node.isConnected)
+        .sort((a, b) => (a[1]?.index ?? 0) - (b[1]?.index ?? 0));
+
+      return new Map(sortedNodes);
+    }
+
     // Filter out disconnected elements before sorting to avoid inconsistent
     // compareDocumentPosition results when elements are detached from the DOM.
     const sortedNodes = Array.from(map.keys())
@@ -67,7 +104,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
-    if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
+    const isControlled = controlledRef.current === true;
+    if (isControlled || typeof MutationObserver !== 'function' || sortedMap.size === 0) {
       return undefined;
     }
 
@@ -98,13 +136,16 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
-      if (elementsRef.current.length !== sortedMap.size) {
-        elementsRef.current.length = sortedMap.size;
+      const isControlled = controlledRef.current === true;
+      const nextLength = isControlled ? getMaxIndexLength(sortedMap) : sortedMap.size;
+
+      if (elementsRef.current.length !== nextLength) {
+        elementsRef.current.length = nextLength;
       }
-      if (labelsRef && labelsRef.current.length !== sortedMap.size) {
-        labelsRef.current.length = sortedMap.size;
+      if (labelsRef && labelsRef.current.length !== nextLength) {
+        labelsRef.current.length = nextLength;
       }
-      nextIndexRef.current = sortedMap.size;
+      nextIndexRef.current = nextLength;
     }
 
     onMapChange(sortedMap);
@@ -146,7 +187,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 }
 
 function createMap<Metadata>() {
-  return new Map<Element, CompositeMetadata<Metadata> | null>();
+  return new Map<Element, CompositeMetadata<Metadata>>();
 }
 
 function createListeners() {
@@ -168,6 +209,21 @@ function sortByDocumentPosition(a: Element, b: Element) {
   }
 
   return 0;
+}
+
+// Controlled indexes can be sparse if, for example, an item in the middle suspends.
+// So, we might receive [0, 2] and length should be 3.
+function getMaxIndexLength<Metadata>(map: Map<Element, CompositeMetadata<Metadata>>) {
+  let maxIndex = -1;
+
+  map.forEach((metadata) => {
+    const index = metadata.index;
+    if (index != null && index > maxIndex) {
+      maxIndex = index;
+    }
+  });
+
+  return maxIndex + 1;
 }
 
 function disableEslintWarning(_: any) {}

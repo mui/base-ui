@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
+import { CompositeList } from '../list/CompositeList';
+import { type CompositeMetadata } from '../list/CompositeListContext';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
 import { useRenderElement } from '../../useRenderElement';

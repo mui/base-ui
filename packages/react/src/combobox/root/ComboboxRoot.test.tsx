@@ -1106,6 +1106,45 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('hover highlights items with manual indices provided to items', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Combobox.Root items={items} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string, index: number) => (
+                    <Combobox.Item key={item} value={item} index={index}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute('data-highlighted');
+      });
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      await user.hover(cherry);
+
+      await waitFor(() => {
+        expect(cherry).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-highlighted');
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+    });
+
     it('clicking on "listbox" keeps the focus on the input', async () => {
       const items = ['apple', 'banana', 'cherry'];
 

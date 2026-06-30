@@ -29,7 +29,7 @@ import {
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
-import type { CompositeMetadata } from '../list/CompositeList';
+import type { CompositeMetadata } from '../list/CompositeListContext';
 import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
 import type { CompositeGridNavigator } from './gridNavigation';
