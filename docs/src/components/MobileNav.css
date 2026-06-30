@@ -305,17 +305,15 @@
   }
 
   .MobileNavSection:not(:last-of-type) {
-    margin-bottom: var(--space-16);
+    margin-bottom: var(--space-24);
   }
 
   .MobileNavHeading {
     display: flex;
-    padding-bottom: var(--space-12);
     align-items: center;
     margin-inline: var(--mobile-nav-item-padding-x);
     margin-bottom: var(--space-8);
-    border-bottom: 1px solid var(--color-border);
-    font-size: var(--font-size-16);
+    font-size: var(--font-size-14);
     line-height: 1;
     font-weight: var(--font-weight-400);
     color: var(--gray-t1);
@@ -360,6 +358,8 @@
   }
 
   .MobileNavSearchOption {
+    position: relative;
+    isolation: isolate;
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
@@ -368,7 +368,17 @@
     -webkit-user-select: none;
     user-select: none;
 
-    &[data-highlighted] {
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline: var(--space-16);
+      z-index: -1;
+      border-radius: var(--radius-4);
+      pointer-events: none;
+    }
+
+    &[data-highlighted]::before {
       background-color: var(--gray-c1);
     }
   }
