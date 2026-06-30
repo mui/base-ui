@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type {
   SearchResult,
@@ -220,6 +221,8 @@ function MobileNavPopupImpl({
   setSearchValue,
 }: MobileNavPopupImplProps) {
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
+  const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
+  const hadQueryRef = React.useRef(false);
   const hasQuery = searchValue.trim() !== '';
   const { results, search, defaultResults, buildResultUrl } = useSearch({
     sitemap: sitemapPromise,
@@ -234,6 +237,14 @@ function MobileNavPopupImpl({
 
   const [searchResults, setSearchResults] =
     React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
+
+  useIsoLayoutEffect(() => {
+    if (hadQueryRef.current && !hasQuery) {
+      scrollAreaViewportRef.current?.scrollTo({ top: 0, left: 0 });
+    }
+
+    hadQueryRef.current = hasQuery;
+  }, [hasQuery]);
 
   React.useEffect(() => {
     const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
@@ -255,13 +266,6 @@ function MobileNavPopupImpl({
     [onSearchValueChange, search, setSearchValue],
   );
 
-  const handleClearSearch = React.useCallback(async () => {
-    onSearchValueChange('');
-    setSearchValue('');
-    await search('', { groupBy: { properties: ['group'], maxResult: 5 } });
-    inputRef.current?.focus();
-  }, [inputRef, onSearchValueChange, search, setSearchValue]);
-
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
   }, []);
@@ -282,13 +286,12 @@ function MobileNavPopupImpl({
       }
 
       if (searchValue) {
-        onSearchValueChange('');
-        setSearchValue('');
+        void handleValueChange('');
       } else {
         handle.close();
       }
     },
-    [handle, onSearchValueChange, searchValue, setSearchValue],
+    [handle, handleValueChange, searchValue],
   );
 
   const handleKeyDownCapture = React.useCallback(
@@ -296,8 +299,7 @@ function MobileNavPopupImpl({
       if (event.key === 'Escape' && searchValue) {
         event.preventDefault();
         event.stopPropagation();
-        onSearchValueChange('');
-        setSearchValue('');
+        void handleValueChange('');
         return;
       }
 
@@ -315,7 +317,7 @@ function MobileNavPopupImpl({
 
       window.open(buildResultUrl(highlightedResult), '_blank', 'noopener,noreferrer');
     },
-    [buildResultUrl, onSearchValueChange, searchValue, setSearchValue],
+    [buildResultUrl, handleValueChange, searchValue],
   );
 
   const renderResultsList = React.useCallback(
@@ -374,22 +376,14 @@ function MobileNavPopupImpl({
             className="MobileNavSearchInput"
             onKeyDownCapture={handleKeyDownCapture}
           />
-          {searchValue && (
-            <button
-              type="button"
-              aria-label="Clear search"
-              className="MobileNavClearSearch"
-              onClick={handleClearSearch}
-              onPointerDown={(event) => event.preventDefault()}
-            >
-              <XIcon className="MobileNavClearSearchIcon" />
-            </button>
-          )}
+          <Autocomplete.Clear aria-label="Clear search" className="MobileNavClearSearch">
+            <XIcon className="MobileNavClearSearchIcon" />
+          </Autocomplete.Clear>
         </div>
       </div>
       <Drawer.Content className="MobileNavContent">
         <ScrollArea.Root className="MobileNavScrollAreaRoot">
-          <ScrollArea.Viewport className="MobileNavScrollAreaViewport">
+          <ScrollArea.Viewport ref={scrollAreaViewportRef} className="MobileNavScrollAreaViewport">
             <ScrollArea.Content className="MobileNavScrollAreaContent">
               {hasQuery ? (
                 <div className="MobileNavSearchResults">
