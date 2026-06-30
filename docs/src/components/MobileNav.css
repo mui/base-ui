@@ -370,7 +370,7 @@
       inset-block: 0;
       inset-inline: var(--space-16);
       z-index: -1;
-      border-radius: var(--radius-4);
+      border-radius: var(--radius-6);
       pointer-events: none;
     }
 
