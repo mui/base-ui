@@ -728,11 +728,7 @@ describe('<Slider.Root />', () => {
 
       const thumbs = screen.getAllByRole('slider');
 
-      for (const thumb of thumbs) {
-        const valueNow = Number(thumb.getAttribute('aria-valuenow'));
-        expect(valueNow).toBeGreaterThanOrEqual(20);
-        expect(valueNow).toBeLessThanOrEqual(40);
-      }
+      expect(thumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(['20', '40']);
     });
   });
 
@@ -2841,6 +2837,31 @@ describe('<Slider.Root />', () => {
 
         expect(handleSubmit).toHaveBeenCalledWith(
           { slider: [20, 40] },
+          expect.objectContaining({ reason: 'none' }),
+        );
+      });
+
+      it('submits a clamped single-thumb slider value to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={5} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: 20 },
           expect.objectContaining({ reason: 'none' }),
         );
       });

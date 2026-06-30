@@ -20,7 +20,7 @@ export interface SliderRootContext {
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
   /**
-   * Options to format the value, forwarded to `Intl.NumberFormat`.
+   * Options to format the value.
    */
   format: Intl.NumberFormatOptions | undefined;
   handleInputChange: (

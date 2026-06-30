@@ -479,7 +479,7 @@ export interface SliderRootProps<
    */
   disabled?: boolean | undefined;
   /**
-   * Options to format the input value.
+   * Options to format the value.
    */
   format?: Intl.NumberFormatOptions | undefined;
   /**
