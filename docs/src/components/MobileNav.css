@@ -61,8 +61,8 @@
     width: 100%;
     height: calc(100dvh - var(--space-4));
     max-height: calc(100dvh - var(--space-4));
-    border-top-left-radius: var(--radius-16);
-    border-top-right-radius: var(--radius-16);
+    border-top-left-radius: 1.5rem; /* 24px to mimic iOS */
+    border-top-right-radius: 1.5rem; /* 24px to mimic iOS */
     background-color: var(--color-popup);
     color: var(--gray-t2);
     outline: 0;
@@ -109,29 +109,21 @@
   .MobileNavSearchHeader {
     position: relative;
     flex-shrink: 0;
-    padding: var(--space-16) var(--space-16) 0;
+    padding: var(--space-24) var(--space-16) var(--space-20);
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  .MobileNavChromeRow {
-    position: relative;
-    display: flex;
-    align-items: start;
-    justify-content: end;
-    margin-bottom: var(--space-12);
-  }
-
   .MobileNavHandle {
     position: absolute;
-    top: 0;
+    top: 0.3125rem; /* 5px to mimic iOS */
     left: 50%;
     transform: translateX(-50%);
-    width: var(--space-48);
-    height: var(--space-4);
-    border-radius: var(--radius-4);
-    background-color: var(--gray-c3);
+    width: 2.25rem; /* 36px to mimic iOS */
+    height: 0.3125rem; /* 5px to mimic iOS */
+    border-radius: 9999px;
+    background-color: var(--color-border);
   }
 
   .MobileNavSearchInputRoot {
@@ -288,7 +280,7 @@
 
   .MobileNavPanel,
   .MobileNavSearchResults {
-    padding-block: var(--space-12) calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+    padding-block: 0 calc(var(--space-16) + env(safe-area-inset-bottom, 0px)) var(--space-16);
   }
 
   .MobileNavSection {
@@ -297,8 +289,8 @@
 
   .MobileNavHeading {
     display: flex;
+    padding-bottom: var(--space-12);
     align-items: center;
-    height: var(--mobile-nav-item-height);
     margin-inline: var(--mobile-nav-item-padding-x);
     margin-bottom: var(--space-8);
     border-bottom: 1px solid var(--color-border);
@@ -398,42 +390,6 @@
     font-size: var(--font-size-15);
     line-height: 1.375rem;
     color: var(--gray-t1);
-  }
-
-  .MobileNavClose {
-    flex-shrink: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    height: var(--space-28);
-    padding: var(--space-4) var(--space-8);
-    border-radius: var(--radius-8);
-    background-color: transparent;
-    font-size: var(--font-size-15);
-    line-height: 1;
-    color: var(--gray-t2);
-    outline: 0;
-    -webkit-user-select: none;
-    user-select: none;
-
-    @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c1);
-      }
-    }
-
-    &:active {
-      background-color: var(--gray-c1);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
-    }
-
-    @media (min-height: 27rem) {
-      display: flex;
-    }
   }
 
   .MobileNavEmptyState {
