@@ -473,6 +473,31 @@ describe('<Dialog.Root />', () => {
         expect(handle.isOpen).toBe(true);
       });
 
+      it('keeps the root attached through Strict Mode effect replay', async () => {
+        const handle = Dialog.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await render(
+          <React.StrictMode>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>Strict Mode Dialog</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.StrictMode>,
+        );
+
+        clock.tick(20);
+
+        expect(overlapWarned(consoleWarn)).toBe(false);
+        consoleWarn.mockRestore();
+
+        await act(() => handle.open(null));
+
+        expect(screen.getByText('Strict Mode Dialog')).toBeVisible();
+        expect(handle.isOpen).toBe(true);
+      });
+
       it('warns when a handle stays attached to more than one mounted root', async () => {
         const handle = Dialog.createHandle();
         const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
