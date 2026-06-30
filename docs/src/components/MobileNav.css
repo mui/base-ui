@@ -16,7 +16,7 @@
     opacity: calc(1 - var(--drawer-swipe-progress, 1));
     background-color: rgb(0 0 0 / 10%);
     transition-duration: 450ms;
-    transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
+    transition-property: opacity;
     transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
     @supports (-webkit-touch-callout: none) {
@@ -29,7 +29,6 @@
 
     &[data-starting-style],
     &[data-ending-style] {
-      backdrop-filter: blur(0);
       opacity: 0;
     }
 
@@ -73,7 +72,7 @@
       0 0.25px 0 1px var(--color-border);
     transform: translateY(var(--drawer-swipe-movement-y));
     transition:
-      transform 600ms cubic-bezier(0.32, 0.72, 0, 1),
+      transform 500ms cubic-bezier(0.32, 0.72, 0, 1),
       filter 300ms cubic-bezier(0.32, 0.72, 0, 1);
 
     @media (prefers-color-scheme: dark) {
