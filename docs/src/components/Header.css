@@ -1,5 +1,7 @@
 @import 'docs/src/css/custom-media.css';
 
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .Header {
     font-size: var(--font-size-15);
@@ -130,30 +132,19 @@
     }
   }
 
-  .HeaderSearchDesktopTrigger {
+  .HeaderSearch .HeaderSearchDesktopTrigger {
     display: none;
 
-    @media (--lg) {
+    @media (--show-side-nav) {
       display: inline-flex;
     }
   }
 
-  .HeaderSearchMobileTrigger {
-    display: flex;
+  .HeaderSearch .HeaderSearchMobileTrigger {
+    display: inline-flex;
 
-    @media (--lg) {
+    @media (--show-side-nav) {
       display: none;
-    }
-
-    &:focus-visible {
-      z-index: 1;
-    }
-
-    @media not (hover: hover) {
-      &:active {
-        background-color: var(--gray-c1);
-        color: var(--gray-p1);
-      }
     }
   }
 }

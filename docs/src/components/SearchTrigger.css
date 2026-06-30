@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .SearchTrigger {
     display: inline-flex;
@@ -15,13 +17,32 @@
     line-height: 1.375rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: currentColor;
+    color: var(--gray-t2);
     text-align: left;
     white-space: nowrap;
     border-radius: var(--radius-8);
     -webkit-user-select: none;
     user-select: none;
     outline: 0;
+
+    & kbd {
+      font: inherit;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--gray-c1);
+      }
+
+      &:active {
+        background-color: var(--gray-c2);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: -1px;
+    }
   }
 
   .SearchTriggerIcon {
@@ -31,20 +52,5 @@
 
   .SearchTriggerShortcut {
     color: var(--gray-t1);
-  }
-
-  .SearchTrigger kbd {
-    font: inherit;
-  }
-
-  @media (hover: hover) {
-    .SearchTrigger:hover {
-      background-color: var(--gray-c1);
-    }
-  }
-
-  .SearchTrigger:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: -1px;
   }
 }
