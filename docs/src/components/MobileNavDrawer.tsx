@@ -371,8 +371,8 @@ function MobileNavPopupImpl({
           <Autocomplete.Input
             id="mobile-docs-search-input"
             ref={inputRef}
-            aria-label="Search docs"
-            placeholder="Search docs"
+            aria-label="Search"
+            placeholder="Search"
             className="MobileNavSearchInput"
             onKeyDownCapture={handleKeyDownCapture}
           />
