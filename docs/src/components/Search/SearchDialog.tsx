@@ -3,11 +3,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
-import type {
-  SearchResult,
-  SearchResults,
-  Sitemap,
-} from '@mui/internal-docs-infra/useSearch/types';
+import type { SearchResult, SearchResults } from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
@@ -15,10 +11,10 @@ import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
+import { loadSearchSitemap, type SearchSitemapLoader } from './searchSitemap';
 import './Search.css';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
-const defaultSitemapPromise = () => import('../../app/sitemap');
 
 // Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0)
 // Used to match the behavior of rehypeConcatHeadings on the Releases page
@@ -86,14 +82,15 @@ const EmptyState = React.memo(function EmptyState() {
 
 export interface SearchDialogProps {
   handle: Dialog.Handle<unknown>;
-  sitemap?: () => Promise<{ sitemap?: Sitemap }>;
+  sitemap?: SearchSitemapLoader;
 }
 
 export function SearchDialog({
   handle,
-  sitemap: sitemapImport = defaultSitemapPromise,
+  sitemap: sitemapImport = loadSearchSitemap,
 }: SearchDialogProps) {
   const [dialogOpen, setDialogOpen] = React.useState(handle.isOpen);
+  const [searchValue, setSearchValue] = React.useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const ga = useGoogleAnalytics();
@@ -152,6 +149,7 @@ export function SearchDialog({
   const handleOpenDialog = React.useCallback(() => {
     // Reset search session tracking
     searchQueryRef.current = '';
+    setSearchValue('');
     resultCountRef.current = 0;
     attemptRef.current = 0;
     selectedResultRef.current = null;
@@ -219,6 +217,8 @@ export function SearchDialog({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
+      setSearchValue(value);
+
       // Cancel any pending debounced query event
       if (queryDebounceRef.current) {
         clearTimeout(queryDebounceRef.current);
@@ -340,6 +340,19 @@ export function SearchDialog({
     [buildResultUrl, handleItemClick],
   );
 
+  const hasSearchValue = searchValue.trim() !== '';
+  let searchResultsContent: React.ReactNode = null;
+
+  if (searchResults.results.length === 0 && hasSearchValue) {
+    searchResultsContent = <EmptyState />;
+  } else if (searchResults.results.length > 0) {
+    searchResultsContent = (
+      <Autocomplete.List className="SearchList" onKeyDownCapture={handleKeyDownCapture}>
+        {renderResultsList}
+      </Autocomplete.List>
+    );
+  }
+
   return (
     <Dialog.Root handle={handle} open={dialogOpen} onOpenChange={handleCloseDialog}>
       <Dialog.Portal>
@@ -369,16 +382,7 @@ export function SearchDialog({
                 <ScrollArea.Root className="SearchScrollAreaRoot">
                   <ScrollArea.Viewport className="SearchScrollAreaViewport">
                     <ScrollArea.Content style={{ minWidth: '100%' }}>
-                      {searchResults.results.length === 0 ? (
-                        <EmptyState />
-                      ) : (
-                        <Autocomplete.List
-                          className="SearchList"
-                          onKeyDownCapture={handleKeyDownCapture}
-                        >
-                          {renderResultsList}
-                        </Autocomplete.List>
-                      )}
+                      {searchResultsContent}
                     </ScrollArea.Content>
                   </ScrollArea.Viewport>
                   <ScrollArea.Scrollbar className="SearchScrollbar ">

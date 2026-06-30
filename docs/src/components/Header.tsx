@@ -1,8 +1,8 @@
 import NextLink from 'next/link';
 
-import { HeaderSearch } from './HeaderSearch';
 import { Logo } from './Logo';
 import { MobileNavContent } from './MobileNavContent';
+import { SearchControls } from './SearchControls';
 import { SkipNav } from './SkipNav';
 import './Header.css';
 
@@ -17,7 +17,13 @@ export function Header() {
         <NextLink href="/" className="HeaderLogoLink" aria-label="Go to the homepage">
           <Logo aria-label="Base UI" />
         </NextLink>
-        <HeaderSearch mobileNavContent={<MobileNavContent />} />
+        <div className="HeaderSearch">
+          <SearchControls
+            desktopTriggerClassName="HeaderSearchDesktopTrigger"
+            mobileTriggerClassName="HeaderSearchMobileTrigger"
+            mobileNavContent={<MobileNavContent />}
+          />
+        </div>
       </div>
     </header>
   );
