@@ -19,7 +19,7 @@ describe('<CompositeList />', () => {
         current: [] as Array<string | null>,
       };
       const { unmount } = await render(
-        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+        <CompositeList listRef={{ current: null }} elementsRef={elementsRef} labelsRef={labelsRef}>
           <Item />
           <Item />
           <Item />

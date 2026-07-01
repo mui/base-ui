@@ -23,7 +23,6 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-
   const open = useStore(store, selectors.open);
   const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
@@ -63,7 +62,9 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   return (
     <ComboboxChipsContext.Provider value={contextValue}>
-      <CompositeList elementsRef={chipsRef}>{element}</CompositeList>
+      <CompositeList listRef={store.state.chipsContainerRef} elementsRef={chipsRef}>
+        {element}
+      </CompositeList>
     </ComboboxChipsContext.Provider>
   );
 });

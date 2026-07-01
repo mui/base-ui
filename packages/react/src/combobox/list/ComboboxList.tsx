@@ -27,6 +27,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
 
+  const ref = React.useRef<HTMLDivElement>(null);
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
@@ -68,7 +69,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
+    ref: [forwardedRef, ref, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
       popupProps,
       {
@@ -123,7 +124,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
 
   return (
-    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
+    <CompositeList listRef={ref} elementsRef={store.state.listRef} labelsRef={labelsRef}>
       {element}
     </CompositeList>
   );

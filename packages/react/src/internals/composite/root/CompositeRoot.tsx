@@ -43,6 +43,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   } = componentProps;
 
   const direction = useDirection();
+  const ref = React.useRef(null);
 
   const {
     props: defaultProps,
@@ -68,7 +69,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
 
   const element = useRenderElement(tag, componentProps, {
     state,
-    ref: refs,
+    ref: [...refs, ref],
     props: [defaultProps, ...props, elementProps],
     stateAttributesMapping,
   });
@@ -86,6 +87,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   return (
     <CompositeRootContext.Provider value={contextValue}>
       <CompositeList<Metadata>
+        listRef={ref}
         elementsRef={elementsRef}
         onMapChange={(newMap) => {
           onMapChangeProp?.(newMap);

@@ -41,6 +41,8 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     ...elementProps
   } = componentProps;
 
+  const ref = React.useRef<HTMLDivElement>(null);
+
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
@@ -126,14 +128,16 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, ref],
     props: elementProps,
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
   return (
     <AccordionRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={accordionItemRefs}>{element}</CompositeList>
+      <CompositeList listRef={ref} elementsRef={accordionItemRefs}>
+        {element}
+      </CompositeList>
     </AccordionRootContext.Provider>
   );
 }) as {

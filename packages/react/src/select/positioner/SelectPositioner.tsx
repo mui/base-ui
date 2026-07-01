@@ -69,6 +69,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
 
+  const ref = React.useRef<HTMLDivElement>(null);
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
@@ -151,7 +152,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     styles: positionerStyles,
     transitionStatus,
     props: elementProps,
-    refs: [forwardedRef, setPositionerElement],
+    refs: [forwardedRef, ref, setPositionerElement],
     hidden: !mounted,
     inert: !open,
   });
@@ -240,7 +241,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+    <CompositeList
+      listRef={ref}
+      elementsRef={listRef}
+      labelsRef={labelsRef}
+      onMapChange={onMapChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
