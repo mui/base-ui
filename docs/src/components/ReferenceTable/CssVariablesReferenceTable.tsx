@@ -15,7 +15,7 @@ export function CssVariablesReferenceTable({
   name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
-  // Lets CSS compute the exact closed height for `contain-intrinsic-height`
+  // Lets CSS compute the exact placeholder height for `contain-intrinsic-height`
   const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
 
   return (
@@ -26,7 +26,7 @@ export function CssVariablesReferenceTable({
         style={rowsStyle}
       >
         <Accordion.HeaderRow>
-          <Accordion.HeaderCell className="bui-pl-3">CSS Variable</Accordion.HeaderCell>
+          <Accordion.HeaderCell>CSS Variable</Accordion.HeaderCell>
         </Accordion.HeaderRow>
         {Object.keys(data).map((name) => {
           const attribute = data[name];

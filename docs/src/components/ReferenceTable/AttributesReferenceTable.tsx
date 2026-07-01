@@ -15,7 +15,7 @@ export function AttributesReferenceTable({
   name: partName,
   ...props
 }: AttributesReferenceTableProps) {
-  // Lets CSS compute the exact closed height for `contain-intrinsic-height`
+  // Lets CSS compute the exact placeholder height for `contain-intrinsic-height`
   const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
 
   return (
@@ -26,7 +26,7 @@ export function AttributesReferenceTable({
         style={rowsStyle}
       >
         <Accordion.HeaderRow>
-          <Accordion.HeaderCell className="bui-pl-3">Attribute</Accordion.HeaderCell>
+          <Accordion.HeaderCell>Attribute</Accordion.HeaderCell>
         </Accordion.HeaderRow>
         {Object.keys(data).map((name) => {
           const attribute = data[name];

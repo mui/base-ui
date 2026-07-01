@@ -35,6 +35,7 @@
   .AccordionHeaderCellInner {
     display: flex;
     align-items: center;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     padding: 0.5rem 0.75rem;
     overflow-x: auto;
