@@ -4,7 +4,9 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { contains } from '../../shadowDom';
 import { CompositeListContext } from './CompositeListContext';
+import { isElement } from '@floating-ui/utils/dom';
 
 export type CompositeMetadata<CustomMetadata> = {
   index?: number | null | undefined;
@@ -47,53 +49,73 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const sortedMap = React.useMemo(() => {
+  const { sortedMap, sortedNodes } = React.useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
-    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const nextSortedMap = new Map<Element, CompositeMetadata<Metadata>>();
     // Filter out disconnected elements before sorting to avoid inconsistent
     // compareDocumentPosition results when elements are detached from the DOM.
-    const sortedNodes = Array.from(map.keys())
+    const nextSortedNodes = Array.from(map.keys())
       .filter((node) => node.isConnected)
       .sort(sortByDocumentPosition);
 
-    sortedNodes.forEach((node, index) => {
+    nextSortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-      newMap.set(node, { ...metadata, index });
+      nextSortedMap.set(node, { ...metadata, index });
     });
 
-    return newMap;
+    return { sortedMap: nextSortedMap, sortedNodes: nextSortedNodes };
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
-    if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
+    if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
+      return undefined;
+    }
+
+    // Rather than observing the whole composite container, observe the smallest
+    // direct-child lists whose order can affect registered item order. For flat
+    // lists this is the item parent; for grouped lists this includes the group
+    // wrapper boundary between adjacent items.
+    const roots = getAdjacentNodeRoots(sortedNodes);
+    if (roots.size === 0) {
       return undefined;
     }
 
     const mutationObserver = new MutationObserver((entries) => {
-      const diff = new Set<Node>();
-      const updateDiff = (node: Node) => (diff.has(node) ? diff.delete(node) : diff.add(node));
-      entries.forEach((entry) => {
-        entry.removedNodes.forEach(updateDiff);
-        entry.addedNodes.forEach(updateDiff);
-      });
-      if (diff.size === 0) {
-        lastTickRef.current += 1;
-        setMapTick(lastTickRef.current);
+      if (!entries.some((entry) => hasSortedNode(entry, sortedNodes))) {
+        return;
+      }
+
+      let previousConnectedNode: Element | null = null;
+
+      // `sortedNodes` is the last known document order. If any connected node now
+      // appears before the previous connected node, wrappers/items moved and the
+      // index map needs to be rebuilt.
+      for (const node of sortedNodes) {
+        if (!node.isConnected) {
+          continue;
+        }
+
+        if (previousConnectedNode && sortByDocumentPosition(previousConnectedNode, node) > 0) {
+          mutationObserver.disconnect();
+          lastTickRef.current += 1;
+          setMapTick(lastTickRef.current);
+          return;
+        }
+
+        previousConnectedNode = node;
       }
     });
 
-    sortedMap.forEach((_, node) => {
-      if (node.parentElement) {
-        mutationObserver.observe(node.parentElement, { childList: true });
-      }
+    roots.forEach((root) => {
+      mutationObserver.observe(root, { childList: true });
     });
 
     return () => {
       mutationObserver.disconnect();
     };
-  }, [sortedMap]);
+  }, [sortedNodes]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -151,6 +173,57 @@ function createMap<Metadata>() {
 
 function createListeners() {
   return new Set<Function>();
+}
+
+function getAdjacentNodeRoots(nodes: Element[]) {
+  const roots = new Set<Element>();
+
+  // A reorder that changes item indexes must invert at least one adjacent pair
+  // from the previous sorted order. Observing each pair's common parent catches
+  // both direct item moves and ancestor wrapper moves at the boundary.
+  for (let i = 1; i < nodes.length; i += 1) {
+    const ancestor = getCommonAncestor(nodes[i - 1], nodes[i]);
+
+    if (ancestor) {
+      roots.add(ancestor);
+    }
+  }
+
+  return roots;
+}
+
+function getCommonAncestor(firstNode: Element, lastNode: Element) {
+  let ancestor = firstNode.parentElement;
+
+  while (ancestor && !contains(ancestor, lastNode)) {
+    ancestor = ancestor.parentElement;
+  }
+
+  return ancestor;
+}
+
+function hasSortedNode(entry: MutationRecord, sortedNodes: Element[]) {
+  for (let i = 0; i < entry.addedNodes.length; i += 1) {
+    if (containsSortedNode(entry.addedNodes[i], sortedNodes)) {
+      return true;
+    }
+  }
+
+  for (let i = 0; i < entry.removedNodes.length; i += 1) {
+    if (containsSortedNode(entry.removedNodes[i], sortedNodes)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function containsSortedNode(node: Node, sortedNodes: Element[]) {
+  if (!isElement(node)) {
+    return false;
+  }
+
+  return sortedNodes.some((sortedNode) => contains(node, sortedNode));
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
