@@ -1,39 +1,65 @@
-import { TooltipStore } from './TooltipStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { TooltipStore, createNullTooltipStore, type TooltipHandleStore } from './TooltipStore';
+import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**
- * A handle to control a tooltip imperatively and to associate detached triggers with it.
+ * Controls a Tooltip imperatively and associates detached `Tooltip.Trigger` components with a
+ * `Tooltip.Root`. Create one with `Tooltip.createHandle()` and pass it to the `handle` prop of the
+ * root and of any triggers rendered outside of it.
+ *
+ * The imperative methods take effect only while a root using this handle is mounted; calls made
+ * before a root attaches (or after it unmounts) are ignored.
  */
-export class TooltipHandle<Payload> {
-  /**
-   * Internal store holding the tooltip state.
-   * @internal
-   */
-  public readonly store: TooltipStore<Payload>;
-
+export class TooltipHandle<Payload> extends BasePopupHandle<
+  TooltipHandleStore<Payload>,
+  TooltipStore<Payload>
+> {
   constructor() {
-    this.store = new TooltipStore<Payload>();
+    super(createNullTooltipStore<Payload>());
   }
 
   /**
-   * Opens the tooltip and associates it with the trigger with the given ID.
-   * The trigger must be a Tooltip.Trigger component with this handle passed as a prop.
+   * Opens the tooltip and associates it with the trigger with the given id.
    *
    * This method should only be called in an event handler or an effect (not during rendering).
    *
-   * @param triggerId ID of the trigger to associate with the tooltip.
+   * @param triggerId ID of the trigger to associate with the tooltip. The trigger must be a matching
+   * `Tooltip.Trigger` with this handle passed as a prop.
    */
   open(triggerId: string) {
-    const triggerElement = triggerId
-      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
-      : undefined;
+    const attachedStore = this.attachedStore;
 
-    if (triggerId && !triggerElement) {
-      throw new Error(`Base UI: TooltipHandle.open: No trigger found with id "${triggerId}".`);
+    if (attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: TooltipHandle.open() was called while no root using this handle is mounted. ' +
+            'The call was ignored; mount a root with this handle before opening it imperatively.',
+        );
+      }
+      return;
     }
 
-    this.store.setOpen(
+    // Registered triggers normally live in the attached root's store. During the commit in which a
+    // root first attaches, a still-mounted detached trigger has not re-registered into the root store
+    // yet (it migrates on its next render), but it is still registered in the fallback store. Fall
+    // back to that map so an imperative open-by-id (e.g. called from a layout effect in the same
+    // commit the root mounts) stays associated with the requested trigger instead of opening
+    // unassociated and letting another detached trigger claim the open popup first.
+    const triggerElement = triggerId
+      ? ((attachedStore.context.triggerElements.getById(triggerId) ??
+          this.fallbackStore.context.triggerElements.getById(triggerId)) as HTMLElement | undefined)
+      : undefined;
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (triggerId && !triggerElement) {
+        console.warn(
+          `Base UI: TooltipHandle.open: No trigger found with id "${triggerId}". The tooltip will open, but the trigger will not be associated with the tooltip.`,
+        );
+      }
+    }
+
+    attachedStore.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
@@ -41,19 +67,33 @@ export class TooltipHandle<Payload> {
 
   /**
    * Closes the tooltip.
+   *
+   * This method should only be called in an event handler or an effect (not during rendering).
    */
   close() {
-    this.store.setOpen(
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: TooltipHandle.close() was called while no root using this handle is mounted. ' +
+            'The call was ignored.',
+        );
+      }
+      return;
+    }
+
+    attachedStore.setOpen(
       false,
       createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
     );
   }
 
   /**
-   * Indicates whether the tooltip is currently open.
+   * Whether the tooltip is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return this.store.select('open');
+    return this.attachedStore?.select('open') ?? false;
   }
 }
 

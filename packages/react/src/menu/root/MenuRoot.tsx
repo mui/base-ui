@@ -4,6 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -37,8 +38,8 @@ import {
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   setPopupOpenState,
+  useAttachHandle,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -104,15 +105,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     };
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
-  const store = MenuStore.useStore(handle?.store, {
+  const store = useMenuRootStore(handle, {
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
     parent: parentFromContext,
   });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -537,6 +536,22 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   return content;
 });
+
+function useMenuRootStore<Payload>(
+  handle: MenuHandle<Payload> | undefined,
+  initialState: Partial<MenuStoreState<Payload>>,
+) {
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  // Unlike other popups, Menu wires its floating root context separately (it relays open changes
+  // through an event), so it only borrows the shared handle-attachment behavior here.
+  const store = useRefWithInit(() => new MenuStore<Payload>(initialState)).current;
+
+  useAttachHandle(handle, store);
+
+  return store;
+}
 
 export interface MenuRootState {}
 
