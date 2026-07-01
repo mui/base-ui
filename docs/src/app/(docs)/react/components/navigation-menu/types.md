@@ -225,12 +225,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-open           | -    | Present when the popup is open.          |
-| data-closed         | -    | Present when the popup is closed.        |
-| data-starting-style | -    | Present when the popup is animating in.  |
-| data-ending-style   | -    | Present when the popup is animating out. |
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-open           | -    | Present when the popup is open.             |
+| data-closed         | -    | Present when the popup is closed.           |
+| data-starting-style | -    | Present when the popup begins animating in. |
+| data-ending-style   | -    | Present when the popup is animating out.    |
 
 ### Backdrop.Props
 
@@ -370,7 +370,7 @@ Renders a `<nav>` element.
 | data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.    |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the popup is animating in.                               |
+| data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
 
 **Popup CSS Variables:**
@@ -489,7 +489,7 @@ Renders a `<div>` element.
 | data-open                 | -                                     | Present when the popup is open.                     |
 | data-closed               | -                                     | Present when the popup is closed.                   |
 | data-activation-direction | `'left' \| 'right' \| 'up' \| 'down'` | Which direction another trigger was activated from. |
-| data-starting-style       | -                                     | Present when the content is animating in.           |
+| data-starting-style       | -                                     | Present when the content begins animating in.       |
 | data-ending-style         | -                                     | Present when the content is animating out.          |
 
 ### Content.Props

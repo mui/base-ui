@@ -316,12 +316,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the select is open.          |
-| data-closed         | -    | Present when the select is closed.        |
-| data-starting-style | -    | Present when the select is animating in.  |
-| data-ending-style   | -    | Present when the select is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the select is open.             |
+| data-closed         | -    | Present when the select is closed.           |
+| data-starting-style | -    | Present when the select begins animating in. |
+| data-ending-style   | -    | Present when the select is animating out.    |
 
 ### Backdrop.Props
 
@@ -458,7 +458,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                                    | Present when the select is closed.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                                    | Present when the select is animating in.                              |
+| data-starting-style | -                                                                                    | Present when the select begins animating in.                          |
 | data-ending-style   | -                                                                                    | Present when the select is animating out.                             |
 
 ### Popup.Props
@@ -714,10 +714,10 @@ Renders a `<span>` element.
 
 **ItemIndicator Data Attributes:**
 
-| Attribute           | Type | Description                                  |
-| :------------------ | :--- | :------------------------------------------- |
-| data-starting-style | -    | Present when the indicator is animating in.  |
-| data-ending-style   | -    | Present when the indicator is animating out. |
+| Attribute           | Type | Description                                     |
+| :------------------ | :--- | :---------------------------------------------- |
+| data-starting-style | -    | Present when the indicator begins animating in. |
+| data-ending-style   | -    | Present when the indicator is animating out.    |
 
 ### ItemIndicator.Props
 
@@ -755,7 +755,7 @@ Renders a `<div>` element.
 | data-direction      | `'up'`                                                                               | Indicates the direction of the scroll arrow.                          |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
-| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
+| data-starting-style | -                                                                                    | Present when the scroll arrow begins animating in.                    |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 
 ### ScrollUpArrow.Props
@@ -789,7 +789,7 @@ Renders a `<div>` element.
 | data-direction      | `'down'`                                                                             | Indicates the direction of the scroll arrow.                          |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
-| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
+| data-starting-style | -                                                                                    | Present when the scroll arrow begins animating in.                    |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 
 ### ScrollDownArrow.Props

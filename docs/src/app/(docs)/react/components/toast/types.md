@@ -28,7 +28,7 @@ Renders a `<div>` element.
 | data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
 | data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
 | data-type            | `string`                              | The type of the toast.                                                   |
-| data-starting-style  | -                                     | Present when the toast is animating in.                                  |
+| data-starting-style  | -                                     | Present when the toast begins animating in.                              |
 | data-ending-style    | -                                     | Present when the toast is animating out.                                 |
 
 **Root CSS Variables:**
