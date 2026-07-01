@@ -58,6 +58,7 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     width: 100%;
     height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
     max-height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
