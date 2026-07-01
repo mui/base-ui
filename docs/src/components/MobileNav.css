@@ -330,7 +330,7 @@
   .MobileNavLink,
   .MobileNavSearchOption {
     display: flex;
-    gap: var(--space-4);
+    gap: var(--space-8);
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
