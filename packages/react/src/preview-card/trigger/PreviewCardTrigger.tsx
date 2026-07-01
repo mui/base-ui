@@ -8,8 +8,11 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { usePreviewCardHandleStore } from '../store/usePreviewCardHandleStore';
-import { getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  getInlineRectTriggerProps,
+  usePopupHandleStore,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -36,7 +39,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   } = componentProps;
 
   const rootContext = usePreviewCardRootContext(true);
-  const handleStore = usePreviewCardHandleStore(handle);
+  const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(

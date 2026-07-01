@@ -13,11 +13,10 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
-import { usePopoverHandleStore } from '../store/usePopoverHandleStore';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -47,7 +46,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-  const handleStore = usePopoverHandleStore(handle);
+  const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(

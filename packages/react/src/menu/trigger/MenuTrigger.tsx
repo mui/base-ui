@@ -26,13 +26,12 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
-import { useMenuHandleStore } from '../store/useMenuHandleStore';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
@@ -68,7 +67,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const handleStore = useMenuHandleStore(handle);
+  const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(

@@ -1,7 +1,7 @@
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { TooltipStore, createNullTooltipStore, type TooltipHandleStore } from './TooltipStore';
+import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**
  * Controls a Tooltip imperatively and associates detached `Tooltip.Trigger` components with a
@@ -11,34 +11,13 @@ import { TooltipStore, createNullTooltipStore, type TooltipHandleStore } from '.
  * The imperative methods take effect only while a root using this handle is mounted; calls made
  * before a root attaches (or after it unmounts) are ignored.
  */
-export class TooltipHandle<Payload> {
-  /**
-   * Inert, closed store handed to detached triggers while no root is attached, so they can render
-   * and register without a mounted root. Its reads always reflect a closed tooltip and its mutations
-   * are no-ops. Triggers register into whichever store `store` currently resolves to, so while
-   * detached they live in this store's trigger map and migrate themselves to the root's store (and
-   * back) as it attaches/detaches.
-   */
-  private readonly fallbackStore = createNullTooltipStore<Payload>();
-
-  /**
-   * Stores of every root currently using this handle, in attach order. A handle is meant to be used
-   * by a single mounted root, but roots can transiently overlap (e.g. during an animated route
-   * transition), so this stack lets `attachStore`'s cleanup restore the previous root instead of
-   * leaving a still-mounted root uncontrollable when a newer overlapping root detaches first.
-   */
-  private readonly attachedStores: TooltipStore<Payload>[] = [];
-
-  /**
-   * Store of the root that currently controls the handle: the most recently attached one still
-   * mounted, or `null` when no root is attached. Imperative methods are no-ops while this is `null`.
-   */
-  private attachedStore: TooltipStore<Payload> | null = null;
-
-  /**
-   * Listeners notified when `attachedStore` changes, so detached triggers can follow the store pointer.
-   */
-  private readonly storeListeners = new Set<() => void>();
+export class TooltipHandle<Payload> extends BasePopupHandle<
+  TooltipHandleStore<Payload>,
+  TooltipStore<Payload>
+> {
+  constructor() {
+    super(createNullTooltipStore<Payload>());
+  }
 
   /**
    * Opens the tooltip and associates it with the trigger with the given id.
@@ -49,7 +28,9 @@ export class TooltipHandle<Payload> {
    * `Tooltip.Trigger` with this handle passed as a prop.
    */
   open(triggerId: string) {
-    if (this.attachedStore === null) {
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
       if (process.env.NODE_ENV !== 'production') {
         console.warn(
           'Base UI: TooltipHandle.open() was called while no root using this handle is mounted. ' +
@@ -66,7 +47,7 @@ export class TooltipHandle<Payload> {
     // commit the root mounts) stays associated with the requested trigger instead of opening
     // unassociated and letting another detached trigger claim the open popup first.
     const triggerElement = triggerId
-      ? ((this.attachedStore.context.triggerElements.getById(triggerId) ??
+      ? ((attachedStore.context.triggerElements.getById(triggerId) ??
           this.fallbackStore.context.triggerElements.getById(triggerId)) as HTMLElement | undefined)
       : undefined;
 
@@ -78,7 +59,7 @@ export class TooltipHandle<Payload> {
       }
     }
 
-    this.attachedStore.setOpen(
+    attachedStore.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
@@ -90,7 +71,9 @@ export class TooltipHandle<Payload> {
    * This method should only be called in an event handler or an effect (not during rendering).
    */
   close() {
-    if (this.attachedStore === null) {
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
       if (process.env.NODE_ENV !== 'production') {
         console.warn(
           'Base UI: TooltipHandle.close() was called while no root using this handle is mounted. ' +
@@ -100,7 +83,7 @@ export class TooltipHandle<Payload> {
       return;
     }
 
-    this.attachedStore.setOpen(
+    attachedStore.setOpen(
       false,
       createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
     );
@@ -111,92 +94,6 @@ export class TooltipHandle<Payload> {
    */
   get isOpen() {
     return this.attachedStore?.select('open') ?? false;
-  }
-
-  /**
-   * Store that detached triggers read from: the attached root's store, or an inert fallback store
-   * used while no root is attached.
-   * @internal
-   */
-  get store(): TooltipHandleStore<Payload> {
-    return this.attachedStore ?? this.fallbackStore;
-  }
-
-  /**
-   * Subscribes to changes of the attached store pointer so detached triggers re-render and re-bind
-   * when a root attaches or detaches. Returns a function that removes the listener.
-   * @internal
-   */
-  subscribeStore(listener: () => void) {
-    this.storeListeners.add(listener);
-
-    return () => {
-      this.storeListeners.delete(listener);
-    };
-  }
-
-  /**
-   * Points the handle at a root's store and notifies subscribers so detached triggers re-render and
-   * re-register into it (their registration ref re-fires on the store-pointer change). Returns a
-   * cleanup function that detaches the store again. Called by `Tooltip.Root`.
-   * @internal
-   */
-  attachStore(newStore: TooltipStore<Payload>) {
-    this.attachedStores.push(newStore);
-    this.setActiveStore(newStore);
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (this.attachedStores.length > 1) {
-        // More than one root is attached at once. This is usually a transient overlap during an
-        // animated route transition, where the outgoing root unmounts shortly after the incoming
-        // one mounts. Defer the check by a frame and only warn if the overlap is still present once
-        // the transition has settled (more than one root stayed mounted), so a clean handoff doesn't
-        // warn regardless of the exact unmount timing.
-        // The warning frame only exists in development; it is created lazily so it never appears on
-        // instances in production (like `controlledValues` in `ReactStore`).
-        const dev = this as any;
-        (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
-          if (this.attachedStores.length > 1) {
-            console.warn(
-              'Base UI: A handle is attached to more than one mounted root at the same time. ' +
-                'The most recently mounted root takes over and the previous one stops being controlled by the handle. ' +
-                'A handle should be used by a single root that stays mounted for the lifetime of the handle.',
-            );
-          }
-        });
-      }
-    }
-
-    return () => {
-      const index = this.attachedStores.lastIndexOf(newStore);
-      if (index !== -1) {
-        this.attachedStores.splice(index, 1);
-      }
-      // Restore control to the most recently attached root that is still mounted (or detach fully if
-      // none remain). Clearing unconditionally would leave a still-mounted older root uncontrollable
-      // when a newer overlapping root detaches first (e.g. a canceled route transition).
-      this.setActiveStore(this.attachedStores[this.attachedStores.length - 1] ?? null);
-    };
-  }
-
-  /**
-   * Sets the store that currently controls the handle and notifies subscribers when it changes, so
-   * detached triggers re-render and migrate their registration to the new store.
-   */
-  private setActiveStore(store: TooltipStore<Payload> | null) {
-    if (this.attachedStore !== store) {
-      this.attachedStore = store;
-      this.notifyStoreListeners();
-    }
-  }
-
-  /**
-   * Notifies subscribers that the attached store pointer changed.
-   */
-  private notifyStoreListeners() {
-    this.storeListeners.forEach((listener) => {
-      listener();
-    });
   }
 }
 
