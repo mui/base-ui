@@ -194,6 +194,9 @@ For simple, one-off interactions, place the `<Dialog.Trigger>` inside `<Dialog.R
 However, if defining the dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and linking them with a `handle` created by the `Dialog.createHandle()` function.
 
+The imperative methods on the handle, such as `open()` and `openWithPayload()`, require a `<Dialog.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
+
 ```jsx title="Detached triggers"
 const demoDialog = Dialog.createHandle();
 

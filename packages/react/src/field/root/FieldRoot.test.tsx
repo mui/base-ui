@@ -342,6 +342,45 @@ describe('<Field.Root />', () => {
       expect(label).toHaveAttribute('data-disabled', '');
       expect(message).toHaveAttribute('data-disabled', '');
     });
+
+    it('keeps an explicitly invalid field marked invalid while disabled', async () => {
+      await render(
+        <Field.Root data-testid="field" disabled invalid>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      const field = screen.getByTestId('field');
+      const control = screen.getByTestId('control');
+      const label = screen.getByTestId('label');
+      const description = screen.getByTestId('description');
+
+      expect(field).toHaveAttribute('data-invalid', '');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(label).toHaveAttribute('data-invalid', '');
+      expect(description).toHaveAttribute('data-invalid', '');
+
+      // It does not participate in native constraint validation.
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('keeps a disabled field with form errors marked invalid', async () => {
+      await render(
+        <Form errors={{ name: 'Server error' }}>
+          <Field.Root name="name" disabled>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      expect(control).toHaveAttribute('data-invalid', '');
+      // It does not participate in native constraint validation.
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
   });
 
   describe('prop: validate', () => {

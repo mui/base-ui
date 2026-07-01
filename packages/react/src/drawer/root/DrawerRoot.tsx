@@ -21,7 +21,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
@@ -302,7 +302,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * If specified, allows detached triggers to control the drawer's open state.
    * Can be created with the Drawer.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: DrawerHandle<Payload> | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
