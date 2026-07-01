@@ -51,6 +51,16 @@ export interface UseHoverReferenceInteractionProps {
    * paths). Return `false` to veto; any other return value permits the open.
    */
   shouldOpen?: (() => boolean) | undefined;
+  /**
+   * Also cancels a pending hover-open from the trigger's `mouseout`, not just
+   * its `mouseleave`. Works around a Chrome bug where a fast pointer sweep
+   * across adjacent triggers drops the non-bubbling `mouseleave` (but not the
+   * bubbling `mouseout`), leaving a stale hover-open queued that opens a submenu
+   * the pointer already left and strands the parent at `pointer-events: none`.
+   * See #5152.
+   * @default false
+   */
+  guardStaleOpen?: boolean | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -76,6 +86,7 @@ export function useHoverReferenceInteraction(
     getHandleCloseContext,
     isClosing,
     shouldOpen: shouldOpenProp,
+    guardStaleOpen = false,
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
@@ -348,17 +359,38 @@ export function useHoverReferenceInteraction(
       }
     }
 
+    // Chrome can drop a trigger's non-bubbling `mouseleave` during a fast
+    // pointer sweep across adjacent triggers, so a pending hover-open never gets
+    // cancelled and a stale submenu opens (stranding the parent at
+    // `pointer-events: none`). The bubbling `mouseout` survives the drop, so use
+    // it as a backup: when the pointer genuinely leaves the trigger, cancel the
+    // pending open. See #5152.
+    function onMouseOut(event: MouseEvent) {
+      if (contains(trigger, event.relatedTarget as Element | null)) {
+        return; // moved within the trigger's own subtree
+      }
+      instance.openChangeTimeout.clear();
+      instance.restTimeout.clear();
+      instance.restTimeoutPending = false;
+    }
+
+    const staleOpenGuard = guardStaleOpen
+      ? addEventListener(trigger, 'mouseout', onMouseOut)
+      : undefined;
+
     if (move) {
       return mergeCleanups(
         addEventListener(trigger, 'mousemove', onMouseEnter, { once: true }),
         addEventListener(trigger, 'mouseenter', onMouseEnter),
         addEventListener(trigger, 'mouseleave', onMouseLeave),
+        staleOpenGuard,
       );
     }
 
     return mergeCleanups(
       addEventListener(trigger, 'mouseenter', onMouseEnter),
       addEventListener(trigger, 'mouseleave', onMouseLeave),
+      staleOpenGuard,
     );
   }, [
     cleanupMouseMoveHandler,
@@ -381,6 +413,7 @@ export function useHoverReferenceInteraction(
     getHandleCloseContext,
     isClosingRef,
     checkShouldOpen,
+    guardStaleOpen,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
