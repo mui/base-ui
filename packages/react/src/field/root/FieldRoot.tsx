@@ -108,7 +108,10 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     initialValue: null,
   });
 
-  const valid = disabled ? null : !invalid && validityData.state.valid;
+  // App-controlled invalidity (the `invalid` prop and `<Form>` errors) keeps the field marked
+  // invalid even while disabled. Only computed validity (native constraints and `validate`)
+  // is suppressed when disabled, matching `:disabled` not participating in constraint validation.
+  const valid = !invalid && (disabled ? null : validityData.state.valid);
 
   const state: FieldRootState = React.useMemo(
     () => ({

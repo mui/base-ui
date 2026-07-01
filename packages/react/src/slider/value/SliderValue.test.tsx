@@ -49,6 +49,26 @@ describe('<Slider.Value />', () => {
     expect(sliderValue).toHaveTextContent('40 – 60 – 80 – 95');
   });
 
+  it('recomputes the formatted output when the format option changes', async () => {
+    function formatValue(v: number, format?: Intl.NumberFormatOptions) {
+      return new Intl.NumberFormat(undefined, format).format(v);
+    }
+
+    const { setProps } = await render(
+      <Slider.Root defaultValue={40}>
+        <Slider.Value data-testid="output" />
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('output')).toHaveTextContent(formatValue(40));
+
+    await setProps({ format: { style: 'currency', currency: 'USD' } });
+
+    expect(screen.getByTestId('output')).toHaveTextContent(
+      formatValue(40, { style: 'currency', currency: 'USD' }),
+    );
+  });
+
   describe('prop: children', () => {
     it('accepts a render function', async () => {
       const format: Intl.NumberFormatOptions = {

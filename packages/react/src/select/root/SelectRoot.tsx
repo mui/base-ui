@@ -209,13 +209,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
   useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
-
-  useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
   }, [hasSelectedValue, setFilled]);
 

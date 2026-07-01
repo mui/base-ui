@@ -1,0 +1,198 @@
+.Card {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  max-width: 16rem;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Image {
+  display: block;
+  width: 100%;
+  height: 9rem;
+  object-fit: cover;
+}
+
+.Content {
+  padding: 0.5rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.Metadata {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.MenuTrigger {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: 0;
+
+  &[data-pressed],
+  &:focus-visible,
+  .Card:hover & {
+    opacity: 1;
+  }
+
+  @media (any-pointer: coarse) {
+    opacity: 1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled]),
+  &[data-popup-open] {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  outline: 0;
+  padding-block: 0.25rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.Item {
+  position: relative;
+  display: flex;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  outline: 0;
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    z-index: 0;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+}
+
+.ItemDestructive {
+  color: oklch(50.5% 0.213 27.518deg);
+}
+
+.Separator {
+  margin: 0.25rem;
+  height: 1px;
+  background-color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+}

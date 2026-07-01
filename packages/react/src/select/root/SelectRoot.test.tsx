@@ -2858,6 +2858,68 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('does not force-mount the popup on a programmatic value change', async () => {
+    function App() {
+      const [withItems, setWithItems] = React.useState<string | null>(null);
+      const [withoutItems, setWithoutItems] = React.useState<string | null>(null);
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setWithItems('b');
+              setWithoutItems('b');
+            }}
+          >
+            set
+          </button>
+          <Select.Root
+            items={{ a: 'Apple', b: 'Banana' }}
+            value={withItems}
+            onValueChange={setWithItems}
+          >
+            <Select.Trigger>
+              <Select.Value data-testid="items-value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">Apple</Select.Item>
+                  <Select.Item value="b">Banana</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Select.Root value={withoutItems} onValueChange={setWithoutItems}>
+            <Select.Trigger>
+              <Select.Value data-testid="plain-value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+
+    await user.click(screen.getByRole('button', { name: 'set' }));
+
+    // A programmatic value change must not force-mount the popup (which would leave it in the DOM
+    // permanently). The label resolves without the list mounted, with or without `items`.
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+    expect(screen.getByTestId('items-value')).toHaveTextContent('Banana');
+    expect(screen.getByTestId('plain-value')).toHaveTextContent('b');
+  });
+
   describe('Form', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
@@ -4546,6 +4608,42 @@ describe('<Select.Root />', () => {
       await act(async () => trigger.focus());
       await user.keyboard('a');
       expect(valueEl.textContent).toBe('avocado');
+    });
+
+    it('commits typeahead on a closed trigger when items are provided', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root
+            items={{ apple: 'Apple', cherry: 'Cherry' }}
+            value={value}
+            onValueChange={setValue}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="cherry">Cherry</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // The popup is never opened. With `items` provided the value-change effect no longer
+      // force-mounts, so this pins the load-bearing claim that the trigger's own onFocus
+      // force-mount still registers the list for closed-trigger typeahead.
+      await act(async () => trigger.focus());
+      await user.keyboard('c');
+      expect(valueEl.textContent).toBe('Cherry');
     });
 
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {

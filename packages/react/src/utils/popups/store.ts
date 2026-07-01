@@ -1,4 +1,4 @@
-import { createSelector } from '@base-ui/utils/store';
+import { createSelector, type ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
@@ -222,3 +222,14 @@ export const popupStoreSelectors = {
 };
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;
+
+/**
+ * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
+ * that an inert store can be passed while detached. `set`/`update` are included only for
+ * trigger-count and trigger-data bookkeeping; on a detached (inert) store they are intentionally
+ * no-ops, so a write through this type is not guaranteed to be durable.
+ */
+export type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
+  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
+  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
+>;

@@ -1,6 +1,15 @@
 import kebabCase from 'es-toolkit/compat/kebabCase';
 
-export const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/HEAD';
+function getGitHubBaseUrl() {
+  const sourceCodeRepo = process.env.SOURCE_CODE_REPO;
+  const sourceCodeRef = process.env.LIB_VERSION ? `v${process.env.LIB_VERSION}` : undefined;
+
+  if (!sourceCodeRepo || !sourceCodeRef) {
+    return null;
+  }
+
+  return `${sourceCodeRepo}/tree/${sourceCodeRef}`;
+}
 
 /**
  * Converts a file:// URL from import.meta.url to a GitHub source URL
@@ -36,7 +45,13 @@ export function getGitHubDemoUrl(
       dirPath += `/${kebabCase(selectedVariant)}`;
     }
 
-    return `${GITHUB_BASE}/${dirPath}`;
+    const githubBase = getGitHubBaseUrl();
+
+    if (githubBase == null) {
+      return null;
+    }
+
+    return `${githubBase}/${dirPath}`;
   } catch {
     return null;
   }
