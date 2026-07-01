@@ -60,8 +60,8 @@
     width: 100%;
     height: calc(100dvh - var(--space-4));
     max-height: calc(100dvh - var(--space-4));
-    border-top-left-radius: 36px; /* Mimic iOS bottom sheets */
-    border-top-right-radius: 36px; /* Mimic iOS bottom sheets */
+    border-top-left-radius: var(--radius-36); /* Mimic iOS bottom sheets */
+    border-top-right-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     background-color: var(--color-popup);
     color: var(--gray-t2);
     outline: 0;
@@ -74,6 +74,7 @@
     transition:
       transform 500ms cubic-bezier(0.32, 0.72, 0, 1),
       filter 300ms cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, filter;
 
     @media (prefers-color-scheme: dark) {
       box-shadow: 0 0 0 1px var(--color-border);
@@ -401,7 +402,7 @@
     font-size: 0.6875rem;
     font-weight: var(--font-weight-700);
     letter-spacing: 0.035em;
-    padding-inline: 2px;
+    padding-inline: 0.125rem;
     translate: 0 -3px;
   }
 
