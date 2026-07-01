@@ -155,12 +155,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                                     |
-| :------------------ | :--- | :---------------------------------------------- |
-| data-open           | -    | Present when the preview card is open.          |
-| data-closed         | -    | Present when the preview card is closed.        |
-| data-starting-style | -    | Present when the preview card is animating in.  |
-| data-ending-style   | -    | Present when the preview card is animating out. |
+| Attribute           | Type | Description                                        |
+| :------------------ | :--- | :------------------------------------------------- |
+| data-open           | -    | Present when the preview card is open.             |
+| data-closed         | -    | Present when the preview card is closed.           |
+| data-starting-style | -    | Present when the preview card begins animating in. |
+| data-ending-style   | -    | Present when the preview card is animating out.    |
 
 ### Backdrop.Props
 
@@ -298,7 +298,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the preview card is closed.                              |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the preview card is animating in.                        |
+| data-starting-style | -                                                                          | Present when the preview card begins animating in.                    |
 | data-ending-style   | -                                                                          | Present when the preview card is animating out.                       |
 
 ### Popup.Props

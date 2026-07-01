@@ -10,7 +10,7 @@ export enum PreviewCardPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the preview card is animating in.
+   * Present when the preview card begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

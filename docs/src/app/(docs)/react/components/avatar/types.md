@@ -46,10 +46,10 @@ Renders an `<img>` element.
 
 **Image Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-starting-style | -    | Present when the image is animating in.  |
-| data-ending-style   | -    | Present when the image is animating out. |
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-starting-style | -    | Present when the image begins animating in. |
+| data-ending-style   | -    | Present when the image is animating out.    |
 
 ### Image.Props
 

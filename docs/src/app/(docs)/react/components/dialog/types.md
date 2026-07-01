@@ -161,12 +161,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the dialog is open.          |
-| data-closed         | -    | Present when the dialog is closed.        |
-| data-starting-style | -    | Present when the dialog is animating in.  |
-| data-ending-style   | -    | Present when the dialog is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the dialog is open.             |
+| data-closed         | -    | Present when the dialog is closed.           |
+| data-starting-style | -    | Present when the dialog begins animating in. |
+| data-ending-style   | -    | Present when the dialog is animating out.    |
 
 ### Backdrop.Props
 
@@ -206,7 +206,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 **Popup CSS Variables:**
@@ -334,7 +334,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 ### Viewport.Props

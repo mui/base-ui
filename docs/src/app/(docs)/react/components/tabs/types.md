@@ -140,7 +140,7 @@ Renders a `<div>` element.
 | data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous active tab). |
 | data-hidden               | -                                               | Present when the panel is hidden.                                             |
 | data-index                | -                                               | Indicates the index of the tab panel.                                         |
-| data-starting-style       | -                                               | Present when the panel is animating in.                                       |
+| data-starting-style       | -                                               | Present when the panel begins animating in.                                   |
 | data-ending-style         | -                                               | Present when the panel is animating out.                                      |
 
 ### Panel.Props
