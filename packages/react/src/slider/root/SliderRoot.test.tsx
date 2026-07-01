@@ -722,6 +722,14 @@ describe('<Slider.Root />', () => {
       await user.keyboard(`[${ARROW_LEFT}]`);
       expect(slider).toHaveAttribute('aria-valuenow', '0');
     });
+
+    it('clamps range values that fall outside the min and max bounds', async () => {
+      await render(<TestRangeSlider defaultValue={[19, 41]} min={20} max={40} />);
+
+      const thumbs = screen.getAllByRole('slider');
+
+      expect(thumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(['20', '40']);
+    });
   });
 
   describe('prop: minStepsBetweenValues', () => {
@@ -2668,6 +2676,21 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
     });
 
+    it('recomputes the thumb aria text when the format option changes', async () => {
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+      }
+
+      const { setProps } = await render(<TestSlider defaultValue={50} />);
+
+      const slider = screen.getByRole('slider');
+      expect(slider).not.toHaveAttribute('aria-valuetext');
+
+      await setProps({ format: USD_NUMBER_FORMAT });
+
+      expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
+    });
+
     it('formats range values', async () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
@@ -2790,6 +2813,57 @@ describe('<Slider.Root />', () => {
 
         const submit = screen.getByRole('button');
         fireEvent.click(submit);
+      });
+
+      it('submits clamped range slider values to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={[19, 41]} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: [20, 40] },
+          expect.objectContaining({ reason: 'none' }),
+        );
+      });
+
+      it('submits a clamped single-thumb slider value to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={5} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: 20 },
+          expect.objectContaining({ reason: 'none' }),
+        );
       });
 
       it('submits to an external form when `form` is provided', async () => {
