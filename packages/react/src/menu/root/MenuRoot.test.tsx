@@ -2222,6 +2222,33 @@ describe('<Menu.Root />', () => {
 
         expect(screen.queryByTestId('submenu')).not.toBe(null);
       });
+
+      it('cancels a pending submenu hover-open when the pointer leaves via mouseout', async () => {
+        // Chrome can drop a submenu trigger's non-bubbling `mouseleave` during a
+        // fast pointer sweep across adjacent triggers, but the bubbling
+        // `mouseout` still fires. The pending delayed open must be cancelled from
+        // that `mouseout`, otherwise a stale submenu opens for a trigger the
+        // pointer has already left (stranding the parent at
+        // `pointer-events: none`). See #5152.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        const otherItem = screen.getByTestId('item-1');
+
+        // Arm the submenu's delayed open, then leave the trigger via `mouseout`
+        // (with `relatedTarget` outside it) but without delivering `mouseleave`.
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseOut(submenuTrigger, { relatedTarget: otherItem });
+
+        // Let the open delay elapse.
+        clock.tick(200);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).toBe(null);
+      });
     });
 
     describe.skipIf(isJSDOM)('mouse interaction', () => {

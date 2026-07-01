@@ -144,6 +144,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isClosing: () => store.select('transitionStatus') === 'ending',
+    // Work around a Chrome bug where fast pointer movement across adjacent
+    // submenu triggers drops `mouseleave`/`mouseenter`, leaving a stale submenu
+    // open and the parent menu stuck at `pointer-events: none`. See #5152.
+    guardStaleOpen: true,
   });
 
   const click = useClick(floatingRootContext, {
