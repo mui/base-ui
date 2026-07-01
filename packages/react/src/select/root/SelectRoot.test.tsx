@@ -4799,6 +4799,7 @@ describe('<Select.Root />', () => {
     it('does not jump matches after a closed-state value reset', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>('dog');
+
         return (
           <React.Fragment>
             <button data-testid="set-car" onClick={() => setValue('car')}>
