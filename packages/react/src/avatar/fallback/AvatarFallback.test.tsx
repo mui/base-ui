@@ -103,6 +103,20 @@ describe('<Avatar.Fallback />', () => {
       expect(screen.queryByText('AC')).not.toBe(null);
     });
 
+    it('shows the fallback immediately when delay is 0', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      await renderFakeTimers(
+        <Avatar.Root>
+          <Avatar.Image />
+          <Avatar.Fallback delay={0}>AC</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // No timers are advanced: `delay={0}` must render synchronously on mount.
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
     it('shows the fallback when delay changes to 0', async () => {
       (useImageLoadingStatus as Mock).mockReturnValue('error');
 
