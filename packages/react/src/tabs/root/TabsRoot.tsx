@@ -38,6 +38,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ...elementProps
   } = componentProps;
 
+  const ref = React.useRef<HTMLDivElement>(null);
   // Track whether the user explicitly provided a defined `defaultValue` prop.
   // Used to determine if we should honor a disabled tab selection.
   const hasExplicitDefaultValueProp = componentProps.defaultValue !== undefined;
@@ -361,14 +362,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, ref],
     props: elementProps,
     stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
-      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs}>{element}</CompositeList>
+      <CompositeList<TabsPanel.Metadata> listRef={ref} elementsRef={tabPanelRefs}>
+        {element}
+      </CompositeList>
     </TabsRootContext.Provider>
   );
 });

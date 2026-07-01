@@ -104,6 +104,8 @@ export const MenuComponent = React.forwardRef<
   });
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const floatingRef = React.useRef<HTMLDivElement>(null);
+  const mergeRefs = useMergedRefsN([refs.setFloating, floatingRef]);
 
   const hover = useHover(hoverContext, {
     delay: { open: 75 },
@@ -254,7 +256,7 @@ export const MenuComponent = React.forwardRef<
           orientation,
         }}
       >
-        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+        <CompositeList listRef={floatingRef} elementsRef={elementsRef} labelsRef={labelsRef}>
           {(keepMounted || isOpen) && (
             <FloatingPortal>
               <FloatingFocusManager
@@ -264,7 +266,7 @@ export const MenuComponent = React.forwardRef<
                 returnFocus={!isNested}
               >
                 <div
-                  ref={refs.setFloating}
+                  ref={mergeRefs}
                   id={context.floatingId}
                   role="menu"
                   aria-labelledby={triggerId}

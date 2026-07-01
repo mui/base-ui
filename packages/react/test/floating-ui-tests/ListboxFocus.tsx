@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
 import { useFloating, useListNavigation, useTypeahead } from '../../src/floating-ui-react';
@@ -23,8 +24,10 @@ function Listbox({ children }: { children: React.ReactNode }) {
     open: true,
   });
 
+  const floatingRef = React.useRef<HTMLDivElement>(null);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
+  const mergeRef = useMergedRefs(refs.setFloating, floatingRef);
 
   const handleSelect = React.useCallback((index: number | null) => {
     setSelectedIndex(index);
@@ -64,8 +67,8 @@ function Listbox({ children }: { children: React.ReactNode }) {
       <button onClick={() => setSelectedIndex(1)} data-testid="reference" type="button">
         Select
       </button>
-      <div ref={refs.setFloating} id={context.floatingId} role="listbox" {...getFloatingProps()}>
-        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+      <div ref={mergeRef} id={context.floatingId} role="listbox" {...getFloatingProps()}>
+        <CompositeList listRef={floatingRef} elementsRef={elementsRef} labelsRef={labelsRef}>
           {children}
         </CompositeList>
       </div>

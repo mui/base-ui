@@ -15,7 +15,7 @@ export type CompositeMetadata<CustomMetadata> = {
  * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+  const { children, listRef, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
@@ -67,6 +67,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
+    const list = listRef?.current;
     if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
       return undefined;
     }
@@ -78,22 +79,27 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         entry.removedNodes.forEach(updateDiff);
         entry.addedNodes.forEach(updateDiff);
       });
+
       if (diff.size === 0) {
         lastTickRef.current += 1;
         setMapTick(lastTickRef.current);
       }
     });
 
-    sortedMap.forEach((_, node) => {
-      if (node.parentElement) {
-        mutationObserver.observe(node.parentElement, { childList: true });
-      }
-    });
+    if (list) {
+      mutationObserver.observe(list, { childList: true, subtree: true });
+    } else {
+      sortedMap.forEach((_, node) => {
+        if (node.parentElement) {
+          mutationObserver.observe(node.parentElement, { childList: true });
+        }
+      });
+    }
 
     return () => {
       mutationObserver.disconnect();
     };
-  }, [sortedMap]);
+  }, [listRef, sortedMap]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -176,6 +182,11 @@ export interface CompositeListState {}
 
 export interface CompositeListProps<Metadata> {
   children: React.ReactNode;
+  /**
+   * A ref to the composite list container to listen for reorder mutations.
+   * If this is not passed, it will observe each item's parent.
+   */
+  listRef: React.RefObject<HTMLElement | null> | null;
   /**
    * A ref to the list of HTML elements, ordered by their index.
    * `useListNavigation`'s `listRef` prop.

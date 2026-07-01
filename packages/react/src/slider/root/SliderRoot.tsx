@@ -409,7 +409,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   return (
     <SliderRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
+      <CompositeList listRef={sliderRef} elementsRef={thumbRefs} onMapChange={setThumbMap}>
         {element}
       </CompositeList>
     </SliderRootContext.Provider>

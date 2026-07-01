@@ -386,6 +386,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   return (
     <CompositeList
+      listRef={null}
       elementsRef={inputRefs}
       onMapChange={(newMap) => {
         setInputCount(newMap.size);

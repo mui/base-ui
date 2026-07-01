@@ -309,6 +309,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       )}
       <FloatingNode id={floatingNodeId}>
         <CompositeList
+          listRef={store.context.popupRef}
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
         >
