@@ -24,6 +24,7 @@ import {
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreSelectors,
+  PopupTriggerDataStore,
 } from './store';
 
 export const FOCUSABLE_POPUP_PROPS = {
@@ -86,7 +87,7 @@ export function usePopupStore<
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
+  store: PopupTriggerDataStore<State>,
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
   const registeredElementIdRef = React.useRef<string | null>(null);
@@ -266,20 +267,17 @@ export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
 export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: PopupTriggerDataStore<State>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
-  const registerTrigger = useStableCallback((element: Element | null) => {
-    baseRegisterTrigger(element);
-
-    if (!element) {
-      return;
-    }
-
+  // Applies trigger-owned state (active-trigger ownership and payload) when the trigger registers.
+  // Stable so payload/`stateUpdates` changes do not change the ref identity (which would needlessly
+  // churn registration); it reads the latest closure values when invoked.
+  const applyTriggerData = useStableCallback((element: Element) => {
     const open = store.select('open');
     const activeTriggerId = store.select('activeTriggerId');
 
@@ -302,6 +300,21 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
       } as Partial<State>);
     }
   });
+
+  // Intentionally NOT stable. Its identity is derived from `baseRegisterTrigger`, which is keyed on
+  // `[store, id]`, so when a handle-backed trigger's store pointer swaps the merged ref re-fires —
+  // unregistering from the previous store and registering into the new one. This lets a detached
+  // trigger follow its handle's currently-attached store across attach/detach/remount. (A stable
+  // callback would keep its identity and never re-fire on a store swap.)
+  const registerTrigger = React.useCallback(
+    (element: Element | null) => {
+      baseRegisterTrigger(element);
+      if (element) {
+        applyTriggerData(element);
+      }
+    },
+    [baseRegisterTrigger, applyTriggerData],
+  );
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {

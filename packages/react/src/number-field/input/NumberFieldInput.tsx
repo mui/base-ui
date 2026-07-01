@@ -476,7 +476,8 @@ export interface NumberFieldInputState extends NumberFieldRootState {}
 
 export interface NumberFieldInputProps extends BaseUIComponentProps<
   'input',
-  NumberFieldInputState
+  NumberFieldInputState,
+  React.ComponentPropsWithRef<'input'>
 > {
   /**
    * A user-friendly description of the input's role for assistive tech. This is a role
