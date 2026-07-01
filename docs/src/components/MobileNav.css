@@ -222,6 +222,9 @@
 
   .MobileNavScrollAreaRoot {
     --mobile-nav-scroll-scrim-size: var(--space-16);
+    --mobile-nav-scroll-bottom-inset: calc(
+      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0)
+    );
     position: relative;
     flex: 1;
   }
@@ -234,9 +237,6 @@
     --mobile-nav-scroll-scrim-end: min(
       var(--mobile-nav-scroll-scrim-size),
       var(--scroll-area-overflow-y-end, var(--mobile-nav-scroll-scrim-size))
-    );
-    --mobile-nav-scroll-bottom-inset: calc(
-      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0)
     );
     --mobile-nav-scroll-scrim-end-stop: calc(100% - var(--mobile-nav-scroll-bottom-inset));
     flex: 1;
@@ -255,8 +255,7 @@
     mask-repeat: no-repeat;
     scroll-padding-top: var(--mobile-nav-scroll-scrim-size);
     scroll-padding-bottom: calc(
-      var(--mobile-nav-scroll-scrim-size) + var(--mobile-nav-bleed) +
-        var(--drawer-keyboard-inset, 0)
+      var(--mobile-nav-scroll-scrim-size) + var(--mobile-nav-scroll-bottom-inset)
     );
 
     &:focus-visible {
@@ -272,7 +271,7 @@
   .MobileNavScrollbar {
     display: flex;
     padding-top: var(--space-8);
-    padding-bottom: calc(var(--space-8) + var(--mobile-nav-bleed));
+    padding-bottom: calc(var(--space-8) + var(--mobile-nav-scroll-bottom-inset));
 
     /* Click target width */
     width: var(--space-24);
