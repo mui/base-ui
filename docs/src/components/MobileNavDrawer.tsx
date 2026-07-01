@@ -5,6 +5,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type {
   SearchResult,
@@ -43,17 +44,9 @@ export function MobileNavDrawer({
   const attemptRef = React.useRef(0);
   const selectedResultRef = React.useRef<SearchResult | null>(null);
   const lastTrackedQueryRef = React.useRef('');
-  const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queryDebounceTimeout = useTimeout();
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    return () => {
-      if (queryDebounceRef.current) {
-        clearTimeout(queryDebounceRef.current);
-      }
-    };
-  }, []);
 
   const handleOpenDrawer = React.useCallback(() => {
     searchQueryRef.current = '';
@@ -61,18 +54,12 @@ export function MobileNavDrawer({
     attemptRef.current = 0;
     selectedResultRef.current = null;
     lastTrackedQueryRef.current = '';
-    if (queryDebounceRef.current) {
-      clearTimeout(queryDebounceRef.current);
-      queryDebounceRef.current = null;
-    }
+    queryDebounceTimeout.clear();
     ga?.trackEvent({ category: 'search', action: 'open' });
-  }, [ga]);
+  }, [ga, queryDebounceTimeout]);
 
   const handleCloseDrawer = React.useCallback(() => {
-    if (queryDebounceRef.current) {
-      clearTimeout(queryDebounceRef.current);
-      queryDebounceRef.current = null;
-    }
+    queryDebounceTimeout.clear();
 
     if (searchQueryRef.current) {
       const selected = selectedResultRef.current;
@@ -96,7 +83,7 @@ export function MobileNavDrawer({
     }
 
     setSearchValue('');
-  }, [ga]);
+  }, [ga, queryDebounceTimeout]);
 
   const handleResultCountChange = React.useCallback((resultCount: number) => {
     resultCountRef.current = resultCount;
@@ -104,10 +91,7 @@ export function MobileNavDrawer({
 
   const handleSearchValueChange = React.useCallback(
     (value: string) => {
-      if (queryDebounceRef.current) {
-        clearTimeout(queryDebounceRef.current);
-        queryDebounceRef.current = null;
-      }
+      queryDebounceTimeout.clear();
 
       const previousLength = searchQueryRef.current?.length ?? 0;
       searchQueryRef.current = value;
@@ -116,7 +100,7 @@ export function MobileNavDrawer({
           attemptRef.current += 1;
         }
 
-        queryDebounceRef.current = setTimeout(() => {
+        queryDebounceTimeout.start(1500, () => {
           if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
             ga?.trackEvent({
               category: 'search',
@@ -130,10 +114,10 @@ export function MobileNavDrawer({
             });
             lastTrackedQueryRef.current = searchQueryRef.current;
           }
-        }, 1500);
+        });
       }
     },
-    [ga],
+    [ga, queryDebounceTimeout],
   );
 
   const handleResultSelect = React.useCallback((result: SearchResult | null) => {
@@ -223,6 +207,7 @@ function MobileNavPopupImpl({
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
+  const emptyResultsTimeout = useTimeout();
   const hasQuery = searchValue.trim() !== '';
   const { results, search, defaultResults, buildResultUrl } = useSearch({
     sitemap: sitemapPromise,
@@ -252,15 +237,26 @@ function MobileNavPopupImpl({
 
   React.useEffect(() => {
     if (!hasQuery) {
+      emptyResultsTimeout.clear();
       onResultCountChange(0);
       setSearchResults(defaultResults);
-      return;
+      return undefined;
     }
 
     const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
     onResultCountChange(totalResults);
+
+    if (results.results.length === 0) {
+      emptyResultsTimeout.start(400, () => {
+        setSearchResults(results);
+      });
+      return emptyResultsTimeout.clear;
+    }
+
+    emptyResultsTimeout.clear();
     setSearchResults(results);
-  }, [defaultResults, hasQuery, onResultCountChange, results]);
+    return undefined;
+  }, [defaultResults, emptyResultsTimeout, hasQuery, onResultCountChange, results]);
 
   const itemToStringValue = React.useCallback(
     (item: SearchResult | null) => (item ? item.title || item.slug : ''),
