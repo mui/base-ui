@@ -51,6 +51,7 @@
   }
 
   .MobileNavPopup {
+    --mobile-nav-bleed: 3rem;
     --mobile-nav-item-height: var(--space-40);
     --mobile-nav-item-padding-x: var(--space-28);
     position: relative;
@@ -58,14 +59,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: calc(100dvh - var(--space-4));
-    max-height: calc(100dvh - var(--space-4));
+    height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
+    max-height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
+    margin-bottom: calc(-1 * var(--mobile-nav-bleed));
     border-top-left-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     border-top-right-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     background-color: var(--color-popup);
     color: var(--gray-t2);
     outline: 0;
-    overflow: hidden;
     touch-action: none;
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
@@ -87,7 +88,7 @@
 
     &[data-starting-style],
     &[data-ending-style] {
-      transform: translateY(100%);
+      transform: translateY(calc(100% - var(--mobile-nav-bleed) + 2px));
       filter: blur(1px);
     }
 
@@ -101,8 +102,8 @@
     }
 
     @media (min-height: 27rem) {
-      height: calc(100dvh - var(--header-height));
-      max-height: calc(100dvh - var(--header-height));
+      height: calc(100dvh - var(--header-height) + var(--mobile-nav-bleed));
+      max-height: calc(100dvh - var(--header-height) + var(--mobile-nav-bleed));
     }
   }
 
@@ -233,22 +234,28 @@
       var(--mobile-nav-scroll-scrim-size),
       var(--scroll-area-overflow-y-end, var(--mobile-nav-scroll-scrim-size))
     );
+    --mobile-nav-scroll-bottom-inset: calc(
+      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0)
+    );
+    --mobile-nav-scroll-scrim-end-stop: calc(100% - var(--mobile-nav-scroll-bottom-inset));
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
-    padding-bottom: var(--drawer-keyboard-inset, 0);
+    padding-bottom: var(--mobile-nav-scroll-bottom-inset);
     mask-image: linear-gradient(
       to bottom,
       transparent 0,
       black var(--mobile-nav-scroll-scrim-start),
-      black calc(100% - var(--mobile-nav-scroll-scrim-end)),
+      black calc(var(--mobile-nav-scroll-scrim-end-stop) - var(--mobile-nav-scroll-scrim-end)),
+      transparent var(--mobile-nav-scroll-scrim-end-stop),
       transparent 100%
     );
     mask-repeat: no-repeat;
     scroll-padding-top: var(--mobile-nav-scroll-scrim-size);
     scroll-padding-bottom: calc(
-      var(--mobile-nav-scroll-scrim-size) + var(--drawer-keyboard-inset, 0)
+      var(--mobile-nav-scroll-scrim-size) + var(--mobile-nav-bleed) +
+        var(--drawer-keyboard-inset, 0)
     );
 
     &:focus-visible {
@@ -264,7 +271,7 @@
   .MobileNavScrollbar {
     display: flex;
     padding-top: var(--space-8);
-    padding-bottom: var(--space-8);
+    padding-bottom: calc(var(--space-8) + var(--mobile-nav-bleed));
 
     /* Click target width */
     width: var(--space-24);
@@ -301,7 +308,7 @@
   .MobileNavPanel,
   .MobileNavSearchResults {
     padding-block: var(--mobile-nav-scroll-scrim-size)
-      calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
+      calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
   }
 
   .MobileNavSection:not(:last-of-type) {
