@@ -233,12 +233,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the drawer is open.          |
-| data-closed         | -    | Present when the drawer is closed.        |
-| data-starting-style | -    | Present when the drawer is animating in.  |
-| data-ending-style   | -    | Present when the drawer is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the drawer is open.             |
+| data-closed         | -    | Present when the drawer is closed.           |
+| data-starting-style | -    | Present when the drawer begins animating in. |
+| data-ending-style   | -    | Present when the drawer is animating out.    |
 
 **Backdrop CSS Variables:**
 
@@ -288,7 +288,7 @@ Renders a `<div>` element.
 | data-swipe-direction       | `'up' \| 'down' \| 'left' \| 'right'` | Indicates the swipe direction.                                       |
 | data-swipe-dismiss         | -                                     | Present when the drawer is dismissed by swiping.                     |
 | data-swiping               | -                                     | Present when the drawer is being swiped.                             |
-| data-starting-style        | -                                     | Present when the drawer is animating in.                             |
+| data-starting-style        | -                                     | Present when the drawer begins animating in.                         |
 | data-ending-style          | -                                     | Present when the drawer is animating out.                            |
 
 **Popup CSS Variables:**
@@ -446,7 +446,7 @@ Renders a `<div>` element.
 | data-open           | -    | Present when the drawer is open.                         |
 | data-closed         | -    | Present when the drawer is closed.                       |
 | data-nested         | -    | Present when the drawer is nested within another drawer. |
-| data-starting-style | -    | Present when the drawer is animating in.                 |
+| data-starting-style | -    | Present when the drawer begins animating in.             |
 | data-ending-style   | -    | Present when the drawer is animating out.                |
 
 **Viewport CSS Variables:**
