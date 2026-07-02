@@ -320,11 +320,15 @@ describe('<ContextMenu.Root />', () => {
       const trigger = screen.getByTestId('context-trigger');
 
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
-      const popup = await screen.findByTestId('context-popup');
+      await screen.findByTestId('context-popup');
 
-      // The popup opens under the cursor, so the second right click lands on it (or
-      // on the backdrop). Right-clicking again within the threshold toggles closed.
-      fireEvent.contextMenu(popup, { clientX: 11, clientY: 12, button: 2 });
+      // The second right click in place lands on the backdrop (right-clicking the
+      // popup surface itself is not a toggle gesture). Right-clicking again within
+      // the threshold toggles the menu closed.
+      const backdrop = document.querySelector(
+        '[role="presentation"][data-base-ui-inert]',
+      ) as HTMLElement;
+      fireEvent.contextMenu(backdrop, { clientX: 11, clientY: 12, button: 2 });
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-popup')).toBe(null);

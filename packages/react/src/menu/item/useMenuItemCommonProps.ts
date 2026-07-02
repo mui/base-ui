@@ -6,7 +6,7 @@ import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import { CONTEXT_MENU_ITEM_PRESS_THRESHOLD } from '../../context-menu/utils/constants';
+import { isWithinThreshold } from '../../context-menu/utils/constants';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 export interface UseMenuItemCommonPropsParameters {
@@ -88,11 +88,13 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
         if (contextMenuContext) {
           const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
           contextMenuContext.initialCursorPointRef.current = null;
+          // A release within a pixel of the opening point is still the opening right
+          // click. Kept much tighter than the move threshold: a deliberate
+          // press-drag-release onto a nearby item (which highlights it) must still
+          // activate it.
           if (
             isContextMenu &&
-            initialCursorPoint &&
-            Math.abs(event.clientX - initialCursorPoint.x) <= CONTEXT_MENU_ITEM_PRESS_THRESHOLD &&
-            Math.abs(event.clientY - initialCursorPoint.y) <= CONTEXT_MENU_ITEM_PRESS_THRESHOLD
+            isWithinThreshold(initialCursorPoint, event.clientX, event.clientY, 1)
           ) {
             return;
           }

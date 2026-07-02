@@ -8,10 +8,14 @@
 export const CONTEXT_MENU_MOVE_THRESHOLD = 8;
 
 /**
- * Maximum distance, in pixels, from the point where the context menu opened within
- * which the `mouseup` completing the opening right click is prevented from
- * activating a menu item rendered under the cursor. Kept much tighter than
- * `CONTEXT_MENU_MOVE_THRESHOLD`: a deliberate press-drag-release onto a nearby item
- * (which highlights it) must still activate it.
+ * Determines if the coordinates are within `threshold` pixels (on each axis) of the
+ * point, typically the one the context menu was opened at.
  */
-export const CONTEXT_MENU_ITEM_PRESS_THRESHOLD = 1;
+export function isWithinThreshold(
+  point: { x: number; y: number } | null,
+  x: number,
+  y: number,
+  threshold: number,
+): boolean {
+  return !!point && Math.abs(x - point.x) <= threshold && Math.abs(y - point.y) <= threshold;
+}
