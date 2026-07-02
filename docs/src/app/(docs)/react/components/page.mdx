@@ -302,10 +302,11 @@ A button component that can be rendered as another tag or focusable when disable
     - Rendering as another tag
     - Rendering links as buttons
     - Loading states
+    - Async
   - API reference
 - Exports:
   - Button
-    - Props: className, focusableWhenDisabled, nativeButton, render, style
+    - Props: className, clickAction, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
 - Types: Button.Props, Button.State
 
@@ -1508,6 +1509,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Placeholder values
     - Multiple selection
     - Object values
+    - Async
     - Grouped
   - API reference
     - Root
@@ -1531,7 +1533,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Separator
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value, valueChangeAction
   - Select - Trigger
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid

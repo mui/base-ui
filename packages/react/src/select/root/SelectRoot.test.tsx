@@ -527,6 +527,112 @@ describe('<Select.Root />', () => {
 
       expect(handleValueChange.mock.calls.length).toBe(1);
     });
+
+    it.skipIf(reactMajor <= 18)(
+      'updates the controlled value optimistically while valueChangeAction is pending',
+      async () => {
+        let resolveAction: () => void = () => {};
+
+        function App() {
+          const [value, updateValue, isPending] = React.useActionState(
+            async (_previousValue: string | null, nextValue: string | null) => {
+              await new Promise<void>((resolve) => {
+                resolveAction = resolve;
+              });
+              return nextValue;
+            },
+            'a',
+          );
+
+          return (
+            <React.Fragment>
+              <span data-testid="pending">{String(isPending)}</span>
+              <Select.Root value={value} valueChangeAction={updateValue}>
+                <Select.Trigger data-testid="trigger">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="a">a</Select.Item>
+                      <Select.Item value="b">b</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await user.click(screen.getByRole('option', { name: 'b' }));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('pending')).toHaveTextContent('true');
+        });
+        expect(trigger).toHaveTextContent('b');
+
+        await act(async () => {
+          resolveAction();
+          await Promise.resolve();
+        });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('pending')).toHaveTextContent('false');
+        });
+        expect(trigger).toHaveTextContent('b');
+      },
+    );
+
+    it('does not call valueChangeAction when onValueChange cancels the change', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const handleValueChangeAction = vi.fn();
+
+      const { user } = await render(
+        <Select.Root
+          value="a"
+          onValueChange={(_newValue, eventDetails) => {
+            eventDetails.cancel();
+          }}
+          valueChangeAction={handleValueChangeAction}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await act(async () => {
+        await flushMicrotasks();
+      });
+      await user.click(screen.getByRole('option', { name: 'b' }));
+      await act(async () => {
+        await flushMicrotasks();
+      });
+
+      expect(handleValueChangeAction.mock.calls.length).toBe(0);
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('a');
+      });
+    });
   });
 
   describe('prop: defaultOpen', () => {
