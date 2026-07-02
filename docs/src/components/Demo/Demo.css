@@ -328,6 +328,7 @@
     line-height: var(--demo-code-block-line-height); /* 20px */
     cursor: text;
     display: flex;
+    tab-size: 2;
 
     & pre {
       /* Different fonts may introduce vertical align issues */
@@ -338,6 +339,7 @@
 
     & code {
       padding: 0.5rem 0;
+      width: 100%;
     }
 
     & code .frame {
@@ -351,6 +353,7 @@
       white-space: normal;
       padding-left: 0;
       padding-right: 0;
+      line-height: 0;
     }
 
     & code .frame[data-lined] .line {
@@ -358,6 +361,61 @@
       white-space: pre;
       padding-left: 0.75rem;
       padding-right: 0.75rem;
+      line-height: var(--demo-code-block-line-height, 1.25rem); /* 20px */
+    }
+
+    /* The wrapper is the focusable tab stop; `position: relative` anchors the overlay. */
+    & .editable-code-wrapper {
+      position: relative;
+      display: block;
+      width: 100%;
+    }
+
+    & .editable-code-wrapper:focus-visible {
+      outline: 1px solid white;
+      outline-offset: -1px;
+      border-radius: 0;
+    }
+
+    /* Override the default `[hidden]` attribute so the overlay stays in the layout
+   for transitions; `visibility` (driven by `data-editable-prompt` handles the
+   actual show/hide. */
+    & .editable-code-wrapper .editable-code-overlay[hidden] {
+      display: block;
+    }
+
+    /* Hidden by default; shown only while the wrapper holds keyboard focus
+   (`data-editable-prompt` is added by `<Pre>` on keyboard focus and removed on
+   blur or when the user presses Enter to engage editing. */
+    & .editable-code-wrapper .editable-code-overlay {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 10px;
+      background: rgb(28 24 48 / 0.92);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: none;
+      z-index: 1;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+      visibility: hidden;
+    }
+
+    & .editable-code-wrapper[data-editable-prompt] .editable-code-overlay {
+      visibility: visible;
+    }
+
+    & .editable-code-wrapper .editable-code-overlay kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      margin: 0 2px;
+      border: 1px solid rgb(255 255 255 / 0.35);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      background: rgb(255 255 255 / 0.1);
     }
   }
 
