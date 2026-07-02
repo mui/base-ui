@@ -1,4 +1,10 @@
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import type { PopupTriggerMap } from './popupTriggerMap';
 
 /**
  * Minimal store contract exposed by popup handles to detached triggers.
@@ -24,6 +30,26 @@ export interface PopupHandleStoreProvider<HandleStore> {
 }
 
 /**
+ * Store shape holding a trigger registry, required by `BasePopupHandle.openByTrigger` to resolve a
+ * trigger element by id on both the attached root's store and the fallback store.
+ */
+export interface PopupHandleStoreWithTriggers {
+  readonly context: { readonly triggerElements: PopupTriggerMap };
+}
+
+/**
+ * Store shape required by `BasePopupHandle.openByTrigger`/`closePopup` to drive open/close state.
+ * Only the root-owned `Store` needs this — the `HandleStore` view exposed to detached triggers may
+ * omit `setOpen` entirely (as Dialog and PreviewCard's do) since it is never called while detached.
+ */
+export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
+  setOpen(
+    open: boolean,
+    eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction>,
+  ): void;
+}
+
+/**
  * Shared implementation for popup handles that coordinate detached triggers with a mounted root.
  *
  * Subclasses provide the component-specific imperative methods, while this base class owns the
@@ -34,8 +60,8 @@ export interface PopupHandleStoreProvider<HandleStore> {
  * @template Store Root-owned store attached by the component root.
  */
 export class BasePopupHandle<
-  HandleStore,
-  Store extends HandleStore = HandleStore,
+  HandleStore extends PopupHandleStoreWithTriggers,
+  Store extends HandleStore & PopupHandleStoreWithOpen,
 > implements PopupHandleStoreProvider<HandleStore> {
   /**
    * Inert, closed store handed to detached triggers while no root is attached, so they can render
@@ -64,14 +90,19 @@ export class BasePopupHandle<
    */
   private readonly storeListeners = new Set<() => void>();
 
-  protected overlapWarningFrame: AnimationFrame | undefined;
+  private overlapWarningFrame: AnimationFrame | undefined;
 
   /**
    * Creates a handle backed by the store used while no root is attached.
    *
    * @param fallbackStore Inert store exposed to detached triggers before a root mounts.
+   * @param componentName Component name used to prefix dev warnings, e.g. `'Menu'` produces
+   * `MenuHandle.open()` in warning text.
    */
-  constructor(fallbackStore: HandleStore) {
+  constructor(
+    fallbackStore: HandleStore,
+    private readonly componentName: string,
+  ) {
     this.fallbackStoreValue = fallbackStore;
   }
 
@@ -164,5 +195,79 @@ export class BasePopupHandle<
     this.storeListeners.forEach((listener) => {
       listener();
     });
+  }
+
+  /**
+   * Opens the attached root's store and associates it with the trigger with the given id, or a
+   * no-op (with a dev warning) while no root is attached. Shared by every concrete handle's public
+   * `open()` method, which only narrows the parameter type.
+   *
+   * This method should only be called in an event handler or an effect (not during rendering).
+   *
+   * @param triggerId ID of the trigger to associate with the popup, or `null`/`undefined` to open
+   * without associating any trigger.
+   */
+  protected openByTrigger(triggerId: string | null | undefined) {
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Base UI: ${this.componentName}Handle.open() was called while no root using this handle is mounted. ` +
+            'The call was ignored; mount a root with this handle before opening it imperatively.',
+        );
+      }
+      return;
+    }
+
+    // Registered triggers normally live in the attached root's store. During the commit in which a
+    // root first attaches, a still-mounted detached trigger has not re-registered into the root store
+    // yet (it migrates on its next render), but it is still registered in the fallback store. Fall
+    // back to that map so an imperative open-by-id (e.g. called from a layout effect in the same
+    // commit the root mounts) stays associated with the requested trigger instead of opening
+    // unassociated and letting another detached trigger claim the open popup first.
+    const triggerElement = triggerId
+      ? ((attachedStore.context.triggerElements.getById(triggerId) ??
+          this.fallbackStore.context.triggerElements.getById(triggerId)) as HTMLElement | undefined)
+      : undefined;
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (triggerId && !triggerElement) {
+        console.warn(
+          `Base UI: ${this.componentName}Handle.open: No trigger found with id "${triggerId}". ` +
+            `The popup will open, but the trigger will not be associated with it.`,
+        );
+      }
+    }
+
+    attachedStore.setOpen(
+      true,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
+    );
+  }
+
+  /**
+   * Closes the popup by setting the attached root's store to closed, or a no-op (with a dev warning)
+   * while no root is attached. Shared by every concrete handle's public `close()` method.
+   *
+   * This method should only be called in an event handler or an effect (not during rendering).
+   */
+  protected closePopup() {
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Base UI: ${this.componentName}Handle.close() was called while no root using this handle is mounted. ` +
+            'The call was ignored.',
+        );
+      }
+      return;
+    }
+
+    attachedStore.setOpen(
+      false,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 }
