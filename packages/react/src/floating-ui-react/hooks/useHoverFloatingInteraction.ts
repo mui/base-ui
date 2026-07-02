@@ -186,6 +186,9 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      // Only treat the interaction as "inside" when it targets a nested popup
+      // trigger (`aria-haspopup`). That keeps this popup open while the user
+      // operates a child popup, without latching open on ordinary clicks.
       instance.interactedInside = target?.closest('[aria-haspopup]') != null;
     }
 
@@ -203,8 +206,8 @@ export function useHoverFloatingInteraction(
       }
 
       if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
-        // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
-        // as it will be moved.
+        // The pointer is leaving the floating element for another trigger; don't
+        // explicitly close, as the popup will be moved to that trigger instead.
         return;
       }
 

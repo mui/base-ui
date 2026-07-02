@@ -196,6 +196,49 @@ describe('<Tooltip.Root />', () => {
         expect(handleChange.mock.calls.length).toBe(1);
         expect(handleChange.mock.calls[0][0]).toBe(false);
       });
+
+      it('keeps a pending hover open when the keep-mounted popup unmounts', async () => {
+        const handleChange = vi.fn();
+
+        function App() {
+          const [showPopup, setShowPopup] = React.useState(true);
+
+          return (
+            <Tooltip.Root onOpenChange={handleChange}>
+              <button type="button" onClick={() => setShowPopup(false)}>
+                Remove popup
+              </button>
+              <Tooltip.Trigger data-testid="trigger" delay={500}>
+                Toggle
+              </Tooltip.Trigger>
+              <Tooltip.Portal keepMounted>
+                <Tooltip.Positioner>
+                  {showPopup && <Tooltip.Popup>Content</Tooltip.Popup>}
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Remove popup' }));
+        await flushMicrotasks();
+
+        clock.tick(500);
+        await flushMicrotasks();
+
+        expect(handleChange).toHaveBeenCalledTimes(1);
+        expect(handleChange).toHaveBeenCalledWith(
+          true,
+          expect.objectContaining({ reason: REASONS.triggerHover }),
+        );
+      });
     });
 
     describe('prop: defaultOpen', () => {
