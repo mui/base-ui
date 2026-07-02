@@ -18,7 +18,7 @@ import { selectors } from '../store';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
-import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -27,8 +27,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
-
-const BOUNDARY_OFFSET = 5;
 
 /**
  * A button that opens the popup.
@@ -245,16 +243,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            const bounds = getPseudoElementBounds(triggerElement);
-
-            const withinHorizontal =
-              mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-              mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET;
-            const withinVertical =
-              mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-              mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET;
-
-            if (withinHorizontal && withinVertical) {
+            if (isMouseWithinBounds(mouseEvent, triggerElement)) {
               return;
             }
 
