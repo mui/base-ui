@@ -6,7 +6,7 @@ import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -16,6 +16,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { isMacVoiceOverKeyboardOpen } from '../utils/isMacVoiceOverKeyboardOpen';
 
 /**
  * A menu item that opens a submenu.
@@ -48,6 +49,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
@@ -160,6 +162,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   delete rootTriggerProps.id;
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
+  const macVoiceOverKeyboardOpen =
+    open &&
+    isMacVoiceOverKeyboardOpen(
+      lastOpenChangeReason,
+      floatingRootContext.context.dataRef.current.openEvent,
+    );
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -169,8 +177,16 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       hoverProps,
       rootTriggerProps,
       itemProps,
+      macVoiceOverKeyboardOpen
+        ? {
+            'aria-controls': undefined,
+            'aria-expanded': false,
+          }
+        : {
+            'aria-controls': popupId,
+            'aria-expanded': rootTriggerProps['aria-expanded'],
+          },
       {
-        'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {
