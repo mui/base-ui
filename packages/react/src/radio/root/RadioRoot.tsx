@@ -5,12 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -162,15 +162,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
         return;
       }
 
-      input.dispatchEvent(
-        new (ownerWindow(input).PointerEvent)('click', {
-          bubbles: true,
-          shiftKey: event.shiftKey,
-          ctrlKey: event.ctrlKey,
-          altKey: event.altKey,
-          metaKey: event.metaKey,
-        }),
-      );
+      dispatchClickWithModifiers(input, event);
     },
     onFocus(event) {
       if (event.defaultPrevented || disabled || readOnly || !touched) {

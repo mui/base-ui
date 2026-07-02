@@ -10,6 +10,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type {
@@ -389,15 +390,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
-          input.dispatchEvent(
-            new (ownerWindow(input).PointerEvent)('click', {
-              bubbles: true,
-              shiftKey: event.shiftKey,
-              ctrlKey: event.ctrlKey,
-              altKey: event.altKey,
-              metaKey: event.metaKey,
-            }),
-          );
+          dispatchClickWithModifiers(input, event);
         },
       },
       elementProps,

@@ -279,10 +279,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         allowTouchToCloseTimeout.clear();
       }
 
+      // Keyboard and assistive-technology activations produce `detail === 0` clicks;
+      // mouse-gesture clicks (including the synthesized drag-release click from
+      // `useMenuItemCommonProps`) carry `detail >= 1`.
       const isKeyboardClick =
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
-        (nativeEvent as MouseEvent).detail === 0 &&
-        nativeEvent?.isTrusted;
+        (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       const updatedState: Partial<MenuStoreState<Payload>> = {

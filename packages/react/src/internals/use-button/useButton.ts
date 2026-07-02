@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
@@ -10,6 +9,7 @@ import { makeEventPreventable, mergeProps } from '../../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 
 export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
@@ -142,7 +142,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               event.preventDefault();
 
-              if (isLink || (isNativeButton && isButton) || shouldClick) {
+              // Only a native-mode item that isn't a real <button> is excluded.
+              if (!isNativeButton || isButton) {
                 activateElement(event, currentTarget, externalOnClick);
               }
 
@@ -151,6 +152,12 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
             // Keyboard accessibility for native and non-native elements.
             if (!shouldClick || isNativeButton || (!isSpaceKey && !isEnterKey)) {
+              // Space activates links on keyup (`role="button"` semantics, matching the
+              // composite path); prevent the page scroll Space would otherwise trigger.
+              // Enter is left to the browser's native link activation.
+              if (isCurrentTarget && isLink && isSpaceKey) {
+                event.preventDefault();
+              }
               return;
             }
 
@@ -190,7 +197,11 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               return;
             }
 
-            // Keyboard accessibility for non interactive elements
+            // Keyboard accessibility for non interactive elements.
+            // Limitation: unlike a native <button> (and Enter activation on keydown), Space
+            // activation here cannot be canceled with `preventDefault()` — no state is kept
+            // between keydown and keyup, so we can't tell whether the keydown was prevented
+            // or even happened on this element.
             if (
               event.target === event.currentTarget &&
               !isNativeButton &&
@@ -240,20 +251,7 @@ function activateElement(
     return;
   }
 
-  // Equivalent to `click()` — an untrusted click still runs native activation behavior
-  // (form submission, link navigation) — but carries the keyboard event's modifier
-  // state, which `click()` always reports as unpressed.
-  element.dispatchEvent(
-    new (ownerWindow(element).PointerEvent)('click', {
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-      shiftKey: event.shiftKey,
-      ctrlKey: event.ctrlKey,
-      altKey: event.altKey,
-      metaKey: event.metaKey,
-    }),
-  );
+  dispatchClickWithModifiers(element, event);
 }
 
 function isButtonElement(elem: Element | null): elem is HTMLButtonElement {

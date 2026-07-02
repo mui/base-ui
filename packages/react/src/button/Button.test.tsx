@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Button } from '@base-ui/react/button';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Button />', () => {
@@ -14,6 +14,31 @@ describe('<Button />', () => {
   }));
 
   describe('prop: nativeButton', () => {
+    it('custom link element: Space activates the link without scrolling the page', async () => {
+      const handleClick = vi.fn();
+
+      const { user } = await render(
+        <Button nativeButton={false} render={<a href="#target" />} onClick={handleClick}>
+          Go
+        </Button>,
+      );
+
+      const link = screen.getByRole('button', { name: 'Go' });
+      expect(link.tagName).toBe('A');
+
+      await user.keyboard('[Tab]');
+      expect(link).toHaveFocus();
+
+      // `fireEvent` returns false when `preventDefault()` was called, i.e. no page scroll.
+      expect(fireEvent.keyDown(link, { key: ' ' })).toBe(false);
+      fireEvent.keyUp(link, { key: ' ' });
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(window.location.hash).toBe('#target');
+      });
+    });
+
     it('custom element: applies button semantics and dispatches real clicks from keyboard activation', async () => {
       const handleClick = vi.fn();
       const handleRenderClick = vi.fn();
