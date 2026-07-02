@@ -27,6 +27,7 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
+import { resolveRenderedValue } from '../../internals/resolveValueLabel';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -60,7 +61,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
@@ -130,7 +131,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
+      // Prefer the registered rendered value; fall back to the inferred value for slots no
+      // mounted item registered (the visible registry is sparse once the list has closed).
+      const nextSelectedValue = resolveRenderedValue(
+        store.state.valuesRef.current[index],
+        flatFilteredItems[index],
+        store.state.virtualized,
+      );
       if (nextSelectedValue !== undefined) {
         store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }
@@ -188,6 +195,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           focusTimeout.start(0, store.state.forceMount);
         },
         onBlur(event) {
+          focusTimeout.clear();
           // If focus is moving into the popup, don't count it as a blur.
           if (contains(positionerElement, event.relatedTarget)) {
             return;
