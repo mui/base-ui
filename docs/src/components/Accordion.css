@@ -27,10 +27,23 @@
   }
 
   .AccordionHeaderCell {
-    padding: 0.5rem 0.75rem;
     font-size: var(--font-size-14);
     font-weight: var(--font-weight-400);
     color: var(--color-foreground);
+  }
+
+  .AccordionHeaderCellInner {
+    display: flex;
+    align-items: center;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .AccordionItem:not(:last-child) {

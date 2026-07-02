@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
@@ -40,6 +41,9 @@ export function ReferenceAccordion({
       aria-describedby={captionId}
       data-hide-default={hideDefault || undefined}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the exact placeholder height for `contain-intrinsic-height`
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}

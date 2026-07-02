@@ -128,5 +128,9 @@ export function HeaderRow(props: React.ComponentProps<'div'>) {
 
 /* Fake <th scope="col"> */
 export function HeaderCell(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx('AccordionHeaderCell', props.className)} />;
+  return (
+    <div {...props} className={clsx('AccordionHeaderCell', props.className)}>
+      <span className="AccordionHeaderCellInner">{props.children}</span>
+    </div>
+  );
 }

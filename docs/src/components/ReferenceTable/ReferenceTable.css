@@ -1,4 +1,35 @@
 @layer components {
+  /*
+   * Skip rendering prop accordions while offscreen. The API reference is dense paint
+   * content that makes every repaint-driven re-composite of the page ("Layerize")
+   * more expensive.
+   *
+   * The placeholder height is exact for closed accordions/tables when these 2.5rem
+   * row-height selectors stay in sync: .AccordionHeaderCellInner, .AccordionTrigger,
+   * .AccordionScrollableInner, and .TableCellInner.
+   *
+   * The calc is the content-box height: 1 header row + var(--rows) body rows, plus
+   * the var(--rows) inter-row borders. The root's own top/bottom border is added by
+   * the browser because `contain-intrinsic-height` sizes the content box.
+   * The placeholder may be approximate when type cells wrap.
+   *
+   * The `auto` keyword makes the browser track the real size once rendered
+   * (e.g. with expanded items).
+   */
+  .ReferenceAccordionRoot {
+    content-visibility: auto;
+    contain-intrinsic-height: auto calc((var(--rows) + 1) * (2.5rem + 1px) - 1px);
+  }
+
+  /*
+   * Same as above for the attributes and CSS variables tables (the wide-viewport
+   * counterpart of their accordions).
+   */
+  .ReferenceTableRoot {
+    content-visibility: auto;
+    contain-intrinsic-height: auto calc((var(--rows) + 1) * (2.5rem + 1px) - 1px);
+  }
+
   .ReferenceHeaderRow {
     display: grid;
   }
@@ -76,7 +107,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: 1rem;
+    padding: 0.75rem;
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     text-wrap: pretty;
