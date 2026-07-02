@@ -61,6 +61,11 @@ export interface TemporalAdapterFormats {
    * @example "August"
    */
   monthFullLetter: string;
+    /**
+   * The full month name in standalone form (nominative), for use without a day number.
+   * @example "August", "czerwiec" (Polish nominative vs. "czerwca" genitive with {@link monthFullLetter})
+   */
+    monthFullLetterStandalone: string;
   /**
    * The week day name.
    * @example "Wednesday"
