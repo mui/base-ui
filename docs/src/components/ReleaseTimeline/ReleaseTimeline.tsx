@@ -31,7 +31,7 @@ export function ReleaseTimeline() {
               <time className="TimelineDate" dateTime={release.date}>
                 {dateFormatter.format(new Date(release.date))}
               </time>
-              <h3 className="TimelineVersion">
+              <h2 className="TimelineVersion">
                 <Link
                   className="TimelineVersionLink"
                   href={`/react/overview/releases/${release.versionSlug}`}
@@ -39,7 +39,7 @@ export function ReleaseTimeline() {
                   {release.version}
                 </Link>
                 {release.latest && <span className="TimelineBadge">Latest</span>}
-              </h3>
+              </h2>
             </div>
             <ul className="TimelineHighlights">
               {release.highlights.map((highlight, i) => (
