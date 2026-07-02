@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, createEvent, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -160,15 +160,21 @@ describe('<ContextMenu.Trigger />', () => {
 
     const trigger = screen.getByTestId('trigger');
     fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
-    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
+
+    // The patient hold is measured between the event timestamps, which come from
+    // the browser's own clock that fake timers don't control — pin them instead.
+    const contextMenuEvent = createEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
+    Object.defineProperty(contextMenuEvent, 'timeStamp', { value: 1000 });
+    fireEvent(trigger, contextMenuEvent);
 
     expect(onOpenChange.mock.calls.length).toBe(1);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
 
     // Holding in place past the patient-click threshold turns the release
     // into a deliberate dismiss.
-    clock.tick(500);
-    fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
+    const mouseUpEvent = createEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
+    Object.defineProperty(mouseUpEvent, 'timeStamp', { value: 1500 });
+    fireEvent(document.body, mouseUpEvent);
 
     expect(onOpenChange.mock.calls.length).toBe(2);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
