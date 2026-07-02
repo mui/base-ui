@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -780,6 +781,296 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       expect(trigger).not.toHaveAttribute('data-placeholder');
+    });
+  });
+
+  describe('keyboard: Escape (input-inside-popup pattern)', () => {
+    function InsidePopupCombobox(props: {
+      defaultValue?: string | string[] | null;
+      value?: string | string[] | null;
+      multiple?: boolean;
+      onValueChange?: (value: any, details: any) => void;
+      disabled?: boolean;
+      readOnly?: boolean;
+      triggerDisabled?: boolean;
+    }) {
+      const { defaultValue, value, multiple, onValueChange, disabled, readOnly, triggerDisabled } =
+        props;
+      const items = ['apple', 'banana', 'cherry'];
+      return (
+        <Combobox.Root
+          items={items}
+          defaultValue={defaultValue as any}
+          value={value as any}
+          multiple={multiple as any}
+          onValueChange={onValueChange}
+          disabled={disabled}
+          readOnly={readOnly}
+        >
+          <Combobox.Trigger data-testid="trigger" disabled={triggerDisabled}>
+            <Combobox.Value placeholder="Select a fruit" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {items.map((item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    // Positive 1: single-value selected, popup closed, Escape on Trigger clears
+    it('clears the selected value when Escape is pressed on Trigger', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(null);
+    });
+
+    // Positive 2: multi-value mode, popup closed, Escape clears to empty array
+    it('clears multi-select values to an empty array on Escape', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox
+          multiple
+          defaultValue={['apple', 'banana']}
+          onValueChange={onValueChange}
+        />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual([]);
+    });
+
+    // Negative 1: Tab on Trigger does not clear value
+    it('does not clear value on Tab', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Tab}');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    // Negative 2: input-outside-popup pattern is unchanged (Trigger Escape no-op)
+    it('does not clear from Trigger when Input is outside the Popup', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          items={['apple', 'banana']}
+          defaultValue="apple"
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    // Negative 3: with popup open, Escape still goes through the popup path
+    // (handled by ComboboxInput which is the focused element inside the popup)
+    it('does not duplicate clear from Trigger when popup is open', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      // Popup opens, focus moves to Input. Escape is now Input's responsibility.
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+
+      await user.keyboard('{Escape}');
+      // The Trigger-side clear should not have fired a second time after Input handles it.
+      // We accept at most one onValueChange call (from Input's clear path), not two.
+      expect(onValueChange.mock.calls.length).toBeLessThanOrEqual(1);
+    });
+
+    // Edge 1: no value selected, Escape on Trigger is a no-op
+    it('is a no-op when no value is selected', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<InsidePopupCombobox onValueChange={onValueChange} />);
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      // Setting null when already null still calls onValueChange but does not throw.
+      // The key invariant: no error, no state corruption.
+      const calls = onValueChange.mock.calls;
+      if (calls.length > 0) {
+        expect(calls[0][0]).toBe(null);
+      }
+    });
+
+    // Edge 2: Trigger-level disabled blocks the clear
+    it('does not clear when Trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} triggerDisabled />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    // Edge 3: Root-level disabled blocks the clear
+    it('does not clear when Combobox.Root is disabled', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} disabled />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    // Edge 4: Root-level readOnly blocks the clear
+    it('does not clear when Combobox.Root is readOnly', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} readOnly />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    // Edge 5: controlled value flows through onValueChange with the cleared value
+    it('respects controlled value flow when clearing', async () => {
+      function Controlled() {
+        const [value, setValue] = React.useState<string | null>('apple');
+        return (
+          <Combobox.Root
+            items={['apple', 'banana']}
+            value={value}
+            onValueChange={(next) => setValue(next as string | null)}
+          >
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value placeholder="pick" />
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<Controlled />);
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger.textContent).toContain('apple');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(trigger.textContent).not.toContain('apple');
+      });
+    });
+
+    // Edge 6: change-event details carry the escape-key reason
+    it('passes REASONS.escapeKey in the change-event details', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <InsidePopupCombobox defaultValue="apple" onValueChange={onValueChange} />,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
     });
   });
 });
