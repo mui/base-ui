@@ -1,8 +1,14 @@
 'use client';
 import * as React from 'react';
 
+export type CompositeMetadata<CustomMetadata> = {
+  index?: number | null | undefined;
+  label?: string | null | undefined;
+  textRef?: React.RefObject<HTMLElement | null> | undefined;
+} & CustomMetadata;
+
 export interface CompositeListContextValue<Metadata> {
-  register: (node: Element, metadata: Metadata) => void;
+  register: (node: Element, metadata: CompositeMetadata<Metadata>) => void;
   unregister: (node: Element) => void;
   subscribeMapChange: (fn: (map: Map<Element, Metadata | null>) => void) => () => void;
   elementsRef: React.RefObject<Array<HTMLElement | null>>;

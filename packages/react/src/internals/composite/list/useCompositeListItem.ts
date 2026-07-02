@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useCompositeListContext } from './CompositeListContext';
+import { type CompositeMetadata, useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number | undefined;
@@ -32,58 +32,44 @@ export function useCompositeListItem<Metadata>(
 ): UseCompositeListItemReturnValue {
   const { label, metadata, textRef, indexGuessBehavior, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
-    useCompositeListContext();
+  const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
 
   const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
-    externalIndex ??
-      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
-        ? () => {
-            if (indexRef.current === -1) {
-              const newIndex = nextIndexRef.current;
-              nextIndexRef.current += 1;
-              indexRef.current = newIndex;
-            }
-            return indexRef.current;
-          }
-        : -1),
-  );
-
-  const componentRef = React.useRef<Element | null>(null);
-
-  const ref = React.useCallback(
-    (node: HTMLElement | null) => {
-      componentRef.current = node;
-
-      if (index !== -1 && node !== null) {
-        elementsRef.current[index] = node;
-
-        if (labelsRef) {
-          const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined
-            ? label
-            : (textRef?.current?.textContent ?? node.textContent);
-        }
-      }
-    },
-    [index, elementsRef, labelsRef, label, textRef],
-  );
-
-  useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
+  const [computedIndex, setIndex] = React.useState<number>(() => {
+    if (externalIndex != null || indexGuessBehavior !== IndexGuessBehavior.GuessFromOrder) {
+      return -1;
     }
 
+    if (indexRef.current === -1) {
+      const newIndex = nextIndexRef.current;
+      nextIndexRef.current += 1;
+      indexRef.current = newIndex;
+    }
+    return indexRef.current;
+  });
+
+  const index = externalIndex ?? computedIndex;
+  const componentRef = React.useRef<Element | null>(null);
+  const ref = React.useCallback((node: HTMLElement | null) => {
+    componentRef.current = node;
+  }, []);
+
+  useIsoLayoutEffect(() => {
     const node = componentRef.current;
     if (node) {
-      register(node, metadata);
+      const registeredMetadata: CompositeMetadata<Metadata> = {
+        ...(metadata ?? ({} as Metadata)),
+        index: externalIndex,
+        label,
+        textRef,
+      };
+      register(node, registeredMetadata);
       return () => {
         unregister(node);
       };
     }
     return undefined;
-  }, [externalIndex, register, unregister, metadata]);
+  }, [externalIndex, register, unregister, metadata, label, textRef]);
 
   useIsoLayoutEffect(() => {
     if (externalIndex != null) {

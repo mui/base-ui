@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';

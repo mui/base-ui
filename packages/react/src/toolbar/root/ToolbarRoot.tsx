@@ -6,7 +6,7 @@ import {
   HTMLProps,
 } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
