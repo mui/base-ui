@@ -8,6 +8,7 @@ import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { CONTEXT_MENU_MOVE_THRESHOLD } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -49,6 +50,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const suppressReopenRef = React.useRef(false);
   const openedWithTouchRef = React.useRef(false);
   const longPressTimeout = useTimeout();
+  const patientHoldTimeout = useTimeout();
+  const patientHoldRef = React.useRef(false);
+  const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
   // Whether a repeat right click at this point should toggle the menu closed: within
   // the threshold box around the opening point, but never over the popup itself,
@@ -127,6 +131,19 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
+
+    // A press held in place past the patient-click threshold is no longer a fast
+    // opening click: the release that follows dismisses the menu instead of being
+    // ignored as part of the opening gesture. Skipped for touch, where the browser
+    // fires `contextmenu` mid-press by design and holding is not a dismiss gesture.
+    patientHoldRef.current = false;
+    patientHoldTimeout.clear();
+    if ((event.nativeEvent as PointerEvent).pointerType !== 'touch') {
+      patientHoldTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        patientHoldRef.current = true;
+      });
+    }
+
     const doc = ownerDocument(triggerRef.current);
 
     // Abort a listener from a previous trigger that never saw its mouseup, and scope this
@@ -139,20 +156,33 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       (mouseEvent) => {
         allowMouseUpTriggerRef.current = false;
 
+        const heldPatiently = patientHoldRef.current;
+        patientHoldRef.current = false;
+        patientHoldTimeout.clear();
+
+        const mouseUpTarget = getTarget(mouseEvent) as Element | null;
+
         // Ignore the `mouseup` that completes the right click itself: while the
         // cursor stays within the box around the opening point, this release is
         // part of the opening gesture and must not close the menu. Moving outside
         // the box turns it into a press-drag-release that can dismiss the menu.
+        // A press held in place past the patient-click threshold is the exception:
+        // releasing then is a deliberate dismiss, unless the release lands on the
+        // popup surface, where it must still be able to activate an item.
         const initialCursorPoint = initialCursorPointRef.current;
         if (
           initialCursorPoint &&
           Math.abs(mouseEvent.clientX - initialCursorPoint.x) <= CONTEXT_MENU_MOVE_THRESHOLD &&
           Math.abs(mouseEvent.clientY - initialCursorPoint.y) <= CONTEXT_MENU_MOVE_THRESHOLD
         ) {
+          if (heldPatiently && !contains(positionerRef.current, mouseUpTarget)) {
+            actionsRef.current?.setOpen(
+              false,
+              createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
+            );
+          }
           return;
         }
-
-        const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
         if (contains(positionerRef.current, mouseUpTarget)) {
           return;

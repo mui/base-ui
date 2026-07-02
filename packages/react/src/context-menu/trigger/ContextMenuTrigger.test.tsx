@@ -116,11 +116,42 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.calls.length).toBe(1);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
 
-    // Releasing within the threshold box around the opening point keeps the menu open,
-    // regardless of how long the button was held.
+    // A quick release within the threshold box around the opening point completes
+    // the opening right click and keeps the menu open.
     fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
 
     expect(onOpenChange.mock.calls.length).toBe(1);
+  });
+
+  it('closes the menu on mouseup within the move threshold after a patient hold', async () => {
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
+
+    expect(onOpenChange.mock.calls.length).toBe(1);
+    expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+
+    // Holding in place past the patient-click threshold turns the release
+    // into a deliberate dismiss.
+    clock.tick(500);
+    fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
+
+    expect(onOpenChange.mock.calls.length).toBe(2);
+    expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    expect(onOpenChange.mock.lastCall?.[1].reason).toBe('cancel-open');
   });
 
   it('cancels opening menu on mouseup outside the move threshold', async () => {
