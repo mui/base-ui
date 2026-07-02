@@ -1,0 +1,66 @@
+# Dropzone
+
+<Subtitle>A drop target primitive for drag-and-drop and click-to-select file selection.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React dropzone primitive for drag-and-drop and click-to-select file selection."
+/>
+
+import { DemoDropzoneHero } from './demos/hero';
+
+<DemoDropzoneHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Provide visible text in the dropzone, or set `aria-label`/`aria-labelledby` for icon-only UIs. See [Labeling a dropzone](#labeling-a-dropzone) and the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Dropzone } from '@base-ui/react/dropzone';
+
+<Dropzone.Root>
+  <Dropzone.HiddenInput />
+  Drop files here
+</Dropzone.Root>;
+```
+
+## Examples
+
+### Labeling a dropzone
+
+For icon-only designs, provide an explicit accessible name:
+
+```tsx title="Icon-only dropzone"
+import { Dropzone } from '@base-ui/react/dropzone';
+
+<Dropzone.Root aria-label="Upload files">
+  <Dropzone.HiddenInput />
+  <UploadIcon aria-hidden />
+</Dropzone.Root>;
+```
+
+## API reference
+
+import { TypesDropzone } from './types';
+
+### Root
+
+<TypesDropzone.Root />
+
+### HiddenInput
+
+<TypesDropzone.HiddenInput />
+
+export const metadata = {
+  keywords: [
+    'React Dropzone',
+    'Drag and drop files',
+    'Drop target component',
+    'Headless dropzone primitive',
+    'Base UI',
+  ],
+};
