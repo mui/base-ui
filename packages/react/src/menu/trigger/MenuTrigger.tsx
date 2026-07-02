@@ -39,7 +39,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
-const BOUNDARY_OFFSET = 2;
+const BOUNDARY_OFFSET = 5;
 
 /**
  * A button that opens the menu.

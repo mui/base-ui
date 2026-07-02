@@ -25,7 +25,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../utils/useAnchorPositioning';
 
-const BOUNDARY_OFFSET = 2;
+const BOUNDARY_OFFSET = 5;
 const SELECTED_DELAY = 400;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {

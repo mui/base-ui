@@ -28,7 +28,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
 
-const BOUNDARY_OFFSET = 2;
+const BOUNDARY_OFFSET = 5;
 
 /**
  * A button that opens the popup.
