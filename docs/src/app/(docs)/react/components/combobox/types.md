@@ -87,6 +87,7 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'select-all-press'
   | 'none';
 ```
 
@@ -106,6 +107,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'select-all-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -1088,6 +1090,76 @@ type ComboboxInputGroupState = {
 };
 ```
 
+### isComboboxSelectAllValue
+
+**Parameters:**
+
+| Parameter | Type      | Default | Description |
+| :-------- | :-------- | :------ | :---------- |
+| value     | `unknown` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = boolean;
+```
+
+### prependSelectAllFilteredItems
+
+Prepends the select-all sentinel to filtered items when using a custom `filteredItems` list.
+
+**Parameters:**
+
+| Parameter     | Type  | Default | Description |
+| :------------ | :---- | :------ | :---------- |
+| filteredItems | `T[]` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = (T | COMBOBOX_SELECT_ALL_VALUE)[];
+```
+
+### SelectAll
+
+Selects or deselects all currently filtered items in multiple selection mode.
+Renders as the first `role="option"` in the list so keyboard navigation can reach it.
+
+Place it inside `<Combobox.List>` before the collection items.
+
+**SelectAll Props:**
+
+| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                                                             |
+| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                   | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
+| nativeButton | `boolean`                                                                                        | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
+| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
+| children     | `React.ReactNode`                                                                                | -       | -                                                                                                                                                                                                                                       |
+| className    | `string \| ((state: Combobox.SelectAll.State) => string \| undefined)`                           | -       | -                                                                                                                                                                                                                                       |
+| style        | `React.CSSProperties \| ((state: Combobox.SelectAll.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                                                                       |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`               | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
+
+### SelectAll.Props
+
+Re-export of [SelectAll](#selectall) props.
+
+### SelectAll.State
+
+```typescript
+type ComboboxSelectAllState = {
+  /** Whether all currently filtered items are selected. */
+  checked: boolean;
+  /** Whether some but not all currently filtered items are selected. */
+  indeterminate: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the list option is selected. */
+  selected: boolean;
+  /** Whether the list option is highlighted. */
+  highlighted: boolean;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -1212,10 +1284,13 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Collection`: `Combobox.Collection`, `Combobox.Collection.State`, `Combobox.Collection.Props`
 - `Combobox.Empty`: `Combobox.Empty`, `Combobox.Empty.State`, `Combobox.Empty.Props`
 - `Combobox.Clear`: `Combobox.Clear`, `Combobox.Clear.State`, `Combobox.Clear.Props`
+- `Combobox.SelectAll`: `Combobox.SelectAll`, `Combobox.SelectAll.State`, `Combobox.SelectAll.Props`
+- `Combobox.isComboboxSelectAllValue`
+- `Combobox.prependSelectAllFilteredItems`
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxSelectAllState`, `ComboboxSelectAllProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1276,3 +1351,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Empty.Props`: `ComboboxEmptyProps`
 - `Combobox.Clear.State`: `ComboboxClearState`
 - `Combobox.Clear.Props`: `ComboboxClearProps`
+- `Combobox.SelectAll.State`: `ComboboxSelectAllState`
+- `Combobox.SelectAll.Props`: `ComboboxSelectAllProps`
