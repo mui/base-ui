@@ -2,15 +2,16 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
+import { NullStore } from '../../utils/NullStore';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
+  PopupTriggerDataStore,
   PopupStoreState,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -49,6 +50,13 @@ const selectors = {
   role: createSelector((state: State<unknown>) => state.role),
 };
 
+/**
+ * The subset of `DialogStore` that detached handle-backed triggers rely on. Both the real
+ * `DialogStore` and the inert fallback store satisfy it, so a trigger can read from whichever
+ * store the handle currently exposes.
+ */
+export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>>;
+
 export class DialogStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
   Context,
@@ -60,23 +68,9 @@ export class DialogStore<Payload> extends ReactStore<
     nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(initialState);
+    const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);
 
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
-
-    super(
-      state,
-      {
-        popupRef: React.createRef<HTMLElement>(),
-        backdropRef: React.createRef<HTMLDivElement>(),
-        internalBackdropRef: React.createRef<HTMLDivElement>(),
-        outsidePressEnabledRef: { current: true },
-        triggerElements,
-        onOpenChange: undefined,
-        onOpenChangeComplete: undefined,
-      },
-      selectors,
-    );
+    super(state, createInitialContext(triggerElements), selectors);
   }
 
   public setOpen = (
@@ -109,25 +103,30 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.update(updatedState);
   };
-
-  static useStore<Payload>(
-    externalStore: DialogStore<Payload> | undefined,
-    initialState?: Partial<State<Payload>>,
-  ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
-      true,
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
-
-    return store;
-  }
 }
 
-function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
-  return {
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no
+ * `Dialog.Root` is attached. It preserves a dialog-specific trigger registry in context so
+ * detached triggers can register before migrating to the live root store.
+ */
+export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
+
+  return new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
+    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
+    selectors,
+  );
+}
+
+function createInitialState<Payload>(
+  initialState: Partial<State<Payload>> | undefined,
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+): State<Payload> {
+  const state: State<Payload> = {
     ...createInitialPopupStoreState<Payload>(),
     modal: true,
     disablePointerDismissal: false,
@@ -141,5 +140,21 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     nestedOpenDrawerCount: 0,
     role: 'dialog',
     ...initialState,
+  };
+
+  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
+  return state;
+}
+
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
+  return {
+    popupRef: React.createRef<HTMLElement>(),
+    backdropRef: React.createRef<HTMLDivElement>(),
+    internalBackdropRef: React.createRef<HTMLDivElement>(),
+    outsidePressEnabledRef: { current: true },
+    triggerElements,
+    onOpenChange: undefined,
+    onOpenChangeComplete: undefined,
   };
 }

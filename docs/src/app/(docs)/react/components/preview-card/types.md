@@ -85,15 +85,15 @@ Renders an `<a>` element.
 
 **Trigger Props:**
 
-| Prop       | Type                                                                                              | Default | Description                                                                                                                                                                                   |
-| :--------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| handle     | `PreviewCard.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a preview card.                                                                                                                                        |
-| payload    | `Payload`                                                                                         | -       | A payload to pass to the preview card when it is opened.                                                                                                                                      |
-| delay      | `number`                                                                                          | `600`   | How long to wait before the preview card opens. Specified in milliseconds.                                                                                                                    |
-| closeDelay | `number`                                                                                          | `300`   | How long to wait before closing the preview card. Specified in milliseconds.                                                                                                                  |
-| className  | `string \| ((state: PreviewCard.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style      | `React.CSSProperties \| ((state: PreviewCard.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render     | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop       | Type                                                                                                                                                                     | Default | Description                                                                                                                                                                                   |
+| :--------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| handle     | `PreviewCard.Handle<Payload>`                                                                                                                                            | -       | A handle to associate the trigger with a preview card.                                                                                                                                        |
+| payload    | `Payload`                                                                                                                                                                | -       | A payload to pass to the preview card when it is opened.                                                                                                                                      |
+| delay      | `number`                                                                                                                                                                 | `600`   | How long to wait before the preview card opens. Specified in milliseconds.                                                                                                                    |
+| closeDelay | `number`                                                                                                                                                                 | `300`   | How long to wait before closing the preview card. Specified in milliseconds.                                                                                                                  |
+| className  | `string \| ((state: PreviewCard.Trigger.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style      | `React.CSSProperties \| ((state: PreviewCard.Trigger.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render     | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: PreviewCard.Trigger.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -142,7 +142,7 @@ type PreviewCardPortalState = {};
 
 ### Backdrop
 
-An overlay displayed beneath the popup.
+A presentational overlay displayed beneath the popup.
 Renders a `<div>` element.
 
 **Backdrop Props:**
@@ -155,12 +155,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                                     |
-| :------------------ | :--- | :---------------------------------------------- |
-| data-open           | -    | Present when the preview card is open.          |
-| data-closed         | -    | Present when the preview card is closed.        |
-| data-starting-style | -    | Present when the preview card is animating in.  |
-| data-ending-style   | -    | Present when the preview card is animating out. |
+| Attribute           | Type | Description                                        |
+| :------------------ | :--- | :------------------------------------------------- |
+| data-open           | -    | Present when the preview card is open.             |
+| data-closed         | -    | Present when the preview card is closed.           |
+| data-starting-style | -    | Present when the preview card begins animating in. |
+| data-ending-style   | -    | Present when the preview card is animating out.    |
 
 ### Backdrop.Props
 
@@ -246,13 +246,15 @@ Renders a `<div>` element.
 
 **Positioner CSS Variables:**
 
-| Variable             | Type     | Description                                                                            |
-| :------------------- | :------- | :------------------------------------------------------------------------------------- |
-| `--anchor-height`    | `number` | The anchor's height.                                                                   |
-| `--anchor-width`     | `number` | The anchor's width.                                                                    |
-| `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
-| `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
-| `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+| Variable              | Type     | Description                                                                                                                            |
+| :-------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `--anchor-height`     | `number` | The anchor's height.                                                                                                                   |
+| `--anchor-width`      | `number` | The anchor's width.                                                                                                                    |
+| `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                                 |
+| `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                                  |
+| `--positioner-height` | `number` | The height of the preview card's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the preview card's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                                 |
 
 ### Positioner.Props
 
@@ -296,7 +298,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the preview card is closed.                              |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the preview card is animating in.                        |
+| data-starting-style | -                                                                          | Present when the preview card begins animating in.                    |
 | data-ending-style   | -                                                                          | Present when the preview card is animating out.                       |
 
 ### Popup.Props

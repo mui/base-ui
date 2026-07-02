@@ -5,6 +5,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -120,7 +121,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
-  const keyboardActiveRef = React.useRef(false);
   const firstItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
@@ -173,7 +173,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const renderedOpenMethod = openMethod ?? previousOpenMethod ?? null;
 
   const serializedValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value) && value.length === 0) {
+    // In multiple mode the shared input is nameless; per-value entries are submitted via
+    // `hiddenInputs`. Its value is therefore irrelevant, and passing the whole array to
+    // `stringifyAsValue` would invoke a user `itemToStringValue` with an array it doesn't expect.
+    if (multiple) {
       return '';
     }
     return stringifyAsValue(value, itemToStringValue);
@@ -204,13 +207,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const hasSelectedValue = multiple
     ? Array.isArray(value) && value.length > 0
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
-
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
 
   useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
@@ -388,6 +384,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
+    // Skip disabled items while matching so typeahead advances to the next selectable item
+    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
+    // the disabled state from the element via the attribute-only `isElementDisabled` so the
+    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
+    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
+    disabledIndices: (index) => isElementDisabled(listRef.current[index]),
     onMatch(index) {
       if (open) {
         store.set('activeIndex', index);
@@ -496,7 +498,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       handleScrollArrowVisibility,
       scrollArrowsMountedCountRef,
       itemProps,
-      events: floatingContext.context.events,
       valueRef,
       valuesRef,
       labelsRef,
@@ -506,7 +507,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectedItemTextRef,
       validation,
       onOpenChangeComplete,
-      keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       initialValueRef,
     }),
@@ -521,7 +521,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       setValue,
       setOpen,
       itemProps,
-      floatingContext.context.events,
       validation,
       onOpenChangeComplete,
       handleScrollArrowVisibility,
@@ -568,7 +567,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {
-              // Workaround for https://github.com/facebook/react/issues/9023
+              // Workaround for https://github.com/react/react/issues/9023
               if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                 return;
               }
@@ -709,6 +708,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Determines if the select enters a modal state when open.
    * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    * @default true
    */
   modal?: boolean | undefined;

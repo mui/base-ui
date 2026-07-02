@@ -29,6 +29,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -123,7 +124,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     controlRef,
     disabled: contextDisabled,
     validation,
-    formatOptionsRef,
+    format,
     handleInputChange,
     inset,
     labelId,
@@ -158,6 +159,23 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const restoringFocusVisibleRef = React.useRef(false);
+
+  // Attached to the `input` (not the thumb wrapper) so `event.currentTarget` is the
+  // input, matching `onKeyDown`. The synthetic blur/focus dispatched while restoring
+  // `:focus-visible` is internal and must not be forwarded to the user's handlers.
+  const handleFocusProp = useStableCallback((event: React.FocusEvent<HTMLInputElement>) => {
+    if (restoringFocusVisibleRef.current) {
+      return;
+    }
+    onFocusProp?.(event);
+  });
+
+  const handleBlurProp = useStableCallback((event: React.FocusEvent<HTMLInputElement>) => {
+    if (restoringFocusVisibleRef.current) {
+      return;
+    }
+    onBlurProp?.(event);
+  });
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -311,18 +329,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
-          ? getAriaValueTextProp(
-              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
-              thumbValue,
-              index,
-            )
-          : (ariaValueTextProp ??
-            getDefaultAriaValueText(
-              sliderValues,
-              index,
-              formatOptionsRef.current ?? undefined,
-              locale,
-            )),
+          ? getAriaValueTextProp(formatNumber(thumbValue, locale, format), thumbValue, index)
+          : (ariaValueTextProp ?? getDefaultAriaValueText(sliderValues, index, format, locale)),
       disabled,
       form,
       id: inputId,
@@ -353,6 +361,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         setActive(-1);
+
+        // Keep field-level blur logic from running while focus moves to another thumb
+        // of the same slider, so validation doesn't commit mid-interaction.
+        if (contains(controlRef.current, event.relatedTarget)) {
+          return;
+        }
+
         setTouched(true);
         setFocused(false);
 
@@ -459,7 +474,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       value: thumbValue ?? '',
     },
     (props) => validation.getValidationProps(disabled, props),
-    { onKeyDown: onKeyDownProp },
+    { onFocus: handleFocusProp, onBlur: handleBlurProp, onKeyDown: onKeyDownProp },
   );
 
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
@@ -481,8 +496,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           </React.Fragment>
         ),
         id,
-        onBlur: onBlurProp,
-        onFocus: onFocusProp,
         onPointerDown(event) {
           // Keep disabled thumbs from writing transient pointer state.
           if (disabled) {

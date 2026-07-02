@@ -1,11 +1,21 @@
-import { describe, it, expect } from 'vitest';
-import { getGitHubDemoUrl, GITHUB_BASE } from './getGitHubDemoUrl';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getGitHubDemoUrl } from './getGitHubDemoUrl';
 
 describe('getGitHubDemoUrl', () => {
+  const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/v1.6.0';
   const unixUrl =
     'file:///home/user/base-ui/docs/src/app/(docs)/react/components/accordion/demos/hero/index.ts';
   const windowsUrl =
     'file:///C:/Users/Dev/base-ui/docs/src/app/(docs)/react/components/accordion/demos/hero/index.ts';
+
+  beforeEach(() => {
+    vi.stubEnv('SOURCE_CODE_REPO', 'https://github.com/mui/base-ui');
+    vi.stubEnv('LIB_VERSION', '1.6.0');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
 
   it('converts a Unix file URL to a GitHub directory URL', () => {
     expect(getGitHubDemoUrl(unixUrl)).toBe(
@@ -47,6 +57,18 @@ describe('getGitHubDemoUrl', () => {
 
   it('returns null when /docs/ is not in the path', () => {
     expect(getGitHubDemoUrl('file:///home/user/other-project/src/index.ts')).toBeNull();
+  });
+
+  it('returns null when source code repo metadata is unavailable', () => {
+    vi.stubEnv('SOURCE_CODE_REPO', '');
+
+    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
+  });
+
+  it('returns null when library version metadata is unavailable', () => {
+    vi.stubEnv('LIB_VERSION', '');
+
+    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
   });
 
   it('handles encoded URI components', () => {

@@ -52,6 +52,18 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('1');
   });
 
+  it('seeds an empty fully-negative range in range on first increment', async () => {
+    await render(
+      <NumberField.Root min={-10} max={-5}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    fireEvent.click(screen.getByRole('button'));
+    // First step on an empty field seeds the in-range value nearest 0 (the max here), not 0.
+    expect(screen.getByRole('textbox')).toHaveValue('-5');
+  });
+
   it('first increment after external controlled update', async () => {
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
@@ -322,6 +334,80 @@ describe('<NumberField.Increment />', () => {
       fireEvent.pointerUp(button);
     });
 
+    it('commits on release after a hold reaches the boundary', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField.Root defaultValue={9} max={10} onValueCommitted={onValueCommitted}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button);
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('10');
+      expect(onValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.pointerUp(button);
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(10);
+    });
+
+    it('does not commit a stale value when the first hold tick is canceled after dirty input', async () => {
+      const onValueCommitted = vi.fn();
+      let cancelNextChange = false;
+
+      function Controlled() {
+        const [value, setValue] = React.useState<number | null>(0);
+        return (
+          <NumberField.Root
+            value={value}
+            onValueChange={(nextValue, details) => {
+              if (cancelNextChange) {
+                details.cancel();
+                cancelNextChange = false;
+                return;
+              }
+              setValue(nextValue);
+            }}
+            onValueCommitted={onValueCommitted}
+          >
+            <NumberField.Input />
+            <NumberField.Increment />
+            <button onClick={() => setValue(10)}>external</button>
+          </NumberField.Root>
+        );
+      }
+
+      await render(<Controlled />);
+      const button = screen.getByLabelText('Increase');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(button);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(1);
+
+      fireEvent.click(screen.getByText('external'));
+      expect(input).toHaveValue('10');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '-' } });
+      expect(input).toHaveValue('-');
+
+      cancelNextChange = true;
+      fireEvent.pointerDown(button);
+      fireEvent.pointerUp(button);
+
+      expect(onValueCommitted.mock.calls.length).toBe(2);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(10);
+    });
+
     it('does not increment twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
@@ -567,6 +653,28 @@ describe('<NumberField.Increment />', () => {
   });
 
   describe('prop: snapOnStep', () => {
+    it('does not emit a snapped intermediate when committing dirty text before a step', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField.Root defaultValue={0} step={2} snapOnStep onValueChange={onValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      await act(async () => input.focus());
+
+      fireEvent.change(input, { target: { value: '7' } });
+      onValueChange.mockClear();
+      fireEvent.click(button);
+
+      // The dirty "7" must not be directionally snapped to 6 before the increment runs.
+      const values = onValueChange.mock.calls.map((call) => call[0]);
+      expect(values).not.toContain(6);
+      expect(input).toHaveValue('8');
+    });
+
     it('should increment by exact step without rounding when snapOnStep is false', async () => {
       await render(
         <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
@@ -605,6 +713,20 @@ describe('<NumberField.Increment />', () => {
       expect(screen.getByRole('textbox')).toHaveValue('0');
     });
 
+    it('seeds an empty field in range without directional snapping', async () => {
+      await render(
+        <NumberField.Root min={-10} max={-5} step={2} snapOnStep>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+      // The first step seeds the in-range value nearest 0 (the max here). It isn't a step from a
+      // previous value, so it must not be directionally snapped (which would land on -6).
+      expect(screen.getByRole('textbox')).toHaveValue('-5');
+    });
+
     it('should increment with respect to the min value', async () => {
       await render(
         <NumberField.Root defaultValue={1} min={1} step={2} snapOnStep>
@@ -633,6 +755,18 @@ describe('<NumberField.Increment />', () => {
   });
 
   describe('disabled state', () => {
+    it('exposes aria-controls on the stepper', async () => {
+      await render(
+        <NumberField.Root readOnly>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('aria-controls', input.id);
+    });
+
     it('should not increment when root is disabled', async () => {
       const handleValueChange = vi.fn();
       await render(

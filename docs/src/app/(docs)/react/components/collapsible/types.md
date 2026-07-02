@@ -21,6 +21,15 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: Collapsible.Root.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Root Data Attributes:**
+
+| Attribute           | Type | Description                                       |
+| :------------------ | :--- | :------------------------------------------------ |
+| data-open           | -    | Present when the collapsible is open.             |
+| data-closed         | -    | Present when the collapsible is closed.           |
+| data-starting-style | -    | Present when the collapsible begins animating in. |
+| data-ending-style   | -    | Present when the collapsible is animating out.    |
+
 ### Root.Props
 
 Re-export of [Root](#root) props.
@@ -120,7 +129,7 @@ Renders a `<div>` element.
 | :------------------ | :--- | :-------------------------------------------- |
 | data-open           | -    | Present when the collapsible panel is open.   |
 | data-closed         | -    | Present when the collapsible panel is closed. |
-| data-starting-style | -    | Present when the panel is animating in.       |
+| data-starting-style | -    | Present when the panel begins animating in.   |
 | data-ending-style   | -    | Present when the panel is animating out.      |
 
 **Panel CSS Variables:**

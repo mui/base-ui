@@ -323,6 +323,78 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  // A short or heavily padded track drives `maxThumbOffset` to zero or negative
+  // once the thumb hits its `MIN_THUMB_SIZE` floor. Dragging the thumb then
+  // divides by a non-positive offset, teleporting the scroll position to an
+  // extreme instead of moving proportionally. Asserted with real layout: a 16px
+  // track ties the floored thumb to the track length (offset 0); a 10px track is
+  // shorter than the floored thumb (negative offset).
+  describe.skipIf(isJSDOM)('non-positive thumb offset', () => {
+    async function renderShortTrack(trackHeight: number) {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            data-testid="vertical"
+            keepMounted
+            style={{ height: trackHeight, bottom: 'auto', width: 12 }}
+          >
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const verticalScrollbar = screen.getByTestId('vertical');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetHeight).toBeGreaterThan(0));
+
+      return { viewport, verticalScrollbar, thumb };
+    }
+
+    it('does not jump the scroll when dragging a thumb that fills the track', async () => {
+      const { viewport, thumb } = await renderShortTrack(16);
+
+      // Park the scroll mid-range so an erroneous jump to an edge is detectable.
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when dragging a thumb taller than the track', async () => {
+      const { viewport, thumb } = await renderShortTrack(10);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb fills the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(16);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb is taller than the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(10);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+  });
+
   describe('wheel', () => {
     async function renderWheelTest(props: {
       direction?: TextDirection;

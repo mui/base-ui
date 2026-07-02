@@ -21,7 +21,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
@@ -76,6 +76,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   });
 
   const isNestedDrawerOpenRef = React.useRef(false);
+  const swipeAreaActiveRef = React.useRef(false);
 
   const setActiveSnapPoint = useStableCallback(
     (
@@ -172,6 +173,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      swipeAreaActiveRef,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -210,6 +212,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       setActiveSnapPoint,
       snapPoints,
       snapToSequentialPoints,
+      swipeAreaActiveRef,
       swipeDirection,
     ],
   );
@@ -299,7 +302,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * If specified, allows detached triggers to control the drawer's open state.
    * Can be created with the Drawer.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: DrawerHandle<Payload> | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.

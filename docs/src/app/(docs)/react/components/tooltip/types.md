@@ -92,7 +92,7 @@ once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
 
 | Prop       | Type              | Default | Description                                                                                                               |
 | :--------- | :---------------- | :------ | :------------------------------------------------------------------------------------------------------------------------ |
-| delay      | `number`          | -       | How long to wait before opening a tooltip. Specified in milliseconds.                                                     |
+| delay      | `number`          | -       | How long to wait before opening the tooltip on hover. Specified in milliseconds.                                          |
 | closeDelay | `number`          | -       | How long to wait before closing a tooltip. Specified in milliseconds.                                                     |
 | timeout    | `number`          | `400`   | Another tooltip will open instantly if the previous tooltip&#xA;is closed within this timeout. Specified in milliseconds. |
 | children   | `React.ReactNode` | -       | -                                                                                                                         |
@@ -120,7 +120,7 @@ Renders a `<button>` element.
 | handle       | `Tooltip.Handle<Payload>`                                                                     | -       | A handle to associate the trigger with a tooltip.                                                                                                                                                                                                                                                |
 | payload      | `Payload`                                                                                     | -       | A payload to pass to the tooltip when it is opened.                                                                                                                                                                                                                                              |
 | disabled     | `boolean`                                                                                     | `false` | If `true`, the tooltip will not open when interacting with this trigger.&#xA;Note that this doesn't apply the `disabled` attribute to the trigger element.&#xA;If you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop. |
-| delay        | `number`                                                                                      | `600`   | How long to wait before opening the tooltip. Specified in milliseconds.                                                                                                                                                                                                                          |
+| delay        | `number`                                                                                      | `600`   | How long to wait before opening the tooltip on hover. Specified in milliseconds.                                                                                                                                                                                                                 |
 | closeDelay   | `number`                                                                                      | `0`     | How long to wait before closing the tooltip. Specified in milliseconds.                                                                                                                                                                                                                          |
 | className    | `string \| ((state: Tooltip.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                         |
 | style        | `React.CSSProperties \| ((state: Tooltip.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                      |
@@ -241,13 +241,15 @@ Renders a `<div>` element.
 
 **Positioner CSS Variables:**
 
-| Variable             | Type     | Description                                                                            |
-| :------------------- | :------- | :------------------------------------------------------------------------------------- |
-| `--anchor-height`    | `number` | The anchor's height.                                                                   |
-| `--anchor-width`     | `number` | The anchor's width.                                                                    |
-| `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
-| `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
-| `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+| Variable              | Type     | Description                                                                                                                       |
+| :-------------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `--anchor-height`     | `number` | The anchor's height.                                                                                                              |
+| `--anchor-width`      | `number` | The anchor's width.                                                                                                               |
+| `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                            |
+| `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                             |
+| `--positioner-height` | `number` | The height of the tooltip's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the tooltip's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                            |
 
 ### Positioner.Props
 
@@ -292,7 +294,7 @@ Renders a `<div>` element.
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-instant        | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the tooltip is animating in.                             |
+| data-starting-style | -                                                                          | Present when the tooltip begins animating in.                         |
 | data-ending-style   | -                                                                          | Present when the tooltip is animating out.                            |
 
 ### Popup.Props

@@ -27,7 +27,7 @@ export enum ToastRootDataAttributes {
    */
   swipeDirection = 'data-swipe-direction',
   /**
-   * Present when the toast is animating in.
+   * Present when the toast begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

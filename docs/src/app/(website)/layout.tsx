@@ -7,11 +7,11 @@ import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
-import { Search } from './components/Search';
+import { SearchTrigger } from 'docs/src/components/SearchTrigger';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
+    // Use suppressHydrationWarning to avoid https://github.com/react/react/issues/24430
     <html lang="en">
       <head>
         <link
@@ -54,7 +54,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
-                <Search />
+                <SearchTrigger containedScroll enableKeyboardShortcut />
               </div>
             </header>
             <main id="main" className="bui-d-c">

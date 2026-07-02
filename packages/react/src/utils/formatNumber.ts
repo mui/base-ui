@@ -26,18 +26,3 @@ export function formatNumber(
   }
   return getFormatter(locale, options).format(value);
 }
-
-export function formatNumberValue(
-  value: number | null,
-  locale?: Intl.LocalesArgument,
-  format?: Intl.NumberFormatOptions,
-): string {
-  if (value == null) {
-    return '';
-  }
-  if (!format) {
-    return formatNumber(value / 100, locale, { style: 'percent' });
-  }
-
-  return formatNumber(value, locale, format);
-}

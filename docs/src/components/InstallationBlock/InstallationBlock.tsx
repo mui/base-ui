@@ -38,10 +38,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
       onValueChange={handleValueChange}
     >
       <CodeBlock.Root>
-        <CodeBlock.Panel
-          title="Installation command"
-          style={{ paddingLeft: 'calc(0.125rem + 1px)', borderBottom: 'none' }}
-        >
+        <CodeBlock.Panel title="Installation command">
           <Tabs.List
             className="InstallationBlockTabsList"
             aria-label="Package manager"
