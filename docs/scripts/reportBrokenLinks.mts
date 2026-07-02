@@ -8,38 +8,9 @@ async function main() {
     ignoredPaths: [],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
-    // `mui:recommended` is applied automatically as the baseline for every page;
-    // each entry below is layered on top as a pure rule patch (no `extends`, so
-    // it only changes the rules/elements it names).
     htmlValidate: [
-      {
-        // Applies to every page (no `path`).
-        config: {
-          rules: {
-            // Portaled elements (Menu, Select, Autocomplete listbox) and Base UI
-            // components render aria-controls/aria-labelledby targets only after
-            // client hydration, so they're missing from the static HTML.
-            'no-missing-references': 'off',
-          },
-          elements: [
-            'html5',
-            {
-              form: {
-                attributes: {
-                  // React renders `action="javascript:throw new Error(...)"` on a
-                  // <form> with a function action during SSR (a sentinel that throws
-                  // if the form is submitted before hydration wires up the real
-                  // handler). Permit that value while keeping the default check
-                  // (`^\s*\S+\s*$`) for every other action value.
-                  action: {
-                    enum: ['/^\\s*\\S+\\s*$/', '/^\\s*javascript:throw new Error\\(/'],
-                  },
-                },
-              },
-            },
-          ],
-        },
-      },
+      // Validate every page with `mui:recommended` (applied automatically).
+      { config: true },
       {
         // The Accordion hero demo renders `Accordion.Header` as `<h3>` (Base UI's
         // default, following the ARIA APG) right after the page's `<h1>`, before
