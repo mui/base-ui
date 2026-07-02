@@ -227,8 +227,8 @@ export class BasePopupHandle<
     // commit the root mounts) stays associated with the requested trigger instead of opening
     // unassociated and letting another detached trigger claim the open popup first.
     const triggerElement = triggerId
-      ? ((attachedStore.context.triggerElements.getById(triggerId) ??
-          this.fallbackStore.context.triggerElements.getById(triggerId)) as HTMLElement | undefined)
+      ? (attachedStore.context.triggerElements.getById(triggerId) ??
+        this.fallbackStore.context.triggerElements.getById(triggerId))
       : undefined;
 
     if (process.env.NODE_ENV !== 'production') {

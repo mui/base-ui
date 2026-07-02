@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -12,6 +13,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -48,12 +50,15 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `TooltipStore` and
  * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
- * currently exposes. It is the base `ReactStore` plus `setOpen`/`cancelPendingOpen`, which live on
- * the concrete stores rather than the base — the trigger calls both directly; on the detached
- * fallback store every mutation, including those, is a no-op.
+ * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
+ * `setOpen`/`cancelPendingOpen` (called directly by the trigger) and `useSyncedValue` — so the
+ * exposed surface can't bypass the open-change pipeline; on the detached fallback store every one of
+ * these mutations is a no-op.
  */
-export type TooltipHandleStore<Payload> = ReactStore<Readonly<State<Payload>>, Context, Selectors> &
-  Pick<TooltipStore<Payload>, 'setOpen' | 'cancelPendingOpen'>;
+export type TooltipHandleStore<Payload> = Pick<
+  TooltipStore<Payload>,
+  PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
+>;
 
 export class TooltipStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
@@ -95,29 +100,21 @@ export class TooltipStore<Payload> extends ReactStore<
 }
 
 /**
- * Inert fallback store used by detached handle-backed triggers while no `Tooltip.Root` is attached.
- * Its `setOpen`/`cancelPendingOpen` are no-ops (matching the inert reads/writes of `NullStore`), so
- * a trigger can call them from hover/click handlers while detached without any effect.
- */
-class NullTooltipStore<Payload> extends NullStore<Readonly<State<Payload>>, Context, Selectors> {
-  setOpen() {}
-
-  cancelPendingOpen() {}
-}
-
-/**
  * Creates the inert fallback store used by detached handle-backed triggers while no `Tooltip.Root`
  * is attached. It preserves a tooltip-specific trigger registry in context so detached triggers can
- * register before migrating to the live root store.
+ * register before migrating to the live root store. `setOpen`/`cancelPendingOpen` are no-ops
+ * (matching the inert reads/writes of `NullStore`), so a trigger can call them from hover/click
+ * handlers while detached without any effect.
  */
 export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
-  return new NullTooltipStore<Payload>(
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP, cancelPendingOpen: NOOP });
 }
 
 function createInitialState<Payload>(

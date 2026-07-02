@@ -9,6 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
   updateInlineRectCoords,
 } from '../../utils/popups';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
@@ -37,13 +38,12 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `PreviewCardStore`
  * and the inert fallback store satisfy it, so a trigger can read from whichever store the handle
- * currently exposes. The trigger only reads state and context refs (never calls a store mutator
- * directly), so the inert fallback can be a plain `NullStore`.
+ * currently exposes. Narrowed to the trigger-data members a trigger uses; it exposes no popup-open
+ * mutator, so the inert fallback can be a plain `NullStore`.
  */
-export type PreviewCardHandleStore<Payload> = ReactStore<
-  Readonly<State<Payload>>,
-  Context,
-  Selectors
+export type PreviewCardHandleStore<Payload> = Pick<
+  PreviewCardStore<Payload>,
+  PopupTriggerStoreKeys
 >;
 
 export class PreviewCardStore<Payload> extends ReactStore<

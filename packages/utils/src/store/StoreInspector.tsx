@@ -123,11 +123,17 @@ function getTarget(event: Event) {
   return (event as Event).target;
 }
 
-export interface StoreInspectorProps {
-  /**
-   * Instance of the store to inspect.
-   */
-  store: Store<any>;
+/**
+ * Minimal shape of a store owner (such as a Base UI popup handle) that exposes a live store to
+ * inspect. Typed structurally so this dev utility stays decoupled from the component packages'
+ * handle types. The exposed store is loosely typed on purpose: handles narrow it for their public
+ * API, but at runtime it is a full `Store`, which the inspector casts to internally.
+ */
+export interface StoreOwner {
+  readonly store: object;
+}
+
+interface StoreInspectorBaseProps {
   /**
    * Additional data to display in the inspector.
    */
@@ -143,12 +149,32 @@ export interface StoreInspectorProps {
   defaultOpen?: boolean | undefined;
 }
 
+export type StoreInspectorProps = StoreInspectorBaseProps &
+  (
+    | {
+        /**
+         * Instance of the store to inspect.
+         */
+        store: Store<any>;
+        handle?: undefined;
+      }
+    | {
+        /**
+         * A store owner (such as a Base UI popup handle) whose live `store` is inspected.
+         */
+        handle: StoreOwner;
+        store?: undefined;
+      }
+  );
+
 /**
  * A tool to inspect the state of a Store in a floating panel.
  * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
-  const { store, title, additionalData, defaultOpen = false } = props;
+  const { title, additionalData, defaultOpen = false } = props;
+  // A handle exposes a narrowed store view for its public API; at runtime it is a full `Store`.
+  const store = (props.store ?? props.handle?.store) as Store<any>;
   const [open, setOpen] = React.useState(defaultOpen);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 

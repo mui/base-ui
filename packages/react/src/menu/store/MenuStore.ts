@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -111,12 +112,11 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `MenuStore` and the
  * inert fallback store satisfy it, so a trigger can read from whichever store the handle currently
- * exposes. It is the base `ReactStore` (with the menu state, context, and selectors) plus `setOpen`,
- * which lives on the concrete stores rather than the base; on the detached fallback store every
- * mutation — including `setOpen` — is a no-op.
+ * exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus `setOpen`
+ * (called by the focus guards) — so the exposed surface can't bypass the open-change pipeline; on
+ * the detached fallback store every one of these mutations is a no-op.
  */
-export type MenuHandleStore<Payload> = ReactStore<Readonly<State<Payload>>, Context, Selectors> &
-  Pick<MenuStore<Payload>, 'setOpen'>;
+export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
 export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
   constructor(initialState?: Partial<State<Payload>>) {
@@ -170,25 +170,19 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
 }
 
 /**
- * Inert fallback store used by detached handle-backed triggers while no `Menu.Root` is attached.
- * Its `setOpen` is a no-op (matching the inert reads/writes of `NullStore`), so a trigger can hand
- * it to focus-guard helpers that expect `setOpen` without it ever taking effect while detached.
- */
-class NullMenuStore<Payload> extends NullStore<Readonly<State<Payload>>, Context, Selectors> {
-  setOpen() {}
-}
-
-/**
  * Creates the inert fallback store used by detached handle-backed triggers while no `Menu.Root` is
  * attached. It preserves a menu-specific trigger registry in context so detached triggers can
- * register before migrating to the live root store.
+ * register before migrating to the live root store. `setOpen` is a no-op (matching the inert
+ * reads/writes of `NullStore`), so a trigger can hand the store to focus-guard helpers that expect
+ * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
-  return new NullMenuStore<Payload>(
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>()),
     Object.freeze(createInitialContext()),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialContext(): Context {

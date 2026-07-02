@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { NOOP } from '@base-ui/utils/empty';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
@@ -15,6 +16,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
   setPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -65,12 +67,14 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `PopoverStore` and
  * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
- * currently exposes. It is the base `ReactStore` (with the popover state, context, and selectors)
- * plus `setOpen`, which lives on the concrete stores rather than the base; on the detached fallback
- * store every mutation — including `setOpen` — is a no-op.
+ * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
+ * `setOpen` (called by the focus guards) — so the exposed surface can't bypass the open-change
+ * pipeline; on the detached fallback store every one of these mutations is a no-op.
  */
-export type PopoverHandleStore<Payload> = ReactStore<Readonly<State<Payload>>, Context, Selectors> &
-  Pick<PopoverStore<Payload>, 'setOpen'>;
+export type PopoverHandleStore<Payload> = Pick<
+  PopoverStore<Payload>,
+  PopupTriggerStoreKeys | 'setOpen'
+>;
 
 export class PopoverStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
@@ -167,27 +171,21 @@ export class PopoverStore<Payload> extends ReactStore<
 }
 
 /**
- * Inert fallback store used by detached handle-backed triggers while no `Popover.Root` is attached.
- * Its `setOpen` is a no-op (matching the inert reads/writes of `NullStore`), so a trigger can hand
- * it to focus-guard helpers that expect `setOpen` without it ever taking effect while detached.
- */
-class NullPopoverStore<Payload> extends NullStore<Readonly<State<Payload>>, Context, Selectors> {
-  setOpen() {}
-}
-
-/**
  * Creates the inert fallback store used by detached handle-backed triggers while no
  * `Popover.Root` is attached. It preserves a popover-specific trigger registry in context so
- * detached triggers can register before migrating to the live root store.
+ * detached triggers can register before migrating to the live root store. `setOpen` is a no-op
+ * (matching the inert reads/writes of `NullStore`), so a trigger can hand the store to focus-guard
+ * helpers that expect `setOpen` without it ever taking effect while detached.
  */
 export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
-  return new NullPopoverStore<Payload>(
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
