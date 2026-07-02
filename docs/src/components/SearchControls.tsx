@@ -4,17 +4,21 @@ import clsx from 'clsx';
 import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
 import { platform } from '@base-ui/utils/platform';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { loadSearchSitemap } from './Search/searchSitemap';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 import './SearchTrigger.css';
 
+const loadSearchDialog = () => import('./Search/SearchDialog');
+const loadMobileNavDrawer = () => import('./MobileNavDrawer');
+
 const LazySearchDialog = React.lazy(() =>
-  import('./Search/SearchDialog').then((module) => ({ default: module.SearchDialog })),
+  loadSearchDialog().then((module) => ({ default: module.SearchDialog })),
 );
 const LazyMobileNavDrawer = React.lazy(() =>
-  import('./MobileNavDrawer').then((module) => ({ default: module.MobileNavDrawer })),
+  loadMobileNavDrawer().then((module) => ({ default: module.MobileNavDrawer })),
 );
 
 type OpenTarget = 'desktop' | 'mobile' | 'mobile-search';
@@ -23,13 +27,11 @@ type DrawerTriggerClickEvent = Parameters<NonNullable<Drawer.Trigger.Props['onCl
 
 interface SearchControlsProps {
   desktopTriggerClassName?: string;
-  mobileNavContent?: React.ReactNode;
   mobileTriggerClassName?: string;
 }
 
 export function SearchControls({
   desktopTriggerClassName,
-  mobileNavContent,
   mobileTriggerClassName,
 }: SearchControlsProps) {
   const [desktopHandle] = React.useState(() => Dialog.createHandle());
@@ -38,8 +40,12 @@ export function SearchControls({
   const mobileTriggerId = React.useId();
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const focusMobileSearchOnOpenRef = React.useRef(false);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
+  const [desktopRequested, setDesktopRequested] = React.useState(false);
+  const [mobileRequested, setMobileRequested] = React.useState(false);
+  const [desktopReady, setDesktopReady] = React.useState(false);
+  const [mobileReady, setMobileReady] = React.useState(false);
+  const fallbackPreloadTimeout = useTimeout();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -47,7 +53,123 @@ export function SearchControls({
     () => true,
   );
 
-  const hasMobileNav = mobileNavContent != null;
+  const preloadTarget = React.useCallback((target: OpenTarget) => {
+    if (target === 'desktop') {
+      void loadSearchDialog();
+      return;
+    }
+
+    void loadMobileNavDrawer();
+  }, []);
+
+  const requestTarget = React.useCallback(
+    (target: OpenTarget) => {
+      preloadTarget(target);
+
+      if (target === 'desktop') {
+        setDesktopRequested(true);
+        return;
+      }
+
+      setMobileRequested(true);
+    },
+    [preloadTarget],
+  );
+
+  const closeMobileNav = React.useCallback(() => {
+    setOpenTarget(null);
+  }, []);
+
+  const mobileContextValue = React.useMemo(() => ({ close: closeMobileNav }), [closeMobileNav]);
+
+  const handleDesktopTriggerClick = React.useCallback(
+    (event: DialogTriggerClickEvent) => {
+      event?.preventBaseUIHandler();
+      requestTarget('desktop');
+      setOpenTarget('desktop');
+    },
+    [requestTarget],
+  );
+
+  const handleMobileTriggerClick = React.useCallback(
+    (event: DrawerTriggerClickEvent) => {
+      event?.preventBaseUIHandler();
+      requestTarget('mobile');
+      setOpenTarget('mobile');
+    },
+    [requestTarget],
+  );
+
+  const handleDesktopTriggerPointerDown = React.useCallback(() => {
+    requestTarget('desktop');
+  }, [requestTarget]);
+
+  const handleMobileTriggerPointerDown = React.useCallback(() => {
+    requestTarget('mobile');
+  }, [requestTarget]);
+
+  const handleDesktopReady = React.useCallback(() => {
+    setDesktopReady(true);
+  }, []);
+
+  const handleMobileReady = React.useCallback(() => {
+    setMobileReady(true);
+  }, []);
+
+  const handleDesktopOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (open) {
+        setOpenTarget('desktop');
+        return;
+      }
+
+      setOpenTarget((target) => {
+        if (target === 'desktop' && desktopReady) {
+          return null;
+        }
+
+        return target;
+      });
+    },
+    [desktopReady],
+  );
+
+  const handleMobileOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (open) {
+        setOpenTarget('mobile');
+        return;
+      }
+
+      setOpenTarget((target) => {
+        if ((target === 'mobile' || target === 'mobile-search') && mobileReady) {
+          return null;
+        }
+
+        return target;
+      });
+    },
+    [mobileReady],
+  );
+
+  React.useEffect(() => {
+    const preload = () => {
+      void loadSearchSitemap().catch(() => undefined);
+
+      const target = getShortcutTarget(desktopTriggerRef.current, mobileTriggerRef.current);
+      preloadTarget(target);
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const idleCallbackId = window.requestIdleCallback(preload);
+      return () => {
+        window.cancelIdleCallback(idleCallbackId);
+      };
+    }
+
+    fallbackPreloadTimeout.start(1000, preload);
+    return fallbackPreloadTimeout.clear;
+  }, [fallbackPreloadTimeout, preloadTarget]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -56,61 +178,26 @@ export function SearchControls({
       }
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        const visibleTarget =
-          getVisibleTarget(desktopTriggerRef.current) ?? getVisibleTarget(mobileTriggerRef.current);
-
-        if (!visibleTarget) {
-          return;
-        }
+        const nextOpenTarget = getShortcutTarget(
+          desktopTriggerRef.current,
+          mobileTriggerRef.current,
+        );
 
         event.preventDefault();
         event.stopPropagation();
 
-        setOpenTarget(visibleTarget === desktopTriggerRef.current ? 'desktop' : 'mobile-search');
+        requestTarget(nextOpenTarget);
+        setOpenTarget(nextOpenTarget);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, []);
+  }, [requestTarget]);
 
-  React.useEffect(() => {
-    if (openTarget === null) {
-      return;
-    }
-
-    if (openTarget === 'desktop') {
-      if (!desktopHandle.isOpen) {
-        if (mobileHandle.isOpen) {
-          mobileHandle.close();
-        }
-
-        desktopHandle.open(desktopTriggerId);
-      }
-    } else if (hasMobileNav && !mobileHandle.isOpen) {
-      focusMobileSearchOnOpenRef.current = openTarget === 'mobile-search';
-
-      if (desktopHandle.isOpen) {
-        desktopHandle.close();
-      }
-
-      mobileHandle.open(mobileTriggerId);
-    }
-
-    setOpenTarget(null);
-  }, [desktopHandle, desktopTriggerId, hasMobileNav, mobileHandle, mobileTriggerId, openTarget]);
-
-  const mobileContextValue = React.useMemo(() => ({ handle: mobileHandle }), [mobileHandle]);
-
-  const handleDesktopTriggerClick = React.useCallback((event: DialogTriggerClickEvent) => {
-    event?.preventBaseUIHandler();
-    setOpenTarget('desktop');
-  }, []);
-
-  const handleMobileTriggerClick = React.useCallback((event: DrawerTriggerClickEvent) => {
-    event?.preventBaseUIHandler();
-    setOpenTarget('mobile');
-  }, []);
+  const desktopOpen = openTarget === 'desktop' && desktopReady;
+  const mobileOpen = (openTarget === 'mobile' || openTarget === 'mobile-search') && mobileReady;
+  const focusMobileSearchOnOpen = openTarget === 'mobile-search';
 
   return (
     <React.Fragment>
@@ -119,6 +206,7 @@ export function SearchControls({
         ref={desktopTriggerRef}
         handle={desktopHandle}
         className={clsx('SearchTrigger', desktopTriggerClassName)}
+        onPointerDown={handleDesktopTriggerPointerDown}
         onClick={handleDesktopTriggerClick}
       >
         Search
@@ -127,32 +215,45 @@ export function SearchControls({
           <kbd>k</kbd>)
         </span>
       </Dialog.Trigger>
-      <React.Suspense fallback={null}>
-        <LazySearchDialog handle={desktopHandle} sitemap={loadSearchSitemap} />
-      </React.Suspense>
+      {desktopRequested && (
+        <React.Suspense fallback={null}>
+          <LazySearchDialog
+            handle={desktopHandle}
+            onReady={handleDesktopReady}
+            open={desktopOpen}
+            onOpenChange={handleDesktopOpenChange}
+            sitemap={loadSearchSitemap}
+            triggerId={desktopOpen ? desktopTriggerId : null}
+          />
+        </React.Suspense>
+      )}
 
-      {hasMobileNav && (
-        <MobileNavContext.Provider value={mobileContextValue}>
-          <Drawer.Trigger
-            id={mobileTriggerId}
-            ref={mobileTriggerRef}
-            handle={mobileHandle}
-            className={clsx('SearchTrigger', mobileTriggerClassName)}
-            onClick={handleMobileTriggerClick}
-          >
-            <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
-            Navigation
-          </Drawer.Trigger>
+      <MobileNavContext.Provider value={mobileContextValue}>
+        <Drawer.Trigger
+          id={mobileTriggerId}
+          ref={mobileTriggerRef}
+          handle={mobileHandle}
+          className={clsx('SearchTrigger', mobileTriggerClassName)}
+          onPointerDown={handleMobileTriggerPointerDown}
+          onClick={handleMobileTriggerClick}
+        >
+          <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
+          Navigation
+        </Drawer.Trigger>
+        {mobileRequested && (
           <React.Suspense fallback={null}>
             <LazyMobileNavDrawer
               handle={mobileHandle}
-              focusMobileSearchOnOpenRef={focusMobileSearchOnOpenRef}
-            >
-              {mobileNavContent}
-            </LazyMobileNavDrawer>
+              focusSearchOnOpen={focusMobileSearchOnOpen}
+              onReady={handleMobileReady}
+              open={mobileOpen}
+              onOpenChange={handleMobileOpenChange}
+              sitemap={loadSearchSitemap}
+              triggerId={mobileOpen ? mobileTriggerId : null}
+            />
           </React.Suspense>
-        </MobileNavContext.Provider>
-      )}
+        )}
+      </MobileNavContext.Provider>
     </React.Fragment>
   );
 }
@@ -163,4 +264,12 @@ function getVisibleTarget(element: HTMLElement | null) {
   }
 
   return null;
+}
+
+function getShortcutTarget(
+  desktopTrigger: HTMLElement | null,
+  mobileTrigger: HTMLElement | null,
+): Extract<OpenTarget, 'desktop' | 'mobile-search'> {
+  const visibleTarget = getVisibleTarget(desktopTrigger) ?? getVisibleTarget(mobileTrigger);
+  return visibleTarget === desktopTrigger ? 'desktop' : 'mobile-search';
 }

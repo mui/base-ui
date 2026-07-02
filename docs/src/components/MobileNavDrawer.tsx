@@ -5,141 +5,87 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useSearch } from '@mui/internal-docs-infra/useSearch';
-import type {
-  SearchResult,
-  SearchResults,
-  Sitemap,
-} from '@mui/internal-docs-infra/useSearch/types';
-import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import type { SearchResult, SearchResults } from '@mui/internal-docs-infra/useSearch/types';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { getDisplayTitle } from '../utils/getDisplayTitle';
-import { stringToUrl } from './QuickNav/rehypeSlug.mjs';
-
-const sitemapPromise: () => Promise<{ sitemap?: Sitemap }> = () => import('../app/sitemap');
-const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
-
-// Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0).
-// Matches the search slug behavior used by the desktop search dialog.
-const SEMVER_PATTERN =
-  /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+import { MobileNavContent } from './MobileNavContent';
+import {
+  handleModifiedEnterNavigation,
+  normalizeSearchGroup,
+  searchResultToString,
+} from './Search/searchUtils';
+import { loadSearchSitemap, type SearchSitemapLoader } from './Search/searchSitemap';
+import { useDeferredEmptySearchResults } from './Search/useDeferredEmptySearchResults';
+import { useDocsSearch } from './Search/useDocsSearch';
+import { useSearchTracking } from './Search/useSearchTracking';
 
 interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'handle'> {
-  children?: React.ReactNode;
-  focusMobileSearchOnOpenRef: React.RefObject<boolean>;
+  focusSearchOnOpen: boolean;
   handle: Drawer.Handle<unknown>;
+  onReady: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  sitemap?: SearchSitemapLoader;
+  triggerId: string | null;
 }
 
 export function MobileNavDrawer({
-  children,
-  focusMobileSearchOnOpenRef,
+  focusSearchOnOpen,
   handle,
+  onReady,
+  open,
   onOpenChange,
+  sitemap,
+  triggerId,
   ...props
 }: MobileNavDrawerProps) {
   const [searchValue, setSearchValue] = React.useState('');
-  const ga = useGoogleAnalytics();
-  const searchQueryRef = React.useRef('');
-  const resultCountRef = React.useRef(0);
-  const attemptRef = React.useRef(0);
-  const selectedResultRef = React.useRef<SearchResult | null>(null);
-  const lastTrackedQueryRef = React.useRef('');
-  const queryDebounceTimeout = useTimeout();
+  const searchTracking = useSearchTracking();
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const wasOpenRef = React.useRef(false);
+
+  useIsoLayoutEffect(() => {
+    onReady();
+  }, [onReady]);
 
   const handleOpenDrawer = React.useCallback(() => {
-    searchQueryRef.current = '';
-    resultCountRef.current = 0;
-    attemptRef.current = 0;
-    selectedResultRef.current = null;
-    lastTrackedQueryRef.current = '';
-    queryDebounceTimeout.clear();
-    ga?.trackEvent({ category: 'search', action: 'open' });
-  }, [ga, queryDebounceTimeout]);
+    searchTracking.handleOpen();
+  }, [searchTracking]);
 
   const handleCloseDrawer = React.useCallback(() => {
-    queryDebounceTimeout.clear();
-
-    if (searchQueryRef.current) {
-      const selected = selectedResultRef.current;
-      ga?.trackEvent({
-        category: 'search',
-        action: selected ? 'select' : 'dismiss',
-        label: searchQueryRef.current,
-        params: {
-          search_term: searchQueryRef.current,
-          result_count: resultCountRef.current,
-          attempt: attemptRef.current,
-          ...(selected
-            ? {
-                selected_result: selected.title || selected.slug,
-                selected_type: selected.type || '',
-              }
-            : { failed: searchQueryRef.current }),
-        },
-      });
-      lastTrackedQueryRef.current = searchQueryRef.current;
-    }
-
+    searchTracking.handleClose();
     setSearchValue('');
-  }, [ga, queryDebounceTimeout]);
+  }, [searchTracking]);
 
-  const handleResultCountChange = React.useCallback((resultCount: number) => {
-    resultCountRef.current = resultCount;
-  }, []);
-
-  const handleSearchValueChange = React.useCallback(
-    (value: string) => {
-      queryDebounceTimeout.clear();
-
-      const previousLength = searchQueryRef.current?.length ?? 0;
-      searchQueryRef.current = value;
-      if (value) {
-        if (previousLength === 0 && value.length > 0) {
-          attemptRef.current += 1;
-        }
-
-        queryDebounceTimeout.start(1500, () => {
-          if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
-            ga?.trackEvent({
-              category: 'search',
-              action: 'query',
-              label: searchQueryRef.current,
-              params: {
-                search_term: searchQueryRef.current,
-                result_count: resultCountRef.current,
-                attempt: attemptRef.current,
-              },
-            });
-            lastTrackedQueryRef.current = searchQueryRef.current;
-          }
-        });
-      }
-    },
-    [ga, queryDebounceTimeout],
-  );
-
-  const handleResultSelect = React.useCallback((result: SearchResult | null) => {
-    selectedResultRef.current = result;
-  }, []);
-
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
-      onOpenChange?.(nextOpen, eventDetails);
-
-      if (nextOpen) {
+  React.useEffect(() => {
+    if (open !== wasOpenRef.current) {
+      if (open) {
         handleOpenDrawer();
       } else {
         handleCloseDrawer();
       }
+    }
+
+    wasOpenRef.current = open;
+  }, [handleCloseDrawer, handleOpenDrawer, open]);
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      onOpenChange(nextOpen);
     },
-    [handleCloseDrawer, handleOpenDrawer, onOpenChange],
+    [onOpenChange],
   );
 
   return (
-    <Drawer.Root swipeDirection="down" {...props} handle={handle} onOpenChange={handleOpenChange}>
+    <Drawer.Root
+      swipeDirection="down"
+      {...props}
+      handle={handle}
+      open={open}
+      onOpenChange={handleOpenChange}
+      triggerId={triggerId}
+    >
       <Drawer.VirtualKeyboardProvider>
         <Drawer.Portal>
           <Drawer.Backdrop className="MobileNavBackdrop" />
@@ -147,22 +93,19 @@ export function MobileNavDrawer({
             <Drawer.Popup
               ref={popupRef}
               className="MobileNavPopup"
-              initialFocus={() =>
-                focusMobileSearchOnOpenRef.current ? inputRef.current : popupRef.current
-              }
+              initialFocus={() => (focusSearchOnOpen ? inputRef.current : popupRef.current)}
             >
               <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
               <MobileNavPopupImpl
-                handle={handle}
                 inputRef={inputRef}
+                onClose={() => onOpenChange(false)}
                 searchValue={searchValue}
-                onResultCountChange={handleResultCountChange}
-                onResultSelect={handleResultSelect}
-                onSearchValueChange={handleSearchValueChange}
+                onResultCountChange={searchTracking.setResultCount}
+                onResultSelect={searchTracking.setSelectedResult}
+                onSearchValueChange={searchTracking.handleSearchValueChange}
+                sitemap={sitemap}
                 setSearchValue={setSearchValue}
-              >
-                {children}
-              </MobileNavPopupImpl>
+              />
             </Drawer.Popup>
           </Drawer.Viewport>
         </Drawer.Portal>
@@ -171,58 +114,42 @@ export function MobileNavDrawer({
   );
 }
 
-function slugifyWithParentContext(text: string, parentTitles?: string[]): string {
-  const slug = stringToUrl(text);
-
-  if (parentTitles?.length && SEMVER_PATTERN.test(parentTitles[0])) {
-    return `${parentTitles[0]}-${slug}`;
-  }
-
-  return slug;
-}
-
-function normalizeGroup(group: string) {
-  return group.replace(/\s+Pages$/, '').replace(/^React\s+/, '');
-}
-
-interface MobileNavPopupImplProps extends React.PropsWithChildren {
-  handle: Drawer.Handle<unknown>;
+interface MobileNavPopupImplProps {
   inputRef: React.RefObject<HTMLInputElement | null>;
+  onClose: () => void;
   searchValue: string;
   onResultCountChange: (resultCount: number) => void;
   onResultSelect: (result: SearchResult | null) => void;
   onSearchValueChange: (value: string) => void;
+  sitemap?: SearchSitemapLoader;
   setSearchValue: (value: string) => void;
 }
 
 function MobileNavPopupImpl({
-  children,
-  handle,
   inputRef,
+  onClose,
   searchValue,
   onResultCountChange,
   onResultSelect,
   onSearchValueChange,
+  sitemap,
   setSearchValue,
 }: MobileNavPopupImplProps) {
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
-  const emptyResultsTimeout = useTimeout();
   const hasQuery = searchValue.trim() !== '';
-  const { results, search, defaultResults, buildResultUrl } = useSearch({
-    sitemap: sitemapPromise,
-    generateSlug: slugifyWithParentContext,
-    tolerance: 0,
-    limit: 20,
-    enableStemming: true,
-    includeCategoryInGroup: true,
-    excludeSections: true,
-    showPrivatePages,
-  });
+  const sitemapImport = sitemap ?? loadSearchSitemap;
+  const sitemapPromise = React.useMemo(() => sitemapImport(), [sitemapImport]);
+  const searchSitemap = React.useCallback(() => sitemapPromise, [sitemapPromise]);
+  const { results, search, defaultResults, buildResultUrl } = useDocsSearch(searchSitemap);
 
-  const [searchResults, setSearchResults] =
-    React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
+  const searchResults = useDeferredEmptySearchResults({
+    active: hasQuery,
+    defaultResults,
+    onResultCountChange,
+    results,
+  });
 
   useIsoLayoutEffect(() => {
     if (hadQueryRef.current && !hasQuery) {
@@ -235,34 +162,6 @@ function MobileNavPopupImpl({
 
     hadQueryRef.current = hasQuery;
   }, [hasQuery]);
-
-  React.useEffect(() => {
-    if (!hasQuery) {
-      emptyResultsTimeout.clear();
-      onResultCountChange(0);
-      setSearchResults(defaultResults);
-      return undefined;
-    }
-
-    const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
-    onResultCountChange(totalResults);
-
-    if (results.results.length === 0) {
-      emptyResultsTimeout.start(400, () => {
-        setSearchResults(results);
-      });
-      return emptyResultsTimeout.clear;
-    }
-
-    emptyResultsTimeout.clear();
-    setSearchResults(results);
-    return undefined;
-  }, [defaultResults, emptyResultsTimeout, hasQuery, onResultCountChange, results]);
-
-  const itemToStringValue = React.useCallback(
-    (item: SearchResult | null) => (item ? item.title || item.slug : ''),
-    [],
-  );
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
@@ -280,10 +179,10 @@ function MobileNavPopupImpl({
   const handleResultNavigate = React.useCallback(
     (result: SearchResult) => {
       onResultSelect(result);
-      handle.close();
+      onClose();
       setSearchValue('');
     },
-    [handle, onResultSelect, setSearchValue],
+    [onClose, onResultSelect, setSearchValue],
   );
 
   const handleAutocompleteOpenChange = React.useCallback(
@@ -295,10 +194,10 @@ function MobileNavPopupImpl({
       if (searchValue) {
         void handleValueChange('');
       } else {
-        handle.close();
+        onClose();
       }
     },
-    [handle, handleValueChange, searchValue],
+    [handleValueChange, onClose, searchValue],
   );
 
   const handleKeyDownCapture = React.useCallback(
@@ -310,19 +209,7 @@ function MobileNavPopupImpl({
         return;
       }
 
-      if (event.key !== 'Enter' || (!event.metaKey && !event.ctrlKey && !event.altKey)) {
-        return;
-      }
-
-      const highlightedResult = highlightedResultRef.current;
-      if (!highlightedResult) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      window.open(buildResultUrl(highlightedResult), '_blank', 'noopener,noreferrer');
+      handleModifiedEnterNavigation(event, highlightedResultRef.current, buildResultUrl);
     },
     [buildResultUrl, handleValueChange, searchValue],
   );
@@ -332,7 +219,7 @@ function MobileNavPopupImpl({
       <Autocomplete.Group key={group.group} items={group.items} className="MobileNavSection">
         {group.group !== 'Default' && (
           <Autocomplete.GroupLabel className="MobileNavHeading">
-            {normalizeGroup(group.group)}
+            {normalizeSearchGroup(group.group)}
           </Autocomplete.GroupLabel>
         )}
         <Autocomplete.Collection>
@@ -367,7 +254,7 @@ function MobileNavPopupImpl({
       onItemHighlighted={handleItemHighlighted}
       open={hasQuery}
       inline
-      itemToStringValue={itemToStringValue}
+      itemToStringValue={searchResultToString}
       filter={null}
       autoHighlight={hasQuery}
     >
@@ -409,7 +296,9 @@ function MobileNavPopupImpl({
                 </div>
               ) : (
                 <nav aria-label="Docs navigation" className="MobileNavPanel">
-                  {children}
+                  <React.Suspense fallback={null}>
+                    <MobileNavContent sitemapPromise={sitemapPromise} />
+                  </React.Suspense>
                 </nav>
               )}
             </ScrollArea.Content>

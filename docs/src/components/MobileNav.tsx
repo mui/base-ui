@@ -32,7 +32,7 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ href, external, ...props }: ItemProps) {
-  const { handle } = React.useContext(MobileNavContext);
+  const { close } = React.useContext(MobileNavContext);
   const pathname = usePathname();
   const active = props.active ?? pathname === href;
   const scrollTimeout = useTimeout();
@@ -43,14 +43,14 @@ export function Item({ href, external, ...props }: ItemProps) {
     }
 
     event.preventDefault();
-    handle?.close();
+    close();
     scrollTimeout.start(500, () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
 
   const handleNavigate = () => {
-    ReactDOM.flushSync(() => handle?.close());
+    ReactDOM.flushSync(close);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 

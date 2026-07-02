@@ -1,7 +1,6 @@
 import NextLink from 'next/link';
 
 import { Logo } from './Logo';
-import { MobileNavContent } from './MobileNavContent';
 import { SearchControls } from './SearchControls';
 import { SkipNav } from './SkipNav';
 import './Header.css';
@@ -21,7 +20,6 @@ export function Header() {
           <SearchControls
             desktopTriggerClassName="HeaderSearchDesktopTrigger"
             mobileTriggerClassName="HeaderSearchMobileTrigger"
-            mobileNavContent={<MobileNavContent />}
           />
         </div>
       </div>

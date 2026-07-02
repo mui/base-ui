@@ -1,13 +1,20 @@
+'use client';
 import * as React from 'react';
 import * as MobileNav from './MobileNav';
-import { sitemap } from '../app/sitemap';
 import { GitHubIcon } from '../icons/GitHubIcon';
 import { NpmIcon } from '../icons/NpmIcon';
 import { getDisplayTitle } from '../utils/getDisplayTitle';
+import type { SearchSitemapLoader } from './Search/searchSitemap';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
-export function MobileNavContent() {
+interface MobileNavContentProps {
+  sitemapPromise: ReturnType<SearchSitemapLoader>;
+}
+
+export function MobileNavContent({ sitemapPromise }: MobileNavContentProps) {
+  const { sitemap } = React.use(sitemapPromise);
+
   if (!sitemap) {
     return null;
   }
