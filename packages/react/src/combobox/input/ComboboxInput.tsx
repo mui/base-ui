@@ -63,7 +63,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, shouldShowCreate } = useComboboxDerivedItemsContext();
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
@@ -90,7 +90,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = filteredItems.length === 0 && !shouldShowCreate;
 
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;

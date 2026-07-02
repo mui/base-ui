@@ -24,6 +24,7 @@ Doesn't render its own HTML element.
 | keepHighlight        | `boolean`                                                                                                       | `false`  | Whether the highlighted item should be preserved when the pointer leaves the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | highlightItemOnHover | `boolean`                                                                                                       | `true`   | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                            | -        | A ref to imperative actions. `unmount`: Manually unmounts the autocomplete.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| creatable            | `boolean \| ((query: string, items: ItemValue[]) => boolean)`                                                   | `false`  | Whether to append a synthetic "create" entry to the filtered list, letting users add a new&#xA;option from the current query. Render the entry with `Combobox.CreateItem` (the `List` render&#xA;function receives `meta.create === true` for it). `true`: show the entry whenever the query is non-empty and does not exactly match an existing&#xA;item (compared using the same label resolution the component uses internally).`(query, items) => boolean`: override the default visibility/dedup. Return `true` to show the&#xA;create entry. `items` is the currently filtered list. Not supported with grouped items.       |
 | filter               | `((itemValue: ItemValue, query: string, itemToString?: ((itemValue: ItemValue) => string)) => boolean) \| null` | -        | AutocompleteFilter function used to match items vs input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | filteredItems        | `any[] \| Group[]`                                                                                              | -        | Filtered items to display in the list.&#xA;When provided, the list will use these items instead of filtering the `items` prop internally.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                                                                                                                                                                 |
 | form                 | `string`                                                                                                        | -        | Identifies the form that owns the internal input.&#xA;Useful when the autocomplete is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -71,6 +72,7 @@ type AutocompleteRootChangeEventReason =
   | 'trigger-press'
   | 'outside-press'
   | 'item-press'
+  | 'create-item-press'
   | 'close-press'
   | 'escape-key'
   | 'list-navigation'
@@ -90,6 +92,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'create-item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
@@ -348,12 +351,12 @@ Renders a `<div>` element.
 
 **List Props:**
 
-| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `React.ReactNode \| ((item: any, index: number) => React.ReactNode)`                            | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Autocomplete.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Autocomplete.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                                   | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode \| ((item: any, index: number, meta: ComboboxCollectionItemMeta) => React.ReactNode)` | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Autocomplete.List.State) => string \| undefined)`                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Autocomplete.List.State) => React.CSSProperties \| undefined)`        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.List.State) => ReactElement)`                 | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### List.Props
 
@@ -821,9 +824,9 @@ If rendering a flat list, pass a function child to the `List` component instead,
 
 **Collection Props:**
 
-| Prop       | Type                                              | Default | Description |
-| :--------- | :------------------------------------------------ | :------ | :---------- |
-| children\* | `((item: any, index: number) => React.ReactNode)` | -       | -           |
+| Prop       | Type                                                                                | Default | Description |
+| :--------- | :---------------------------------------------------------------------------------- | :------ | :---------- |
+| children\* | `((item: any, index: number, meta: ComboboxCollectionItemMeta) => React.ReactNode)` | -       | -           |
 
 ### Collection.Props
 
@@ -833,6 +836,18 @@ Re-export of [Collection](#collection) props.
 
 ```typescript
 type AutocompleteCollectionState = {};
+```
+
+### Collection.ItemMeta
+
+```typescript
+type AutocompleteCollectionItemMeta = {
+  /**
+   * Whether this entry is the synthetic "create" entry injected by the `creatable` prop on
+   * `Combobox.Root`. Render it with `Combobox.CreateItem` instead of `Combobox.Item`.
+   */
+  create: boolean;
+};
 ```
 
 ### Row
@@ -857,6 +872,49 @@ Re-export of [Row](#row) props.
 
 ```typescript
 type AutocompleteRowState = {};
+```
+
+### CreateItem
+
+A special item that lets the user create a new option from the current query.
+Renders a `<div>` element.
+
+Requires the `creatable` prop on `Combobox.Root`. Selecting it fires `onCreate` and closes the
+popup without committing a value. It is keyboard-navigable like a regular item, and hides itself
+automatically when the create entry should not be shown (empty or duplicate query).
+
+**CreateItem Props:**
+
+| Prop         | Type                                                                                                  | Default | Description                                                                                                                                                                                                                                                            |
+| :----------- | :---------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                             | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                   |
+| onCreate     | `((query: string, eventDetails: AriaCombobox.ChangeEventDetails) => void)`                            | -       | Callback fired when the entry is selected (pointer click or keyboard Enter while highlighted).&#xA;Receives the current query and event details. Call `eventDetails.cancel()` to keep the popup&#xA;open. Selecting the entry does not commit a value to the combobox. |
+| disabled     | `boolean`                                                                                             | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                  |
+| children     | `React.ReactNode \| ((query: string) => React.ReactNode)`                                             | -       | The content of the entry. When a function, it receives the current query string so the entry&#xA;can render something like `Create "{query}"`.                                                                                                                         |
+| className    | `string \| ((state: Autocomplete.CreateItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                               |
+| style        | `React.CSSProperties \| ((state: Autocomplete.CreateItem.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                            |
+| render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.CreateItem.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                          |
+
+**CreateItem Data Attributes:**
+
+| Attribute        | Type | Description                           |
+| :--------------- | :--- | :------------------------------------ |
+| data-highlighted | -    | Present when the item is highlighted. |
+| data-disabled    | -    | Present when the item is disabled.    |
+
+### CreateItem.Props
+
+Re-export of [CreateItem](#createitem) props.
+
+### CreateItem.State
+
+```typescript
+type AutocompleteCreateItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ### InputGroup
@@ -1029,13 +1087,14 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Group`: `Autocomplete.Group`, `Autocomplete.Group.State`, `Autocomplete.Group.Props`
 - `Autocomplete.GroupLabel`: `Autocomplete.GroupLabel`, `Autocomplete.GroupLabel.State`, `Autocomplete.GroupLabel.Props`
 - `Autocomplete.Item`: `Autocomplete.Item`, `Autocomplete.Item.State`, `Autocomplete.Item.Props`
+- `Autocomplete.CreateItem`: `Autocomplete.CreateItem`, `Autocomplete.CreateItem.State`, `Autocomplete.CreateItem.Props`
 - `Autocomplete.Row`: `Autocomplete.Row`, `Autocomplete.Row.State`, `Autocomplete.Row.Props`
-- `Autocomplete.Collection`: `Autocomplete.Collection`, `Autocomplete.Collection.State`, `Autocomplete.Collection.Props`
+- `Autocomplete.Collection`: `Autocomplete.Collection`, `Autocomplete.Collection.State`, `Autocomplete.Collection.Props`, `Autocomplete.Collection.ItemMeta`
 - `Autocomplete.Empty`: `Autocomplete.Empty`, `Autocomplete.Empty.State`, `Autocomplete.Empty.Props`
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteCreateItemProps`, `AutocompleteCreateItemState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1080,6 +1139,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.GroupLabel.Props`: `AutocompleteGroupLabelProps`
 - `Autocomplete.Item.State`: `AutocompleteItemState`
 - `Autocomplete.Item.Props`: `AutocompleteItemProps`
+- `Autocomplete.CreateItem.State`: `AutocompleteCreateItemState`
+- `Autocomplete.CreateItem.Props`: `AutocompleteCreateItemProps`
 - `Autocomplete.Row.State`: `AutocompleteRowState`
 - `Autocomplete.Row.Props`: `AutocompleteRowProps`
 - `Autocomplete.Collection.State`: `AutocompleteCollectionState`

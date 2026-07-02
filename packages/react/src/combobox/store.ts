@@ -74,6 +74,7 @@ export type State = {
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
+  handleCreate: (event: MouseEvent | PointerEvent | KeyboardEvent) => void;
   requestSubmit: () => void;
 
   name: string | undefined;

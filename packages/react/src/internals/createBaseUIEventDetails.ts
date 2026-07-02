@@ -10,6 +10,7 @@ interface ReasonToEventMap {
 
   [REASONS.outsidePress]: MouseEvent | PointerEvent | TouchEvent;
   [REASONS.itemPress]: MouseEvent | KeyboardEvent | PointerEvent;
+  [REASONS.createItemPress]: MouseEvent | KeyboardEvent | PointerEvent;
   [REASONS.closePress]: MouseEvent | KeyboardEvent | PointerEvent;
   [REASONS.linkPress]: MouseEvent | PointerEvent;
   [REASONS.clearPress]: PointerEvent | MouseEvent | KeyboardEvent;

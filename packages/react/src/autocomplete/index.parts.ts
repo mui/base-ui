@@ -15,6 +15,7 @@ export { ComboboxArrow as Arrow } from '../combobox/arrow/ComboboxArrow';
 export { ComboboxGroup as Group } from '../combobox/group/ComboboxGroup';
 export { ComboboxGroupLabel as GroupLabel } from '../combobox/group-label/ComboboxGroupLabel';
 export { AutocompleteItem as Item } from './item/AutocompleteItem';
+export { ComboboxCreateItem as CreateItem } from '../combobox/create-item/ComboboxCreateItem';
 export { ComboboxRow as Row } from '../combobox/row/ComboboxRow';
 export { ComboboxCollection as Collection } from '../combobox/collection/ComboboxCollection';
 export { ComboboxEmpty as Empty } from '../combobox/empty/ComboboxEmpty';
