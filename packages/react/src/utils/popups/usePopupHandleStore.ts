@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { NOOP } from '@base-ui/utils/empty';
 import type { PopupHandleStoreProvider } from './popupHandle';
 
 /**
@@ -19,7 +20,7 @@ export function usePopupHandleStore<HandleStore>(
   const subscribe = React.useCallback(
     (listener: () => void) => {
       if (handle === undefined) {
-        return () => {};
+        return NOOP;
       }
 
       return handle.subscribeStore(listener);
