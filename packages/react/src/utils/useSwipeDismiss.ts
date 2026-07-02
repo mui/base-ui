@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from '../internals/clamp';
 import { getElementAtPoint } from './getElementAtPoint';
+import { getElementTransform } from './getElementTransform';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -48,32 +49,6 @@ export function getDisplacement(direction: SwipeDirection, deltaX: number, delta
     default:
       return 0;
   }
-}
-
-export function getElementTransform(element: HTMLElement) {
-  const computedStyle = ownerWindow(element).getComputedStyle(element);
-  const transform = computedStyle.transform;
-  let translateX = 0;
-  let translateY = 0;
-  let scale = 1;
-
-  if (transform && transform !== 'none') {
-    const matrix = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
-    if (matrix) {
-      const values = matrix[1].split(', ').map(parseFloat);
-      if (values.length === 6) {
-        translateX = values[4];
-        translateY = values[5];
-        scale = Math.sqrt(values[0] * values[0] + values[1] * values[1]);
-      } else if (values.length === 16) {
-        translateX = values[12];
-        translateY = values[13];
-        scale = values[0];
-      }
-    }
-  }
-
-  return { x: translateX, y: translateY, scale };
 }
 
 function getValidTimeStamp(timeStamp: number): number | null {

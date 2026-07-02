@@ -21,7 +21,8 @@ import {
   BASE_UI_SWIPE_IGNORE_SELECTOR,
   LEGACY_SWIPE_IGNORE_SELECTOR,
 } from '../../internals/constants';
-import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
+import { getDisplacement } from '../../utils/useSwipeDismiss';
+import { getElementTransform } from '../../utils/getElementTransform';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,

@@ -18,6 +18,20 @@
     return;
   }
 
+  // When the active tab carries its own transform, the layout offset below can't reflect
+  // its visual position, and the hydrated component may follow it. Skip the pre-hydration
+  // paint and let the component position the indicator on hydration; this avoids painting
+  // at the wrong spot and then jumping. Keep this in sync with `TabsIndicator.tsx`.
+  const activeTabStyle = getComputedStyle(activeTab);
+  if (
+    activeTabStyle.transform !== 'none' ||
+    activeTabStyle.translate !== 'none' ||
+    activeTabStyle.rotate !== 'none' ||
+    activeTabStyle.scale !== 'none'
+  ) {
+    return;
+  }
+
   let left = 0;
   let right = 0;
   let top = 0;
@@ -44,28 +58,55 @@
     };
   }
 
+  function getLayoutOffset(element, ancestor) {
+    const elementOffset = getCumulativeOffset(element);
+    const ancestorOffset = getCumulativeOffset(ancestor);
+
+    return {
+      left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+      top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+    };
+  }
+
+  function getCumulativeOffset(element) {
+    let offsetLeft = 0;
+    let offsetTop = 0;
+    let currentElement = element;
+
+    while (currentElement != null) {
+      offsetLeft += currentElement.offsetLeft;
+      offsetTop += currentElement.offsetTop;
+
+      const offsetParent = currentElement.offsetParent;
+      if (offsetParent != null) {
+        offsetLeft += offsetParent.clientLeft;
+        offsetTop += offsetParent.clientTop;
+      }
+
+      currentElement = offsetParent;
+    }
+
+    return { left: offsetLeft, top: offsetTop };
+  }
+
   if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
-    const tabRect = activeTab.getBoundingClientRect();
-    const tabsListRect = tabsList.getBoundingClientRect();
-    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
-    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
-    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
-
-    if (hasNonZeroScale) {
-      const tabLeftDelta = tabRect.left - tabsListRect.left;
-      const tabTopDelta = tabRect.top - tabsListRect.top;
-
-      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
-    } else {
-      left = activeTab.offsetLeft;
-      top = activeTab.offsetTop;
-    }
 
     width = computedWidth;
     height = computedHeight;
+
+    // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
+    // They are off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
+    // recomputes the variables with sub-pixel precision as soon as React hydrates.
+    //
+    // Clamp to the content box: a rounded-up offset could otherwise overshoot the tab
+    // list's scrollable extent and trigger a transient scrollbar before hydration. The
+    // clamp is a no-op when the active tab doesn't define the edge (e.g. trailing list
+    // padding), and it also keeps `--active-tab-right`/`--active-tab-bottom` >= 0.
+    const layoutOffset = getLayoutOffset(activeTab, tabsList);
+    left = Math.min(layoutOffset.left, tabsList.scrollWidth - width);
+    top = Math.min(layoutOffset.top, tabsList.scrollHeight - height);
+
     right = tabsList.scrollWidth - left - width;
     bottom = tabsList.scrollHeight - top - height;
   }
