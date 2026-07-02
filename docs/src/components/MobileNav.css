@@ -223,7 +223,7 @@
   .MobileNavScrollAreaRoot {
     --mobile-nav-scroll-scrim-size: var(--space-16);
     --mobile-nav-scroll-bottom-inset: calc(
-      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0)
+      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0px)
     );
     position: relative;
     flex: 1;
