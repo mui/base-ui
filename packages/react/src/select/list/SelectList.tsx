@@ -44,7 +44,7 @@ export const SelectList = React.forwardRef(function SelectList(
       hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
   };
 
-  const setListElement = useStableCallback((element: HTMLElement | null) => {
+  const setListElement = useStableCallback((element: HTMLDivElement | null) => {
     store.set('listElement', element);
   });
 
