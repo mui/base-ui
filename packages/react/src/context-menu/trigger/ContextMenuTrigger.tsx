@@ -94,6 +94,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       return;
     }
 
+    // A right click while another mouse button is already held down is part of a
+    // chorded gesture (e.g. a left-drag plus right click), not a context menu
+    // request. `buttons` is 2 while only the right button is held, or 0 on
+    // platforms where `contextmenu` fires on its release.
+    const { buttons } = event.nativeEvent;
+    if (buttons !== 0 && buttons !== 2) {
+      event.preventDefault();
+      return;
+    }
+
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);

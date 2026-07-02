@@ -123,6 +123,27 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.calls.length).toBe(1);
   });
 
+  it('does not open when another mouse button is held during the right click', async () => {
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    // Left button (1) still held while the right click fires.
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, buttons: 3 });
+
+    expect(onOpenChange.mock.calls.length).toBe(0);
+  });
+
   it('closes the menu on mouseup within the move threshold after a patient hold', async () => {
     const onOpenChange = vi.fn();
 
