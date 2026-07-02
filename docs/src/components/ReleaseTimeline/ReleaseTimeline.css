@@ -20,16 +20,15 @@
     }
   }
 
-  .TimelineSpine {
-    display: none;
-  }
-
   .TimelineItem {
     position: relative;
   }
 
   @media (min-width: 48rem) {
-    .TimelineSpine {
+    /* Decorative vertical spine. A pseudo-element rather than a child <div> so
+       the <ul> only contains <li> elements. */
+    .ReleaseTimeline::before {
+      content: '';
       position: absolute;
       display: block;
       top: 0;
