@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { benchmark, ElementTiming } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
+import styles from './styles/select.module.css';
 
 const selectRows = createRows(200, 'Select');
 const selectItems = createRows(5, 'Option');
@@ -12,18 +13,18 @@ function SelectMountList() {
     <MountList rows={selectRows}>
       {(row) => (
         <Select.Root key={row.id} items={selectItems}>
-          <Select.Trigger aria-label={`Open ${row.label}`}>
-            <Select.Value placeholder={row.label} />
-            <Select.Icon>v</Select.Icon>
+          <Select.Trigger aria-label={`Open ${row.label}`} className={styles.Select}>
+            <Select.Value placeholder={row.label} className={styles.Value} />
+            <Select.Icon className={styles.SelectIcon}>v</Select.Icon>
           </Select.Trigger>
           <Select.Portal>
-            <Select.Positioner sideOffset={8}>
-              <Select.Popup>
-                <Select.List>
+            <Select.Positioner sideOffset={8} className={styles.Positioner}>
+              <Select.Popup className={styles.Popup}>
+                <Select.List className={styles.List}>
                   {selectItems.map((item) => (
-                    <Select.Item key={item.id} value={item.value}>
-                      <Select.ItemIndicator />
-                      <Select.ItemText>{item.label}</Select.ItemText>
+                    <Select.Item key={item.id} value={item.value} className={styles.Item}>
+                      <Select.ItemIndicator className={styles.ItemIndicator} />
+                      <Select.ItemText className={styles.ItemText}>{item.label}</Select.ItemText>
                     </Select.Item>
                   ))}
                 </Select.List>
@@ -39,21 +40,21 @@ function SelectMountList() {
 function LargeSelect() {
   return (
     <Select.Root items={largeSelectItems}>
-      <Select.Trigger aria-label="Open select benchmark">
-        <Select.Value placeholder="Choose option" />
-        <Select.Icon>v</Select.Icon>
+      <Select.Trigger aria-label="Open select benchmark" className={styles.Select}>
+        <Select.Value placeholder="Choose option" className={styles.Value} />
+        <Select.Icon className={styles.SelectIcon}>v</Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner sideOffset={8}>
-          <Select.Popup>
+        <Select.Positioner sideOffset={8} className={styles.Positioner}>
+          <Select.Popup className={styles.Popup}>
             <div data-benchmark="select-open-content">
               <ElementTiming name="select-open" />
             </div>
-            <Select.List>
+            <Select.List className={styles.List}>
               {largeSelectItems.map((item) => (
-                <Select.Item key={item.id} value={item.value}>
-                  <Select.ItemIndicator />
-                  <Select.ItemText>{item.label}</Select.ItemText>
+                <Select.Item key={item.id} value={item.value} className={styles.Item}>
+                  <Select.ItemIndicator className={styles.ItemIndicator} />
+                  <Select.ItemText className={styles.ItemText}>{item.label}</Select.ItemText>
                 </Select.Item>
               ))}
             </Select.List>
