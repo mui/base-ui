@@ -11,11 +11,13 @@ import {
   attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
   setPopupOpenState,
+  updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -43,6 +45,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -115,6 +118,7 @@ export class PopoverStore<Payload> extends ReactStore<
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         stickIfOpenTimeout: new Timeout(),
         triggerElements,
+        inlineRectCoordsRef: { current: undefined },
       },
       selectors,
     );
@@ -153,6 +157,31 @@ export class PopoverStore<Payload> extends ReactStore<
 
     if (eventDetails.isCanceled) {
       return;
+    }
+
+    const { inlineRectCoordsRef } = this.context;
+    const event = eventDetails.event;
+    if (!nextOpen) {
+      // Clear immediately on close so that reopening on a different line before the
+      // close transition finishes re-captures fresh coordinates instead of reusing
+      // the previously hovered line.
+      inlineRectCoordsRef.current = undefined;
+    } else if (
+      // Capture the hovered inline-rect coordinates so the popover anchors to the
+      // exact line of a multiline trigger that was hovered.
+      isHover &&
+      eventDetails.trigger &&
+      event != null &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
     }
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);

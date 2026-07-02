@@ -13,6 +13,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the tooltip against the trigger.
@@ -54,6 +55,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const hasViewport = store.useState('hasViewport');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -72,6 +74,9 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    // Inline positioning would conflict with cursor tracking, where the reference
+    // is a virtual point rather than the trigger's line boxes.
+    inline: trackCursorAxis === 'none' ? createInlineMiddleware(inlineRectCoordsRef) : undefined,
   });
 
   const state: TooltipPositionerState = React.useMemo(

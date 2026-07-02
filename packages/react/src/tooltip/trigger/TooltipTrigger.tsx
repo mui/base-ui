@@ -8,7 +8,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
@@ -259,6 +259,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
   const shouldApplyRootTriggerProps = isMountedByThisTrigger || trackCursorAxis !== 'none';
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
+    store.context.inlineRectCoordsRef,
+    isOpenedByThisTrigger,
+  );
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
@@ -269,6 +273,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       hoverProps,
       focusProps,
       shouldApplyRootTriggerProps ? rootTriggerProps : undefined,
+      inlineRectTriggerProps,
       {
         onMouseOver(event: React.MouseEvent) {
           handleNestedTriggerHover(event.nativeEvent);
