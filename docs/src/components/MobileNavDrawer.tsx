@@ -14,7 +14,7 @@ import type {
 } from '@mui/internal-docs-infra/useSearch/types';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
-import { getDisplayTitle } from './getDisplayTitle';
+import { getDisplayTitle } from '../utils/getDisplayTitle';
 import { stringToUrl } from './QuickNav/rehypeSlug.mjs';
 
 const sitemapPromise: () => Promise<{ sitemap?: Sitemap }> = () => import('../app/sitemap');

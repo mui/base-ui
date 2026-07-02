@@ -3,7 +3,7 @@ import * as MobileNav from './MobileNav';
 import { sitemap } from '../app/sitemap';
 import { GitHubIcon } from '../icons/GitHubIcon';
 import { NpmIcon } from '../icons/NpmIcon';
-import { getDisplayTitle } from './getDisplayTitle';
+import { getDisplayTitle } from '../utils/getDisplayTitle';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 

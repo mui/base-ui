@@ -11,7 +11,7 @@ import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
-import { getDisplayTitle } from '../getDisplayTitle';
+import { getDisplayTitle } from '../../utils/getDisplayTitle';
 import { loadSearchSitemap, type SearchSitemapLoader } from './searchSitemap';
 import './Search.css';
 

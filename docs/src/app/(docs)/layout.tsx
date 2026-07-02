@@ -13,7 +13,7 @@ import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { NpmIcon } from 'docs/src/icons/NpmIcon';
-import { getDisplayTitle } from 'docs/src/components/getDisplayTitle';
+import { getDisplayTitle } from 'docs/src/utils/getDisplayTitle';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
