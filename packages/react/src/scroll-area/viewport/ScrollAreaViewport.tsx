@@ -420,7 +420,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       });
     },
     onWheel: handleUserInteraction,
-    onTouchMove: handleUserInteraction,
     onPointerMove: handleUserInteraction,
     onPointerEnter: handleUserInteraction,
     onKeyDown: handleUserInteraction,
