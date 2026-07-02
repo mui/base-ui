@@ -13,18 +13,13 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
   const { delay, closeDelay, timeout = 400 } = props;
 
   const contextValue: TooltipProviderContext = React.useMemo(
-    () => ({
-      delay,
-      closeDelay,
-    }),
+    () => ({ openDelay: delay, closeDelay }),
     [delay, closeDelay],
   );
 
-  const delayValue = React.useMemo(() => ({ open: delay, close: closeDelay }), [delay, closeDelay]);
-
   return (
     <TooltipProviderContext.Provider value={contextValue}>
-      <FloatingDelayGroup delay={delayValue} timeoutMs={timeout}>
+      <FloatingDelayGroup delay={contextValue} timeoutMs={timeout}>
         {props.children}
       </FloatingDelayGroup>
     </TooltipProviderContext.Provider>
