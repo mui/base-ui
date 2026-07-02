@@ -349,8 +349,8 @@
   padding: 0 0.25rem;
   font-size: 0.625rem;
   font-family:
-    'Paper Mono', ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo,
-    monospace;
+    'Paper Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   font-weight: 400;
   line-height: 1;
   color: oklch(43.9% 0 0deg);
