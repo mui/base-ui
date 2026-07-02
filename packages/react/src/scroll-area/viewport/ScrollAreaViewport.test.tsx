@@ -52,6 +52,99 @@ describe('<ScrollArea.Viewport />', () => {
       expect(viewport).not.toHaveAttribute('data-scrolling');
     });
 
+    it('ignores data-scrolling during programmatic scroll', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // No user interaction before the scroll event, as with `scrollTo()`.
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('adds [data-scrolling] when a touch starts the scroll', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // On iOS, a touch that catches an in-flight momentum scroll may deliver
+      // no touchmove/pointermove events, so touchstart alone must attribute
+      // the scroll to the user.
+      fireEvent.touchStart(viewport);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+    });
+
+    it('keeps attributing scrolls to the user while a touch is active', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.touchStart(viewport);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+
+      // A >=100ms gap in scroll events while the finger is still down (such as
+      // holding a rubber-band bounce) must not reclassify as programmatic.
+      await clock.tickAsync(150);
+      fireEvent.scroll(viewport, { target: { scrollTop: 2 } });
+
+      // Present past the first scroll's timeout only if the second scroll
+      // restarted it, proving it was still treated as user-driven.
+      await clock.tickAsync(SCROLL_TIMEOUT - 100);
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+
+      await clock.tickAsync(100);
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('restores programmatic detection after the touch ends', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.touchStart(viewport);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+      fireEvent.touchEnd(viewport);
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+
+      fireEvent.scroll(viewport, { target: { scrollTop: 2 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
     it('removes [data-scrolling] after timeout', async () => {
       await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>

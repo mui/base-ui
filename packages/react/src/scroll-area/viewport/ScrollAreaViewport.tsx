@@ -18,6 +18,10 @@ import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
 
+// 100 ms without scroll events ≈ scroll end
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
+const SCROLL_END_DELAY = 100;
+
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
 let scrollAreaOverflowVarsRegistered = false;
@@ -101,6 +105,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const direction = useDirection();
 
   const programmaticScrollRef = React.useRef(true);
+  const touchActiveRef = React.useRef(false);
   const lastMeasuredViewportMetricsRef = React.useRef<[number, number, number, number]>([
     NaN,
     NaN,
@@ -379,6 +384,27 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     programmaticScrollRef.current = false;
   }
 
+  function handleScrollEnd() {
+    // While a finger is on the screen, iOS consumes touches that catch a
+    // momentum scroll or rubber-band bounce natively and may deliver no
+    // further touch/pointer events, so a pause in scroll events must not
+    // reclassify the gesture as programmatic.
+    if (!touchActiveRef.current) {
+      programmaticScrollRef.current = true;
+    }
+  }
+
+  function handleTouchStart() {
+    touchActiveRef.current = true;
+    handleUserInteraction();
+  }
+
+  function handleTouchEnd() {
+    touchActiveRef.current = false;
+    // If momentum scrolling follows, its scroll events restart this timeout.
+    scrollEndTimeout.start(SCROLL_END_DELAY, handleScrollEnd);
+  }
+
   const props: React.ComponentProps<'div'> = {
     role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
@@ -407,14 +433,14 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       // flips back to `true` once scrolling has come to a rest. This ensures
       // that momentum scrolling (where no further user-interaction events fire)
       // is still treated as user-driven.
-      // 100 ms without scroll events ≈ scroll end
-      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
-      scrollEndTimeout.start(100, () => {
-        programmaticScrollRef.current = true;
-      });
+      scrollEndTimeout.start(SCROLL_END_DELAY, handleScrollEnd);
     },
     onWheel: handleUserInteraction,
+    onTouchStart: handleTouchStart,
+    onTouchEnd: handleTouchEnd,
+    onTouchCancel: handleTouchEnd,
     onTouchMove: handleUserInteraction,
+    onPointerDown: handleUserInteraction,
     onPointerMove: handleUserInteraction,
     onPointerEnter: handleUserInteraction,
     onKeyDown: handleUserInteraction,
