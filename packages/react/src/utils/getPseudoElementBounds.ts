@@ -8,7 +8,7 @@ interface ElementBounds {
   bottom: number;
 }
 
-// Tolerance around the trigger bounds so a fast click whose pointer drifts slightly
+// Tolerance around the element bounds so a fast click whose pointer drifts slightly
 // during press-release isn't mistaken for a drag-off-and-release cancellation.
 // Matches typical OS/browser drag-initiation thresholds.
 const BOUNDARY_OFFSET = 5;
