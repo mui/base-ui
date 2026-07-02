@@ -167,6 +167,28 @@ describe('<PreviewCard.Root />', () => {
       expect(trigger).toHaveAttribute('data-popup-open');
     });
 
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = PreviewCard.createHandle();
+
+      await render(
+        <div>
+          <PreviewCard.Root handle={handle}>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+          <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+            Trigger
+          </PreviewCard.Trigger>
+        </div>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('No trigger found with id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
     describe('multiple roots sharing one handle', () => {
       // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
       clock.withFakeTimers();

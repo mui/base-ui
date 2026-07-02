@@ -98,10 +98,14 @@ export class BasePopupHandle<
    * @param fallbackStore Inert store exposed to detached triggers before a root mounts.
    * @param componentName Component name used to prefix dev warnings, e.g. `'Menu'` produces
    * `MenuHandle.open()` in warning text.
+   * @param throwOnMissingTrigger Whether `open(triggerId)` throws when no trigger with that id is
+   * registered. Anchored popups (Menu, Popover, Tooltip, PreviewCard) need a trigger to anchor to,
+   * so they throw; Dialog is not anchored and instead opens unassociated with a dev warning.
    */
   constructor(
     fallbackStore: HandleStore,
     private readonly componentName: string,
+    private readonly throwOnMissingTrigger: boolean = true,
   ) {
     this.fallbackStoreValue = fallbackStore;
   }
@@ -202,6 +206,9 @@ export class BasePopupHandle<
    * no-op (with a dev warning) while no root is attached. Shared by every concrete handle's public
    * `open()` method, which only narrows the parameter type.
    *
+   * When a trigger id is given but no matching trigger is registered, anchored popups throw (see
+   * `throwOnMissingTrigger`); Dialog opens unassociated with a dev warning instead.
+   *
    * This method should only be called in an event handler or an effect (not during rendering).
    *
    * @param triggerId ID of the trigger to associate with the popup, or `null`/`undefined` to open
@@ -231,11 +238,17 @@ export class BasePopupHandle<
         this.fallbackStore.context.triggerElements.getById(triggerId))
       : undefined;
 
-    if (process.env.NODE_ENV !== 'production') {
-      if (triggerId && !triggerElement) {
+    if (triggerId && !triggerElement) {
+      if (this.throwOnMissingTrigger) {
+        throw new Error(
+          `Base UI: ${this.componentName}Handle.open: No trigger found with id "${triggerId}".`,
+        );
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
         console.warn(
           `Base UI: ${this.componentName}Handle.open: No trigger found with id "${triggerId}". ` +
-            `The popup will open, but the trigger will not be associated with it.`,
+            'The popup will open, but the trigger will not be associated with it.',
         );
       }
     }

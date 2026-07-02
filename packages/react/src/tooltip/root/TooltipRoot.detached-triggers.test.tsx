@@ -173,6 +173,28 @@ describe('<Tooltip.Root />', () => {
       expect(trigger).toHaveAttribute('data-popup-open');
     });
 
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = Tooltip.createHandle();
+
+      await render(
+        <div>
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+          <Tooltip.Trigger handle={handle} id="trigger">
+            Trigger
+          </Tooltip.Trigger>
+        </div>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('No trigger found with id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
     describe('multiple roots sharing one handle', () => {
       // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
       clock.withFakeTimers();

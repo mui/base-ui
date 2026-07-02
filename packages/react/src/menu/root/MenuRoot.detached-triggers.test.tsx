@@ -157,6 +157,30 @@ describe('<MenuRoot />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = Menu.createHandle();
+
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Menu Content</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('No trigger found with id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
     describe('multiple roots sharing one handle', () => {
       // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
       clock.withFakeTimers();

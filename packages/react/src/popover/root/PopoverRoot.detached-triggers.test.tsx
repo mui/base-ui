@@ -165,6 +165,28 @@ describe('<Popover.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = Popover.createHandle();
+
+      await render(
+        <React.Fragment>
+          <Popover.Root handle={handle}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Popover Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Popover.Trigger handle={handle} id="trigger">
+            Trigger
+          </Popover.Trigger>
+        </React.Fragment>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('No trigger found with id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
     describe('multiple roots sharing one handle', () => {
       // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
       clock.withFakeTimers();

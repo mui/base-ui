@@ -16,7 +16,7 @@ export class DialogHandle<Payload> extends BasePopupHandle<
   DialogStore<Payload>
 > {
   constructor() {
-    super(createNullDialogStore<Payload>(), 'Dialog');
+    super(createNullDialogStore<Payload>(), 'Dialog', false);
   }
 
   /**
