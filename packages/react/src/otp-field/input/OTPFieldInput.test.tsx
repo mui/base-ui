@@ -190,6 +190,38 @@ describe('<OTPField.Input />', () => {
     expect(firstInput.selectionEnd).toBe(1);
   });
 
+  it('commits an IME composition once on compositionend instead of per intermediate change', async () => {
+    const onValueChange = vi.fn();
+
+    await render(<OTPFieldTest validationType="alphanumeric" onValueChange={onValueChange} />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const firstInput = inputs[0];
+
+    await act(async () => {
+      firstInput.focus();
+    });
+
+    fireEvent.compositionStart(firstInput);
+
+    // Safari can surface in-progress IME text through `change` as an accumulating string.
+    fireEvent.change(firstInput, { target: { value: 'd' } });
+    fireEvent.change(firstInput, { target: { value: 'dd' } });
+    fireEvent.change(firstInput, { target: { value: 'ddd' } });
+
+    // No value commits while the composition is active; the text is only buffered for display.
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(inputs.map((input) => input.value)).toEqual(['ddd', '', '', '', '', '']);
+
+    fireEvent.compositionEnd(firstInput, { target: { value: 'ddd' } });
+
+    // The final composed value commits once across three slots, not six.
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenLastCalledWith('ddd', expect.anything());
+    expect(inputs.map((input) => input.value)).toEqual(['d', 'd', 'd', '', '', '']);
+    expect(document.activeElement).toBe(inputs[3]);
+  });
+
   it('selects the slot value on mousedown', async () => {
     await render(<OTPFieldTest defaultValue="1" />);
 
