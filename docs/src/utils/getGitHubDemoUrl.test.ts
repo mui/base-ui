@@ -14,6 +14,7 @@ describe('getGitHubDemoUrl', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllEnvs();
   });
 
@@ -47,6 +48,12 @@ describe('getGitHubDemoUrl', () => {
     );
   });
 
+  it('prefixes the library version with v in the tree URL', () => {
+    vi.stubEnv('LIB_VERSION', '9.9.9');
+
+    expect(getGitHubDemoUrl(unixUrl)).toContain('/tree/v9.9.9/');
+  });
+
   it('returns null for undefined url', () => {
     expect(getGitHubDemoUrl(undefined)).toBeNull();
   });
@@ -60,15 +67,42 @@ describe('getGitHubDemoUrl', () => {
   });
 
   it('returns null when source code repo metadata is unavailable', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.stubEnv('SOURCE_CODE_REPO', '');
 
     expect(getGitHubDemoUrl(unixUrl)).toBeNull();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
+    );
   });
 
   it('returns null when library version metadata is unavailable', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.stubEnv('LIB_VERSION', '');
 
     expect(getGitHubDemoUrl(unixUrl)).toBeNull();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
+    );
+  });
+
+  it('returns null and warns in development when the file URL cannot be decoded', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    expect(getGitHubDemoUrl('file:///home/user/base-ui/docs/%E0%A4%A/index.ts')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(
+      'Base UI: Demo source link could not be generated.',
+      expect.any(URIError),
+    );
+  });
+
+  it('does not warn in production when source metadata is unavailable', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.stubEnv('SOURCE_CODE_REPO', '');
+    vi.stubEnv('NODE_ENV', 'production');
+
+    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it('handles encoded URI components', () => {

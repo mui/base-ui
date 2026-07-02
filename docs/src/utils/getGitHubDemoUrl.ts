@@ -1,10 +1,26 @@
 import kebabCase from 'es-toolkit/compat/kebabCase';
 
+function warnInDevelopment(message: string, error?: unknown) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (error == null) {
+      console.warn(message);
+    } else {
+      console.warn(message, error);
+    }
+  }
+}
+
 function getGitHubBaseUrl() {
   const sourceCodeRepo = process.env.SOURCE_CODE_REPO;
   const sourceCodeRef = process.env.LIB_VERSION ? `v${process.env.LIB_VERSION}` : undefined;
 
   if (!sourceCodeRepo || !sourceCodeRef) {
+    warnInDevelopment(
+      [
+        'Base UI: Demo source links cannot be generated because SOURCE_CODE_REPO or LIB_VERSION is missing.',
+        'Ensure docs/next.config.mjs injects both values.',
+      ].join(' '),
+    );
     return null;
   }
 
@@ -52,7 +68,8 @@ export function getGitHubDemoUrl(
     }
 
     return `${githubBase}/${dirPath}`;
-  } catch {
+  } catch (error) {
+    warnInDevelopment('Base UI: Demo source link could not be generated.', error);
     return null;
   }
 }
