@@ -1,215 +1,401 @@
+@layer all, base, theme, components, utilities;
+
 @import 'docs/src/css/custom-media.css';
 
 @layer components {
+  .MobileNavTriggerIcon {
+    width: var(--space-16);
+    height: var(--space-16);
+    flex-shrink: 0;
+  }
+
   .MobileNavBackdrop {
     position: fixed;
     inset: 0;
     min-height: 100dvh;
+    opacity: calc(1 - var(--drawer-swipe-progress, 1));
+    background-color: rgb(0 0 0 / 10%);
+    transition-duration: 450ms;
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
-    transition-duration: 600ms;
-    transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
-    transition-timing-function: var(--ease-out-fast);
-    backdrop-filter: blur(1.5px);
-    background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
-
-    /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
     @supports (-webkit-touch-callout: none) {
       position: absolute;
     }
 
     @media (prefers-color-scheme: dark) {
-      background-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 25%) 6rem);
+      background-color: rgb(0 0 0 / 40%);
     }
 
     &[data-starting-style],
     &[data-ending-style] {
-      backdrop-filter: blur(0);
       opacity: 0;
     }
 
-    &[data-ending-style] {
-      transition-duration: 250ms;
-      transition-timing-function: var(--ease-in-slow);
-    }
-  }
-
-  .MobileNavPopup {
-    position: fixed;
-    height: 100dvh;
-    inset: 0;
-    outline: 0;
-
-    /* Half the transition duration for blur so the element sort of comes into the focus when it's halfway in */
-    transition-duration: 600ms, 300ms;
-    transform-origin: top center;
-    transition-property: transform, filter;
-    transition-timing-function: var(--ease-out-fast);
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      transform: translateY(100dvh);
-      filter: blur(1px);
+    &[data-swiping] {
+      transition-duration: 0ms;
     }
 
     &[data-ending-style] {
-      /* Delay the blur transition so it doesn't feel unfocused until halway out */
-      transition-delay: 0ms, 125ms;
-      transition-duration: 250ms;
-      transition-timing-function: var(--ease-in-slow);
+      transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
     }
   }
 
   .MobileNavViewport {
-    --mobile-nav-item-height: 2.5rem;
-    --mobile-nav-item-padding-x: 1.5rem;
-
-    position: absolute;
+    position: fixed;
     inset: 0;
-    height: 100dvh;
-    overflow-y: auto;
-
-    font-size: var(--font-size-16);
-    line-height: 1.5rem;
-
-    /* Native apps don't show scrollbars on sheets like this */
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* A decorative border between the status bar and the page */
-    &::after {
-      content: '';
-      position: fixed;
-      z-index: 1;
-      top: 0;
-      inset-inline: 0;
-      height: 1px;
-      transition: background-color 50ms;
-    }
-
-    &[data-clipped]::after {
-      background-color: var(--color-gridline);
-    }
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    touch-action: none;
   }
 
-  .MobileNavViewportInner {
+  .MobileNavPopup {
+    --mobile-nav-bleed: 3rem;
+    --mobile-nav-item-height: var(--space-40);
+    --mobile-nav-item-padding-x: var(--space-28);
     position: relative;
-
-    /* Prevent children's margin collapse */
+    z-index: 1;
     display: flex;
     flex-direction: column;
-  }
-
-  .MobileNavBackdropTapArea {
-    position: absolute;
-    inset: 0;
-  }
-
-  .MobileNavPanel {
-    margin-top: var(--header-height);
-    position: relative;
-    padding-block: 1rem;
-
-    border-top-left-radius: var(--radius-12);
-    border-top-right-radius: var(--radius-12);
-
+    overflow: hidden;
+    width: 100%;
+    height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
+    max-height: calc(100dvh - var(--space-4) + var(--mobile-nav-bleed));
+    margin-bottom: calc(-1 * var(--mobile-nav-bleed));
+    border-top-left-radius: var(--radius-36); /* Mimic iOS bottom sheets */
+    border-top-right-radius: var(--radius-36); /* Mimic iOS bottom sheets */
+    background-color: var(--color-popup);
+    color: var(--gray-t2);
+    outline: 0;
+    touch-action: none;
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
       0 0.25px 0 1px var(--color-border);
+    transform: translateY(var(--drawer-swipe-movement-y));
+    transition:
+      transform 500ms cubic-bezier(0.32, 0.72, 0, 1),
+      filter 300ms cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, filter;
 
     @media (prefers-color-scheme: dark) {
       box-shadow: 0 0 0 1px var(--color-border);
     }
 
-    /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
-    background-image: linear-gradient(to bottom, var(--color-popup) calc(100% - 2rem), transparent);
+    &[data-swiping] {
+      -webkit-user-select: none;
+      user-select: none;
+    }
 
-    /* Make the panel narrower on wider screens and lose the overscroll gradient hocus pocus for a bottom margin */
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(calc(100% - var(--mobile-nav-bleed) + 2px));
+      filter: blur(1px);
+    }
+
+    &[data-ending-style] {
+      transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+    }
+
     @media (--sm) {
-      margin-block: 5rem;
-      margin-inline: auto;
       width: calc(100% - 6rem);
       max-width: 40rem;
-      background-image: none;
-      background-color: var(--color-popup);
-      border-radius: var(--radius-12);
+    }
+
+    @media (min-height: 27rem) {
+      height: calc(100dvh - var(--header-height) + var(--mobile-nav-bleed));
+      max-height: calc(100dvh - var(--header-height) + var(--mobile-nav-bleed));
     }
   }
 
-  /* Smoothly hides bottom overscroll edge */
-  .MobileNavBottomOverscroll {
+  .MobileNavSearchHeader {
+    position: relative;
+    flex-shrink: 0;
+    padding: var(--space-16) var(--space-16) 0;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .MobileNavHandle {
     position: absolute;
-    inset: 0;
-    background-image: linear-gradient(to bottom, transparent 30%, var(--color-popup) 50%);
-
-    @media (--sm) {
-      display: none;
-    }
+    top: 0.3125rem; /* 5px to mimic iOS */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3.5rem; /* 56px to mimic iOS */
+    height: 0.3125rem; /* 5px to mimic iOS */
+    border-radius: var(--radius-pill);
+    background-color: var(--color-border);
   }
 
-  .MobileNavSection {
-    margin-bottom: 1rem;
+  .MobileNavSearchInputRoot {
+    position: relative;
   }
 
-  .MobileNavHeading {
-    font-size: var(--font-size-18);
-    line-height: 1.75rem;
-    font-weight: var(--font-weight-700);
-    padding-inline: var(--mobile-nav-item-padding-x);
-
-    .MobileNavHeadingInner {
-      display: flex;
-      align-items: center;
-      height: var(--mobile-nav-item-height);
-    }
-
-    &::after {
-      content: '';
-      display: block;
-      margin-top: -1px;
-      border-bottom: 1px solid var(--color-border);
-    }
+  .MobileNavSearchIcon {
+    position: absolute;
+    top: 50%;
+    left: var(--space-12);
+    z-index: 1;
+    transform: translateY(-50%);
+    width: var(--space-16);
+    height: var(--space-16);
+    color: var(--gray-t1);
+    pointer-events: none;
   }
 
-  /* TODO Vlad should headings be just items? */
-  .MobileNavItem {
-    /*
-     * Border is a separate element so that links
-     * span the entire screen width and have the
-     * tap-highlight-color applied edge to edge.
-     */
-    &::after {
-      content: '';
-      display: block;
-      margin-inline: var(--mobile-nav-item-padding-x);
-      border-bottom: 1px solid var(--color-border);
-    }
+  .MobileNavSearchInput {
+    display: block;
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    height: var(--space-40);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background-color: var(--gray-c1);
+    padding-left: var(--space-36);
+    padding-right: var(--space-32);
+    font: inherit;
+    color: var(--gray-t2);
+    outline: 0;
   }
 
-  .MobileNavLink {
-    flex-grow: 1;
+  .MobileNavSearchInput::placeholder {
+    color: var(--gray-t1);
+  }
+
+  .MobileNavClearSearch {
+    position: absolute;
+    top: 50%;
+    right: var(--space-8);
+    z-index: 1;
+    transform: translateY(-50%);
     display: flex;
-    gap: 4px;
     align-items: center;
-    height: var(--mobile-nav-item-height);
-    padding-inline: var(--mobile-nav-item-padding-x);
+    justify-content: center;
+    width: var(--space-24);
+    height: var(--space-24);
+    border-radius: 100%;
+    color: var(--gray-t2);
+    outline: 0;
+
+    > svg {
+      pointer-events: none;
+      width: var(--space-12);
+      height: var(--space-12);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--gray-c3);
+      }
+    }
+
+    @media not (hover: hover) {
+      &:active {
+        background-color: var(--gray-c2);
+      }
+    }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
     }
+  }
 
-    @supports not (-webkit-tap-highlight-color: black) {
-      &:active {
-        background-color: var(--gray-c1);
-      }
+  .MobileNavContent,
+  .MobileNavScrollAreaRoot,
+  .MobileNavScrollAreaViewport {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .MobileNavContent,
+  .MobileNavScrollAreaRoot {
+    display: flex;
+  }
+
+  .MobileNavContent {
+    flex: 1 1 auto;
+    touch-action: auto;
+  }
+
+  .MobileNavScrollAreaRoot {
+    --mobile-nav-scroll-scrim-size: var(--space-16);
+    --mobile-nav-scroll-bottom-inset: calc(
+      var(--mobile-nav-bleed) + var(--drawer-keyboard-inset, 0)
+    );
+    position: relative;
+    flex: 1;
+  }
+
+  .MobileNavScrollAreaViewport {
+    --mobile-nav-scroll-scrim-start: min(
+      var(--mobile-nav-scroll-scrim-size),
+      var(--scroll-area-overflow-y-start, 0px)
+    );
+    --mobile-nav-scroll-scrim-end: min(
+      var(--mobile-nav-scroll-scrim-size),
+      var(--scroll-area-overflow-y-end, var(--mobile-nav-scroll-scrim-size))
+    );
+    --mobile-nav-scroll-scrim-end-stop: calc(100% - var(--mobile-nav-scroll-bottom-inset));
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding-bottom: var(--mobile-nav-scroll-bottom-inset);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      black var(--mobile-nav-scroll-scrim-start),
+      black calc(var(--mobile-nav-scroll-scrim-end-stop) - var(--mobile-nav-scroll-scrim-end)),
+      transparent var(--mobile-nav-scroll-scrim-end-stop),
+      transparent 100%
+    );
+    mask-repeat: no-repeat;
+    scroll-padding-top: var(--mobile-nav-scroll-scrim-size);
+    scroll-padding-bottom: calc(
+      var(--mobile-nav-scroll-scrim-size) + var(--mobile-nav-scroll-bottom-inset)
+    );
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
+    }
+  }
+
+  .MobileNavScrollAreaContent {
+    min-width: 0 !important;
+  }
+
+  .MobileNavScrollbar {
+    display: flex;
+    padding-top: var(--space-8);
+    padding-bottom: calc(var(--space-8) + var(--mobile-nav-scroll-bottom-inset));
+
+    /* Click target width */
+    width: var(--space-24);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms;
+
+    &[data-hovering],
+    &[data-scrolling],
+    &:hover {
+      opacity: 1;
+      pointer-events: auto;
+      transition-duration: 75ms;
+      transition-delay: 0ms;
+    }
+  }
+
+  .MobileNavScrollbarThumb {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    &::before {
+      content: '';
+      display: block;
+      height: 100%;
+      /* Visible thumb width */
+      width: var(--space-4);
+      border-radius: var(--radius-4);
+      background-color: var(--gray-p2);
+    }
+  }
+
+  .MobileNavPanel,
+  .MobileNavSearchResults {
+    padding-block: var(--mobile-nav-scroll-scrim-size)
+      calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .MobileNavSection:not(:last-of-type) {
+    margin-bottom: var(--space-24);
+  }
+
+  .MobileNavHeading {
+    display: flex;
+    align-items: center;
+    margin-inline: var(--mobile-nav-item-padding-x);
+    margin-bottom: var(--space-8);
+    font-size: var(--font-size-14);
+    line-height: 1;
+    font-weight: var(--font-weight-400);
+    color: var(--gray-t1);
+  }
+
+  .MobileNavList,
+  .MobileNavSearchList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    outline: 0;
+  }
+
+  .MobileNavLink,
+  .MobileNavSearchOption {
+    display: flex;
+    gap: var(--space-8);
+    align-items: center;
+    height: var(--mobile-nav-item-height);
+    padding-inline: var(--mobile-nav-item-padding-x);
+    color: var(--gray-t2);
+    outline: 0;
+  }
+
+  .MobileNavLink:focus-visible,
+  .MobileNavSearchOption:focus-visible {
+    outline: 2px solid var(--gray-t2);
+    outline-offset: -2px;
+  }
+
+  @media (hover: hover) {
+    .MobileNavLink:not([data-active]):hover .MobileNavLinkText {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--gray-t2);
+    }
+  }
+
+  .MobileNavSearchOption {
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline: var(--space-16);
+      z-index: -1;
+      border-radius: var(--radius-6);
+      pointer-events: none;
     }
 
-    @supports (-webkit-tap-highlight-color: black) {
-      /* Applying background-color on :active shows it when touching items while scrolling */
-      /* This activates only on real link taps */
+    &[data-highlighted]::before {
+      background-color: var(--gray-c1);
+    }
+  }
+
+  @supports not (-webkit-tap-highlight-color: black) {
+    .MobileNavLink:active,
+    .MobileNavSearchOption:active {
+      background-color: var(--gray-c1);
+    }
+  }
+
+  @supports (-webkit-tap-highlight-color: black) {
+    .MobileNavLink,
+    .MobileNavSearchOption {
       -webkit-tap-highlight-color: var(--gray-c3);
     }
   }
@@ -223,51 +409,57 @@
     font-size: 0.6875rem;
     font-weight: var(--font-weight-700);
     letter-spacing: 0.035em;
-    padding-inline: 2px;
+    padding-inline: 0.125rem;
     translate: 0 -3px;
   }
 
-  .MobileNavCloseContainer {
-    position: sticky;
-    top: 0.75rem;
-    left: 100%;
-    margin-right: 0.75rem;
-    height: 0;
-    width: fit-content;
+  .MobileNavResourceRow {
+    display: flex;
+    flex: 1;
+    align-items: baseline;
+    justify-content: space-between;
   }
 
-  .MobileNavBody {
-    display: flex;
-    flex-direction: column-reverse;
+  .MobileNavVersion {
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
+    color: var(--gray-t1);
   }
 
-  .MobileNavClose {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-p1);
-    outline: 0;
+  .MobileNavEmptyState {
+    padding: var(--space-24) var(--space-12);
+    text-align: center;
+    font-size: var(--font-size-16);
+    line-height: 1;
+    font-weight: var(--font-weight-400);
+    color: var(--gray-t1);
+  }
 
-    /* Visible circle */
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 100%;
-    background-color: var(--gray-c2);
+  .MobileNavSearchBreadcrumbText {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    /* Blur the dividers behind */
-    backdrop-filter: blur(1rem);
+  .MobileNavSearchBreadcrumbSeparator {
+    display: inline-flex;
+    margin-inline: var(--space-4);
+    vertical-align: middle;
+    flex-shrink: 0;
+    color: var(--gray-t1);
+  }
 
-    &:focus-visible {
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
-    }
+  .MobileNavSearchScore {
+    display: none;
+    margin-left: var(--space-4);
+    font-size: var(--font-size-13);
+    opacity: 0.7;
+    white-space: nowrap;
 
-    /* Tap target */
-    &::after {
-      content: '';
-      width: 3rem;
-      height: 3rem;
-      position: absolute;
+    @media (--sm) {
+      display: inline;
     }
   }
 }
