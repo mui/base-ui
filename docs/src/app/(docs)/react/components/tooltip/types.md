@@ -294,7 +294,7 @@ Renders a `<div>` element.
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-instant        | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the tooltip is animating in.                             |
+| data-starting-style | -                                                                          | Present when the tooltip begins animating in.                         |
 | data-ending-style   | -                                                                          | Present when the tooltip is animating out.                            |
 
 ### Popup.Props

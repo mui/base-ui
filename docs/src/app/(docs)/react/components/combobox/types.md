@@ -331,7 +331,7 @@ Renders a `<button>` element.
 | data-popup-open     | -    | Present when the corresponding popup is open. |
 | data-disabled       | -    | Present when the button is disabled.          |
 | data-visible        | -    | Present when the clear button is visible.     |
-| data-starting-style | -    | Present when the button is animating in.      |
+| data-starting-style | -    | Present when the button begins animating in.  |
 | data-ending-style   | -    | Present when the button is animating out.     |
 
 ### Clear.Props
@@ -421,12 +421,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-open           | -    | Present when the popup is open.          |
-| data-closed         | -    | Present when the popup is closed.        |
-| data-starting-style | -    | Present when the popup is animating in.  |
-| data-ending-style   | -    | Present when the popup is animating out. |
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-open           | -    | Present when the popup is open.             |
+| data-closed         | -    | Present when the popup is closed.           |
+| data-starting-style | -    | Present when the popup begins animating in. |
+| data-ending-style   | -    | Present when the popup is animating out.    |
 
 ### Backdrop.Props
 
@@ -567,7 +567,7 @@ Renders a `<div>` element.
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
 | data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the popup is animating in.                               |
+| data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
 
 ### Popup.Props
@@ -1004,10 +1004,10 @@ Renders a `<span>` element.
 
 **ItemIndicator Data Attributes:**
 
-| Attribute           | Type | Description                                  |
-| :------------------ | :--- | :------------------------------------------- |
-| data-starting-style | -    | Present when the indicator is animating in.  |
-| data-ending-style   | -    | Present when the indicator is animating out. |
+| Attribute           | Type | Description                                     |
+| :------------------ | :--- | :---------------------------------------------- |
+| data-starting-style | -    | Present when the indicator begins animating in. |
+| data-ending-style   | -    | Present when the indicator is animating out.    |
 
 ### ItemIndicator.Props
 

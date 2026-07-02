@@ -10,7 +10,7 @@ export enum DialogPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the dialog is animating in.
+   * Present when the dialog begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

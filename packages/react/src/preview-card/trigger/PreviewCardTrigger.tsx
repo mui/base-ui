@@ -120,7 +120,8 @@ export interface PreviewCardTriggerState {
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTriggerState
+  PreviewCardTriggerState,
+  React.ComponentPropsWithRef<'a'>
 > {
   /**
    * A handle to associate the trigger with a preview card.
