@@ -55,8 +55,8 @@ export function Item({ href, external, ...props }: ItemProps) {
   };
 
   const linkProps = {
-    ariaCurrent: active ? ('page' as const) : undefined,
-    dataActive: active ? '' : undefined,
+    'aria-current': active ? ('page' as const) : undefined,
+    'data-active': active ? '' : undefined,
     className: 'MobileNavLink',
     href,
     rel: props.rel,
@@ -66,28 +66,9 @@ export function Item({ href, external, ...props }: ItemProps) {
   return (
     <li {...props} className={clsx('MobileNavItem', props.className)}>
       {external ? (
-        <a
-          aria-current={linkProps.ariaCurrent}
-          data-active={linkProps.dataActive}
-          className={linkProps.className}
-          href={linkProps.href}
-          rel={linkProps.rel}
-          onClick={linkProps.onClick}
-        >
-          {props.children}
-        </a>
+        <a {...linkProps}>{props.children}</a>
       ) : (
-        <NextLink
-          aria-current={linkProps.ariaCurrent}
-          data-active={linkProps.dataActive}
-          className={linkProps.className}
-          href={linkProps.href}
-          rel={linkProps.rel}
-          // We handle scroll manually.
-          scroll={false}
-          onClick={linkProps.onClick}
-          onNavigate={handleNavigate}
-        >
+        <NextLink {...linkProps} scroll={false} onNavigate={handleNavigate}>
           {props.children}
         </NextLink>
       )}
