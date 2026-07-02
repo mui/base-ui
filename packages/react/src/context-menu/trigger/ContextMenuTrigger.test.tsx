@@ -202,15 +202,12 @@ describe('<ContextMenu.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      const touchObj = new Touch({
-        identifier: 0,
-        target: trigger,
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'touch',
+        pointerId: 1,
+        isPrimary: true,
         clientX: 100,
         clientY: 100,
-      });
-
-      fireEvent.touchStart(trigger, {
-        touches: [touchObj],
       });
 
       clock.tick(500);
@@ -218,7 +215,64 @@ describe('<ContextMenu.Trigger />', () => {
       expect(screen.queryByRole('menu')).not.toBe(null);
     });
 
-    it('should cancel long press when touch moves beyond threshold', async () => {
+    it('should open menu on long press with pen input', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'pen',
+        pointerId: 1,
+        isPrimary: true,
+        clientX: 100,
+        clientY: 100,
+      });
+
+      clock.tick(500);
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    });
+
+    it('should not start long press for mouse pointer input', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'mouse',
+        pointerId: 1,
+        isPrimary: true,
+        clientX: 100,
+        clientY: 100,
+      });
+
+      clock.tick(500);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('should cancel long press when pointer moves beyond threshold', async () => {
       const onOpenChange = vi.fn();
 
       await render(
@@ -234,28 +288,20 @@ describe('<ContextMenu.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      const touchStartObj = new Touch({
-        identifier: 0,
-        target: trigger,
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'touch',
+        pointerId: 1,
+        isPrimary: true,
         clientX: 100,
         clientY: 100,
       });
 
-      fireEvent.touchStart(trigger, {
-        touches: [touchStartObj],
-      });
-
-      // Simulate touch move (more than 10px movement)
-      // This should cancel the long press
-      const touchMoveObj = new Touch({
-        identifier: 0,
-        target: trigger,
+      fireEvent.pointerMove(trigger, {
+        pointerType: 'touch',
+        pointerId: 1,
+        isPrimary: true,
         clientX: 120,
         clientY: 100,
-      });
-
-      fireEvent.touchMove(trigger, {
-        touches: [touchMoveObj],
       });
 
       clock.tick(500);
@@ -280,15 +326,12 @@ describe('<ContextMenu.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      const touchObj = new Touch({
-        identifier: 0,
-        target: trigger,
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'touch',
+        pointerId: 1,
+        isPrimary: true,
         clientX: 100,
         clientY: 100,
-      });
-
-      fireEvent.touchStart(trigger, {
-        touches: [touchObj],
       });
 
       clock.tick(500);
