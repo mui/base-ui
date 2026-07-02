@@ -14,6 +14,7 @@ import type {
 } from '@mui/internal-docs-infra/useSearch/types';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
+import { getDisplayTitle } from './getDisplayTitle';
 import { stringToUrl } from './QuickNav/rehypeSlug.mjs';
 
 const sitemapPromise: () => Promise<{ sitemap?: Sitemap }> = () => import('../app/sitemap');
@@ -446,7 +447,7 @@ function SearchResultItem({ result }: { result: SearchResult }) {
       <span className="MobileNavSearchBreadcrumbText">
         {result.title?.split(' ‣ ').map((part, i, arr) => (
           <React.Fragment key={part}>
-            <span className="MobileNavSearchBreadcrumbPart">{part}</span>
+            <span className="MobileNavSearchBreadcrumbPart">{getDisplayTitle(part)}</span>
             {i !== arr.length - 1 && (
               <svg
                 className="MobileNavSearchBreadcrumbSeparator"

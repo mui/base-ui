@@ -3,6 +3,7 @@ import * as MobileNav from './MobileNav';
 import { sitemap } from '../app/sitemap';
 import { GitHubIcon } from '../icons/GitHubIcon';
 import { NpmIcon } from '../icons/NpmIcon';
+import { getDisplayTitle } from './getDisplayTitle';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
@@ -33,7 +34,7 @@ export function MobileNavContent() {
                     }
                     external={page.tags?.includes('External')}
                   >
-                    <span className="MobileNavLinkText">{page.title}</span>
+                    <span className="MobileNavLinkText">{getDisplayTitle(page.title)}</span>
                     {isPrivatePage && <MobileNav.Badge>Private</MobileNav.Badge>}
                     {isPreviewPage && <MobileNav.Badge>Preview</MobileNav.Badge>}
                     {isNewPage && !isPreviewPage && !isPrivatePage && (

@@ -11,6 +11,7 @@ import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
+import { getDisplayTitle } from '../getDisplayTitle';
 import { loadSearchSitemap, type SearchSitemapLoader } from './searchSitemap';
 import './Search.css';
 
@@ -49,7 +50,7 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
       {result.title?.split(' ‣ ').map((part, i, arr) => (
         <React.Fragment key={part}>
           <span className={clsx('SearchBreadcrumbPart', i === arr.length - 1 && 'last')}>
-            {part}
+            {getDisplayTitle(part)}
           </span>
           {i !== arr.length - 1 && (
             <svg

@@ -13,12 +13,9 @@ import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { NpmIcon } from 'docs/src/icons/NpmIcon';
+import { getDisplayTitle } from 'docs/src/components/getDisplayTitle';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
-
-const titleMap: Record<string, string> = {
-  'About Base\xa0UI': 'About',
-};
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -87,7 +84,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       }
                                       external={page.tags?.includes('External')}
                                     >
-                                      {(page.title && titleMap[page.title]) || page.title}
+                                      {getDisplayTitle(page.title)}
                                       {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
                                       {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNewPage && !isPreviewPage && !isPrivatePage && (
