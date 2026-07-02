@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { getPseudoElementBounds } from './getPseudoElementBounds';
+import { getPseudoElementBounds, isMouseWithinBounds } from './getPseudoElementBounds';
 
 describe('getPseudoElementBounds', () => {
   afterEach(() => {
@@ -56,6 +56,30 @@ describe('getPseudoElementBounds', () => {
       element.remove();
       style.remove();
     }
+  });
+
+  it('allows up to 5px of mouse drift around element bounds', () => {
+    const element = createElementWithRect({ x: 100, y: 50, width: 20, height: 10 });
+
+    expect(
+      isMouseWithinBounds(
+        new MouseEvent('mouseup', {
+          clientX: 95,
+          clientY: 55,
+        }),
+        element,
+      ),
+    ).toBe(true);
+
+    expect(
+      isMouseWithinBounds(
+        new MouseEvent('mouseup', {
+          clientX: 94,
+          clientY: 55,
+        }),
+        element,
+      ),
+    ).toBe(false);
   });
 });
 
