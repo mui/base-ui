@@ -3,7 +3,7 @@ import type { StateAttributesMapping } from './getStateAttributesProps';
 
 export enum TransitionStatusDataAttributes {
   /**
-   * Present when the component is animating in.
+   * Present when the component begins animating in.
    */
   startingStyle = 'data-starting-style',
   /**

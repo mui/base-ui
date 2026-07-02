@@ -26,7 +26,7 @@ export enum CheckboxIndicatorDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the checkbox indicator is animating in.
+   * Present when the checkbox indicator begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
