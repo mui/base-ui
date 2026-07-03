@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .GhostButton {
     font-size: var(--font-size-13);

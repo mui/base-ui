@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   /* The active tab bridges into the body over .InstallationBlockTabPanel's
      border-top, so suppress the panel's own border-bottom: it would sit 1px below

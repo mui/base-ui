@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @import 'docs/src/css/custom-media.css';
 
 @layer base {

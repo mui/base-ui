@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .HeadingLink {
     border-radius: var(--radius-6);

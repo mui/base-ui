@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .TypePropRefLink {
     text-decoration: underline;

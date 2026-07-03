@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .Popup {
     max-width: var(--available-width, none);

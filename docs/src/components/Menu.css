@@ -1,3 +1,5 @@
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .MenuPositioner {
     /* The outline is sometimes seen in Safari when the positioner is focused intermittently */
