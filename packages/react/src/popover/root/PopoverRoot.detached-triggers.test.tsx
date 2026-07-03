@@ -224,6 +224,71 @@ describe('<Popover.Root />', () => {
         expect(overlapWarned).toBe(true);
         consoleWarn.mockRestore();
       });
+
+      it('resolves a trigger still registered to the previous root during a transient overlap', async () => {
+        const handle = Popover.createHandle();
+        const openErrors: unknown[] = [];
+
+        function OpenOnMount() {
+          React.useLayoutEffect(() => {
+            try {
+              handle.open('trigger');
+            } catch (error) {
+              openErrors.push(error);
+            }
+          }, []);
+          return null;
+        }
+
+        function App({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              <Popover.Trigger handle={handle} id="trigger">
+                Trigger
+              </Popover.Trigger>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Popover.Root key="outgoing" handle={handle}>
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup>Outgoing</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <React.Fragment>
+                  <Popover.Root key="incoming" handle={handle}>
+                    <Popover.Portal>
+                      <Popover.Positioner>
+                        <Popover.Popup>Incoming</Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  </Popover.Root>
+                  <OpenOnMount />
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        // The detached trigger settles into the outgoing root's store (it is no longer in the
+        // fallback map). The incoming root then attaches while the outgoing one is still mounted,
+        // and a layout effect in that same commit opens by trigger id — before the trigger has
+        // migrated to the incoming root's store.
+        const { setProps } = await render(<App phase="outgoing" />);
+        await setProps({ phase: 'overlap' });
+
+        expect(openErrors).toHaveLength(0);
+        expect(handle.isOpen).toBe(true);
+        expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+          'aria-expanded',
+          'true',
+        );
+
+        // Completing the handoff (the outgoing root unmounts) keeps the popup open and associated.
+        await setProps({ phase: 'incoming' });
+        expect(handle.isOpen).toBe(true);
+      });
     });
   });
 

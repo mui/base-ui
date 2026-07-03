@@ -325,7 +325,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  // Registered in a layout effect (not a passive one) so `setOpen` emits from imperative
+  // `MenuHandle.open()` calls made in the same commit this root mounts — e.g. from another layout
+  // effect during a route-transition handoff — are received instead of being silently dropped.
+  useIsoLayoutEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,

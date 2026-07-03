@@ -227,16 +227,20 @@ export class BasePopupHandle<
       return;
     }
 
-    // Registered triggers normally live in the attached root's store. During the commit in which a
-    // root first attaches, a still-mounted detached trigger has not re-registered into the root store
-    // yet (it migrates on its next render), but it is still registered in the fallback store. Fall
-    // back to that map so an imperative open-by-id (e.g. called from a layout effect in the same
-    // commit the root mounts) stays associated with the requested trigger instead of opening
-    // unassociated and letting another detached trigger claim the open popup first.
-    const triggerElement = triggerId
-      ? (attachedStore.context.triggerElements.getById(triggerId) ??
-        this.fallbackStore.context.triggerElements.getById(triggerId))
-      : undefined;
+    // Registered triggers normally live in the active root's store. During the commit in which a
+    // root attaches, a still-mounted detached trigger has not re-registered into that store yet (it
+    // migrates on its next render): it is still registered wherever it lived before — the fallback
+    // store when this is the first root to attach, or a previously attached root's store during a
+    // transient overlap (e.g. an animated route transition). Search the whole attachment stack
+    // (newest first) and the fallback map so an imperative open-by-id called in that commit (e.g.
+    // from a layout effect) still resolves the trigger instead of treating it as missing.
+    let triggerElement: Element | undefined;
+    if (triggerId) {
+      for (let i = this.attachedStores.length - 1; i >= 0 && !triggerElement; i -= 1) {
+        triggerElement = this.attachedStores[i].context.triggerElements.getById(triggerId);
+      }
+      triggerElement ??= this.fallbackStore.context.triggerElements.getById(triggerId);
+    }
 
     if (triggerId && !triggerElement) {
       if (this.throwOnMissingTrigger) {
