@@ -140,3 +140,15 @@ export function PreInline(props: React.ComponentProps<'pre'>) {
 export function Pre(props: React.ComponentProps<'pre'>) {
   return <PreInline {...props} className="CodeBlockPre" />;
 }
+
+/**
+ * Inline type signature, used where a type is rendered inside phrasing content
+ * (e.g. the reference table trigger, which is a `<button>`). The highlighted
+ * type already includes a `<code>` element, so this only provides the inline
+ * wrapper and code styling without the block `<pre>`/scroll-area container that
+ * would be invalid in that context. Horizontal overflow is handled by the
+ * enclosing `Accordion.Scrollable`.
+ */
+export function TypeInline({ children }: { children?: React.ReactNode }) {
+  return <span className="Code TableCode">{children}</span>;
+}

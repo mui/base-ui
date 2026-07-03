@@ -30,7 +30,8 @@ const components: MDXComponents = {
 export const createTypes = createTypesFactory({
   TypesTable: ReferenceTable,
   components,
-  TypePre: CodeBlock.PreInline,
+  TypePre: CodeBlock.TypeInline,
+  DetailedTypePre: CodeBlock.PreInline,
   ShortTypeCode: TableCode,
   DefaultCode: TableCode,
   typeRefComponent: 'TypeRef',
@@ -47,7 +48,8 @@ export const createTypes = createTypesFactory({
 export const createMultipleTypes = createMultipleTypesFactory({
   TypesTable: ReferenceTable,
   components,
-  TypePre: CodeBlock.PreInline,
+  TypePre: CodeBlock.TypeInline,
+  DetailedTypePre: CodeBlock.PreInline,
   ShortTypeCode: TableCode,
   DefaultCode: TableCode,
   typeRefComponent: 'TypeRef',
