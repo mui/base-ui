@@ -12,14 +12,11 @@ on:
 permissions: {}
 
 jobs:
-  # Tests dev-only scripts across all supported dev environments
+  # Tests dev-only scripts and publishes pull request packages.
   test-dev:
     # l10nbot does not affect dev scripts.
     if: ${{ github.actor != 'l10nbot' }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
@@ -39,20 +36,17 @@ jobs:
       - run: pnpm install
       - run: pnpm release:build
       - name: Publish packages
-        if: matrix.os == 'ubuntu-latest'
         uses: mui/mui-public/.github/actions/ci-publish@76639fa2eabf73261070fa2a6a964209de10688d # master
         with:
           pr-comment: true
           npm-dry-run: true
       - name: Extract Vale version
-        if: ${{ matrix.os == 'ubuntu-latest' }}
         id: vale-version
         run: |
           VERSION=$(node -p "(require('./package.json').config && require('./package.json').config.valeVersion) || ''")
           echo "vale_version=$VERSION" >> $GITHUB_OUTPUT
       - uses: vale-cli/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
         continue-on-error: true # GitHub Action flag needed until https://github.com/errata-ai/vale-action/issues/89 is fixed
-        if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           version: ${{ steps.vale-version.outputs.vale_version }}
           # Errors should be more visible
