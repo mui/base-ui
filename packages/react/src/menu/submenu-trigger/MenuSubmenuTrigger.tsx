@@ -144,10 +144,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isClosing: () => store.select('transitionStatus') === 'ending',
-    // Work around a Chrome bug where fast pointer movement across adjacent
-    // submenu triggers drops the non-bubbling `mouseleave`, leaving a stale
-    // submenu open and the parent menu stuck at `pointer-events: none`.
-    // See #5152.
+    // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
+    // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,
   });
 

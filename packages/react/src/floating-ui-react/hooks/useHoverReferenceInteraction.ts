@@ -57,6 +57,8 @@ export interface UseHoverReferenceInteractionProps {
    * across adjacent triggers drops the non-bubbling `mouseleave` (but not the
    * bubbling `mouseout`), leaving a stale hover-open queued that opens a submenu
    * the pointer already left and strands the parent at `pointer-events: none`.
+   * Intended for single-trigger roots: unlike `mouseleave`, this cancels even
+   * when the pointer moves to a sibling enabled trigger of the same root.
    * See #5152.
    * @default false
    */
@@ -359,12 +361,7 @@ export function useHoverReferenceInteraction(
       }
     }
 
-    // Chrome can drop a trigger's non-bubbling `mouseleave` during a fast
-    // pointer sweep across adjacent triggers, so a pending hover-open never gets
-    // cancelled and a stale submenu opens (stranding the parent at
-    // `pointer-events: none`). The bubbling `mouseout` survives the drop, so use
-    // it as a backup: when the pointer genuinely leaves the trigger, cancel the
-    // pending open. See #5152.
+    // Backup cancellation for Chrome's dropped `mouseleave` — see `guardStaleOpen`.
     function onMouseOut(event: MouseEvent) {
       if (contains(trigger, event.relatedTarget as Element | null)) {
         return; // moved within the trigger's own subtree
