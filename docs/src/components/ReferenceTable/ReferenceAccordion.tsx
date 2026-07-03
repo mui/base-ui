@@ -33,9 +33,6 @@ export function ReferenceAccordion({
   hideDefault = false,
   ...props
 }: Props) {
-  // Unique per instance: the same `partName` can render more than one table
-  // (e.g. a hook's parameters and its return value), which would otherwise
-  // collide on a shared `${partName}-caption` id.
   const captionId = React.useId();
 
   return (
