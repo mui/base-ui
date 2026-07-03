@@ -115,6 +115,35 @@ describe('<ScrollArea.Viewport />', () => {
       expect(viewport).not.toHaveAttribute('data-scrolling');
     });
 
+    it('restores programmatic scroll suppression after modality flips back to mouse', async () => {
+      await renderWithClock(
+        <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.pointerDown(viewport, { pointerType: 'touch' });
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+
+      // A mouse pointer event on the root (not the viewport, whose own
+      // handlers mark user interaction) switches back to mouse modality.
+      fireEvent.pointerMove(root, { pointerType: 'mouse' });
+      fireEvent.scroll(viewport, { target: { scrollTop: 2 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
     it('removes [data-scrolling] after timeout', async () => {
       await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
