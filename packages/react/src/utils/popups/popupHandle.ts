@@ -246,7 +246,10 @@ export class BasePopupHandle<
     if (triggerId && !triggerElement) {
       if (this.throwOnMissingTrigger) {
         throw new Error(
-          `Base UI: ${this.componentName}Handle.open: No trigger found with id "${triggerId}".`,
+          `Base UI: ${this.componentName}Handle.open() was called with the trigger id "${triggerId}", ` +
+            'but no matching trigger is registered with this handle. ' +
+            'An anchored popup cannot open without a trigger to anchor to. ' +
+            `Pass the id of a mounted ${this.componentName}.Trigger that has this handle set on its "handle" prop.`,
         );
       }
 

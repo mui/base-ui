@@ -185,7 +185,7 @@ describe('<PreviewCard.Root />', () => {
         </div>,
       );
 
-      expect(() => handle.open('missing')).toThrow('No trigger found with id "missing"');
+      expect(() => handle.open('missing')).toThrow('was called with the trigger id "missing"');
       expect(handle.isOpen).toBe(false);
     });
 
