@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
 import { addEventListener } from '../addEventListener';
@@ -11,6 +12,7 @@ import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { useTimeout } from '../useTimeout';
+import { NOOP } from '../empty';
 
 const STYLES = `
 .baseui-store-inspector-trigger {
@@ -131,6 +133,7 @@ function getTarget(event: Event) {
  */
 export interface StoreOwner {
   readonly store: object;
+  subscribeStore?(listener: () => void): () => void;
 }
 
 interface StoreInspectorBaseProps {
@@ -173,8 +176,7 @@ export type StoreInspectorProps = StoreInspectorBaseProps &
  */
 export function StoreInspector(props: StoreInspectorProps) {
   const { title, additionalData, defaultOpen = false } = props;
-  // A handle exposes a narrowed store view for its public API; at runtime it is a full `Store`.
-  const store = (props.store ?? props.handle?.store) as Store<any>;
+  const store = useStoreInspectorStore(props);
   const [open, setOpen] = React.useState(defaultOpen);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -207,6 +209,25 @@ export function StoreInspector(props: StoreInspectorProps) {
       />
     </React.Fragment>
   );
+}
+
+function useStoreInspectorStore(props: StoreInspectorProps) {
+  const handle = props.handle;
+  const store = props.store;
+
+  const subscribe = React.useCallback(
+    (listener: () => void) => {
+      return handle?.subscribeStore?.(listener) ?? NOOP;
+    },
+    [handle],
+  );
+
+  const getSnapshot = React.useCallback(() => {
+    // A handle exposes a narrowed store view for its public API; at runtime it is a full `Store`.
+    return (store ?? handle?.store) as Store<any>;
+  }, [handle, store]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 interface PanelProps {
