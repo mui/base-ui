@@ -90,8 +90,6 @@ export class BasePopupHandle<
    */
   private readonly storeListeners = new Set<() => void>();
 
-  private overlapWarningFrame: AnimationFrame | undefined;
-
   /**
    * Creates a handle backed by the store used while no root is attached.
    *
@@ -157,7 +155,10 @@ export class BasePopupHandle<
         // one mounts. Defer the check by a frame and only warn if the overlap is still present once
         // the transition has settled (more than one root stayed mounted), so a clean handoff doesn't
         // warn regardless of the exact unmount timing.
-        (this.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
+        // The warning frame only exists in development; it is created lazily so it never appears on
+        // instances in production (like `controlledValues` in `ReactStore`).
+        const dev = this as this & { overlapWarningFrame?: AnimationFrame | undefined };
+        (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
           if (this.attachedStores.length > 1) {
             console.warn(
               'Base UI: A handle is attached to more than one mounted root at the same time. ' +
