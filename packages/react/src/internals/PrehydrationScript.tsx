@@ -9,8 +9,9 @@ import { useCSPContext } from './csp-context/CSPContext';
  * `Slider.Thumb`).
  *
  * The `script` source is imported by the caller through the package's `#prehydration/*`
- * subpath import, whose `browser` condition resolves to an empty string — so the script
- * body is excluded from client bundles. It only ever executes from server-rendered HTML.
+ * subpath import, whose `browser` condition resolves to a stub module exporting an empty
+ * string — so the script body is excluded from client bundles. It only ever executes from
+ * server-rendered HTML.
  *
  * Render this only when the script should be emitted (i.e. gate `renderBeforeHydration`
  * and any structural conditions at the call site). The element is still rendered (with
@@ -23,6 +24,11 @@ import { useCSPContext } from './csp-context/CSPContext';
  * stubbing the whole component) would drop an element the server emitted and trigger a
  * recoverable hydration error (React #418) in consumers' apps. Only the script body is
  * excluded from client bundles, via the `#prehydration/*` `browser` condition.
+ *
+ * When adding a new consumer, register a matching `#prehydration/*` entry (with `browser`
+ * and `default` conditions) in `packages/react/package.json` `imports`, and update the
+ * webpack 4 guidance in `docs/src/app/(docs)/react/overview/about/page.mdx` along with the
+ * callout on the component's own docs page.
  */
 export function PrehydrationScript(props: PrehydrationScript.Props) {
   const { script } = props;

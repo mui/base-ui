@@ -53,7 +53,7 @@ Base UI supports React 17 and newer versions.
 ## Bundler support
 
 Base UI uses the [`imports` field](https://nodejs.org/api/packages.html#subpath-imports) in its `package.json` to keep internal helpers out of client bundles—most notably the prehydration scripts used by [`Tabs.Indicator`](/react/components/tabs) and [`Slider.Thumb`](/react/components/slider).
-This is supported by Node.js and every actively maintained bundler, including Vite, Rspack, esbuild, Parcel, Rollup, and webpack 5 and newer.
+This is supported by Node.js and every actively maintained bundler.
 
 webpack 4 does not recognize the `imports` field and fails to resolve specifiers such as `#prehydration/tabs/indicator`.
 Because these scripts are imported by the components themselves, a project that uses `Tabs.Indicator` or `Slider.Thumb` won't build under webpack 4 without help.
@@ -70,7 +70,7 @@ module.exports = {
 };
 ```
 
-The stub files are empty, so the prehydration scripts are excluded from the bundle—the same outcome modern bundlers get from the `browser` condition.
+The stub modules export an empty script string, so the prehydration scripts are excluded from the bundle—the same outcome modern bundlers get from the `browser` condition.
 
 ## Community
 
