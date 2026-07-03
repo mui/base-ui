@@ -57,20 +57,20 @@ This is supported by Node.js and every actively maintained bundler.
 
 webpack 4 does not recognize the `imports` field and fails to resolve specifiers such as `#prehydration/tabs/indicator`.
 Because these scripts are imported by the components themselves, a project that uses `Tabs.Indicator` or `Slider.Thumb` won't build under webpack 4 without help.
-If your toolchain still relies on webpack 4 (for example, Create React App 4), alias each Base UI prehydration import to its browser stub:
+If your toolchain still relies on webpack 4 (for example, Create React App 4, via a tool such as [craco](https://craco.js.org) or an eject), alias each Base UI prehydration import to the browser stub:
 
 ```js title="webpack.config.js"
 module.exports = {
   resolve: {
     alias: {
-      '#prehydration/tabs/indicator': '@base-ui/react/tabs/indicator/prehydrationScript.stub.js',
-      '#prehydration/slider/thumb': '@base-ui/react/slider/thumb/prehydrationScript.stub.js',
+      '#prehydration/tabs/indicator': '@base-ui/react/internals/prehydrationScript.stub.js',
+      '#prehydration/slider/thumb': '@base-ui/react/internals/prehydrationScript.stub.js',
     },
   },
 };
 ```
 
-The stub modules export an empty script string, so the prehydration scripts are excluded from the bundle—the same outcome modern bundlers get from the `browser` condition.
+The stub module exports an empty script string, so the prehydration scripts are excluded from the bundle—the same outcome modern bundlers get from the `browser` condition.
 
 ## Community
 

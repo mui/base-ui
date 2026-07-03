@@ -111,11 +111,11 @@
     "#test-utils": "./test/index.ts",
     "#formatErrorMessage": "@base-ui/utils/formatErrorMessage",
     "#prehydration/tabs/indicator": {
-      "browser": "./src/tabs/indicator/prehydrationScript.stub.ts",
+      "browser": "./src/internals/prehydrationScript.stub.ts",
       "default": "./src/tabs/indicator/prehydrationScript.min.ts"
     },
     "#prehydration/slider/thumb": {
-      "browser": "./src/slider/thumb/prehydrationScript.stub.ts",
+      "browser": "./src/internals/prehydrationScript.stub.ts",
       "default": "./src/slider/thumb/prehydrationScript.min.ts"
     }
   },

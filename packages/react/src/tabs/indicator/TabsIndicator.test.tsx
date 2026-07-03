@@ -454,7 +454,9 @@ describe('<Tabs.Indicator />', () => {
       );
 
       // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
-      expect(container.querySelector('script')?.innerHTML).not.toBe('');
+      const script = container.querySelector('script');
+      expect(script).not.toBe(null);
+      expect(script?.innerHTML).not.toBe('');
     });
 
     it('applies the CSP nonce to the pre-hydration script', async () => {
