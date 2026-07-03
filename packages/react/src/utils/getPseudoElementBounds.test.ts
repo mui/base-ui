@@ -61,25 +61,21 @@ describe('getPseudoElementBounds', () => {
   it('allows up to 5px of mouse drift around element bounds', () => {
     const element = createElementWithRect({ x: 100, y: 50, width: 20, height: 10 });
 
-    expect(
-      isMouseWithinBounds(
-        new MouseEvent('mouseup', {
-          clientX: 95,
-          clientY: 55,
-        }),
-        element,
-      ),
-    ).toBe(true);
+    const within = (clientX: number, clientY: number) =>
+      isMouseWithinBounds(new MouseEvent('mouseup', { clientX, clientY }), element);
 
-    expect(
-      isMouseWithinBounds(
-        new MouseEvent('mouseup', {
-          clientX: 94,
-          clientY: 55,
-        }),
-        element,
-      ),
-    ).toBe(false);
+    // Left edge
+    expect(within(95, 55)).toBe(true);
+    expect(within(94, 55)).toBe(false);
+    // Right edge
+    expect(within(125, 55)).toBe(true);
+    expect(within(126, 55)).toBe(false);
+    // Top edge
+    expect(within(110, 45)).toBe(true);
+    expect(within(110, 44)).toBe(false);
+    // Bottom edge
+    expect(within(110, 65)).toBe(true);
+    expect(within(110, 66)).toBe(false);
   });
 });
 
