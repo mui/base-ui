@@ -159,6 +159,7 @@ export function useFloatingPortalNode(
  * potential parent containers that cause clipping (such as `overflow: hidden`),
  * while retaining its location in the React tree.
  * @see https://floating-ui.com/docs/FloatingPortal
+ * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any>,

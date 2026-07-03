@@ -41,7 +41,7 @@
   "exclude": ["node_modules"],
   "references": [
     {
-      "path": "../packages/react/tsconfig.build.typecheck.json"
+      "path": "../packages/react/tsconfig.typecheck.json"
     }
   ]
 }

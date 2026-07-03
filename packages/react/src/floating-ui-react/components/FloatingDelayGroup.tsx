@@ -61,6 +61,7 @@ export interface FloatingDelayGroupProps {
  * component does not cause a re-render of unrelated consumers of the
  * context when the delay changes.
  * @see https://floating-ui.com/docs/FloatingDelayGroup
+ * @internal
  */
 export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
   const { children, delay, timeoutMs = 0 } = props;
@@ -131,6 +132,7 @@ interface UseDelayGroupReturn {
  * Enables grouping when called inside a component that's a child of a
  * `FloatingDelayGroup`.
  * @see https://floating-ui.com/docs/FloatingDelayGroup
+ * @internal
  */
 export function useDelayGroup(
   context: FloatingRootContext | FloatingContext,
