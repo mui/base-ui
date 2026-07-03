@@ -1,4 +1,4 @@
-import { getFormatter } from '../../utils/formatNumber';
+import { getFormatter } from '@base-ui/utils/formatNumber';
 
 export const HAN_NUMERALS = ['零', '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 // Map Han numeral characters to ASCII digits. Includes both forms of zero.

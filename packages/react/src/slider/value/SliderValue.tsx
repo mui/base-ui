@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';

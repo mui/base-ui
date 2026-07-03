@@ -1,4 +1,4 @@
-import { clamp } from '../../internals/clamp';
+import { clamp } from '@base-ui/utils/clamp';
 import { valueToPercent } from '../../utils/valueToPercent';
 
 export function valueArrayToPercentages(values: number[], min: number, max: number) {
