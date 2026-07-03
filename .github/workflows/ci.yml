@@ -12,9 +12,9 @@ on:
 permissions: {}
 
 jobs:
-  # Tests dev-only scripts and publishes pull request packages.
-  test-dev:
-    # l10nbot does not affect dev scripts.
+  # Builds and publishes pull request package previews.
+  package-preview:
+    # l10nbot does not affect package previews.
     if: ${{ github.actor != 'l10nbot' }}
     runs-on: ubuntu-latest
     permissions:
@@ -40,6 +40,16 @@ jobs:
         with:
           pr-comment: true
           npm-dry-run: true
+
+  vale:
+    # l10nbot does not affect prose linting.
+    if: ${{ github.actor != 'l10nbot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Extract Vale version
         id: vale-version
         run: |
