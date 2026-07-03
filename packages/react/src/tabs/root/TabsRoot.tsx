@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
@@ -57,7 +57,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const isControlled = valueProp !== undefined;
 
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata>>(),
   );
   const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
@@ -69,7 +69,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+        if (selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
           return tabElement as HTMLElement;
         }
       }
@@ -187,8 +187,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata?.value) {
-          return tabMetadata?.id;
+        if (tabPanelValue === tabMetadata.value) {
+          return tabMetadata.id;
         }
       }
       return undefined;
@@ -225,7 +225,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const selectedTabMetadata = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.value === value) {
+      if (tabMetadata.value === value) {
         return tabMetadata;
       }
     }
@@ -236,7 +236,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used as a fallback when the current selection is disabled or missing.
   const firstEnabledTabValue = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && !tabMetadata.disabled) {
+      if (!tabMetadata.disabled) {
         return tabMetadata.value;
       }
     }
@@ -377,7 +377,7 @@ function computeActivationDirection(
   oldValue: TabsTab.Value | null,
   newValue: TabsTab.Value | null,
   orientation: 'horizontal' | 'vertical',
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
 ): TabsTab.ActivationDirection {
   if (oldValue == null || newValue == null) {
     return 'none';
@@ -387,10 +387,6 @@ function computeActivationDirection(
   let newTab: HTMLElement | null = null;
 
   for (const [tabElement, tabMetadata] of tabMap.entries()) {
-    if (tabMetadata == null) {
-      continue;
-    }
-
     const tabValue = tabMetadata.value ?? tabMetadata.index;
     if (oldValue === tabValue) {
       oldTab = tabElement as HTMLElement;

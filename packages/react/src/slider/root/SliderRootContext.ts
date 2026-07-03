@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../../internals/types';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot, SliderRootState } from './SliderRoot';
@@ -94,7 +94,7 @@ export interface SliderRootContext {
    */
   step: number;
   thumbCollisionBehavior: 'push' | 'swap' | 'none';
-  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
+  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
    * The value(s) of the slider

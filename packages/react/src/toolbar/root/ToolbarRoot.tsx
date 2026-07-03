@@ -6,7 +6,7 @@ import {
   HTMLProps,
 } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
@@ -30,7 +30,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   } = componentProps;
 
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata>>(),
   );
 
   const disabledIndices = React.useMemo(() => {
@@ -39,7 +39,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
       // Only items that are disabled and not focusable when disabled
       // are removed from roving focus.
       if (
-        itemMetadata?.index != null &&
+        itemMetadata.index != null &&
         itemMetadata.disabled &&
         !itemMetadata.focusableWhenDisabled
       ) {

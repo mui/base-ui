@@ -3,6 +3,7 @@ import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 describe('<Combobox.Item />', () => {
   const { render } = createRenderer();
@@ -455,6 +456,113 @@ describe('<Combobox.Item />', () => {
       await user.click(screen.getByRole('option', { name: 'five' }));
 
       await waitFor(() => expect(input).toHaveValue('five'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('registers items at their filtered indexes when the rendered window starts after index 0', async () => {
+      function ListRefProbe() {
+        const store = useComboboxRootContext();
+        const [snapshot, setSnapshot] = React.useState('');
+        const [length, setLength] = React.useState(0);
+
+        function refreshSnapshot() {
+          const list = store.state.listRef.current;
+          setLength(list.length);
+          setSnapshot(
+            Array.from({ length: list.length }, (_, index) => list[index]?.textContent ?? '').join(
+              '|',
+            ),
+          );
+        }
+
+        return (
+          <React.Fragment>
+            <button type="button" data-testid="refresh-list-ref" onClick={refreshSnapshot} />
+            <div data-testid="list-ref-length">{length}</div>
+            <div data-testid="list-ref-snapshot">{snapshot}</div>
+          </React.Fragment>
+        );
+      }
+
+      function WindowedItems() {
+        const items = Combobox.useFilteredItems<string>();
+        return items.slice(2, 4).map((item) => (
+          <Combobox.Item key={item} value={item}>
+            {item}
+          </Combobox.Item>
+        ));
+      }
+
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <ListRefProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <WindowedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      expect(screen.queryByRole('option', { name: 'one' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'three' })).not.toBe(null);
+      fireEvent.click(screen.getByTestId('refresh-list-ref'));
+
+      // The rendered virtual window starts at logical index 2, so the list ref should be sparse
+      // rather than compacting the rendered DOM nodes into positions 0 and 1.
+      await waitFor(() => {
+        expect(screen.getByTestId('list-ref-length')).toHaveTextContent('5');
+      });
+      expect(screen.getByTestId('list-ref-snapshot')).toHaveTextContent('||three|four|');
+    });
+  });
+
+  describe('virtualized with explicit index', () => {
+    function VirtualizedItems() {
+      const items = Combobox.useFilteredItems<string>();
+      return items.map((item, index) => (
+        <Combobox.Item key={item} value={item} index={index}>
+          {item}
+        </Combobox.Item>
+      ));
+    }
+
+    it('selects the highlighted filtered item with the keyboard after filtering', async () => {
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one', 'two', 'three']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <VirtualizedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.type(input, 't');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(input).toHaveValue('two'));
       expect(screen.queryByRole('listbox')).toBe(null);
     });
   });

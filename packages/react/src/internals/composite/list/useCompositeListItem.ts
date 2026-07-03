@@ -32,52 +32,56 @@ export function useCompositeListItem<Metadata>(
 ): UseCompositeListItemReturnValue {
   const { label, metadata, textRef, indexGuessBehavior, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
+  const { register, unregister, subscribeMapChange, labelsRef, nextIndexRef } =
     useCompositeListContext();
 
   const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
-    externalIndex ??
-      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
-        ? () => {
-            if (indexRef.current === -1) {
-              const newIndex = nextIndexRef.current;
-              nextIndexRef.current += 1;
-              indexRef.current = newIndex;
-            }
-            return indexRef.current;
-          }
-        : -1),
-  );
+  const [computedIndex, setIndex] = React.useState<number>(() => {
+    if (externalIndex != null || indexGuessBehavior !== IndexGuessBehavior.GuessFromOrder) {
+      return -1;
+    }
 
-  const componentRef = React.useRef<Element | null>(null);
+    if (indexRef.current === -1) {
+      const newIndex = nextIndexRef.current;
+      nextIndexRef.current += 1;
+      indexRef.current = newIndex;
+    }
+    return indexRef.current;
+  });
+
+  const index = externalIndex ?? computedIndex;
+  const componentRef = React.useRef<HTMLElement | null>(null);
+  const labelRef = React.useRef<string | null>(null);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 
-      if (index !== -1 && node !== null) {
-        elementsRef.current[index] = node;
+      if (labelsRef && node !== null) {
+        const labelText =
+          label !== undefined ? label : (textRef?.current?.textContent ?? node.textContent);
 
-        if (labelsRef) {
-          const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined
-            ? label
-            : (textRef?.current?.textContent ?? node.textContent);
+        // Optimistically set it...
+        if (index !== -1) {
+          labelsRef.current[index] = labelText;
         }
+
+        // And then store a local ref to pass to CompositeList during registration.
+        // We want CompositeList to remain source of truth for item shifts.
+        labelRef.current = labelText;
       }
     },
-    [index, elementsRef, labelsRef, label, textRef],
+    [index, labelsRef, label, textRef],
   );
 
   useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
-    }
-
     const node = componentRef.current;
     if (node) {
-      register(node, metadata);
+      register(node, {
+        ...(metadata ?? ({} as Metadata)),
+        index: externalIndex,
+        labelRef,
+      });
       return () => {
         unregister(node);
       };

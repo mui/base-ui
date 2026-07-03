@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { CompositeList } from './CompositeList';
 import { useCompositeListItem } from './useCompositeListItem';
@@ -156,6 +156,203 @@ describe('<CompositeList />', () => {
         expect(screen.queryByTestId('badge')).toBe(null);
       });
       expect(onMapChange).not.toHaveBeenCalled();
+    });
+
+    it('keeps controlled item indexes without compacting them', async () => {
+      function Item(props: { index: number }) {
+        const { ref } = useCompositeListItem({ index: props.index });
+        return <div ref={ref} data-index={props.index} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+          <Item index={2} />
+          <Item index={0} />
+        </CompositeList>,
+      );
+
+      expect(elementsRef.current).toHaveLength(3);
+      expect(elementsRef.current[0]).toHaveAttribute('data-index', '0');
+      expect(elementsRef.current[1]).toBe(undefined);
+      expect(elementsRef.current[2]).toHaveAttribute('data-index', '2');
+      expect(labelsRef.current).toHaveLength(3);
+    });
+
+    it('updates elements when controlled indexes change', async () => {
+      function Item(props: { label: string; index: number }) {
+        const { ref } = useCompositeListItem({ index: props.index });
+        return <div ref={ref} data-label={props.label} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function App(props: { swapped: boolean }) {
+        return (
+          <CompositeList elementsRef={elementsRef}>
+            <Item label="a" index={props.swapped ? 1 : 0} />
+            <Item label="b" index={props.swapped ? 0 : 1} />
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App swapped={false} />);
+
+      expect(elementsRef.current[0]).toHaveAttribute('data-label', 'a');
+      expect(elementsRef.current[1]).toHaveAttribute('data-label', 'b');
+
+      await setProps({ swapped: true });
+
+      expect(elementsRef.current[0]).toHaveAttribute('data-label', 'b');
+      expect(elementsRef.current[1]).toHaveAttribute('data-label', 'a');
+    });
+
+    it('does not register controlled index -1', async () => {
+      function Item() {
+        const { ref } = useCompositeListItem({ index: -1 });
+        return <div ref={ref} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <Item />
+        </CompositeList>,
+      );
+
+      expect(elementsRef.current).toHaveLength(0);
+      expect(Object.hasOwn(elementsRef.current, '-1')).toBe(false);
+    });
+
+    it('updates refs when an item mounts from a nested state update', async () => {
+      let addItem: (() => void) | undefined;
+
+      function Item(props: { label: string }) {
+        const { ref } = useCompositeListItem();
+        return <div ref={ref} data-label={props.label} />;
+      }
+
+      function DeepSection() {
+        const [extra, setExtra] = React.useState(false);
+        addItem = () => setExtra(true);
+        return extra ? <Item label="extra" /> : null;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <Item label="a" />
+          <DeepSection />
+          <Item label="b" />
+        </CompositeList>,
+      );
+
+      expect(elementsRef.current).toHaveLength(2);
+
+      await act(async () => {
+        addItem?.();
+      });
+
+      expect(elementsRef.current).toHaveLength(3);
+      expect(elementsRef.current[0]).toHaveAttribute('data-label', 'a');
+      expect(elementsRef.current[1]).toHaveAttribute('data-label', 'extra');
+      expect(elementsRef.current[2]).toHaveAttribute('data-label', 'b');
+    });
+
+    it('updates labels without re-registering the item', async () => {
+      function Item(props: { label: string }) {
+        const { ref } = useCompositeListItem({ label: props.label });
+        return <div ref={ref}>fallback</div>;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function TestComponent(props: { label: string; onMapChange: () => void }) {
+        return (
+          <CompositeList
+            elementsRef={elementsRef}
+            labelsRef={labelsRef}
+            onMapChange={props.onMapChange}
+          >
+            <Item label={props.label} />
+          </CompositeList>
+        );
+      }
+
+      const onMapChange = vi.fn();
+
+      const { setProps } = await render(<TestComponent label="one" onMapChange={onMapChange} />);
+
+      expect(labelsRef.current[0]).toBe('one');
+
+      const mapChangeCallCount = onMapChange.mock.calls.length;
+
+      await setProps({ label: 'two' });
+
+      expect(labelsRef.current[0]).toBe('two');
+      expect(onMapChange).toHaveBeenCalledTimes(mapChangeCallCount);
+    });
+
+    describe('mixed controlled and uncontrolled indexes', () => {
+      const expectedMessage =
+        'Base UI: A CompositeList is mixing controlled and uncontrolled indexes. ' +
+        'Decide between using a controlled or uncontrolled index prop for all items in the CompositeList. ' +
+        'The indexing mode is determined by the first registered item. ' +
+        'An item is considered controlled when its index prop is not `undefined`.';
+
+      function Item(props: { index?: number | undefined }) {
+        const { ref } = useCompositeListItem({ index: props.index });
+        return <div ref={ref} />;
+      }
+
+      it('warns when a controlled item is followed by an uncontrolled item', async () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await render(
+          <CompositeList elementsRef={{ current: [] }}>
+            <Item index={0} />
+            <Item />
+          </CompositeList>,
+        );
+
+        expect(console.error).toHaveBeenCalledWith(expectedMessage);
+
+        errorSpy.mockRestore();
+      });
+
+      it('warns when an uncontrolled item is followed by a controlled item', async () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await render(
+          <CompositeList elementsRef={{ current: [] }}>
+            <Item />
+            <Item index={1} />
+          </CompositeList>,
+        );
+
+        expect(console.error).toHaveBeenCalledWith(expectedMessage);
+
+        errorSpy.mockRestore();
+      });
     });
   });
 });
