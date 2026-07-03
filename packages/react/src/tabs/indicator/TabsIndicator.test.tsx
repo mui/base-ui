@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
+import { CSPProvider } from '@base-ui/react/csp-provider';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { getCssDimensions } from '../../utils/getCssDimensions';
@@ -22,6 +23,37 @@ describe('<Tabs.Indicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'div',
   }));
+
+  it('exposes null active tab state when the selected value has no matching tab', async () => {
+    const indicatorStates: Tabs.Indicator.State[] = [];
+
+    function renderIndicator(
+      props: React.HTMLAttributes<HTMLSpanElement>,
+      state: Tabs.Indicator.State,
+    ) {
+      indicatorStates.push(state);
+      return <span data-testid="bubble" {...props} />;
+    }
+
+    await render(
+      <Tabs.Root value="missing">
+        <Tabs.List>
+          <Tabs.Tab value="one">One</Tabs.Tab>
+          <Tabs.Indicator render={renderIndicator} />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    // Wait for Tabs.List to register its element; before that no tab can be measured.
+    await waitFor(() => {
+      expect(indicatorStates.length).toBeGreaterThan(1);
+    });
+
+    const state = indicatorStates.at(-1)!;
+    expect(state.activeTabPosition).toBe(null);
+    expect(state.activeTabSize).toBe(null);
+    expect(screen.getByTestId('bubble')).toHaveAttribute('hidden');
+  });
 
   describe.skipIf(isJSDOM)('rendering', () => {
     it('should not render when no tab is active', async () => {
@@ -396,7 +428,7 @@ describe('<Tabs.Indicator />', () => {
 
   describe('pre-hydration rendering', () => {
     it('renders the inline pre-hydration script during server-side rendering', async () => {
-      await renderToString(
+      const { container } = await renderToString(
         <Tabs.Root value={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -405,7 +437,65 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      expect(document.querySelector('script')).not.toBe(null);
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      expect(container.querySelector('script')).not.toBe(null);
+    });
+
+    // The browser test env resolves `#prehydration/tabs/indicator` to the empty stub
+    // through the `browser` condition; only jsdom resolves the real script like a server does.
+    it.skipIf(!isJSDOM)('inlines the script contents during server-side rendering', async () => {
+      const { container } = await renderToString(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>One</Tabs.Tab>
+            <Tabs.Indicator renderBeforeHydration />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      const script = container.querySelector('script');
+      expect(script).not.toBe(null);
+      expect(script?.innerHTML).not.toBe('');
+    });
+
+    it('applies the CSP nonce to the pre-hydration script', async () => {
+      const { container } = await renderToString(
+        <CSPProvider nonce="test-nonce">
+          <Tabs.Root value={1}>
+            <Tabs.List>
+              <Tabs.Tab value={1}>One</Tabs.Tab>
+              <Tabs.Indicator renderBeforeHydration />
+            </Tabs.List>
+          </Tabs.Root>
+        </CSPProvider>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      expect(container.querySelector('script')).toHaveAttribute('nonce', 'test-nonce');
+    });
+
+    // The server-emitted script element must survive hydration (only its body is stubbed on
+    // the client) and then unmount once hydration completes. Fully stubbing the component to
+    // return `null` on the client would drop the element and log a recoverable hydration error,
+    // which `vitest-fail-on-console` turns into a test failure.
+    it.skipIf(!isJSDOM)('keeps the script during hydration and removes it afterwards', async () => {
+      const { container, hydrate } = await renderToString(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>One</Tabs.Tab>
+            <Tabs.Indicator renderBeforeHydration />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      expect(container.querySelector('script')).not.toBe(null);
+
+      await hydrate();
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      expect(container.querySelector('script')).toBe(null);
     });
   });
 });

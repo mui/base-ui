@@ -49,8 +49,24 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%', 'en-US', { style: 'percent' })).toBe(0.12);
     });
 
+    it('parses prefix percentages', () => {
+      const format = { style: 'percent', maximumFractionDigits: 2 } as const;
+      const formatted = new Intl.NumberFormat('tr-TR', format).format(0.0123);
+
+      expect(parseNumber(formatted, 'tr-TR', format)).toBe(0.0123);
+    });
+
+    it('parses scientific notation percentages', () => {
+      expect(parseNumber('1e-7%', 'en-US', { style: 'percent' })).toBe(1e-9);
+    });
+
     it('handles percentages with style: "unit" and unit: "percent"', () => {
       expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
+    });
+
+    it('strips an interleaved percent sign (1%2)', () => {
+      expect(parseNumber('1%2', 'en-US', { style: 'percent' })).toBe(0.12);
+      expect(parseNumber('1%2', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
     });
 
     it('parses fullwidth digits and punctuation', () => {
@@ -98,6 +114,63 @@ describe('NumberField parse', () => {
       );
     });
 
+    it('parses scientific notation with currency codes', () => {
+      const format = {
+        style: 'currency',
+        currency: 'EUR',
+        currencyDisplay: 'code',
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+      const formatted = new Intl.NumberFormat('en-US', format).format(12345);
+
+      expect(parseNumber(formatted, 'en-US', format)).toBe(12300);
+    });
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized scientific notation for %s',
+      (locale) => {
+        const format = { notation: 'scientific', maximumFractionDigits: 2 } as const;
+        const formatted = new Intl.NumberFormat(locale, format).format(12345);
+
+        expect(parseNumber(formatted, locale, format)).toBe(12300);
+      },
+    );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized percent scientific notation with a negative exponent for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000123);
+      },
+    );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized tiny percent scientific notation for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000000000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000000000123);
+      },
+    );
+
+    it('parses scientific notation permille values', () => {
+      expect(parseNumber('1e-7‰', 'en-US')).toBe(1e-10);
+    });
+
     it('parses units when options specify unit style', () => {
       expect(parseNumber('12 kg', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(12);
     });
@@ -106,6 +179,15 @@ describe('NumberField parse', () => {
       expect(parseNumber('Infinity')).toBe(null);
       expect(parseNumber('-Infinity')).toBe(null);
       expect(parseNumber('∞')).toBe(null);
+    });
+
+    it('returns null when parsing overflows to Infinity', () => {
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      }).format(Number.MAX_VALUE);
+
+      expect(parseNumber(formatted, 'en-US', { style: 'percent' })).toBe(null);
     });
 
     it('collapses extra dots from mixed-locale inputs', () => {

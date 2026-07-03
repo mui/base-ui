@@ -6,11 +6,16 @@ import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
 
-vi.mock('@base-ui/utils/detectBrowser', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
-    '@base-ui/utils/detectBrowser',
-  );
-  return { ...actual, isAndroid: true };
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: { ...actual.platform.os, android: true },
+    },
+  };
 });
 
 function TestCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
@@ -58,6 +63,7 @@ async function simulateTimedRightSwipe(
 
     vi.setSystemTime(new Date(moveTime));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: startX + 1,
       clientY: 100,
@@ -69,6 +75,7 @@ async function simulateTimedRightSwipe(
 
     vi.setSystemTime(new Date(endTime - 1));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: endX,
       clientY: 100,
@@ -110,6 +117,7 @@ async function simulateTimedRightSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: startX + 1,
     clientY: 100,
@@ -123,6 +131,7 @@ async function simulateTimedRightSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: endX,
     clientY: 100,
@@ -172,6 +181,7 @@ async function simulateTimedDownSwipe(
 
     vi.setSystemTime(new Date(moveTime));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: startY + 1,
@@ -184,6 +194,7 @@ async function simulateTimedDownSwipe(
     if (resolvedSettleTime !== null) {
       vi.setSystemTime(new Date(resolvedSettleTime));
       fireEvent.pointerMove(element, {
+        buttons: 1,
         pointerId: 1,
         clientX: 100,
         clientY: settleY,
@@ -196,6 +207,7 @@ async function simulateTimedDownSwipe(
 
     vi.setSystemTime(new Date(endTime - 1));
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: endY,
@@ -242,6 +254,7 @@ async function simulateTimedDownSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: 100,
     clientY: startY + 1,
@@ -257,6 +270,7 @@ async function simulateTimedDownSwipe(
     });
 
     fireEvent.pointerMove(element, {
+      buttons: 1,
       pointerId: 1,
       clientX: 100,
       clientY: settleY,
@@ -272,6 +286,7 @@ async function simulateTimedDownSwipe(
   });
 
   fireEvent.pointerMove(element, {
+    buttons: 1,
     pointerId: 1,
     clientX: 100,
     clientY: endY,
@@ -319,7 +334,7 @@ async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[])
     }
 
     if (step.type === 'move') {
-      fireEvent.pointerMove(element, baseEvent);
+      fireEvent.pointerMove(element, { ...baseEvent, buttons: 1 });
       return;
     }
 
@@ -626,6 +641,20 @@ function CanceledSwipeCloseSnapPointCase() {
   );
 }
 
+function SnapPointOvershootCase() {
+  return (
+    <Drawer.Root open defaultSnapPoint={1} snapPoints={['100px', 1]} swipeDirection="down">
+      <Drawer.Portal>
+        <Drawer.Viewport data-testid="viewport" style={{ height: 400 }}>
+          <Drawer.Popup data-testid="popup" style={{ height: 400 }}>
+            Drawer
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
 function SnapPointSwipeCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -778,6 +807,150 @@ describe('<Drawer.Root />', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('2');
+  });
+
+  it('supports imperative actions with handles', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    await render(
+      <div>
+        <Drawer.Trigger handle={handle} id="trigger-1" payload={1}>
+          Trigger 1
+        </Drawer.Trigger>
+        <Drawer.Trigger handle={handle} id="trigger-2" payload={2}>
+          Trigger 2
+        </Drawer.Trigger>
+        <Drawer.Root handle={handle}>
+          {({ payload }: { payload: number | undefined }) => (
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="content">{payload}</Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          )}
+        </Drawer.Root>
+      </div>,
+    );
+
+    const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+    expect(screen.queryByRole('dialog')).toBe(null);
+
+    await act(() => handle.open('trigger-2'));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+    });
+
+    expect(screen.getByTestId('content').textContent).toBe('2');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+
+    await act(() => handle.close());
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+
+    await act(() => handle.openWithPayload(8));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+    });
+    expect(screen.getByTestId('content').textContent).toBe('8');
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('attaches fresh root state when a handle-backed root remounts', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    function App() {
+      const [mounted, setMounted] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <Drawer.Trigger handle={handle} id="trigger" payload={1}>
+            Trigger
+          </Drawer.Trigger>
+          {!mounted && (
+            <button type="button" onClick={() => setMounted(true)}>
+              Remount root
+            </button>
+          )}
+          {mounted && (
+            <Drawer.Root handle={handle}>
+              {({ payload }: { payload: number | undefined }) => (
+                <React.Fragment>
+                  <span data-testid="payload">{payload ?? 'No payload'}</span>
+                  <Drawer.Portal>
+                    <Drawer.Viewport>
+                      <Drawer.Popup>
+                        Drawer content
+                        <button type="button" onClick={() => setMounted(false)}>
+                          Unmount root
+                        </button>
+                      </Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                </React.Fragment>
+              )}
+            </Drawer.Root>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByText('Drawer content')).toBeVisible();
+    });
+    expect(screen.getByTestId('payload').textContent).toBe('1');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+    expect(handle.isOpen).toBe(false);
+    expect(screen.queryByText('Drawer content')).toBe(null);
+
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    handle.openWithPayload(8);
+    handle.open('trigger');
+    handle.close();
+    const detachedWarnings = consoleWarn.mock.calls.filter(
+      ([message]) =>
+        typeof message === 'string' && message.includes('no root using this handle is mounted'),
+    );
+    consoleWarn.mockRestore();
+
+    expect(handle.isOpen).toBe(false);
+    expect(detachedWarnings).toHaveLength(3);
+
+    await user.click(screen.getByRole('button', { name: 'Remount root' }));
+    expect(screen.getByTestId('payload').textContent).toBe('No payload');
+    expect(screen.queryByText('Drawer content')).toBe(null);
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(trigger).not.toHaveAttribute('aria-controls');
+
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByText('Drawer content')).toBeVisible();
+    });
+    expect(screen.getByTestId('payload').textContent).toBe('1');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      screen.getByRole('dialog').getAttribute('id'),
+    );
   });
 
   it('synchronizes trigger aria-controls with the popup id', async () => {
@@ -967,6 +1140,74 @@ describe('<Drawer.Root />', () => {
         expect(popup).not.toHaveAttribute('data-swipe-dismiss');
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'damps active snap point overshoot after the swipe direction is established',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointOvershootCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        const popup = screen.getByTestId('popup');
+
+        env.pointAt(popup);
+
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 50,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        expect(popup.style.transform).toBe('');
+        expect(
+          Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-y')),
+        ).toBeCloseTo(-Math.sqrt(150));
       } finally {
         env.cleanup();
       }

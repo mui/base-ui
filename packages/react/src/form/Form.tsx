@@ -77,11 +77,11 @@ export const Form = React.forwardRef(function Form<
     if (fieldName) {
       const namedField = values.find((field) => field.name === fieldName);
       if (namedField) {
-        namedField.validate(false);
+        namedField.validate();
       }
     } else {
       values.forEach((field) => {
-        field.validate(false);
+        field.validate();
       });
     }
   }, []);
@@ -107,11 +107,11 @@ export const Form = React.forwardRef(function Form<
 
           values = Array.from(formRef.current.fields.values());
 
-          const invalidFields = values.filter((field) => !field.validityData.state.valid);
+          const invalidField = values.find((field) => field.validityData.state.valid === false);
 
-          if (invalidFields.length) {
+          if (invalidField) {
             event.preventDefault();
-            focusControl(invalidFields[0].controlRef.current);
+            focusControl(invalidField.controlRef.current);
           } else {
             submittedRef.current = true;
             onSubmit?.(event as any);
@@ -176,7 +176,7 @@ export interface FormState {}
 
 export interface FormProps<
   FormValues extends Record<string, any> = Record<string, any>,
-> extends BaseUIComponentProps<'form', FormState> {
+> extends BaseUIComponentProps<'form', FormState, React.ComponentPropsWithRef<'form'>> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.
@@ -207,10 +207,10 @@ export interface FormProps<
    * @example
    * ```tsx
    * // validate all fields
-   * actionsRef.current.validate();
+   * actionsRef.current?.validate();
    *
    * // validate one field
-   * actionsRef.current.validate('email');
+   * actionsRef.current?.validate('email');
    * ```
    */
   actionsRef?: React.RefObject<Form.Actions | null> | undefined;

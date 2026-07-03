@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { Switch } from '@base-ui/react/switch';
@@ -89,6 +90,45 @@ describe('<Toolbar.Button />', () => {
       expect(handleMouseDown).toHaveBeenCalledTimes(0);
       expect(handlePointerDown).toHaveBeenCalledTimes(0);
       expect(handleKeyDown).toHaveBeenCalledTimes(0);
+    });
+
+    it('uses the disabled attribute when focusableWhenDisabled is false', async () => {
+      await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).not.toHaveAttribute('aria-disabled');
+    });
+
+    it.skipIf(isJSDOM)('allows hover handlers while blocking activation', async () => {
+      const handleClick = vi.fn();
+      const handleMouseMove = vi.fn();
+
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled onClick={handleClick} onMouseMove={handleMouseMove} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      await user.hover(button);
+
+      expect(handleMouseMove).toHaveBeenCalled();
+
+      await user.click(button);
+
+      expect(handleClick).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -931,6 +971,202 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[Enter]');
         await user.keyboard('[Space]');
         expect(onPressedChange).toHaveBeenCalledTimes(0);
+      });
+
+      it('navigates and selects direct ToggleGroup > Toggle children', async () => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup defaultValue={['one']} onValueChange={onValueChange}>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" />
+              <Toggle value="three" data-testid="three" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const three = screen.getByTestId('three');
+
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        // toggles past the first must be reachable (previously treated as disabled)
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(two).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        // exclusive selection replaces the previous value
+        expect(onValueChange.mock.calls[0][0]).toEqual(['three']);
+        expect(one).toHaveAttribute('aria-pressed', 'false');
+        expect(three).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it.skipIf(isJSDOM)('skips disabled direct ToggleGroup > Toggle children', async () => {
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" disabled />
+              <Toggle value="three" data-testid="three" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const three = screen.getByTestId('three');
+
+        expect(two).toBeDisabled();
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
+        expect(two).not.toHaveAttribute('tabindex', '0');
+      });
+
+      it('supports multiple selection for direct ToggleGroup > Toggle children', async () => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup multiple defaultValue={['one']} onValueChange={onValueChange}>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(two).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onValueChange.mock.calls[0][0]).toEqual(['one', 'two']);
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+        expect(two).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it('supports a controlled ToggleGroup value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string[]>([]);
+          return (
+            <Toolbar.Root>
+              <ToggleGroup value={value} onValueChange={setValue}>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" />
+              </ToggleGroup>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const one = screen.getByTestId('one');
+
+        expect(one).toHaveAttribute('aria-pressed', 'false');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it('disables direct ToggleGroup children when Toolbar.Group is disabled', async () => {
+        const { user } = await render(
+          <Toolbar.Root>
+            <Toolbar.Button data-testid="before" />
+            <Toolbar.Group disabled>
+              <ToggleGroup>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" />
+              </ToggleGroup>
+            </Toolbar.Group>
+            <Toolbar.Button data-testid="after" />
+          </Toolbar.Root>,
+        );
+
+        const before = screen.getByTestId('before');
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const after = screen.getByTestId('after');
+
+        [one, two].forEach((toggle) => {
+          expect(toggle).toBeDisabled();
+          expect(toggle).toHaveAttribute('data-disabled');
+        });
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(before).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(after).toHaveFocus();
+        });
+        expect(one).not.toHaveAttribute('tabindex', '0');
+        expect(two).not.toHaveAttribute('tabindex', '0');
+      });
+
+      it.skipIf(isJSDOM)('skips a direct Toggle that becomes disabled at runtime', async () => {
+        function App({ twoDisabled }: { twoDisabled?: boolean }) {
+          return (
+            <Toolbar.Root>
+              <ToggleGroup>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" disabled={twoDisabled} />
+                <Toggle value="three" data-testid="three" />
+              </ToggleGroup>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<App />);
+
+        const one = screen.getByTestId('one');
+        const three = screen.getByTestId('three');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await setProps({ twoDisabled: true });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
       });
     });
   });

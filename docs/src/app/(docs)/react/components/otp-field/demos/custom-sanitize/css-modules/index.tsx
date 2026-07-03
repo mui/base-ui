@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import { useInvalidFeedback } from '../useInvalidFeedback';
 import styles from './index.module.css';
 
 const CODE_LENGTH = 6;
 
-function sanitizeTierCode(value: string) {
-  return value.replace(/[^0-3]/g, '');
+function normalizeRecoveryCode(value: string) {
+  return value.toUpperCase();
 }
 
 function getInvalidClassName(invalidPulse: number, evenClassName: string, oddClassName: string) {
@@ -18,7 +18,7 @@ function getInvalidClassName(invalidPulse: number, evenClassName: string, oddCla
   return invalidPulse % 2 === 0 ? evenClassName : oddClassName;
 }
 
-export default function OTPFieldCustomSanitizeDemo() {
+export default function OTPFieldCustomNormalizeDemo() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
 
@@ -40,14 +40,13 @@ export default function OTPFieldCustomSanitizeDemo() {
   return (
     <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
-        Tier code
+        Recovery code
       </label>
       <OTPField.Root
         id={id}
         length={CODE_LENGTH}
-        validationType="none"
-        inputMode="numeric"
-        sanitizeValue={sanitizeTierCode}
+        validationType="alphanumeric"
+        normalizeValue={normalizeRecoveryCode}
         onValueChange={handleValueChange}
         onValueInvalid={handleValueInvalid}
         aria-describedby={descriptionId}
@@ -57,7 +56,7 @@ export default function OTPFieldCustomSanitizeDemo() {
           <OTPField.Input
             key={index}
             className={`${styles.Input} ${activeInvalidIndex === index ? invalidClassName : ''}`.trim()}
-            aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            aria-label={index === 0 ? undefined : `Character ${index + 1} of ${CODE_LENGTH}`}
             onFocus={() => {
               setFocusedIndex(index);
             }}
@@ -65,7 +64,7 @@ export default function OTPFieldCustomSanitizeDemo() {
         ))}
       </OTPField.Root>
       <p id={descriptionId} className={styles.Description}>
-        Digits <span className={styles.Code}>0-3</span> only.
+        Letters and digits only. Letters are converted to uppercase.
       </p>
       <span aria-live="polite" className={styles.ScreenReaderOnly}>
         {statusMessage}

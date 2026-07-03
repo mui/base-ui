@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -59,7 +59,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     valueRef,
     firstItemTextRef,
     selectedItemTextRef,
-    keyboardActiveRef,
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
@@ -72,8 +71,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     alignItemWithTriggerActive,
     isPositioned,
     setControlledAlignItemWithTrigger,
-    scrollDownArrowRef,
-    scrollUpArrowRef,
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
@@ -83,6 +80,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
@@ -121,10 +119,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       scale,
     );
     const doc = ownerDocument(positionerElement);
-    const positionerStyles = getComputedStyle(positionerElement);
+    const win = ownerWindow(positionerElement);
+    const positionerStyles = win.getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
-    const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
+    const maxPopupHeight = getMaxPopupHeight(win.getComputedStyle(popupRef.current));
     const maxAvailableHeight = Math.min(
       doc.documentElement.clientHeight - marginTop - marginBottom,
       maxPopupHeight,
@@ -298,11 +297,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const valueElement = valueRef.current;
 
-      const positionerStyles = getComputedStyle(positionerElement);
-      const popupStyles = getComputedStyle(popupElement);
+      const win = ownerWindow(positionerElement);
+      const positionerStyles = win.getComputedStyle(positionerElement);
+      const popupStyles = win.getComputedStyle(popupElement);
 
       const doc = ownerDocument(triggerElement);
-      const win = ownerWindow(positionerElement);
       const scale = getScale(triggerElement);
       const triggerRect = normalizeRect(triggerElement.getBoundingClientRect(), scale);
 
@@ -312,6 +311,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
+      // The `|| N` fallbacks cover an unset/`auto` value (parses to `NaN`). Note a literal `0`
+      // also resolves to the fallback, so an explicit `margin: 0` or `min-height: 0` still takes
+      // the default below.
       const marginTop = parseFloat(positionerStyles.marginTop) || 10;
       const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
       const minHeight = parseFloat(positionerStyles.minHeight) || 100;
@@ -356,7 +358,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         maxRight - positionerRect.width,
       )}px`;
       positionerElement.style.height = `${height}px`;
-      positionerElement.style.maxHeight = 'auto';
+      // `none` (not the invalid `auto`) so the explicit height governs in align mode and isn't
+      // clamped by a `max-height` from user CSS.
+      positionerElement.style.maxHeight = 'none';
       positionerElement.style.marginTop = `${marginTop}px`;
       positionerElement.style.marginBottom = `${marginBottom}px`;
       popupElement.style.height = '100%';
@@ -376,7 +380,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         Math.ceil(height) + SCROLL_EDGE_TOLERANCE_PX < Math.min(scrollHeight, minHeight);
 
       // Safari doesn't position the popup correctly when pinch-zoomed.
-      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
+      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && platform.engine.webkit;
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;
@@ -442,8 +446,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
     scrollArrowFrame,
-    scrollDownArrowRef,
-    scrollUpArrowRef,
     listElement,
     listRef,
     highlightItemOnHover,
@@ -477,13 +479,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           id: `${id}-list`,
         }),
     onKeyDown(event) {
-      keyboardActiveRef.current = true;
       if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
         event.stopPropagation();
       }
-    },
-    onMouseMove() {
-      keyboardActiveRef.current = false;
     },
     onScroll(event) {
       if (listElement) {
@@ -519,6 +517,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        openInteractionType={openMethod}
         returnFocus={finalFocus}
         restoreFocus
       >

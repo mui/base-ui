@@ -51,7 +51,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const {
     setTouched: setFieldTouched,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -146,7 +145,18 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useRegisterFieldControl(controlRef, id, checkedValue ?? null);
+  const getFormValue = useStableCallback(() => {
+    // Disabled radios are excluded from native form submission, so a disabled
+    // selection shouldn't be reported as the field's value either.
+    const input = groupInputRef.current;
+    if (!input || input.disabled || !input.checked) {
+      return null;
+    }
+
+    return checkedValue ?? null;
+  });
+
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -154,15 +164,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     setDirty(checkedValue !== validityData.initialValue);
     setFilled(checkedValue != null);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checkedValue);
-    } else {
-      validation.commit(checkedValue, true);
-    }
+    validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      setInputRef(fallbackInput);
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
     }
   });
 
@@ -209,6 +216,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const defaultProps: HTMLProps = {
+    id: idProp,
     role: 'radiogroup',
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
@@ -229,7 +237,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
-        setFieldTouched(true);
         setTouched(true);
         setFocused(true);
       }
@@ -243,7 +250,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         className={className}
         style={style}
         state={state}
-        props={[defaultProps, validation.getValidationProps, elementProps]}
+        props={[
+          defaultProps,
+          elementProps,
+          (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
+        ]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}

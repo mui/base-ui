@@ -6,6 +6,7 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
+import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 
 const VIEWPORT_SIZE = 200;
 const SCROLLABLE_CONTENT_SIZE = 1000;
@@ -465,6 +466,52 @@ describe('<ScrollArea.Root />', () => {
       });
     });
 
+    it('measures content mounted after the viewport initial measurement', async () => {
+      function App() {
+        const [show, setShow] = React.useState(false);
+        return (
+          <ScrollArea.Root
+            data-testid="root"
+            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+          >
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              {show && (
+                <ScrollArea.Content>
+                  <div
+                    style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }}
+                  />
+                </ScrollArea.Content>
+              )}
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="vertical">
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+            <button type="button" onClick={() => setShow(true)}>
+              show
+            </button>
+          </ScrollArea.Root>
+        );
+      }
+
+      await render(<App />);
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      // Empty viewport: no overflow and kept out of tab order.
+      await waitFor(() => {
+        expect(root).not.toHaveAttribute('data-has-overflow-y');
+      });
+      expect(viewport).toHaveAttribute('tabindex', '-1');
+
+      fireEvent.click(screen.getByText('show'));
+
+      // Once oversized content mounts, overflow state and tab order must update.
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-y'));
+      await waitFor(() => expect(viewport).toHaveAttribute('tabindex', '0'));
+    });
+
     it('applies data attributes on root, viewport and scrollbars based on overflow and edges', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -658,6 +705,83 @@ describe('<ScrollArea.Root />', () => {
       expect(horizontalEndPx).not.toBe('0px');
     });
 
+    it('applies numeric overflowEdgeThreshold to every edge', async () => {
+      await render(
+        <ScrollArea.Root
+          data-testid="root"
+          overflowEdgeThreshold={20}
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      await waitFor(() => expect(viewport).toHaveAttribute('data-has-overflow-x'));
+
+      fireEvent.scroll(viewport, {
+        target: { scrollLeft: 15, scrollTop: 15 },
+      });
+
+      expect(viewport).not.toHaveAttribute('data-overflow-x-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-start');
+      expect(viewport).toHaveAttribute('data-overflow-x-end');
+      expect(viewport).toHaveAttribute('data-overflow-y-end');
+
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollLeft: viewport.scrollWidth - viewport.clientWidth - 15,
+          scrollTop: viewport.scrollHeight - viewport.clientHeight - 15,
+        },
+      });
+
+      expect(viewport).toHaveAttribute('data-overflow-x-start');
+      expect(viewport).toHaveAttribute('data-overflow-y-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-x-end');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-end');
+    });
+
+    it('recomputes overflow edges when overflowEdgeThreshold changes', async () => {
+      const renderArea = (yStart: number) => (
+        <ScrollArea.Root
+          data-testid="root"
+          overflowEdgeThreshold={{ yStart }}
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+      );
+
+      const { rerender } = await render(renderArea(5));
+
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.scroll(viewport, { target: { scrollTop: 10 } });
+      await waitFor(() => expect(viewport).toHaveAttribute('data-overflow-y-start'));
+
+      // Raising the threshold above the current offset must clear the edge without a new scroll.
+      await rerender(renderArea(20));
+      await waitFor(() => expect(viewport).not.toHaveAttribute('data-overflow-y-start'));
+    });
+
     it('does not add state attributes when content does not overflow', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -755,6 +879,57 @@ describe('<ScrollArea.Root />', () => {
 
       await waitFor(() => expect(root).toHaveAttribute('data-overflow-x-start'));
       expect(root).not.toHaveAttribute('data-overflow-x-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('context stability', () => {
+    it('does not re-render parts on scroll when the corner size is unchanged', async () => {
+      let commitCount = 0;
+      function ContextProbe() {
+        React.useContext(ScrollAreaRootContext);
+        // Count committed renders in an effect rather than in the render body:
+        // under StrictMode/concurrent rendering the render function can run
+        // multiple times or be discarded without committing.
+        React.useEffect(() => {
+          commitCount += 1;
+        });
+        return null;
+      }
+
+      await render(
+        <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" style={{ width: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" style={{ height: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner data-testid="corner" />
+          <ContextProbe />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // Wait until both scrollbars are visible and the corner has been measured,
+      // which is the precondition for the corner-size setter to run on scroll.
+      await waitFor(() => expect(screen.getByTestId('corner').style.width).toBe('10px'));
+      await flushMicrotasks();
+
+      const countBeforeScroll = commitCount;
+
+      // Scrolling does not change the corner size, so no scroll-area part should
+      // re-render. Previously the corner-size setter built a fresh object on every
+      // scroll frame, rebuilding the root context and re-rendering every part.
+      for (let i = 0; i < 3; i += 1) {
+        fireEvent.scroll(viewport, { target: { scrollTop: 0, scrollLeft: 0 } });
+      }
+      await flushMicrotasks();
+
+      expect(commitCount).toBe(countBeforeScroll);
     });
   });
 });

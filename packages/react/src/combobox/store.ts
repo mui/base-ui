@@ -32,9 +32,11 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
+  popupId: string | undefined;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
@@ -72,9 +74,6 @@ export type State = {
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>;
   requestSubmit: () => void;
 
   name: string | undefined;
@@ -149,10 +148,11 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  getItemProps: createSelector((state: State) => state.getItemProps),
+  itemProps: createSelector((state: State) => state.itemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  popupId: createSelector((state: State) => state.popupId),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
   inputGroupElement: createSelector((state: State) => state.inputGroupElement),

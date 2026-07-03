@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
+import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
@@ -21,10 +21,7 @@ export interface SelectRootContext {
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: () => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>; // PREVENT_COMMIT
-  events: FloatingEvents;
+  itemProps: HTMLProps;
   valueRef: React.RefObject<HTMLSpanElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
@@ -32,12 +29,12 @@ export interface SelectRootContext {
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
+    dragY: number;
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
-  keyboardActiveRef: React.RefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   initialValueRef: React.RefObject<any>;
 }

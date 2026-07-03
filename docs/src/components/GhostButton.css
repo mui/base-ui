@@ -11,6 +11,7 @@
     gap: 0.375rem;
     height: 1.75rem;
     outline: 0;
+    -webkit-user-select: none;
     user-select: none;
     border-radius: var(--radius-8);
     padding-inline: 0.5rem;
@@ -30,12 +31,12 @@
     &:not(:focus-visible) {
       @media (hover: hover) {
         &:hover {
-          background-color: var(--gray-c2);
+          background-color: var(--gray-c1);
         }
       }
 
       &[data-popup-open] {
-        background-color: var(--gray-c2);
+        background-color: var(--gray-c1);
       }
     }
   }

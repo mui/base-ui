@@ -23,7 +23,7 @@
 - Meter - ([Outline](#meter), [Contents](./meter/page.mdx))
 - Navigation Menu - ([Outline](#navigation-menu), [Contents](./navigation-menu/page.mdx))
 - Number Field - ([Outline](#number-field), [Contents](./number-field/page.mdx))
-- OTP Field [Preview] - ([Outline](#otp-field), [Contents](./otp-field/page.mdx))
+- OTP Field [New] - ([Outline](#otp-field), [Contents](./otp-field/page.mdx))
 - Popover - ([Outline](#popover), [Contents](./popover/page.mdx))
 - Preview Card - ([Outline](#preview-card), [Contents](./preview-card/page.mdx))
 - Progress - ([Outline](#progress), [Contents](./progress/page.mdx))
@@ -140,7 +140,6 @@ A dialog that requires a user response to proceed.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Alert Dialog - createHandle
   - Alert Dialog - Handle
-    - Parameters: store
 - Types: AlertDialog.Backdrop.Props, AlertDialog.Backdrop.State, AlertDialog.Close.Props, AlertDialog.Close.State, AlertDialog.Description.Props, AlertDialog.Description.State, AlertDialog.Popup.Props, AlertDialog.Popup.State, AlertDialog.Portal.Props, AlertDialog.Portal.State, AlertDialog.Root.Actions, AlertDialog.Root.ChangeEventDetails, AlertDialog.Root.ChangeEventReason, AlertDialog.Root.Props, AlertDialog.Root.State, AlertDialog.Title.Props, AlertDialog.Title.State, AlertDialog.Trigger.Props, AlertDialog.Trigger.State, AlertDialog.Viewport.Props, AlertDialog.Viewport.State
 
 </details>
@@ -170,6 +169,7 @@ An input that suggests options as you type.
     - Command palette
     - Grid layout
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Value
@@ -392,6 +392,7 @@ A collapsible panel controlled by a button.
 - Exports:
   - Collapsible - Root
     - Props: className, defaultOpen, disabled, onOpenChange, open, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Collapsible - Trigger
     - Props: className, nativeButton, render, style
     - Data Attributes: data-panel-open
@@ -427,6 +428,7 @@ An input combined with a list of predefined items to select.
     - Async search (multiple)
     - Creatable
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Label
@@ -540,8 +542,10 @@ A menu that appears at the pointer on right click or long press.
 
 - Keywords: React Context Menu, Context Menu Component, Right Click Menu, Secondary Click Menu, Pointer Menu, Touch Hold Menu, Long Press Menu, Nested Menu React, Accessible Context Menu, Headless React Components, Base UI
 - Sections:
+  - Usage guidelines
   - Anatomy
   - Examples
+    - Using with Menu
     - Nested menu
   - API reference
     - Root
@@ -564,7 +568,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -576,7 +580,7 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Context Menu - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
@@ -593,7 +597,7 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - Separator
     - Props: className, orientation, render, style
   - Context Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -682,7 +686,6 @@ A popup that opens on top of the entire page.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Dialog - createHandle
   - Dialog - Handle
-    - Parameters: store
 - Types: Dialog.Backdrop.Props, Dialog.Backdrop.State, Dialog.Close.Props, Dialog.Close.State, Dialog.Description.Props, Dialog.Description.State, Dialog.Popup.Props, Dialog.Popup.State, Dialog.Portal.Props, Dialog.Portal.State, Dialog.Root.Actions, Dialog.Root.ChangeEventDetails, Dialog.Root.ChangeEventReason, Dialog.Root.Props, Dialog.Root.State, Dialog.Title.Props, Dialog.Title.State, Dialog.Trigger.Props, Dialog.Trigger.State, Dialog.Viewport.Props, Dialog.Viewport.State
 
 </details>
@@ -706,10 +709,12 @@ A panel that slides in from the edge of the screen.
     - Position
     - Nested drawers
     - Snap points
+    - Virtual keyboard aware
     - Indent effect
     - Non-modal
     - Mobile navigation
     - Swipe to open
+    - Close confirmation
     - Action sheet with separate destructive action
     - Detached triggers
     - Stacking and animations
@@ -720,6 +725,7 @@ A panel that slides in from the edge of the screen.
     - Root
     - Trigger
     - SwipeArea
+    - VirtualKeyboardProvider
     - Portal
     - Backdrop
     - Viewport
@@ -758,9 +764,9 @@ A panel that slides in from the edge of the screen.
   - Drawer - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
+    - CSS Variables: --drawer-keyboard-inset
   - Drawer - createHandle
   - Drawer - Handle
-    - Parameters: store
   - Drawer - Indent
     - Props: className, render, style
   - Drawer - IndentBackground
@@ -768,7 +774,9 @@ A panel that slides in from the edge of the screen.
   - Drawer - SwipeArea
     - Props: className, disabled, render, style, swipeDirection
     - Data Attributes: data-closed, data-disabled, data-open, data-swipe-direction, data-swiping
-- Types: Drawer.Backdrop.Props, Drawer.Backdrop.State, Drawer.Close.Props, Drawer.Close.State, Drawer.Content.Props, Drawer.Content.State, Drawer.Description.Props, Drawer.Description.State, Drawer.Indent.Props, Drawer.Indent.State, Drawer.IndentBackground.Props, Drawer.IndentBackground.State, Drawer.Popup.Props, Drawer.Popup.State, Drawer.Portal.Props, Drawer.Portal.State, Drawer.Provider.Props, Drawer.Provider.State, Drawer.Root.Actions, Drawer.Root.ChangeEventDetails, Drawer.Root.ChangeEventReason, Drawer.Root.Props, Drawer.Root.SnapPoint, Drawer.Root.SnapPointChangeEventDetails, Drawer.Root.SnapPointChangeEventReason, Drawer.Root.State, Drawer.SwipeArea.Props, Drawer.SwipeArea.State, Drawer.Title.Props, Drawer.Title.State, Drawer.Trigger.Props, Drawer.Trigger.State, Drawer.Viewport.Props, Drawer.Viewport.State
+  - Drawer - VirtualKeyboardProvider
+    - Props: children
+- Types: Drawer.Backdrop.Props, Drawer.Backdrop.State, Drawer.Close.Props, Drawer.Close.State, Drawer.Content.Props, Drawer.Content.State, Drawer.Description.Props, Drawer.Description.State, Drawer.Indent.Props, Drawer.Indent.State, Drawer.IndentBackground.Props, Drawer.IndentBackground.State, Drawer.Popup.Props, Drawer.Popup.State, Drawer.Portal.Props, Drawer.Portal.State, Drawer.Provider.Props, Drawer.Provider.State, Drawer.Root.Actions, Drawer.Root.ChangeEventDetails, Drawer.Root.ChangeEventReason, Drawer.Root.Props, Drawer.Root.SnapPoint, Drawer.Root.SnapPointChangeEventDetails, Drawer.Root.SnapPointChangeEventReason, Drawer.Root.State, Drawer.SwipeArea.Props, Drawer.SwipeArea.State, Drawer.Title.Props, Drawer.Title.State, Drawer.Trigger.Props, Drawer.Trigger.State, Drawer.Viewport.Props, Drawer.Viewport.State, Drawer.VirtualKeyboardProvider.Props, Drawer.VirtualKeyboardProvider.State
 
 </details>
 
@@ -799,6 +807,7 @@ A component that provides labeling and validation for form controls.
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Item
     - Props: className, disabled, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Description
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
@@ -915,6 +924,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Detached triggers
     - Multiple triggers
     - Controlled mode with multiple triggers
+    - Arrow
     - Animating the Menu
       - Position and Size
       - Content
@@ -955,7 +965,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Menu - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
@@ -976,7 +986,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Separator
     - Props: className, orientation, render, style
   - Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -1099,6 +1109,7 @@ A collection of links and menus for website navigation.
     - Data Attributes: data-popup-open, data-pressed
   - Navigation Menu - Icon
     - Props: className, render, style
+    - Data Attributes: data-popup-open
   - Navigation Menu - List
     - Props: className, render, style
   - Navigation Menu - Portal
@@ -1112,7 +1123,7 @@ A collection of links and menus for website navigation.
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Navigation Menu - Popup
     - Props: className, render, style
-    - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-ending-style, data-open, data-side, data-starting-style
     - CSS Variables: --popup-height, --popup-width
   - Navigation Menu - Arrow
     - Props: className, render, style
@@ -1199,7 +1210,7 @@ A one-time password input composed of individual character slots.
     - Alphanumeric verification codes
     - Grouped layouts
     - Placeholder hints
-    - Custom sanitization
+    - Custom normalization
     - Masked entry
   - API reference
     - Root
@@ -1207,14 +1218,14 @@ A one-time password input composed of individual character slots.
     - Separator
 - Exports:
   - OTP Field - Root
-    - Props: autoComplete, autoSubmit, className, defaultValue, disabled, form, id, inputMode, length, mask, name, onValueChange, onValueComplete, onValueInvalid, readOnly, render, required, sanitizeValue, style, validationType, value
+    - Props: autoComplete, autoSubmit, className, defaultValue, disabled, form, id, inputMode, length, mask, name, normalizeValue, onValueChange, onValueComplete, onValueInvalid, readOnly, render, required, style, validationType, value
     - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
   - OTP Field - Input
     - Props: className, render, style
     - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
   - OTP Field - Separator
     - Props: className, orientation, render, style
-- Types: OTPFieldPreview.Input.Props, OTPFieldPreview.Input.State, OTPFieldPreview.Root.ChangeEventDetails, OTPFieldPreview.Root.ChangeEventReason, OTPFieldPreview.Root.CompleteEventDetails, OTPFieldPreview.Root.CompleteEventReason, OTPFieldPreview.Root.InvalidEventDetails, OTPFieldPreview.Root.InvalidEventReason, OTPFieldPreview.Root.Props, OTPFieldPreview.Root.State, OTPFieldPreview.Root.ValidationType, OTPFieldPreview.Separator.Props, OTPFieldPreview.Separator.State
+- Types: OTPField.Input.Props, OTPField.Input.State, OTPField.Root.ChangeEventDetails, OTPField.Root.ChangeEventReason, OTPField.Root.CompleteEventDetails, OTPField.Root.CompleteEventReason, OTPField.Root.InvalidEventDetails, OTPField.Root.InvalidEventReason, OTPField.Root.Props, OTPField.Root.State, OTPField.Root.ValidationType, OTPField.Separator.Props, OTPField.Separator.State
 
 </details>
 
@@ -1337,7 +1348,7 @@ A popup that appears when a link is hovered, showing a preview for sighted users
   - Preview Card - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Preview Card - Popup
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
@@ -1457,13 +1468,14 @@ A native scroll container with custom scrollbars.
     - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
   - Scroll Area - Content
     - Props: className, render, style
+    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
   - Scroll Area - Viewport
     - Props: className, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-overflow-x-end, --scroll-area-overflow-x-start, --scroll-area-overflow-y-end, --scroll-area-overflow-y-start
   - Scroll Area - Thumb
     - Props: className, render, style
-    - Data Attributes: data-orientation
+    - Data Attributes: data-orientation, data-scrolling
   - Scroll Area - Scrollbar
     - Props: className, keepMounted, orientation, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-hovering, data-orientation, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
@@ -1636,7 +1648,7 @@ An easily stylable range input.
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Thumb
-    - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, render, style, tabIndex
+    - Props: aria-valuetext, className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, onKeyDown, render, style, tabIndex
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Control
     - Props: className, render, style
@@ -1747,8 +1759,8 @@ Generates toast notifications.
     - Varying heights
   - API reference
     - Provider
-    - Viewport
     - Portal
+    - Viewport
     - Root
     - Content
     - Title
@@ -1821,7 +1833,7 @@ A two-state button that can be on or off.
 - Exports:
   - Toggle
     - Props: className, defaultPressed, disabled, nativeButton, onPressedChange, pressed, render, style, value
-    - Data Attributes: data-pressed
+    - Data Attributes: data-disabled, data-pressed
 - Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State
 
 </details>
@@ -1931,6 +1943,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
     - Positioner
     - Popup
     - Arrow
+    - Viewport
   - createHandle
     - Handle
 - Exports:
@@ -1946,7 +1959,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
   - Tooltip - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
-    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Tooltip - Popup
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style

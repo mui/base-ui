@@ -1,10 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
+
+const isWebKit = platform.engine.webkit;
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -17,7 +20,7 @@ describe('<Slider.Thumb />', () => {
   }));
 
   describe('ARIA attributes', () => {
-    ['aria-label', 'aria-labelledby', 'aria-describedby'].forEach((attr) => {
+    ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
       it(`forwards ${attr} to the input`, async () => {
         await render(
           <Slider.Root defaultValue={50}>
@@ -32,6 +35,84 @@ describe('<Slider.Thumb />', () => {
         );
         expect(screen.getByRole('slider')).toHaveAttribute(attr, 'test');
       });
+    });
+
+    it('prefers getAriaValueText over a direct aria-valuetext prop', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb
+              aria-valuetext="ignored"
+              getAriaValueText={(formatted) => `${formatted} percent`}
+            />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+  });
+
+  describe('prop: onKeyDown', () => {
+    it('forwards key events that the slider does not handle', async () => {
+      const handleKeyDown = vi.fn();
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'Enter' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+    });
+
+    ['ArrowRight', 'PageUp'].forEach((key) => {
+      it(`forwards handled ${key} key events`, async () => {
+        const handleKeyDown = vi.fn();
+        await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb onKeyDown={handleKeyDown} />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const slider = screen.getByRole('slider');
+        await act(async () => {
+          slider.focus();
+        });
+        fireEvent.keyDown(slider, { key });
+
+        expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('allows preventing the internal key handling', async () => {
+      const handleKeyDown = vi.fn((event: React.KeyboardEvent<HTMLInputElement>) => {
+        event.preventDefault();
+      });
+
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'ArrowRight' });
+
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(slider).toHaveAttribute('aria-valuenow', '50');
     });
   });
 
@@ -147,6 +228,60 @@ describe('<Slider.Thumb />', () => {
 
         expect(focusSpy).toHaveBeenCalledTimes(1);
         expect(blurSpy).not.toHaveBeenCalled();
+      });
+
+      it('forwards focus and blur to the input so `currentTarget` is the input', async () => {
+        const focusSpy = vi.fn();
+        const blurSpy = vi.fn();
+        const { user } = await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb
+                onFocus={(event) => focusSpy(event.currentTarget)}
+                onBlur={(event) => blurSpy(event.currentTarget)}
+              />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        await user.keyboard('[Tab]');
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(focusSpy.mock.calls[0][0]).toHaveProperty('tagName', 'INPUT');
+
+        await user.keyboard('[Tab]');
+        expect(blurSpy).toHaveBeenCalledTimes(1);
+        expect(blurSpy.mock.calls[0][0]).toHaveProperty('tagName', 'INPUT');
+      });
+
+      it('does not commit field validation when moving focus between range thumbs', async () => {
+        const validateSpy = vi.fn(() => null);
+        const { user } = await render(
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Slider.Root defaultValue={[20, 50]}>
+              <Slider.Control>
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const [thumb0, thumb1] = screen.getAllByRole('slider');
+
+        await user.keyboard('[Tab]');
+        expect(thumb0).toHaveFocus();
+
+        validateSpy.mockClear();
+
+        await user.keyboard('[Tab]');
+        expect(thumb1).toHaveFocus();
+        expect(validateSpy).not.toHaveBeenCalled();
+
+        await user.keyboard('[Tab]');
+        expect(thumb1).not.toHaveFocus();
+        await waitFor(() => {
+          expect(validateSpy).toHaveBeenCalledTimes(1);
+        });
       });
     });
 
@@ -945,6 +1080,34 @@ describe('<Slider.Thumb />', () => {
       );
 
       expect(document.querySelector('script')).not.toBe(null);
+    });
+
+    it('renders a single pre-hydration script with the last thumb', async () => {
+      const { container } = await renderToString(
+        <Slider.Root
+          defaultValue={[30, 40]}
+          thumbAlignment="edge"
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb index={0} data-testid="thumb" />
+              <Slider.Thumb index={1} data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      const scripts = container.querySelectorAll('script');
+      expect(scripts).toHaveLength(1);
+
+      // The script must render with the last thumb so all preceding thumbs are already in the DOM.
+      const thumbs = await screen.findAllByTestId('thumb');
+      expect(thumbs[thumbs.length - 1].contains(scripts[0])).toBe(true);
     });
 
     it('multiple thumbs', async () => {

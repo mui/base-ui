@@ -100,7 +100,7 @@ Selection chips are rendered with `<Combobox.Chip>` inside the input that can be
 
 import { DemoComboboxMultiple } from './demos/multiple';
 
-<DemoComboboxMultiple compact />
+<DemoComboboxMultiple />
 
 Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
 
@@ -137,7 +137,7 @@ const CHIP_LIMIT = 3;
 
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
-<DemoComboboxInputInsidePopup compact />
+<DemoComboboxInputInsidePopup />
 
 Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
 
@@ -180,7 +180,7 @@ const groups: ProduceGroupItem[] = [
 
 import { DemoComboboxGrouped } from './demos/grouped';
 
-<DemoComboboxGrouped compact />
+<DemoComboboxGrouped />
 
 ### Async search (single)
 
@@ -188,7 +188,7 @@ Load items from a remote source by fetching on input changes. Keep the selected 
 
 import { DemoComboboxAsyncSingle } from './demos/async-single';
 
-<DemoComboboxAsyncSingle compact />
+<DemoComboboxAsyncSingle />
 
 ### Async search (multiple)
 
@@ -196,7 +196,7 @@ Load items from a remote source by fetching on input changes while supporting mu
 
 import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
 
-<DemoComboboxAsyncMultiple compact />
+<DemoComboboxAsyncMultiple />
 
 ### Creatable
 
@@ -204,7 +204,7 @@ Create a new item when the filter matches no items, opening a creation `<Dialog>
 
 import { DemoComboboxCreatable } from './demos/creatable';
 
-<DemoComboboxCreatable compact />
+<DemoComboboxCreatable />
 
 ### Virtualized
 
@@ -212,7 +212,29 @@ Efficiently handle large datasets using a virtualization library like `@tanstack
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
-<DemoComboboxVirtualized compact />
+<DemoComboboxVirtualized />
+
+#### Memoizing items
+
+Memoizing each item is a simpler alternative to virtualization for datasets up to roughly 1,000 items. Wrap each item in [`React.memo`](https://react.dev/reference/react/memo) and pass the item as a prop so unchanged items skip re-rendering. While memoization speeds up typing, it does not speed up opening; with a large enough number of items, the mount cost dominates, and virtualization becomes necessary to keep the open interaction fast on low-end devices.
+
+```tsx title="Memoizing list items"
+interface Fruit {
+  id: string;
+  label: string;
+}
+
+const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
+  return (
+    <Combobox.Item value={item}>
+      <Combobox.ItemIndicator />
+      <span>{item.label}</span>
+    </Combobox.Item>
+  );
+});
+
+<Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
+```
 
 ## API reference
 

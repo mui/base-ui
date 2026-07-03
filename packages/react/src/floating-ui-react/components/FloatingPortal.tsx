@@ -162,11 +162,10 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
+  componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, renderGuards, ...elementProps } =
-    componentProps;
+  const { render, className, style, children, container, ...elementProps } = componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -187,9 +186,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const open = focusManagerState?.open;
 
   const shouldRenderGuards =
-    typeof renderGuards === 'boolean'
-      ? renderGuards
-      : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
+    !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -222,10 +219,12 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     );
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
-    if (!portalNode || open !== false) {
+  useIsoLayoutEffect(() => {
+    if (!portalNode || open !== true || !focusInsideDisabledRef.current) {
       return;
     }
+
+    // Restore tabbability before the focus manager's queued focus-on-open step runs.
     enableFocusInside(portalNode);
     focusInsideDisabledRef.current = false;
   }, [open, portalNode]);

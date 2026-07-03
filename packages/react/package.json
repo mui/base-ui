@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.4.1",
+  "version": "1.6.0",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -109,16 +109,23 @@
   },
   "imports": {
     "#test-utils": "./test/index.ts",
-    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage"
+    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage",
+    "#prehydration/tabs/indicator": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/tabs/indicator/prehydrationScript.min.ts"
+    },
+    "#prehydration/slider/thumb": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/slider/thumb/prehydrationScript.min.ts"
+    }
   },
-  "type": "commonjs",
   "scripts": {
-    "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore",
-    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
+    "prebuild": "rimraf --glob build build-tests published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
+    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
+    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
-    "typescript": "tsc -b tsconfig.json"
+    "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
@@ -140,7 +147,7 @@
     "luxon": "3.7.2",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "react-router": "7.14.2",
+    "react-router": "7.15.0",
     "typescript": "6.0.3",
     "vitest-browser-react": "2.2.0"
   },

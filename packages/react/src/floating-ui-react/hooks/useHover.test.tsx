@@ -1,10 +1,10 @@
 import { vi, test, expect } from 'vitest';
-/* eslint-disable @typescript-eslint/no-shadow */
+
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useFloating, useHover, useInteractions } from '../index';
+import { isJSDOM, useTestInteractions } from '#test-utils';
+import { useFloating, useHover } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
 import { REASONS } from '../../internals/reasons';
@@ -15,7 +15,7 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
     open,
     onOpenChange: setOpen,
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([useHover(context, props)]);
 
   return (
     <React.Fragment>
@@ -258,7 +258,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       const hover = useHover(context);
-      const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([hover]);
 
       return (
         <React.Fragment>
@@ -287,7 +287,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
           setOpen(nextOpen);
         },
       });
-      const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context)]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([useHover(context)]);
 
       return (
         <React.Fragment>

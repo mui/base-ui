@@ -13,8 +13,8 @@ import {
   isHTMLElement,
   isLastTraversableNode,
   isShadowRoot,
-  isWebKit,
 } from '@floating-ui/utils/dom';
+import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -26,11 +26,6 @@ import { isReactEvent } from '../utils/event';
 import { getNodeChildren } from '../utils/nodes';
 
 type PressType = 'intentional' | 'sloppy';
-
-const bubbleHandlerKeys = {
-  intentional: 'onClick',
-  sloppy: 'onPointerDown',
-} as const;
 
 function alwaysFalse() {
   return false;
@@ -68,13 +63,6 @@ export interface UseDismissProps {
    * @default false
    */
   referencePress?: (() => boolean) | undefined;
-  /**
-   * The type of event to use to determine a "press".
-   * - `down` is `pointerdown` on mouse input, but special iOS-like touch handling on touch input.
-   * - `up` is lazy on both mouse + touch input (equivalent to `click`).
-   * @default 'down'
-   */
-  referencePressEvent?: PressType | undefined;
   /**
    * Whether to dismiss the floating element upon pressing outside of the
    * floating element.
@@ -136,7 +124,6 @@ export function useDismiss(
     outsidePress: outsidePressProp = true,
     outsidePressEvent = 'sloppy',
     referencePress = alwaysFalse,
-    referencePressEvent = 'sloppy',
     bubbles,
     externalTree,
   } = props;
@@ -308,7 +295,7 @@ export function useDismiss(
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
-        isWebKit() ? 5 : 0,
+        platform.engine.webkit ? 5 : 0,
         () => {
           isComposingRef.current = false;
         },
@@ -367,6 +354,12 @@ export function useDismiss(
 
     function closeOnPressOutside(event: MouseEvent | PointerEvent | TouchEvent) {
       if (shouldIgnoreEvent(event)) {
+        // A new press began outside the floating element and its trigger. Clear any
+        // leftover drag-out suppression so this press's eventual click can dismiss.
+        if (event.type !== 'click' && !isEventWithinOwnElements(event)) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+        }
         clearInsideReactTree();
         return;
       }
@@ -719,12 +712,10 @@ export function useDismiss(
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      [bubbleHandlerKeys[referencePressEvent]]: closeOnReferencePress,
-      ...(referencePressEvent !== 'intentional' && {
-        onClick: closeOnReferencePress,
-      }),
+      onPointerDown: closeOnReferencePress,
+      onClick: closeOnReferencePress,
     }),
-    [closeOnEscapeKeyDown, closeOnReferencePress, referencePressEvent],
+    [closeOnEscapeKeyDown, closeOnReferencePress],
   );
 
   const floating: ElementProps['floating'] = React.useMemo(

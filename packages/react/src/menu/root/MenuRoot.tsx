@@ -4,17 +4,15 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
@@ -36,7 +34,11 @@ import { mergeProps } from '../../merge-props';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
+  setPopupOpenState,
+  useAttachHandle,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -103,22 +105,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     };
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
-  const store = MenuStore.useStore(handle?.store, {
+  const store = useMenuRootStore(handle, {
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
     parent: parentFromContext,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
   });
 
   store.useControlledProp('openProp', openProp);
@@ -164,6 +156,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   store.useSyncedValues({
     disabled: disabledProp,
+    highlightItemOnHover,
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
@@ -244,9 +237,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      (eventDetails as MenuRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+        eventDetails as MenuRoot.ChangeEventDetails,
+      );
 
       // Do not immediately reset the activeTriggerId to allow
       // exit animations to play and focus to be returned correctly.
@@ -270,19 +263,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         !allowTouchToCloseRef.current
       ) {
         return;
-      }
-
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && activeIndex !== null) {
-        const activeOption = store.context.itemDomElements.current[activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
       }
 
       // Prevent the menu from closing on mobile devices that have a delayed click event.
@@ -310,13 +290,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       };
       openEventRef.current = eventDetails.event ?? null;
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       store.update(updatedState);
 
@@ -346,7 +325,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  // Registered in a layout effect (not a passive one) so `setOpen` emits from imperative
+  // `MenuHandle.open()` calls made in the same commit this root mounts — e.g. from another layout
+  // effect during a route-transition handoff — are received instead of being silently dropped.
+  useIsoLayoutEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,
@@ -398,10 +380,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     externalTree: nested ? floatingTreeRoot : undefined,
   });
 
-  const role = useRole(floatingRootContext, {
-    role: 'menu',
-  });
-
   const direction = useDirection();
 
   const setActiveIndex = React.useCallback(
@@ -438,6 +416,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
+    enabled: !disabled,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
@@ -450,16 +429,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onTyping,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
-    dismiss,
-    role,
-    listNavigation,
-    typeahead,
-  ]);
-
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
-      getReferenceProps(),
+      typeahead.reference,
+      listNavigation.reference,
+      dismiss.reference,
       {
         onMouseMove() {
           store.set('allowMouseEnter', true);
@@ -468,50 +442,73 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       interactionTypeProps,
     );
 
-    delete mergedProps.role;
+    mergedProps['aria-haspopup'] = 'menu';
+    mergedProps['aria-expanded'] = open;
+
     return mergedProps;
-  }, [getReferenceProps, store, interactionTypeProps]);
+  }, [
+    store,
+    typeahead.reference,
+    listNavigation.reference,
+    dismiss.reference,
+    interactionTypeProps,
+    open,
+  ]);
 
   const inactiveTriggerProps = React.useMemo(() => {
-    const triggerProps = getTriggerProps();
-    if (!triggerProps) {
-      return triggerProps;
-    }
+    const mergedProps = mergeProps(listNavigation.trigger, dismiss.trigger, interactionTypeProps);
 
-    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
-    delete mergedProps.role;
-    delete mergedProps['aria-controls'];
+    mergedProps['aria-haspopup'] = 'menu';
+    mergedProps['aria-expanded'] = false;
+
     return mergedProps;
-  }, [getTriggerProps, interactionTypeProps]);
+  }, [listNavigation.trigger, dismiss.trigger, interactionTypeProps]);
 
   const popupProps = React.useMemo(
     () =>
-      getFloatingProps({
-        onMouseMove() {
-          store.set('allowMouseEnter', true);
-          if (parent.type === 'menu') {
-            store.set('hoverEnabled', false);
-          }
+      mergeProps(
+        FOCUSABLE_POPUP_PROPS,
+        {
+          id: floatingId,
+          role: 'menu' as const,
+          'aria-labelledby': activeTriggerElement?.id,
+          onMouseMove() {
+            store.set('allowMouseEnter', true);
+            if (parent.type === 'menu') {
+              store.set('hoverEnabled', false);
+            }
+          },
+          onClick() {
+            if (store.select('hoverEnabled')) {
+              store.set('hoverEnabled', false);
+            }
+          },
+          onKeyDown(event: React.KeyboardEvent) {
+            // The Menubar's CompositeRoot captures keyboard events via
+            // event delegation. This works well when Menu.Root is nested inside Menubar,
+            // but with detached triggers we need to manually forward the event to the CompositeRoot.
+            const relay = store.select('keyboardEventRelay');
+            if (relay && !event.isPropagationStopped()) {
+              relay(event);
+            }
+          },
         },
-        onClick() {
-          if (store.select('hoverEnabled')) {
-            store.set('hoverEnabled', false);
-          }
-        },
-        onKeyDown(event) {
-          // The Menubar's CompositeRoot captures keyboard events via
-          // event delegation. This works well when Menu.Root is nested inside Menubar,
-          // but with detached triggers we need to manually forward the event to the CompositeRoot.
-          const relay = store.select('keyboardEventRelay');
-          if (relay && !event.isPropagationStopped()) {
-            relay(event);
-          }
-        },
-      }),
-    [getFloatingProps, parent.type, store],
+        typeahead.floating,
+        listNavigation.floating,
+        dismiss.floating,
+      ),
+    [
+      activeTriggerElement,
+      floatingId,
+      parent.type,
+      store,
+      typeahead.floating,
+      listNavigation.floating,
+      dismiss.floating,
+    ],
   );
 
-  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
+  const itemProps = listNavigation.item ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
     floatingRootContext,
@@ -543,6 +540,22 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   return content;
 });
 
+function useMenuRootStore<Payload>(
+  handle: MenuHandle<Payload> | undefined,
+  initialState: Partial<MenuStoreState<Payload>>,
+) {
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  // Unlike other popups, Menu wires its floating root context separately (it relays open changes
+  // through an event), so it only borrows the shared handle-attachment behavior here.
+  const store = useRefWithInit(() => new MenuStore<Payload>(initialState)).current;
+
+  useAttachHandle(handle, store);
+
+  return store;
+}
+
 export interface MenuRootState {}
 
 export interface MenuRootProps<Payload = unknown> {
@@ -569,6 +582,10 @@ export interface MenuRootProps<Payload = unknown> {
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
+   *
+   * Nested menus ignore this prop, and menus opened by hover are never modal.
    * @default true
    */
   modal?: boolean | undefined;
@@ -577,7 +594,7 @@ export interface MenuRootProps<Payload = unknown> {
    */
   onOpenChange?: ((open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void) | undefined;
   /**
-   * Event handler called after any animations complete when the menu is closed.
+   * Event handler called after any animations complete when the menu is opened or closed.
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
@@ -603,21 +620,20 @@ export interface MenuRootProps<Payload = unknown> {
   closeParentOnEsc?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the menu will not be unmounted when closed.
-   *    Instead, the `unmount` function must be called to unmount the menu manually.
-   *   Useful when the menu's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the menu.
+   *   Call this after any externally controlled closing animation finishes.
    * - `close`: When specified, the menu can be closed imperatively.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
-   * ID of the trigger that the popover is associated with.
-   * This is useful in conjunction with the `open` prop to create a controlled popover.
-   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
+   * ID of the trigger that the menu is associated with.
+   * This is useful in conjunction with the `open` prop to create a controlled menu.
+   * There's no need to specify this prop when the menu is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**
-   * ID of the trigger that the popover is associated with.
-   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
+   * ID of the trigger that the menu is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.
    */
   defaultTriggerId?: string | null | undefined;
   /**
@@ -626,7 +642,7 @@ export interface MenuRootProps<Payload = unknown> {
    */
   handle?: MenuHandle<Payload> | undefined;
   /**
-   * The content of the popover.
+   * The content of the menu.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;

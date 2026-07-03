@@ -16,20 +16,34 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-inline: 1.5rem;
-
+    padding-inline: var(--content-layout-padding-x);
     position: fixed;
     top: 0;
     inset-inline: 0;
-    box-shadow: inset 0 -1px var(--color-gridline);
-    /* It's also the iOS header overscroll background */
-    background-color: var(--gray-s2);
+    background: var(--color-content);
     z-index: 2;
 
     @media (--show-side-nav) {
-      position: static;
-      box-shadow: none;
-      background-color: transparent;
+      /* Keep the fixed header content aligned with the centered layout container */
+      max-width: var(--breakpoint-max-layout-width);
+      margin-inline: auto;
+      padding-inline: var(--root-layout-padding-x);
+    }
+
+    @media (--show-quick-nav) {
+      background: none;
+      /* The header is transparent here, so let clicks fall through to the
+         content scrolling under it while keeping its own controls interactive. */
+      pointer-events: none;
+
+      & > * {
+        pointer-events: auto;
+      }
+    }
+
+    @media print {
+      /* Prevent the header to be visible on each printed page */
+      position: absolute;
     }
   }
 
@@ -50,7 +64,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -2px;
     }
 
@@ -60,6 +74,8 @@
   }
 
   .HeaderButton {
+    height: 1.75rem;
+
     @media (hover: hover) {
       &:hover {
         background-color: var(--gray-c1);
@@ -95,13 +111,9 @@
       color: var(--gray-p1);
     }
 
-    & svg {
-      margin-top: -0.125rem;
-    }
-
     &:focus-visible {
       border-radius: var(--radius-6);
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
     }
   }
@@ -113,12 +125,19 @@
     @media (--lg) {
       display: flex;
     }
+
+    @media (--show-quick-nav) {
+      /* Align the search trigger's text with the right sidebar (quick nav) text.
+         2rem matches the quick nav's --quick-nav-margin-x; the extra 0.5rem
+         matches the quick nav link's left padding. */
+      width: calc(var(--sidebar-width) - 2.5rem);
+    }
   }
 
   .HeaderMobileActions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 
     @media (--lg) {
       display: none;
@@ -127,7 +146,6 @@
 
   .HeaderMobileSearch {
     display: flex;
-    padding-inline: 1rem;
   }
 
   .HeaderNavTrigger {
@@ -147,7 +165,7 @@
     content: '';
     display: block;
     width: 0.875rem;
-    height: 2px;
+    height: 1px;
     background-color: currentColor;
   }
 
@@ -162,9 +180,5 @@
     font-size: var(--font-size-15);
     line-height: 1.375rem;
     color: var(--gray-t1);
-  }
-
-  .HeaderGitHubIcon {
-    margin-top: -2px;
   }
 }

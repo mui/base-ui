@@ -24,4 +24,16 @@ export enum MenuPositionerCssVars {
    * @type {string}
    */
   transformOrigin = '--transform-origin',
+  /**
+   * The width of the menu's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type {number}
+   */
+  positionerWidth = '--positioner-width',
+  /**
+   * The height of the menu's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type {number}
+   */
+  positionerHeight = '--positioner-height',
 }

@@ -10,13 +10,17 @@ export enum NavigationMenuPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the popup is animating in.
+   * Present when the popup begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the popup is animating out.
    */
   endingStyle = CommonPopupDataAttributes.endingStyle,
+  /**
+   * Present when the anchor is hidden.
+   */
+  anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}

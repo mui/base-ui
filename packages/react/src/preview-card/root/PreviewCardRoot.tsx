@@ -3,7 +3,6 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
@@ -16,6 +15,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -35,22 +35,20 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     children,
   } = props;
 
-  const store = PreviewCardStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) =>
+      new PreviewCardStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -63,8 +61,10 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.context.inlineRectCoordsRef.current = undefined;
+  });
 
   useIsoLayoutEffect(() => {
     if (open) {

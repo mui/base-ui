@@ -8,7 +8,11 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import {
+  getInlineRectTriggerProps,
+  usePopupHandleStore,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -35,7 +39,8 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   } = componentProps;
 
   const rootContext = usePreviewCardRootContext(true);
-  const store = handle?.store ?? rootContext;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
@@ -46,6 +51,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -82,6 +88,10 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
+    inlineRectCoordsRef,
+    isOpenedByThisTrigger,
+  );
 
   const element = useRenderElement('a', componentProps, {
     state,
@@ -90,6 +100,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
       hoverProps,
       focusProps.reference,
       rootTriggerProps,
+      inlineRectTriggerProps,
       { id: thisTriggerId },
       elementProps,
     ],
@@ -107,14 +118,15 @@ export interface PreviewCardTrigger {
 
 export interface PreviewCardTriggerState {
   /**
-   * Whether the preview card is currently open.
+   * Whether the preview card is currently open and was opened by this trigger.
    */
   open: boolean;
 }
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTriggerState
+  PreviewCardTriggerState,
+  React.ComponentPropsWithRef<'a'>
 > {
   /**
    * A handle to associate the trigger with a preview card.

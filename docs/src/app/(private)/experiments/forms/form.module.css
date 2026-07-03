@@ -89,6 +89,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   &[data-color='red'] {
@@ -135,6 +136,7 @@
   line-height: 1.5rem;
   color: var(--color-gray-900);
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
 
@@ -255,6 +257,7 @@
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   scroll-margin-block: 1rem;
 
@@ -572,6 +575,7 @@
   width: 100%;
   padding-block: 0.75rem;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -581,12 +585,14 @@
   background-color: var(--color-gray-200);
   box-shadow: inset 0 0 0 1px var(--color-gray-200);
   border-radius: 0.25rem;
+  -webkit-user-select: none;
   user-select: none;
 }
 
 .SliderIndicator {
   border-radius: 0.25rem;
   background-color: var(--color-gray-700);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -596,6 +602,7 @@
   border-radius: 100%;
   background-color: white;
   outline: 1px solid var(--color-gray-300);
+  -webkit-user-select: none;
   user-select: none;
 
   &:has(:focus),
@@ -651,6 +658,7 @@
   background-color: var(--color-gray-50);
   background-clip: padding-box;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {

@@ -7,6 +7,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 
 const TOOLBAR_LINK_METADATA = {
   // Links cannot be disabled, but they still occupy a focusable composite item slot.
+  disabled: false,
   focusableWhenDisabled: true,
 };
 
@@ -49,7 +50,11 @@ export interface ToolbarLinkState {
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarLinkProps extends BaseUIComponentProps<'a', ToolbarLinkState> {}
+export interface ToolbarLinkProps extends BaseUIComponentProps<
+  'a',
+  ToolbarLinkState,
+  React.ComponentPropsWithRef<'a'>
+> {}
 
 export namespace ToolbarLink {
   export type State = ToolbarLinkState;

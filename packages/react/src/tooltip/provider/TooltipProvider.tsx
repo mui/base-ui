@@ -36,7 +36,7 @@ export interface TooltipProviderState {}
 export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
-   * How long to wait before opening a tooltip. Specified in milliseconds.
+   * How long to wait before opening the tooltip on hover. Specified in milliseconds.
    */
   delay?: number | undefined;
   /**

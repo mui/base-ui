@@ -17,10 +17,10 @@ Renders a `<div>` element.
 | value            | `Value[]`                                                                                           | -            | The controlled value of the item(s) that should be expanded. To render an uncontrolled accordion, use the `defaultValue` prop instead.                                                                      |
 | onValueChange    | `((value: Value[], eventDetails: Accordion.Root.ChangeEventDetails) => void)`                       | -            | Event handler called when an accordion item is expanded or collapsed.&#xA;Provides the new value as an argument.                                                                                            |
 | hiddenUntilFound | `boolean`                                                                                           | `false`      | Allows the browser's built-in page search to find and expand the panel contents. Overrides the `keepMounted` prop and uses `hidden="until-found"`&#xA;to hide the element without removing it from the DOM. |
-| loopFocus        | `boolean`                                                                                           | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                   |
+| loopFocus        | `boolean`                                                                                           | -            | Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)&#xA;to remove roving focus. This prop no longer affects keyboard focus behavior.                            |
 | multiple         | `boolean`                                                                                           | `false`      | Whether multiple items can be open at the same time.                                                                                                                                                        |
 | disabled         | `boolean`                                                                                           | `false`      | Whether the component should ignore user interaction.                                                                                                                                                       |
-| orientation      | `Orientation`                                                                                       | `'vertical'` | The visual orientation of the accordion.&#xA;Controls whether roving focus uses left/right or up/down arrow keys.                                                                                           |
+| orientation      | `Orientation`                                                                                       | `'vertical'` | Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)&#xA;to remove roving focus. This prop no longer affects keyboard focus behavior.                            |
 | className        | `string \| ((state: Accordion.Root.State<Value>) => string \| undefined)`                           | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                    |
 | style            | `React.CSSProperties \| ((state: Accordion.Root.State<Value>) => React.CSSProperties \| undefined)` | -            | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                 |
 | keepMounted      | `boolean`                                                                                           | `false`      | Whether to keep the element in the DOM while the panel is closed.&#xA;This prop is ignored when `hiddenUntilFound` is used.                                                                                 |
@@ -45,7 +45,15 @@ type AccordionRootState<TValue = any> = {
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   *
+   * Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)
+   * to remove roving focus.
+   *
+   * This state no longer affects keyboard focus behavior.
+   * @deprecated
+   */
   orientation: Orientation;
 };
 ```
@@ -121,7 +129,15 @@ type AccordionTriggerState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   *
+   * Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)
+   * to remove roving focus.
+   *
+   * This state no longer affects keyboard focus behavior.
+   * @deprecated
+   */
   orientation: Orientation;
 };
 ```
@@ -177,7 +193,15 @@ type AccordionItemState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   *
+   * Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)
+   * to remove roving focus.
+   *
+   * This state no longer affects keyboard focus behavior.
+   * @deprecated
+   */
   orientation: Orientation;
 };
 ```
@@ -247,7 +271,15 @@ type AccordionHeaderState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   *
+   * Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)
+   * to remove roving focus.
+   *
+   * This state no longer affects keyboard focus behavior.
+   * @deprecated
+   */
   orientation: Orientation;
 };
 ```
@@ -275,7 +307,7 @@ Renders a `<div>` element.
 | data-orientation    | -        | Indicates the orientation of the accordion.  |
 | data-disabled       | -        | Present when the accordion item is disabled. |
 | data-index          | `number` | Indicates the index of the accordion item.   |
-| data-starting-style | -        | Present when the panel is animating in.      |
+| data-starting-style | -        | Present when the panel begins animating in.  |
 | data-ending-style   | -        | Present when the panel is animating out.     |
 
 **Panel CSS Variables:**
@@ -305,7 +337,15 @@ type AccordionPanelState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   *
+   * Deprecated following the [APG guidance update](https://github.com/w3c/aria-practices/pull/3434)
+   * to remove roving focus.
+   *
+   * This state no longer affects keyboard focus behavior.
+   * @deprecated
+   */
   orientation: Orientation;
 };
 ```

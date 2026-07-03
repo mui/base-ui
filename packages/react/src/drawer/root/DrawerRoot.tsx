@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { isAndroid } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
@@ -14,15 +14,14 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
-import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
@@ -77,6 +76,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   });
 
   const isNestedDrawerOpenRef = React.useRef(false);
+  const swipeAreaActiveRef = React.useRef(false);
 
   const setActiveSnapPoint = useStableCallback(
     (
@@ -173,6 +173,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      swipeAreaActiveRef,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -211,6 +212,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       setActiveSnapPoint,
       snapPoints,
       snapToSequentialPoints,
+      swipeAreaActiveRef,
       swipeDirection,
     ],
   );
@@ -283,15 +285,15 @@ export interface DrawerRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * Determines whether the drawer should close on outside clicks.
+   * Whether to prevent the drawer from closing on outside presses.
+   * For non-modal drawers, this also prevents the drawer from closing when focus moves outside of it.
    * @default false
    */
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the drawer will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the drawer manually.
-   * Useful when the drawer's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the drawer.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;
@@ -300,7 +302,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * If specified, allows detached triggers to control the drawer's open state.
    * Can be created with the Drawer.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: DrawerHandle<Payload> | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
@@ -452,7 +454,7 @@ function DrawerProviderReporter() {
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).
     // Keep this Android-only for now to avoid interfering with Escape/nesting semantics on desktop due to `useDismiss`.
-    if (!open || !isTopmost || !isAndroid) {
+    if (!open || !isTopmost || !platform.os.android) {
       return undefined;
     }
 

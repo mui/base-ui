@@ -26,7 +26,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     ...elementProps
   } = componentProps;
 
-  const { thumbMap, state, values, formatOptionsRef, locale } = useSliderRootContext();
+  const { thumbMap, state, values, format, locale } = useSliderRootContext();
 
   let htmlFor = '';
   for (const thumbMetadata of thumbMap.values()) {
@@ -34,15 +34,16 @@ export const SliderValue = React.forwardRef(function SliderValue(
       htmlFor += `${thumbMetadata.inputId} `;
     }
   }
+
   const outputFor = htmlFor.trim() === '' ? undefined : htmlFor.trim();
 
   const formattedValues = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
-      arr.push(formatNumber(values[i], locale, formatOptionsRef.current ?? undefined));
+      arr.push(formatNumber(values[i], locale, format));
     }
     return arr;
-  }, [formatOptionsRef, locale, values]);
+  }, [format, locale, values]);
 
   const defaultDisplayValue = values.map((v, i) => formattedValues[i] || v).join(' – ');
 

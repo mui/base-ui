@@ -47,6 +47,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
+  const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -81,8 +82,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    addEventListener(
-      doc,
+    // Abort a listener from a previous trigger that never saw its mouseup, and scope this
+    // one to a fresh controller so it's removed on unmount if the mouseup never arrives.
+    mouseUpAbortControllerRef.current?.abort();
+    const mouseUpAbortController = new AbortController();
+    mouseUpAbortControllerRef.current = mouseUpAbortController;
+    doc.addEventListener(
       'mouseup',
       (mouseEvent) => {
         allowMouseUpTriggerRef.current = false;
@@ -109,7 +114,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
         );
       },
-      { once: true },
+      { once: true, signal: mouseUpAbortController.signal },
     );
   }
 
@@ -153,11 +158,20 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     touchPositionRef.current = null;
   }
 
+  React.useEffect(
+    () => () => {
+      // Abort a pending mouseup listener if the trigger unmounts before it fires.
+      mouseUpAbortControllerRef.current?.abort();
+    },
+    [],
+  );
+
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
       if (disabled) {
         return;
       }
+
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (

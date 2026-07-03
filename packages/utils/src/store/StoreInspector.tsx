@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
 import { addEventListener } from '../addEventListener';
@@ -11,6 +12,7 @@ import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { useTimeout } from '../useTimeout';
+import { NOOP } from '../empty';
 
 const STYLES = `
 .baseui-store-inspector-trigger {
@@ -76,8 +78,8 @@ const STYLES = `
   display: flex;
   align-items: center;
   cursor: move;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
   gap: 8px;
@@ -123,11 +125,18 @@ function getTarget(event: Event) {
   return (event as Event).target;
 }
 
-export interface StoreInspectorProps {
-  /**
-   * Instance of the store to inspect.
-   */
-  store: Store<any>;
+/**
+ * Minimal shape of a store owner (such as a Base UI popup handle) that exposes a live store to
+ * inspect. Typed structurally so this dev utility stays decoupled from the component packages'
+ * handle types. The exposed store is loosely typed on purpose: handles narrow it for their public
+ * API, but at runtime it is a full `Store`, which the inspector casts to internally.
+ */
+export interface StoreOwner {
+  readonly store: object;
+  subscribeStore?(listener: () => void): () => void;
+}
+
+interface StoreInspectorBaseProps {
   /**
    * Additional data to display in the inspector.
    */
@@ -143,12 +152,31 @@ export interface StoreInspectorProps {
   defaultOpen?: boolean | undefined;
 }
 
+export type StoreInspectorProps = StoreInspectorBaseProps &
+  (
+    | {
+        /**
+         * Instance of the store to inspect.
+         */
+        store: Store<any>;
+        handle?: undefined;
+      }
+    | {
+        /**
+         * A store owner (such as a Base UI popup handle) whose live `store` is inspected.
+         */
+        handle: StoreOwner;
+        store?: undefined;
+      }
+  );
+
 /**
  * A tool to inspect the state of a Store in a floating panel.
  * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
-  const { store, title, additionalData, defaultOpen = false } = props;
+  const { title, additionalData, defaultOpen = false } = props;
+  const store = useStoreInspectorStore(props);
   const [open, setOpen] = React.useState(defaultOpen);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -181,6 +209,25 @@ export function StoreInspector(props: StoreInspectorProps) {
       />
     </React.Fragment>
   );
+}
+
+function useStoreInspectorStore(props: StoreInspectorProps) {
+  const handle = props.handle;
+  const store = props.store;
+
+  const subscribe = React.useCallback(
+    (listener: () => void) => {
+      return handle?.subscribeStore?.(listener) ?? NOOP;
+    },
+    [handle],
+  );
+
+  const getSnapshot = React.useCallback(() => {
+    // A handle exposes a narrowed store view for its public API; at runtime it is a full `Store`.
+    return (store ?? handle?.store) as Store<any>;
+  }, [handle, store]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 interface PanelProps {

@@ -28,7 +28,7 @@ Renders a `<div>` element.
 | data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
 | data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
 | data-type            | `string`                              | The type of the toast.                                                   |
-| data-starting-style  | -                                     | Present when the toast is animating in.                                  |
+| data-starting-style  | -                                     | Present when the toast begins animating in.                              |
 | data-ending-style    | -                                     | Present when the toast is animating out.                                 |
 
 **Root CSS Variables:**
@@ -124,12 +124,12 @@ Provides a context for creating and managing toasts.
 
 **Provider Props:**
 
-| Prop         | Type              | Default | Description                                                                                                                                               |
-| :----------- | :---------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once.&#xA;When the limit is reached, the oldest toast will be removed to make room for the new one. |
-| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                          |
-| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.        |
-| children     | `React.ReactNode` | -       | -                                                                                                                                                         |
+| Prop         | Type              | Default | Description                                                                                                                                                                                                                              |
+| :----------- | :---------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once.&#xA;When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`&#xA;attribute) rather than removed, so they can be hidden or animated out. |
+| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                                                                                                         |
+| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.                                                                                       |
+| children     | `React.ReactNode` | -       | -                                                                                                                                                                                                                                        |
 
 ### Provider.Props
 

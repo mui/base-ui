@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
@@ -149,6 +150,31 @@ describe('<Popover.Positioner />', () => {
       // correctly flips the side in the browser
       expect(side).toBe('inline-end');
     });
+
+    it('reads logical side inside sideOffset in RTL mode', async () => {
+      let side = 'none';
+      await render(
+        <DirectionProvider direction="rtl">
+          <Popover.Root open>
+            <Trigger style={triggerStyle}>Trigger</Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                side="inline-start"
+                data-testid="positioner"
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </DirectionProvider>,
+      );
+
+      expect(side).toBe('inline-start');
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: alignOffset', () => {
@@ -266,6 +292,47 @@ describe('<Popover.Positioner />', () => {
     });
   });
 
+  // https://github.com/mui/base-ui/issues/5131
+  it.skipIf(isJSDOM)('rests exactly at collisionPadding from the colliding edge', async () => {
+    const collisionPadding = 12;
+
+    await render(
+      // Anchor pinned near the bottom so the bottom-side popup flips to the top and
+      // collides with the top viewport edge.
+      <div style={{ position: 'fixed', bottom: 8, left: 16 }}>
+        <Popover.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              side="bottom"
+              sideOffset={8}
+              collisionPadding={collisionPadding}
+              collisionAvoidance={{ fallbackAxisSide: 'none' }}
+            >
+              <Popover.Popup
+                style={{ width: 200, height: 1000, maxHeight: 'var(--available-height)' }}
+              >
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </div>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'top');
+    });
+
+    // The preferred-side bias used by flip() must not leak into the resting position:
+    // the popup should sit exactly `collisionPadding` away from the top edge, not +1px.
+    expect(Math.round(screen.getByTestId('positioner').getBoundingClientRect().top)).toBe(
+      collisionPadding,
+    );
+  });
+
   it.skipIf(isJSDOM)('remains anchored if keepMounted=false', async () => {
     function App({ top }: { top: number }) {
       return (
@@ -326,6 +393,57 @@ describe('<Popover.Positioner />', () => {
     });
 
     expect(positioner.getBoundingClientRect()).toMatchObject(final);
+  });
+
+  it.skipIf(isJSDOM)('observes a custom anchor for keepMounted auto-updates', async () => {
+    const originalResizeObserver = window.ResizeObserver;
+    const observedElements: Element[] = [];
+
+    class TestResizeObserver {
+      observe(element: Element) {
+        observedElements.push(element);
+      }
+
+      unobserve() {}
+
+      disconnect() {}
+    }
+
+    window.ResizeObserver = TestResizeObserver as typeof ResizeObserver;
+
+    function App() {
+      const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+      return (
+        <Popover.Root open>
+          <Trigger data-testid="trigger" style={{ width: 100, height: 100 }}>
+            Trigger
+          </Trigger>
+          <div
+            ref={setAnchor}
+            data-testid="custom-anchor"
+            style={{ width: 50, height: 50, position: 'relative' }}
+          >
+            Anchor
+          </div>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner data-testid="positioner" anchor={anchor}>
+              <Popover.Popup style={{ width: 100, height: 100 }}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    try {
+      await render(<App />);
+      const anchor = screen.getByTestId('custom-anchor');
+
+      await waitFor(() => {
+        expect(observedElements).toContain(anchor);
+      });
+    } finally {
+      window.ResizeObserver = originalResizeObserver;
+    }
   });
 
   it.skipIf(isJSDOM)(

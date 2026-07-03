@@ -1,15 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDialogRoot, DialogInteractions } from './useDialogRoot';
-import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
-
-export const IsDrawerContext = React.createContext(false);
+import { IsDrawerContext } from './DialogRootContext';
+import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -18,74 +14,8 @@ export const IsDrawerContext = React.createContext(false);
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
-  const {
-    children,
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    disablePointerDismissal = false,
-    modal = true,
-    actionsRef,
-    handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
-  } = props;
-
-  const parentDialogRootContext = useDialogRootContext(true);
-  const isDrawer = React.useContext(IsDrawerContext);
-  const nested = Boolean(parentDialogRootContext);
-
-  const store = DialogStore.useStore(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-    modal,
-    disablePointerDismissal,
-    nested,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
-
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  store.useSyncedValues({ disablePointerDismissal, nested, modal });
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Payload | undefined;
-
-  const dialogRoot = useDialogRoot({
-    store,
-    actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
-    isDrawer,
-  });
-
-  const shouldRenderInteractions = open || mounted;
-
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
-  return (
-    <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
-        {typeof children === 'function' ? children({ payload }) : children}
-      </DialogRootContext.Provider>
-    </IsDrawerContext.Provider>
-  );
+  const mode = React.useContext(IsDrawerContext) ? 'drawer' : 'dialog';
+  return useRenderDialogRoot(props, mode);
 }
 
 export interface DialogRootState {}
@@ -122,15 +52,15 @@ export interface DialogRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * Determines whether the dialog should close on outside clicks.
+   * Whether to prevent the dialog from closing on outside presses.
+   * For non-modal dialogs, this also prevents the dialog from closing when focus moves outside of it.
    * @default false
    */
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the dialog will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the dialog manually.
-   * Useful when the dialog's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the dialog.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions | null> | undefined;

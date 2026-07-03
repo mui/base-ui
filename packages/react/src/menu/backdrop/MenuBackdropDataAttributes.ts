@@ -10,7 +10,7 @@ export enum MenuBackdropDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the menu is animating in.
+   * Present when the menu begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

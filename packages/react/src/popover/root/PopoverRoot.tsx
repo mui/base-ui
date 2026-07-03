@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../store/PopoverStore';
+import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
@@ -14,6 +13,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -34,22 +34,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const store = PopoverStore.useStore(handle?.store, {
+  const store = usePopoverRootStore(handle, {
     modal,
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
   });
 
   store.useControlledProp('openProp', openProp);
@@ -125,6 +115,24 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   );
 }
 
+function usePopoverRootStore<Payload>(
+  handle: PopoverHandle<Payload> | undefined,
+  initialState: Partial<PopoverStoreState<Payload>>,
+) {
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
+  );
+
+  // Popover-specific: dispose the patient-click timeout held in the store's context on unmount.
+  React.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
+
+  return store;
+}
+
 export interface PopoverRootState {}
 
 export interface PopoverRootProps<Payload = unknown> {
@@ -151,9 +159,8 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the popover will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the popover manually.
-   * Useful when the popover's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the popover.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
@@ -162,6 +169,8 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    *
    * When `modal` is `true`, focus trapping is enabled only if `<Popover.Close>` is rendered
    * inside `<Popover.Popup>`. It can be visually hidden with your own CSS if needed, such as

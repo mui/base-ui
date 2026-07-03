@@ -8,11 +8,12 @@
 .ScrubArea {
   cursor: ew-resize;
   font-weight: 700;
+  -webkit-user-select: none;
   user-select: none;
 }
 
 .ScrubAreaCursor {
-  filter: drop-shadow(0 1px 1px #0008);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 50%));
 }
 
 .Label {
@@ -20,37 +21,55 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Group {
   display: flex;
+  height: 2rem;
 }
 
 .Input {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;
+  padding: 0 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
-  border-top: 1px solid var(--color-gray-200);
-  border-bottom: 1px solid var(--color-gray-200);
-  border-left: none;
-  border-right: none;
-  width: 6rem;
-  height: 2.5rem;
+  width: 7ch;
+  height: 100%;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 400;
-  background-color: transparent;
-  color: var(--color-gray-900);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
 
-  text-align: center;
+  text-align: left;
   font-variant-numeric: tabular-nums;
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
 
   &:focus {
     z-index: 1;
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -60,35 +79,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 100%;
   margin: 0;
   outline: 0;
   padding: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
   background-clip: padding-box;
-  color: var(--color-gray-900);
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
   @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-100);
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
   }
 }
 
 .Decrement {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-right: 0;
 }
 
 .Increment {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-left: 0;
 }

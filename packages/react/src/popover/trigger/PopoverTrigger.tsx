@@ -16,7 +16,7 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -46,7 +46,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
@@ -80,6 +81,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
+      !disabled &&
       floatingContext != null &&
       openOnHover &&
       (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
@@ -173,11 +175,11 @@ export interface PopoverTrigger {
 
 export interface PopoverTriggerState {
   /**
-   * Whether the popover is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the popover is currently open.
+   * Whether the popover is currently open and was opened by this trigger.
    */
   open: boolean;
 }

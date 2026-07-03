@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
+import { NullStore } from '../../utils/NullStore';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -19,6 +20,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   modal: boolean;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
+  highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
@@ -61,6 +63,7 @@ const selectors = {
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
+  highlightItemOnHover: createSelector((state: State<unknown>) => state.highlightItemOnHover),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
@@ -104,28 +107,20 @@ const selectors = {
   ),
 };
 
-export class MenuStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
-  Context,
-  typeof selectors
-> {
+type Selectors = typeof selectors;
+
+/**
+ * The store view that detached handle-backed triggers read from. Both the real `MenuStore` and the
+ * inert fallback store satisfy it, so a trigger can read from whichever store the handle currently
+ * exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus `setOpen`
+ * (called by the focus guards) — so the exposed surface can't bypass the open-change pipeline; on
+ * the detached fallback store every one of these mutations is a no-op.
+ */
+export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
+
+export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
   constructor(initialState?: Partial<State<Payload>>) {
-    super(
-      { ...createInitialState(), ...initialState },
-      {
-        positionerRef: React.createRef<HTMLElement | null>(),
-        popupRef: React.createRef<HTMLElement | null>(),
-        typingRef: { current: false },
-        itemDomElements: { current: [] },
-        itemLabels: { current: [] },
-        allowMouseUpTriggerRef: { current: false },
-        triggerFocusTargetRef: React.createRef<HTMLElement>(),
-        beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-        onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
-      },
-      selectors,
-    );
+    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
@@ -171,19 +166,38 @@ export class MenuStore<Payload> extends ReactStore<
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  public static useStore<Payload>(
-    externalStore: MenuStore<Payload> | undefined,
-    initialState: Partial<State<Payload>>,
-  ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const internalStore = useRefWithInit(() => {
-      return new MenuStore<Payload>(initialState);
-    }).current;
-
-    return externalStore ?? internalStore;
-  }
-
   private unsubscribeParentListener: (() => void) | null = null;
+}
+
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no `Menu.Root` is
+ * attached. It preserves a menu-specific trigger registry in context so detached triggers can
+ * register before migrating to the live root store. `setOpen` is a no-op (matching the inert
+ * reads/writes of `NullStore`), so a trigger can hand the store to focus-guard helpers that expect
+ * `setOpen` without it ever taking effect while detached.
+ */
+export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>()),
+    Object.freeze(createInitialContext()),
+    selectors,
+  );
+  return Object.assign(store, { setOpen: NOOP });
+}
+
+function createInitialContext(): Context {
+  return {
+    positionerRef: React.createRef<HTMLElement | null>(),
+    popupRef: React.createRef<HTMLElement | null>(),
+    typingRef: { current: false },
+    itemDomElements: { current: [] },
+    itemLabels: { current: [] },
+    allowMouseUpTriggerRef: { current: false },
+    triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
+    onOpenChangeComplete: undefined,
+    triggerElements: new PopupTriggerMap(),
+  };
 }
 
 function createInitialState<Payload>(): State<Payload> {
@@ -193,6 +207,7 @@ function createInitialState<Payload>(): State<Payload> {
     modal: true,
     openMethod: null,
     allowMouseEnter: false,
+    highlightItemOnHover: true,
     stickIfOpen: true,
     parent: {
       type: undefined,

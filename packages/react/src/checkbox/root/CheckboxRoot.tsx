@@ -81,7 +81,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
-    shouldValidateOnChange,
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
@@ -145,6 +144,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: 'checked',
   });
 
+  const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
+  const computedIndeterminate = isGroupedWithParent
+    ? groupIndeterminate || indeterminate
+    : indeterminate;
+
   // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
     if (registerControlId === NOOP) {
@@ -170,10 +174,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext);
+  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const mergedInputRef = useMergedRefs(
+    inputRefProp,
+    inputRef,
+    validation.inputRef,
+    validation.registerInput,
+  );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -184,15 +193,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
-      inputRef.current.indeterminate = groupIndeterminate;
+      inputRef.current.indeterminate = computedIndeterminate;
       if (checked) {
         setFilled(true);
       }
     }
-  }, [checked, groupIndeterminate, setFilled]);
+  }, [checked, computedIndeterminate, setFilled]);
 
   useValueChanged(checked, () => {
-    if (groupContext && !parent) {
+    if (groupContext) {
       return;
     }
 
@@ -200,11 +209,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     setFilled(checked);
     setDirty(checked !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const inputProps = mergeProps<'input'>(
@@ -224,7 +229,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       type: 'checkbox',
       'aria-hidden': true,
       onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
+        // Workaround for https://github.com/react/react/issues/9023
         if (event.nativeEvent.defaultPrevented) {
           return;
         }
@@ -237,8 +242,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        groupOnChange?.(nextChecked, details);
         onCheckedChange?.(nextChecked, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
+        groupOnChange?.(nextChecked, details);
 
         if (details.isCanceled) {
           return;
@@ -264,13 +274,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY_OBJECT,
     getDescriptionProps,
-    groupContext ? validation.getValidationProps : validation.getInputValidationProps,
+    (props) => validation.getValidationProps(disabled, props),
   );
-
-  const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
-  const computedIndeterminate = isGroupedWithParent
-    ? groupIndeterminate || indeterminate
-    : indeterminate;
 
   React.useEffect(() => {
     if (!parentContext || !value) {
@@ -306,13 +311,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       {
         id: nativeButton ? (inputId ?? undefined) : id,
         role: 'checkbox',
-        'aria-checked': groupIndeterminate ? 'mixed' : checked,
+        'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          setFocused(true);
+          if (!disabled) {
+            setFocused(true);
+          }
         },
         onBlur() {
           const inputEl = inputRef.current;
@@ -393,11 +400,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           );
         },
       },
-      getDescriptionProps,
-      validation.getValidationProps,
       elementProps,
       otherGroupProps,
       getButtonProps,
+      getDescriptionProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping,
   });
@@ -406,7 +413,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     <CheckboxRootContext.Provider value={state}>
       {element}
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
-        <input type="hidden" form={form} name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
       )}
       <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>
@@ -511,7 +518,8 @@ export interface CheckboxRootProps
    */
   uncheckedValue?: string | undefined;
   /**
-   * The value of the selected checkbox.
+   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.
+   * When submitting a form, a checked box submits `value`; with no `value`, it submits the native "on".
    */
   value?: string | undefined;
 }

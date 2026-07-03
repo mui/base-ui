@@ -30,6 +30,9 @@ import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
+const AVAILABLE_WIDTH_VAR = '--available-width';
+const AVAILABLE_HEIGHT_VAR = '--available-height';
+
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
   const logicalRight = isRtl ? 'inline-start' : 'inline-end';
@@ -134,6 +137,7 @@ export function useAnchorPositioning(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
+    inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -187,30 +191,32 @@ export function useAnchorPositioning(
     left: number;
   };
 
+  if (typeof collisionPadding === 'number') {
+    collisionPadding = {
+      top: collisionPadding,
+      right: collisionPadding,
+      bottom: collisionPadding,
+      left: collisionPadding,
+    };
+  } else if (collisionPadding) {
+    collisionPadding = {
+      top: collisionPadding.top || 0,
+      right: collisionPadding.right || 0,
+      bottom: collisionPadding.bottom || 0,
+      left: collisionPadding.left || 0,
+    };
+  }
+
   // Create a bias to the preferred side.
   // On iOS, when the mobile software keyboard opens, the input is exactly centered
   // in the viewport, but this can cause it to flip to the top undesirably.
+  // The bias is only applied to `flip()` so it doesn't shift the resting position
+  // computed by `shift()` and `size()` away from the requested `collisionPadding`.
   const bias = 1;
   const biasTop = sideParam === 'bottom' ? bias : 0;
   const biasBottom = sideParam === 'top' ? bias : 0;
   const biasLeft = sideParam === 'right' ? bias : 0;
   const biasRight = sideParam === 'left' ? bias : 0;
-
-  if (typeof collisionPadding === 'number') {
-    collisionPadding = {
-      top: collisionPadding + biasTop,
-      right: collisionPadding + biasRight,
-      bottom: collisionPadding + biasBottom,
-      left: collisionPadding + biasLeft,
-    };
-  } else if (collisionPadding) {
-    collisionPadding = {
-      top: (collisionPadding.top || 0) + biasTop,
-      right: (collisionPadding.right || 0) + biasRight,
-      bottom: (collisionPadding.bottom || 0) + biasBottom,
-      left: (collisionPadding.left || 0) + biasLeft,
-    };
-  }
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -228,7 +234,13 @@ export function useAnchorPositioning(
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
-  const middleware: UseFloatingOptions['middleware'] = [
+  const middleware: UseFloatingOptions['middleware'] = [];
+
+  if (inlineMiddleware) {
+    middleware.push(inlineMiddleware);
+  }
+
+  middleware.push(
     offset(
       (state) => {
         const data = getOffsetData(state, sideParam, isRtl);
@@ -250,7 +262,7 @@ export function useAnchorPositioning(
       },
       [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
     ),
-  ];
+  );
 
   const shiftDisabled = collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift';
   const crossAxisShiftEnabled =
@@ -264,10 +276,10 @@ export function useAnchorPositioning(
           // Ensure the popup flips if it's been limited by its --available-height and it resizes.
           // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
           padding: {
-            top: collisionPadding.top + bias,
-            right: collisionPadding.right + bias,
-            bottom: collisionPadding.bottom + bias,
-            left: collisionPadding.left + bias,
+            top: collisionPadding.top + bias + biasTop,
+            right: collisionPadding.right + bias + biasRight,
+            bottom: collisionPadding.bottom + bias + biasBottom,
+            left: collisionPadding.left + bias + biasLeft,
           },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
@@ -328,9 +340,10 @@ export function useAnchorPositioning(
         if (!mountedRef.current) {
           return;
         }
+
         const floatingStyle = floating.style;
-        floatingStyle.setProperty('--available-width', `${availableWidth}px`);
-        floatingStyle.setProperty('--available-height', `${availableHeight}px`);
+        floatingStyle.setProperty(AVAILABLE_WIDTH_VAR, `${availableWidth}px`);
+        floatingStyle.setProperty(AVAILABLE_HEIGHT_VAR, `${availableHeight}px`);
 
         // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
         const dpr = ownerWindow(floating).devicePixelRatio || 1;
@@ -448,9 +461,22 @@ export function useAnchorPositioning(
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
-    const base = adaptiveOrigin
+    const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
       ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
       : { position: resolvedPosition, ...originalFloatingStyles };
+
+    // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
+    // resolve to a valid length on the first positioning pass, before `size()` writes the real
+    // values. Without a fallback the unresolved `var()` invalidates the whole declaration, so the
+    // popup is measured unconstrained while `flip()` picks its side, against the full content
+    // height rather than the capped one. Seeded unconditionally (not only while `!isPositioned`):
+    // the keys must stay present with a constant value so React's per-property style diff never
+    // rewrites them after mount, preserving the px values `size()` sets imperatively. Moving them
+    // into the `!isPositioned` branch makes React remove them once positioned, wiping `size()`'s
+    // values and leaving the popup unconstrained.
+    base[AVAILABLE_WIDTH_VAR] = '100vw';
+    base[AVAILABLE_HEIGHT_VAR] = '100vh';
+
     if (!isPositioned) {
       base.opacity = 0;
     }
@@ -496,8 +522,8 @@ export function useAnchorPositioning(
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
+    if (keepMounted && mounted && elements.reference && elements.floating) {
+      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
@@ -715,7 +741,6 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
@@ -725,6 +750,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   shiftCrossAxis?: boolean | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
+  /**
+   * Optional middleware that can replace the measured reference rect before offsets and collision
+   * middleware run. Used by Preview Card to position against a specific inline line box.
+   */
+  inline?: Middleware | undefined;
 }
 
 export interface UseAnchorPositioningReturnValue {
@@ -741,5 +771,3 @@ export interface UseAnchorPositioningReturnValue {
   isPositioned: boolean;
   update: () => void;
 }
-
-export interface UseAnchorPositioningState {}

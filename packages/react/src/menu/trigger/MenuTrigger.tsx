@@ -12,7 +12,6 @@ import {
   useFloatingTree,
   useFocus,
   useHoverReferenceInteraction,
-  useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
@@ -27,7 +26,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
@@ -38,6 +37,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
+import { mergeProps } from '../../merge-props';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -67,7 +67,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
@@ -78,6 +79,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -211,7 +213,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     mouseDownAction: 'open',
   });
 
-  const localInteractionProps = useInteractions([click, focus]);
+  const localInteractionProps = React.useMemo(
+    () => mergeProps(focus.reference, click.reference),
+    [focus.reference, click.reference],
+  );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -225,11 +230,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
-    localInteractionProps.getReferenceProps(),
+    localInteractionProps,
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
+      'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
@@ -343,7 +349,7 @@ export interface MenuTriggerProps<Payload = unknown>
 
 export interface MenuTriggerState {
   /**
-   * Whether the menu is currently open.
+   * Whether the menu is currently open and was opened by this trigger.
    */
   open: boolean;
   /**

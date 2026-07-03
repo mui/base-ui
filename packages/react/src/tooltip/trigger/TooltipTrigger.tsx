@@ -8,7 +8,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
@@ -93,7 +93,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   } = componentProps;
 
   const rootContext = useTooltipRootContext(true);
-  const store = handle?.store ?? rootContext;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
@@ -289,6 +290,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         onPointerDown(event: React.PointerEvent) {
           pointerTypeRef.current = event.pointerType;
           store.set('closeOnClick', closeOnClick);
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
         },
         onClick(event) {
           if (closeOnClick && !store.select('open')) {
@@ -315,7 +319,7 @@ export interface TooltipTrigger {
 
 export interface TooltipTriggerState {
   /**
-   * Whether the tooltip is currently open.
+   * Whether the tooltip is currently open and was opened by this trigger.
    */
   open: boolean;
 }
@@ -333,7 +337,7 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    */
   payload?: Payload | undefined;
   /**
-   * How long to wait before opening the tooltip. Specified in milliseconds.
+   * How long to wait before opening the tooltip on hover. Specified in milliseconds.
    * @default 600
    */
   delay?: number | undefined;

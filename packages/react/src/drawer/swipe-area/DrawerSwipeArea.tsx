@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -90,12 +92,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   } = componentProps;
 
   const { store } = useDialogRootContext();
-  const { swipeDirection, frontmostHeight } = useDrawerRootContext();
+  const { swipeDirection, frontmostHeight, swipeAreaActiveRef } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
 
   const [swipeActive, setSwipeActive] = React.useState(false);
 
-  const releaseDismissTimeout = useTimeout();
   const swipeAreaRef = React.useRef<HTMLDivElement>(null);
   const swipeStartEventRef = React.useRef<PointerEvent | TouchEvent | null>(null);
   const openedBySwipeRef = React.useRef(false);
@@ -103,6 +104,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const closedOffsetRef = React.useRef<number | null>(null);
   const appliedSwipeStylesRef = React.useRef(false);
   const popupTransitionRef = React.useRef<string | null>(null);
+  const releaseGuardCleanupRef = React.useRef<() => void>(NOOP);
 
   const swipeAreaId = useBaseUiId(componentProps.id);
   const registerTrigger = useTriggerRegistration(swipeAreaId, store);
@@ -119,16 +121,33 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const enabled = !disabled && (!open || swipeActive);
 
   function disableDismissForSwipe() {
-    releaseDismissTimeout.clear();
+    releaseGuardCleanupRef.current();
     store.context.outsidePressEnabledRef.current = false;
   }
 
   function enableDismissAfterRelease() {
-    // Safari can dispatch outside-press for the same swipe-open gesture
-    // after release, so defer re-enabling dismissal to the next macrotask.
-    releaseDismissTimeout.start(0, () => {
+    releaseGuardCleanupRef.current();
+
+    const doc = ownerDocument(swipeAreaRef.current);
+
+    function restore() {
+      releaseGuardCleanupRef.current = NOOP;
+      doc.removeEventListener('pointerdown', restore, true);
       store.context.outsidePressEnabledRef.current = true;
-    });
+    }
+
+    // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
+    // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
+    // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
+    // dismissal disabled until the next *fresh* pointer interaction: the synthesized click has no
+    // pointerdown of its own, so it is ignored, while a deliberate outside press always starts with
+    // a pointerdown and re-enables dismissal in time to close the drawer. This is deterministic,
+    // unlike re-enabling on a timer that can race the synthesized click and dismiss at random.
+    //
+    // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
+    // happens on the event target, after capture), so the triggering press still dismisses.
+    releaseGuardCleanupRef.current = restore;
+    doc.addEventListener('pointerdown', restore, true);
   }
 
   function resolvePopupSize() {
@@ -239,6 +258,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       frontmostHeight: openProgress > 0 ? frontmostHeight : 0,
     });
     appliedSwipeStylesRef.current = true;
+    swipeAreaActiveRef.current = true;
   }
 
   const clearSwipeStyles = useStableCallback(() => {
@@ -263,6 +283,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
     providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
     appliedSwipeStylesRef.current = false;
+    swipeAreaActiveRef.current = false;
   });
 
   function openDrawer(event?: PointerEvent | TouchEvent) {
@@ -379,6 +400,15 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
 
+  // The commit that opens the drawer re-renders the popup, resetting `--swipe-movement-*` to `0px`
+  // (the viewport isn't swiping). Re-assert after the DOM mutation but before paint. No deps: must
+  // run on every commit the swipe area participates in.
+  useIsoLayoutEffect(() => {
+    if (swipeActive && appliedSwipeStylesRef.current) {
+      applySwipeMovement();
+    }
+  });
+
   React.useEffect(() => {
     if (!enabled) {
       resetSwipe();
@@ -390,6 +420,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   React.useEffect(() => {
     return () => {
+      releaseGuardCleanupRef.current();
       store.context.outsidePressEnabledRef.current = true;
     };
   }, [store]);

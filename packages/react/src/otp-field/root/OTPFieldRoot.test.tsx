@@ -1,12 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
+import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<OTPFieldPreview />', () => {
+describe('<OTPField.Root />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
@@ -70,6 +71,9 @@ describe('<OTPFieldPreview />', () => {
 
       expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6']);
       expect(inputs[0]).toHaveAttribute('maxlength', '6');
+      inputs.slice(1).forEach((input) => {
+        expect(input).not.toHaveAttribute('maxlength');
+      });
       expect(hiddenInput).toHaveValue('123456');
     });
 
@@ -213,12 +217,12 @@ describe('<OTPFieldPreview />', () => {
       });
     });
 
-    describe('prop: sanitizeValue', () => {
-      it('supports custom sanitization when `validationType` is `none`', async () => {
+    describe('prop: normalizeValue', () => {
+      it('supports custom normalization when `validationType` is `none`', async () => {
         await render(
           <OTPField
             validationType="none"
-            sanitizeValue={(value) => value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}
+            normalizeValue={(value) => value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}
           />,
         );
 
@@ -228,19 +232,61 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('AB12CD');
       });
 
-      it('warns when `sanitizeValue` is used without `validationType="none"`', async () => {
+      it('composes with built-in validation and advances focus', async () => {
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
         try {
-          await render(<OTPField sanitizeValue={(value) => value.toUpperCase()} />);
-
-          expect(warnSpy).toHaveBeenCalledTimes(1);
-          expect(warnSpy.mock.calls[0]?.[0]).toContain(
-            'Base UI: <OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+          await render(
+            <OTPField
+              validationType="alphanumeric"
+              normalizeValue={(value) => value.toUpperCase()}
+            />,
           );
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+          fireEvent.change(inputs[0], { target: { value: 'a!' } });
+
+          expect(getValues()).toBe('A');
+          expect(inputs[1]).toHaveFocus();
+          expect(warnSpy).not.toHaveBeenCalled();
         } finally {
           warnSpy.mockRestore();
         }
+      });
+
+      it('composes built-in validation and custom normalization for pasted values', async () => {
+        await render(
+          <OTPField
+            validationType="alphanumeric"
+            normalizeValue={(value) => value.toUpperCase()}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, 'ab-12 cd!');
+
+        expect(getValues()).toBe('AB12CD');
+      });
+
+      it('composes built-in validation and custom normalization from a non-first slot', async () => {
+        await render(
+          <OTPField
+            defaultValue="12"
+            validationType="alphanumeric"
+            normalizeValue={(value) => value.toUpperCase()}
+          />,
+        );
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          inputs[2].focus();
+        });
+
+        fireEvent.change(inputs[2], { target: { value: 'a!' } });
+
+        expect(getValues()).toBe('12A');
+        expect(inputs[3]).toHaveFocus();
       });
     });
 
@@ -273,7 +319,7 @@ describe('<OTPFieldPreview />', () => {
     });
 
     describe('prop: onValueInvalid', () => {
-      it('fires when typing is sanitized before the OTP value updates', async () => {
+      it('fires when typing is normalized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 
         await render(<OTPField onValueInvalid={onValueInvalid} />);
@@ -287,14 +333,14 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when custom sanitization removes characters', async () => {
+      it('fires when custom normalization removes characters', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="none"
             inputMode="numeric"
-            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -308,7 +354,67 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires `input-paste` when pasted text is sanitized before the OTP value updates', async () => {
+      it('fires when custom normalization removes characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1209' } });
+
+        expect(getValues()).toBe('120');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when built-in validation removes characters before custom normalization expands the value', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            normalizeValue={(value) => (value === '1' ? '12' : value)}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1a' } });
+
+        expect(getValues()).toBe('12');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when custom normalization removes all characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            normalizeValue={() => ''}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1' } });
+
+        expect(getValues()).toBe('');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires `input-paste` when pasted text is normalized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 
         await render(<OTPField onValueInvalid={onValueInvalid} />);
@@ -319,6 +425,26 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('1234');
         expect(onValueInvalid).toHaveBeenCalledTimes(1);
         expect(onValueInvalid.mock.calls[0]?.[0]).toBe('12a34');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+      });
+
+      it('fires `input-paste` when custom normalization removes characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '1209');
+
+        expect(getValues()).toBe('120');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
     });
@@ -540,7 +666,7 @@ describe('<OTPFieldPreview />', () => {
         <Field.Root>
           <Field.Label data-testid="label">Verification code</Field.Label>
           <Field.Description data-testid="description">Enter the code.</Field.Description>
-          <OTPField />
+          <OTPField aria-describedby="external-description" />
         </Field.Root>,
       );
 
@@ -549,7 +675,7 @@ describe('<OTPFieldPreview />', () => {
       const group = screen.getByRole('group', { name: 'Verification code' });
 
       expect(group).toHaveAttribute('aria-labelledby', label.id);
-      expect(group).toHaveAttribute('aria-describedby', description.id);
+      expect(group).toHaveAttribute('aria-describedby', `external-description ${description.id}`);
     });
   });
 
@@ -680,6 +806,16 @@ describe('<OTPFieldPreview />', () => {
         fireEvent.change(firstInput, { target: { value: '123456' } });
 
         expect(getValues()).toBe('123456');
+      });
+
+      it('replaces consecutive slots when typing multiple characters into a later input', async () => {
+        await render(<OTPField defaultValue="123456" />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(inputs[2], { target: { value: '99' } });
+
+        expect(getValues()).toBe('129956');
       });
     });
 
@@ -899,7 +1035,120 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
     });
 
+    it('composes validation and custom normalization during hidden input autofill', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+      const onValueComplete = vi.fn();
+
+      await render(
+        <OTPField
+          name="otp"
+          validationType="alphanumeric"
+          normalizeValue={(value) => value.toUpperCase()}
+          onValueChange={onValueChange}
+          onValueInvalid={onValueInvalid}
+          onValueComplete={onValueComplete}
+        />,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: 'ab-12 cd!' } });
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(inputs.map((input) => input.value)).toEqual(['A', 'B', '1', '2', 'C', 'D']);
+      expect(document.activeElement).toBe(inputs[5]);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0]?.[0]).toBe('AB12CD');
+      expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      expect(onValueInvalid).toHaveBeenCalledTimes(1);
+      expect(onValueInvalid.mock.calls[0]?.[0]).toBe('ab-12 cd!');
+      expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      expect(onValueComplete.mock.calls.length).toBe(1);
+      expect(onValueComplete.mock.calls[0]?.[0]).toBe('AB12CD');
+      expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+    });
+
+    it.each([
+      { lockState: 'readOnly', label: 'inside Field', withField: true },
+      { lockState: 'disabled', label: 'inside Field', withField: true },
+      { lockState: 'readOnly', label: 'outside Field', withField: false },
+      { lockState: 'disabled', label: 'outside Field', withField: false },
+    ] as const)(
+      'ignores hidden-input autofill when $lockState $label',
+      async ({ lockState, withField }) => {
+        const onValueChange = vi.fn();
+        const onValueInvalid = vi.fn();
+        const onValueComplete = vi.fn();
+        const otpField = (
+          <OTPField
+            readOnly={lockState === 'readOnly'}
+            disabled={lockState === 'disabled'}
+            name={withField ? undefined : 'otp'}
+            onValueChange={onValueChange}
+            onValueInvalid={onValueInvalid}
+            onValueComplete={onValueComplete}
+          />
+        );
+
+        await render(
+          withField ? (
+            <Form errors={{ otp: 'test' }}>
+              <Field.Root name="otp">
+                {otpField}
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>
+          ) : (
+            otpField
+          ),
+        );
+
+        const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+        expect(hiddenInput).not.toBeNull();
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+          const inputs = screen.getAllByRole('textbox');
+          inputs.forEach((input) => {
+            if (lockState === 'disabled') {
+              expect(input).not.toHaveAttribute('aria-invalid');
+            } else {
+              expect(input).toHaveAttribute('aria-invalid', 'true');
+            }
+          });
+        }
+
+        fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
+
+        expect(getValues()).toBe('');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueInvalid).not.toHaveBeenCalled();
+        expect(onValueComplete).not.toHaveBeenCalled();
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+      },
+    );
+
     describe('prop: autoSubmit', () => {
+      const flushSyncLifecycleError = 'flushSync was called from inside a lifecycle method';
+
+      function spyOnFlushSyncLifecycleError() {
+        return vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args.some((arg) => String(arg).includes(flushSyncLifecycleError))) {
+            return;
+          }
+
+          throw new Error(`Unexpected console.error: ${args.map(String).join(' ')}`);
+        });
+      }
+
       it('does not auto-submit the owning form when the OTP becomes complete by default', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -940,6 +1189,87 @@ describe('<OTPFieldPreview />', () => {
 
         expect(getValues()).toBe('123456');
         expect(handleSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not call flushSync inside a layout effect when auto-submitting a Base UI Form', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const consoleErrorSpy = spyOnFlushSyncLifecycleError();
+
+        try {
+          await render(
+            <Form onSubmit={handleSubmit}>
+              <Field.Root name="otp">
+                <OTPField autoSubmit />
+              </Field.Root>
+            </Form>,
+          );
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          expect(getValues()).toBe('123456');
+          expect(handleSubmit).toHaveBeenCalledTimes(1);
+          expect(consoleErrorSpy).not.toHaveBeenCalled();
+        } finally {
+          consoleErrorSpy.mockRestore();
+        }
+      });
+
+      it('blocks invalid Base UI Form auto-submit without calling flushSync inside a layout effect', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const consoleErrorSpy = spyOnFlushSyncLifecycleError();
+
+        try {
+          await render(
+            <Form onSubmit={handleSubmit}>
+              <Field.Root name="otp" validate={() => 'Invalid OTP'}>
+                <OTPField autoSubmit />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>,
+          );
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          expect(getValues()).toBe('123456');
+          expect(handleSubmit).not.toHaveBeenCalled();
+          expect(screen.getByTestId('error')).toHaveTextContent('Invalid OTP');
+          expect(consoleErrorSpy).not.toHaveBeenCalled();
+        } finally {
+          consoleErrorSpy.mockRestore();
+        }
+      });
+
+      it('keeps focus on the first invalid field when auto-submit is blocked', async () => {
+        await render(
+          <Form>
+            <Field.Root name="email" validate={() => 'Required'}>
+              <Field.Label>Email</Field.Label>
+              <Field.Control />
+              <Field.Error />
+            </Field.Root>
+            <Field.Root name="otp">
+              <OTPField autoSubmit />
+            </Field.Root>
+          </Form>,
+        );
+
+        const emailInput = screen.getByRole('textbox', { name: 'Email' });
+        const otpInputs = screen
+          .getAllByRole<HTMLInputElement>('textbox')
+          .filter((input) => input !== emailInput);
+
+        fireEvent.change(otpInputs[0], { target: { value: '123456' } });
+
+        expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+        expect(emailInput).toHaveFocus();
       });
 
       it('does not submit the owning form before the OTP becomes complete when enabled', async () => {

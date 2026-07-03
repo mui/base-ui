@@ -60,7 +60,7 @@ import { Toast } from '@base-ui/react/toast';
 A global toast manager can be created by passing the `toastManager` prop to the `<Toast.Provider>`.
 This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
 
-The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
+The created `toastManager` exposes the same `add`, `close`, `update`, and `promise` methods as the `Toast.useToastManager()` hook. Unlike the hook, it does not return the reactive `toasts` array, since it lives outside the React tree.
 
 ```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
@@ -148,8 +148,8 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 }
 ```
 
-The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
-This is useful for animating the toast differently when it is removed from the list.
+The `data-limited` attribute indicates that the toast exceeded the `limit` option.
+Limited toasts remain mounted with the HTML `inert` attribute, so this is useful for hiding them or animating them differently.
 
 The `updateKey` property increments when a toast is updated or upserted.
 This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a React `key`.
@@ -214,7 +214,7 @@ function StackedToasts() {
 
 import { DemoToastAnchored } from './demos/anchored';
 
-<DemoToastAnchored compact />
+<DemoToastAnchored />
 
 ### Custom position
 
@@ -225,7 +225,7 @@ The following shows a top-center position:
 
 import { DemoToastPosition } from './demos/position';
 
-<DemoToastPosition compact />
+<DemoToastPosition />
 
 ### Undo action
 
@@ -233,7 +233,7 @@ When adding a toast, the `actionProps` option can be used to define props for an
 
 import { DemoToastUndo } from './demos/undo';
 
-<DemoToastUndo compact />
+<DemoToastUndo />
 
 ### Promise
 
@@ -243,7 +243,7 @@ Each of the states also accepts the [method options](#toastmanagerupdateoptions)
 
 import { DemoToastPromise } from './demos/promise';
 
-<DemoToastPromise compact />
+<DemoToastPromise />
 
 ### Custom
 
@@ -252,7 +252,7 @@ This enables you to pass any data (including functions) you need to the toast an
 
 import { DemoToastCustom } from './demos/custom';
 
-<DemoToastCustom compact />
+<DemoToastCustom />
 
 ### Deduplicated toast
 
@@ -260,7 +260,7 @@ When you upsert the same toast by `id`, the `updateKey` property increments so a
 
 import { DemoToastDeduplicate } from './demos/deduplicate';
 
-<DemoToastDeduplicate compact />
+<DemoToastDeduplicate />
 
 ### Varying heights
 
@@ -269,7 +269,7 @@ This prevents taller toasts from overflowing the stack when collapsed.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 
-<DemoToastVaryingHeights compact />
+<DemoToastVaryingHeights />
 
 ## API reference
 
@@ -279,13 +279,13 @@ import { TypesToast, TypesToastAdditional } from './types';
 
 <TypesToast.Provider />
 
-### Viewport
-
-<TypesToast.Viewport />
-
 ### Portal
 
 <TypesToast.Portal />
+
+### Viewport
+
+<TypesToast.Viewport />
 
 ### Root
 
