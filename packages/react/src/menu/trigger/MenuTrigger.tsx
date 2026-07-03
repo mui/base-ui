@@ -26,7 +26,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
@@ -67,7 +67,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
