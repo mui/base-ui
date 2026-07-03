@@ -57,6 +57,7 @@
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
     "test:argos": "code-infra argos-push --folder test/regressions/screenshots/chrome",
     "typescript": "tsgo -b tsconfig.json",
+    "types:check": "corepack pnpm --filter @base-ui/react build && corepack pnpm --filter @base-ui/react types:check",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",
     "test:benchmark": "pnpm -F ./test/performance benchmark",
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
@@ -65,6 +66,7 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
+    "@microsoft/api-extractor": "7.58.9",
     "@mui/internal-code-infra": "0.0.4-canary.74",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",

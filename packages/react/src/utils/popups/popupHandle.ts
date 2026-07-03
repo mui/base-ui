@@ -62,7 +62,7 @@ export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
 export class BasePopupHandle<
   HandleStore extends PopupHandleStoreWithTriggers,
   Store extends HandleStore & PopupHandleStoreWithOpen,
-> implements PopupHandleStoreProvider<HandleStore> {
+> {
   /**
    * Inert, closed store handed to detached triggers while no root is attached, so they can render
    * and register without a mounted root. Triggers register into whichever store `store` currently

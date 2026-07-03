@@ -210,6 +210,9 @@ jobs:
           name: Validate type declarations
           command: pnpm code-infra validate-built-types
       - run:
+          name: Check stripped public types
+          command: pnpm --filter @base-ui/react types:check
+      - run:
           name: Check public types
           command: pnpm -r run release:test
       - run:
