@@ -26,9 +26,8 @@ import { useCSPContext } from './csp-context/CSPContext';
  * excluded from client bundles, via the `#prehydration/*` `browser` condition.
  *
  * When adding a new consumer, register a matching `#prehydration/*` entry (with `browser`
- * and `default` conditions) in `packages/react/package.json` `imports`, and update the
- * webpack 4 guidance in `docs/src/app/(docs)/react/overview/about/page.mdx` along with the
- * callout on the component's own docs page.
+ * and `default` conditions) in `packages/react/package.json` `imports`; the `browser`
+ * condition reuses the shared `internals/prehydrationScript.stub.ts`.
  */
 export function PrehydrationScript(props: PrehydrationScript.Props) {
   const { script } = props;
