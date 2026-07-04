@@ -80,11 +80,6 @@
   }
 
   if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
-    // With streaming SSR, content below a Suspense boundary that resolves after the shell
-    // is parsed inside a hidden container (`<div hidden id="S:...">`) where nothing has
-    // a box, then moved into place once React reveals the segment. Instead of bailing
-    // permanently, wait for the tabs list to gain a box: the ResizeObserver callback runs
-    // after layout but before paint, so the indicator doesn't flash in late.
     if (typeof ResizeObserver === 'undefined') {
       return;
     }
