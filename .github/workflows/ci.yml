@@ -40,9 +40,10 @@ jobs:
       - run: pnpm release:build
       - name: Publish packages
         if: matrix.os == 'ubuntu-latest'
-        uses: mui/mui-public/.github/actions/ci-publish@00cd0db0b3f3e2bc38ac8fb6af4edbfb2d5f88f6 # master
+        uses: mui/mui-public/.github/actions/ci-publish@76639fa2eabf73261070fa2a6a964209de10688d # master
         with:
           pr-comment: true
+          npm-dry-run: true
       - name: Extract Vale version
         if: ${{ matrix.os == 'ubuntu-latest' }}
         id: vale-version

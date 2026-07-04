@@ -78,7 +78,11 @@ export interface MenuLinkItemState {
   highlighted: boolean;
 }
 
-export interface MenuLinkItemProps extends BaseUIComponentProps<'a', MenuLinkItemState> {
+export interface MenuLinkItemProps extends BaseUIComponentProps<
+  'a',
+  MenuLinkItemState,
+  React.ComponentPropsWithRef<'a'>
+> {
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */

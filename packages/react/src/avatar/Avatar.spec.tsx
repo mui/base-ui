@@ -17,6 +17,8 @@ import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
       expectType<ImageLoadingStatus, typeof status>(status);
     }}
     render={(props, state) => {
+      expectType<string | undefined, typeof props.src>(props.src);
+      expectType<string | undefined, typeof props.alt>(props.alt);
       expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
       return <img alt="" {...props} />;
     }}

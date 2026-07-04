@@ -166,12 +166,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-open           | -    | Present when the popup is open.          |
-| data-closed         | -    | Present when the popup is closed.        |
-| data-starting-style | -    | Present when the popup is animating in.  |
-| data-ending-style   | -    | Present when the popup is animating out. |
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-open           | -    | Present when the popup is open.             |
+| data-closed         | -    | Present when the popup is closed.           |
+| data-starting-style | -    | Present when the popup begins animating in. |
+| data-ending-style   | -    | Present when the popup is animating out.    |
 
 ### Backdrop.Props
 
@@ -312,7 +312,7 @@ Renders a `<div>` element.
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-instant        | `'click' \| 'dismiss' \| 'focus' \| 'trigger-change'`                      | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the popup is animating in.                               |
+| data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
 
 **Popup CSS Variables:**
@@ -517,11 +517,18 @@ type ReturnValue = Popover.Handle<Payload>;
 
 ### Handle
 
+Controls a Popover imperatively and associates detached `Popover.Trigger` components with a
+`Popover.Root`. Create one with `Popover.createHandle()` and pass it to the `handle` prop of the
+root and of any triggers rendered outside of it.
+
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
+
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                      |
-| :------- | :-------- | :-------- | :----------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the popover is currently open. |
+| Property | Type      | Modifiers | Description                                                                                     |
+| :------- | :-------- | :-------- | :---------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the popover is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -530,13 +537,16 @@ function open(triggerId: string): void;
 ```
 
 Opens the popover and associates it with the trigger with the given id.
-The trigger must be a Popover.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the popover.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

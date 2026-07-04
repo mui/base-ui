@@ -7,7 +7,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
@@ -49,24 +49,41 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
-export function usePopupStore<
+/**
+ * The subset of a popup handle that a Root needs to bind its store to. Both the real handle classes
+ * and any test double satisfy it.
+ */
+export interface PopupRootStoreHandle<Store> {
+  attachStore(store: Store): () => void;
+}
+
+/**
+ * Creates and owns a popup store on behalf of a Root part. The store is created exactly once — the
+ * Root owns it for its lifetime, so swapping the handle re-attaches rather than recreating state —
+ * with controlled props and root state synced separately after creation. Sets up the synced
+ * floating root context and, when a handle is provided, attaches the store to it so detached
+ * triggers migrate onto the live store. Returns the store.
+ *
+ * @param handle The handle to attach the store to, or `undefined` when the Root is used without one.
+ * While attached, detached triggers sharing the handle read from and register into this store.
+ * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
+ * and whether the popup is nested inside another floating element, both resolved on the first render.
+ * @param treatPopupAsFloatingElement Whether the popup element is passed to Floating UI as the
+ * floating element instead of the default positioner.
+ */
+export function usePopupRootStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
   Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
 >(
-  externalStore: Store | undefined,
+  handle: PopupRootStoreHandle<Store> | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
-) {
+): Store {
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
 
-  const internalStoreRef = React.useRef<Store | null>(null);
-  if (externalStore === undefined && internalStoreRef.current === null) {
-    internalStoreRef.current = createStore(floatingId, nested);
-  }
-
-  const store = externalStore ?? internalStoreRef.current!;
+  const store = useRefWithInit(() => createStore(floatingId, nested)).current;
 
   useSyncedFloatingRootContext({
     popupStore: store,
@@ -77,7 +94,27 @@ export function usePopupStore<
     onOpenChange: store.setOpen,
   });
 
-  return { store, internalStore: internalStoreRef.current };
+  useAttachHandle(handle, store);
+
+  return store;
+}
+
+/**
+ * Attaches a Root's store to a handle for the lifetime of the effect, detaching on cleanup. No-op
+ * when no handle is provided. Used by every popup Root so detached triggers can follow the store
+ * pointer as roots mount and unmount.
+ */
+export function useAttachHandle<Store>(
+  handle: PopupRootStoreHandle<Store> | undefined,
+  store: Store,
+) {
+  useIsoLayoutEffect(() => {
+    if (!handle) {
+      return undefined;
+    }
+
+    return handle.attachStore(store);
+  }, [handle, store]);
 }
 
 /**
@@ -235,25 +272,6 @@ export function applyPopupOpenChange<
   } else {
     changeState();
   }
-}
-
-export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
-  openProp: boolean | undefined,
-  defaultOpen: boolean,
-  defaultTriggerId: string | null,
-) {
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen) {
-      // Avoid notifying detached trigger subscribers while the Root is rendering.
-      store.state = {
-        ...store.state,
-        open: true,
-        activeTriggerId: defaultTriggerId,
-        preventUnmountingOnClose: false,
-      };
-    }
-  });
 }
 
 /**

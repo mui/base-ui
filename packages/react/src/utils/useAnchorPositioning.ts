@@ -191,30 +191,32 @@ export function useAnchorPositioning(
     left: number;
   };
 
+  if (typeof collisionPadding === 'number') {
+    collisionPadding = {
+      top: collisionPadding,
+      right: collisionPadding,
+      bottom: collisionPadding,
+      left: collisionPadding,
+    };
+  } else if (collisionPadding) {
+    collisionPadding = {
+      top: collisionPadding.top || 0,
+      right: collisionPadding.right || 0,
+      bottom: collisionPadding.bottom || 0,
+      left: collisionPadding.left || 0,
+    };
+  }
+
   // Create a bias to the preferred side.
   // On iOS, when the mobile software keyboard opens, the input is exactly centered
   // in the viewport, but this can cause it to flip to the top undesirably.
+  // The bias is only applied to `flip()` so it doesn't shift the resting position
+  // computed by `shift()` and `size()` away from the requested `collisionPadding`.
   const bias = 1;
   const biasTop = sideParam === 'bottom' ? bias : 0;
   const biasBottom = sideParam === 'top' ? bias : 0;
   const biasLeft = sideParam === 'right' ? bias : 0;
   const biasRight = sideParam === 'left' ? bias : 0;
-
-  if (typeof collisionPadding === 'number') {
-    collisionPadding = {
-      top: collisionPadding + biasTop,
-      right: collisionPadding + biasRight,
-      bottom: collisionPadding + biasBottom,
-      left: collisionPadding + biasLeft,
-    };
-  } else if (collisionPadding) {
-    collisionPadding = {
-      top: (collisionPadding.top || 0) + biasTop,
-      right: (collisionPadding.right || 0) + biasRight,
-      bottom: (collisionPadding.bottom || 0) + biasBottom,
-      left: (collisionPadding.left || 0) + biasLeft,
-    };
-  }
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -274,10 +276,10 @@ export function useAnchorPositioning(
           // Ensure the popup flips if it's been limited by its --available-height and it resizes.
           // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
           padding: {
-            top: collisionPadding.top + bias,
-            right: collisionPadding.right + bias,
-            bottom: collisionPadding.bottom + bias,
-            left: collisionPadding.left + bias,
+            top: collisionPadding.top + bias + biasTop,
+            right: collisionPadding.right + bias + biasRight,
+            bottom: collisionPadding.bottom + bias + biasBottom,
+            left: collisionPadding.left + bias + biasLeft,
           },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
