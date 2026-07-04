@@ -64,7 +64,9 @@ describe('<CompositeList />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      // StrictMode masks the bug: it re-runs the item registration effects when
+      // the groups move, which re-sorts the indices even without the fix.
+      const { user } = await render(<App />, { strict: false });
 
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
       expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
