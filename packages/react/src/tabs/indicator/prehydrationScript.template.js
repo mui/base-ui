@@ -14,6 +14,17 @@
     return;
   }
 
+  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
+    return;
+  }
+
+  let left = 0;
+  let right = 0;
+  let top = 0;
+  let bottom = 0;
+  let width = 0;
+  let height = 0;
+
   function getCssDimensions(element) {
     const css = getComputedStyle(element);
     let cssWidth = parseFloat(css.width) || 0;
@@ -33,12 +44,7 @@
     };
   }
 
-  function position() {
-    let left = 0;
-    let right = 0;
-    let top = 0;
-    let bottom = 0;
-
+  if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
     const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
     const tabRect = activeTab.getBoundingClientRect();
@@ -58,49 +64,24 @@
       top = activeTab.offsetTop;
     }
 
-    const width = computedWidth;
-    const height = computedHeight;
+    width = computedWidth;
+    height = computedHeight;
     right = tabsList.scrollWidth - left - width;
     bottom = tabsList.scrollHeight - top - height;
-
-    function setProp(name, value) {
-      indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
-    }
-
-    setProp('left', left);
-    setProp('right', right);
-    setProp('top', top);
-    setProp('bottom', bottom);
-    setProp('width', width);
-    setProp('height', height);
-
-    if (width > 0 && height > 0) {
-      indicator.removeAttribute('hidden');
-    }
   }
 
-  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
-    // With streaming SSR, content below a Suspense boundary that resolves after the shell
-    // is parsed inside a hidden container (`<div hidden id="S:...">`) where nothing is
-    // measurable, then moved into place once React reveals the segment. Instead of bailing
-    // permanently, wait for that reveal: the observer callback runs as a microtask after
-    // the reveal mutation but before the next paint, so the indicator doesn't flash in late.
-    const observer = new MutationObserver(() => {
-      if (!indicator.isConnected || !indicator.hasAttribute('hidden')) {
-        // Hydration got there first.
-        observer.disconnect();
-        return;
-      }
-
-      if (activeTab.offsetWidth > 0 && tabsList.offsetWidth > 0) {
-        observer.disconnect();
-        position();
-      }
-    });
-
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-    return;
+  function setProp(name, value) {
+    indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
   }
 
-  position();
+  setProp('left', left);
+  setProp('right', right);
+  setProp('top', top);
+  setProp('bottom', bottom);
+  setProp('width', width);
+  setProp('height', height);
+
+  if (width > 0 && height > 0) {
+    indicator.removeAttribute('hidden');
+  }
 })();
