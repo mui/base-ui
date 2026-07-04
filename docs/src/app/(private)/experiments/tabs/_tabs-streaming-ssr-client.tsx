@@ -6,7 +6,10 @@ const clientDelay: Promise<void> | null =
   typeof window === 'undefined'
     ? null
     : new Promise((resolve) => {
-        setTimeout(resolve, 5000);
+        setTimeout(() => {
+          console.log('Hydration delay resolved');
+          resolve();
+        }, 5000);
       });
 
 /**
@@ -18,4 +21,8 @@ export function HydrationDelay() {
     React.use(clientDelay);
   }
   return null;
+}
+
+export default function TabsStreamingSsrClient() {
+  return <p>Placeholder component for docs build</p>;
 }
