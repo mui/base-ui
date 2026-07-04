@@ -81,11 +81,15 @@
 
   if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
     // With streaming SSR, content below a Suspense boundary that resolves after the shell
-    // is parsed inside a hidden container (`<div hidden id="S:...">`) where nothing is
-    // measurable, then moved into place once React reveals the segment. Instead of bailing
-    // permanently, wait for that reveal: the observer callback runs as a microtask after
-    // the reveal mutation but before the next paint, so the indicator doesn't flash in late.
-    const observer = new MutationObserver(() => {
+    // is parsed inside a hidden container (`<div hidden id="S:...">`) where nothing has
+    // a box, then moved into place once React reveals the segment. Instead of bailing
+    // permanently, wait for the tabs list to gain a box: the ResizeObserver callback runs
+    // after layout but before paint, so the indicator doesn't flash in late.
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
       if (!indicator.isConnected || !indicator.hasAttribute('hidden')) {
         // Hydration got there first.
         observer.disconnect();
@@ -98,7 +102,7 @@
       }
     });
 
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(tabsList);
     return;
   }
 
