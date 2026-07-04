@@ -4,9 +4,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { contains } from '../../shadowDom';
 import { CompositeListContext } from './CompositeListContext';
-import { isElement } from '@floating-ui/utils/dom';
 
 export type CompositeMetadata<CustomMetadata> = {
   index?: number | null | undefined;
@@ -49,29 +47,34 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const { sortedMap, sortedNodes } = React.useMemo(() => {
+  const sortedMap = React.useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
-    const nextSortedMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
     // Filter out disconnected elements before sorting to avoid inconsistent
     // compareDocumentPosition results when elements are detached from the DOM.
-    const nextSortedNodes = Array.from(map.keys())
+    const sortedNodes = Array.from(map.keys())
       .filter((node) => node.isConnected)
       .sort(sortByDocumentPosition);
 
-    nextSortedNodes.forEach((node, index) => {
+    sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-      nextSortedMap.set(node, { ...metadata, index });
+      newMap.set(node, { ...metadata, index });
     });
 
-    return { sortedMap: nextSortedMap, sortedNodes: nextSortedNodes };
+    return newMap;
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
-    if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
+    // A single item can't reorder.
+    if (typeof MutationObserver !== 'function' || sortedMap.size < 2) {
       return undefined;
     }
+
+    // `sortedMap` is populated in sorted order, so its keys are the last known
+    // document order of the items.
+    const sortedNodes = Array.from(sortedMap.keys());
 
     // Rather than observing the whole composite container, observe the smallest
     // direct-child lists whose order can affect registered item order. For flat
@@ -83,15 +86,18 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     }
 
     const mutationObserver = new MutationObserver((entries) => {
-      if (!entries.some((entry) => hasSortedNode(entry, sortedNodes))) {
+      // Only verify the order after a move: a node that was removed and later
+      // re-added within the same batch. Additions and removals alone can't
+      // change the relative order of the remaining items, and items that mount
+      // or unmount re-sort through `register`/`unregister`.
+      if (!hasMovedNode(entries)) {
         return;
       }
 
       let previousConnectedNode: Element | null = null;
 
-      // `sortedNodes` is the last known document order. If any connected node now
-      // appears before the previous connected node, wrappers/items moved and the
-      // index map needs to be rebuilt.
+      // If any connected node now appears before the previous connected node,
+      // wrappers/items moved and the index map needs to be rebuilt.
       for (const node of sortedNodes) {
         if (!node.isConnected) {
           continue;
@@ -115,7 +121,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     return () => {
       mutationObserver.disconnect();
     };
-  }, [sortedNodes]);
+  }, [sortedMap]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -195,35 +201,41 @@ function getAdjacentNodeRoots(nodes: Element[]) {
 function getCommonAncestor(firstNode: Element, lastNode: Element) {
   let ancestor = firstNode.parentElement;
 
-  while (ancestor && !contains(ancestor, lastNode)) {
+  // The `parentElement` walk cannot cross shadow boundaries, so the native
+  // `contains` is sufficient here.
+  while (ancestor && !ancestor.contains(lastNode)) {
     ancestor = ancestor.parentElement;
   }
 
   return ancestor;
 }
 
-function hasSortedNode(entry: MutationRecord, sortedNodes: Element[]) {
-  for (let i = 0; i < entry.addedNodes.length; i += 1) {
-    if (containsSortedNode(entry.addedNodes[i], sortedNodes)) {
-      return true;
+function hasMovedNode(entries: MutationRecord[]) {
+  const removed = new Set<Node>();
+
+  // The records are chronological: an addition following a removal is a move,
+  // while a removal following an addition is a net removal.
+  for (const entry of entries) {
+    for (let i = 0; i < entry.addedNodes.length; i += 1) {
+      if (removed.has(entry.addedNodes[i])) {
+        return true;
+      }
+    }
+
+    for (let i = 0; i < entry.removedNodes.length; i += 1) {
+      removed.add(entry.removedNodes[i]);
     }
   }
 
-  for (let i = 0; i < entry.removedNodes.length; i += 1) {
-    if (containsSortedNode(entry.removedNodes[i], sortedNodes)) {
+  // A removed node that is still connected was reparented into a container
+  // this observer doesn't watch.
+  for (const node of removed) {
+    if (node.isConnected) {
       return true;
     }
   }
 
   return false;
-}
-
-function containsSortedNode(node: Node, sortedNodes: Element[]) {
-  if (!isElement(node)) {
-    return false;
-  }
-
-  return sortedNodes.some((sortedNode) => contains(node, sortedNode));
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
