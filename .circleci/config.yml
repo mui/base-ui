@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/f2b7a9f6b2db57a03f2e16a5bb351f02a55c3e17/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/00cd0db0b3f3e2bc38ac8fb6af4edbfb2d5f88f6/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -25,7 +25,7 @@ default-job: &default-job
       default: << pipeline.parameters.react-version >>
   resource_class: medium
   environment:
-    # expose it globally otherwise we have to thread it from each job to the install command
+    &default-environment # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
@@ -88,6 +88,9 @@ jobs:
       - code-infra/valelint
   test_static:
     <<: *default-job
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
@@ -220,6 +223,9 @@ jobs:
   test_unit_compiler:
     <<: *default-job
     resource_class: large
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
@@ -262,7 +268,24 @@ jobs:
           name: Build packages
           command: pnpm release:build
       - run:
-          name: Run benchmarks
+          name: Run baseline benchmarks at merge-base
+          command: |
+            set -e
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              echo "On master branch; no baseline to compare against. Skipping baseline."
+              exit 0
+            fi
+            git fetch --no-tags origin master:refs/remotes/origin/master
+            BASE_SHA=$(git merge-base HEAD origin/master)
+            echo "Baseline commit: $BASE_SHA"
+            git worktree add /tmp/base-worktree "$BASE_SHA"
+            cd /tmp/base-worktree
+            pnpm install --frozen-lockfile
+            pnpm release:build
+            BENCHMARK_BRANCH=master pnpm test:benchmark
+            echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
+      - run:
+          name: Run head benchmarks
           environment:
             BENCHMARK_UPLOAD: 'true'
           command: pnpm test:benchmark

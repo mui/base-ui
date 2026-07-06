@@ -202,7 +202,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputProps,
       triggerProps,
       {
-        type: 'text',
         value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
@@ -319,10 +318,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          store.state.setInputValue(
-            event.currentTarget.value,
-            createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+          const inputChangeDetails = createChangeEventDetails(
+            REASONS.inputChange,
+            event.nativeEvent,
           );
+          store.state.setInputValue(event.currentTarget.value, inputChangeDetails);
+
+          if (inputChangeDetails.isCanceled) {
+            return;
+          }
 
           const empty = event.currentTarget.value === '';
           const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);

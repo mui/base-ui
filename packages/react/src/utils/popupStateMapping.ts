@@ -11,7 +11,7 @@ export enum CommonPopupDataAttributes {
    */
   closed = 'data-closed',
   /**
-   * Present when the popup is animating in.
+   * Present when the popup begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

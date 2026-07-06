@@ -23,26 +23,23 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const itemRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(ref, itemRef);
 
-  const compositeProps = React.useMemo<HTMLProps>(
-    () => ({
-      tabIndex: isHighlighted ? 0 : -1,
-      onFocus() {
-        onHighlightedIndexChange(index);
-      },
-      onMouseMove() {
-        const item = itemRef.current;
-        if (!highlightItemOnHover || !item) {
-          return;
-        }
+  const compositeProps: HTMLProps = {
+    tabIndex: isHighlighted ? 0 : -1,
+    onFocus() {
+      onHighlightedIndexChange(index);
+    },
+    onMouseMove() {
+      const item = itemRef.current;
+      if (!highlightItemOnHover || !item) {
+        return;
+      }
 
-        const disabled = item.hasAttribute('disabled') || item.ariaDisabled === 'true';
-        if (!isHighlighted && !disabled) {
-          item.focus();
-        }
-      },
-    }),
-    [isHighlighted, onHighlightedIndexChange, index, highlightItemOnHover],
-  );
+      const disabled = item.hasAttribute('disabled') || item.ariaDisabled === 'true';
+      if (!isHighlighted && !disabled) {
+        item.focus();
+      }
+    },
+  };
 
   return {
     compositeProps,

@@ -342,6 +342,45 @@ describe('<Field.Root />', () => {
       expect(label).toHaveAttribute('data-disabled', '');
       expect(message).toHaveAttribute('data-disabled', '');
     });
+
+    it('keeps an explicitly invalid field marked invalid while disabled', async () => {
+      await render(
+        <Field.Root data-testid="field" disabled invalid>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      const field = screen.getByTestId('field');
+      const control = screen.getByTestId('control');
+      const label = screen.getByTestId('label');
+      const description = screen.getByTestId('description');
+
+      expect(field).toHaveAttribute('data-invalid', '');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(label).toHaveAttribute('data-invalid', '');
+      expect(description).toHaveAttribute('data-invalid', '');
+
+      // It does not participate in native constraint validation.
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('keeps a disabled field with form errors marked invalid', async () => {
+      await render(
+        <Form errors={{ name: 'Server error' }}>
+          <Field.Root name="name" disabled>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      expect(control).toHaveAttribute('data-invalid', '');
+      // It does not participate in native constraint validation.
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
   });
 
   describe('prop: validate', () => {
@@ -1069,6 +1108,35 @@ describe('<Field.Root />', () => {
           fireEvent.blur(control);
 
           expect(control).not.toHaveAttribute('aria-invalid');
+        });
+
+        it('revalidates on change when clearing a type mismatch leaves only `valueMissing`', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control type="email" required data-testid="control" />
+              <Field.Error match="typeMismatch" data-testid="type-error">
+                Invalid email
+              </Field.Error>
+              <Field.Error match="valueMissing" data-testid="required-error">
+                Required
+              </Field.Error>
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'invalid' } });
+          fireEvent.blur(control);
+
+          expect(screen.getByTestId('type-error')).not.toBe(null);
+          expect(screen.queryByTestId('required-error')).toBe(null);
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: '' } });
+
+          expect(screen.queryByTestId('type-error')).toBe(null);
+          expect(screen.getByTestId('required-error')).not.toBe(null);
         });
 
         it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {

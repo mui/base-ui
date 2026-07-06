@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/monorepo",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -65,27 +65,24 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "0.0.4-canary.42",
+    "@mui/internal-code-infra": "0.0.4-canary.74",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
-    "@mui/internal-test-utils": "2.0.18-canary.22",
+    "@mui/internal-test-utils": "2.0.18-canary.25",
     "@next/eslint-plugin-next": "16.1.6",
-    "@octokit/rest": "22.0.1",
     "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.4",
     "@testing-library/jest-dom": "6.9.1",
     "@types/node": "22.18.13",
     "@types/react": "19.2.14",
-    "@types/yargs": "17.0.35",
-    "@typescript/native-preview": "7.0.0-dev.20260514.1",
+    "@typescript/native-preview": "7.0.0-dev.20260602.1",
     "@vitejs/plugin-react": "6.0.1",
-    "@vitest/browser-playwright": "4.1.5",
-    "@vitest/coverage-istanbul": "4.1.5",
-    "@vitest/ui": "4.1.5",
-    "concurrently": "9.2.1",
+    "@vitest/browser-playwright": "4.1.8",
+    "@vitest/coverage-istanbul": "4.1.8",
+    "@vitest/ui": "4.1.8",
+    "concurrently": "^10.0.3",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
     "eslint": "10.3.0",
-    "execa": "9.6.1",
     "globby": "16.2.0",
     "jsdom": "27.4.0",
     "lerna": "9.0.7",
@@ -106,14 +103,14 @@
     "tsx": "4.21.0",
     "typescript": "6.0.3",
     "vite": "8.0.11",
-    "vitest": "4.1.5"
+    "vitest": "4.1.8"
   },
   "config": {
     "valeVersion": "3.14.1"
   },
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@11.5.2",
   "engines": {
-    "pnpm": "10.33.4",
+    "pnpm": "11.5.2",
     "node": ">=22.18.0"
   }
 }

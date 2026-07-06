@@ -38,11 +38,23 @@ export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
 const PERCENT_GLOBAL_RE = new RegExp(PERCENT_RE.source, 'g');
 const PERMILLE_GLOBAL_RE = new RegExp(PERMILLE_RE.source, 'g');
 
-// Detection regexes (non-global to avoid lastIndex side effects)
-export const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
-export const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
-export const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
+// Detection regexes (non-global to avoid lastIndex side effects), derived from the numeral arrays
+// so they can't drift out of sync.
+export const ARABIC_DETECT_RE = new RegExp(`[${ARABIC_NUMERALS.join('')}]`);
+export const PERSIAN_DETECT_RE = new RegExp(`[${PERSIAN_NUMERALS.join('')}]`);
+export const HAN_DETECT_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`);
 export const FULLWIDTH_DETECT_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`);
+
+// Whether the character is a digit in any numeral system the field accepts.
+export function isNumeralChar(char: string) {
+  return (
+    (char >= '0' && char <= '9') ||
+    ARABIC_DETECT_RE.test(char) ||
+    PERSIAN_DETECT_RE.test(char) ||
+    HAN_DETECT_RE.test(char) ||
+    FULLWIDTH_DETECT_RE.test(char)
+  );
+}
 
 export const BASE_NON_NUMERIC_SYMBOLS = [
   '.',
@@ -53,6 +65,11 @@ export const BASE_NON_NUMERIC_SYMBOLS = [
   '٬',
 ] as const;
 export const SPACE_SEPARATOR_RE = /\p{Zs}/u;
+// Format/bidi control characters (e.g. the LRM/ALM marks RTL locales insert around exponent and
+// currency signs). `parseNumber` strips these, so input validation must treat them as ignorable
+// rather than rejecting the typed string. Non-global so it's safe for repeated `.test(char)`.
+export const FORMAT_CONTROL_DETECT_RE = /\p{Cf}/u;
+const FORMAT_CONTROL_GLOBAL_RE = new RegExp(FORMAT_CONTROL_DETECT_RE.source, 'gu');
 export const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
 export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
 
@@ -74,18 +91,33 @@ export const ANY_PLUS_RE = new RegExp(ANY_PLUS_CLASS, 'gu');
 export const ANY_MINUS_DETECT_RE = new RegExp(ANY_MINUS_CLASS);
 export const ANY_PLUS_DETECT_RE = new RegExp(ANY_PLUS_CLASS);
 
+// A representative value with a grouping separator and a fractional part, so that the formatter
+// emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
+// so the locale-detail and allowed-character derivations enumerate the same parts.
+const SAMPLE_FORMAT_NUMBER = 11111.1;
+
+/**
+ * Returns the `Intl.NumberFormat` parts of a representative number, which surface every
+ * non-numeric symbol a given locale/format renders.
+ */
+export function getFormatParts(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
+  return getFormatter(locale, options).formatToParts(SAMPLE_FORMAT_NUMBER);
+}
+
 export function getNumberLocaleDetails(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  const parts = getFormatter(locale, options).formatToParts(11111.1);
+  const parts = getFormatParts(locale, options);
   const result: Partial<Record<Intl.NumberFormatPartTypes, string | undefined>> = {};
 
   parts.forEach((part) => {
     result[part.type] = part.value;
   });
 
-  // The formatting options may result in not returning a decimal.
+  // The formatting options may omit the decimal separator (e.g. integer formats), so resolve it
+  // from the plain locale formatter. This overrides any options-derived decimal too, which is
+  // safe because the separator is locale-determined and identical across format styles.
   getFormatter(locale)
     .formatToParts(0.1)
     .forEach((part) => {
@@ -107,9 +139,7 @@ export function parseNumber(
   }
 
   // Normalize control characters and whitespace; remove bidi/format controls
-  let input = String(formattedNumber)
-    .replace(/\p{Cf}/gu, '')
-    .trim();
+  let input = String(formattedNumber).replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
 
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
@@ -176,7 +206,7 @@ export function parseNumber(
     regex: RegExp | null;
     replacement: string | ((m: string) => string);
   }> = [
-    { regex: group ? groupRegex : null, replacement: '' },
+    { regex: groupRegex, replacement: '' },
     { regex: decimal ? new RegExp(escapeRegExp(decimal), 'g') : null, replacement: '.' },
     // Fullwidth punctuation
     { regex: /．/g, replacement: '.' }, // FULLWIDTH_DECIMAL
@@ -211,7 +241,7 @@ export function parseNumber(
   }
 
   // Guard against Infinity inputs (ASCII and symbol)
-  if (/^[-+]?Infinity$/i.test(input) || /[∞]/.test(input)) {
+  if (/^[-+]?Infinity$/i.test(input) || input.includes('∞')) {
     return null;
   }
 

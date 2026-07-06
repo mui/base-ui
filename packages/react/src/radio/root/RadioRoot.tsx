@@ -69,8 +69,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
-    setDirty,
-    validityData,
     setTouched: setFieldTouched,
     setFilled,
     state: fieldState,
@@ -204,7 +202,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     required,
     readOnly,
     onChange(event) {
-      // Workaround for https://github.com/facebook/react/issues/9023
+      // Workaround for https://github.com/react/react/issues/9023
       if (event.nativeEvent.defaultPrevented) {
         return;
       }
@@ -215,14 +213,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+      setCheckedValue(value, details);
+
       if (details.isCanceled) {
         return;
       }
 
       setFieldTouched(true);
-      setDirty(value !== validityData.initialValue);
-      setFilled(true);
-      setCheckedValue(value, details);
     },
     onFocus() {
       radioRef.current?.focus();

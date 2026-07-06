@@ -12,11 +12,7 @@ const defaultScrubAreaContext: NumberFieldScrubAreaContext = {
   isScrubbing: true,
   isTouchInput: false,
   isPointerLockDenied: false,
-  direction: 'horizontal',
-  pixelSensitivity: 2,
-  teleportDistance: undefined,
   scrubAreaCursorRef: React.createRef<HTMLSpanElement>(),
-  scrubAreaRef: React.createRef<HTMLDivElement>(),
 };
 
 // This component doesn't render on WebKit.

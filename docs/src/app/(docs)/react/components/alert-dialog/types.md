@@ -11,17 +11,17 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                       |
-| :------------------- | :----------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| defaultOpen          | `boolean`                                                                      | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                 |
-| open                 | `boolean`                                                                      | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                             |
-| onOpenChange         | `((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the alert dialog is opened or closed.                                                                                                                                                                                                                                                                                   |
-| actionsRef           | `React.RefObject<AlertDialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: When specified, the alert dialog will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the alert dialog manually.&#xA;Useful when the alert dialog's animation is controlled by an external library.`close`: Closes the alert dialog imperatively when called. |
-| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                           |
-| handle               | `AlertDialog.Handle<Payload>`                                                  | -       | A handle to associate the alert dialog with a trigger.&#xA;If specified, allows external triggers to control the alert dialog's open state.&#xA;Can be created with the AlertDialog.createHandle() method.                                                                                                                                        |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                                                                                           |
-| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).                                                                                  |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                           |
+| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                      |
+| :------------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                      | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                |
+| open                 | `boolean`                                                                      | -       | Whether the dialog is currently open.                                                                                                                                                                                                                            |
+| onOpenChange         | `((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the alert dialog is opened or closed.                                                                                                                                                                                                  |
+| actionsRef           | `React.RefObject<AlertDialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Manually unmounts the alert dialog.&#xA;Call this after any externally controlled closing animation finishes.`close`: Closes the alert dialog imperatively when called.                                                  |
+| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                          |
+| handle               | `AlertDialog.Handle<Payload>`                                                  | -       | A handle to associate the alert dialog with a trigger.&#xA;If specified, allows external triggers to control the alert dialog's open state.&#xA;Can be created with the AlertDialog.createHandle() method.                                                       |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                          |
+| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set). |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                          |
 
 ### Root.Props
 
@@ -110,9 +110,9 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type AlertDialogTriggerState = {
-  /** Whether the dialog is currently disabled. */
+  /** Whether the trigger is currently disabled. */
   disabled: boolean;
-  /** Whether the dialog is currently open. */
+  /** Whether the dialog is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```
@@ -159,12 +159,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                               |
-| :------------------ | :--- | :---------------------------------------- |
-| data-open           | -    | Present when the dialog is open.          |
-| data-closed         | -    | Present when the dialog is closed.        |
-| data-starting-style | -    | Present when the dialog is animating in.  |
-| data-ending-style   | -    | Present when the dialog is animating out. |
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-open           | -    | Present when the dialog is open.             |
+| data-closed         | -    | Present when the dialog is closed.           |
+| data-starting-style | -    | Present when the dialog begins animating in. |
+| data-ending-style   | -    | Present when the dialog is animating out.    |
 
 ### Backdrop.Props
 
@@ -188,13 +188,13 @@ Renders a `<div>` element.
 
 **Popup Props:**
 
-| Prop         | Type                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                |
-| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| initialFocus | `boolean \| React.RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the dialog is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.       |
-| finalFocus   | `boolean \| React.RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the dialog is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing. |
-| className    | `string \| ((state: AlertDialog.Popup.State) => string \| undefined)`                                                         | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                   |
-| style        | `React.CSSProperties \| ((state: AlertDialog.Popup.State) => React.CSSProperties \| undefined)`                               | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                |
-| render       | `ReactElement \| ((props: HTMLProps, state: AlertDialog.Popup.State) => ReactElement)`                                        | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                              |
+| Prop         | Type                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| initialFocus | `boolean \| React.RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the dialog is opened.&#xA;By default, focus moves to the first tabbable element inside the popup, except when the dialog&#xA;is opened by touch — then the popup itself is focused to avoid opening the virtual keyboard. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing. |
+| finalFocus   | `boolean \| React.RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the dialog is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.                                                                                                                                                                                               |
+| className    | `string \| ((state: AlertDialog.Popup.State) => string \| undefined)`                                                         | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| style        | `React.CSSProperties \| ((state: AlertDialog.Popup.State) => React.CSSProperties \| undefined)`                               | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| render       | `ReactElement \| ((props: HTMLProps, state: AlertDialog.Popup.State) => ReactElement)`                                        | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 **Popup Data Attributes:**
 
@@ -204,7 +204,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 **Popup CSS Variables:**
@@ -332,7 +332,7 @@ Renders a `<div>` element.
 | data-closed             | -    | Present when the dialog is closed.                               |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
 | data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
-| data-starting-style     | -    | Present when the dialog is animating in.                         |
+| data-starting-style     | -    | Present when the dialog begins animating in.                     |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
 ### Viewport.Props
@@ -356,6 +356,8 @@ type AlertDialogViewportState = {
 
 ### createHandle
 
+Creates a new handle to connect an AlertDialog.Root with detached AlertDialog.Trigger components.
+
 **Return Value:**
 
 ```tsx
@@ -364,19 +366,18 @@ type ReturnValue = AlertDialog.Handle<Payload>;
 
 ### Handle
 
-A handle to control an Alert Dialog imperatively and to associate detached triggers with it.
+Controls an Alert Dialog imperatively and associates detached `AlertDialog.Trigger` components with
+an `AlertDialog.Root`. Create one with `AlertDialog.createHandle()` and pass it to the `handle`
+prop of the root and of any triggers rendered outside of it.
 
-**Constructor Parameters:**
-
-| Parameter | Type                   | Default | Description                              |
-| :-------- | :--------------------- | :------ | :--------------------------------------- |
-| store?    | `DialogStore<Payload>` | -       | Internal store holding the dialog state. |
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+| Property | Type      | Modifiers | Description                                                                                    |
+| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -384,8 +385,7 @@ A handle to control an Alert Dialog imperatively and to associate detached trigg
 function open(triggerId: string | null): void;
 ```
 
-Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
+Opens the dialog, optionally associating it with a trigger.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -393,14 +393,17 @@ This method should only be called in an event handler or an effect (not during r
 function openWithPayload(payload: Payload): void;
 ```
 
-Opens the dialog and sets the payload.
-Does not associate the dialog with any trigger.
+Opens the dialog with the given payload, without associating it with any trigger.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the dialog.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ## External Types
 

@@ -6,14 +6,11 @@ packages:
   - scripts/*
   - playground/*
 
-onlyBuiltDependencies:
-  - '@mui/internal-babel-plugin-display-name'
-  - '@vvago/vale'
-  - core-js
-  - esbuild
-  - nx
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  esbuild: true
+  nx: true
+  sharp: true
+  unrs-resolver: true
 
 engineStrict: true
 updateNotifier: false
@@ -31,3 +28,12 @@ trustPolicy: no-downgrade
 # TODO: drop once @babel/core stops depending on semver@^6.3.1 (no 6.x semver release has
 # provenance), and the other legacy packages restore provenance.
 trustPolicyIgnoreAfter: 525600
+# nanoid@3.3.14 (a transitive dep of postcss@8.5.15) shipped without trust evidence after an
+# earlier release published via staged publish, so pnpm rejects it as a trust downgrade. The
+# default jobs install from the frozen lockfile (pinned to nanoid@3.3.12) and are unaffected,
+# but the React 18 jobs re-resolve the tree without a frozen lockfile and pull this version.
+# The independent minimumReleaseAge gate still applies to it. nanoid restored provenance in
+# 3.3.15, so once that ages in the resolver moves past 3.3.14 and this exclude becomes inert.
+# TODO: drop once the resolved nanoid is >= 3.3.15.
+trustPolicyExclude:
+  - 'nanoid@3.3.14'

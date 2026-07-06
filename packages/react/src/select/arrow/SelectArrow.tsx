@@ -32,7 +32,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
 
-  const open = useStore(store, selectors.open, true);
+  const open = useStore(store, selectors.open);
 
   const state: SelectArrowState = {
     open,

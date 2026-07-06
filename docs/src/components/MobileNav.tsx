@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui/react/dialog';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { HEADER_HEIGHT } from './Header';
+import { HEADER_HEIGHT_MOBILE } from './Header';
 import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
@@ -54,7 +54,7 @@ function PopupImpl(props: React.PropsWithChildren) {
         className="MobileNavViewport"
         onScroll={(event) => {
           const viewport = event.currentTarget;
-          if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
+          if (viewport.scrollTop > (HEADER_HEIGHT_MOBILE * rem.current) / 16) {
             viewport.setAttribute('data-clipped', '');
           } else {
             viewport.removeAttribute('data-clipped');

@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -1339,6 +1340,152 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('touch outside press', () => {
+    function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
+      return new Touch({ identifier: 1, target, ...point });
+    }
+
+    // Simulates a finger tapping outside the dialog: a `touchstart`, a small
+    // (~6px) `touchmove` that marks the press as a dismiss without crossing the
+    // 10px threshold that would dismiss during the move itself, and a `touchend`
+    // whose lifted point is reported in `changedTouches` (`touches` is empty),
+    // mirroring real browsers.
+    function tapOutside(element: HTMLElement) {
+      const start = { clientX: 50, clientY: 50 };
+      const end = { clientX: 50, clientY: 56 };
+
+      fireEvent.touchStart(element, {
+        bubbles: true,
+        touches: [createTouch(element, start)],
+      });
+
+      fireEvent.touchMove(element, {
+        bubbles: true,
+        touches: [createTouch(element, end)],
+      });
+
+      fireEvent.touchEnd(element, {
+        bubbles: true,
+        changedTouches: [createTouch(element, end)],
+      });
+    }
+
+    async function expectClosesOnTouchTapOutside(modal: false | 'trap-focus') {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={modal} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      tapOutside(screen.getByTestId('outside'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    }
+
+    it('closes a non-modal dialog without a backdrop', async () => {
+      await expectClosesOnTouchTapOutside(false);
+    });
+
+    it('closes a trap-focus dialog without a backdrop', async () => {
+      await expectClosesOnTouchTapOutside('trap-focus');
+    });
+
+    it('does not close when another touch is still active on touchend', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 });
+      const touch1End = createTouch(outside, { clientX: 50, clientY: 56 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1End, touch2Start],
+      });
+
+      fireEvent.touchEnd(outside, {
+        bubbles: true,
+        changedTouches: [touch1End],
+        touches: [touch2Start],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('does not close when two touches are lifted simultaneously on touchend', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 });
+      const touch1End = createTouch(outside, { clientX: 50, clientY: 56 });
+      const touch2End = createTouch(outside, { clientX: 70, clientY: 76 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1End, touch2End],
+      });
+
+      fireEvent.touchEnd(outside, {
+        bubbles: true,
+        changedTouches: [touch1End, touch2End],
+        touches: [],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+  });
+
   it.skipIf(isJSDOM)(
     'returns focus to the menu trigger when a detached dialog trigger unmounts',
     async () => {
@@ -1443,6 +1590,145 @@ describe('<Dialog.Root />', () => {
 
       expect(outsideBefore).not.toHaveFocus();
       expect(outsideAfter).not.toHaveFocus();
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'returns focus into the dialog when a close confirmation opened by an outside press closes',
+    async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+        const [value, setValue] = React.useState('');
+
+        return (
+          <Dialog.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (!nextOpen && value) {
+                eventDetails.cancel();
+                setConfirmationOpen(true);
+                return;
+              }
+              setOpen(nextOpen);
+            }}
+          >
+            <Dialog.Trigger data-testid="trigger">Tweet</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-testid="backdrop" />
+              <Dialog.Popup>
+                <textarea
+                  data-testid="textarea"
+                  value={value}
+                  onChange={(event) => setValue(event.target.value)}
+                />
+              </Dialog.Popup>
+            </Dialog.Portal>
+            <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <AlertDialog.Close data-testid="go-back">Go back</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await screen.findByRole('dialog');
+
+      const textarea = screen.getByTestId('textarea');
+      await user.click(textarea);
+      await user.keyboard('x');
+      expect(textarea).toHaveFocus();
+
+      // Pressing the backdrop moves focus to the body before the close is
+      // canceled and the confirmation dialog opens.
+      await user.click(screen.getByTestId('backdrop'));
+
+      const goBack = await screen.findByTestId('go-back');
+      await waitFor(() => {
+        expect(goBack).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('go-back')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(textarea).toHaveFocus();
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'does not leak a non-modal popup field into an unrelated dialog return focus',
+    async () => {
+      function App() {
+        const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {/* Clicking this non-focusable surface blurs the field to the body and
+                opens the confirmation while the body is focused. */}
+            <div
+              data-testid="surface"
+              onClick={() => setConfirmationOpen(true)}
+              style={{ width: 100, height: 100 }}
+            >
+              surface
+            </div>
+
+            {/* A non-modal dialog held open (controlled, no `onOpenChange`). Its field
+                blurs to the body on the outside press, but because it is non-modal it
+                must not feed the shared focus stack. */}
+            <Dialog.Root open modal={false}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  <textarea data-testid="nonmodal-field" />
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+
+            <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <AlertDialog.Close data-testid="go-back">Go back</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const field = screen.getByTestId('nonmodal-field');
+      await user.click(field);
+      expect(field).toHaveFocus();
+
+      // Blur the field to the body and open the confirmation while it is focused.
+      await user.click(screen.getByTestId('surface'));
+
+      const goBack = await screen.findByTestId('go-back');
+      await waitFor(() => {
+        expect(goBack).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('go-back')).toBe(null);
+      });
+
+      // The modal gate keeps the non-modal field out of the shared stack, so the
+      // confirmation must not restore focus into the unrelated dialog.
+      await flushMicrotasks();
+      expect(field).not.toHaveFocus();
     },
   );
 });

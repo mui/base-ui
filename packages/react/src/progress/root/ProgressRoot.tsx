@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { formatNumberValue } from '../../utils/formatNumber';
+import { formatNumber } from '../../utils/formatNumber';
+import { valueToPercent } from '../../utils/valueToPercent';
+import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
@@ -13,7 +14,7 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
     return 'indeterminate progress';
   }
 
-  return formattedValue || `${value}%`;
+  return formattedValue ?? '';
 }
 
 /**
@@ -42,14 +43,26 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const formatOptionsRef = useValueAsRef(format);
-
+  // `value === null` (or any non-finite value) keeps Progress indeterminate. Otherwise compute a
+  // single clamped value and normalized percentage so completion status, `aria-valuenow`, the
+  // formatted text, the default `aria-valuetext`, and the indicator width all stay in sync for any
+  // `min`/`max` (not just the default 0–100).
   let status: ProgressStatus = 'indeterminate';
-  if (Number.isFinite(value)) {
-    status = value === max ? 'complete' : 'progressing';
-  }
+  let percentageValue: number | null = null;
+  let clampedValue: number | null = null;
+  let formattedValue = '';
 
-  const formattedValue = formatNumberValue(value, locale, formatOptionsRef.current);
+  if (value != null && Number.isFinite(value)) {
+    const rawPercentage = valueToPercent(value, min, max);
+    percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
+    clampedValue = clamp(value, min, max);
+    status = clampedValue === max ? 'complete' : 'progressing';
+    // Without an explicit `format`, the value is displayed as its position within the range so the
+    // text stays in sync with the indicator fill.
+    formattedValue = format
+      ? formatNumber(value, locale, format)
+      : formatNumber(percentageValue / 100, locale, { style: 'percent' });
+  }
 
   const state: ProgressRootState = React.useMemo(() => ({ status }), [status]);
 
@@ -57,7 +70,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-labelledby': labelId,
     'aria-valuemax': max,
     'aria-valuemin': min,
-    'aria-valuenow': value ?? undefined,
+    'aria-valuenow': clampedValue ?? undefined,
     'aria-valuetext': getAriaValueText(formattedValue, value),
     role: 'progressbar',
     children: (
@@ -75,12 +88,13 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
       formattedValue,
       max,
       min,
+      percentageValue,
       setLabelId,
       state,
       status,
       value,
     }),
-    [formattedValue, max, min, setLabelId, state, status, value],
+    [formattedValue, max, min, percentageValue, setLabelId, state, status, value],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -134,7 +148,6 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   min?: number | undefined;
   /**
    * The current value. The component is indeterminate when value is `null`.
-   * @default null
    */
   value: number | null;
 }

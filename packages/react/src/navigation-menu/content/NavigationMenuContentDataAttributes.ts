@@ -10,7 +10,7 @@ export enum NavigationMenuContentDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the content is animating in.
+   * Present when the content begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

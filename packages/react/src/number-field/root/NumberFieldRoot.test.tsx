@@ -508,6 +508,30 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
     });
 
+    it('parses an interleaved percent sign while typing (1%2 -> 12%)', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0.01}
+          format={{ style: 'percent' }}
+          locale="en-US"
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue('1%');
+
+      // Typing `2` after the rendered `1%` yields `1%2`, which must reformat to `12%` on blur.
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1%2' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('12%');
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
+    });
+
     it('accepts currency symbol while typing and parses numeric value', async () => {
       const onValueChange = vi.fn();
       await render(
@@ -524,6 +548,78 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.calls[0][0]).toBe(1);
       expect(onValueChange.mock.calls[1][0]).toBe(12);
+    });
+
+    it('accepts multi-character currency symbols while typing (e.g. pt-BR BRL)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { style: 'currency', currency: 'BRL' };
+      await render(
+        <NumberField
+          defaultValue={1234.56}
+          locale="pt-BR"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      const formatted = new Intl.NumberFormat('pt-BR', format).format(1234.56);
+
+      // Type a trailing digit. Previously every keystroke was rejected because the multi-character
+      // `R$` symbol failed the per-character validation in the change handler.
+      fireEvent.change(input, { target: { value: `${formatted}7` } });
+
+      expect(input).toHaveValue(`${formatted}7`);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1234.567);
+    });
+
+    it('accepts multi-character unit symbols while typing (e.g. km/h)', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          locale="en-US"
+          format={{ style: 'unit', unit: 'kilometer-per-hour' }}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // The `km/h` unit must not block editing the numeric region.
+      fireEvent.change(input, { target: { value: '1 km/h' } });
+      fireEvent.change(input, { target: { value: '12 km/h' } });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(12);
+    });
+
+    it('accepts exponent separators while typing (scientific notation)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { notation: 'scientific' };
+      await render(<NumberField locale="en-US" format={format} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      // `1.5E3` should parse to 1500 rather than being rejected for the `E` separator.
+      fireEvent.change(input, { target: { value: '1.5E3' } });
+
+      expect(input).toHaveValue('1.5E3');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1500);
+    });
+
+    it('ignores bidi/format control characters in the value (e.g. RTL exponent signs)', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = { notation: 'scientific' };
+      await render(<NumberField locale="en-US" format={format} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      // RTL locales (e.g. fa-IR) insert a U+200E LEFT-TO-RIGHT MARK around the exponent sign in
+      // scientific notation. Inject one into an otherwise-valid value so the test is deterministic
+      // across ICU versions: the validator must ignore the control character rather than reject it.
+      fireEvent.change(input, { target: { value: '5E\u200E-1' } });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(0.5);
     });
 
     it('allows deleting trailing currency symbols with locale literals', async () => {
@@ -719,6 +815,85 @@ describe('<NumberField />', () => {
       fireEvent.click(dec);
       expect(onValueCommitted.mock.lastCall?.[1].reason).toBe(REASONS.decrementPress);
     });
+
+    it('does not fire when blurring an untouched empty field', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+
+    it('does not fire on keyboard steps that do not change the value', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField defaultValue={5} min={0} max={5} onValueCommitted={onValueCommitted} />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+      fireEvent.keyDown(input, { key: 'End' });
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(4);
+    });
+
+    it('fires once per press-release even after mouseleave/mouseenter during a hold', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField defaultValue={0} onValueCommitted={onValueCommitted} />);
+      const inc = screen.getByLabelText('Increase');
+
+      fireEvent.pointerDown(inc, { button: 0 });
+      fireEvent.mouseLeave(inc);
+      fireEvent.mouseEnter(inc, { buttons: 1 });
+      fireEvent.pointerUp(inc, { button: 0 });
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+    });
+
+    it('does not commit a canceled keyboard change', async () => {
+      const onValueChange = vi.fn((_value, details) => details.cancel());
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(input).toHaveValue('0');
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+
+    it('does not commit a canceled clear on blur', async () => {
+      const onValueChange = vi.fn((_value, details) => details.cancel());
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
   });
 
   describe('prop: disabled', () => {
@@ -734,6 +909,39 @@ describe('<NumberField />', () => {
       await render(<NumberField readOnly />);
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('readonly');
+    });
+
+    it('keeps focus state in sync on a readOnly field', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root readOnly>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      expect(input).toHaveAttribute('data-focused', '');
+
+      fireEvent.blur(input);
+      expect(input).not.toHaveAttribute('data-focused');
+    });
+
+    it('does not render aria-readonly on stepper buttons', async () => {
+      await render(<NumberField readOnly />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+      const decrement = screen.getByRole('button', { name: 'Decrease' });
+
+      // `aria-readonly` isn't valid on the `button` role; the readonly state lives on the input,
+      // and the steppers are exposed as unavailable via disabled semantics instead.
+      expect(input).toHaveAttribute('readonly');
+      expect(increment).not.toHaveAttribute('aria-readonly');
+      expect(decrement).not.toHaveAttribute('aria-readonly');
+      expect(increment).toHaveAttribute('aria-disabled', 'true');
+      expect(decrement).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -752,6 +960,14 @@ describe('<NumberField />', () => {
         selector: 'input[aria-hidden][type=number]',
       });
       expect(hiddenInput).toHaveAttribute('name', 'test');
+    });
+
+    it('marks the hidden input readOnly when the field is readOnly', async () => {
+      await render(<NumberField name="test" readOnly />);
+      const hiddenInput = screen.getByText('', {
+        selector: 'input[aria-hidden][type=number]',
+      });
+      expect(hiddenInput).toHaveAttribute('readonly');
     });
   });
 
@@ -863,6 +1079,20 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: allowOutOfRange', () => {
+    it('allows typing a negative value via keyboard when min is 0', async () => {
+      await render(<NumberField min={0} allowOutOfRange />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      input.focus();
+
+      // The minus key must not be blocked, so native underflow validation is reachable.
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key: '-', preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+
+      fireEvent.change(input, { target: { value: '-1' } });
+      expect(input).toHaveValue('-1');
+    });
+
     it('allows range overflow validation when true', async () => {
       await render(
         <form data-testid="form">
@@ -958,10 +1188,9 @@ describe('<NumberField />', () => {
     });
 
     it('should snap when incrementing to the nearest multiple of the `step` prop', async () => {
-      await render(<NumberField defaultValue={5} step={2} />);
+      await render(<NumberField defaultValue={5} step={2} snapOnStep />);
       const input = screen.getByRole('textbox');
-      fireEvent.change(input, { target: { value: '6' } });
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByLabelText('Increase'));
       expect(input).toHaveValue('6');
     });
 
@@ -973,10 +1202,9 @@ describe('<NumberField />', () => {
     });
 
     it('should snap when decrementing to the nearest multiple of the `step` prop', async () => {
-      await render(<NumberField defaultValue={5} step={2} />);
+      await render(<NumberField defaultValue={5} step={2} snapOnStep />);
       const input = screen.getByRole('textbox');
-      fireEvent.change(input, { target: { value: '4' } });
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByLabelText('Decrease'));
       expect(input).toHaveValue('4');
     });
   });
@@ -1050,6 +1278,17 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: format', () => {
+    it('reformats the visible text when the format prop changes at the same value', async () => {
+      const { setProps } = await render(<NumberField value={1000} />);
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue(new Intl.NumberFormat().format(1000));
+
+      await setProps({ format: { style: 'currency', currency: 'USD' } });
+      expect(input).toHaveValue(
+        new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(1000),
+      );
+    });
+
     it('should format the value using the provided options', async () => {
       await render(
         <NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />,
@@ -1084,6 +1323,24 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: allowWheelScrub', () => {
+    it('does not scrub on wheel when disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField defaultValue={5} allowWheelScrub disabled onValueChange={onValueChange} />,
+      );
+      fireEvent.wheel(screen.getByRole('textbox'), { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on wheel when readOnly', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField defaultValue={5} allowWheelScrub readOnly onValueChange={onValueChange} />,
+      );
+      fireEvent.wheel(screen.getByRole('textbox'), { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('should allow the user to scrub the input value with the mouse wheel', async () => {
       await render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
@@ -1104,7 +1361,43 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('5');
     });
 
-    it('calls onValueChange on wheel and commits on blur', async () => {
+    it('does not scrub on wheel while pinch-zooming (ctrlKey)', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: 1, ctrlKey: true });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on wheel when the input is not focused', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.wheel(input, { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('uses largeStep when shift is held during wheel', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0}
+          largeStep={10}
+          allowWheelScrub
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1, shiftKey: true });
+      expect(onValueChange.mock.lastCall?.[0]).toBe(10);
+    });
+
+    it('calls onValueChange and onValueCommitted on wheel', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();
       await render(
@@ -1121,17 +1414,19 @@ describe('<NumberField />', () => {
       fireEvent.wheel(input, { deltaY: 1 });
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.lastCall?.[0]).toBe(4);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(4);
+      expect(onValueCommitted.mock.lastCall?.[1].reason).toBe(REASONS.wheel);
 
       fireEvent.wheel(input, { deltaY: -1 });
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.lastCall?.[0]).toBe(5);
+      expect(onValueCommitted.mock.calls.length).toBe(2);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(5);
 
-      // Wheel does not commit; blur commits current value
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-
+      // Blur doesn't commit again; the wheel changes were already committed.
       fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(5);
+      expect(onValueCommitted.mock.calls.length).toBe(2);
     });
 
     it('syncs the visible input value when using the mouse wheel after pasting', async () => {
@@ -1142,6 +1437,8 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox') as HTMLInputElement;
       await act(async () => input.focus());
 
+      // Select the existing value so the paste replaces it rather than inserting at the caret.
+      input.select();
       pasteText(input, '20');
 
       expect(input).toHaveValue('20');
@@ -1903,6 +2200,43 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('10');
     });
 
+    it('revalidates an external change after a blur that normalizes back to the current value', async () => {
+      const validate = (value: unknown) => (value === 5 ? 'error' : null);
+
+      function App() {
+        const [value, setValue] = React.useState<number | null>(5);
+        return (
+          <Form>
+            <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+              <NumberFieldBase.Root value={value} onValueChange={setValue} max={5}>
+                <NumberFieldBase.Input />
+              </NumberFieldBase.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setValue(3)}>
+              external
+            </button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      // Blur after typing a value that clamps back to the current value (5). This sets the
+      // internal block-revalidation flag and commits an error, but since the stored value is
+      // unchanged `useValueChanged` won't fire to reset the flag.
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '9' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('5');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+
+      // The flag must have been reset on blur so the next external change revalidates and
+      // clears the error rather than being swallowed.
+      await user.click(screen.getByText('external'));
+      expect(input).not.toHaveAttribute('aria-invalid');
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>
@@ -2198,6 +2532,69 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('pasting at the caret', () => {
+    it('ignores a paste that does not parse to a number', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('1');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not paste into a readOnly field', async () => {
+      await render(<NumberField defaultValue={1} readOnly />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('1');
+    });
+
+    it('inserts pasted text at the caret instead of replacing the whole value', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={123} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(3, 3);
+      pasteText(input, '5');
+
+      expect(input).toHaveValue('1235');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(1235);
+    });
+
+    it('replaces the selected range when pasting over a selection', async () => {
+      await render(<NumberField defaultValue={123} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(1, 2);
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('193');
+    });
+
+    it('keeps the caret just after the pasted text', async () => {
+      await render(<NumberField defaultValue={123} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(1, 2);
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('193');
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(2);
+    });
+  });
+
   it('should allow navigation keys and not prevent their default behavior', async () => {
     await render(<NumberField />);
     const input = screen.getByRole('textbox') as HTMLInputElement;
@@ -2206,6 +2603,30 @@ describe('<NumberField />', () => {
 
     const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
     navigateKeys.forEach((key) => {
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  it('does not prevent native caret movement for Home/End without min/max', async () => {
+    await render(<NumberField defaultValue={5} />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
+
+    ['Home', 'End'].forEach((key) => {
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  it('does not swallow non-printing keys it does not handle', async () => {
+    await render(<NumberField defaultValue={5} />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
+
+    ['PageUp', 'PageDown', 'Insert', 'F5'].forEach((key) => {
       const preventDefaultSpy = vi.fn();
       fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
       expect(preventDefaultSpy).toHaveBeenCalledTimes(0);

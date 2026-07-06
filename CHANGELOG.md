@@ -1,5 +1,201 @@
 # Versions
 
+## v1.6.0
+
+_Jun 18, 2026_
+
+### General changes
+
+- Correct inaccurate prop JSDoc (#5036) by @atomiks
+- Update the hook value when store/arguments change (#4866) by @chuganzy
+- Restore viewport morphing after reopen for kept-mounted popups (#5010) by @atomiks
+- Fix pseudo-element bounds in dev mode (#5000) by @atomiks
+
+### Accordion
+
+- Fix trigger behavior bugs (#4833) by @atomiks
+- Remove region role from `Accordion.Root` (#4961) by @chuganzy
+- Align keyboard navigation with APG (#4965) by @chuganzy
+
+### Alert Dialog
+
+- Fix programmatic focus return (#4849) by @atomiks
+
+### Autocomplete
+
+- Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
+
+### Avatar
+
+- Fix image status edge cases (#4835) by @atomiks
+
+### Checkbox
+
+- Fix parent group cancellation and indeterminate state (#4941) by @atomiks
+- Ignore `data-focused` Field attribute when disabled (#4998) by @atomiks
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+
+### Checkbox Group
+
+- Fix parent group cancellation and indeterminate state (#4941) by @atomiks
+- Fix parent checkbox with custom `validate` fn (#4912) by @mj12albert
+- Fix validation with multiple required checkboxes (#4958) by @atomiks
+- Forward group ids (#4997) by @atomiks
+
+### Collapsible
+
+- Fix trigger and panel state bugs (#4848) by @atomiks
+
+### Combobox
+
+- Fix chip context error (#4877) by @lyzno1
+- Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
+- Avoid re-rendering every item on each keystroke (#4964) by @flaviendelangle
+- Fix autofill and selected state edge cases (#4972) by @atomiks
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
+
+### Dialog
+
+- Fix confirmation return focus (#5024) by @atomiks
+- Fix programmatic focus return (#4849) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix non-modal focus-out close and tabindex management (#5030) by @atomiks
+
+### Drawer
+
+- Fix confirmation return focus (#5024) by @atomiks
+- Improve swipe dismiss drag performance (#4867) by @atomiks
+- Drive swipe gestures natively to stop per-frame re-rasterization (#4980) by @atomiks
+- Add virtual keyboard provider (#4353) by @atomiks
+- Commit swipe on primary-button release (#5057) by @atomiks
+
+### Field
+
+- Fix form validation bugs (#4873) by @atomiks
+- Reflect disabled `Field.Item` state in `Field.Label` (#4916) by @chuganzy
+- Reflect disabled `Field.Item` state in `Field.Description` (#4960) by @chuganzy
+- Fix valueMissing revalidation (#4995) by @atomiks
+- Fix validation bugs (#4894) by @atomiks
+
+### Fieldset
+
+- Fix disabled fieldset form bugs (#4890) by @atomiks
+
+### Form
+
+- Fix form validation bugs (#4873) by @atomiks
+
+### Menu
+
+- Fix submenu trigger interactions (#4892) by @atomiks
+- Open submenus on hover after a plain delay (#4990) by @atomiks
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+
+### Menubar
+
+- Fix vertical menu focus behavior (#4922) by @atomiks
+
+### Meter
+
+- Sync value text with indicator (#4904) by @atomiks
+
+### Navigation Menu
+
+- Preserve exit transition when controlled (#4855) by @mattrothenberg
+- Fix interaction, value, and styling-hook bugs (#4942) by @atomiks
+
+### Number Field
+
+- Handle unreadable clipboard paste (#4876) by @lyzno1
+- Fix committed values and keyboard stepping (#4905) by @atomiks
+- Respect Intl rounding options on blur (#4804) by @atomiks
+- Fix formatter locale cache (#4999) by @atomiks
+- Preserve numeric precision while keeping default display formatting (#5040) by @atomiks
+- Fix input and scrub edge cases (#5046) by @atomiks
+
+### OTP Field
+
+- 🚨 **Breaking change:** Unmark preview<br />
+  the namespace export is renamed `OTPFieldPreview` → `OTPField` and should be imported as: `{ OTPField } from '@base-ui/react/otp-field'` (#5029) by @atomiks
+- Avoid password manager bubbles after first input (#4868) by @atomiks
+
+### Popover
+
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix programmatic focus return (#4849) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix non-modal focus-out close and tabindex management (#5030) by @atomiks
+
+### Preview Card
+
+- Fix controlled hover leave close (#4893) by @atomiks
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Keep inline preview anchored while open (#4836) by @atomiks
+- Close when active trigger unmounts (#4886) by @michaldudak
+
+### Radio Group
+
+- Forward group ids (#4997) by @atomiks
+- Fix selection on space key press (#4930) by @chuganzy
+- Fix disabled selected form submission (#4926) by @atomiks
+- Honor canceled value changes (#4996) by @atomiks
+
+### Scroll Area
+
+- Fix overflow and scrolling state (#4936) by @atomiks
+- Add scrolling state to Thumb (#4982) by @aarongarciah
+
+### Select
+
+- Fix autofill and selected state edge cases (#4934) by @atomiks
+- Fix dirty state not clearing in multiple mode (#4971) by @atomiks
+- Skip disabled items in typeahead and fix multiple-mode serialization (#5025) by @atomiks
+
+### Slider
+
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+- Fix interaction edge cases (#4937) by @atomiks
+- Fix touchend listener accumulation leak (#5070) by @atomiks
+
+### Switch
+
+- Fix extra `validate` fn calls (#4911) by @mj12albert
+
+### Tabs
+
+- Fix state edge cases (#4935) by @atomiks
+- Fix suspended panel activation (#4903) by @atomiks
+
+### Toast
+
+- Fix timer and limit edge cases (#4933) by @atomiks
+
+### Toggle
+
+- Fix grouped cancelation and JSDoc (#4940) by @atomiks
+
+### Toggle Group
+
+- Fix grouped cancelation and JSDoc (#4940) by @atomiks
+- Remove invalid `aria-orientation` from `role="group"` element (#4628) by @sernstberger
+- Fix disabled state and roving focus bugs (#4968) by @atomiks
+
+### Toolbar
+
+- Do not forward `disabled` to default toolbar button (#4967) by @mj12albert
+- Fix disabled state and roving focus bugs (#4968) by @atomiks
+
+### Tooltip
+
+- Fix positioning and viewport edge cases (#4925) by @atomiks
+- Fix provider delay group lifecycle (#4887) by @michaldudak
+- Reset preventUnmountOnClose on reopen (#4885) by @michaldudak
+- Close when active trigger unmounts (#4886) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @chuganzy, @flaviendelangle, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @sernstberger, @spokodev
+
 ## v1.5.0
 
 _May 19, 2026_

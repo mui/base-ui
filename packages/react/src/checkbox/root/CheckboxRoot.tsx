@@ -229,7 +229,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       type: 'checkbox',
       'aria-hidden': true,
       onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
+        // Workaround for https://github.com/react/react/issues/9023
         if (event.nativeEvent.defaultPrevented) {
           return;
         }
@@ -317,7 +317,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          setFocused(true);
+          if (!disabled) {
+            setFocused(true);
+          }
         },
         onBlur() {
           const inputEl = inputRef.current;
@@ -516,7 +518,8 @@ export interface CheckboxRootProps
    */
   uncheckedValue?: string | undefined;
   /**
-   * The value of the selected checkbox.
+   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.
+   * When submitting a form, a checked box submits `value`; with no `value`, it submits the native "on".
    */
   value?: string | undefined;
 }

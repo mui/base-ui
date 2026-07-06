@@ -168,7 +168,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      setInputRef(fallbackInput);
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
     }
   });
 
@@ -215,6 +216,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const defaultProps: HTMLProps = {
+    id: idProp,
     role: 'radiogroup',
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
@@ -235,7 +237,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
-        setFieldTouched(true);
         setTouched(true);
         setFocused(true);
       }
