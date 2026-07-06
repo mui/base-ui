@@ -18,7 +18,7 @@ import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionT
  * rendering. Prefer updating or conditionally rendering its children instead.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/combobox)
  */
 export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   componentProps: ComboboxEmpty.Props,

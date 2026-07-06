@@ -18,7 +18,7 @@ import { contains } from '../../floating-ui-react/utils/element';
  * A wrapper for the input and its associated controls.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/combobox)
  */
 export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   componentProps: ComboboxInputGroup.Props,

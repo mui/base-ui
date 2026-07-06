@@ -12,7 +12,7 @@ import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopu
  * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/tooltip)
  */
 export const TooltipViewport = React.forwardRef(function TooltipViewport(
   componentProps: TooltipViewport.Props,

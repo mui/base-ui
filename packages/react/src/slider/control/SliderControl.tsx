@@ -80,7 +80,7 @@ function getFingerCoords(
  * The clickable, interactive part of the slider.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/slider)
  */
 export const SliderControl = React.forwardRef(function SliderControl(
   componentProps: SliderControl.Props,

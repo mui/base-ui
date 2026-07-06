@@ -23,7 +23,7 @@ import { REASONS } from '../../internals/reasons';
  * Groups an accordion header with the corresponding panel.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/accordion)
  */
 export const AccordionItem = React.forwardRef(function AccordionItem(
   componentProps: AccordionItem.Props,

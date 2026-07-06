@@ -17,7 +17,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  * A button that opens the dialog.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/dialog)
  */
 export const DialogTrigger = fastComponentRef(function DialogTrigger(
   componentProps: DialogTrigger.Props,

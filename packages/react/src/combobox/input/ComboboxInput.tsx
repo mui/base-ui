@@ -37,7 +37,7 @@ import {
  * A text input to search for items in the list.
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/combobox)
  */
 export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,

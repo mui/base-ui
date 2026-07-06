@@ -30,7 +30,7 @@ const FIXED: React.CSSProperties = { position: 'fixed' };
  * Positions the select popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/select)
  */
 export const SelectPositioner = React.forwardRef(function SelectPositioner(
   componentProps: SelectPositioner.Props,

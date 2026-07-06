@@ -15,7 +15,7 @@ import { useFieldItemContext } from '../item/FieldItemContext';
  * An accessible label that is automatically associated with the field control.
  * Renders a `<label>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/field)
  */
 export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,

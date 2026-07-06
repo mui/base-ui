@@ -13,7 +13,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
  * Displays an element positioned against the anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/combobox)
  */
 export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
   componentProps: ComboboxArrow.Props,

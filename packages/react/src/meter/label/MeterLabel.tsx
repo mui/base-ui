@@ -10,7 +10,7 @@ import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
  * An accessible label for the meter.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
+ * Documentation: [Base UI Meter](https://base-ui.com/react/meter)
  */
 export const MeterLabel = React.forwardRef(function MeterLabel(
   componentProps: MeterLabel.Props,

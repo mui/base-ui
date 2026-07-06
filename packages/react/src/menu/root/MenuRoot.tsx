@@ -49,7 +49,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  * Groups all parts of the menu.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
  */
 export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {

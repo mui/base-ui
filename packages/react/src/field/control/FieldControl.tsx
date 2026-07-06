@@ -23,10 +23,10 @@ import { activeElement } from '../../floating-ui-react/utils';
  * Renders an `<input>` element.
  *
  * You can omit this part and use any Base UI input component instead. For example,
- * [Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),
- * or [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.
+ * [Input](https://base-ui.com/react/input), [Checkbox](https://base-ui.com/react/checkbox),
+ * or [Select](https://base-ui.com/react/select), among others, will work with Field out of the box.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/field)
  */
 export const FieldControl = React.forwardRef(function FieldControl(
   componentProps: FieldControl.Props,

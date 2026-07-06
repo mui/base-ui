@@ -13,7 +13,7 @@ import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
  * An accessible label that is automatically associated with the slider thumbs.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/slider)
  */
 export const SliderLabel = React.forwardRef(function SliderLabel(
   componentProps: SliderLabel.Props,

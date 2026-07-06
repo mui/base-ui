@@ -15,7 +15,7 @@ import { selectors } from '../store';
  * An accessible label that is automatically associated with the select trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/select)
  */
 export const SelectLabel = React.forwardRef(function SelectLabel(
   componentProps: SelectLabel.Props,

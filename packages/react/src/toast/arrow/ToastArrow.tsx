@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Displays an element positioned against the toast anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastArrow = React.forwardRef(function ToastArrow(
   componentProps: ToastArrow.Props,

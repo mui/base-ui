@@ -12,7 +12,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Groups all parts of the meter and provides the value for screen readers.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
+ * Documentation: [Base UI Meter](https://base-ui.com/react/meter)
  */
 export const MeterRoot = React.forwardRef(function MeterRoot(
   componentProps: MeterRoot.Props,

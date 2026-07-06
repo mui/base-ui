@@ -43,7 +43,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
  * A container for the select list.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/select)
  */
 export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,

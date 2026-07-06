@@ -9,7 +9,7 @@ import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
  * A text element displaying the current value.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/progress)
  */
 export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,

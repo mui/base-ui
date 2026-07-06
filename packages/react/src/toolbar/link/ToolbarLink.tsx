@@ -15,7 +15,7 @@ const TOOLBAR_LINK_METADATA = {
  * A link component.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui.com/react/toolbar)
  */
 export const ToolbarLink = React.forwardRef(function ToolbarLink(
   componentProps: ToolbarLink.Props,

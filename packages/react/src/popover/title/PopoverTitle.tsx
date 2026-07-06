@@ -9,7 +9,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
  * A heading that labels the popover.
  * Renders an `<h2>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,

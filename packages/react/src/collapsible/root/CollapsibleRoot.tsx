@@ -13,7 +13,7 @@ import { REASONS } from '../../internals/reasons';
  * Groups all parts of the collapsible.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/collapsible)
  */
 export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   componentProps: CollapsibleRoot.Props,

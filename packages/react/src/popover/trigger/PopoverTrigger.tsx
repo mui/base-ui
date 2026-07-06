@@ -25,7 +25,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  * A button that opens the popover.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,

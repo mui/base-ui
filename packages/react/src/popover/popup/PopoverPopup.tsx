@@ -22,7 +22,7 @@ import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/po
  * A container for the popover contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
