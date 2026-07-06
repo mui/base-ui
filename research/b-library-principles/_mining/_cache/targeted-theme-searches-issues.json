@@ -1,0 +1,1394 @@
+{
+ "animation": {
+  "query": "repo:mui/base-ui is:issue animation exit sort:reactions-desc",
+  "count": 21,
+  "nodes": [
+   {
+    "number": 1608,
+    "title": "[collapsible] Exit animation doesn't run when using motion and Tailwind v4",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 1
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: collapsible"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3099,
+    "title": "[accordion] Panel exit animation is sometimes skipped",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 9
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: accordion"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3548,
+    "title": "[docs] The Javascript animation looks like their is a missing part",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "support: question"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4408,
+    "title": "[autocomplete] popup with transition flickers on input clear when searching for a non existent item",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: autocomplete"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2442,
+    "title": "[menu] Animations fire for sub menus that are immediate siblings",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 0
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: menu"
+      },
+      {
+       "name": "component: context menu"
+      },
+      {
+       "name": "component: menubar"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3696,
+    "title": "[menu] Motion with Menu",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: menu"
+      },
+      {
+       "name": "external dependency"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3153,
+    "title": "[dialog] Allow preventing `Dialog.Close` onClick when animation is in progress",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: dialog"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3811,
+    "title": "Ignoring status during popup[data-closed] and popup[data-ending-style]",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 1
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1486,
+    "title": "[tabs] Add `Tabs.Panels` component with `value` state in `render` function?",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 9
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: tabs"
+      },
+      {
+       "name": "type: new feature"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1494,
+    "title": "[tabs] How does it work with Motion?",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 11
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: tabs"
+      },
+      {
+       "name": "support: question"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1893,
+    "title": "[dialog] Lock scroll on iOS if navbar is collapsed",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 8
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: dialog"
+      },
+      {
+       "name": "browser: Safari"
+      },
+      {
+       "name": "mobile"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3804,
+    "title": "[popover] `data-ending-style` not applied when exiting after switching between detached triggers",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3870,
+    "title": "[tabs] `data-starting-style` and `data-ending-style` not getting applied to Panel",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: tabs"
+      },
+      {
+       "name": "type: enhancement"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1872,
+    "title": "[tabs] `keepMounted={false}` doesn't mount children but still mounts the root element",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: tabs"
+      },
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "performance"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1160,
+    "title": "[all components] JavaScript exit animations aren't properly supported",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "scope: all components"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "styling": {
+  "query": "repo:mui/base-ui is:issue tailwind styling sort:reactions-desc",
+  "count": 9,
+  "nodes": [
+   {
+    "number": 38,
+    "title": "[drawer] Create the unstyled Drawer / Sheet component",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 14
+    },
+    "reactions": {
+     "totalCount": 293
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: drawer"
+      }
+     ]
+    }
+   },
+   {
+    "number": 10,
+    "title": "Base UI components progress",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 51
+    },
+    "reactions": {
+     "totalCount": 126
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "umbrella"
+      },
+      {
+       "name": "scope: new proposal"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2612,
+    "title": "[discussion] Base UI Integration with React Native?",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 32
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "discussion"
+      },
+      {
+       "name": "scope: new proposal"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2292,
+    "title": "[discussion] Add Radix Themes like version",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 12
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "discussion"
+      },
+      {
+       "name": "waiting for \ud83d\udc4d"
+      },
+      {
+       "name": "scope: new proposal"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3668,
+    "title": "[docs] Add CSS-in-JS (e.g. Linaria) examples to docs",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 11
+    },
+    "reactions": {
+     "totalCount": 7
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "waiting for \ud83d\udc4d"
+      },
+      {
+       "name": "scope: docs-infra"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2731,
+    "title": "[combobox] No way for me to differentiate between hover and focus state on Combobox Items",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 2
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "support: question"
+      },
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1148,
+    "title": "[accordion] <summary> / <details> based implementation",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: enhancement"
+      },
+      {
+       "name": "component: accordion"
+      },
+      {
+       "name": "discussion"
+      },
+      {
+       "name": "performance"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1893,
+    "title": "[dialog] Lock scroll on iOS if navbar is collapsed",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 8
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: dialog"
+      },
+      {
+       "name": "browser: Safari"
+      },
+      {
+       "name": "mobile"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3759,
+    "title": "[button] focus-visible vs focus when focus persist after clicking with a mouse for keyboard actions",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: button"
+      },
+      {
+       "name": "docs"
+      },
+      {
+       "name": "browser: Firefox"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "form-validation": {
+  "query": "repo:mui/base-ui is:issue react-hook-form sort:reactions-desc",
+  "count": 21,
+  "nodes": [
+   {
+    "number": 10,
+    "title": "Base UI components progress",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 51
+    },
+    "reactions": {
+     "totalCount": 126
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "umbrella"
+      },
+      {
+       "name": "scope: new proposal"
+      }
+     ]
+    }
+   },
+   {
+    "number": 75,
+    "title": "[otp field] Add a OtpInput or PinInput component",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 9
+    },
+    "reactions": {
+     "totalCount": 35
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "scope: new proposal"
+      },
+      {
+       "name": "component: otp field"
+      }
+     ]
+    }
+   },
+   {
+    "number": 21,
+    "title": "[form][docs] React Hook Form guide/tutorial",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 6
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "component: form"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3818,
+    "title": "[combobox] Value gets cleared when items change",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 10
+    },
+    "reactions": {
+     "totalCount": 3
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1346,
+    "title": "[form] Support resetting a form to initial values",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 2
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: form"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3656,
+    "title": "[popover] Add a `sticky` / `lockSideOnOpen` prop",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 2
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: enhancement"
+      },
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2672,
+    "title": "[combobox] Automatically set default `inputValue` based on `defaultValue`/`value`",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 11
+    },
+    "reactions": {
+     "totalCount": 2
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4260,
+    "title": "Add asynchronous trigger to Dialog, Collapsible...",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2802,
+    "title": "[dialog] Feature request: dialog manager",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 16
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3552,
+    "title": "[number field] component with shadcn UI forms",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: number field"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4737,
+    "title": "[form] Form level validation / Standard schema support",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: form"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2,
+    "title": "Dependency Dashboard",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "dependencies"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4809,
+    "title": "[select][combobox] Hidden input ignores readonly/disabled during browser autofill",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 2
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: select"
+      },
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3819,
+    "title": "@base-ui/react/input (Field.Control) re-renders on every keystroke even when used uncontrolled (e.g. React Hook Form register)",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 6
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: field"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4361,
+    "title": "Render prop warning false positive on screaming snake case variables",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "portal-zindex": {
+  "query": "repo:mui/base-ui is:issue portal z-index sort:reactions-desc",
+  "count": 9,
+  "nodes": [
+   {
+    "number": 2293,
+    "title": "[docs] Please remove \"Set up portals\" step",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 8
+    },
+    "reactions": {
+     "totalCount": 6
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "scope: all components"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2854,
+    "title": "Stacking / z-index issue when using Base UI components inside Radix Dialog",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "external dependency"
+      },
+      {
+       "name": "support: question"
+      },
+      {
+       "name": "component: autocomplete"
+      },
+      {
+       "name": "component: combobox"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2858,
+    "title": "[dialog] Click events not firing inside ShadowRoot (Dialog.Portal)",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: dialog"
+      },
+      {
+       "name": "support: question"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2486,
+    "title": "[popover] Component z-index setting",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4750,
+    "title": "[popover] Why can't I have Popover.Content outside of a Portal?",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "support: question"
+      },
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3725,
+    "title": "<Select/> `base-select` component is unresponsive when used inside a `Drawer` component",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "status: waiting for author"
+      },
+      {
+       "name": "component: select"
+      },
+      {
+       "name": "external dependency"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2938,
+    "title": "[Bug][Dialog] Not able to use sonner/react-hot-toast etc with dialog component",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: dialog"
+      },
+      {
+       "name": "support: question"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2450,
+    "title": "[select] Select inside of Dialog renders behind dialog regardless of z-index",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: select"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1935,
+    "title": "[toast] How to make a non base ui component overlap the dialog",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 3
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "support: question"
+      },
+      {
+       "name": "component: toast"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "controlled-state": {
+  "query": "repo:mui/base-ui is:issue controlled onOpenChange sort:comments-desc",
+  "count": 24,
+  "nodes": [
+   {
+    "number": 2802,
+    "title": "[dialog] Feature request: dialog manager",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 16
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 38,
+    "title": "[drawer] Create the unstyled Drawer / Sheet component",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 14
+    },
+    "reactions": {
+     "totalCount": 293
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: drawer"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4329,
+    "title": "Export Root context hooks for better composability",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 13
+    },
+    "reactions": {
+     "totalCount": 10
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "waiting for \ud83d\udc4d"
+      }
+     ]
+    }
+   },
+   {
+    "number": 2069,
+    "title": "[RFC] Root components expose a `public state interface`",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 11
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "RFC"
+      },
+      {
+       "name": "scope: all components"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3546,
+    "title": "[select] Select closes immediately inside extension popup in Firefox",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 10
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: select"
+      },
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "browser: Firefox"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1688,
+    "title": "[dialog] `dismissible={false}` doesn't prevent dismissing the modal on Escape key press",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 8
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "type: enhancement"
+      },
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1447,
+    "title": "[tooltip] Closing tooltip when scroll starts vs when scroll stops",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: tooltip"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4553,
+    "title": "[collapsible] Panel does not close when controlled by external trigger and keepMounted",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: bug"
+      },
+      {
+       "name": "component: collapsible"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1744,
+    "title": "[popover] onOpenChange behavior changed",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1539,
+    "title": "[tooltip] Lazy floating UI/don't execute any floating UI logic until mouse over on uncontrolled variant.",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 7
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: tooltip"
+      },
+      {
+       "name": "performance"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3104,
+    "title": "[popover] \"onOpenChange\" event doesn't stop touch events from propagation",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4260,
+    "title": "Add asynchronous trigger to Dialog, Collapsible...",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: new feature"
+      },
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 3007,
+    "title": "Dialog: onOpenChange not firing on open when dialog is controlled",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 1
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "component: dialog"
+      }
+     ]
+    }
+   },
+   {
+    "number": 1311,
+    "title": "[tooltip] Add a way for the Tooltip to remain open when the trigger is clicked",
+    "state": "CLOSED",
+    "comments": {
+     "totalCount": 5
+    },
+    "reactions": {
+     "totalCount": 3
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "type: enhancement"
+      },
+      {
+       "name": "component: tooltip"
+      },
+      {
+       "name": "has workaround"
+      }
+     ]
+    }
+   },
+   {
+    "number": 4466,
+    "title": "[popover] With \"button\" trigger cannot be closed when clicking button",
+    "state": "OPEN",
+    "comments": {
+     "totalCount": 4
+    },
+    "reactions": {
+     "totalCount": 0
+    },
+    "labels": {
+     "nodes": [
+      {
+       "name": "docs"
+      },
+      {
+       "name": "component: popover"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

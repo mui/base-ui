@@ -1,0 +1,772 @@
+{
+ "3099": {
+  "number": 3099,
+  "title": "[accordion] Panel exit animation is sometimes skipped",
+  "body": "# Bug report\n\n## Current behavior\n\nPanel exit animations sometimes get interrupted due to `display: none` being applied prematurely to the panel that is going from opened state to close state. Specifically when `multiple={false}` and transitioning from one opened panel to another panel being opened. This causes the height animation to be skipped so there's a sudden layout shift. Hard to debug since it's very inconsistent. It seems to occur more often the more complex the content in the panel is. \n\nhttps://github.com/user-attachments/assets/beab4cf8-0613-4fc1-9432-977978efd7c8\n\nIn the video, when the top most trigger is clicked, the previously opened panel immediately is hidden instead of transitioning out. \n\n## Expected behavior\n\nWhen alternating opened panels, the previously opened panel's height should transition it's height to 0 while the newly opened panel should simultaneously transition it's height to the content of the panel. \n\n## Reproducible example\n\n[CodeSandbox](https://codesandbox.io/p/sandbox/musing-ives-3jlgkz)\n\nMight require opening different accordion panels for a bit for the issue to occur. \n\nThe video taken was of this example. I duplicated the select component in the panel as it seems to make the issue occur more often. \n\nHere is a minimal repo as well with essentially the same code and issue: https://github.com/joncoronel/base-ui-accordion-bug\n\n## Base\u00a0UI version\n\n1.0.0-beta.4\n\n## Which browser are you using?\n\nChrome. Does not occur in Firefox. \n\n## Which OS are you using?\n\nWindows 11",
+  "author": {
+   "login": "joncoronel"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "type: bug"
+    },
+    {
+     "name": "component: accordion"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 9,
+   "nodes": [
+    {
+     "body": "There was a fix for collapsible/accordion animation behavior recently, but it's not released yet (https://github.com/mui/base-ui/pull/2985)\n\nDoes the issue reproduce for you using a preview release of the latest master commit? https://codesandbox.io/p/sandbox/base-ui-accordion-animation-bug-forked-lny58v (I can't see the issue in your CodeSandbox either, though)",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Yes I can still reproduce it in your CodeSandbox. Try opening the preview url for your codesandbox in its own tab and just randomly open different panels. It should occur often enough. Only on chrome btw. ",
+     "author": {
+      "login": "joncoronel"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Yeah, I can see it. It's kind of hard to catch if the animation is fast, but I can see it when recording the screen and going frame-by-frame when it happens",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Yeah it's more apparent when using it in a more realistic scenario where there may be more content underneath the accordion which causes all that content to quickly shift up. I had tested setting the transition duration to something long to see what's happening and `display: none` was being applied too quickly. I enabled `keepMounted` and the issue still occured so doesn't seem to be caused by that. ",
+     "author": {
+      "login": "joncoronel"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@joncoronel try out the sandbox linked in https://github.com/mui/base-ui/pull/3101, I haven't been able to reproduce it, but it's pretty hard to begin with",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "The sandbox link seems to be broken or I don't have access to it? ",
+     "author": {
+      "login": "joncoronel"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Was marked private accidentally, made it public",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Yeah that did it. Tested it in an app where it was happening more consistently and the issue no longer present. Thanks!",
+     "author": {
+      "login": "joncoronel"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "2293": {
+  "number": 2293,
+  "title": "[docs] Please remove \"Set up portals\" step",
+  "body": "The `root` selector that you must add to your root `layout.tsx` and `globals.css` is very random and should be completely removed and another more non-intrusive way of installing the plugin should be put in place instead. Preferably this step should be removed completely.\n\n<img width=\"446\" height=\"644\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/02c0c1b4-41e8-4c48-833e-8519152e43ba\" /> <--\ud83e\udd22\ud83e\udd2e\n\nAlso notice that I already have `:root` further down in my file. Wait, what?! Two roots?! \ud83e\udd14\ud83d\ude35\u200d\ud83d\udcab\ud83e\udd2f\ud83e\udd22\ud83e\udd2e\n\n<img width=\"806\" height=\"522\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/603314fc-7b32-40f1-92d2-6679b66a8583\" /> <--\ud83e\udd22\ud83e\udd2e\n\nPS. Yes, this is actually how my brain interprets this step. I'm accustomed to having my files clean, elegant, neat and tidy, etc - don't want them polluted with nonsensical stuff. Maybe also add a \"discussion\" label to the issue.\n\n",
+  "author": {
+   "login": "spacecat"
+  },
+  "state": "CLOSED",
+  "stateReason": "NOT_PLANNED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "docs"
+    },
+    {
+     "name": "scope: all components"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 8,
+   "nodes": [
+    {
+     "body": "> The root selector that you must add to your root layout.tsx and globals.css is very random\n\nAre you disputing the randomness of the name `.root` or the necessity of this whole step?\n\nThe doc here (that you screen capped as well) explain why this step is needed @spacecat ",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "It's a necessity for the `isolation: isolate` style to be used somewhere within an app, so I'd advise against removing the step entirely. The docs' wording is fairly clear, too: it specifically mentions \"application layout root\". I'd assume it doesn't explicitly mention the usage of `:root`, `html` or `body` because if you were to apply the style to those selectors instead, you would find it difficult to integrate with a third-party library that makes use of z-index, such as react-toastify (see [this issue](https://github.com/mui/base-ui/issues/1935)). If you're not integrating with any third party libraries this way, you could probably change it from `.root` to `:root`. \n\nIt also doesn't need to be called `root`. It can be called whatever you want, similar to [how React apps are initialized](https://react.dev/learn/add-react-to-an-existing-project#step-2-render-react-components-anywhere-on-the-page):\n\n```\nconst root = createRoot(document.getElementById('app'));\n```\n",
+     "author": {
+      "login": "Dakkers"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "> Also notice that I already have :root further down in my file. Wait, what?! Two roots?! \ud83e\udd14\ud83d\ude35\u200d\ud83d\udcab\ud83e\udd2f\ud83e\udd22\ud83e\udd2e\n\nReact apps do have two roots (which is more obvious in an SPA Vite app): the `<html>` element `:root` and the React app render root (which can be called `.app` or something else.)\n\n> I'm accustomed to having my files clean, elegant, neat and tidy, etc - don't want them polluted with nonsensical stuff. \n\nI don't see how three lines \"pollutes\" your app. You can add a comment explaining why it's needed, though.\n\n> I'd assume it doesn't explicitly mention the usage of :root, html or body\n\nPlacing the style on `body` or `html` doesn't have any effect, because Base UI's popups will just be inside the same stacking context as your app's content. There must be a separate, new stacking context created as a sibling of where Base UI popup portals get rendered so the popups are outside the app's stacking context:\n\n```html\n<body>\n  <div style=\"isolation: isolate\">\n    <div style=\"position: relative; z-index: 999999\">Always underneath</div>\n  </div>\n  <div data-base-ui-portal>\n    Base UI popup renders here and is always above that element\n  </div>\n</body>\n```\n\nThis enables the Base UI popup to always appear above anything inside that `isolation` container, regardless of `z-index` styles \u2014 meaning there is no need to define a `z-index` on the popups to ensure that e.g. they appear above fixed navbars or other positioned elements inside the container. \n\nMultiple Base UI popups outside of that container also naturally overlap each other correctly based on their rendering/insertion order (with `keepMounted=false`). It's rare (except when dealing with `keepMounted` elements that are opened on top of an existing popup later) that you need to touch `z-index` styles on the popups when applying this step. It's also necessary for the `modal` prop to work correctly for pointers",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 3
+     }
+    },
+    {
+     "body": "Since the issue is missing key information and has been inactive for 7 days, it has been automatically closed. If you wish to see the issue reopened, please provide the missing information.",
+     "author": {
+      "login": "github-actions"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Sorry for late reply.\n\nAll I was trying to say was that that entire step is bad DX!\n\nThose types of things should be handled internally by the library.",
+     "author": {
+      "login": "spacecat"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "It can't really be handled automatically in a way that always works, namely because of the unknown structure of your HTML. A couple reasons:\n\n- We don't know what the true root of your app is. It may not be `document.body.firstElementChild` as there could be multiple siblings at that level.\n- You may want to opt-out of `isolation` in some cases, or specify it on an element deeper in the tree so that fixed elements within your app take precedence or sit on the same layer as popups in some cases. Letting you control where it's placed gives you freedom at the cost of a small initial setup step.",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "I don't know the inner workings or nor should I need to care (as a developer). As developers all I want is a smooth install/setup experience/DX.\n\nWhat you are describing to me sounds more like the exception rather than the norm. In that case the default should be no root stuff and if you for some reason need it then you could opt in.\n\nMy other argument is that the majority of libraries that I've used similar to this one don't have any extraneous and in my opinion unnecessary step.\n\nStrangely I seem to be the only one around here who thinks this is bad DX \ud83e\udd14\ud83e\udd23",
+     "author": {
+      "login": "spacecat"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@spacecat Did you read the other comments from atomiks? The `isolation: isolate` attribute is required for any components that require a portal. This includes, at least: Alert Dialog; Context Menu; Dialog; Menu; Menubar; Navigation Menu; Popover; Preview Card; Select; Toast; Tooltip; and the upcoming Combobox. If this step wasn't included by default, then I'd bet a couple bucks that many Github issues would be opened asking \"Why doesn't Select work?\".\n\nI've used other UI libraries and this is the first one I've had to do this `isolation` CSS change. However, it has made working with the library's components much easier than others, e.g. Radix or MUI. I don't have to muck about with the z-index value for anything. This is a better DX than having to fight with z-index bugs.\n\nThis is by far and large not \"bad DX\", truly not even close.",
+     "author": {
+      "login": "Dakkers"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    }
+   ]
+  }
+ },
+ "2450": {
+  "number": 2450,
+  "title": "[select] Select inside of Dialog renders behind dialog regardless of z-index",
+  "body": "# Bug report\n\n## Current behavior\n\nEmbedding a Select https://base-ui.com/react/components/select component in a Dialog https://base-ui.com/react/components/dialog results in the Select.Popup rendering beneath the Dialog. This occurs regardless of the z-index applied to either component. I presume this has to do with the fact that Select.Popup utilizes the base-ui portal and the Dialog does not.\n\n## Expected behavior\n\nSelect.Popup should render above its parent components, especially if those parents are base-ui components such as Dialog.\n\n## Reproducible example\n\nhttps://gist.github.com/Cezero/857eeb4a44acab8013f0cee89c420f3c\n\n## Base\u00a0UI version\n\n1.0.0-beta.2\n\n## Which browser are you using?\n\nChrome\n\n## Which OS are you using?\n\nWindows\n\n## Which assistive tech are you using (if applicable)?\n\nN/A\n\n",
+  "author": {
+   "login": "Cezero"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "component: select"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 4,
+   "nodes": [
+    {
+     "body": "If I remove the Select.Portal wrapper the Select.Popup appears above the dialog. So maybe this is simply confusion on my part as to when components need Portals and when they do not. I noticed that the Select.Portal was creating a new portal inside of the Dialog.Portal.",
+     "author": {
+      "login": "Cezero"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@Cezero If you don't set `z-index` at all it renders correctly: https://codesandbox.io/p/sandbox/infallible-mclaren-5sygfz?file=%2Fsrc%2FApp.tsx\n\nIs there any specific reason you need to explicitly specify `z-index`?\n",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "If you specify `z-index` on popups, those that are anchor-positioned like Select need to have the style on the `Positioner` part, not `Popup`. The `Positioner` element is what has the `absolute`/`fixed` style and is the layering container for the popup (so `<Select.Positioner className=\"z-60\">` works.)\n\nThat said, you don't need to specify `z-index` on Dialog when following [Set up portals](https://base-ui.com/react/overview/quick-start#set-up-portals), except in some situations when specifying the `keepMounted` prop on it. In our docs, we specified `z-index: 1` on `Select.Positioner` (if the select is inside the dialog, this doesn't matter though) and `Toast.Viewport` (this one is usually global and must have the style) because those two have implicit behavior to be kept mounted in the DOM.",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "got it. Thank you!",
+     "author": {
+      "login": "Cezero"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "21": {
+  "number": 21,
+  "title": "[form][docs] React Hook Form guide/tutorial",
+  "body": "Continues https://github.com/mui/material-ui/issues/36697\r\n\r\nWhile researching another [issue](https://github.com/mui/base-ui/issues/17) about Base's FormControl, I made a sandbox using React Hook Form and made a guide out of it \u2013 RHF is the [leader in that space right now](https://npmtrends.com/formik-vs-react-final-form-vs-react-hook-form-vs-redux-form).\r\n\r\nThe topic of the guide pivoted to \"how to integrate with RHF\", which I think may have broader appeal than the previous \"how to apply CSS to make this specific design\". There is more focus on how to use different features of the components than how to apply styling to them.\r\n\r\n- Material Autocomplete + RHF: https://codesandbox.io/s/material-ui-autocomplete-rhf-hry7yp?file=/src/App.tsx\r\n",
+  "author": {
+   "login": "mj12albert"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "docs"
+    },
+    {
+     "name": "component: form"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 2,
+   "nodes": [
+    {
+     "body": "Following the decision to ensure that hooks are given (at least) equal attention as unstyled components, I'll experiment with the format of each section to see if usage of both hooks and components can be demonstrated",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "This fix will be available in the next npm release of Base UI.\n\nIn the meantime, you can try it out on our Canary release channel:\n\n```sh\nnpm i https://pkg.pr.new/@base-ui-components/react@2989\n```",
+     "author": {
+      "login": "github-actions"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "3552": {
+  "number": 3552,
+  "title": "[number field] component with shadcn UI forms",
+  "body": "# Get help\nI am trying to implement NumberField with the shadcn UI Form component but the form is not being submitted as it is triggering the internal number input for the NumberField\n\n## Ask a question\n\n```tsx\n\"use client\"\n\nimport * as React from \"react\"\nimport * as LabelPrimitive from \"@radix-ui/react-label\"\nimport { Slot } from \"@radix-ui/react-slot\"\nimport {\n  Controller,\n  FormProvider,\n  useFormContext,\n  useFormState,\n  type ControllerProps,\n  type FieldPath,\n  type FieldValues,\n} from \"react-hook-form\"\n\nimport { cn } from \"@/lib/utils\"\nimport { Label } from \"@/components/ui/label\"\n\nconst Form = FormProvider\n\ntype FormFieldContextValue<\n  TFieldValues extends FieldValues = FieldValues,\n  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,\n> = {\n  name: TName\n}\n\nconst FormFieldContext = React.createContext<FormFieldContextValue>(\n  {} as FormFieldContextValue\n)\n\nconst FormField = <\n  TFieldValues extends FieldValues = FieldValues,\n  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,\n>({\n  ...props\n}: ControllerProps<TFieldValues, TName>) => {\n  return (\n    <FormFieldContext.Provider value={{ name: props.name }}>\n      <Controller {...props} />\n    </FormFieldContext.Provider>\n  )\n}\n\nconst useFormField = () => {\n  const fieldContext = React.useContext(FormFieldContext)\n  const itemContext = React.useContext(FormItemContext)\n  const { getFieldState } = useFormContext()\n  const formState = useFormState({ name: fieldContext.name })\n  const fieldState = getFieldState(fieldContext.name, formState)\n\n  if (!fieldContext) {\n    throw new Error(\"useFormField should be used within <FormField>\")\n  }\n\n  const { id } = itemContext\n\n  return {\n    id,\n    name: fieldContext.name,\n    formItemId: `${id}-form-item`,\n    formDescriptionId: `${id}-form-item-description`,\n    formMessageId: `${id}-form-item-message`,\n    ...fieldState,\n  }\n}\n\ntype FormItemContextValue = {\n  id: string\n}\n\nconst FormItemContext = React.createContext<FormItemContextValue>(\n  {} as FormItemContextValue\n)\n\nfunction FormItem({ className, ...props }: React.ComponentProps<\"div\">) {\n  const id = React.useId()\n\n  return (\n    <FormItemContext.Provider value={{ id }}>\n      <div\n        data-slot=\"form-item\"\n        className={cn(\"grid gap-2\", className)}\n        {...props}\n      />\n    </FormItemContext.Provider>\n  )\n}\n\nfunction FormLabel({\n  className,\n  ...props\n}: React.ComponentProps<typeof LabelPrimitive.Root>) {\n  const { error, formItemId } = useFormField()\n\n  return (\n    <Label\n      data-slot=\"form-label\"\n      data-error={!!error}\n      className={cn(\"data-[error=true]:text-destructive\", className)}\n      htmlFor={formItemId}\n      {...props}\n    />\n  )\n}\n\nfunction FormControl({ ...props }: React.ComponentProps<typeof Slot>) {\n  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()\n\n  return (\n    <Slot\n      data-slot=\"form-control\"\n      id={formItemId}\n      aria-describedby={\n        !error\n          ? `${formDescriptionId}`\n          : `${formDescriptionId} ${formMessageId}`\n      }\n      aria-invalid={!!error}\n      {...props}\n    />\n  )\n}\n\nfunction FormDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  const { formDescriptionId } = useFormField()\n\n  return (\n    <p\n      data-slot=\"form-description\"\n      id={formDescriptionId}\n      className={cn(\"text-muted-foreground text-sm\", className)}\n      {...props}\n    />\n  )\n}\n\nfunction FormMessage({ className, ...props }: React.ComponentProps<\"p\">) {\n  const { error, formMessageId } = useFormField()\n  const body = error ? String(error?.message ?? \"\") : props.children\n\n  if (!body) {\n    return null\n  }\n\n  return (\n    <p\n      data-slot=\"form-message\"\n      id={formMessageId}\n      className={cn(\"text-destructive text-sm\", className)}\n      {...props}\n    >\n      {body}\n    </p>\n  )\n}\n\nexport {\n  useFormField,\n  Form,\n  FormItem,\n  FormLabel,\n  FormControl,\n  FormDescription,\n  FormMessage,\n  FormField,\n}\n```\n\n```tsx\nimport { NumberField } from '@base-ui/react/number-field';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { useMutation, useQueryClient } from '@tanstack/react-query';\nimport { useLoaderData, useRouter } from '@tanstack/react-router';\nimport React from 'react';\nimport { useForm } from 'react-hook-form';\nimport { toast } from 'sonner';\nimport * as z from 'zod';\nimport { Button } from '@/components/ui/button';\nimport { DialogFooter } from '@/components/ui/dialog';\nimport { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';\nimport { Input } from '@/components/ui/input';\nimport { DotLoader } from '@/features/shared/components/dot-loader';\nimport { auth as authApi } from '@/lib/api';\n\n// Validation schema for academic information\nconst academicInfoSchema = z.object({\n  roll_no: z\n    .string()\n    .trim()\n    .min(1, 'Roll number is required')\n    .max(30, { message: 'Roll number must be at most 30 characters long' })\n    .refine((v) => v.toString() !== '0', { message: 'Invalid roll number' }),\n  branch: z.string().trim().min(1, 'Branch is required').max(25, { message: 'Branch must be at most 25 characters long' }),\n  degree: z.string().trim().min(1, 'Degree is required').max(20, { message: 'Degree must be at most 20 characters long' }),\n  graduation_year: z.number().min(2000, 'Year must be 2000 or later').max(2025, 'Year must be before 2025'),\n  cgpa: z\n    .number()\n    .min(0, { message: 'CGPA must be between 0 and 10' })\n    .max(10, { message: 'CGPA must be between 0 and 10' })\n    .refine(\n      (value) => {\n        const hasDecimcalValues = Math.round(value * 100) <= value * 100;\n        return hasDecimcalValues;\n      },\n      { message: 'CGPA must have at most 2 decimal places' },\n    ),\n  backlogs: z.number().min(0, 'Backlogs must be between 0 and 100').max(100, 'Backlogs must be between 0 and 100'),\n});\n\ntype AcademicInfoFormValues = z.infer<typeof academicInfoSchema>;\n\ninterface StudentEditAcademicInfoFormProps {\n  handleClose: () => void;\n}\n\nexport function StudentEditAcademicInfoForm({ handleClose }: StudentEditAcademicInfoFormProps) {\n  const router = useRouter();\n  const queryClient = useQueryClient();\n  const { auth } = useLoaderData({ from: '/student/_authenticated' });\n\n  const form = useForm<AcademicInfoFormValues>({\n    resolver: zodResolver(academicInfoSchema),\n    defaultValues: {\n      roll_no: auth.roll_no,\n      branch: auth.branch,\n      degree: auth.degree,\n      graduation_year: auth.graduation_year,\n      cgpa: auth.cgpa,\n      backlogs: auth.backlogs,\n    },\n  });\n\n  const mutation = useMutation({\n    mutationFn: authApi.studentUpdateUserDetails,\n    onSuccess: (data) => {\n      if (data.isErr()) {\n        if (data.error.type === 'UNAUTHORIZED') {\n          window.location.href = '/student/auth/login';\n          return null;\n        }\n        let errorMessage: string;\n        switch (data.error.type) {\n          case 'FAILED_TO_FETCH':\n            errorMessage = 'Failed to fetch';\n            break;\n          case 'INTERNAL_SERVER_ERROR':\n            errorMessage = 'Internal server error!';\n            break;\n          case 'UNKNOWN_ERROR':\n            errorMessage = 'Failed to update details!';\n            break;\n          case 'CLIENT_ERROR':\n            errorMessage = data.error.error;\n            break;\n        }\n        toast.error(errorMessage, { position: 'bottom-center' });\n        return;\n      }\n\n      toast.success('Academic information updated successfully', { position: 'bottom-center' });\n      queryClient.invalidateQueries({ queryKey: ['student', 'get-user-details'] });\n      router.invalidate({ filter: (d) => d.routeId === '/student/_authenticated' });\n      handleClose();\n    },\n    onError: (err) => {\n      toast.error(err.message, { position: 'bottom-center' });\n    },\n  });\n\n  const onSubmit = (data: AcademicInfoFormValues) => {\n    mutation.mutate({ body: { ...data, cgpa: Number(data.cgpa) } });\n  };\n\n  // biome-ignore lint/correctness/useExhaustiveDependencies: No need to add the form.reset to the dependency array\n  React.useEffect(() => {\n    form.reset({\n      roll_no: auth.roll_no,\n      branch: auth.branch,\n      degree: auth.degree,\n      graduation_year: auth.graduation_year,\n      cgpa: auth.cgpa,\n      backlogs: auth.backlogs,\n    });\n  }, [auth.roll_no, auth.branch, auth.degree, auth.graduation_year, auth.cgpa, auth.backlogs]);\n\n  return (\n    <div>\n      <Form {...form}>\n        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 pt-2'>\n          <div className='grid grid-cols-2 gap-4'>\n            <FormField\n              control={form.control}\n              name='roll_no'\n              render={({ field }) => (\n                <FormItem>\n                  <FormLabel>Roll Number</FormLabel>\n                  <FormControl>\n                    <Input\n                      placeholder='Enter roll number'\n                      className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                      autoComplete='off'\n                      autoCapitalize='none'\n                      autoCorrect='off'\n                      spellCheck='false'\n                      {...field}\n                    />\n                  </FormControl>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n            <FormField\n              control={form.control}\n              name='graduation_year'\n              render={({ field }) => (\n                <FormItem>\n                  <FormLabel>Graduation Year</FormLabel>\n                  <FormControl>\n                    <Input\n                      type='string'\n                      placeholder='e.g., 2024'\n                      inputMode='numeric'\n                      className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                      autoComplete='off'\n                      autoCapitalize='none'\n                      autoCorrect='off'\n                      spellCheck='false'\n                      {...field}\n                      value={field.value}\n                      onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 0)}\n                    />\n                  </FormControl>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n\n            <FormField\n              control={form.control}\n              name='degree'\n              render={({ field }) => (\n                <FormItem>\n                  <FormLabel>Degree</FormLabel>\n                  <FormControl>\n                    <Input\n                      placeholder='e.g., BE, BTech, MTech'\n                      className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                      autoComplete='off'\n                      autoCapitalize='none'\n                      autoCorrect='off'\n                      spellCheck='false'\n                      {...field}\n                    />\n                  </FormControl>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n\n            <FormField\n              control={form.control}\n              name='branch'\n              render={({ field }) => (\n                <FormItem>\n                  <FormLabel>Branch</FormLabel>\n                  <FormControl>\n                    <Input\n                      placeholder='e.g., CSE, ECE, ME'\n                      className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                      autoComplete='off'\n                      autoCapitalize='none'\n                      autoCorrect='off'\n                      spellCheck='false'\n                      {...field}\n                    />\n                  </FormControl>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n\n            <FormField\n              control={form.control}\n              name='cgpa'\n              render={({ field }) => (\n                <FormItem>\n                  <NumberField.Root\n                    value={field.value}\n                    min={0}\n                    max={10}\n                    step={0.01}\n                    onValueChange={(value) => field.onChange(value)}\n                    onValueCommitted={(value) => field.onChange(value)}\n                  >\n                    <FormLabel>CGPA</FormLabel>\n                    <FormControl>\n                      <NumberField.Input\n                        ref={field.ref}\n                        onBlur={field.onBlur}\n                        render={\n                          <Input\n                            placeholder='Enter CGPA'\n                            inputMode='decimal'\n                            className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                            autoComplete='off'\n                            autoCapitalize='none'\n                            autoCorrect='off'\n                            spellCheck='false'\n                          />\n                        }\n                      />\n                    </FormControl>\n                  </NumberField.Root>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n\n            <FormField\n              control={form.control}\n              name='backlogs'\n              render={({ field }) => (\n                <FormItem>\n                  <FormLabel>Backlogs</FormLabel>\n                  <FormControl>\n                    <Input\n                      placeholder='Enter backlogs'\n                      inputMode='numeric'\n                      className='h-12 rounded-lg border-gray-200 bg-transparent px-4 text-base transition-all focus:border-primary focus:ring-1 focus:ring-primary'\n                      autoComplete='off'\n                      autoCapitalize='none'\n                      autoCorrect='off'\n                      spellCheck='false'\n                      {...field}\n                      onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 0)}\n                    />\n                  </FormControl>\n                  <FormMessage />\n                </FormItem>\n              )}\n            />\n          </div>\n\n          <DialogFooter>\n            <Button\n              type='submit'\n              className='w-full h-12 rounded-lg text-base font-medium hover:shadow-lg hover:shadow-primary/20'\n              disabled={mutation.isPending || !form.formState.isDirty}\n            >\n              {mutation.isPending ? <DotLoader className='size-6!' /> : 'Save Changes'}\n            </Button>\n          </DialogFooter>\n        </form>\n      </Form>\n    </div>\n  );\n}\n```\n\n<img width=\"1920\" height=\"1200\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/7589c22e-37aa-4666-b3a3-0c579eb34b1b\" />\n\nWhen I try to submit the form, I am getting like this.",
+  "author": {
+   "login": "rahulvils"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "component: number field"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 5,
+   "nodes": [
+    {
+     "body": "@rahulvils Can you provide a stackblitz or CSB reproducing this?\n\nPossibly your `<form>` element is missing `noValidate`",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "`<form noValidate>` (as @mj12albert mentioned) will block native validation if it's not necessary here\n\nIf validation is warranted, the issue shown in the popup is that there's a `stepMismatch` error. The `step` property defaults to `1` so if the input value doesn't match it will trigger a validation error. `format={{ maximumFractionDigits: 0 }}` makes the input value match the default step. Since you've specified `step={0.01}`, you want fractional values, so `format={{ maximumFractionDigits: 2 }}` will make the input display `0.43` instead of `0.433333....` and pass the validation successfully.\n\nAlso, if you do want native validation, add `contain: layout` CSS around on the `<NumberField.Root>` component so the native popup roughly points to the correct area since it's trying to point to the fixed hidden input in the top-left\n",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "The config ```format={{ maximumFractionDigits: 2 }}``` and the ```noValidate``` fixed the issue.",
+     "author": {
+      "login": "rahulvils"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@mj12albert @atomiks  How can I have a **NumberField** to accept only whole numbers instead of decimal values. The input element should not even accept the decimal-character(.) in the input field.",
+     "author": {
+      "login": "rahulvils"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "`format={{ maximumFractionDigits: 0 }}` achieves that (with `step={1}` / default). They can still type `.`/`,` etc. but it will be removed on blur.",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    }
+   ]
+  }
+ },
+ "3668": {
+  "number": 3668,
+  "title": "[docs] Add CSS-in-JS (e.g. Linaria) examples to docs",
+  "body": "## Summary\n\nIt would be nice to see examples of components not only with `Tailwind` and `CSS Modules`, but also with a CSS-in-JS solution, like `linaria`/`next-yak`/`@emotion/styled`/`@compiled/react`/`styled-components`.\n\n## Motivation\n\nWith this issue, I'm requesting approval to write all the examples similar to the one shown below. I can follow the conventions of this codebase to organize examples, but I need confirmation that such a PR would be welcome\n\n<details><summary>\n\n## Example: `Accordion` component styled using `Linaria`\n\n</summary>\n<p>\n\n```tsx\nimport { Accordion } from '@base-ui/react/accordion'\nimport { css } from '@linaria/core'\nimport { styled } from '@linaria/react'\nimport type * as React from 'react'\n\nexport default function ExampleAccordion() {\n  return (\n    <AccordionRoot>\n      <AccordionItem>\n        <AccordionHeader>\n          <AccordionTrigger>\n            What is Base UI?\n            <TriggerIcon />\n          </AccordionTrigger>\n        </AccordionHeader>\n        <AccordionPanel>\n          <div className={accordionContent}>\n            Base UI is a library of high-quality unstyled React components for\n            design systems and web apps.\n          </div>\n        </AccordionPanel>\n      </AccordionItem>\n\n      <AccordionItem>\n        <AccordionHeader>\n          <AccordionTrigger>\n            How do I get started?\n            <TriggerIcon />\n          </AccordionTrigger>\n        </AccordionHeader>\n        <AccordionPanel>\n          <div className={accordionContent}>\n            Head to the \u201cQuick start\u201d guide in the docs. If you\u2019ve used unstyled\n            libraries before, you\u2019ll feel at home.\n          </div>\n        </AccordionPanel>\n      </AccordionItem>\n\n      <AccordionItem>\n        <AccordionHeader>\n          <AccordionTrigger>\n            Can I use it for my project?\n            <TriggerIcon />\n          </AccordionTrigger>\n        </AccordionHeader>\n        <AccordionPanel>\n          <div className={accordionContent}>\n            Of course! Base UI is free and open source.\n          </div>\n        </AccordionPanel>\n      </AccordionItem>\n    </AccordionRoot>\n  )\n}\n\nfunction PlusIcon(props: React.ComponentProps<'svg'>) {\n  return (\n    <svg viewBox=\"0 0 12 12\" fill=\"currentcolor\" {...props}>\n      <title>+</title>\n      <path d=\"M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z\" />\n    </svg>\n  )\n}\n\nexport const AccordionHeader = styled(Accordion.Header)`\n  margin: 0;\n`\n\nexport const AccordionItem = styled(Accordion.Item)`\n  border-bottom: 1px solid var(--color-gray-200);\n`\n\nexport const AccordionPanel = styled(Accordion.Panel)`\n  box-sizing: border-box;\n  height: var(--accordion-panel-height);\n  overflow: hidden;\n  color: var(--color-gray-600);\n  font-size: 1rem;\n  line-height: 1.5rem;\n  transition: height 150ms ease-out;\n\n  &[data-starting-style],\n  &[data-ending-style] {\n    height: 0;\n  }\n`\n\nexport const AccordionRoot = styled(Accordion.Root)`\n  box-sizing: border-box;\n  display: flex;\n  width: 24rem;\n  max-width: calc(100vw - 8rem);\n  flex-direction: column;\n  justify-content: center;\n  color: var(--color-gray-900);\n`\n\nexport const AccordionTrigger = styled(Accordion.Trigger)`\n  box-sizing: border-box;\n  position: relative;\n  display: flex;\n  width: 100%;\n  gap: 1rem;\n  align-items: baseline;\n  justify-content: space-between;\n  padding-block: 0.5rem;\n  padding-inline: 0.75rem 0.25rem;\n  color: var(--color-gray-900);\n  font-family: inherit;\n  font-weight: 500;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  background: var(--color-gray-50);\n  border: none;\n  outline: none;\n  text-align: left;\n\n  @media (hover: hover) {\n    &:hover {\n      background-color: var(--color-gray-100);\n    }\n  }\n\n  &:focus-visible {\n    outline: 2px solid var(--color-blue);\n    z-index: 1;\n  }\n`\n\nexport const TriggerIcon = styled(PlusIcon)`\n  box-sizing: border-box;\n  flex-shrink: 0;\n  width: 0.75rem;\n  height: 0.75rem;\n  margin-right: 0.5rem;\n  transition: transform 150ms ease-out;\n\n  [data-panel-open] > & {\n    transform: rotate(45deg) scale(1.1);\n  }\n`\n\nexport const accordionContent = css`\n  padding: 0.75rem;\n`\n```\n\n</p>\n</details> \n\n",
+  "author": {
+   "login": "nikelborm"
+  },
+  "state": "OPEN",
+  "stateReason": null,
+  "labels": {
+   "nodes": [
+    {
+     "name": "docs"
+    },
+    {
+     "name": "type: new feature"
+    },
+    {
+     "name": "waiting for \ud83d\udc4d"
+    },
+    {
+     "name": "scope: docs-infra"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 11,
+   "nodes": [
+    {
+     "body": "Thanks for the interest, though I'm afraid this doesn't seem worth the overhead given that:\n- the user base is very small compared to tailwind https://npm-stat.com/charts.html?package=linaria&package=tailwindcss&from=2024-01-01&to=2026-01-01\n- it doesn't seem very actively maintained: https://github.com/callstack/linaria/issues/1437 & https://github.com/callstack/linaria/graphs/code-frequency",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Just to clarify further, the reason this is controversial is that it's not just the upfront work. It then needs to be maintained going forward. And future components also need to be converted. And there's the extra cognitive load for users using the docs (which is tiny, but still).\n\nLinaria has such a tiny user base, that the ROI is not there. In order to be worthwhile, a styling solution needs to a) have massive adoption and b) have a growing user base.",
+     "author": {
+      "login": "colmtuite"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "The npm-stat link sent above is misleading. It doesn't accurately reflect the actual usage, which is actually much larger than what is shown on the initial link. See this [comparison of `@linaria/core` vs `linaria`](https://npm-stat.com/charts.html?package=%40linaria%2Fcore&package=linaria&from=2024-01-01&to=2026-01-01) (400k downloads/week vs 7k/week). I can confidently call 400k downloads/week a massive adoption, and it's definitely growing.\n\nThe thing with Linaria is that it's just a quite thin wrapper around `@wyw-in-js` family, which is very well maintained, and so Linaria is more or less feature complete and doesn't need constant improvements. `Linaria` is `styled-components` with lessons learned. It was built with all the knowledge that was accumulated while building `styled-components`. The knowledge not to rely on `React.useContext` everywhere, for example\n\nThere are basically 2 reasons Linaria has much smaller adoption compared to something like Tailwind:\n1. Tailwind's centralization - the approach is the package. There are not many alternatives (probably UnoCSS is the only one) that involve writing a ton of small classes directly inside the class attributes of JSX elements. On the other hand, the whole CSS-in-JS ecosystem has many packages that look almost the same in terms of UX, and often indistinguishable from each other. However, their stats will still be counted independently. Often, you would be able to just replace the imports without any other changes in the code `import { styled } from '@linaria/react'`, `import styled from '@emotion/styled'`, `import styled from 'styled-components'`, `import { styled } from \"next-yak\";`, `import { styled } from '@compiled/react';`. On the other hand, you cannot do the same with Tailwind, because the whole approach IS the package.\n2. `Styled-components` is the Tailwind of CSS-in-JS ecosystem, meaning it was the thing that suddenly exploded in popularity and was a thing everybody talked about. Linaria is the successor to `styled-components`. `styled-components` was deprecated very recently ([blog post with a ton of relevant context](https://opencollective.com/styled-components/updates/thank-you)), so all of the users are still there, and have not yet moved to better-maintained packages. When you look at the [comparison of `styled-components` and `tailwindcss`](https://npm-stat.com/charts.html?package=styled-components&package=tailwindcss&from=2024-01-01&to=2026-01-01), it suddenly doesn't seem that small, when Tailwind has 4 times the traffic.\n",
+     "author": {
+      "login": "nikelborm"
+     },
+     "reactions": {
+      "totalCount": 3
+     }
+    },
+    {
+     "body": "> And there's the extra cognitive load for users using the docs (which is tiny, but still).\n\nThis way, absolutely any PR that adds anything to the docs increases the cognitive load on users. All of the load is another option of the `select`, which would never be the default, and may not even be acknowledged by Tailwind/CSS-modules users that it exists. I don't think it's a big deal at all to people who don't write in a CSS-in-JS approach. However, it's a big deal for people like me who actually build using the CSS-in-JS approach daily\n\n<img width=\"540\" height=\"367\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/dcef2e65-71b9-4e4a-97b5-9d7e040fca38\" />\n\nSo, my asking to add Linaria is basically me asking to add a CSS-in-JS option, but adding `styled-components` even if widely adopted doesn't make sense, because `styled-components` doesn't work well in the latest React ecosystem, like server components, so I suggested the next best option. The trend of Linaria is going upwards",
+     "author": {
+      "login": "nikelborm"
+     },
+     "reactions": {
+      "totalCount": 2
+     }
+    },
+    {
+     "body": "On the future maintainability side, there are 2 potential solutions.\n1. We can find a future code-owner (I can do this as well) in the community on Discord or on X\n2. I can write an auto-generator from CSS Modules, and it should not take more than 500 lines of code to generate CSS-in-JS examples continuously. Even better, it could obsolete the need to maintain CSS module examples because they could be generated from Tailwind examples as well.",
+     "author": {
+      "login": "nikelborm"
+     },
+     "reactions": {
+      "totalCount": 2
+     }
+    },
+    {
+     "body": "I've just realized a few factors that could help move this forward.\n\nUnder the MUI organization, there's a CSS-in-JS library called Pigment CSS, and in its sources, I found a few interesting details:\n\n[HOW_PIGMENT_CSS_WORKS.md](https://github.com/mui/pigment-css/blob/7d763a05bac5fef24f0566bbbd52f7e003b8230c/HOW_PIGMENT_CSS_WORKS.md):\n> Pigment CSS uses the [WyW-in-JS](https://wyw-in-js.dev/) library that also powers [Linaria](https://linaria.dev/).\n\n[pigment-css-vite-plugin/src/vite-plugin.ts](https://github.com/mui/pigment-css/blob/7d763a05bac5fef24f0566bbbd52f7e003b8230c/packages/pigment-css-vite-plugin/src/vite-plugin.ts):\n> Extended from https://github.com/callstack/linaria/blob/master/packages/vite/src/index.ts for it be customizable in future\n\n[pigment-css-react/src/processors/base-processor.ts](https://github.com/mui/pigment-css/blob/7d763a05bac5fef24f0566bbbd52f7e003b8230c/packages/pigment-css-react/src/processors/base-processor.ts#L25) twice:\n>  // Implementation taken from Linaria https://github.com/callstack/linaria/blob/master/packages/react/src/processors/styled.ts#L284\n\nIf Linaria is still not something you're willing to consider, examine the possibility of adding examples with in-house Pigment CSS, or with [`next-yak`](https://github.com/DigitecGalaxus/next-yak/) ([comparison of next-yak with the whole CSS-in-JS ecosystem](https://yak.js.org/docs/comparison)), which is closer to the syntax I'm advocating for and grows quite quickly recently",
+     "author": {
+      "login": "nikelborm"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Also, I'm looking forward to your feedback on this\n> I can write an auto-generator from CSS Modules, and it should not take more than 500 lines of code to generate CSS-in-JS examples continuously. Even better, it could obsolete the need to maintain CSS module examples because they could be generated from Tailwind examples as well.\n",
+     "author": {
+      "login": "nikelborm"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "About the user base and maintenance:\n\nThere doesn't seem to be an alternative to Linaria-like approach, in terms of allowing zero-runtime CSS-in-JS. Even if the user base was small, it would still make sense to include.\n\nPersonally, I've paired Linaria with Capsize CSS and a DX-friendly wrapper over CSS clamp(), and I'm not sure how I would use Capsize otherwise without extra boilerplate, plugins, and maintenance. I have all the typography defined in simple JS that is then transformed with scripts, resulting in pixel-perfect responsive typography matching Figma designs. Which basically erased the need for writing weird SCSS formulas, or PostCSS plugins with custom CSS-like syntax.\nThis is just one game-changing thing, but generally Linaria is powering most of the responsiveness, animations, and constraints in my apps, so that the design stage is cleanly separated from the programming stage.\n\nI don't see how I would continue trying to work around CSS, after I knew there's an option to make it completely scriptable, without the need for separate community packages, syntax, and logic.\n100% type-safety, full autocomplete, and component/wrapper-based approach (as opposed to class-based approach) just sold CSS-in-JS to me, at least until Tailwind or CSS Modules mature enough to have that out of the box.\n\nRegarding Linaria specifically, it's been some years, so it may not the best solution anymore, due to e.g. long build times (not even sure if this holds true now). Its base, ([WyW-in-JS](https://wyw-in-js.dev/)), is somewhat actively maintained, looks like it's making improvements in framework support and performance.",
+     "author": {
+      "login": "artginzburg"
+     },
+     "reactions": {
+      "totalCount": 2
+     }
+    }
+   ]
+  }
+ },
+ "1608": {
+  "number": 1608,
+  "title": "[collapsible] Exit animation doesn't run when using motion and Tailwind v4",
+  "body": "https://codesandbox.io/p/devbox/suspicious-kate-j22y8v\n\nTailwind v4's reset sets `display: none !important` on the `[hidden]` selector, and the way motion sets styles cannot override `!important` \n\nThe workaround is to set `hidden={undefined}` on the panel, it will be unmounted as soon as hidden becomes true anyway:\n\n```jsx\n<Collapsible.Root open={open} onOpenChange={setOpen}>\n  <Collapsible.Trigger />\n  <AnimatePresence>\n    {open && (\n      <Collapsible.Panel\n        keepMounted\n        key=\"MyPanel\"\n        // workaround tailwind `display: none !important` on [hidden]\n        hidden={undefined}\n        render={\n          <motion.div\n            initial={{ height: 0 }}\n            animate={{\n              height: \"auto\",\n              transition: { duration: 1 },\n            }}\n            exit={{\n              height: 0,\n              // ensure the panel is visible during the exit animation\n              display: \"block\",\n              transition: { duration: 1 },\n            }}\n          />\n        }\n      >\n        {/* panel content */}\n      </Collapsible.Panel>\n    )}\n  </AnimatePresence>\n</Collapsible.Root>\n```\n\n## Base\u00a0UI version\n\n1.0.0-alpha.7\n\n",
+  "author": {
+   "login": "mj12albert"
+  },
+  "state": "OPEN",
+  "stateReason": null,
+  "labels": {
+   "nodes": [
+    {
+     "name": "component: collapsible"
+    },
+    {
+     "name": "has workaround"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 1,
+   "nodes": [
+    {
+     "body": "In https://github.com/mui/base-ui/pull/1601 I tried to delay setting `hidden` until detected animations have finished using the `opacity: 0.9999` trick documented [here](https://base-ui.com/react/handbook/animation#javascript-animations) but it didn't work",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "3725": {
+  "number": 3725,
+  "title": "<Select/> `base-select` component is unresponsive when used inside a `Drawer` component",
+  "body": "### Description\nWhen using the `base-select` component (`@base-ui-components/react/select`) inside a `Drawer` component (from shadcn/ui), clicking the Select trigger has no response and the dropdown list does not open.\nHowever, in the same scenario, the shadcn/ui `Select` component (which uses `@radix-ui/react-select`) works perfectly fine.\n### Steps to Reproduce\n1. Open the page containing the Drawer.\n2. Click the button to open the Drawer.\n3. Click on the `base-select` component located inside the Drawer.\n### Expected Behavior\nClicking the Select trigger should open the dropdown list.\n### Actual Behavior\nClicking the Select trigger has no effect; the component is unresponsive.\n### Reproduction Repository\n\ud83d\udd17 https://github.com/cdLab996/reui-base-select-bug\n### Live Demo\n\ud83d\udd17 https://reui-base-select-bug.vercel.app/\n### Additional Notes\n- The shadcn/ui Select component (based on Radix UI) works correctly in the exact same environment, suggesting a potential compatibility issue between `base-ui` and the event handling/focus trapping mechanism of the Drawer.\n\n<img width=\"775\" height=\"488\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/837d0ac4-ed28-452f-9024-685f37fc1d4c\" />\n\nversion\n```\n    \"@base-ui-components/react\": \"1.0.0-rc.0\",\n    \"@base-ui/react\": \"1.0.0\",\n```\n\nThe same problem also exists when using `@base-ui/react` as a replacement.\n\n```tsx\nimport * as React from 'react';\nimport { isValidElement, ReactNode } from 'react';\n// import { Select as SelectPrimitive } from '@base-ui-components/react/select';\nimport { Select as SelectPrimitive } from '@base-ui/react/select';\nimport { cva, VariantProps } from 'class-variance-authority';\nimport { CheckIcon, ChevronDownIcon, ChevronUpIcon, X } from 'lucide-react';\nimport { cn } from '@/lib/index';\n\n// Create a Context for `indicatorPosition` and `indicator` control\nconst SelectContext = React.createContext<{\n  indicatorPosition: 'left' | 'right';\n  indicatorVisibility: boolean;\n  indicator: ReactNode;\n  icon: ReactNode;\n}>({ indicatorPosition: 'left', indicator: null, indicatorVisibility: true, icon: null });\n\n// Root Component\nconst Select = ({\n  indicatorPosition = 'left',\n  indicatorVisibility = true,\n  indicator,\n  icon,\n  ...props\n}: {\n  indicatorPosition?: 'left' | 'right';\n  indicatorVisibility?: boolean;\n  indicator?: ReactNode;\n  icon?: ReactNode;\n} & React.ComponentProps<typeof SelectPrimitive.Root>) => {\n  return (\n    <SelectContext.Provider value={{ indicatorPosition, indicatorVisibility, indicator, icon }}>\n      <SelectPrimitive.Root data-slot=\"select\" {...props} />\n    </SelectContext.Provider>\n  );\n};\n\nfunction SelectGroup({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {\n  return <SelectPrimitive.Group data-slot=\"select-group\" {...props} />;\n}\n\nfunction SelectPortal({ ...props }: React.ComponentProps<typeof SelectPrimitive.Portal>) {\n  return <SelectPrimitive.Portal data-slot=\"select-portal\" {...props} />;\n}\n\nfunction SelectPositioner({ ...props }: React.ComponentProps<typeof SelectPrimitive.Positioner>) {\n  return <SelectPrimitive.Positioner data-slot=\"select-positioner\" {...props} />;\n}\n\nfunction SelectValue({\n  placeholder,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Value> & {\n  placeholder?: string;\n}) {\n  if (!placeholder) {\n    return <SelectPrimitive.Value data-slot=\"select-value\" {...props} />;\n  }\n\n  return (\n    <SelectPrimitive.Value\n      className=\"text-sm\"\n      render={(_, { value }) => {\n        if (value) {\n          return <SelectPrimitive.Value data-slot=\"select-value\" {...props} />;\n        }\n\n        // Placeholder\n        return (\n          <span data-slot=\"select-value\" className=\"text-muted-foreground\">\n            {placeholder}\n          </span>\n        );\n      }}\n      {...props}\n    />\n  );\n}\n\n// Clear - A button to clear the input value\nfunction SelectClear({ className, children, onClick, ...props }: React.ComponentProps<'button'>) {\n  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {\n    event.preventDefault();\n    event.stopPropagation();\n    onClick?.(event);\n  };\n\n  return (\n    <button\n      data-slot=\"select-clear\"\n      className={cn(\n        `\n\t\t\t\t\tcursor-pointer absolute top-1/2 -translate-y-1/2 end-2 \n\t\t\t\t\trounded-sm opacity-60 hover:opacity-100 transition-opacity \t\t\t\t\t\n\t\t\t\t\tfocus:outline-none focus:ring-0 focus:ring-offset-0 \n\t\t\t\t\tdisabled:pointer-events-none data-[disabled]:pointer-events-none \n\t\t\t\t`,\n        className,\n      )}\n      onClick={handleClick}\n      {...props}\n    >\n      {children ? children : <X />}\n    </button>\n  );\n}\n\n// Define size variants for SelectTrigger\nconst selectTriggerVariants = cva(\n  `\n\t\tgroup relative flex w-fit items-center justify-between gap-2 rounded-md border whitespace-nowrap select-none\n\t\tshadow-xs transition-[color,box-shadow,border-color] outline-none\n\t\tfocus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]\n\t\taria-invalid:ring-destructive/50 aria-invalid:border-destructive\n\t\tdata-[disabled]:pointer-events-none data-[disabled]:opacity-60\n\t\t*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2\n\t\t[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-'])]:text-muted-foreground\n\t`,\n  {\n    variants: {\n      size: {\n        xs: `\n\t\t\t\t\th-7 px-2 text-xs gap-1 rounded-md\n\t\t\t\t\t[&_[data-slot=select-icon]]:size-3.5 [&_[data-slot=select-icon]]:-me-0.75\n\t\t\t\t\t[&_[data-slot=select-clear]>svg]:size-3 [&_[data-slot=select-clear]]:end-6\n\t\t\t\t`,\n        sm: `\n\t\t\t\t\th-8 px-2.5 text-xs gap-1 rounded-md\n\t\t\t\t\t[&_[data-slot=select-icon]]:size-3.5 [&_[data-slot=select-icon]]:-me-0.75\n\t\t\t\t\t[&_[data-slot=select-clear]>svg]:size-3 [&_[data-slot=select-clear]]:end-6\n\t\t\t\t`,\n        md: `\n\t\t\t\t\th-9 px-3 text-sm gap-1 rounded-md\n\t\t\t\t\t[&_[data-slot=select-icon]]:size-4 [&_[data-slot=select-icon]]:-me-1\n\t\t\t\t\t[&_[data-slot=select-clear]>svg]:size-3.5 [&_[data-slot=select-clear]]:end-7\n\t\t\t\t`,\n        lg: `\n\t\t\t\t\th-10 px-4 text-sm gap-1.5 rounded-md\n\t\t\t\t\t[&_[data-slot=select-icon]]:size-4 [&_[data-slot=select-icon]]:-me-1.25\n\t\t\t\t\t[&_[data-slot=select-clear]>svg]:size-3.5 [&_[data-slot=select-clear]]:end-8\n\t\t\t\t`,\n      },\n    },\n    defaultVariants: {\n      size: 'md',\n    },\n  },\n);\n\nexport interface SelectTriggerProps\n  extends React.ComponentProps<typeof SelectPrimitive.Trigger>,\n    VariantProps<typeof selectTriggerVariants> {}\n\nfunction SelectTrigger({ className, children, size, ...props }: SelectTriggerProps) {\n  const { icon } = React.useContext(SelectContext);\n\n  return (\n    <SelectPrimitive.Trigger\n      data-slot=\"select-trigger\"\n      className={cn(selectTriggerVariants({ size }), className)}\n      {...props}\n    >\n      {children}\n      <SelectPrimitive.Icon>\n        {icon && isValidElement(icon) ? (\n          icon\n        ) : (\n          <ChevronDownIcon data-slot=\"select-icon\" className=\"opacity-60 transition-transform duration-200\" />\n        )}\n      </SelectPrimitive.Icon>\n    </SelectPrimitive.Trigger>\n  );\n}\n\nfunction SelectContent({\n  className,\n  children,\n  side = 'bottom',\n  sideOffset = 2,\n  align = 'start',\n  alignOffset = 0,\n  position = 'popper',\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Popup> & {\n  sideOffset?: SelectPrimitive.Positioner.Props['sideOffset'];\n  side?: SelectPrimitive.Positioner.Props['side'];\n  align?: SelectPrimitive.Positioner.Props['align'];\n  alignOffset?: SelectPrimitive.Positioner.Props['alignOffset'];\n  position?: 'popper' | 'item-aligned';\n}) {\n  return (\n    <SelectPortal>\n      <SelectPositioner\n        sideOffset={sideOffset}\n        alignItemWithTrigger={position === 'item-aligned'}\n        side={side}\n        align={align}\n        alignOffset={alignOffset}\n      >\n        <SelectScrollUpButton />\n        <SelectPrimitive.Popup\n          data-slot=\"select-content\"\n          className={cn(\n            `\n\t\t\t\t\t\t\trelative z-51 max-h-(--available-height) min-w-(--anchor-width) overflow-x-hidden overflow-y-auto\n\t\t\t\t\t\t\tbg-popover text-popover-foreground\n\t\t\t\t\t\t\trounded-md border p-1 shadow-md\t\t\t\t\t\t\t\n\t\t\t\t\t\t\torigin-[var(--transform-origin)]\n\t\t\t\t\t\t\tdata-[open]:animate-in data-[closed]:animate-out \n\t\t\t\t\t\t\tdata-[closed]:fade-out-0 data-[open]:fade-in-0 \n\t\t\t\t\t\t\tdata-[closed]:zoom-out-95 data-[open]:zoom-in-95\n\t\t\t\t\t\t\tdata-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 \n\t\t\t\t\t\t\tdata-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2\n\t\t\t\t\t\t`,\n            position === 'item-aligned' && '[&_*[data-slot=select-item]]:min-w-[var(--anchor-width)]',\n            className,\n          )}\n          {...props}\n        >\n          {children}\n        </SelectPrimitive.Popup>\n        <SelectScrollDownButton />\n      </SelectPositioner>\n    </SelectPortal>\n  );\n}\n\nfunction SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>) {\n  const { indicatorPosition, indicatorVisibility, indicator } = React.useContext(SelectContext);\n\n  return (\n    <SelectPrimitive.Item\n      data-slot=\"select-item\"\n      className={cn(\n        `\n\t\t\t\t\trelative flex w-full items-center cursor-default select-none\n\t\t\t\t\trounded-sm py-1.5 text-sm outline-hidden\n\t\t\t\t\tdata-highlighted:bg-accent data-highlighted:text-accent-foreground\n\t\t\t\t\tdata-[disabled]:pointer-events-none data-[disabled]:opacity-50\n\t\t\t\t\t[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground\n\t\t\t\t\t*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2\n\t\t\t\t`,\n        indicatorPosition === 'left' ? 'ps-7 pe-2' : 'pe-7 ps-2',\n        className,\n      )}\n      {...props}\n    >\n      {indicatorVisibility &&\n        (indicator && isValidElement(indicator) ? (\n          indicator\n        ) : (\n          <span\n            className={cn(\n              'absolute flex h-3.5 w-3.5 items-center justify-center',\n              indicatorPosition === 'left' ? 'start-2' : 'end-2',\n            )}\n          >\n            <SelectPrimitive.ItemIndicator data-slot=\"select-item-indicator\">\n              <CheckIcon className=\"size-4\" />\n            </SelectPrimitive.ItemIndicator>\n          </span>\n        ))}\n      <SelectPrimitive.ItemText data-slot=\"select-item-text\">{children}</SelectPrimitive.ItemText>\n    </SelectPrimitive.Item>\n  );\n}\n\nfunction SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.GroupLabel>) {\n  const { indicatorPosition } = React.useContext(SelectContext);\n\n  return (\n    <SelectPrimitive.GroupLabel\n      data-slot=\"select-label\"\n      className={cn(\n        'text-muted-foreground py-1.5 text-xs font-medium',\n        indicatorPosition === 'left' ? 'ps-7 pe-2' : 'pe-7 ps-2',\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction SelectIndicator({\n  children,\n  className,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.ItemIndicator>) {\n  const { indicatorPosition } = React.useContext(SelectContext);\n\n  return (\n    <span\n      data-slot=\"select-indicator\"\n      className={cn(\n        'absolute flex top-1/2 -translate-y-1/2 items-center justify-center',\n        indicatorPosition === 'left' ? 'start-2' : 'end-2',\n        className,\n      )}\n      {...props}\n    >\n      <SelectPrimitive.ItemIndicator>{children}</SelectPrimitive.ItemIndicator>\n    </span>\n  );\n}\n\nfunction SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>) {\n  return (\n    <SelectPrimitive.Separator\n      data-slot=\"select-separator\"\n      className={cn('bg-border pointer-events-none -mx-1 my-1 h-px', className)}\n      {...props}\n    />\n  );\n}\n\nfunction SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>) {\n  return (\n    <SelectPrimitive.ScrollUpArrow\n      data-slot=\"select-scroll-up-button\"\n      className={cn(\n        'fixed top-0 left-0 right-0 z-51 flex w-full cursor-default items-center justify-center rounded-t-md py-1 bg-popover',\n        className,\n      )}\n      {...props}\n    >\n      <ChevronUpIcon className=\"size-4\" />\n    </SelectPrimitive.ScrollUpArrow>\n  );\n}\n\nfunction SelectScrollDownButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollDownArrow>) {\n  return (\n    <SelectPrimitive.ScrollDownArrow\n      data-slot=\"select-scroll-down-button\"\n      className={cn(\n        'fixed bottom-0 left-0 right-0 z-51 flex w-full cursor-default items-center justify-center rounded-b-md py-1 bg-popover',\n        className,\n      )}\n      {...props}\n    >\n      <ChevronDownIcon className=\"size-4\" />\n    </SelectPrimitive.ScrollDownArrow>\n  );\n}\n\nexport {\n  Select,\n  SelectTrigger,\n  SelectContent,\n  SelectItem,\n  SelectValue,\n  SelectGroup,\n  SelectLabel,\n  SelectIndicator,\n  SelectSeparator,\n  SelectClear,\n};\n\n```\n",
+  "author": {
+   "login": "WuChenDi"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "status: waiting for author"
+    },
+    {
+     "name": "component: select"
+    },
+    {
+     "name": "external dependency"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 5,
+   "nodes": [
+    {
+     "body": "Root Cause: Z-Index Conflict\n\nTesting confirmed that the z-50 style applied to the Drawer component caused context stacking issues. The SelectPositioner's default z-index was insufficiently high, resulting in the dropdown list triggering but being obscured by the Drawer layer.\n\nRecommendation: Force z-50 in the SelectPositioner's styles to ensure it displays correctly above the Drawer.\n\nNote: Hard-coding values in code is generally considered poor practice.\n\n<img width=\"1011\" height=\"664\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/bd56b3d3-c08f-4718-8bd0-af8beb4facf5\" />",
+     "author": {
+      "login": "WuChenDi"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Hello @WuChenDi, I'm glad you were able to find the root cause of the problem.\nCould you clarify if you still see any problems with the component?\nIt doesn't look like we set any explicit `z-index` of our own. It's up to the user to ensure the expected `z-index` value given their application context.",
+     "author": {
+      "login": "LukasTy"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "`z-index` isn't the only issue though. Even when it's visually on a higher layer, it's unresponsive, because Radix dialog (which is used by the Drawer in shadcn) sets `pointer-events: none` on the `<body>` to enforce \"modality\" but this breaks interoperability with other libraries, like us. \n\nThe solution is to specify `container` on the portal - `<Select.Portal container={drawerContentElement}>` - to point to the Drawer content/popup\n\nSee https://github.com/radix-ui/primitives/issues/3694",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@atomiks WDYT, would it be worth adding a section in the component page or a separate page (FAQ or something alike) with such common problems?\nThis is a second or third issue related to the same root cause that I can recall. \ud83d\ude48 ",
+     "author": {
+      "login": "LukasTy"
+     },
+     "reactions": {
+      "totalCount": 2
+     }
+    },
+    {
+     "body": "Since the issue is missing key information and has been inactive for 7 days, it has been automatically closed. If you wish to see the issue reopened, please provide the missing information.",
+     "author": {
+      "login": "github-actions"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "2938": {
+  "number": 2938,
+  "title": "[Bug][Dialog] Not able to use sonner/react-hot-toast etc with dialog component",
+  "body": "# Bug report\n\n## Current behavior\n\n- I am using base ui dialog in 2 of my projects\n- one repo uses sonner for toasts another one uses react hot toast\n- when i trigger a toast while the dialog is open toast is always behind the backdrop\n\n## Expected behavior\n\n- toast should render on top\n- I am migrating dialog from radix to base -> it works fine in radix dialog\n\n## Base\u00a0UI version\n\n1.0.0-beta.3\n\n## Which browser are you using?\n\nChrome\n\n## Which OS are you using?\n\nMac OS\n\n",
+  "author": {
+   "login": "sreehari-credhive"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "component: dialog"
+    },
+    {
+     "name": "support: question"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 3,
+   "nodes": [
+    {
+     "body": "You need to set a `z-index` on the toasts to be higher than the dialog and ensure the toasts are portaled _outside_ your root app element. \n\n`position: relative; z-index: 1` will work fine (this is what our Toast demo does) provided the toast viewports of sonner and react-hot-toast are outside of your main root layout element that has `isolation: isolate` applied. Base UI has no opinions regarding stacking order, aside from [this recommendation](https://base-ui.com/react/overview/quick-start#portals) for portals. However this can cause toasts rendered _inside_ that element to always be stuck \"behind\" the Base UI portaled dialog, so you must make sure toasts are outside of that container as well.\n\nThat should fix it, but the example you gave is not really a reproducible example given this is interaction between multiple dependencies and the overall app layout's CSS stacking order",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "@atomiks  i was able to fix this by moving the toast outside the isolation - isolated layout\n\n```ts\nimport \"./styles.css\";\nimport { Toaster } from \"sonner\";\n\nimport ExampleDialog from \"./Dialog\";\nexport default function App() {\n  return (\n    <div>\n      <Toaster />\n      <div className=\"App\">\n        <ExampleDialog />\n      </div>\n    </div>\n  );\n}\n```\n\nThanks for the reply - i guess you can close the issue",
+     "author": {
+      "login": "sreehari-credhive"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Yeah I figured it was inside of it, in which case `z-index` doesn't work no matter how high the value ",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    }
+   ]
+  }
+ },
+ "1935": {
+  "number": 1935,
+  "title": "[toast] How to make a non base ui component overlap the dialog",
+  "body": "Im using the react toastify library and when my dialog is open the toast component is beneath the backdrop. Not sure how to go about this but there are certain components that i need to be on top of all the others that may not be a part of base ui library. For some other use cases i used the dialog to overlap another dialog but i can't do the same for this one.\n\nA bit of context, this is my layout.tsx:\n\n```\n<div className=\"Root antialiased flex h-full text-base text-gray-700\">\n      <ChatProvider>\n        <div className=\"flex grow flex-col [[data-sticky-header=on]_&amp;]:pt-[--tw-header-height-default]\">\n          <Header />\n          <main className=\"grow\" id=\"content\">\n            <div className=\"container-fixed space-y-12\">{children}</div>\n          </main>\n          <Footer />\n        </div>\n      </ChatProvider>\n\n      <ToastContainer\n        position=\"bottom-right\"\n        autoClose={5000}\n        hideProgressBar={false}\n        newestOnTop={false}\n        closeOnClick\n        rtl={false}\n        pauseOnFocusLoss\n        draggable\n        pauseOnHover\n        theme=\"light\"\n      />\n    </div>\n```\n\nSo i think, because of the `.Root` rule anything else is beneath the dialog but is there a way to teleport some other components to the baseui portal?",
+  "author": {
+   "login": "lebadapetru"
+  },
+  "state": "CLOSED",
+  "stateReason": "COMPLETED",
+  "labels": {
+   "nodes": [
+    {
+     "name": "support: question"
+    },
+    {
+     "name": "component: toast"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 3,
+   "nodes": [
+    {
+     "body": "The `ToastContainer` needs to be outside the `isolation: isolate` `Root` container. Then assuming it has a `z-index`, it will appear above any Base UI popups, even if it's before them in the DOM.",
+     "author": {
+      "login": "atomiks"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Yeah, that was it, thank you.",
+     "author": {
+      "login": "lebadapetru"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "For anyone go here to find a simple solution, this is what I do\n```\nimport { Toaster } from 'react-hot-toast';\nimport { Toast } from '@base-ui-components/react/toast';\n\n\nfunction App() {\n  return (\n    <...>\n      <Toast.Provider>\n        <Toast.Portal>\n          <Toaster />\n        </Toast.Portal>\n      </Toast.Provider>\n    </...>\n  );\n}\n\nexport default App;\n```\n\nI don't know if `Toast.Portal` is designed for using like this, but it's work, and I don't have to create a new custom element and createPortal to render my toasts' container",
+     "author": {
+      "login": "tung-eh"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ },
+ "4329": {
+  "number": 4329,
+  "title": "Export Root context hooks for better composability",
+  "body": "# Feature request\n\n## Summary\n\nExpose **Root context hooks** for Base UI components to allow developers to access internal component state and behaviors when building custom subcomponents.\n\nCurrently, many Base UI components manage their state internally through a Root provider (e.g. `open`, `value`, `active item`, `disabled`, etc.), but the corresponding context hooks are not publicly exported. Providing access to these hooks would enable advanced composition while still leveraging Base UI\u2019s built-in logic and accessibility features.\n\nFor example, hooks such as:\n\n- `useCheckboxRootContext()`\n- `useSwitchRootContext()`\n\nwould allow developers to build custom triggers, indicators, animations, or wrappers that interact with the component state.\n\n---\n\n\n## Motivation\n\nWhen building real-world applications or internal design systems, developers often need to:\n\n- Create **custom triggers or controls**\n- Add **custom animations or transitions**\n- Build **design system wrappers**\n- Access state such as:\n  - `open`\n  - `selected value`\n  - `active item`\n  - `disabled`\n\nWithout access to the Root context, developers may need to:\n\n- Re-implement component logic\n\nExposing official context hooks would improve:\n\n- **Composability**\n- **Extensibility**\n- **Developer experience**\n- **Design system integration**\n\nwhile still keeping the internal implementation consistent and accessible.\n",
+  "author": {
+   "login": "adityaa72"
+  },
+  "state": "OPEN",
+  "stateReason": null,
+  "labels": {
+   "nodes": [
+    {
+     "name": "waiting for \ud83d\udc4d"
+    }
+   ]
+  },
+  "comments": {
+   "totalCount": 13,
+   "nodes": [
+    {
+     "body": "<!-- linear-linkback -->\n<p><a href=\"https://linear.app/mui/issue/BAS-467/export-root-context-hooks-for-better-composability\">BAS-467</a></p>",
+     "author": {
+      "login": "linear"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    },
+    {
+     "body": "Can you provide one example where it's needed?",
+     "author": {
+      "login": "oliviertassinari"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Yes, \n\nI need state in checkbox indicator to animate indicator with motion.\nStates such as checked, intermediate are required in indicator.\n\n```ts \nexport const CheckboxIcon = () => {\n  const { checked, indeterminate } = useCheckboxRootContext();\n  return (\n    <motion.svg\n      animate={checked || indeterminate ? \"checked\" : \"unchecked\"}\n      fill=\"none\"\n      initial={false}\n      stroke=\"currentColor\"\n      strokeWidth=\"4\"\n      viewBox=\"0 0 24 24\"\n      xmlns=\"http://www.w3.org/2000/svg\"\n    >\n      <motion.path\n        d={indeterminate ? \"M5 12h14\" : \"M4.5 12.75l6 6 9-13.5\"}\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n        variants={tickVariants}\n      />\n    </motion.svg>\n  );\n};\n\n```\n\nYou can also see this [Animate UI Checkbox](https://github.com/imskyleen/animate-ui/blob/main/apps/www/registry/primitives/base/checkbox/index.tsx)\n\nSimilarly it will also be used to render indicator with children as function receiving states.\nThere can be pattern such as \n\n``` ts\n<Checkbox.Indicator>\n  {({ checked }) => {\n    return checked ? <SunIcon /> : <MoonIcon />;\n  }}\n</Checkbox.Indicator>;\n```\n\n---\nWhile many of these use cases can technically be achieved by making the Root component controlled, doing so when building custom slots or public components requires re-implementing internal logic.\n\nFor example, developers need to manually:\n\n- Manage controlled/uncontrolled state using `useControlledState`\n- Create a new context to share that state\n- Reconnect the custom slots with that context\n\nHowever, this logic already exists internally in Base UI. If Base UI exposed the corresponding Root context hooks, developers could reuse the existing state and behavior instead of re-implementing it.\n\nProviding these hooks would make it much easier to build custom compositions and design-system abstractions on top of Base UI while still relying on the library's internal state management.",
+     "author": {
+      "login": "adityaa72"
+     },
+     "reactions": {
+      "totalCount": 2
+     }
+    },
+    {
+     "body": "> I need state in checkbox indicator to animate indicator with motion.\n\nThis is already possible, the recommended way is using [the `render` prop](https://base-ui.com/react/handbook/composition#render-function) where the `state` contains all the state that you would need:\n```tsx\n<Checkbox.Indicator\n  keepMounted\n  render={(props, state) => (\n    <motion.svg\n      {...props}\n      animate={state.checked || state.indeterminate ? \"checked\" : \"unchecked\"}\n      fill=\"none\"\n      initial={false}\n      stroke=\"currentColor\"\n      strokeWidth=\"4\"\n      viewBox=\"0 0 24 24\"\n      xmlns=\"http://www.w3.org/2000/svg\"\n    >\n      <motion.path\n        d={state.indeterminate ? \"M5 12h14\" : \"M4.5 12.75l6 6 9-13.5\"}\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n        variants={tickVariants}\n      />\n    </motion.svg>\n  )}\n/>\n```\n\nFor `checked ? <SunIcon /> : <MoonIcon />` see this demo: https://base-ui.com/react/components/toggle\n\n@adityaa72 Do you have a use-case where this isn't sufficient?",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Thanks for the explanation. You're correct that this is possible with the render prop, but there are still use-cases where context hooks provide a better developer experience.\n\nThe render prop only exposes state within the render callback. This makes it difficult to build reusable components that consume the component state elsewhere in the subtree.\n\nFor example:\n\n```tsx\nfunction MenuAnalytics() {\n  const { open } = useMenuRootContext()\n\n  useEffect(() => {\n    if (open) track(\"menu_open\")\n  }, [open])\n\n  return null\n}\n```\n\nUsage:\n``` tsx\n<Menu.Root>\n  <Menu.Trigger />\n  <Menu.Content />\n  <MenuAnalytics />\n</Menu.Root>\n```\n\nWith the render prop approach, this logic must live inside a slot render function instead of an independent component.\n\nWhile this could technically be implemented by using a render prop on `Menu.Root`, it would require restructuring the component tree and moving unrelated logic into the render callback, which makes reusable abstractions and separation of concerns harder.\n\n---\n\nAnother advantage of consuming state through context is that it keeps component composition simpler.\n\nFor example, your suggestion works well when the logic stays inside the render callback. However, in many cases we want to compose custom components directly as children:\n\n```tsx\n<Checkbox.Indicator keepMounted>\n  <MyCustomIcon />\n</Checkbox.Indicator>\n```\n\nWhere MyCustomIcon can internally read the state:\n```tsx\nfunction MyCustomIcon() {\n  const { checked, indeterminate } = useCheckboxRootContext()\n\n  return checked || indeterminate ? <CheckedIcon /> : <UncheckedIcon />\n}\n```\n\nThis allows the component tree to remain declarative while keeping the state-dependent logic inside reusable components.\n\nWith the render prop approach, the logic must remain inline in the render function, which makes extracting reusable components harder and couples the implementation more tightly to the slot.",
+     "author": {
+      "login": "adityaa72"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "We don't support this in favor of the render prop\n```\n<Checkbox.Indicator keepMounted>\n  <MyCustomIcon />\n</Checkbox.Indicator>\n```\n\nFor the other cases like \"MenuAnalytics\", you should use controlled mode\n\nWe may consider providing context access in the future, but IMO it's unlikely we will do so in v1",
+     "author": {
+      "login": "mj12albert"
+     },
+     "reactions": {
+      "totalCount": 1
+     }
+    },
+    {
+     "body": "Just adding some context for future consideration, since I noticed a similar pattern while looking at the upcoming Calendar component work and thought it was relevant to this discussion.\n\nIn Calendar, the current approach is to expose `Calendar.useContext()` inside the subtree so custom parts can read state like `visibleDate `and call actions such as `setVisibleDate().`\n\nThat seems related to the feature being requested here. If this kind of API is ever considered in the future for other components, a similar context-based approach could be one way to support those composition use cases.\n\n<img width=\"759\" height=\"97\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/fa206c02-443a-48b1-80f5-2120812c70e5\" />",
+     "author": {
+      "login": "CiscoFran10"
+     },
+     "reactions": {
+      "totalCount": 3
+     }
+    },
+    {
+     "body": "We have an ongoing discussion about exposing this kind of hook.\nOn the Calendar, I decided to add one for the `visibleDate` / `setVisibleDate` because those props are very often used (to create headers mostly) and I didn't want people to have to control the prop and to use custom context or props drilling all the time.\nBut this is slightly inconsistent with the other Base UI components where the solutions would have been to control `visibleDate` and to pass `setVisibleDate` manually to the header.\n\nThe Calendar is not released yet and we'll try to unify the approaches before releasing it.\nThe last thing I want is to end up with DX that vary randomly across components without a clear reason.\n\nIf you have use cases that you think can help us understand why this is needed (what you need in this context exactly) please explain them here so that we can take the best decision possible.",
+     "author": {
+      "login": "flaviendelangle"
+     },
+     "reactions": {
+      "totalCount": 0
+     }
+    }
+   ]
+  }
+ }
+}

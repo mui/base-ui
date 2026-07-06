@@ -1,0 +1,2618 @@
+[
+ {
+  "number": 3194,
+  "title": "Import Select element causes - Uncaught Error Calling require for react in an environment that doesn't expose require function",
+  "state": "CLOSED",
+  "comments": 19,
+  "reactions": 0,
+  "labels": [
+   "external dependency",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2485,
+  "title": "Timeline for Base UI stable release",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 7,
+  "labels": [
+   "support: question",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 3530,
+  "title": "Tooltip vs. Popover - touch support",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 5,
+  "labels": [
+   "component: tooltip",
+   "discussion",
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 4186,
+  "title": "[navigation menu] Keyboard navigation gets into broken state with focus handlers",
+  "state": "CLOSED",
+  "comments": 9,
+  "reactions": 4,
+  "labels": [
+   "has workaround",
+   "component: navigation menu"
+  ]
+ },
+ {
+  "number": 4008,
+  "title": "Why is there no Button Group when you have a Checkbox Group?",
+  "state": "CLOSED",
+  "comments": 16,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 1930,
+  "title": "Nested popover closes immediately when using portals",
+  "state": "CLOSED",
+  "comments": 13,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3693,
+  "title": "[dialog] Don't add invisible span element after clicked trigger",
+  "state": "CLOSED",
+  "comments": 13,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3950,
+  "title": "Adding data-base-ui-inert to DOM elements when floating elements open makes component usage restrictive and unpredictable",
+  "state": "CLOSED",
+  "comments": 12,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 981,
+  "title": "[slider] Incorrect pointer tracking when padding is applied to the \"poles\" of the Control",
+  "state": "CLOSED",
+  "comments": 12,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1530,
+  "title": "[slider] Thumb alignment for inset slider designs",
+  "state": "CLOSED",
+  "comments": 8,
+  "reactions": 2,
+  "labels": [
+   "component: slider",
+   "type: new feature",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1494,
+  "title": "[tabs] How does it work with Motion?",
+  "state": "CLOSED",
+  "comments": 11,
+  "reactions": 0,
+  "labels": [
+   "component: tabs",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2152,
+  "title": "[number field] Can Number Field be used to evaluate equations?",
+  "state": "OPEN",
+  "comments": 9,
+  "reactions": 1,
+  "labels": [
+   "component: number field",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1922,
+  "title": "[select] with dynamic items fails to show popup upon update",
+  "state": "CLOSED",
+  "comments": 11,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4122,
+  "title": "Radio.Root, Checkbox.Root, and Switch.Root do not receive an accessible name from a wrapping <label> element",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 2,
+  "labels": [
+   "component: radio group",
+   "component: checkbox group",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4927,
+  "title": "[combobox][select] List header with \"Select all visible\"",
+  "state": "OPEN",
+  "comments": 7,
+  "reactions": 2,
+  "labels": [
+   "component: select",
+   "type: new feature",
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 1311,
+  "title": "[tooltip] Add a way for the Tooltip to remain open when the trigger is clicked",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 3,
+  "labels": [
+   "type: enhancement",
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3630,
+  "title": "[combobox] Allow Combobox.Clear to be focusable and keyboard navigatable",
+  "state": "CLOSED",
+  "comments": 10,
+  "reactions": 0,
+  "labels": [
+   "accessibility",
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3525,
+  "title": "[toggle] Single selection mode with role=\"radio\"",
+  "state": "OPEN",
+  "comments": 8,
+  "reactions": 1,
+  "labels": [
+   "component: toggle",
+   "support: question",
+   "component: toggle group"
+  ]
+ },
+ {
+  "number": 719,
+  "title": "[docs] Which package url is valid ?",
+  "state": "CLOSED",
+  "comments": 10,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "support: docs-feedback",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 2254,
+  "title": "[navigation menu] Support click-only or mixed trigger modes for item activation",
+  "state": "OPEN",
+  "comments": 10,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: navigation menu"
+  ]
+ },
+ {
+  "number": 2780,
+  "title": "[toast] `Portal` doesn't respect provided `container`",
+  "state": "CLOSED",
+  "comments": 10,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: toast",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3546,
+  "title": "[select] Select closes immediately inside extension popup in Firefox",
+  "state": "CLOSED",
+  "comments": 10,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "browser: Firefox",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1746,
+  "title": "[menu] Should link menu items navigate to their `href` when pressing Space?",
+  "state": "CLOSED",
+  "comments": 8,
+  "reactions": 1,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2686,
+  "title": "[autocomplete] Allow submitting arbitrary value in Autocomplete with a single Enter key press",
+  "state": "CLOSED",
+  "comments": 8,
+  "reactions": 1,
+  "labels": [
+   "type: bug",
+   "type: new feature",
+   "has workaround",
+   "component: autocomplete"
+  ]
+ },
+ {
+  "number": 2854,
+  "title": "Stacking / z-index issue when using Base UI components inside Radix Dialog",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 1,
+  "labels": [
+   "external dependency",
+   "support: question",
+   "component: autocomplete",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 2731,
+  "title": "[combobox] No way for me to differentiate between hover and focus state on Combobox Items",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 2,
+  "labels": [
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3263,
+  "title": "Radio hover css behaves differently in Beta 5/6",
+  "state": "CLOSED",
+  "comments": 9,
+  "reactions": 0,
+  "labels": [
+   "component: radio group",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4915,
+  "title": "[collapsible] `data-starting-style` is not properly applied at the opening animation",
+  "state": "OPEN",
+  "comments": 7,
+  "reactions": 1,
+  "labels": [
+   "component: collapsible",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4127,
+  "title": "[tabs] Tab transition issue in Preact: new tab content appears before old tab disappears",
+  "state": "CLOSED",
+  "comments": 9,
+  "reactions": 0,
+  "labels": [
+   "component: tabs",
+   "type: regression",
+   "has workaround",
+   "integration: preact"
+  ]
+ },
+ {
+  "number": 1965,
+  "title": "[menu] Trigger `onClick` is not called",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 1,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2186,
+  "title": "[dialog] portal stays \"mounted\" when popup is removed",
+  "state": "OPEN",
+  "comments": 5,
+  "reactions": 2,
+  "labels": [
+   "type: bug",
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2695,
+  "title": "[combobox] Trying to implement a Tree of Groups of Checkboxes with a \"Select All\" root Item.",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 2,
+  "labels": [
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 1814,
+  "title": "[number field] Export `useNumberFieldButton` / Increment, Decrement for text input",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 3,
+  "labels": [
+   "component: number field",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1893,
+  "title": "[dialog] Lock scroll on iOS if navbar is collapsed",
+  "state": "CLOSED",
+  "comments": 8,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: dialog",
+   "browser: Safari",
+   "mobile",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2940,
+  "title": "[dialog] Can't apply hover styles on `Backdrop`",
+  "state": "CLOSED",
+  "comments": 8,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1996,
+  "title": "[field] Implementing a custom Field.Control",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3951,
+  "title": "[combobox] Type safety and type inference",
+  "state": "OPEN",
+  "comments": 5,
+  "reactions": 1,
+  "labels": [
+   "support: question",
+   "typescript",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4039,
+  "title": "`useRender` can crash during React reconciliation",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "hook: useRender"
+  ]
+ },
+ {
+  "number": 2289,
+  "title": "[select] Opening/closing popup doesn't show animation",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 1,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 1678,
+  "title": "[accordion] h3 as an Accordion Header issue",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 2,
+  "labels": [
+   "component: accordion",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 2302,
+  "title": "[composite] Conditionally invoke `element.scrollTo` for consumer unit tests",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "has workaround",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 3349,
+  "title": "[menu] sub popup clips the viewport",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3755,
+  "title": "[navigation menu] support for SSR / forceMount",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "has workaround",
+   "component: navigation menu"
+  ]
+ },
+ {
+  "number": 3166,
+  "title": "[context menu] FocusGuard creates <span> elements in table body if used on table rows",
+  "state": "CLOSED",
+  "comments": 7,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: context menu"
+  ]
+ },
+ {
+  "number": 3019,
+  "title": "[combobox] Hidden input styles in combobox interferes with dnd operations",
+  "state": "OPEN",
+  "comments": 5,
+  "reactions": 1,
+  "labels": [
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4373,
+  "title": "[slider] Next.js script tag error on slider thumb",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 1,
+  "labels": [
+   "component: slider",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1205,
+  "title": "[scroll area] Consider dropping the inner div and the `overflow` style",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 2,
+  "labels": [
+   "breaking change",
+   "waiting for \ud83d\udc4d",
+   "component: scroll area",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3570,
+  "title": "[navigation menu] Hover events that happen before hydration don't get replayed by React",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 2,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "component: navigation menu"
+  ]
+ },
+ {
+  "number": 4380,
+  "title": "[drawer] Prevents touch scrolling in portaled popups (Select, Combobox) on mobile",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 2,
+  "labels": [
+   "type: bug",
+   "component: drawer",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4541,
+  "title": "[drawer] Dismissible prop for drawers",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 3,
+  "labels": [
+   "type: new feature",
+   "component: drawer",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2734,
+  "title": "[select][combobox] Guidance on Select vs. Combobox",
+  "state": "OPEN",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2858,
+  "title": "[dialog] Click events not firing inside ShadowRoot (Dialog.Portal)",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "component: dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3326,
+  "title": "[dialog] Server-side rendering an open dialog",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 2,
+  "labels": [
+   "component: dialog",
+   "support: question",
+   "waiting for \ud83d\udc4d"
+  ]
+ },
+ {
+  "number": 1420,
+  "title": "[tooltip] Trigger does not set aria-describedby",
+  "state": "CLOSED",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "component: tooltip",
+   "accessibility",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 1733,
+  "title": "[menu] Disabled menu items get highlighted and can even get clicked (sort of)",
+  "state": "CLOSED",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3181,
+  "title": "[combobox] Popup closes automatically when list is filtered in `multiple`",
+  "state": "OPEN",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3171,
+  "title": "[combobox] Controlled Combobox with primitive-typed items menu issues",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4735,
+  "title": "[combobox] Input renders the raw value instead of the label provided in the root items",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4778,
+  "title": "[preview card] Touch support",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "type: expected behavior",
+   "mobile",
+   "component: preview card"
+  ]
+ },
+ {
+  "number": 3079,
+  "title": "Autocomplete `onValueChange` not called when typing  when empty, on mobile only",
+  "state": "CLOSED",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "status: waiting for author",
+   "has workaround",
+   "component: autocomplete"
+  ]
+ },
+ {
+  "number": 3363,
+  "title": "[popover] Placement regression",
+  "state": "CLOSED",
+  "comments": 6,
+  "reactions": 0,
+  "labels": [
+   "type: regression",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1845,
+  "title": "[field][number field][slider] min/max props conflict with field min/max validation",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "component: slider",
+   "component: number field",
+   "type: bug",
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3587,
+  "title": "[select] Height of popover too large when using alignItemWithTrigger",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "component: select",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1761,
+  "title": "[select] Keep focus indicator on trigger when popup is open",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 1,
+  "labels": [
+   "component: select",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3323,
+  "title": "How to trigger initial validation in Field.Root?",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: field"
+  ]
+ },
+ {
+  "number": 3044,
+  "title": "[fieldset] Why does `Fieldset.Legend` render a `div` instead of a `legend` by default?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 1,
+  "labels": [
+   "support: question",
+   "component: field"
+  ]
+ },
+ {
+  "number": 3548,
+  "title": "[docs] The Javascript animation looks like their is a missing part",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 1,
+  "labels": [
+   "docs",
+   "support: question"
+  ]
+ },
+ {
+  "number": 4123,
+  "title": "Backward tab navigation breaks after closing a Popover triggered from within a ToggleGroup",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "type: expected behavior",
+   "component: toggle group"
+  ]
+ },
+ {
+  "number": 4170,
+  "title": "[preview card] Component has no a11y warning in the docs. Is it accessible?",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "accessibility",
+   "type: expected behavior",
+   "component: preview card"
+  ]
+ },
+ {
+  "number": 3243,
+  "title": "[combobox] Combobox inside Popocer input does not focus after Suspense",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 1556,
+  "title": "[select] Controlled select does not update when the external value changes",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2595,
+  "title": "[context menu] Popup closes on mouseup with `align` set to `center`",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "component: context menu"
+  ]
+ },
+ {
+  "number": 3338,
+  "title": "[radio group] No name attribute on input if no radio checked",
+  "state": "OPEN",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "component: radio group",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4205,
+  "title": "[scroll-area] non-scrollable scroll-area breaks focus trapping of the dialog",
+  "state": "CLOSED",
+  "comments": 5,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: scroll area",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3782,
+  "title": "It is unclear how to show value tooltips in slider when dragging a thumb",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 1,
+  "labels": [
+   "component: slider",
+   "type: enhancement",
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3075,
+  "title": "[tooltip] Trigger does not work when rendering disabled elements",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 1,
+  "labels": [
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3545,
+  "title": "[mergeProps] TypeScript error with data-* attributes",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 2,
+  "labels": [
+   "typescript",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2157,
+  "title": "[popover] Is there a way to render the `Popover` oven an existing element in the DOM?",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 4643,
+  "title": "[Input] How to clear the input value an an Input on a button click?",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: input",
+   "support: question"
+  ]
+ },
+ {
+  "number": 4818,
+  "title": "[menu] Why doesn't Menu focus the first item when opened with a cursor?",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1195,
+  "title": "[popover] How to align the start of the popover with the center of the trigger?",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 4750,
+  "title": "[popover] Why can't I have Popover.Content outside of a Portal?",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 2673,
+  "title": "[combobox] \"ItemIndicator\" for Combobox",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 1,
+  "labels": [
+   "component: checkbox",
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 587,
+  "title": "[field] <Field.Label render=\"div\"> doesn't work",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: field"
+  ]
+ },
+ {
+  "number": 1590,
+  "title": "[select] Select.Portal is always mounted, even when the select is closed",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3305,
+  "title": "[combobox] Grouped: Searching breaks if array does not have explicit `items` field",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "typescript",
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4012,
+  "title": "Menu.Root modal behavior does not fully block outside interaction for dropdowns",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4114,
+  "title": "[accordion] disabled attribute isn't set on AccordionTrigger",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: accordion",
+   "type: expected behavior",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4644,
+  "title": "[select] `data-filled=false` when value is empty string",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 1439,
+  "title": "[select] Trigger can still be clicked once after becoming disabled",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1913,
+  "title": "[tooltip] Infinite hide/show loop when using `hoverable={false}` and custom `anchor`",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3200,
+  "title": "[Navigation menu] Rendering fails in React 16 if `<NavigationMenu.Item />` not given an explicit `value` prop",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3074,
+  "title": "[menu] Virtualized DataGrid: opening Base\u2011UI MenuTrigger causes full grid re-render (Radix works fine)",
+  "state": "OPEN",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5126,
+  "title": "[tabs] If panel contains focusable items, focus should move to that, not the panel",
+  "state": "CLOSED",
+  "comments": 4,
+  "reactions": 0,
+  "labels": [
+   "component: tabs",
+   "type: enhancement",
+   "not planned",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1904,
+  "title": "[field] Option or way to run the validation function after checkValidity",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 1,
+  "labels": [
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2629,
+  "title": "Autocomplete.useFilter bundle dts generation error",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 1,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 4173,
+  "title": "[accordion] Support scroll into view",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 1,
+  "labels": [
+   "type: new feature",
+   "component: accordion",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2308,
+  "title": "[dialog] Export `floating-ui-react`",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1975,
+  "title": "[form] Plans to add onBlur?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: form",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1935,
+  "title": "[toast] How to make a non base ui component overlap the dialog",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: toast"
+  ]
+ },
+ {
+  "number": 2693,
+  "title": "[menu] How can the `Popover` be rendered over a disabled `Menu.Item`?",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2938,
+  "title": "[Bug][Dialog] Not able to use sonner/react-hot-toast etc with dialog component",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2759,
+  "title": "[combobox] An example for Custom value to be rendered inside Combobox",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3577,
+  "title": "[popover] detached trigger without the Popover.Trigger element",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover",
+   "linked in docs"
+  ]
+ },
+ {
+  "number": 3476,
+  "title": "How do you override Base UI data attributes?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: button",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3386,
+  "title": "[dialog] progressive enhancement for iOS 26 Safari is not working",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3438,
+  "title": "[combobox] Provide mechanism for responding to position changes in dropdown",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3339,
+  "title": "`AlertDialog`: add support for light dismiss?",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: alert dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 4045,
+  "title": "[bug?][help] how do you use `render` props in Next.js?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 4038,
+  "title": "[slider] Targeting the Thumb properly in a Jest/Vitest environment",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "support: question"
+  ]
+ },
+ {
+  "number": 4558,
+  "title": "[progress] Why custom markup for progress?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: progress"
+  ]
+ },
+ {
+  "number": 4864,
+  "title": "[combobox] Combobox.Value should render a span",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 1681,
+  "title": "[dialog] `className` and other attributes on `Dialog.Portal` are ignored",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "typescript",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3023,
+  "title": "duplicate className for focus on the `Field.Control`",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "duplicate",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 2712,
+  "title": "[select] Positioner not working correctly",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3236,
+  "title": "[Field] Clicking on `Label` does not open / focus `Select`",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3653,
+  "title": "Popover popup flickers when scrolling page, parent has sticky position",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4021,
+  "title": "[Button] Button applying \"role=button\" to links",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: button",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4159,
+  "title": "[popover] May choose right side despite `side=\"down\"` preferred on `Positioner`",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 5150,
+  "title": "[button] The `Button` component never forwards the `autoFocus` prop to the native element",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: button",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4615,
+  "title": "[useScrollLock] Backdrops not covering scrollbar area in macOS",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4129,
+  "title": "[select] `autoComplete` is either missing in `RootProps`, or should not be there in the docs",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3012,
+  "title": "[popover][select] modal=true mode scroll not disabled on mobile",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "component: popover",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4928,
+  "title": "[combobox] Looping from end to beginning of value list via keyboard requires two keypresses",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4881,
+  "title": "[menu] Menu.Item adding `data-highlighted` to items that are disabled can cause unintended effects on styling and behavior",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4952,
+  "title": "[CheckboxGroup] Multiple required child checkboxes are not all validated",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: checkbox group",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1425,
+  "title": "[field] Does not invalidate certain required controls",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "component: radio group",
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1679,
+  "title": "[popover] Could we switch off `initialFocus`?",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1443,
+  "title": "[number field] Increment and Decrement can be clicked when disabled",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: number field",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1588,
+  "title": "[accordion] Opening animation isn't cancelled when a panel is initially open",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: accordion",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1745,
+  "title": "[form][select] `data-invalid` not cleared on Select and RadioGroup fields.",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: form",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1817,
+  "title": "[number field] refocusing and blurring input can cause value to change",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: number field",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2228,
+  "title": "[field][form] Error during form submission after dynamically adding or removing `Field.Root`s",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: form",
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1903,
+  "title": "[menu] Menu focus management breaks when first item is hidden",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2913,
+  "title": "[combobox] cant submit a form with required and multiple prop",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "component: field",
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3301,
+  "title": "[select] Broken `value` type inference on Select wrapper component",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "typescript",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3646,
+  "title": "[combobox] Item with a `label` inside of it will cause a double click",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3419,
+  "title": "Navigation Menu animation broken in examples in Firefox",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: regression",
+   "browser: Firefox",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3425,
+  "title": "Values of the `Tabs.Indicator` CSS variables are incorrect when the tabs are used in a `Dialog`",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: tabs",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4119,
+  "title": "[drawer] Dismissible trough swipe in controlled mode",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: drawer",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3184,
+  "title": "[menu] Closes as soon as it's opened when extending the trigger's tap area with absolute-positioned element",
+  "state": "OPEN",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5152,
+  "title": "[menu] Multiple submenus are broken when moving mouse fast",
+  "state": "CLOSED",
+  "comments": 3,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1608,
+  "title": "[collapsible] Exit animation doesn't run when using motion and Tailwind v4",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 1,
+  "labels": [
+   "component: collapsible",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1176,
+  "title": "What are the differences between @base-ui-components/react and @mui/base?",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 1543,
+  "title": "[number field] Trailing Zeros Prop to Input",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: number field",
+   "support: question"
+  ]
+ },
+ {
+  "number": 1748,
+  "title": "[useEnhancedClickHandler] Possible error in the `handleClick` code",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 2534,
+  "title": "[positioner] Can I use the `useAnchorPositioning.SharedParameters` type?",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover",
+   "typescript"
+  ]
+ },
+ {
+  "number": 2916,
+  "title": "[docs] How to use @base-ui-components/react in complex projects",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2927,
+  "title": "Right-side navigation (QuickNav) scroll issue",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3872,
+  "title": "How to manually disable accessibility for all or some components",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 3721,
+  "title": "[radio] Not discoverable by assistive technologies?",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: radio group"
+  ]
+ },
+ {
+  "number": 3551,
+  "title": "[field] common `Field.Control` styles",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: field"
+  ]
+ },
+ {
+  "number": 4011,
+  "title": "[combobox] Add data-active attribute for Combobox.Chip",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 4342,
+  "title": "[dialog/drawer] ReferenceError: WeakRef is not defined on older mobile browsers",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: drawer",
+   "component: dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3579,
+  "title": "Is base-ui a reliable choice for enterprise frontend libraries?",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 4668,
+  "title": "`DropdownMenu` component focus guard elements flag `aria-hidden-focus` issues in Storybook",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 634,
+  "title": "[Autocomplete] useAutocomplete - Autocomplete input does not show selected values in multiple mode;`inputValue` is empty when Autocomplete is in multiple mode.",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 1591,
+  "title": "[menu] items receive focus on hover",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3502,
+  "title": "[combobox] `Combobox.Input` value reset on re-renders",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3317,
+  "title": "[context menu] Menu closes when mousedown and mouseup at different locations",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: context menu"
+  ]
+ },
+ {
+  "number": 4498,
+  "title": "[dialog] Opening dialogs using detached triggers from outside of React",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4696,
+  "title": "[scroll area] scrollbar thumb not recalculated when content DOM changes (e.g. Collapsible mount/unmount)",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: scroll area"
+  ]
+ },
+ {
+  "number": 4845,
+  "title": "[Drawer] Focus guard elements violate aria-hidden-focus WCAG rule",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 5014,
+  "title": "[tooltip] Tooltip does not work when Trigger is wrapped in a dedicated component",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: tooltip",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4917,
+  "title": "Mouse cursor does not change when hovering over collapsible elements on homepage",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4552,
+  "title": "[CheckboxGroup] Parent checkbox toggle uses stale state in controlled mode",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: expected behavior",
+   "component: checkbox group",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5130,
+  "title": "[switch] Focus ring is missing in Firefox after pointer focus and keyboard activation",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: switch",
+   "type: expected behavior",
+   "browser: Firefox"
+  ]
+ },
+ {
+  "number": 1523,
+  "title": "[popover] Select inputs on focus",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1480,
+  "title": "[slider] Incorrect CSS `position` on vertical slider indicator",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "type: bug",
+   "ready to take",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1468,
+  "title": "[collapsible] disabled prop doesnt work on Root",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: collapsible",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1432,
+  "title": "[menu] Positioner is repositioned when navigating items",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1804,
+  "title": "[toast] Missing `toastManager.remove` in global manager",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: toast",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2389,
+  "title": "[select] after updating `items`, `value` is shown when new item selected",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1911,
+  "title": "[popover] Add `--anchor-x` and `--anchor-y` CSS custom properties to `Positioner`",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2075,
+  "title": "[popover] Positioning when keepMounted = true",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: regression",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2809,
+  "title": "[toast] Toast.Description does not render when a custom component is passed to render",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: toast",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3064,
+  "title": "[combobox] Combobox value does not appear in Combobox.Input when options arrive late",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 2525,
+  "title": "[navigation menu] enhance accessibility",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "accessibility",
+   "has workaround",
+   "component: navigation menu"
+  ]
+ },
+ {
+  "number": 2833,
+  "title": "[toast] `promise` method doesn't return toast ID",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "component: toast",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3256,
+  "title": "[menu] Inferred menu item label includes SVG description",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3153,
+  "title": "[dialog] Allow preventing `Dialog.Close` onClick when animation is in progress",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4245,
+  "title": "[autocomplete] Option to opt out of Escape clearing the input value",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "type: new feature",
+   "has workaround",
+   "component: autocomplete"
+  ]
+ },
+ {
+  "number": 4303,
+  "title": "[slider] thumbAlignment=\"edge\" produces NaN positions when mounted inside display:none",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1725,
+  "title": "[menu] Allow `Menu.RadioGroup` to be labelled by a `Menu.GroupLabel`",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: enhancement",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4608,
+  "title": "[otp field] Allow for uppercase-only input",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: otp field"
+  ]
+ },
+ {
+  "number": 2963,
+  "title": "[number field] dont allow to input `1%2` or parse it accordingly",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: number field",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5118,
+  "title": "[combobox] Popup positioning gets tricky with scrollable content",
+  "state": "CLOSED",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 2177,
+  "title": "[popover][positioner] Add JS access to `--available-width` and `--available-height`",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5170,
+  "title": "[menu] Root menu closes with reason \"sibling-open\" when its own submenu opens (1.4.1\u20131.6.0)",
+  "state": "OPEN",
+  "comments": 2,
+  "reactions": 0,
+  "labels": [
+   "status: waiting for author",
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2147,
+  "title": "[dialog] disable animation",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "support: question"
+  ]
+ },
+ {
+  "number": 2314,
+  "title": "[popover] onOpenChange, how to cancel an open change",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 3739,
+  "title": "[tooltip] Is there a way to programatically append <Tooltip /> to a `HTMLElement`?",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: tooltip",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3411,
+  "title": "Security fix: React 19.2.1 released (CVE-2025-55182) \u2013 Should Base UI bump dependencies?",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 3440,
+  "title": "Why reexports in packages/react/src/index.ts when has exports in package.json?",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 4473,
+  "title": "[slider] Allow to format the slider value",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "support: question"
+  ]
+ },
+ {
+  "number": 4754,
+  "title": "[select] \"role\" of select",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "accessibility",
+   "support: question"
+  ]
+ },
+ {
+  "number": 3716,
+  "title": "[popover] disablePointerDismissal prop?",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "docs",
+   "support: question",
+   "component: popover"
+  ]
+ },
+ {
+  "number": 318,
+  "title": "[dialog] Playwright E2E tests incorrectly thinking elements are hidden",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 2012,
+  "title": "[checkbox group] support for arrow keys navigation",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: checkbox",
+   "type: expected behavior",
+   "component: checkbox group"
+  ]
+ },
+ {
+  "number": 2281,
+  "title": "[menu] `MenuItem` with `render`: `onClick` is not called for keyboard users",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 3562,
+  "title": "[dialog] Modal behavior not preventing close on outside click.",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: dialog",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4647,
+  "title": "ToolbarSeparator data-orientation appears to be inverted",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: toolbar",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4432,
+  "title": "Accessibility - React Slider is not WCAG compliant for Guideline 2.5.2",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: slider",
+   "accessibility",
+   "type: expected behavior"
+  ]
+ },
+ {
+  "number": 4433,
+  "title": "Accessibility - React Area Scroll is not WCAG compliant for Guideline 2.5.2",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "accessibility",
+   "type: expected behavior",
+   "component: scroll area"
+  ]
+ },
+ {
+  "number": 1135,
+  "title": "[menu] Prevent sloppy clicks from selecting the entire page in Safari",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "component: menu",
+   "component: alert dialog",
+   "type: bug",
+   "component: dialog",
+   "component: popover",
+   "browser: Safari",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1404,
+  "title": "[tooltip] Delay seems to be ignored",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1680,
+  "title": "[tooltip] Support Conditional Rendering/Disabling of Tooltip Without Breaking Context",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: new feature",
+   "component: tooltip",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1197,
+  "title": "[menu] Submenu triggers retain `data-highlighted` when focus has moved to submenu popup using keyboard",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1340,
+  "title": "[dialog] Page is scrolled to top when opening the dialog if `html { scroll-behavior: smooth }`",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1483,
+  "title": "[number field] ScrubArea not working accordingly on hybrid touch devices",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: number field",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1842,
+  "title": "[menu] Changing the rendered items after the menu is open breaks keyboard navigation",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2195,
+  "title": "[menu][popover] Stop event propagation for `Menu.Popup` `onClick` and `onDoubleClick`",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "component: dialog",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1942,
+  "title": "[select] `Select.Value` shows SVG description",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 1932,
+  "title": "[popover] Nested popover when both have `openOnHover` closes when hovering over it",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 2039,
+  "title": "[menu] trigger inside popovers have `role=\"menuitem\"`",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: regression",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3446,
+  "title": "`Menu.SubmenuTrigger` with `delay={0}` doesn't always open",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "type: bug",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3347,
+  "title": "[combobox] The page freezes when using a combobox with `items={undefined}`",
+  "state": "CLOSED",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 5158,
+  "title": "[menu] Slip-click silently cancels opening: mouseup a few px outside the trigger closes the just-opened menu (2px tolerance, no time threshold)",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: menu",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4752,
+  "title": "[select] Using render in Select.Icon do not remove the default icon",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "component: select",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 3199,
+  "title": "[popover] Focus is not set to the interactive element when it is in another component",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "type: enhancement",
+   "component: popover",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4938,
+  "title": "[combobox] clearing value using the input-inside-popup pattern",
+  "state": "OPEN",
+  "comments": 1,
+  "reactions": 0,
+  "labels": [
+   "has workaround",
+   "component: combobox"
+  ]
+ },
+ {
+  "number": 3578,
+  "title": "Is base-ui a reliable choice for enterprise frontend libraries?",
+  "state": "CLOSED",
+  "comments": 0,
+  "reactions": 0,
+  "labels": [
+   "support: question"
+  ]
+ },
+ {
+  "number": 1348,
+  "title": "[all components] Set `pointer-events: none` functional style on `Backdrop` parts for hoverable popups",
+  "state": "CLOSED",
+  "comments": 0,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "scope: all components"
+  ]
+ },
+ {
+  "number": 1614,
+  "title": "[field] Does not forward `name` and `disabled` props from `Field`",
+  "state": "CLOSED",
+  "comments": 0,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "component: field",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 4984,
+  "title": "[dialog][alert dialog] Pass `payload` to `onOpenChange` callback",
+  "state": "OPEN",
+  "comments": 0,
+  "reactions": 0,
+  "labels": [
+   "component: alert dialog",
+   "component: dialog",
+   "has workaround"
+  ]
+ },
+ {
+  "number": 5103,
+  "title": "[NavigationMenu] Maximum update depth exceeded for NavigationMenu.Content with suspending child",
+  "state": "OPEN",
+  "comments": 0,
+  "reactions": 0,
+  "labels": [
+   "type: bug",
+   "has workaround",
+   "component: navigation menu"
+  ]
+ }
+]

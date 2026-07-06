@@ -15,16 +15,16 @@ Session started: 2026-07-06. Brief: [PROMPT.md](./PROMPT.md). A future session m
 | Phase | Status | Notes |
 |---|---|---|
 | Setup (branch, ledger, pnpm i) | done | branch `research` created from master @ d5a03c8f1; pnpm i OK |
-| A — reference notes (6 systems) | in-progress | agents launched |
-| A — definition-of-done | todo | |
+| A — reference notes (6 systems) | 5/6 done | govuk, react-spectrum, fluent, ebay, polaris in; material in-progress |
+| A — definition-of-done | in-progress | |
 | A — component-doc-template.mdx | todo | |
 | A — taxonomy.md | todo | |
-| B — mining (handbook/discussions/issues/history) | in-progress | agents launched |
-| B — principles.md / sources.md / glossary.md | todo | |
-| C — component briefs | todo | see table below |
-| D — corpus + per-component mining | todo | see table below |
-| E — Storybook scaffold | todo | placement decision pending (after inspecting playground/vite-app) |
-| E — setup-prompt.md generated + committed | todo | |
+| B — mining (handbook/discussions/issues/history) | done | 4 mining files under b-library-principles/_mining/. NOTE: Discussions surface is dead (4 total); real Q&A corpus = Issues labels `support: question`/`type: expected behavior`/`has workaround` (226 catalogued) |
+| B — principles.md / sources.md / glossary.md | todo | synthesize from _mining/ |
+| C — component briefs | in-progress | see table below |
+| D — corpus + per-component mining | in-progress | _corpus/repos.json building; per-component mining starts with Tier 1 |
+| E — Storybook scaffold | done | apps/storybook, SB 10.4.6, build green incl. story importing @base-ui/react from source. See e-storybook/decisions.md (Nx detection workaround; initializer's broken root-config edits reverted; source aliases) |
+| E — setup-prompt.md generated + committed | done | committed verbatim @ 6dde013c1 before acting on it |
 | E — stories + MDX per component | todo | see table below |
 | Close-out (SUMMARY.md, checklist, spot-check) | todo | |
 
