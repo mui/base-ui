@@ -51,6 +51,10 @@ import { Combobox } from '@base-ui/react/combobox';
         <Combobox.Empty />
 
         <Combobox.List>
+          <Combobox.Virtualizer estimateSize={32}>
+            {(item) => <Combobox.Item>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+
           <Combobox.Row>
             <Combobox.Item>
               <Combobox.ItemIndicator />
@@ -208,7 +212,7 @@ import { DemoComboboxCreatable } from './demos/creatable';
 
 ### Virtualized
 
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+Efficiently handle large datasets with `<Combobox.Virtualizer>`. It renders only the visible items while preserving Combobox keyboard navigation and selection behavior.
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
@@ -287,6 +291,10 @@ import { TypesCombobox } from './types';
 ### List
 
 <TypesCombobox.List />
+
+### Virtualizer
+
+<TypesCombobox.Virtualizer />
 
 ### Portal
 
