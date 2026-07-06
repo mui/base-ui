@@ -16,7 +16,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-inline: 1.5rem;
+    padding-inline: var(--content-layout-padding-x);
     position: fixed;
     top: 0;
     inset-inline: 0;

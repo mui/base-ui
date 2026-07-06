@@ -3,7 +3,7 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../store/PopoverStore';
+import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
@@ -13,7 +13,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -34,15 +34,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const store = PopoverStore.useStore(handle?.store, {
+  const store = usePopoverRootStore(handle, {
     modal,
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
   });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -115,6 +113,24 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
       <PopoverRootComponent props={props} />
     </FloatingTree>
   );
+}
+
+function usePopoverRootStore<Payload>(
+  handle: PopoverHandle<Payload> | undefined,
+  initialState: Partial<PopoverStoreState<Payload>>,
+) {
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
+  );
+
+  // Popover-specific: dispose the patient-click timeout held in the store's context on unmount.
+  React.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
+
+  return store;
 }
 
 export interface PopoverRootState {}
