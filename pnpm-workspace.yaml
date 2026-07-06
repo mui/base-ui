@@ -5,6 +5,7 @@ packages:
   - test/*
   - scripts/*
   - playground/*
+  - apps/*
 
 allowBuilds:
   esbuild: true

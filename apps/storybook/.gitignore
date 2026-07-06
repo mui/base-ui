@@ -1,0 +1,5 @@
+node_modules
+storybook-static
+debug-storybook.log
+*.log
+vitest.shims.d.ts.timestamp*

@@ -1,0 +1,37 @@
+{
+  "name": "base-ui-storybook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@base-ui/react": "workspace:*",
+    "@base-ui/utils": "workspace:*",
+    "@date-fns/tz": "^1.2.0",
+    "date-fns": "^4.1.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-a11y": "^10.4.6",
+    "@storybook/addon-docs": "^10.4.6",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/addon-vitest": "^10.4.6",
+    "@storybook/react-vite": "^10.4.6",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "@vitest/browser-playwright": "4.1.8",
+    "eslint-plugin-storybook": "^10.4.6",
+    "playwright": "^1.61.1",
+    "storybook": "^10.4.6",
+    "typescript": "6.0.3",
+    "vite": "8.0.11",
+    "vitest": "4.1.8"
+  }
+}
