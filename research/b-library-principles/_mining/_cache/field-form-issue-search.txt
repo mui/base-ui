@@ -1,0 +1,66 @@
+4737	open	[form] Form level validation / Standard schema support
+4298	closed	[form controls] Expose form prop of hidden input element
+4095	closed	[form] field-level validate skips first change after error added to errors prop
+2803	closed	[field] validationMode should support onSubmit
+2758	closed	[form] Documentation on the `onClearErrors` prop for the form component is insufficient
+2228	closed	[field][form] Error during form submission after dynamically adding or removing `Field.Root`s
+2142	closed	[form] Support `validationMode: onSubmit`
+2117	closed	[form] Form Fails to Submit via Enter Key When a Checkbox is Present
+1975	closed	[form] Plans to add onBlur?
+1944	closed	[form][number field] NumberField formatting should not be included in form value
+1864	closed	[form][field] Improve support for array values
+1758	closed	[select] Required option does not prevent form submit
+1745	closed	[form][select] `data-invalid` not cleared on Select and RadioGroup fields.
+1361	closed	[form] Input focus shift for onClearErrors with multiple Fields
+1346	open	[form] Support resetting a form to initial values
+1068	closed	[number field][form] Select input value when returning focus
+219	closed	[Form] Implement Form
+34	closed	[FormLabel] Create the unstyled component
+33	closed	[FormControlLabel] Create the unstyled component
+21	closed	[form][docs] React Hook Form guide/tutorial
+17	closed	[FormControl] Integrate FormControl with input components
+5100	closed	[Field] Control "valid" when `disabled`
+4252	closed	[field] accessibility: Example fails non-text contrast requirement
+3987	open	[field] data-focused attribute persists when data-disabled
+3930	open	[fieldset][field] Investigate `Fieldset`s as validation boundaries
+3928	closed	[field] Wrapping `Select` and `Checkbox` under one `<Field.Root>` causes update loop
+3921	closed	[field][avatar] Add transition attributes
+3819	closed	@base-ui/react/input (Field.Control) re-renders on every keystroke even when used uncontrolled (e.g. React Hook Form register)
+3807	closed	[field][docs] Missing usage of `Field.Item` for labelling radio and checkbox groups
+3777	open	[field] Field.Root invalid prop not resettable
+3551	closed	[field] common `Field.Control` styles
+3323	closed	How to trigger initial validation in Field.Root?
+3262	open	[fieldset] Expose useFieldsetRootContext
+3260	open	[fieldset] `Fieldset.Description` and `Fieldset.Error`
+3172	closed	[field] Focus state inaccurate on initial render when `Field.Control` has `autoFocus`
+3062	closed	[field] validity change handler
+3044	closed	[fieldset] Why does `Fieldset.Legend` render a `div` instead of a `legend` by default?
+2913	closed	[combobox] cant submit a form with required and multiple prop
+2803	closed	[field] validationMode should support onSubmit
+2530	closed	[field][input] Unable to set uncontrolled `Input` value via ref when wrapped in `Field`
+2306	open	[field] Accessing field state from custom components
+2228	closed	[field][form] Error during form submission after dynamically adding or removing `Field.Root`s
+2172	closed	[field][checkbox][radio group] Enable label and description on individual controls
+2113	closed	[field][select] Clicking `Field.Label` doesn't focus the trigger
+2108	closed	[field][Control] onValueChange `value` type
+2091	open	[field] Root required attribute via FieldRootContext
+1996	closed	[field] Implementing a custom Field.Control
+1982	closed	[field][checkbox group][radio group] Support multiple `Field.Label`s in a single field
+1972	closed	[field][checkbox group] `name` prop on field and checkbox group overwrites checkbox values
+1950	closed	[field][checkbox group] `validate` fn incorrectly runs twice when `validationMode="onChange"`
+1923	open	[field] Improve error message customization involving multiple validation rules
+1904	closed	[field] Option or way to run the validation function after checkValidity
+1864	closed	[form][field] Improve support for array values
+1845	closed	[field][number field][slider] min/max props conflict with field min/max validation
+1844	closed	[field][number field] `validate` has incorrect `value` arg when revalidating a valid field
+1778	closed	[field] The initial value is not validated and the validation is inconsistent
+1614	closed	[field] Does not forward `name` and `disabled` props from `Field`
+1426	open	[field][CheckboxGroup] Support required CheckboxGroups
+1425	open	[field] Does not invalidate certain required controls
+1361	closed	[form] Input focus shift for onClearErrors with multiple Fields
+1324	closed	[field] Add focused and filled states
+1200	closed	[field] Is `forceShow` prop necessary?
+1051	closed	[field] Base UI components link to hidden input `id`
+1050	closed	[field] Base UI components don't respect `validationMode` consistently
+587	closed	[field] <Field.Label render="div"> doesn't work
+586	closed	[field] Label doesn't blur unlinked input on mouse down

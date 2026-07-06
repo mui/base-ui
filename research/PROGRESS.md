@@ -15,12 +15,12 @@ Session started: 2026-07-06. Brief: [PROMPT.md](./PROMPT.md). A future session m
 | Phase | Status | Notes |
 |---|---|---|
 | Setup (branch, ledger, pnpm i) | done | branch `research` created from master @ d5a03c8f1; pnpm i OK |
-| A — reference notes (6 systems) | 5/6 done | govuk, react-spectrum, fluent, ebay, polaris in; material in-progress |
-| A — definition-of-done | in-progress | |
-| A — component-doc-template.mdx | todo | |
-| A — taxonomy.md | todo | |
+| A — reference notes (6 systems) | done | all six in reference-notes/ (material via rendered-DOM route; reachability logged in-file) |
+| A — definition-of-done | done | 28 sections R/REC/O + page spine + site-level requirements |
+| A — component-doc-template.mdx | done | Storybook addon-docs skeleton, slots annotated with brief-§ feeds |
+| A — taxonomy.md | done | 7 categories (count-checked), ambiguities flagged, 6 pattern-doc proposals |
 | B — mining (handbook/discussions/issues/history) | done | 4 mining files under b-library-principles/_mining/. NOTE: Discussions surface is dead (4 total); real Q&A corpus = Issues labels `support: question`/`type: expected behavior`/`has workaround` (226 catalogued) |
-| B — principles.md / sources.md / glossary.md | todo | synthesize from _mining/ |
+| B — principles.md / sources.md / glossary.md | done | 48 principles (B-P1–40 + B-M1–8), 434 sources, 70 glossary terms; citation fidelity mechanically verified; mining-file conflicts flagged in-text |
 | C — component briefs | in-progress | see table below |
 | D — corpus + per-component mining | in-progress | _corpus/repos.json building; per-component mining starts with Tier 1 |
 | E — Storybook scaffold | done | apps/storybook, SB 10.4.6, build green incl. story importing @base-ui/react from source. See e-storybook/decisions.md (Nx detection workaround; initializer's broken root-config edits reverted; source aliases) |

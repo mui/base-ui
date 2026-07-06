@@ -1,0 +1,1 @@
+{"body":"\u003c!-- Thanks so much for your PR, your contribution is appreciated! ❤️ --\u003e\r\n\r\nMoves (and renames) `useFieldControlValidation` so it's called from within `FieldRoot`, allowing the code to be removed by bundlers when `Field` is not being used","merged_at":"2025-11-05T09:21:38Z","number":3135,"title":"[field] Refactor field usage","user":"atomiks"}

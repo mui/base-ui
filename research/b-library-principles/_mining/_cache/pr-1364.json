@@ -1,0 +1,1 @@
+{"body":"Fixes #1361\r\n\r\nThis uses a ref to check when `onSubmit` is called and assigns it to `true`. The effect to react to `errors` changing only runs once after the event fires. ","merged_at":"2025-01-30T06:25:57Z","number":1364,"title":"[Form] Fix focusing of invalid field controls on errors prop change","user":"atomiks"}
