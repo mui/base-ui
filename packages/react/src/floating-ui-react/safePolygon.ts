@@ -10,11 +10,10 @@ const CURSOR_SPEED_THRESHOLD_SQUARED = CURSOR_SPEED_THRESHOLD * CURSOR_SPEED_THR
 const POLYGON_BUFFER = 0.5;
 
 // Cursor classifications returned by `classifySafePolygonCursor`.
-// Exported for tests.
-export const CURSOR_OPPOSITE_SIDE = 0;
-export const CURSOR_IN_TROUGH = 1;
-export const CURSOR_INSIDE_POLYGON = 2;
-export const CURSOR_OUTSIDE_POLYGON = 3;
+const CURSOR_OPPOSITE_SIDE = 0;
+const CURSOR_IN_TROUGH = 1;
+const CURSOR_INSIDE_POLYGON = 2;
+const CURSOR_OUTSIDE_POLYGON = 3;
 
 /**
  * Determines if a point is inside a polygon using the even-odd ray casting
@@ -56,9 +55,8 @@ function isInsideRect(pointX: number, pointY: number, rect: Rect) {
  * the given side. All four sides share one axis-parameterized computation: the
  * main axis runs along the shared edge of the two elements, and the cross axis
  * runs across the gap between them.
- * Exported for tests.
  */
-export function classifySafePolygonCursor(
+function classifySafePolygonCursor(
   side: Side,
   x: number,
   y: number,
