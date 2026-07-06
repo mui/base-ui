@@ -17,7 +17,7 @@ export enum ComboboxClearDataAttributes {
    */
   visible = 'data-visible',
   /**
-   * Present when the button is animating in.
+   * Present when the button begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

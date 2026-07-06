@@ -7,7 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../floating-ui-react';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -35,7 +35,8 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   } = componentProps;
 
   const dialogRootContext = useDialogRootContext(true);
-  const store = handle?.store ?? dialogRootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? dialogRootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',

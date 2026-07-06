@@ -209,13 +209,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
   useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
-
-  useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
   }, [hasSelectedValue, setFilled]);
 
@@ -574,7 +567,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {
-              // Workaround for https://github.com/facebook/react/issues/9023
+              // Workaround for https://github.com/react/react/issues/9023
               if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                 return;
               }

@@ -140,7 +140,6 @@ A dialog that requires a user response to proceed.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Alert Dialog - createHandle
   - Alert Dialog - Handle
-    - Parameters: store
 - Types: AlertDialog.Backdrop.Props, AlertDialog.Backdrop.State, AlertDialog.Close.Props, AlertDialog.Close.State, AlertDialog.Description.Props, AlertDialog.Description.State, AlertDialog.Popup.Props, AlertDialog.Popup.State, AlertDialog.Portal.Props, AlertDialog.Portal.State, AlertDialog.Root.Actions, AlertDialog.Root.ChangeEventDetails, AlertDialog.Root.ChangeEventReason, AlertDialog.Root.Props, AlertDialog.Root.State, AlertDialog.Title.Props, AlertDialog.Title.State, AlertDialog.Trigger.Props, AlertDialog.Trigger.State, AlertDialog.Viewport.Props, AlertDialog.Viewport.State
 
 </details>
@@ -170,6 +169,7 @@ An input that suggests options as you type.
     - Command palette
     - Grid layout
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Value
@@ -428,6 +428,7 @@ An input combined with a list of predefined items to select.
     - Async search (multiple)
     - Creatable
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Label
@@ -541,8 +542,10 @@ A menu that appears at the pointer on right click or long press.
 
 - Keywords: React Context Menu, Context Menu Component, Right Click Menu, Secondary Click Menu, Pointer Menu, Touch Hold Menu, Long Press Menu, Nested Menu React, Accessible Context Menu, Headless React Components, Base UI
 - Sections:
+  - Usage guidelines
   - Anatomy
   - Examples
+    - Using with Menu
     - Nested menu
   - API reference
     - Root
@@ -683,7 +686,6 @@ A popup that opens on top of the entire page.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Dialog - createHandle
   - Dialog - Handle
-    - Parameters: store
 - Types: Dialog.Backdrop.Props, Dialog.Backdrop.State, Dialog.Close.Props, Dialog.Close.State, Dialog.Description.Props, Dialog.Description.State, Dialog.Popup.Props, Dialog.Popup.State, Dialog.Portal.Props, Dialog.Portal.State, Dialog.Root.Actions, Dialog.Root.ChangeEventDetails, Dialog.Root.ChangeEventReason, Dialog.Root.Props, Dialog.Root.State, Dialog.Title.Props, Dialog.Title.State, Dialog.Trigger.Props, Dialog.Trigger.State, Dialog.Viewport.Props, Dialog.Viewport.State
 
 </details>
@@ -765,7 +767,6 @@ A panel that slides in from the edge of the screen.
     - CSS Variables: --drawer-keyboard-inset
   - Drawer - createHandle
   - Drawer - Handle
-    - Parameters: store
   - Drawer - Indent
     - Props: className, render, style
   - Drawer - IndentBackground

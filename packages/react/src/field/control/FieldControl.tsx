@@ -121,7 +121,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
 
-          // Workaround for https://github.com/facebook/react/issues/9023
+          // Workaround for https://github.com/react/react/issues/9023
           if (!event.nativeEvent.defaultPrevented) {
             clearErrors(name);
             validation.change(inputValue);

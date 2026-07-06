@@ -8,7 +8,11 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  getInlineRectTriggerProps,
+  usePopupHandleStore,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -35,7 +39,8 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   } = componentProps;
 
   const rootContext = usePreviewCardRootContext(true);
-  const store = handle?.store ?? rootContext;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
@@ -120,7 +125,8 @@ export interface PreviewCardTriggerState {
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTriggerState
+  PreviewCardTriggerState,
+  React.ComponentPropsWithRef<'a'>
 > {
   /**
    * A handle to associate the trigger with a preview card.

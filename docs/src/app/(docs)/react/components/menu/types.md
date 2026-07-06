@@ -186,12 +186,12 @@ Renders a `<div>` element.
 
 **Backdrop Data Attributes:**
 
-| Attribute           | Type | Description                             |
-| :------------------ | :--- | :-------------------------------------- |
-| data-open           | -    | Present when the menu is open.          |
-| data-closed         | -    | Present when the menu is closed.        |
-| data-starting-style | -    | Present when the menu is animating in.  |
-| data-ending-style   | -    | Present when the menu is animating out. |
+| Attribute           | Type | Description                                |
+| :------------------ | :--- | :----------------------------------------- |
+| data-open           | -    | Present when the menu is open.             |
+| data-closed         | -    | Present when the menu is closed.           |
+| data-starting-style | -    | Present when the menu begins animating in. |
+| data-ending-style   | -    | Present when the menu is animating out.    |
 
 ### Backdrop.Props
 
@@ -334,7 +334,7 @@ Renders a `<div>` element.
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the menu is animating in.                                |
+| data-starting-style | -                                                                          | Present when the menu begins animating in.                            |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                               |
 
 ### Popup.Props
@@ -836,13 +836,13 @@ Renders a `<span>` element.
 
 **RadioItemIndicator Data Attributes:**
 
-| Attribute           | Type | Description                                        |
-| :------------------ | :--- | :------------------------------------------------- |
-| data-checked        | -    | Present when the menu radio item is selected.      |
-| data-unchecked      | -    | Present when the menu radio item is not selected.  |
-| data-disabled       | -    | Present when the menu radio item is disabled.      |
-| data-starting-style | -    | Present when the radio indicator is animating in.  |
-| data-ending-style   | -    | Present when the radio indicator is animating out. |
+| Attribute           | Type | Description                                           |
+| :------------------ | :--- | :---------------------------------------------------- |
+| data-checked        | -    | Present when the menu radio item is selected.         |
+| data-unchecked      | -    | Present when the menu radio item is not selected.     |
+| data-disabled       | -    | Present when the menu radio item is disabled.         |
+| data-starting-style | -    | Present when the radio indicator begins animating in. |
+| data-ending-style   | -    | Present when the radio indicator is animating out.    |
 
 ### RadioItemIndicator.Props
 
@@ -982,7 +982,7 @@ Renders a `<span>` element.
 | data-checked        | -    | Present when the menu checkbox item is checked.     |
 | data-unchecked      | -    | Present when the menu checkbox item is not checked. |
 | data-disabled       | -    | Present when the menu checkbox item is disabled.    |
-| data-starting-style | -    | Present when the indicator is animating in.         |
+| data-starting-style | -    | Present when the indicator begins animating in.     |
 | data-ending-style   | -    | Present when the indicator is animating out.        |
 
 ### CheckboxItemIndicator.Props
@@ -1016,11 +1016,18 @@ type ReturnValue = Menu.Handle<Payload>;
 
 ### Handle
 
+Controls a Menu imperatively and associates detached `Menu.Trigger` components with a `Menu.Root`.
+Create one with `Menu.createHandle()` and pass it to the `handle` prop of the root and of any
+triggers rendered outside of it.
+
+The imperative methods take effect only while a root using this handle is mounted; calls made
+before a root attaches (or after it unmounts) are ignored.
+
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                   |
-| :------- | :-------- | :-------- | :-------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Indicates whether the menu is currently open. |
+| Property | Type      | Modifiers | Description                                                                                  |
+| :------- | :-------- | :-------- | :------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the menu is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -1029,13 +1036,16 @@ function open(triggerId: string): void;
 ```
 
 Opens the menu and associates it with the trigger with the given id.
-The trigger must be a Menu.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function close(): void;
 ```
 
 Closes the menu.
+
+This method should only be called in an event handler or an effect (not during rendering).
 
 ### LinkItem
 
@@ -1044,13 +1054,13 @@ Renders an `<a>` element.
 
 **LinkItem Props:**
 
-| Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :----------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                    | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
-| closeOnClick | `boolean`                                                                                   | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
-| className    | `string \| ((state: Menu.LinkItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Menu.LinkItem.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: Menu.LinkItem.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                                                                                               | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| label        | `string`                                                                                                                                                           | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
+| closeOnClick | `boolean`                                                                                                                                                          | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| className    | `string \| ((state: Menu.LinkItem.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Menu.LinkItem.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: Menu.LinkItem.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **LinkItem Data Attributes:**
 
