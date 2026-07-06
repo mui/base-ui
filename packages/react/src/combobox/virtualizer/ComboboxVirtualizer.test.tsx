@@ -97,8 +97,8 @@ describe('<Combobox.Virtualizer />', () => {
     expect(firstItem).toHaveStyle({
       height: '20px',
       position: 'absolute',
-      transform: 'translateY(4px)',
     });
+    expect(firstItem.style.transform).toBe('translateY(4px)');
   });
 
   it('selects the highlighted filtered item without explicit item indices', async () => {
