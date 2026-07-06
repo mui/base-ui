@@ -1114,6 +1114,45 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
+### Virtualizer
+
+Renders only the visible items in the combobox list.
+Renders a scrollable `<div>` element.
+
+**Virtualizer Props:**
+
+| Prop               | Type                                                                                               | Default | Description                                                                                                                                                                                   |
+| :----------------- | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| enabled            | `boolean`                                                                                          | `true`  | Whether scroll and measurement observers should be active.                                                                                                                                    |
+| estimateSize\*     | `VirtualizerEstimateSize`                                                                          | -       | Estimated item size used before item elements have been measured.                                                                                                                             |
+| getItemKey         | `((item: Value, index: number) => VirtualizerItemKey)`                                             | -       | Returns a stable key for the item value and logical index.                                                                                                                                    |
+| overscan           | `number`                                                                                           | `1`     | Number of extra items to render before and after the visible range.                                                                                                                           |
+| paddingEnd         | `number`                                                                                           | `0`     | Empty space after the last item in the virtual content.                                                                                                                                       |
+| paddingStart       | `number`                                                                                           | `0`     | Empty space before the first item in the virtual content.                                                                                                                                     |
+| scrollPaddingEnd   | `number`                                                                                           | `0`     | End-side viewport padding used when computing visible range and scroll alignment.                                                                                                             |
+| scrollPaddingStart | `number`                                                                                           | `0`     | Start-side viewport padding used when computing visible range and scroll alignment.                                                                                                           |
+| children\*         | `((item: Value, index: number) => React.ReactNode)`                                                | -       | Renders an item for the given value and logical index.                                                                                                                                        |
+| className          | `string \| ((state: Combobox.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style              | `React.CSSProperties \| ((state: Combobox.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render             | `ReactElement \| ((props: HTMLProps, state: Combobox.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Virtualizer.Props
+
+Re-export of [Virtualizer](#virtualizer) props.
+
+### Virtualizer.State
+
+State metadata exposed to render props.
+
+```typescript
+type ComboboxVirtualizerState = {
+  /** Whether the virtualized collection has no items. */
+  empty: boolean;
+  /** Total virtual content size in pixels. */
+  totalSize: number;
+};
+```
+
 ## Additional Types
 
 ### ComboboxFilter
@@ -1185,6 +1224,18 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
+### VirtualizerEstimateSize
+
+```typescript
+type VirtualizerEstimateSize = number | ((index: number) => number);
+```
+
+### VirtualizerItemKey
+
+```typescript
+type VirtualizerItemKey = string | number;
+```
+
 ## Export Groups
 
 - `Combobox.Root`: `Combobox.Root`, `Combobox.Root.Props`, `Combobox.Root.State`, `Combobox.Root.Actions`, `Combobox.Root.ChangeEventReason`, `Combobox.Root.ChangeEventDetails`, `Combobox.Root.HighlightEventReason`, `Combobox.Root.HighlightEventDetails`
@@ -1194,6 +1245,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.InputGroup`: `Combobox.InputGroup`, `Combobox.InputGroup.State`, `Combobox.InputGroup.Props`
 - `Combobox.Trigger`: `Combobox.Trigger`, `Combobox.Trigger.State`, `Combobox.Trigger.Props`
 - `Combobox.List`: `Combobox.List`, `Combobox.List.State`, `Combobox.List.Props`
+- `Combobox.Virtualizer`: `Combobox.Virtualizer`, `Combobox.Virtualizer.State`, `Combobox.Virtualizer.Props`
 - `Combobox.Status`: `Combobox.Status`, `Combobox.Status.State`, `Combobox.Status.Props`
 - `Combobox.Portal`: `Combobox.Portal`, `Combobox.Portal.State`, `Combobox.Portal.Props`
 - `Combobox.Backdrop`: `Combobox.Backdrop`, `Combobox.Backdrop.Props`, `Combobox.Backdrop.State`
@@ -1215,7 +1267,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxVirtualizerState`, `ComboboxVirtualizerProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1240,6 +1292,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Trigger.Props`: `ComboboxTriggerProps`
 - `Combobox.List.State`: `ComboboxListState`
 - `Combobox.List.Props`: `ComboboxListProps`
+- `Combobox.Virtualizer.State`: `ComboboxVirtualizerState`
+- `Combobox.Virtualizer.Props`: `ComboboxVirtualizerProps`
 - `Combobox.Status.State`: `ComboboxStatusState`
 - `Combobox.Status.Props`: `ComboboxStatusProps`
 - `Combobox.Portal.State`: `ComboboxPortalState`
