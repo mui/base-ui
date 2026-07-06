@@ -224,6 +224,34 @@ describe('<Switch.Root />', () => {
 
       expect(handleClick.mock.calls.length).toBe(1);
     });
+
+    it('propagates a single click event to ancestors per user click', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Switch.Root />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByRole('switch'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Switch.Root onClick={(event) => event.stopPropagation()} />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByRole('switch'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
   });
 
   describe('prop: disabled', () => {

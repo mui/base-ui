@@ -221,6 +221,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       setFieldTouched(true);
     },
+    onClick(event) {
+      // Clicks dispatched on the input from the root's `onClick` and `onFocus` are an
+      // implementation detail and must not reach ancestors.
+      event.stopPropagation();
+    },
     onFocus() {
       radioRef.current?.focus();
     },

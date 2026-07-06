@@ -264,6 +264,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           setGroupValue(nextGroupValue, details);
         }
       },
+      onClick(event) {
+        // The click dispatched from the root's `onClick` is an implementation detail
+        // and must not reach ancestors, which already receive the original click.
+        event.stopPropagation();
+      },
       onFocus() {
         controlRef.current?.focus();
       },
