@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Production-ready platform for agentic workflow development.",
+ "fork": false,
+ "homepage": "https://dify.ai",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-06T19:29:09Z",
+ "stars": 147918,
+ "head_sha": "fc01d112a06cc286f5b47d34112387c46503ddb2"
+}

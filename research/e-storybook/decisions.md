@@ -26,4 +26,5 @@ Decided 2026-07-06, per §10.1 criteria:
 
 - **Environment**: origin is `yannbf/base-ui`, not `storybook-tmp/base-ui`; clone was already full (no unshallow). See research/PROGRESS.md.
 - `.claude/launch.json` (pre-existing, untracked-or-local harness config) gained a `storybook` entry — mandated by the storybook-setup-claude-launch skill; the existing `docs` entry preserved. Additive only.
+- **stories-skill version conflict**: the `storybook:stories` plugin skill requires Storybook ≥10.5 or canary for `storybook ai get-storybook-story-instructions`. No stable ≥10.5 exists (10.4.6 is latest, 2026-06-16); a canary upgrade would violate `minimumReleaseAge: 4320` and the brief's pin-stable rule. On 10.4.6 the `storybook ai` CLI exposes only `setup`, whose generated output (setup-prompt.md, committed verbatim) contains the story-writing rules. Resolution: the generated setup prompt is the story-writing rulebook (brief Decision 12: mechanics = generated prompt wins); no canary upgrade.
 - (further deviations recorded as they occur)

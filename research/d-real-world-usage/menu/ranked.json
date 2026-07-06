@@ -1,0 +1,836 @@
+[
+  {
+    "id": "menu-005",
+    "component": "menu",
+    "repo": "PostHog/posthog",
+    "repoUrl": "https://github.com/PostHog/posthog",
+    "stars": 35353,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "frontend/src/lib/components/Account/NewAccountMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Account/NewAccountMenu.tsx"
+      },
+      {
+        "path": "frontend/src/lib/components/HelpMenu/HelpMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/HelpMenu/HelpMenu.tsx"
+      },
+      {
+        "path": "frontend/src/lib/components/Menus/ThemeMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Menus/ThemeMenu.tsx"
+      },
+      {
+        "path": "packages/quill/packages/primitives/src/dropdown-menu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/packages/quill/packages/primitives/src/dropdown-menu.tsx"
+      },
+      {
+        "path": "packages/quill/packages/primitives/src/menubar.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/packages/quill/packages/primitives/src/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://posthog.com",
+    "partsUsed": [
+      "Backdrop",
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Product-analytics app chrome built directly on Menu: the account/org/project switcher and help menus use a Backdrop layer, nested SubmenuRoots (All projects / All organizations), render-prop triggers into PostHog's ButtonPrimitive, and a scroll-shadow popup capped by --available-height; a separate 'quill' package wraps full dropdown-menu + menubar primitives.",
+    "diversityTags": [
+      "account-menu",
+      "nested-submenus",
+      "backdrop",
+      "scrollable-popup",
+      "design-system-primitives"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The richest direct product usage found: PostHog's account/org/project switcher is hand-built on Menu with a Backdrop layer (the only Backdrop sighting in the corpus), two nested SubmenuRoots, render-prop triggers into their ButtonPrimitive, and a popup capped by the --available-height CSS variable behind scroll shadows. Feeds the Behavior (submenus, backdrop), Prop-level (render, Backdrop), and CSS-variables sections. Recomposition story: open account menu -> ArrowDown through items -> ArrowRight into 'All projects' submenu -> select a project."
+  },
+  {
+    "id": "menu-002",
+    "component": "menu",
+    "repo": "vercel/next.js",
+    "repoUrl": "https://github.com/vercel/next.js",
+    "stars": 140364,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx",
+        "permalink": "https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx"
+      }
+    ],
+    "liveUrl": "https://nextjs.org",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Next.js DevTools dev-overlay segment explorer: each route-segment row gets a boundary-override menu with `modal={false}`, a trigger that is disabled when the segment has no boundary, and `Menu.Portal container={shadowRoot}` so the popup stays inside the overlay's shadow DOM.",
+    "diversityTags": [
+      "devtools-overlay-menu",
+      "shadow-dom-portal",
+      "non-modal-menu",
+      "grouped-items"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 2,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Menu running inside every Next.js developer's dev overlay: modal={false} so the page stays interactive, Menu.Portal container={shadowRoot} portalling into the overlay's shadow root, and a trigger that is disabled until the hovered route segment has a boundary. The single best citation for the Portal container prop and non-modal menus in constrained embedding environments. Feeds Prop-level guidance (modal, container, disabled) and an 'embedding in shadow DOM' pitfall note."
+  },
+  {
+    "id": "menu-017",
+    "component": "menu",
+    "repo": "seek-oss/playroom",
+    "repoUrl": "https://github.com/seek-oss/playroom",
+    "stars": 4581,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/Menu/Menu.tsx",
+        "permalink": "https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Playroom's frame/settings menus: one Menu.tsx drives top-level menus and submenus, with closeOnClick={false} on checkbox/radio settings items and onOpenChangeComplete to reset submenu state after the close animation.",
+    "diversityTags": [
+      "checkbox-settings-menu",
+      "submenu-state-reset",
+      "dev-tool"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 3,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A settings/checkbox menu done right in a widely-used dev tool: closeOnClick={false} keeps the menu open while toggling CheckboxItems/RadioItems, closeOnClick is also suppressed on submenu triggers via one shared MenuItem abstraction, and onOpenChangeComplete resets submenu state only after the exit animation. Feeds prop-level guidance for closeOnClick and onOpenChangeComplete, and the checkbox-settings-menu use case story: open -> toggle two checkboxes without the menu closing -> Escape."
+  },
+  {
+    "id": "menu-043",
+    "component": "menu",
+    "repo": "oxidecomputer/console",
+    "repoUrl": "https://github.com/oxidecomputer/console",
+    "stars": 222,
+    "license": "MPL-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "app/ui/lib/DropdownMenu.tsx",
+        "permalink": "https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx"
+      }
+    ],
+    "liveUrl": "https://console-preview.oxide.computer",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Oxide cloud console UI lib: DropdownMenu re-exports Root with a modal={false} default (comment: prevent scroll locking), parses a semantic anchor=\"bottom end\" string into side/align/offsets, and backs table row-action menus across the console.",
+    "diversityTags": [
+      "row-actions-menu",
+      "non-modal-default",
+      "api-simplification"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 4,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A production cloud console (Oxide) that wraps Menu with modal={false} as the default and a code comment explaining why (prevent scroll locking), plus a semantic anchor=\"bottom end\" string API parsed into side/align/offsets. The clearest evidence that row-action menus in data tables want non-modal behavior. MPL-2.0 so code is reusable. Feeds When-to-use (row actions), Prop-level (modal, side/align), and a decision-log-style note on scroll locking."
+  },
+  {
+    "id": "menu-007",
+    "component": "menu",
+    "repo": "manaflow-ai/cmux",
+    "repoUrl": "https://github.com/manaflow-ai/cmux",
+    "stars": 23757,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "web/app/[locale]/components/download-button.tsx",
+        "permalink": "https://github.com/manaflow-ai/cmux/blob/fa3f388c17eb6fa9e7eac3daa761508cc46343dc/web/app/[locale]/components/download-button.tsx"
+      }
+    ],
+    "liveUrl": "https://cmux.com",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "cmux marketing-site split Download CTA: the left zone is a plain link, the right caret zone is a Menu.Trigger opening the platform list (items render as i18n Links, waitlist platforms grouped under a GroupLabel); selecting a waitlist item opens a dialog deferred by requestAnimationFrame so the same pointer gesture doesn't dismiss it.",
+    "diversityTags": [
+      "split-button-menu",
+      "menu-to-dialog-handoff",
+      "marketing-cta"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 5,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A marketing split-button CTA: 'Download for Mac' link + caret Menu.Trigger listing platforms, items rendered as framework Links via the render prop, a Group/GroupLabel for waitlist platforms, and an exceptional documented workaround - opening a follow-up dialog inside requestAnimationFrame so the same pointer gesture that selected the item doesn't outside-press-dismiss the dialog. Feeds the split-button use case and a menu-to-dialog-handoff pitfall. Recomposition: click caret -> arrow to a waitlist platform -> select -> dialog opens and stays."
+  },
+  {
+    "id": "menu-022",
+    "component": "menu",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/dropdown/dropdown.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/dropdown/dropdown.tsx"
+      },
+      {
+        "path": "packages/kumo/src/primitives/index.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/index.ts"
+      },
+      {
+        "path": "packages/kumo/src/primitives/menu.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/menu.ts"
+      },
+      {
+        "path": "packages/kumo/src/primitives/menubar.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/menubar.ts"
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "LinkItem",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Cloudflare's Kumo design system: a primitives re-export layer plus a Dropdown composite that promotes Menu.LinkItem for navigation (JSDoc deprecates href-on-Item), danger-styled items, and a container-aware Portal.",
+    "diversityTags": [
+      "design-system-composite",
+      "link-items",
+      "deprecation-guidance"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 6,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Cloudflare's Kumo design system Dropdown composite documents an API migration in JSDoc: href-on-Item is deprecated in favor of Menu.LinkItem for navigation, alongside danger-styled items and a container-aware Portal. Best-in-corpus evidence for when to use LinkItem vs Item, exactly the prop-level 'use X when, because' guidance the docs want. MIT and actively maintained."
+  },
+  {
+    "id": "menu-028",
+    "component": "menu",
+    "repo": "wevm/vocs",
+    "repoUrl": "https://github.com/wevm/vocs",
+    "stars": 1507,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/react/internal/MobileNav.tsx",
+        "permalink": "https://github.com/wevm/vocs/blob/861a096100f07cd04ada43797048c1e28ff44e69/src/react/internal/MobileNav.tsx"
+      }
+    ],
+    "liveUrl": "https://vocs.dev",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Vocs docs framework MobileNav: Menu.RadioGroup marks the current page, RadioItems render as links grouped into sections, with data-checked styling as the selection indicator.",
+    "diversityTags": [
+      "nav-menu",
+      "radio-selection-state",
+      "mobile-nav"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 7,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Vocs (docs framework powering viem/wagmi docs) uses Menu.RadioGroup as a current-page indicator in its mobile nav: RadioItems render as links with data-checked styling marking the active route, grouped sections via Group/GroupLabel. A distinct semantic archetype - radio state as selection display rather than a setting - feeding the RadioGroup/RadioItem guidance and a navigation-menu-vs-menu boundary note."
+  },
+  {
+    "id": "menu-009",
+    "component": "menu",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/alert-dialog/stories/index.story.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/alert-dialog/stories/index.story.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Gutenberg's next-gen packages/ui AlertDialog Storybook story embeds a controlled Menu ('Actions' -> Delete opens an AlertDialog; onConfirm closes the menu), demonstrating menu-to-dialog composition in WordPress's Base UI-based design system.",
+    "diversityTags": [
+      "menu-dialog-composition",
+      "storybook-story",
+      "wordpress"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 8,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "WordPress's next-gen packages/ui uses Base UI, and its AlertDialog Storybook story embeds a controlled Menu: 'Actions' menu where Delete opens an AlertDialog and onConfirm closes the menu via setMenuOpen(false). A canonical menu-item-opens-confirm-dialog composition from one of the largest OSS projects adopting Base UI. Feeds the controlled-Root guidance and an overlay-composition cluster note (menu + alert-dialog)."
+  },
+  {
+    "id": "menu-024",
+    "component": "menu",
+    "repo": "siriwatknp/mui-treasury",
+    "repoUrl": "https://github.com/siriwatknp/mui-treasury",
+    "stars": 2444,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/website/registry/components/menubar-01/menubar-01.tsx",
+        "permalink": "https://github.com/siriwatknp/mui-treasury/blob/8fa129a0519d08764af1a208bafd3e83e19fd9c6/apps/website/registry/components/menubar-01/menubar-01.tsx"
+      }
+    ],
+    "liveUrl": "https://mui-treasury.com",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Menubar recipe by a Material UI maintainer: Base UI Menubar + Menu with every item rendered into a Material UI MenuItem via render props (plus a SKILL.md teaching agents the integration).",
+    "diversityTags": [
+      "material-ui-integration",
+      "menubar-composition",
+      "recipe"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 9,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A Material UI maintainer's recipe collection: Base UI Menubar + Menu.Root per menu, with every Menu.Item rendered into a Material UI MenuItem via the render prop (plus an agent-facing SKILL.md describing the pattern). The strongest render-prop interop evidence in the corpus - Base UI behavior, third-party design language - and the only ranked Menubar composition. Feeds the render-prop section and a menubar cross-reference."
+  },
+  {
+    "id": "menu-014",
+    "component": "menu",
+    "repo": "stagewise-io/stagewise",
+    "repoUrl": "https://github.com/stagewise-io/stagewise",
+    "stars": 6718,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/browser/src/ui/components/file-context-menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/components/file-context-menu.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/_components/shared-agent-context-menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/_components/shared-agent-context-menu.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/agent-chat/chat/_components/rich-text/mentions/tab-mention-badge.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/agent-chat/chat/_components/rich-text/mentions/tab-mention-badge.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/file-tree/file-preview-tab-content.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/file-tree/file-preview-tab-content.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/file-tree/file-tree-workspace-view.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/file-tree/file-tree-workspace-view.tsx"
+      },
+      {
+        "path": "packages/stage-ui/src/components/menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/packages/stage-ui/src/components/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://stagewise.io",
+    "partsUsed": [
+      "CheckboxItem",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "FileContextMenu composes ContextMenu.Root/Trigger with Menu.Portal/Positioner/Popup/Item parts (cross-component part interop); the browser app also uses raw Menu parts for agent-selection menus and ships a stage-ui Menu wrapper.",
+    "diversityTags": [
+      "context-menu-hybrid",
+      "cross-component-parts",
+      "file-tree-actions"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 10,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "FileContextMenu composes ContextMenu.Root/Trigger with Menu.Portal/Positioner/Popup/Item - live proof that context-menu shares menu's part vocabulary and the parts interoperate; sibling files use raw Menu parts for agent-selection menus in the same app. Feeds the menu/context-menu cluster brief (when the only difference is the trigger gesture) and the anatomy section's part-interop note."
+  },
+  {
+    "id": "menu-003",
+    "component": "menu",
+    "repo": "makeplane/plane",
+    "repoUrl": "https://github.com/makeplane/plane",
+    "stars": 53963,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/propel/src/menu/menu.tsx",
+        "permalink": "https://github.com/makeplane/plane/blob/7fbf14a6cb494bbf5866e2b293b28a6d8a7e52c3/packages/propel/src/menu/menu.tsx"
+      }
+    ],
+    "liveUrl": "http://plane.so",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Propel design system's CustomMenu wraps Menu (old package name) behind a simplified API that exposes openOnHover; used across the project-management app for work-item and board row actions.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "hover-open-menu",
+      "row-actions-menu"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 11,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Plane (54k-star project-management tool) wraps Menu in its Propel design system as CustomMenu, exposing openOnHover through the wrapper API and serving row/board item actions across the product - large-scale evidence of the wrapper-with-escape-hatches pattern on the historical package name. Feeds When-to-use (row actions at scale) and openOnHover prop guidance. AGPL, so link-only."
+  },
+  {
+    "id": "menu-001",
+    "component": "menu",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/dropdown-menu/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/dropdown-menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "LinkItem",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "dify-ui package DropdownMenu: full-part wrapper including a Menu.LinkItem sub-wrapper with a closeOnClick default for navigation entries in the LLM-app platform.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "link-items",
+      "llm-platform"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 12,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The highest-starred adopter found (148k): dify-ui's DropdownMenu is a full-part wrapper whose LinkItem sub-component defaults closeOnClick for navigation entries. Confirms the LinkItem-for-navigation idiom (independently of Kumo) at the largest possible scale. Feeds LinkItem guidance and the real-world-adoption narrative. Custom license, link-only."
+  },
+  {
+    "id": "menu-008",
+    "component": "menu",
+    "repo": "pingdotgg/t3code",
+    "repoUrl": "https://github.com/pingdotgg/t3code",
+    "stars": 13328,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://t3.codes",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger",
+      "createHandle"
+    ],
+    "contextSummary": "T3 code product web app: full shadcn-style wrapper (data-slot conventions) including a createHandle re-export, derived from the Coss UI registry.",
+    "diversityTags": [
+      "createhandle",
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 13,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A shipped MIT product wrapper (derived from the Coss UI registry, menu-011) that re-exports Menu.createHandle alongside the full part set with data-slot conventions - the ranked representative for detached-trigger menu handles appearing in real apps, a 1.x API with almost no visibility elsewhere. Feeds the createHandle prop/decision-log section; coss (origin, AGPL) and kaneo (menu-018) corroborate."
+  },
+  {
+    "id": "menu-019",
+    "component": "menu",
+    "repo": "imskyleen/animate-ui",
+    "repoUrl": "https://github.com/imskyleen/animate-ui",
+    "stars": 3769,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-31",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/www/registry/primitives/base/menu/index.tsx",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/registry/primitives/base/menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://animate-ui.com",
+    "partsUsed": [
+      "Arrow",
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Animate UI registry 'base menu' primitive: every Menu part (incl. Arrow) wrapped with motion/react springs, animating the popup via render props and AnimatePresence instead of CSS transitions.",
+    "diversityTags": [
+      "animation-wrapper",
+      "motion-integration",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 14,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Animate UI's base-menu registry primitive wraps every Menu part (including the rarely-seen Arrow) with motion/react springs, driving popup enter/exit through AnimatePresence and render props instead of CSS starting/ending styles. The definitive JS-animation-integration example for the docs' Animation section, and a registry distributed to end users as copy-paste code."
+  },
+  {
+    "id": "menu-045",
+    "component": "menu",
+    "repo": "wevm/curl.md",
+    "repoUrl": "https://github.com/wevm/curl.md",
+    "stars": 214,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-08",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/routes/docs/-render.tsx",
+        "permalink": "https://github.com/wevm/curl.md/blob/91469a7fbf2957a2cda20ec25add0807717ba3aa/src/routes/docs/-render.tsx"
+      },
+      {
+        "path": "src/routes/docs/route.tsx",
+        "permalink": "https://github.com/wevm/curl.md/blob/91469a7fbf2957a2cda20ec25add0807717ba3aa/src/routes/docs/route.tsx"
+      }
+    ],
+    "liveUrl": "https://curl.md",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "curl.md docs site mobile outline menu: modal={false} with Positioner anchor={mobileOutlineTriggerRef} (anchored to an external ref, not the trigger), items render <a href> with closeOnClick and data-[active] styling.",
+    "diversityTags": [
+      "anchor-ref-positioning",
+      "docs-outline-menu",
+      "non-modal-menu"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 15,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "curl.md's mobile docs outline: Menu with modal={false} and Positioner anchor={mobileOutlineTriggerRef} - anchoring the popup to an external element ref rather than the trigger - with items rendered as plain <a href> + closeOnClick and data-[active] styling. The only anchor-ref sighting in the corpus; feeds Positioner.anchor prop guidance and the docs-outline navigation use case."
+  }
+]

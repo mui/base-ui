@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Fully animated, open-source component distribution built with React, TypeScript, Tailwind CSS, Motion, and Shadcn CLI. Browse a list of components you can install, modify, and use in your projects.",
+ "fork": false,
+ "homepage": "https://animate-ui.com",
+ "license": "NOASSERTION",
+ "pushed_at": "2025-12-31T12:51:05Z",
+ "stars": 3769,
+ "head_sha": "efeb96ffd7a3b7a4868667e4ac3c346620fb3044"
+}

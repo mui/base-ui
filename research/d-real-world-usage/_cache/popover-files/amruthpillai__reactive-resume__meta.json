@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "A one-of-a-kind resume builder that keeps your privacy in mind. Completely secure, customizable, portable, open-source and free forever. Try it out today!",
+ "fork": false,
+ "homepage": "https://rxresu.me",
+ "license": "MIT",
+ "pushed_at": "2026-07-05T22:32:01Z",
+ "stars": 39393,
+ "head_sha": "dfc5559625db3c665b05de8292dcb6abdd5d1ac5"
+}

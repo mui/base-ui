@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Theme & components for the Korea Design System (krds.go.kr) \u2014 MUI v7 + Tailwind v4 / Base UI",
+ "fork": false,
+ "homepage": "https://krds.gracefullight.dev",
+ "license": null,
+ "pushed_at": "2026-07-06T10:34:45Z",
+ "stars": 46,
+ "head_sha": "23d4f4d119274c826a8c23e60dc5cb8a3ddcae38"
+}

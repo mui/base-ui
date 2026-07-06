@@ -1,0 +1,842 @@
+[
+  {
+    "id": "select-001",
+    "component": "select",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/select/select.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx"
+      },
+      {
+        "path": "packages/kumo/src/primitives/select.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/select.ts"
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator"
+    ],
+    "contextSummary": "Cloudflare's official component library. Its Select supports single and multiple selection, an items object-map/array API with per-item disabled reasons, a renderValue formatter, and JSDoc that steers hidden labels to aria-label.",
+    "diversityTags": [
+      "oss-design-system",
+      "corporate-design-system",
+      "multi-select",
+      "object-values",
+      "form-integration",
+      "rich-jsdoc"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The strongest single teaching example found: a corporate design system (Cloudflare) whose Select wrapper exercises multiple selection, the items prop as object-map or array (with per-item disabled + disabledReason descriptors), renderValue formatting, and Field-integrated labels - with JSDoc that explicitly deprecates hidden visible labels in favor of aria-label. A recomposed story would demo single vs multiple and object-map items with disabled reasons. Feeds: prop-level guidance (items, multiple), a11y contract, form integration."
+  },
+  {
+    "id": "select-002",
+    "component": "select",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/form/primitives/select/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/trigger.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/trigger.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/item.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/item.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/popup.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/popup.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/positioner.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/positioner.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/portal.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/portal.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "WordPress' Block Editor monorepo. The new @wordpress/ui package wraps Base UI Select as one-file-per-part form primitives (root/trigger/item/popup/positioner/portal), pins single-select via Root<Value, false>, and documents object-value equality (Object.is, isItemEqualToValue, itemToStringLabel).",
+    "diversityTags": [
+      "framework-primitives",
+      "object-values",
+      "per-part-files",
+      "cms"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 2,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "WordPress' new @wordpress/ui form primitives wrap Base UI Select one file per part - the cleanest anatomical decomposition in the wild - and the Root JSDoc documents object-value pitfalls (Object.is comparison, isItemEqualToValue, itemToStringLabel) while deliberately pinning single-select via Root<Value, false>. A recomposed story would show object values with items for label resolution. Feeds: anatomy, prop-level guidance (items/object values), decision-log narrative (what a mega-project standardizes)."
+  },
+  {
+    "id": "select-003",
+    "component": "select",
+    "repo": "mastra-ai/mastra",
+    "repoUrl": "https://github.com/mastra-ai/mastra",
+    "stars": 25871,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/playground-ui/src/ds/components/Select/select.tsx",
+        "permalink": "https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx"
+      }
+    ],
+    "liveUrl": "https://mastra.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group"
+    ],
+    "contextSummary": "AI agent framework's playground design system. Select wrapper documents its Radix-to-Base-UI migration inline: onValueChange eventDetails second arg, alignItemWithTrigger={false} to match Radix popper, and auto-derives an items map from declared SelectItems so the closed trigger can resolve labels.",
+    "diversityTags": [
+      "migration-from-radix",
+      "ai-tooling",
+      "items-derivation",
+      "compat-shim"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 3,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A documented Radix-to-Base-UI migration in production code: comments explain the onValueChange eventDetails second argument, set alignItemWithTrigger={false} to preserve Radix popper behavior, and implement an items auto-derivation shim because Select.Value only resolves labels from mounted items. A recomposed story would contrast alignItemWithTrigger true/false and show the items-map fix for closed-trigger labels. Feeds: behavior (positioning/value resolution), migration guidance, pitfalls & FAQ."
+  },
+  {
+    "id": "select-004",
+    "component": "select",
+    "repo": "opral/flashtype",
+    "repoUrl": "https://github.com/opral/flashtype",
+    "stars": 268,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/extensions/markdown/components/formatting-toolbar.tsx",
+        "permalink": "https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://flashtype.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Markdown editor for Claude & Codex. The formatting toolbar embeds Select as a block-type switcher composed via Toolbar.Button render={<Select.Trigger/>} with nativeButton={false}, controlled open state, alignItemWithTrigger={false}, and data-[starting-style] popup animation.",
+    "diversityTags": [
+      "editor-toolbar",
+      "custom-trigger",
+      "render-prop-composition",
+      "controlled-open",
+      "animation"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 4,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A block-type switcher inside a markdown editor's toolbar: Toolbar.Button render={<Select.Trigger/>} with nativeButton={false} is the canonical cross-component render-prop composition, plus controlled open state, alignItemWithTrigger={false}, popup-open icon rotation, and data-[starting-style] animation. Story: click the toolbar select, keyboard-navigate block types, watch the editor update. Feeds: composition handbook, animation, toolbar cluster docs."
+  },
+  {
+    "id": "select-005",
+    "component": "select",
+    "repo": "graphql/graphql.github.io",
+    "repoUrl": "https://github.com/graphql/graphql.github.io",
+    "stars": 887,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/theme-switch.tsx",
+        "permalink": "https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx"
+      }
+    ],
+    "liveUrl": "https://graphql.org",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "graphql.org website. The site-wide theme switcher is a Base UI Select with an icon trigger, sr-only Value in compact mode, aria-label on the trigger, and align='end' positioning; wired to next-themes.",
+    "diversityTags": [
+      "theme-picker",
+      "icon-trigger",
+      "a11y-labeling",
+      "live-famous-site"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 5,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Theme switcher on graphql.org: an icon-trigger Select with aria-label and title on the trigger, sr-only Value in compact mode, align='end' + sideOffset positioning, wired to next-themes with a type-guarded onValueChange. Story: open the theme select, arrow through light/dark/system, verify the resolved icon swaps. Feeds: when-to-use (compact pickers), a11y contract (labelling icon triggers), real-world examples."
+  },
+  {
+    "id": "select-006",
+    "component": "select",
+    "repo": "shadcn-ui/ui",
+    "repoUrl": "https://github.com/shadcn-ui/ui",
+    "stars": 118257,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "apps/v4/registry/bases/base/ui/select.tsx",
+        "permalink": "https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://ui.shadcn.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "The canonical shadcn/ui registry: apps/v4/registry/bases/base is the Base UI 'base' that generates the components/ui/select.tsx wrapper found in thousands of downstream apps (16 parts, data-slot styling contract).",
+    "diversityTags": [
+      "registry-wrapper",
+      "oss-design-system",
+      "canonical-template",
+      "data-slot"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 6,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The canonical template behind thousands of hits: shadcn/ui's Base UI 'base' registry select (apps/v4/registry/bases/base/ui/select.tsx) covers 16 parts with the data-slot styling contract and size variants. Ranking it once explains the entire components/ui/select.tsx archetype and lets other slots go to distinctive usage. Feeds: anatomy, styling contract, ecosystem/real-world section."
+  },
+  {
+    "id": "select-007",
+    "component": "select",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/selia/select.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/select.tsx"
+      },
+      {
+        "path": "components/examples/select/multiple.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/select/multiple.tsx"
+      },
+      {
+        "path": "components/examples/select/render.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/select/render.tsx"
+      }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Backdrop",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Selia component library docs and registry. Its select wrapper uses the fullest anatomy observed in the wild - Backdrop, Arrow, ScrollUp/DownArrows, Groups, Separator - and re-exposes Positioner props (side/align/anchor/sticky/positionMethod); examples cover multiple selection and render-prop items.",
+    "diversityTags": [
+      "oss-design-system",
+      "full-anatomy",
+      "multi-select",
+      "positioner-passthrough",
+      "render-prop"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 7,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The fullest select anatomy observed anywhere: Backdrop, Arrow, ScrollUp/DownArrows, Group/GroupLabel, Separator, plus a Popup wrapper that re-exposes Positioner props (side/align/anchor/sticky/positionMethod), and docs examples for multiple selection and render-prop items. A recomposed story is a part-by-part anatomy tour. Feeds: anatomy (all optional parts), positioning, multi-select example."
+  },
+  {
+    "id": "select-008",
+    "component": "select",
+    "repo": "InseeFr/Pogues",
+    "repoUrl": "https://github.com/InseeFr/Pogues",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "next/src/components/ui/form/Select.tsx",
+        "permalink": "https://github.com/InseeFr/Pogues/blob/a7e89f83d30fa379a6f4e5a16a2ed4075737b172/next/src/components/ui/form/Select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Questionnaire designer by INSEE (French national statistics institute). A typed options-driven form Select whose JSDoc states it is for small lists and that a Combobox should be used otherwise - live select-vs-combobox boundary evidence.",
+    "diversityTags": [
+      "public-sector",
+      "form-integration",
+      "options-api",
+      "select-vs-combobox",
+      "typed-generics"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 8,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "France's national statistics institute questionnaire designer wraps Select as a typed options-driven form control whose JSDoc states: for small lists, otherwise use a Combobox - rare first-party evidence of the select-vs-combobox decision boundary in production. Story: options-array form select with typed generic values. Feeds: when-to-use/when-not-to-use, select-vs-combobox cluster, form integration."
+  },
+  {
+    "id": "select-009",
+    "component": "select",
+    "repo": "climatepolicyradar/knowledge-graph",
+    "repoUrl": "https://github.com/climatepolicyradar/knowledge-graph",
+    "stars": 23,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "vibe-checker/webapp/components/PredictionFilters.tsx",
+        "permalink": "https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx"
+      }
+    ],
+    "liveUrl": "https://climatepolicyradar.wikibase.cloud",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "Climate Policy Radar's concept-labelling QA webapp. A prediction filter bar composes several Selects (items prop, empty-string 'All' sentinel values) with a Base UI Slider for threshold filtering.",
+    "diversityTags": [
+      "filter-bar",
+      "data-tooling",
+      "items-prop",
+      "sentinel-value",
+      "multi-control"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 9,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A real ML-evaluation filter bar: multiple Selects with the items prop and empty-string 'All' sentinel values, composed alongside a Base UI Slider for threshold filtering, all controlled from a shared filters state. Story: set two filters and a slider, assert the filtered count updates, then clear all. Feeds: controlled usage, items prop, filter-bar archetype in real-world examples."
+  },
+  {
+    "id": "select-010",
+    "component": "select",
+    "repo": "felixhabib/race-pace-table",
+    "repoUrl": "https://github.com/felixhabib/race-pace-table",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-08",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "components/DistanceSelect.tsx",
+        "permalink": "https://github.com/felixhabib/race-pace-table/blob/3ac064600401fa718b65d845bf218e5f50b51611/components/DistanceSelect.tsx"
+      }
+    ],
+    "liveUrl": "https://racepacetable.com/marathon/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "Race pace calculator site. DistanceSelect drives Next.js router navigation on selection (marathon/half/custom slugs), items prop, aria-label='Race' on a pill-shaped trigger.",
+    "diversityTags": [
+      "navigation-select",
+      "items-prop",
+      "a11y-labeling",
+      "micro-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 10,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Select as navigation: choosing a race distance pushes a Next.js route (with a 'custom' escape hatch), items prop, aria-label='Race' on a pill trigger with Value auto-resolving labels. Story: select 'Half marathon', assert URL change; select 'Custom...' for the special flow. Feeds: when-to-use boundaries (select vs menu for navigation - instructive tension), items prop guidance."
+  },
+  {
+    "id": "select-011",
+    "component": "select",
+    "repo": "gracefullight/krds",
+    "repoUrl": "https://github.com/gracefullight/krds",
+    "stars": 46,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/krds-tw/src/components/language-switcher.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/language-switcher.tsx"
+      },
+      {
+        "path": "packages/krds-tw/src/components/select.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://krds.gracefullight.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Community Tailwind port of KRDS, the Korean government design system. Ships a full select component plus a LanguageSwitcher built directly on Base UI Select with a Korean aria-label default and globe icon trigger.",
+    "diversityTags": [
+      "gov-design-system",
+      "locale-picker",
+      "i18n",
+      "a11y-labeling"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 11,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Korean government design system (KRDS) Tailwind port: a dedicated LanguageSwitcher built straight on Select parts with a globe icon, Korean-language aria-label default, and label lookup from the languages array - plus a full generic select component. Story: locale picker switching document language. Feeds: i18n/locale-picker archetype, a11y labelling, gov-DS credibility for real-world section."
+  },
+  {
+    "id": "select-012",
+    "component": "select",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/select/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/select/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator"
+    ],
+    "contextSummary": "Dify, the highest-starred repo using Base UI select (147k). Its dify-ui package wraps 14 select parts with Group/GroupLabel/Separator support for the platform's workflow-builder UI.",
+    "diversityTags": [
+      "platform-ui-kit",
+      "ai-tooling",
+      "grouped-options"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 12,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The highest-profile adopter (147k stars): Dify's dify-ui package wraps 14 parts including Group/GroupLabel/Separator for its agentic-workflow platform UI. Valuable mostly as credibility and grouped-options evidence; composition is standard. Story: grouped model-picker select. Feeds: real-world examples header, Group/GroupLabel guidance."
+  },
+  {
+    "id": "select-013",
+    "component": "select",
+    "repo": "emoss08/Trenova",
+    "repoUrl": "https://github.com/emoss08/Trenova",
+    "stars": 48,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react",
+    "files": [
+      {
+        "path": "client/src/components/ui/base-select.tsx",
+        "permalink": "https://github.com/emoss08/Trenova/blob/fa1219fea8cd0edafa2db3664afa8eef306f2910/client/src/components/ui/base-select.tsx"
+      }
+    ],
+    "liveUrl": "https://trenova.app",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "AI-driven transportation management system. base-select.tsx imports the Select namespace from the @base-ui/react barrel (not the subpath), adds cva size variants and a clearable X affordance; used across enterprise admin forms.",
+    "diversityTags": [
+      "enterprise-forms",
+      "clearable",
+      "barrel-import",
+      "cva-variants"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 13,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Enterprise TMS forms: imports Select from the @base-ui/react barrel rather than the subpath (bundle-size teaching moment), layers cva size variants, and adds a clearable X affordance on the trigger. Story: clearable select in an admin form. Feeds: prop-level guidance (clearing value with null), import-style guidance, enterprise-form archetype."
+  },
+  {
+    "id": "select-014",
+    "component": "select",
+    "repo": "sn0w12/Akari",
+    "repoUrl": "https://github.com/sn0w12/Akari",
+    "stars": 27,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-30",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/sn0w12/Akari/blob/eb4b9ed7cc69bb86c627b78b76f1d99ab72e242f/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Manga reader built with TanStack Start. Its select wrapper is itself composed with Base UI's useRender and mergeProps utilities - the deepest use of Base UI's composition utilities observed for select.",
+    "diversityTags": [
+      "use-render",
+      "merge-props",
+      "utilities-idiom",
+      "media-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 14,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The only wrapper found that builds its select on Base UI's own composition utilities - useRender and mergeProps - showing how the library's utility layer and component layer interlock. Story: a custom-rendered trigger via useRender. Feeds: useRender/mergeProps util docs cross-link, advanced composition section."
+  },
+  {
+    "id": "select-015",
+    "component": "select",
+    "repo": "socle-commun/simple-picto",
+    "repoUrl": "https://github.com/socle-commun/simple-picto",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-07-13",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/features/i18n/LocaleSelector.tsx",
+        "permalink": "https://github.com/socle-commun/simple-picto/blob/81374eee3b921cd6acdf613fbc0765d5b1ac8fdd/src/features/i18n/LocaleSelector.tsx"
+      }
+    ],
+    "liveUrl": "https://socle-commun.github.io/simple-picto/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "AAC pictogram app for accessibility use. Settings-page LocaleSelector uses Select for language choice but hacks positioning with sideOffset={100} instead of alignItemWithTrigger={false} - an instructive misuse of the positioning API.",
+    "diversityTags": [
+      "locale-picker",
+      "settings-form",
+      "a11y-app",
+      "instructive-misuse",
+      "positioning"
+    ],
+    "instructiveMisuse": true,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 15,
+    "scores": {
+      "illustrative": 2,
+      "realWorld": 3,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "INSTRUCTIVE MISUSE: an AAC accessibility app's locale picker pushes the popup away with sideOffset={100} - almost certainly compensating for the default alignItemWithTrigger overlay behavior instead of setting alignItemWithTrigger={false}. Also renders an icon-font ligature string inside Select.Icon. The contrast story teaches the positioning model explicitly. Feeds: pitfalls & FAQ (positioning), behavior docs."
+  }
+]

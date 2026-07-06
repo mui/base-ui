@@ -1,0 +1,121 @@
+/* Adapted from docs/src/app/(docs)/react/components/switch/demos/hero/css-modules/index.module.css */
+
+.Label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Switch {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  padding: 0.125rem;
+  width: 2.25rem;
+  height: 1.25rem;
+  background-color: white;
+  transition: background-color 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &[data-checked] {
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-disabled] {
+    border-color: oklch(70.8% 0 0deg);
+    cursor: not-allowed;
+
+    &[data-checked] {
+      background-color: oklch(70.8% 0 0deg);
+    }
+  }
+}
+
+.Thumb {
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: oklch(14.5% 0 0deg);
+  transition:
+    translate 150ms ease,
+    background-color 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  &[data-checked] {
+    translate: 1rem 0;
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  .Switch[data-disabled] & {
+    background-color: oklch(70.8% 0 0deg);
+
+    &[data-checked] {
+      background-color: white;
+    }
+  }
+}
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}

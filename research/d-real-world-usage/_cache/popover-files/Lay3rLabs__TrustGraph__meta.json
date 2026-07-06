@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "TrustGraph is governance tool that turns social trust into a measurable signal for collective decision-making.",
+ "fork": false,
+ "homepage": "https://trust-graph-demo.vercel.app",
+ "license": "MIT",
+ "pushed_at": "2026-03-11T22:07:50Z",
+ "stars": 8,
+ "head_sha": "5378be01e32893eecbb82f141ebea664a2ef2a1b"
+}

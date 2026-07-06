@@ -1,0 +1,3281 @@
+[
+  {
+    "id": "popover-001",
+    "component": "popover",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/popover/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/title.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/title.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/close.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/close.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/arrow.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/arrow.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Popup",
+      "Positioner",
+      "Portal",
+      "Arrow",
+      "Close",
+      "Title",
+      "Description",
+      "Backdrop"
+    ],
+    "contextSummary": "WordPress's next-generation editor. The new @wordpress/ui package builds its entire Popover family on Base UI, one file per part, with slot-overridable Portal/Positioner (for the iframed editor canvas), an optional Backdrop, dev-time validation that a Title is present, and a hook that deprioritizes Close buttons when resolving initial focus.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "iframe-portal",
+      "focus-management",
+      "backdrop",
+      "flagship"
+    ],
+    "rank": 1,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-002",
+    "component": "popover",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/popover/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "createHandle"
+    ],
+    "contextSummary": "Dify's internal design system (packages/dify-ui) wraps Popover behind a single `placement` prop parsed into side/align, re-exports createHandle, and animates via data-starting/ending-style with motion-reduce support. Serves the flagship LLM app platform's UI.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "placement-abstraction",
+      "detached-handle",
+      "ai-platform",
+      "flagship"
+    ],
+    "rank": 4,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-003",
+    "component": "popover",
+    "repo": "PostHog/posthog",
+    "repoUrl": "https://github.com/PostHog/posthog",
+    "stars": 35353,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/quill/packages/primitives/src/popover.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/packages/quill/packages/primitives/src/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://posthog.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "PostHog's new 'quill' primitives package wraps Popover (Root/Trigger/Popup/Positioner/Portal plus Title/Description) as the base primitive for the product-analytics app's floating panels.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "analytics-platform",
+      "flagship"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-004",
+    "component": "popover",
+    "repo": "mastra-ai/mastra",
+    "repoUrl": "https://github.com/mastra-ai/mastra",
+    "stars": 25871,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/playground-ui/src/ds/components/Popover/popover.tsx",
+        "permalink": "https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Popover/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://mastra.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Mastra's playground-ui design system wraps Popover for the local agent-playground UI of the TypeScript AI-agent framework.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "ai-platform"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-005",
+    "component": "popover",
+    "repo": "electric-sql/electric",
+    "repoUrl": "https://github.com/electric-sql/electric",
+    "stars": 10257,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/agents-server-ui/src/ui/Popover.tsx",
+        "permalink": "https://github.com/electric-sql/electric/blob/640509c306eb96e38901edd2713ba85e148fcdad/packages/agents-server-ui/src/ui/Popover.tsx"
+      }
+    ],
+    "liveUrl": "https://electric.ax",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close"
+    ],
+    "contextSummary": "Wrapper in Electric's agents-server UI exposing modal (including 'trap-focus'), anchor, and initialFocus/finalFocus pass-throughs with CSS-module styling.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "modal-trap-focus",
+      "sync-engine"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-006",
+    "component": "popover",
+    "repo": "baptisteArno/typebot.io",
+    "repoUrl": "https://github.com/baptisteArno/typebot.io",
+    "stars": 10120,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/Popover.tsx",
+        "permalink": "https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Popover.tsx"
+      }
+    ],
+    "liveUrl": "https://typebot.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Typebot's shared packages/ui Popover wrapper used across the chatbot-builder product.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "builder-tool"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-007",
+    "component": "popover",
+    "repo": "amruthpillai/reactive-resume",
+    "repoUrl": "https://github.com/amruthpillai/reactive-resume",
+    "stars": 39392,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/amruthpillai/reactive-resume/blob/dfc5559625db3c665b05de8292dcb6abdd5d1ac5/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://rxresu.me",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Reactive Resume's shared packages/ui popover wrapper (Title/Description included) used across the resume-builder app.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "form-heavy"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-008",
+    "component": "popover",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/popover.tsx"
+      },
+      {
+        "path": "apps/ui/registry/default/ui/popover.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/registry/default/ui/popover.tsx"
+      },
+      {
+        "path": "apps/ui/public/r/popover.json",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/public/r/popover.json"
+      }
+    ],
+    "liveUrl": "https://coss.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "coss ui \u2014 the cal.com team's Base UI registry. Popover wrapper re-exports createHandle, wires the new Viewport part for smooth size transitions, offers a tooltipStyle variant, and passes through portalProps/anchor.",
+    "diversityTags": [
+      "registry",
+      "create-handle",
+      "viewport-part",
+      "tooltip-variant"
+    ],
+    "rank": 14,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-009",
+    "component": "popover",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-03-30",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "registry/bases/base/ui/popover.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/0946f9667f4bea44873cf9391b3b801c16660c01/registry/bases/base/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "ReUI registry (listed on Base UI's community page): copy-paste Popover wrapper with Title/Description on the Base UI base.",
+    "diversityTags": [
+      "registry",
+      "community-page"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-010",
+    "component": "popover",
+    "repo": "imskyleen/animate-ui",
+    "repoUrl": "https://github.com/imskyleen/animate-ui",
+    "stars": 3769,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-31",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/www/public/r/primitives-base-popover.json",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/public/r/primitives-base-popover.json"
+      },
+      {
+        "path": "apps/www/registry/primitives/base/popover/index.tsx",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/registry/primitives/base/popover/index.tsx"
+      }
+    ],
+    "liveUrl": "https://animate-ui.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Backdrop",
+      "Close",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Animate UI's Base primitives distribution: Popover integrated with motion/react \u2014 AnimatePresence-driven exit animations, a context bridging controlled open state, and a Portal that forces keepMounted so unmount animations can play.",
+    "diversityTags": [
+      "registry",
+      "animation",
+      "motion-integration"
+    ],
+    "rank": 15,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-011",
+    "component": "popover",
+    "repo": "databuddy-analytics/Databuddy",
+    "repoUrl": "https://github.com/databuddy-analytics/Databuddy",
+    "stars": 1097,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/databuddy-analytics/Databuddy/blob/676b576f53be75fc02dc48c9987232b264b4abb0/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://www.databuddy.cc",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Privacy-first analytics platform; packages/ui popover wrapper (Close/Title/Description) shared by dashboard apps.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "analytics-platform"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-012",
+    "component": "popover",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://green-wall.leoku.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "GitHub-contributions poster generator (green-wall.leoku.dev). Ships a coss-lineage wrapper using the new Viewport part, createHandle re-export, and a tooltipStyle variant; popovers drive the appearance settings UI.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "viewport-part",
+      "create-handle",
+      "dev-tool"
+    ],
+    "rank": 7,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-013",
+    "component": "popover",
+    "repo": "nandanmen/NotANumber",
+    "repoUrl": "https://github.com/nandanmen/NotANumber",
+    "stars": 1499,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-24",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "app/(main)/(content)/popover.tsx",
+        "permalink": "https://github.com/nandanmen/NotANumber/blob/8b6fc90db45b49a1013ecd028ca5ce0d0c6866c4/app/(main)/(content)/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://nan.fyi",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "nan.fyi \u2014 Nanda Syahrasyad's interactive math/CS blog. Minimal popover wrapper: Trigger render-prop around arbitrary children, custom SVG Arrow, collisionPadding for the reading column.",
+    "diversityTags": [
+      "content-site",
+      "arrow",
+      "render-prop-trigger"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-014",
+    "component": "popover",
+    "repo": "bearlyai/OpenADE",
+    "repoUrl": "https://github.com/bearlyai/OpenADE",
+    "stars": 324,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "projects/web/src/components/InputBar.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/components/InputBar.tsx"
+      },
+      {
+        "path": "projects/web/src/pages/TaskCreatePage.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/pages/TaskCreatePage.tsx"
+      }
+    ],
+    "liveUrl": "https://openade.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Open agentic development environment. The prompt InputBar opens an MCP-server selector popover (side='top' align='end') portalled into a custom container element; TaskCreatePage hosts similar option popovers.",
+    "diversityTags": [
+      "ai-agent-ui",
+      "custom-portal-container",
+      "settings-popover"
+    ],
+    "rank": 9,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-015",
+    "component": "popover",
+    "repo": "opral/flashtype",
+    "repoUrl": "https://github.com/opral/flashtype",
+    "stars": 268,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/extensions/markdown/components/formatting-toolbar.tsx",
+        "permalink": "https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://flashtype.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close"
+    ],
+    "contextSummary": "AI markdown editor (flashtype.com). The formatting toolbar's link editor is a Popover whose Trigger is composed into Toolbar.Button via render (nativeButton={false}), openOnHover disabled, and initialFocus pointed at the URL input \u2014 a form-in-popover inside a roving-tabindex toolbar.",
+    "diversityTags": [
+      "form-in-popover",
+      "toolbar-composition",
+      "initial-focus",
+      "editor"
+    ],
+    "rank": 3,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-016",
+    "component": "popover",
+    "repo": "ancs21/screenshots-banana",
+    "repoUrl": "https://github.com/ancs21/screenshots-banana",
+    "stars": 28,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/Controls/BackgroundPicker.tsx",
+        "permalink": "https://github.com/ancs21/screenshots-banana/blob/fbeb47f78b93fb5318edec04b6a35e3d4b51ab1d/src/components/Controls/BackgroundPicker.tsx"
+      },
+      {
+        "path": "src/components/Controls/CanvasSize.tsx",
+        "permalink": "https://github.com/ancs21/screenshots-banana/blob/fbeb47f78b93fb5318edec04b6a35e3d4b51ab1d/src/components/Controls/CanvasSize.tsx"
+      },
+      {
+        "path": "src/components/Controls/ExportButtons.tsx",
+        "permalink": "https://github.com/ancs21/screenshots-banana/blob/fbeb47f78b93fb5318edec04b6a35e3d4b51ab1d/src/components/Controls/ExportButtons.tsx"
+      },
+      {
+        "path": "src/components/Controls/FramePicker.tsx",
+        "permalink": "https://github.com/ancs21/screenshots-banana/blob/fbeb47f78b93fb5318edec04b6a35e3d4b51ab1d/src/components/Controls/FramePicker.tsx"
+      }
+    ],
+    "liveUrl": "https://screenshots-banana.pages.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Screenshot-beautifier web app. A settings rail opens controlled picker popovers (background gradient, pattern, frame, canvas size) to the right of each row (side='right' align='start').",
+    "diversityTags": [
+      "picker-popover",
+      "design-tool",
+      "controlled-state"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-017",
+    "component": "popover",
+    "repo": "vibe-stack/three-maps",
+    "repoUrl": "https://github.com/vibe-stack/three-maps",
+    "stars": 90,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-23",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/features/toolbar/components/ai-generate-popover.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/toolbar/components/ai-generate-popover.tsx"
+      },
+      {
+        "path": "src/features/toolbar/components/top-toolbar.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/toolbar/components/top-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://vibe-stack.github.io/three-maps/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Close"
+    ],
+    "contextSummary": "AI 3D map editor. The toolbar's 'Generate Object' popover is a small AI-prompt form with Popover.Title and Popover.Close, glassmorphism styling, and streaming generation status.",
+    "diversityTags": [
+      "form-in-popover",
+      "ai-generation",
+      "3d-editor"
+    ],
+    "rank": 11,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-018",
+    "component": "popover",
+    "repo": "graphprotocol/hypergraph",
+    "repoUrl": "https://github.com/graphprotocol/hypergraph",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-16",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/connect/src/components/SpacesCard.tsx",
+        "permalink": "https://github.com/graphprotocol/hypergraph/blob/53f932a643422705ca2d0fb7c6d8bc6049cca6d1/apps/connect/src/components/SpacesCard.tsx"
+      }
+    ],
+    "liveUrl": "https://docs.hypergraph.thegraph.com/docs/quickstart",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "The Graph's Hypergraph connect app. SpacesCard conditionally composes: in view mode the card is a Popover.Root with an info Popup (+Arrow) describing space visibility; in selection mode the same markup renders a Checkbox instead.",
+    "diversityTags": [
+      "conditional-composition",
+      "info-popover",
+      "web3"
+    ],
+    "rank": 13,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-019",
+    "component": "popover",
+    "repo": "gracefullight/krds",
+    "repoUrl": "https://github.com/gracefullight/krds",
+    "stars": 46,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/krds-tw/src/components/coach-mark.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/coach-mark.tsx"
+      },
+      {
+        "path": "packages/krds-tw/src/components/contextual-help.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/contextual-help.tsx"
+      }
+    ],
+    "liveUrl": "https://krds.gracefullight.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Unofficial Tailwind implementation of KRDS (Korea government design system). CoachMark renders sequential onboarding steps as an always-open Popover with a hidden zero-size Trigger whose getBoundingClientRect is overridden to a selector-resolved target; ContextualHelp is a second popover-based pattern.",
+    "diversityTags": [
+      "coach-mark",
+      "onboarding-tour",
+      "external-anchor-workaround",
+      "gov-design-system",
+      "contextual-help"
+    ],
+    "rank": 6,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-020",
+    "component": "popover",
+    "repo": "martpie/museeks",
+    "repoUrl": "https://github.com/martpie/museeks",
+    "stars": 2123,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/Header.tsx",
+        "permalink": "https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx"
+      }
+    ],
+    "liveUrl": "https://museeks.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Cross-platform Tauri music player (museeks.io). The header's play-queue popover anchors to a wrapper div via anchor={queueAnchorRef} (decoupled from the Trigger), composes the Trigger over a custom ButtonIcon via render, and styles with StyleX.",
+    "diversityTags": [
+      "app-level-usage",
+      "custom-anchor",
+      "render-prop-trigger",
+      "desktop-tauri"
+    ],
+    "rank": 2,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-021",
+    "component": "popover",
+    "repo": "egoist/takopi",
+    "repoUrl": "https://github.com/egoist/takopi",
+    "stars": 15,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-24",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/mention-popover.tsx",
+        "permalink": "https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Personal AI assistant by egoist. @-mention file autocomplete: a triggerless controlled Popover anchored to the chat textarea (anchor={textareaRef}, side='top'), with initialFocus={false}/finalFocus={false} so typing never leaves the textarea; highlight/keyboard nav handled externally.",
+    "diversityTags": [
+      "detached-trigger",
+      "mention-autocomplete",
+      "focus-opt-out",
+      "ai-assistant"
+    ],
+    "rank": 5,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-022",
+    "component": "popover",
+    "repo": "urbanlab/site-erasme-front",
+    "repoUrl": "https://github.com/urbanlab/site-erasme-front",
+    "stars": 1,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2025-07-30",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "app/_ui/_components/filterPopover/filterPopover.tsx",
+        "permalink": "https://github.com/urbanlab/site-erasme-front/blob/eda799114ebde8966c965f33ad07f65be7d7e53b/app/_ui/_components/filterPopover/filterPopover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Public-sector data site by M\u00e9tropole de Lyon's Erasme lab. Reusable FilterPopover: Trigger rendered as a ghost Button ('Filtres'), popup opens side='right' with injected filter-form content and an applied-state indicator on the trigger.",
+    "diversityTags": [
+      "filter-popover",
+      "public-sector",
+      "render-prop-trigger"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-023",
+    "component": "popover",
+    "repo": "MTI-System/MTI-site",
+    "repoUrl": "https://github.com/MTI-System/MTI-site",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-05",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/pickers/DatePicker.tsx",
+        "permalink": "https://github.com/MTI-System/MTI-site/blob/ec78d052ab53c3055244630396ba442ac4acd520/src/components/pickers/DatePicker.tsx"
+      }
+    ],
+    "liveUrl": "https://mtiyt.ru",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Russian-language production site (mtiyt.ru). DatePicker hosts react-day-picker inside a controlled Popover and commits the picked date/range on close (onOpenChange(false) \u2192 onPick), plus an explicit apply button.",
+    "diversityTags": [
+      "date-picker-host",
+      "commit-on-close",
+      "controlled-state"
+    ],
+    "rank": 10,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-024",
+    "component": "popover",
+    "repo": "cbcruk/featured_today",
+    "repoUrl": "https://github.com/cbcruk/featured_today",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-12-07",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/DatePicker.tsx",
+        "permalink": "https://github.com/cbcruk/featured_today/blob/dc4e22464aa532750a3ba1d8c3e95f0ab2915e19/src/components/DatePicker.tsx"
+      }
+    ],
+    "liveUrl": "https://featured-today.vercel.app/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "App Store 'Today' archive browser (Korean). Calendar popover where every react-day-picker day renders as a Next.js Link navigating to /featured/<date> \u2014 the popover as a navigation surface.",
+    "diversityTags": [
+      "date-picker-host",
+      "navigation-popover"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-025",
+    "component": "popover",
+    "repo": "InseeFr/Pogues",
+    "repoUrl": "https://github.com/InseeFr/Pogues",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "next/src/components/ui/Popover.tsx",
+        "permalink": "https://github.com/InseeFr/Pogues/blob/a7e89f83d30fa379a6f4e5a16a2ed4075737b172/next/src/components/ui/Popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Questionnaire designer by INSEE, the French national statistics institute. The next/ app's ui Popover wrapper includes Arrow, Title, and Description for survey-editing affordances.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "public-sector",
+      "form-heavy"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-026",
+    "component": "popover",
+    "repo": "Lay3rLabs/TrustGraph",
+    "repoUrl": "https://github.com/Lay3rLabs/TrustGraph",
+    "stars": 8,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-11",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "frontend/components/Tooltip.tsx",
+        "permalink": "https://github.com/Lay3rLabs/TrustGraph/blob/5378be01e32893eecbb82f141ebea664a2ef2a1b/frontend/components/Tooltip.tsx"
+      }
+    ],
+    "liveUrl": "https://trust-graph-demo.vercel.app",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow"
+    ],
+    "contextSummary": "Web3 governance tool. A generic Tooltip component is built from Popover.Root openOnHover delay={0} with an Arrow, rendering Markdown titles; trigger clicks are stopPropagation'd. Instructive: rich/interactive hover content on Popover vs the dedicated Tooltip component's non-interactive semantics.",
+    "diversityTags": [
+      "popover-as-tooltip",
+      "hover-card-like",
+      "openOnHover",
+      "instructive-misuse"
+    ],
+    "rank": 12,
+    "instructiveMisuse": true,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-027",
+    "component": "popover",
+    "repo": "1771-Technologies/lytenyte",
+    "repoUrl": "https://github.com/1771-Technologies/lytenyte",
+    "stars": 937,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "documentation/content/docs/v1/(components)/demos/popover-frame/demo.tsx",
+        "permalink": "https://github.com/1771-Technologies/lytenyte/blob/0efae21e64f58cef11e42ad1223ff73aede9bbe4/documentation/content/docs/v1/(components)/demos/popover-frame/demo.tsx"
+      },
+      {
+        "path": "documentation/examples/(components)/popover-frame/src/demo.tsx",
+        "permalink": "https://github.com/1771-Technologies/lytenyte/blob/0efae21e64f58cef11e42ad1223ff73aede9bbe4/documentation/examples/(components)/popover-frame/src/demo.tsx"
+      }
+    ],
+    "liveUrl": "https://www.1771technologies.com/",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "LyteNyte Grid (commercial React data grid) docs demo: grid 'popover frames' render an always-open Popover per activated cell with anchor={params.target} (the clicked cell element), closed through the grid API \u2014 Base UI popover as the grid's cell-attached UI layer.",
+    "diversityTags": [
+      "data-grid",
+      "cell-anchored",
+      "imperative-anchor",
+      "docs-demo"
+    ],
+    "rank": 8,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-028",
+    "component": "popover",
+    "repo": "heymynameisrob/natter",
+    "repoUrl": "https://github.com/heymynameisrob/natter",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-01-07",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/Popover.tsx",
+        "permalink": "https://github.com/heymynameisrob/natter/blob/0e6c22bb5997274b501a41b9fe57fa93e2b9ceb5/src/components/Popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Small messaging side-project by a product designer; compact shadcn-style wrapper that also exports Positioner as PopoverAnchor.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-029",
+    "component": "popover",
+    "repo": "compozy/agh",
+    "repoUrl": "https://github.com/compozy/agh",
+    "stars": 176,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/compozy/agh/blob/b77464e71a92ede01bab65006b0d4eab51be5f4a/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://agh.network",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Agent workplace platform (agh.network); packages/ui wrapper with Title/Description used across the console.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "ai-platform"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-030",
+    "component": "popover",
+    "repo": "devxoul/skillpad",
+    "repoUrl": "https://github.com/devxoul/skillpad",
+    "stars": 24,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "STYLE_GUIDE.md",
+        "permalink": "https://github.com/devxoul/skillpad/blob/c46cc82fbb91feb7b3bbdc35410f0ac94902394a/STYLE_GUIDE.md"
+      },
+      {
+        "path": "src/ui/popover.tsx",
+        "permalink": "https://github.com/devxoul/skillpad/blob/c46cc82fbb91feb7b3bbdc35410f0ac94902394a/src/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://skillpad.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow"
+    ],
+    "contextSummary": "GUI for Claude Agent Skills by devxoul; ui wrapper including Arrow.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "dev-tool"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-031",
+    "component": "popover",
+    "repo": "AgusMayol/optics",
+    "repoUrl": "https://github.com/AgusMayol/optics",
+    "stars": 223,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-11",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "registry/optics/popover.jsx",
+        "permalink": "https://github.com/AgusMayol/optics/blob/1742d26f0944d4a31708bc4ed74aff72f19cf43a/registry/optics/popover.jsx"
+      }
+    ],
+    "liveUrl": "https://optics.agusmayol.com.ar",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at registry/optics/popover.jsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-032",
+    "component": "popover",
+    "repo": "Shaya16/Spent",
+    "repoUrl": "https://github.com/Shaya16/Spent",
+    "stars": 136,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-02",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/Shaya16/Spent/blob/f5c96007858ded2c12dedca5d0422b0da2b8db09/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-033",
+    "component": "popover",
+    "repo": "pgplex/pgconsole",
+    "repoUrl": "https://github.com/pgplex/pgconsole",
+    "stars": 126,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/pgplex/pgconsole/blob/a7fead0e383109b1c2fd98c40450c7e99b13afe5/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://www.pgconsole.com",
+    "partsUsed": [],
+    "contextSummary": "Minimal Postgres editor for speed, collaboration, and AI Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-034",
+    "component": "popover",
+    "repo": "mui/mui-public",
+    "repoUrl": "https://github.com/mui/mui-public",
+    "stars": 106,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "docs/components/TypeRef/TypeRef.tsx",
+        "permalink": "https://github.com/mui/mui-public/blob/7bd5e10f792e3f2188188e22f06b1ae7ddfb58ca/docs/components/TypeRef/TypeRef.tsx"
+      }
+    ],
+    "liveUrl": "https://mui-internal.netlify.app/",
+    "partsUsed": [],
+    "contextSummary": "The public mono-repository of MUI (as an organization), see mui/mui-private for the opposite. Popover usage found at docs/components/TypeRef/TypeRef.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-035",
+    "component": "popover",
+    "repo": "kristal374/HDrezka-Grabber",
+    "repoUrl": "https://github.com/kristal374/HDrezka-Grabber",
+    "stars": 75,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-14",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/Popover.tsx",
+        "permalink": "https://github.com/kristal374/HDrezka-Grabber/blob/fa56cc7f4f2b5610c11697aae0756d817152bd4a/src/components/ui/Popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "\u0411\u044b\u0441\u0442\u0440\u043e\u0435 \u0438 \u0443\u0434\u043e\u0431\u043d\u043e\u0435 \u0441\u043a\u0430\u0447\u0438\u0432\u0430\u043d\u0438\u0435 \u0444\u0438\u043b\u044c\u043c\u043e\u0432 \u0438 \u0441\u0435\u0440\u0438\u0430\u043b\u043e\u0432 \u0441 rezka.ag! \u041f\u043e\u043b\u0443\u0447\u0430\u0439\u0442\u0435 \u0434\u043e\u0441\u0442\u0443\u043f \u043a \u0432\u0430\u0448\u0438\u043c \u043b\u044e\u0431\u0438\u043c\u044b\u043c \u0444\u0438\u043b\u044c\u043c\u0430\u043c \u0438 \u0441\u0435\u0440\u0438\u0430\u043b\u0430\u043c \u0437\u0430 \u043d\u0435\u0441\u043a\u043e\u043b\u044c\u043a\u043e \u043a\u043b\u0438\u043a\u043e\u0432. Popover usage found at src/components/ui/Popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-036",
+    "component": "popover",
+    "repo": "mohitkumhar/business-ai-agent",
+    "repoUrl": "https://github.com/mohitkumhar/business-ai-agent",
+    "stars": 72,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-15",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "landing-page/src/lib/packages/ui/components/Popover.tsx",
+        "permalink": "https://github.com/mohitkumhar/business-ai-agent/blob/1def311285d1e82d5db48bdd82baa54eed125474/landing-page/src/lib/packages/ui/components/Popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at landing-page/src/lib/packages/ui/components/Popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-037",
+    "component": "popover",
+    "repo": "reactvideoeditor/clippkit",
+    "repoUrl": "https://github.com/reactvideoeditor/clippkit",
+    "stars": 62,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-18",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/docs/registry/default/ui/popover.tsx",
+        "permalink": "https://github.com/reactvideoeditor/clippkit/blob/5973421d5dbf88954ec22c21ab666b3bfc2dac46/apps/docs/registry/default/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://www.clippkit.com/",
+    "partsUsed": [],
+    "contextSummary": "Clippkit is a growing collection of reusable components for people building videos with code. It's like a UI library, but instead of buttons and modals, you get intros, text effects, animations, transitions, and full video scenes. Popover usage found at apps/docs/registry/default/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-038",
+    "component": "popover",
+    "repo": "vibe-stack/freed",
+    "repoUrl": "https://github.com/vibe-stack/freed",
+    "stars": 56,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-02-22",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/features/toolbar/components/top-toolbar.tsx",
+        "permalink": "https://github.com/vibe-stack/freed/blob/2354da681678b01843c09386372bf546c1dc00d1/src/features/toolbar/components/top-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://vibe-stack.github.io/freed/",
+    "partsUsed": [],
+    "contextSummary": "A web based 3d editor inspired by blender, demo app for the vibe coding book Popover usage found at src/features/toolbar/components/top-toolbar.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-039",
+    "component": "popover",
+    "repo": "cahyawibawa/ui-topia",
+    "repoUrl": "https://github.com/cahyawibawa/ui-topia",
+    "stars": 54,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-11-18",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/web/public/r/popover.json",
+        "permalink": "https://github.com/cahyawibawa/ui-topia/blob/c1e64b284091dd3cb313fad961a1270dcb6d79d3/apps/web/public/r/popover.json"
+      },
+      {
+        "path": "apps/web/registry/ui/popover.tsx",
+        "permalink": "https://github.com/cahyawibawa/ui-topia/blob/c1e64b284091dd3cb313fad961a1270dcb6d79d3/apps/web/registry/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://uitopia.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A collection of fine UI components Popover usage found at apps/web/public/r/popover.json (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-040",
+    "component": "popover",
+    "repo": "nauvalazhar/ai",
+    "repoUrl": "https://github.com/nauvalazhar/ai",
+    "stars": 54,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-05-26",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "public/shadcn/r/citation.json",
+        "permalink": "https://github.com/nauvalazhar/ai/blob/9944bcffc7412b27315ce853a49b4ea6035dea98/public/shadcn/r/citation.json"
+      }
+    ],
+    "liveUrl": "https://ai.nauv.al",
+    "partsUsed": [],
+    "contextSummary": "React components for building agentic AI applications. Popover usage found at public/shadcn/r/citation.json (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-041",
+    "component": "popover",
+    "repo": "ysansan98/ant-chat",
+    "repoUrl": "https://github.com/ysansan98/ant-chat",
+    "stars": 47,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/ysansan98/ant-chat/blob/4d24480712c37abbce1d4aed49a2d697c0472b77/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "\u57fa\u4e8eelectron \u548c ant-design-x \u7684 AI \u5bf9\u8bdd\u5ba2\u6237\u7aef Popover usage found at packages/ui/src/components/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-042",
+    "component": "popover",
+    "repo": "everr-labs/everr",
+    "repoUrl": "https://github.com/everr-labs/everr",
+    "stars": 37,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/everr-labs/everr/blob/78189e15d0bb7345c0936b2d2f593b0bbe3da241/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://everr.dev",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at packages/ui/src/components/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-043",
+    "component": "popover",
+    "repo": "mattzh72/minecraftlm",
+    "repoUrl": "https://github.com/mattzh72/minecraftlm",
+    "stars": 31,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-26",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/mattzh72/minecraftlm/blob/90b7a343d5054a9154fce453bd776264bd5e028a/frontend/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Generate minecraft worlds via natural language Popover usage found at frontend/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-044",
+    "component": "popover",
+    "repo": "bohdanbirdie/cloudstash",
+    "repoUrl": "https://github.com/bohdanbirdie/cloudstash",
+    "stars": 29,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-24",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/bohdanbirdie/cloudstash/blob/ca7b805235373d476b171952d151466e960cebb4/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-045",
+    "component": "popover",
+    "repo": "paceui/tanstack-better-auth-starter",
+    "repoUrl": "https://github.com/paceui/tanstack-better-auth-starter",
+    "stars": 29,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "starter-template",
+    "lastActivity": "2026-01-08",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/paceui/tanstack-better-auth-starter/blob/7c3f1a72df4fe1efb57f3ae80f3151bc3a6b3da7/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://pacekit.dev",
+    "partsUsed": [],
+    "contextSummary": "Enterprise grade starter kit for Tanstack Start. Built for modern products Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-046",
+    "component": "popover",
+    "repo": "damien-schneider/reflet",
+    "repoUrl": "https://github.com/damien-schneider/reflet",
+    "stars": 26,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-29",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/damien-schneider/reflet/blob/62f2abd87409ef6017a095c1e224e87c80997242/apps/web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://www.reflet.app",
+    "partsUsed": [],
+    "contextSummary": "The best open-source alternative to featurebase. https://www.reflet.app Popover usage found at apps/web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-047",
+    "component": "popover",
+    "repo": "Jacksonmills/jem-ui",
+    "repoUrl": "https://github.com/Jacksonmills/jem-ui",
+    "stars": 22,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-12",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "components/ui/popover.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/components/ui/popover.tsx"
+      },
+      {
+        "path": "public/r/popover.json",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/public/r/popover.json"
+      },
+      {
+        "path": "registry/ui/popover.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/registry/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://jem-ui.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A shadcn based custom registry for using Base UI components. Popover usage found at components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-048",
+    "component": "popover",
+    "repo": "okmr-d/kopi-ui",
+    "repoUrl": "https://github.com/okmr-d/kopi-ui",
+    "stars": 20,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-01-12",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/okmr-d/kopi-ui/blob/d1469383ad719a915193c04be3bd2ac4aee3dbaa/apps/www/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://kopi-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at apps/www/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-049",
+    "component": "popover",
+    "repo": "codedthemes/uiable",
+    "repoUrl": "https://github.com/codedthemes/uiable",
+    "stars": 18,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/codedthemes/uiable/blob/329b0bb8733fa0168f1e1a014a1b7337a667b431/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://uiable.com",
+    "partsUsed": [],
+    "contextSummary": "A free, open-source collection of beautifully designed UI components that you can copy, paste, customize, and make your own. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-050",
+    "component": "popover",
+    "repo": "The-AI-Republic/pi-dash",
+    "repoUrl": "https://github.com/The-AI-Republic/pi-dash",
+    "stars": 16,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/propel/src/popover/root.tsx",
+        "permalink": "https://github.com/The-AI-Republic/pi-dash/blob/6f3dc5e855ca4137dcd533057a8818a72d0018fd/packages/propel/src/popover/root.tsx"
+      }
+    ],
+    "liveUrl": "https://airepublic.com",
+    "partsUsed": [],
+    "contextSummary": "AI Agent Orchestration Platform Popover usage found at packages/propel/src/popover/root.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-051",
+    "component": "popover",
+    "repo": "ahmedragab20/diffing",
+    "repoUrl": "https://github.com/ahmedragab20/diffing",
+    "stars": 14,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-14",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/ui/primitives/Popover.tsx",
+        "permalink": "https://github.com/ahmedragab20/diffing/blob/7d60c59d4509b5ae1d602aafdaed06fbdc3d9077/src/ui/primitives/Popover.tsx"
+      },
+      {
+        "path": "vite.config.ts",
+        "permalink": "https://github.com/ahmedragab20/diffing/blob/7d60c59d4509b5ae1d602aafdaed06fbdc3d9077/vite.config.ts"
+      }
+    ],
+    "liveUrl": "https://diffing--ahmedragab19.replit.app/",
+    "partsUsed": [],
+    "contextSummary": "A local-first code review and planning tool with User <-> AI realtime communication Popover usage found at src/ui/primitives/Popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-052",
+    "component": "popover",
+    "repo": "rohitpaulk/are-we-acp-yet",
+    "repoUrl": "https://github.com/rohitpaulk/are-we-acp-yet",
+    "stars": 14,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-02",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "web/src/components/AgentCard.tsx",
+        "permalink": "https://github.com/rohitpaulk/are-we-acp-yet/blob/d378cb972b6659ab0bc4ee328d587ca6e8461412/web/src/components/AgentCard.tsx"
+      }
+    ],
+    "liveUrl": "https://areweacpyet.com",
+    "partsUsed": [],
+    "contextSummary": "Your ACP server has bugs. Popover usage found at web/src/components/AgentCard.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-053",
+    "component": "popover",
+    "repo": "Radiergummi/cetacean",
+    "repoUrl": "https://github.com/Radiergummi/cetacean",
+    "stars": 14,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/Radiergummi/cetacean/blob/c76c0538158c8c38513b032f8a7a484185aeb3f9/frontend/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://cetacean.mazetti.me/",
+    "partsUsed": [],
+    "contextSummary": "A lightweight observability platform for Docker Swarm Mode clusters. Popover usage found at frontend/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-054",
+    "component": "popover",
+    "repo": "NathanBrodin/Portfolio",
+    "repoUrl": "https://github.com/NathanBrodin/Portfolio",
+    "stars": 14,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/NathanBrodin/Portfolio/blob/488dd32195edadcc4eb9c8d11cca9eb8d800eddd/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://brodin.dev",
+    "partsUsed": [],
+    "contextSummary": "My Portfolio, to showcase my work as a Frontend Engineer. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-055",
+    "component": "popover",
+    "repo": "twendykirn/unlingo",
+    "repoUrl": "https://github.com/twendykirn/unlingo",
+    "stars": 11,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-01-29",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/twendykirn/unlingo/blob/6ddc056c7912e2f0ca6eff05a6a2030ec69f0999/apps/web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://unlingo.com",
+    "partsUsed": [],
+    "contextSummary": "Unlingo is the open-source developer platform for modern internationalization. Host, manage, and deliver translations with AI-powered assistance, visual context, and a developer-friendly API that works with any modern framework. Popover usage found at apps/web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-056",
+    "component": "popover",
+    "repo": "achromaticlabs/shadcn-modal-manager",
+    "repoUrl": "https://github.com/achromaticlabs/shadcn-modal-manager",
+    "stars": 10,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-01-22",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/docs/content/docs/adapters/base-ui/popover.mdx",
+        "permalink": "https://github.com/achromaticlabs/shadcn-modal-manager/blob/cf4b5718aa8a6006205f8df3ca340ddfeec40323/apps/docs/content/docs/adapters/base-ui/popover.mdx"
+      }
+    ],
+    "liveUrl": "https://shadcn-modal-manager.achromatic.dev",
+    "partsUsed": [],
+    "contextSummary": "Lightweight React modal manager with promise-based API. Supports Shadcn UI, Radix UI and Base UI. Popover usage found at apps/docs/content/docs/adapters/base-ui/popover.mdx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-057",
+    "component": "popover",
+    "repo": "CameronFoxly/patch-studio",
+    "repoUrl": "https://github.com/CameronFoxly/patch-studio",
+    "stars": 9,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-08",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/CameronFoxly/patch-studio/blob/64b86a13e5db3b69ad84b1d83ca7809b38b1da21/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://cameronfoxly.github.io/patch-studio/",
+    "partsUsed": [],
+    "contextSummary": "Web-based GUI for building synthesized sounds with @web-kits/audio Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-058",
+    "component": "popover",
+    "repo": "juliusmarminge/thestakk",
+    "repoUrl": "https://github.com/juliusmarminge/thestakk",
+    "stars": 8,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-11-27",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/juliusmarminge/thestakk/blob/4583b0fe7a0d5895115d898f0fc044af063fc279/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://thestakk.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-059",
+    "component": "popover",
+    "repo": "Maniktherana/deployable",
+    "repoUrl": "https://github.com/Maniktherana/deployable",
+    "stars": 8,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-04-26",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/Maniktherana/deployable/blob/e783adf2c9f9901a94b8795c9719d5ca48837381/apps/web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A Mini PaaS where you can deploy stuff Popover usage found at apps/web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-060",
+    "component": "popover",
+    "repo": "huangwg2529/nsy_chat_live",
+    "repoUrl": "https://github.com/huangwg2529/nsy_chat_live",
+    "stars": 8,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-05-08",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "replive-web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/huangwg2529/nsy_chat_live/blob/69c6d519cb0b394f839296d2af51f5e954078b81/replive-web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at replive-web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-061",
+    "component": "popover",
+    "repo": "xraph/forge",
+    "repoUrl": "https://github.com/xraph/forge",
+    "stars": 7,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "extensions/dashboard/contract/shell/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/xraph/forge/blob/887f65b53269d2a4a6f1089ec589149fc48966df/extensions/dashboard/contract/shell/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://forge.xraph.com",
+    "partsUsed": [],
+    "contextSummary": "A very opionated distributed backend framework with everything in between. Popover usage found at extensions/dashboard/contract/shell/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-062",
+    "component": "popover",
+    "repo": "MrInspection/beatsflow",
+    "repoUrl": "https://github.com/MrInspection/beatsflow",
+    "stars": 7,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-21",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/MrInspection/beatsflow/blob/34a25c02ffe933e7b70b64c71a96e39555363677/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://beatsflow.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Play Lofi Tracks or anything you while working on your tasks with our workflow builder Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-063",
+    "component": "popover",
+    "repo": "ByteLogicLabs/Table-Relay",
+    "repoUrl": "https://github.com/ByteLogicLabs/Table-Relay",
+    "stars": 7,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/ByteLogicLabs/Table-Relay/blob/e05f6ac402238d1e64d01af6f4471cd7a8d7a767/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A fast, multi-database desktop workbench for browsing, querying, editing, and diagramming your data, with a built-in AI assistant. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-064",
+    "component": "popover",
+    "repo": "pacekit/creembase",
+    "repoUrl": "https://github.com/pacekit/creembase",
+    "stars": 7,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "starter-template",
+    "lastActivity": "2026-03-27",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/pacekit/creembase/blob/5d19c6c503af12282119da3731fe3c01f09df80c/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://creembase.pacekit.dev",
+    "partsUsed": [],
+    "contextSummary": "Next.js + Supabase + Creem SaaS Boilerplate Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-065",
+    "component": "popover",
+    "repo": "joshuawootonn/tmux-reference",
+    "repoUrl": "https://github.com/joshuawootonn/tmux-reference",
+    "stars": 6,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-14",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/joshuawootonn/tmux-reference/blob/765ef9c2ad2a87dd2e524772f10bc3b7e1227f9d/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://tmuxreference.com",
+    "partsUsed": [],
+    "contextSummary": "A quick reference for tmux shortcuts Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-066",
+    "component": "popover",
+    "repo": "youpele52/bigCode",
+    "repoUrl": "https://github.com/youpele52/bigCode",
+    "stars": 6,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-04-21",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/youpele52/bigCode/blob/026ff9698fcee866fcbcccaa2bf173c6a9fedadb/apps/web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at apps/web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-067",
+    "component": "popover",
+    "repo": "aditsuru/glimpse",
+    "repoUrl": "https://github.com/aditsuru/glimpse",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/aditsuru/glimpse/blob/a065b1363d5f34a9593d781170b80b4438c2050d/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://glimpse.aditsuru.com",
+    "partsUsed": [],
+    "contextSummary": "A full stack project in NextJS with Drizzle, Better-Auth, oRPC and AWS S3. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-068",
+    "component": "popover",
+    "repo": "0-don/coding.global-web",
+    "repoUrl": "https://github.com/0-don/coding.global-web",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-13",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/0-don/coding.global-web/blob/71ab861997dd3f089e45bb305436922e7cdd3a8a/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://coding-global.com",
+    "partsUsed": [],
+    "contextSummary": "Web platform for the Coding Global Discord community - featuring programming guides, real-time chat, job marketplace, and project showcase. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-069",
+    "component": "popover",
+    "repo": "SrivarsanK/RideSuraksha",
+    "repoUrl": "https://github.com/SrivarsanK/RideSuraksha",
+    "stars": 5,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-17",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/app-dashboard/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/SrivarsanK/RideSuraksha/blob/a12ac15458c88bcb111ecf8ab8344f4dea77b534/apps/app-dashboard/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://ridesuraksha.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at apps/app-dashboard/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-070",
+    "component": "popover",
+    "repo": "BasicallyPolaris/ursa-markup",
+    "repoUrl": "https://github.com/BasicallyPolaris/ursa-markup",
+    "stars": 4,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-20",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/BasicallyPolaris/ursa-markup/blob/aef4fcabfe29b4f4106361c10752f66b31b59db6/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A cross-platform tool for marking up and highlighting screenshots, built with Tauri. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-071",
+    "component": "popover",
+    "repo": "australia/mobtranslate.com",
+    "repoUrl": "https://github.com/australia/mobtranslate.com",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover/popover.tsx",
+        "permalink": "https://github.com/australia/mobtranslate.com/blob/6aa4f30cb2d672b55f16c9aa76da89b295f5de0a/packages/ui/src/components/popover/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://mobtranslate.com",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at packages/ui/src/components/popover/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-072",
+    "component": "popover",
+    "repo": "documenso/examples",
+    "repoUrl": "https://github.com/documenso/examples",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-05-18",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "acme-deals/components/ui/popover.tsx",
+        "permalink": "https://github.com/documenso/examples/blob/bf91b7668da4a467e27e9911c65a079ffa1f7ed6/acme-deals/components/ui/popover.tsx"
+      },
+      {
+        "path": "acme-gig/components/ui/popover.tsx",
+        "permalink": "https://github.com/documenso/examples/blob/bf91b7668da4a467e27e9911c65a079ffa1f7ed6/acme-gig/components/ui/popover.tsx"
+      },
+      {
+        "path": "acme-trials/components/ui/popover.tsx",
+        "permalink": "https://github.com/documenso/examples/blob/bf91b7668da4a467e27e9911c65a079ffa1f7ed6/acme-trials/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at acme-deals/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-073",
+    "component": "popover",
+    "repo": "gaganref/convex-api-keys",
+    "repoUrl": "https://github.com/gaganref/convex-api-keys",
+    "stars": 4,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-09",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "example/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/gaganref/convex-api-keys/blob/207b49db4c29bb943831da682c6ce617ed38cdc4/example/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://api-keys.convex-toolkit.com",
+    "partsUsed": [],
+    "contextSummary": "A Convex component for API key management with rotation, expiry, idle timeouts, typed permissions, and audit logs. Popover usage found at example/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-074",
+    "component": "popover",
+    "repo": "sonsu-lee/next15-template",
+    "repoUrl": "https://github.com/sonsu-lee/next15-template",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "starter-template",
+    "lastActivity": "2026-05-29",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/app/page.tsx",
+        "permalink": "https://github.com/sonsu-lee/next15-template/blob/aa0502233971e62e011d1ff4921a8656a02d1fe6/src/app/page.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/app/page.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-075",
+    "component": "popover",
+    "repo": "phaseoteam/Phaseo",
+    "repoUrl": "https://github.com/phaseoteam/Phaseo",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/popover.tsx",
+        "permalink": "https://github.com/phaseoteam/Phaseo/blob/9f9a6dd475058c5c9bd7965320c0d1ad8bd6c692/apps/web/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://ai-stats.phaseo.app",
+    "partsUsed": [],
+    "contextSummary": "Open-source, OpenAI-compatible AI gateway with health-aware routing, failover, and live telemetry (cost, latency, errors). Built for production. Popover usage found at apps/web/src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-076",
+    "component": "popover",
+    "repo": "VV01T3K/ResearchCruiseApp",
+    "repoUrl": "https://github.com/VV01T3K/ResearchCruiseApp",
+    "stars": 4,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "frontend/src/modules/core/components/table/desktop/AppDesktopTableHeaderDropdown.tsx",
+        "permalink": "https://github.com/VV01T3K/ResearchCruiseApp/blob/647b8135225351c897c2e344a2024ce30b5056ca/frontend/src/modules/core/components/table/desktop/AppDesktopTableHeaderDropdown.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at frontend/src/modules/core/components/table/desktop/AppDesktopTableHeaderDropdown.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-077",
+    "component": "popover",
+    "repo": "Qredence/fleet-pi",
+    "repoUrl": "https://github.com/Qredence/fleet-pi",
+    "stars": 4,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/hax-design/src/components/agent-elements/input/popover.tsx",
+        "permalink": "https://github.com/Qredence/fleet-pi/blob/5a923da84de1ba63780ba72e8f7cf24eedf6a96d/packages/hax-design/src/components/agent-elements/input/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://docs.qredence.ai/",
+    "partsUsed": [],
+    "contextSummary": "Fleet Pi , workspace for Pi-powered coding agents, with durable plans, memory, and repo-scoped tools Popover usage found at packages/hax-design/src/components/agent-elements/input/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-078",
+    "component": "popover",
+    "repo": "NemeZZiZZ/tradedash",
+    "repoUrl": "https://github.com/NemeZZiZZ/tradedash",
+    "stars": 3,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-06-24",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/NemeZZiZZ/tradedash/blob/12cb47c2284b96c549e157de1c16967a57a77ba3/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://nemezzizz.github.io/tradedash/",
+    "partsUsed": [],
+    "contextSummary": "TradeDash - live react-klinecharts-ui demo terminal Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-079",
+    "component": "popover",
+    "repo": "DeForge-Labs/app",
+    "repoUrl": "https://github.com/DeForge-Labs/app",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-10",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "components/ui/popover.jsx",
+        "permalink": "https://github.com/DeForge-Labs/app/blob/2524fb59423d59586722f434a2eb6fcfa32a7560/components/ui/popover.jsx"
+      }
+    ],
+    "liveUrl": "https://app.deforge.io",
+    "partsUsed": [],
+    "contextSummary": "Node graph editor of Deforge Popover usage found at components/ui/popover.jsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-080",
+    "component": "popover",
+    "repo": "Livog/impact.livog.com",
+    "repoUrl": "https://github.com/Livog/impact.livog.com",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-12-03",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/app/bundles/ui/baseui/popover/client.tsx",
+        "permalink": "https://github.com/Livog/impact.livog.com/blob/1b91ad7d0213ffe6b584b0e514497dffb5447bca/src/app/bundles/ui/baseui/popover/client.tsx"
+      }
+    ],
+    "liveUrl": "https://impact.livog.com",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/app/bundles/ui/baseui/popover/client.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-081",
+    "component": "popover",
+    "repo": "spicysauce-xyz/rolledout-xyz",
+    "repoUrl": "https://github.com/spicysauce-xyz/rolledout-xyz",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-11-13",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover/popover.tsx",
+        "permalink": "https://github.com/spicysauce-xyz/rolledout-xyz/blob/673df00a6d71f2a11e4f3acc00d1b2a57dcf7163/packages/ui/src/components/popover/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://rolledout.xyz",
+    "partsUsed": [],
+    "contextSummary": "The open-source release notes platform Popover usage found at packages/ui/src/components/popover/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-082",
+    "component": "popover",
+    "repo": "H3xKatana/microhack-kardon",
+    "repoUrl": "https://github.com/H3xKatana/microhack-kardon",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-02-09",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/propel/src/popover/root.tsx",
+        "permalink": "https://github.com/H3xKatana/microhack-kardon/blob/870b84dcb8fc74ed20512d7006ca65ed2b75f31b/packages/propel/src/popover/root.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at packages/propel/src/popover/root.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-083",
+    "component": "popover",
+    "repo": "guillempuche/batuda",
+    "repoUrl": "https://github.com/guillempuche/batuda",
+    "stars": 3,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "docs/repos/base-ui/packages/react/src/tabs/root/TabsRoot.test.tsx",
+        "permalink": "https://github.com/guillempuche/batuda/blob/ab92bc42188c0dc912bdc3b34bd8a0efbcbfc04b/docs/repos/base-ui/packages/react/src/tabs/root/TabsRoot.test.tsx"
+      },
+      {
+        "path": "packages/ui/src/pri/pri-popover.tsx",
+        "permalink": "https://github.com/guillempuche/batuda/blob/ab92bc42188c0dc912bdc3b34bd8a0efbcbfc04b/packages/ui/src/pri/pri-popover.tsx"
+      }
+    ],
+    "liveUrl": "https://batuda.co",
+    "partsUsed": [],
+    "contextSummary": "Open-source CRM with a built-in research agent. Find people, email them, follow up, remember the trail. Your providers, your budget. MCP-ready, MIT. Popover usage found at docs/repos/base-ui/packages/react/src/tabs/root/TabsRoot.test.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-084",
+    "component": "popover",
+    "repo": "mblode/blode-ui",
+    "repoUrl": "https://github.com/mblode/blode-ui",
+    "stars": 3,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "public/r/popover.json",
+        "permalink": "https://github.com/mblode/blode-ui/blob/1c0db47a38c187eabaeee37d9ce8bb3ca98b47c5/public/r/popover.json"
+      }
+    ],
+    "liveUrl": "https://ui.blode.co",
+    "partsUsed": [],
+    "contextSummary": "UI Library for Design Engineers Popover usage found at public/r/popover.json (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-085",
+    "component": "popover",
+    "repo": "intuition-box/Atlas",
+    "repoUrl": "https://github.com/intuition-box/Atlas",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-10",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/intuition-box/Atlas/blob/81557f39cb71378992819874f25100121e029193/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://atlas.box",
+    "partsUsed": [],
+    "contextSummary": "Atlas is designed for communities and teams that need both organization and engagement. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-086",
+    "component": "popover",
+    "repo": "mhamas/knotviz",
+    "repoUrl": "https://github.com/mhamas/knotviz",
+    "stars": 3,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-05-08",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/graph/components/ui/popover.tsx",
+        "permalink": "https://github.com/mhamas/knotviz/blob/e55fcf74e55a5ec26a7b392b0ea51c2c49abaf8f/src/graph/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Interactive graph visualization in the browser. Popover usage found at src/graph/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-087",
+    "component": "popover",
+    "repo": "ArtemioPadilla/inceptor",
+    "repoUrl": "https://github.com/ArtemioPadilla/inceptor",
+    "stars": 2,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "starter-template",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/ArtemioPadilla/inceptor/blob/6d8f78a1f704caf38bfefbfb5e525cf8d364a96a/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "http://artemiop.com/inceptor/",
+    "partsUsed": [],
+    "contextSummary": "A web starter template built around issue-driven development: FeedbackFAB, GitHub Actions + Claude, CI/CD pipeline, feature flags, and structured issue workflow from day 1. Popover usage found at src/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-088",
+    "component": "popover",
+    "repo": "linked-planet/ui-kit-ts",
+    "repoUrl": "https://github.com/linked-planet/ui-kit-ts",
+    "stars": 2,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-11-25",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "library/src/components/Popover.tsx",
+        "permalink": "https://github.com/linked-planet/ui-kit-ts/blob/7a73ad12039af2ee53a293f517f7dc191e69e3a5/library/src/components/Popover.tsx"
+      }
+    ],
+    "liveUrl": "https://linked-planet.github.io/ui-kit-ts/",
+    "partsUsed": [],
+    "contextSummary": "UI-Kit-TS provides several typescript ui components and functionality used throughout our projects. Popover usage found at library/src/components/Popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-089",
+    "component": "popover",
+    "repo": "oussama-debug/portfoliokit",
+    "repoUrl": "https://github.com/oussama-debug/portfoliokit",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-11-16",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/oussama-debug/portfoliokit/blob/03aab0d3e2ecc049c43bb471a52fdcb6df7581de/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://portfoliokit-six.vercel.app/register",
+    "partsUsed": [],
+    "contextSummary": "SaaS Supabase using @coss/ui Popover usage found at packages/ui/src/components/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-090",
+    "component": "popover",
+    "repo": "winstonpurnomo/turborepo-starter",
+    "repoUrl": "https://github.com/winstonpurnomo/turborepo-starter",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "starter-template",
+    "lastActivity": "2025-09-25",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/winstonpurnomo/turborepo-starter/blob/ae0434652b879db291856a90d8d9e2b7e2357476/packages/ui/src/components/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Monorepo with TanStack Start frontend and Convex backend using WorkOS auth and BaseCN UI. Popover usage found at packages/ui/src/components/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-091",
+    "component": "popover",
+    "repo": "loveconnor/loveui",
+    "repoUrl": "https://github.com/loveconnor/loveui",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-14",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "registry/default/ui/popover.tsx",
+        "permalink": "https://github.com/loveconnor/loveui/blob/e0f117befae35d7f0970c776cecc35c6d3a2a90b/registry/default/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://loveui.dev",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at registry/default/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "registry"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-092",
+    "component": "popover",
+    "repo": "Gnomeek/hsbc_fund_analyzer",
+    "repoUrl": "https://github.com/Gnomeek/hsbc_fund_analyzer",
+    "stars": 2,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ColumnToggle.tsx",
+        "permalink": "https://github.com/Gnomeek/hsbc_fund_analyzer/blob/700ce19b784b8875b38afc9d805c8823b9912c29/src/components/ColumnToggle.tsx"
+      },
+      {
+        "path": "src/components/FilterBar.tsx",
+        "permalink": "https://github.com/Gnomeek/hsbc_fund_analyzer/blob/700ce19b784b8875b38afc9d805c8823b9912c29/src/components/FilterBar.tsx"
+      }
+    ],
+    "liveUrl": "https://hsbc-cn-funds.vercel.app/",
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at src/components/ColumnToggle.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-093",
+    "component": "popover",
+    "repo": "RiobVO/credit-assistant",
+    "repoUrl": "https://github.com/RiobVO/credit-assistant",
+    "stars": 2,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-06-11",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "docs/session-log.md",
+        "permalink": "https://github.com/RiobVO/credit-assistant/blob/9d13295a512000f8e3aabc35c6de6ea691fc321f/docs/session-log.md"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at docs/session-log.md (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-094",
+    "component": "popover",
+    "repo": "code-yeongyu/asteroid-impact-simulator",
+    "repoUrl": "https://github.com/code-yeongyu/asteroid-impact-simulator",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-28",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/Popover.tsx",
+        "permalink": "https://github.com/code-yeongyu/asteroid-impact-simulator/blob/8724fc8a2a0932f9136a95c18fe69d5729b6ec2a/src/components/ui/Popover.tsx"
+      }
+    ],
+    "liveUrl": "https://asteroid-impact-simulator.pages.dev",
+    "partsUsed": [],
+    "contextSummary": "Scientifically-grounded asteroid impact simulator. React 19 + Vite 7 + Base UI + 28 languages + PWA + Cloudflare Workers. Lighthouse 100/100/100/100. Popover usage found at src/components/ui/Popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-095",
+    "component": "popover",
+    "repo": "sdawn29/lamda",
+    "repoUrl": "https://github.com/sdawn29/lamda",
+    "stars": 2,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "apps/web/src/shared/ui/popover.tsx",
+        "permalink": "https://github.com/sdawn29/lamda/blob/c5b7ae85286dc028b0684ceb24459b62c6d2ae79/apps/web/src/shared/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at apps/web/src/shared/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-096",
+    "component": "popover",
+    "repo": "thebayaan/bayaan-web",
+    "repoUrl": "https://github.com/thebayaan/bayaan-web",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-29",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/quran/surah-picker.tsx",
+        "permalink": "https://github.com/thebayaan/bayaan-web/blob/552a323787bc08710d7ed395983b469079eea88e/src/components/quran/surah-picker.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Bayaan - Quran Web App (Next.js) Popover usage found at src/components/quran/surah-picker.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-097",
+    "component": "popover",
+    "repo": "crhistian-cornejo/CADHY",
+    "repoUrl": "https://github.com/crhistian-cornejo/CADHY",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-12-28",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": ".agents/memories/MEMORIES.md",
+        "permalink": "https://github.com/crhistian-cornejo/CADHY/blob/ee4854466d435777c7f32fdeaa597ee20c7eccd6/.agents/memories/MEMORIES.md"
+      }
+    ],
+    "liveUrl": "https://cadhy.app",
+    "partsUsed": [],
+    "contextSummary": "Computer-Aided Design for HYdraulics (CADHY) - Professional desktop CAD for hydraulic engineering Popover usage found at .agents/memories/MEMORIES.md (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-098",
+    "component": "popover",
+    "repo": "madeleinewoodbury/water-at-work",
+    "repoUrl": "https://github.com/madeleinewoodbury/water-at-work",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-24",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "components/NotificationBell.tsx",
+        "permalink": "https://github.com/madeleinewoodbury/water-at-work/blob/fad8b4e4be2a63b6924fe0c56bddb01385ad5337/components/NotificationBell.tsx"
+      }
+    ],
+    "liveUrl": "https://waw.woodbury.dev",
+    "partsUsed": [],
+    "contextSummary": "Water at Work - A team hydration tracker Popover usage found at components/NotificationBell.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-099",
+    "component": "popover",
+    "repo": "sfrangulov/ephemeris",
+    "repoUrl": "https://github.com/sfrangulov/ephemeris",
+    "stars": 2,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-01",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "components/dashboard/badge-builder.tsx",
+        "permalink": "https://github.com/sfrangulov/ephemeris/blob/f88b6f63f08e6be3c3f203b62a5cffb12d1496b7/components/dashboard/badge-builder.tsx"
+      }
+    ],
+    "liveUrl": "https://ephemeris.tools",
+    "partsUsed": [],
+    "contextSummary": "Dark-only npm portfolio situation center \u2014 downloads + stars history with momentum deltas Popover usage found at components/dashboard/badge-builder.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "app-level-usage"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "popover-100",
+    "component": "popover",
+    "repo": "TunkShif/dian-bot-ng",
+    "repoUrl": "https://github.com/TunkShif/dian-bot-ng",
+    "stars": 2,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-06-07",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "assets/js/components/ui/popover.tsx",
+        "permalink": "https://github.com/TunkShif/dian-bot-ng/blob/40db6a7c3f8a074afaf8923ac2914f38e9dd7f0e/assets/js/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Popover usage found at assets/js/components/ui/popover.tsx (not deep-inspected; wrapper/usage inferred from path).",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "rank": null,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

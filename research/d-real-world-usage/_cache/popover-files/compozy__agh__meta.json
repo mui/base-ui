@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "An open workplace for AI agents \u2014 local-first runtime with durable sessions and agent-to-agent networking.",
+ "fork": false,
+ "homepage": "https://agh.network",
+ "license": "MIT",
+ "pushed_at": "2026-07-06T20:54:12Z",
+ "stars": 176,
+ "head_sha": "b77464e71a92ede01bab65006b0d4eab51be5f4a"
+}

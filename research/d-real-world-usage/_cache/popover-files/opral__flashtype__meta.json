@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "The markdown editor for Claude & Codex",
+ "fork": false,
+ "homepage": "https://flashtype.com",
+ "license": "MIT",
+ "pushed_at": "2026-07-03T23:38:32Z",
+ "stars": 268,
+ "head_sha": "1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6"
+}

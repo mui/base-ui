@@ -1,0 +1,790 @@
+[
+  {
+    "id": "dialog-001",
+    "component": "dialog",
+    "repo": "shadcn-ui/ui",
+    "repoUrl": "https://github.com/shadcn-ui/ui",
+    "stars": 118257,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "apps/v4/registry/bases/base/ui/dialog.tsx",
+        "permalink": "https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/dialog.tsx"
+      },
+      {
+        "path": "apps/v4/registry/bases/base/ui/sheet.tsx",
+        "permalink": "https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/sheet.tsx"
+      },
+      {
+        "path": "apps/v4/styles/base-vega/ui/dialog.tsx",
+        "permalink": "https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/styles/base-vega/ui/dialog.tsx"
+      }
+    ],
+    "liveUrl": "https://ui.shadcn.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close"
+    ],
+    "contextSummary": "shadcn/ui v4's Base UI foundation: the canonical dialog and sheet wrappers under registry/bases/base/ui, restyled into eight distributed style variants (base-vega, base-lyra, ...) plus an RTL variant, copy-pasted into thousands of apps.",
+    "diversityTags": [
+      "oss-design-system",
+      "shadcn-registry",
+      "sheet-on-dialog",
+      "style-variants",
+      "rtl"
+    ],
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The single most-consumed Base UI dialog wrapper in existence: shadcn/ui v4's base registry implements Dialog and Sheet on Base UI and fans them out into eight style variants plus RTL. A recomposed story would show the canonical wrapper recipe (Portal > Backdrop > Popup with data-state styling) that thousands of apps copy verbatim; feeds the doc's 'real-world examples' and 'anatomy/composition' sections and anchors the shadcn migration narrative.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-002",
+    "component": "dialog",
+    "repo": "raystack/frontier",
+    "repoUrl": "https://github.com/raystack/frontier",
+    "stars": 336,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@raystack/apsara (re-exports @base-ui/react/dialog)",
+    "files": [
+      {
+        "path": "web/sdk/client/views/pat/pat-view.tsx",
+        "permalink": "https://github.com/raystack/frontier/blob/7384a11d417fe16f6dc52c19d3b5905b4d7cfd41/web/sdk/client/views/pat/pat-view.tsx"
+      },
+      {
+        "path": "web/sdk/client/views/security/security-view.tsx",
+        "permalink": "https://github.com/raystack/frontier/blob/7384a11d417fe16f6dc52c19d3b5905b4d7cfd41/web/sdk/client/views/security/security-view.tsx"
+      },
+      {
+        "path": "web/sdk/client/views/members/members-view.tsx",
+        "permalink": "https://github.com/raystack/frontier/blob/7384a11d417fe16f6dc52c19d3b5905b4d7cfd41/web/sdk/client/views/members/members-view.tsx"
+      }
+    ],
+    "liveUrl": "https://raystack-frontier.vercel.app/",
+    "partsUsed": [
+      "Root",
+      "createHandle"
+    ],
+    "contextSummary": "User-management platform whose admin SDK drives ~25 CRUD/confirm dialogs (invite member, add domain, change plan) from module-level Dialog.createHandle()/AlertDialog.createHandle<Payload>() handles re-exported by its Apsara design system; views open dialogs imperatively with typed payloads.",
+    "diversityTags": [
+      "handle-detached-trigger",
+      "typed-payload",
+      "form-in-dialog",
+      "confirm-destructive",
+      "b2b-admin"
+    ],
+    "rank": 2,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The richest createHandle deployment found: ~25 admin dialogs (invite member, verify domain, confirm plan change) opened imperatively from module-level handles, several with typed payloads, mixing Dialog + AlertDialog + Menu handles in one view. Recomposes into the definitive detached-triggers story (click row action -> handle.open(payload) -> form -> submit -> toast -> close); feeds prop-level guidance for handle/createHandle and the forms-in-dialog section.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-003",
+    "component": "dialog",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "packages/ui/src/dialog/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/dialog/root.tsx"
+      },
+      {
+        "path": "packages/ui/src/dialog/title.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/dialog/title.tsx"
+      },
+      {
+        "path": "packages/ui/src/dialog/action.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/dialog/action.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close"
+    ],
+    "contextSummary": "Gutenberg's new packages/ui builds its Dialog as one file per Base UI part; the Root wrapper's JSDoc encodes house rules: every dialog must have a Title, always show a visible close affordance, and omit the X icon for destructive-choice dialogs.",
+    "diversityTags": [
+      "per-part-wrappers",
+      "a11y-guidance",
+      "content-guidance",
+      "wordpress"
+    ],
+    "rank": 3,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "WordPress's new ui package wraps each Dialog part in its own file and embeds house a11y/content rules in JSDoc: Title is mandatory, close affordances must be visible, destructive flows should drop the X icon so 'X vs Cancel' is unambiguous. That prose is ready-made evidence for the docs' content-guidance and do/don't sections, from one of the most scrutinized OSS codebases.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-004",
+    "component": "dialog",
+    "repo": "oxidecomputer/console",
+    "repoUrl": "https://github.com/oxidecomputer/console",
+    "stars": 222,
+    "license": "MPL-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "app/ui/lib/Modal.tsx",
+        "permalink": "https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/Modal.tsx"
+      },
+      {
+        "path": "app/ui/lib/SideModal.tsx",
+        "permalink": "https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/SideModal.tsx"
+      }
+    ],
+    "liveUrl": "https://console-preview.oxide.computer",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Popup",
+      "Title",
+      "Close"
+    ],
+    "contextSummary": "Oxide's cloud console wraps Dialog twice: a fully-controlled centered Modal (isOpen/onDismiss, no Trigger -- routes and state open it) and a SideModal drawer sliding from the edge, with motion animations and deliberate z-index rules for modal-over-side-modal.",
+    "diversityTags": [
+      "controlled-no-trigger",
+      "side-panel-drawer",
+      "motion-animation",
+      "nested-overlays",
+      "infra-console"
+    ],
+    "rank": 4,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Two contrasting compositions in one high-craft codebase: a fully-controlled Modal with no Trigger (state/routes open it) and a SideModal drawer on the same Dialog primitive, with motion animations and explicit z-index policy for modal-over-side-modal. Recomposes into 'controlled dialog without a Trigger' and 'drawer from dialog' stories; feeds behavior (controlled vs uncontrolled) and when-to-use-drawer guidance. MPL-2.0 keeps code reusable.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-005",
+    "component": "dialog",
+    "repo": "pingdotgg/t3code",
+    "repoUrl": "https://github.com/pingdotgg/t3code",
+    "stars": 13328,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/sheet.tsx",
+        "permalink": "https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/sheet.tsx"
+      },
+      {
+        "path": "apps/web/src/components/ui/dialog.tsx",
+        "permalink": "https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/dialog.tsx"
+      },
+      {
+        "path": "apps/web/src/components/ui/command.tsx",
+        "permalink": "https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/command.tsx"
+      }
+    ],
+    "liveUrl": "https://t3.codes",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "Theo's t3.codes hosts its cmdk-style command palette inside a Base UI Dialog (Backdrop + Viewport + Popup, opened via createHandle) alongside a full shadcn-style dialog/sheet pair -- the command-palette-host pattern end to end.",
+    "diversityTags": [
+      "command-palette-host",
+      "handle-detached-trigger",
+      "viewport",
+      "sheet-on-dialog"
+    ],
+    "rank": 5,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Command palette hosted in a Dialog, the exact pattern Base UI's own docs hint at: Backdrop + Viewport + Popup with createHandle to open from anywhere (Cmd+K). Live at t3.codes with MIT license; recomposes into a 'command palette host' story (press Cmd+K -> palette opens -> type -> pick -> closes) and feeds the Viewport and createHandle prop guidance.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-006",
+    "component": "dialog",
+    "repo": "leboncoin/spark-web",
+    "repoUrl": "https://github.com/leboncoin/spark-web",
+    "stars": 91,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "packages/components/src/drawer/Drawer.tsx",
+        "permalink": "https://github.com/leboncoin/spark-web/blob/a24acf4d43369e439ff6dc8d4cab11c390400ab0/packages/components/src/drawer/Drawer.tsx"
+      },
+      {
+        "path": "packages/components/src/drawer/DrawerContent.tsx",
+        "permalink": "https://github.com/leboncoin/spark-web/blob/a24acf4d43369e439ff6dc8d4cab11c390400ab0/packages/components/src/drawer/DrawerContent.tsx"
+      },
+      {
+        "path": "packages/components/src/dialog/Dialog.tsx",
+        "permalink": "https://github.com/leboncoin/spark-web/blob/a24acf4d43369e439ff6dc8d4cab11c390400ab0/packages/components/src/dialog/Dialog.tsx"
+      }
+    ],
+    "liveUrl": "https://main--69d967830091f4360fd30d22.chromatic.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "createHandle"
+    ],
+    "contextSummary": "Spark, leboncoin's open-source design system, rebuilds its Dialog and Drawer on Base UI with one file per part, narrows onOpenChange to a simpler signature, and re-exposes Dialog.createHandle as part of its own public API.",
+    "diversityTags": [
+      "corporate-design-system",
+      "api-redesign",
+      "drawer-on-dialog",
+      "handle-detached-trigger"
+    ],
+    "rank": 6,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A major marketplace's design system rebuilding Dialog AND Drawer on Base UI with per-part files, deliberately narrowing onOpenChange's signature and re-exposing createHandle in its public API -- evidence of how corporate DS teams adapt Base UI's API surface. Chromatic Storybook is publicly linked. Feeds composition guidance and the 'design-system wrapper' archetype.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-007",
+    "component": "dialog",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/dialog/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/dialog/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Viewport"
+    ],
+    "contextSummary": "Dify's internal dify-ui package re-exports every Dialog part and styles Backdrop/Viewport/Popup with Tailwind driven by data-starting-style/data-ending-style transitions plus motion-reduce fallbacks -- CSS-transition animation done the documented Base UI way at 148k-star scale.",
+    "diversityTags": [
+      "tailwind-data-attribute-animation",
+      "viewport",
+      "reduced-motion",
+      "ai-platform"
+    ],
+    "rank": 7,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "148k-star production platform styling Backdrop/Viewport/Popup via data-starting-style/data-ending-style Tailwind transitions with motion-reduce fallbacks -- the documented CSS-transition animation contract applied at maximum scale, including the often-missed Viewport part. Feeds the animation section and data-attribute styling contract with a heavyweight citation.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-008",
+    "component": "dialog",
+    "repo": "seek-oss/playroom",
+    "repoUrl": "https://github.com/seek-oss/playroom",
+    "stars": 4581,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "src/components/Dialog/Dialog.tsx",
+        "permalink": "https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Dialog/Dialog.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Close"
+    ],
+    "contextSummary": "Playroom (SEEK's component prototyping tool) wraps Dialog with initialFocus defaulting to the dialog heading ref and forwards finalFocus -- a small, sharp example of the focus-management props doing accessibility work.",
+    "diversityTags": [
+      "focus-management",
+      "initialFocus-finalFocus",
+      "dev-tool"
+    ],
+    "rank": 8,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Small and precise: initialFocus defaults to the dialog heading ref (so screen readers announce context first) and finalFocus is forwarded. The cleanest found illustration of the focus-management props; feeds the accessibility contract and prop-level guidance for initialFocus/finalFocus.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-009",
+    "component": "dialog",
+    "repo": "whopio/frosted-ui",
+    "repoUrl": "https://github.com/whopio/frosted-ui",
+    "stars": 259,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "packages/frosted-ui/src/components/drawer/drawer.tsx",
+        "permalink": "https://github.com/whopio/frosted-ui/blob/96df40bfe125ab2ade63c4e5711ddd390aeeb8d2/packages/frosted-ui/src/components/drawer/drawer.tsx"
+      },
+      {
+        "path": "packages/frosted-ui/src/components/dialog/dialog.tsx",
+        "permalink": "https://github.com/whopio/frosted-ui/blob/96df40bfe125ab2ade63c4e5711ddd390aeeb8d2/packages/frosted-ui/src/components/dialog/dialog.tsx"
+      },
+      {
+        "path": "packages/frosted-ui/src/components/dialog/dialog.stories.tsx",
+        "permalink": "https://github.com/whopio/frosted-ui/blob/96df40bfe125ab2ade63c4e5711ddd390aeeb8d2/packages/frosted-ui/src/components/dialog/dialog.stories.tsx"
+      }
+    ],
+    "liveUrl": "https://storybook.whop.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "Whop's design system re-exports createHandle with a generic DialogHandle<T> payload type, surfaces keepMounted and Viewport, and builds its Drawer on the same Dialog primitives; dialog stories render in a public Storybook.",
+    "diversityTags": [
+      "typed-payload",
+      "handle-detached-trigger",
+      "drawer-on-dialog",
+      "keep-mounted",
+      "storybook-live"
+    ],
+    "rank": 9,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Whop's DS re-exports createHandle behind a generic DialogHandle<T> alias, surfaces keepMounted, and builds Drawer on Dialog -- with dialog stories in a public Storybook (storybook.whop.dev), rare live-story evidence. Feeds TypeScript guidance for typed handles and the keepMounted prop story.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-010",
+    "component": "dialog",
+    "repo": "gitbutlerapp/gitbutler",
+    "repoUrl": "https://github.com/gitbutlerapp/gitbutler",
+    "stars": 21256,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "apps/lite/ui/src/components/PickerDialog.tsx",
+        "permalink": "https://github.com/gitbutlerapp/gitbutler/blob/fc41ee4e5ebdc2f3630d36eddbcc9b45a9721496/apps/lite/ui/src/components/PickerDialog.tsx"
+      }
+    ],
+    "liveUrl": "https://gitbutler.com",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Close",
+      "Viewport"
+    ],
+    "contextSummary": "GitButler's lite app implements a searchable PickerDialog: initialFocus lands on the filter input, a visually-hidden Dialog.Close keeps screen-reader users able to escape, and a ScrollArea renders the result list inside the Popup.",
+    "diversityTags": [
+      "picker-search-dialog",
+      "focus-management",
+      "visually-hidden-close",
+      "scrollarea-in-dialog",
+      "git-client"
+    ],
+    "rank": 10,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "PickerDialog in a 21k-star git client: initialFocus on the search input, a visually-hidden Dialog.Close preserving SR escape, ScrollArea list inside the Popup. Recomposes into a 'searchable picker dialog' story (open -> type to filter -> arrow -> select -> closes); feeds a11y contract (hidden close) and cross-component composition (ScrollArea in Dialog).",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-011",
+    "component": "dialog",
+    "repo": "raphaelsalaja/cambio",
+    "repoUrl": "https://github.com/raphaelsalaja/cambio",
+    "stars": 199,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-01-24",
+    "importSpecifier": "@base-ui-components/react/dialog",
+    "files": [
+      {
+        "path": "packages/cambio/src/motion/index.tsx",
+        "permalink": "https://github.com/raphaelsalaja/cambio/blob/3a17891104602501cc56a07f5288a7a55bf60aa8/packages/cambio/src/motion/index.tsx"
+      }
+    ],
+    "liveUrl": "https://cambio.raphaelsalaja.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close"
+    ],
+    "contextSummary": "Cambio is a dialog animation library built directly on Base UI: it runs motion.create() over every Dialog part so consumers compose spring-animated dialogs with the exact same part grammar.",
+    "diversityTags": [
+      "motion-library-integration",
+      "animation",
+      "library-on-base-ui"
+    ],
+    "rank": 11,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "An animation library whose entire surface is motion.create() applied to every Dialog part -- proof the render-prop/part grammar composes with Motion without adapters. Feeds the animation handbook section ('JavaScript animation libraries' path) and shows Base UI as a library-building substrate.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-012",
+    "component": "dialog",
+    "repo": "hasparus/bear-fit",
+    "repoUrl": "https://github.com/hasparus/bear-fit",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/dialog",
+    "files": [
+      {
+        "path": "app/ui/Dialog.tsx",
+        "permalink": "https://github.com/hasparus/bear-fit/blob/a43a36795770676e98a6943f1597c2c7ac05a195/app/ui/Dialog.tsx"
+      }
+    ],
+    "liveUrl": "https://bear-fit.hasparus.partykit.dev/",
+    "partsUsed": [
+      "Root"
+    ],
+    "contextSummary": "A PartyKit event-planning app that spreads the whole Dialog namespace into its own Dialog object but replaces Root with a version whose open state lives in the URL search params, keyed by declaration-merged dialog ids -- shareable/deep-linkable dialogs.",
+    "diversityTags": [
+      "url-driven-state",
+      "state-management",
+      "namespace-extension"
+    ],
+    "rank": 12,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Replaces Root with a URL-search-param-driven Root (declaration-merged dialog ids) while spreading the rest of the namespace through -- shareable, deep-linkable dialog state in ~60 lines. Recomposes into a 'dialog state in the URL' story; feeds controlled-open guidance (open + onOpenChange with an external store).",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-013",
+    "component": "dialog",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/dialog",
+    "files": [
+      {
+        "path": "src/components/ui/dialog.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/dialog.tsx"
+      },
+      {
+        "path": "src/components/ui/sheet.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/sheet.tsx"
+      },
+      {
+        "path": "src/components/AiConfig/AiConfigDialog.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/AiConfig/AiConfigDialog.tsx"
+      }
+    ],
+    "liveUrl": "https://green-wall.leoku.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Viewport"
+    ],
+    "contextSummary": "GitHub-contributions poster generator: a shadcn-style wrapper plus product dialogs like AiConfigDialog, a bring-your-own-API-key settings form submitted from inside the dialog on the live site.",
+    "diversityTags": [
+      "form-in-dialog",
+      "settings-modal",
+      "product-feature",
+      "live-site"
+    ],
+    "rank": 13,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Live consumer product where dialogs are product features: AiConfigDialog is a bring-your-own-API-key settings form submitted inside the dialog. Recomposes into the 'settings form in a dialog' story (open settings -> fill key -> save -> closes, state persists); feeds forms-in-dialog guidance with a demoable public site.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-014",
+    "component": "dialog",
+    "repo": "gear-tech/gear-js",
+    "repoUrl": "https://github.com/gear-tech/gear-js",
+    "stars": 34,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/dialog",
+    "files": [
+      {
+        "path": "utils/wallet-connect/src/components/default-dialog/default-dialog.tsx",
+        "permalink": "https://github.com/gear-tech/gear-js/blob/540a2a7b1e8e7487988839de41ad04e52661c51c/utils/wallet-connect/src/components/default-dialog/default-dialog.tsx"
+      }
+    ],
+    "liveUrl": "http://gear-tech.io",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Close"
+    ],
+    "contextSummary": "Gear Protocol's wallet-connect package renders its wallet-picker modal through a shared default-dialog built on Base UI -- the web3 connect-wallet modal archetype on the old package name.",
+    "diversityTags": [
+      "wallet-modal",
+      "web3",
+      "shared-default-dialog"
+    ],
+    "rank": 14,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The web3 connect-wallet modal archetype: a wallet-connect package rendering its wallet picker through a shared default-dialog on the historical package name -- both a distinct product context (crypto wallet selection) and evidence of pre-1.0 adoption. Feeds when-to-use (choice modals) and the migration/rename narrative.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "dialog-015",
+    "component": "dialog",
+    "repo": "manaflow-ai/cmux",
+    "repoUrl": "https://github.com/manaflow-ai/cmux",
+    "stars": 23757,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/dialog",
+    "files": [
+      {
+        "path": "web/app/[locale]/components/modal.tsx",
+        "permalink": "https://github.com/manaflow-ai/cmux/blob/fa3f388c17eb6fa9e7eac3daa761508cc46343dc/web/app/[locale]/components/modal.tsx"
+      },
+      {
+        "path": "web/app/[locale]/components/waitlist-dialog.tsx",
+        "permalink": "https://github.com/manaflow-ai/cmux/blob/fa3f388c17eb6fa9e7eac3daa761508cc46343dc/web/app/[locale]/components/waitlist-dialog.tsx"
+      },
+      {
+        "path": "web/app/[locale]/dashboard/components/ai-account-forms.tsx",
+        "permalink": "https://github.com/manaflow-ai/cmux/blob/fa3f388c17eb6fa9e7eac3daa761508cc46343dc/web/app/[locale]/dashboard/components/ai-account-forms.tsx"
+      }
+    ],
+    "liveUrl": "https://cmux.com",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Viewport"
+    ],
+    "contextSummary": "cmux (agent-orchestration product) keeps a deliberately thin Modal wrapper whose comment documents that Title/Description/Close wire through Base UI context, and uses it for leaf dialogs like the waitlist signup form.",
+    "diversityTags": [
+      "thin-wrapper",
+      "context-wiring",
+      "waitlist-form",
+      "ai-devtool"
+    ],
+    "rank": 15,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A 23k-star product keeping the wrapper deliberately thin, with a comment documenting that Title/Description/Close wire through Base UI context -- evidence that the context plumbing is a selling point, not an implementation detail. Its waitlist dialog (open -> email form -> submit -> close) is a compact recomposable story for marketing-page dialogs.",
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

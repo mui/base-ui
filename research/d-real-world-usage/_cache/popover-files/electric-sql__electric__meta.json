@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "The agent platform built on sync.",
+ "fork": false,
+ "homepage": "https://electric.ax",
+ "license": "Apache-2.0",
+ "pushed_at": "2026-07-06T16:09:53Z",
+ "stars": 10257,
+ "head_sha": "640509c306eb96e38901edd2713ba85e148fcdad"
+}

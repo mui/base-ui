@@ -1,0 +1,30 @@
+/*
+ * Base look shared by all stories.
+ * Values mirror the docs site's Tailwind @theme tokens (docs/src/css/index.css):
+ * neutral-950 = oklch(14.5% 0 0deg), plain white background, system font stack
+ * (the docs' licensed webfont is not shipped here).
+ * Demos use raw oklch values in their own CSS Modules, per AGENTS.md.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: oklch(14.5% 0 0deg);
+  background-color: white;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+}

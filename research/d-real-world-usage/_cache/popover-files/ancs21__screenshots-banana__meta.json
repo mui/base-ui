@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Beautiful screenshot beautification tool",
+ "fork": false,
+ "homepage": "https://screenshots-banana.pages.dev",
+ "license": "MIT",
+ "pushed_at": "2026-05-22T16:28:17Z",
+ "stars": 28,
+ "head_sha": "fbeb47f78b93fb5318edec04b6a35e3d4b51ab1d"
+}

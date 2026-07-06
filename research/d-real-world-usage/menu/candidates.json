@@ -1,0 +1,3428 @@
+[
+  {
+    "id": "menu-001",
+    "component": "menu",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/dropdown-menu/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/dropdown-menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "LinkItem",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "dify-ui package DropdownMenu: full-part wrapper including a Menu.LinkItem sub-wrapper with a closeOnClick default for navigation entries in the LLM-app platform.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "link-items",
+      "llm-platform"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-002",
+    "component": "menu",
+    "repo": "vercel/next.js",
+    "repoUrl": "https://github.com/vercel/next.js",
+    "stars": 140364,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx",
+        "permalink": "https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx"
+      }
+    ],
+    "liveUrl": "https://nextjs.org",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Next.js DevTools dev-overlay segment explorer: each route-segment row gets a boundary-override menu with `modal={false}`, a trigger that is disabled when the segment has no boundary, and `Menu.Portal container={shadowRoot}` so the popup stays inside the overlay's shadow DOM.",
+    "diversityTags": [
+      "devtools-overlay-menu",
+      "shadow-dom-portal",
+      "non-modal-menu",
+      "grouped-items"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-003",
+    "component": "menu",
+    "repo": "makeplane/plane",
+    "repoUrl": "https://github.com/makeplane/plane",
+    "stars": 53963,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/propel/src/menu/menu.tsx",
+        "permalink": "https://github.com/makeplane/plane/blob/7fbf14a6cb494bbf5866e2b293b28a6d8a7e52c3/packages/propel/src/menu/menu.tsx"
+      }
+    ],
+    "liveUrl": "http://plane.so",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Propel design system's CustomMenu wraps Menu (old package name) behind a simplified API that exposes openOnHover; used across the project-management app for work-item and board row actions.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "hover-open-menu",
+      "row-actions-menu"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-004",
+    "component": "menu",
+    "repo": "amruthpillai/reactive-resume",
+    "repoUrl": "https://github.com/amruthpillai/reactive-resume",
+    "stars": 39392,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/dropdown-menu.tsx",
+        "permalink": "https://github.com/amruthpillai/reactive-resume/blob/dfc5559625db3c665b05de8292dcb6abdd5d1ac5/packages/ui/src/components/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://rxresu.me",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Resume builder's shared UI package: shadcn-style full-part dropdown-menu wrapper (Checkbox/Radio/Submenu/Group).",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "saas-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-005",
+    "component": "menu",
+    "repo": "PostHog/posthog",
+    "repoUrl": "https://github.com/PostHog/posthog",
+    "stars": 35353,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "frontend/src/lib/components/Account/NewAccountMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Account/NewAccountMenu.tsx"
+      },
+      {
+        "path": "frontend/src/lib/components/HelpMenu/HelpMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/HelpMenu/HelpMenu.tsx"
+      },
+      {
+        "path": "frontend/src/lib/components/Menus/ThemeMenu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Menus/ThemeMenu.tsx"
+      },
+      {
+        "path": "packages/quill/packages/primitives/src/dropdown-menu.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/packages/quill/packages/primitives/src/dropdown-menu.tsx"
+      },
+      {
+        "path": "packages/quill/packages/primitives/src/menubar.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/packages/quill/packages/primitives/src/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://posthog.com",
+    "partsUsed": [
+      "Backdrop",
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Product-analytics app chrome built directly on Menu: the account/org/project switcher and help menus use a Backdrop layer, nested SubmenuRoots (All projects / All organizations), render-prop triggers into PostHog's ButtonPrimitive, and a scroll-shadow popup capped by --available-height; a separate 'quill' package wraps full dropdown-menu + menubar primitives.",
+    "diversityTags": [
+      "account-menu",
+      "nested-submenus",
+      "backdrop",
+      "scrollable-popup",
+      "design-system-primitives"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-006",
+    "component": "menu",
+    "repo": "mastra-ai/mastra",
+    "repoUrl": "https://github.com/mastra-ai/mastra",
+    "stars": 25871,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/playground-ui/src/ds/components/DropdownMenu/dropdown-menu.tsx",
+        "permalink": "https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/DropdownMenu/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://mastra.ai",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "playground-ui design-system DropdownMenu for the AI agent playground; full part coverage including Checkbox and Radio items.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "ai-playground"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-007",
+    "component": "menu",
+    "repo": "manaflow-ai/cmux",
+    "repoUrl": "https://github.com/manaflow-ai/cmux",
+    "stars": 23757,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "web/app/[locale]/components/download-button.tsx",
+        "permalink": "https://github.com/manaflow-ai/cmux/blob/fa3f388c17eb6fa9e7eac3daa761508cc46343dc/web/app/[locale]/components/download-button.tsx"
+      }
+    ],
+    "liveUrl": "https://cmux.com",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "cmux marketing-site split Download CTA: the left zone is a plain link, the right caret zone is a Menu.Trigger opening the platform list (items render as i18n Links, waitlist platforms grouped under a GroupLabel); selecting a waitlist item opens a dialog deferred by requestAnimationFrame so the same pointer gesture doesn't dismiss it.",
+    "diversityTags": [
+      "split-button-menu",
+      "menu-to-dialog-handoff",
+      "marketing-cta"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-008",
+    "component": "menu",
+    "repo": "pingdotgg/t3code",
+    "repoUrl": "https://github.com/pingdotgg/t3code",
+    "stars": 13328,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://t3.codes",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger",
+      "createHandle"
+    ],
+    "contextSummary": "T3 code product web app: full shadcn-style wrapper (data-slot conventions) including a createHandle re-export, derived from the Coss UI registry.",
+    "diversityTags": [
+      "createhandle",
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-009",
+    "component": "menu",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/alert-dialog/stories/index.story.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/alert-dialog/stories/index.story.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Gutenberg's next-gen packages/ui AlertDialog Storybook story embeds a controlled Menu ('Actions' -> Delete opens an AlertDialog; onConfirm closes the menu), demonstrating menu-to-dialog composition in WordPress's Base UI-based design system.",
+    "diversityTags": [
+      "menu-dialog-composition",
+      "storybook-story",
+      "wordpress"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-010",
+    "component": "menu",
+    "repo": "electric-sql/electric",
+    "repoUrl": "https://github.com/electric-sql/electric",
+    "stars": 10257,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/agents-server-ui/src/ui/Menu.tsx",
+        "permalink": "https://github.com/electric-sql/electric/blob/640509c306eb96e38901edd2713ba85e148fcdad/packages/agents-server-ui/src/ui/Menu.tsx"
+      }
+    ],
+    "liveUrl": "https://electric.ax",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Electric sync-engine agents-server admin UI: Menu wrapper with Group/GroupLabel/Separator and submenus.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "infra-admin-ui"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-011",
+    "component": "menu",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/ui/registry/default/ui/menu.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/registry/default/ui/menu.tsx"
+      },
+      {
+        "path": "packages/ui/src/components/menu.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "LinkItem",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger",
+      "createHandle"
+    ],
+    "contextSummary": "Coss UI registry menu.tsx: full-part wrapper including createHandle and LinkItem; the registry that t3code/kaneo variants derive from, distributed via shadcn-style JSON.",
+    "diversityTags": [
+      "registry-origin",
+      "createhandle",
+      "link-items"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-012",
+    "component": "menu",
+    "repo": "baptisteArno/typebot.io",
+    "repoUrl": "https://github.com/baptisteArno/typebot.io",
+    "stars": 10120,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/Menu.tsx",
+        "permalink": "https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Menu.tsx"
+      }
+    ],
+    "liveUrl": "https://typebot.io",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Chatbot-builder UI package's single-file Menu wrapper with submenu support behind a simplified API.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "builder-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-013",
+    "component": "menu",
+    "repo": "tonyantony300/alt-sendme",
+    "repoUrl": "https://github.com/tonyantony300/alt-sendme",
+    "stars": 8422,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "web-app/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/tonyantony300/alt-sendme/blob/92e5d0f6c8d3df92083cfd3e25a9cee15cbca841/web-app/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://www.altsendme.com/",
+    "partsUsed": [],
+    "contextSummary": "Send files and folders anywhere in the world without storing in cloud - any size, any format, no accounts, no restrictions: menu usage appears as a shadcn-style menu wrapper (web-app/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-014",
+    "component": "menu",
+    "repo": "stagewise-io/stagewise",
+    "repoUrl": "https://github.com/stagewise-io/stagewise",
+    "stars": 6718,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/browser/src/ui/components/file-context-menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/components/file-context-menu.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/_components/shared-agent-context-menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/_components/shared-agent-context-menu.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/agent-chat/chat/_components/rich-text/mentions/tab-mention-badge.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/agent-chat/chat/_components/rich-text/mentions/tab-mention-badge.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/file-tree/file-preview-tab-content.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/file-tree/file-preview-tab-content.tsx"
+      },
+      {
+        "path": "apps/browser/src/ui/screens/main/file-tree/file-tree-workspace-view.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/apps/browser/src/ui/screens/main/file-tree/file-tree-workspace-view.tsx"
+      },
+      {
+        "path": "packages/stage-ui/src/components/menu.tsx",
+        "permalink": "https://github.com/stagewise-io/stagewise/blob/ef9d249f29f2a98dfeac80b2f1013315333994d6/packages/stage-ui/src/components/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://stagewise.io",
+    "partsUsed": [
+      "CheckboxItem",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "FileContextMenu composes ContextMenu.Root/Trigger with Menu.Portal/Positioner/Popup/Item parts (cross-component part interop); the browser app also uses raw Menu parts for agent-selection menus and ships a stage-ui Menu wrapper.",
+    "diversityTags": [
+      "context-menu-hybrid",
+      "cross-component-parts",
+      "file-tree-actions"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-015",
+    "component": "menu",
+    "repo": "generalaction/emdash",
+    "repoUrl": "https://github.com/generalaction/emdash",
+    "stars": 5080,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/emdash-desktop/src/renderer/lib/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/generalaction/emdash/blob/5b89d8772a6ed5765a79eecaf9ddad0147459986/apps/emdash-desktop/src/renderer/lib/ui/dropdown-menu.tsx"
+      },
+      {
+        "path": "packages/ui/src/react/primitives/dropdown-menu/index.tsx",
+        "permalink": "https://github.com/generalaction/emdash/blob/5b89d8772a6ed5765a79eecaf9ddad0147459986/packages/ui/src/react/primitives/dropdown-menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://emdash.sh",
+    "partsUsed": [],
+    "contextSummary": "Emdash is the Open-Source Agentic Development Environment (\ud83e\udde1 YC W26). Run multiple coding agents in parallel. Use any provider: menu usage appears as a shadcn-style menu wrapper and feature code (apps/emdash-desktop/src/renderer/lib/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-016",
+    "component": "menu",
+    "repo": "withcoral/coral",
+    "repoUrl": "https://github.com/withcoral/coral",
+    "stars": 5076,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/reef/app/wax/components/menu/container.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/container.tsx"
+      },
+      {
+        "path": "apps/reef/app/wax/components/menu/content.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/content.tsx"
+      },
+      {
+        "path": "apps/reef/app/wax/components/menu/group.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/group.tsx"
+      },
+      {
+        "path": "apps/reef/app/wax/components/menu/item.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/item.tsx"
+      },
+      {
+        "path": "apps/reef/app/wax/components/menu/radio-group.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/radio-group.tsx"
+      },
+      {
+        "path": "apps/reef/app/wax/components/menu/radio-item.tsx",
+        "permalink": "https://github.com/withcoral/coral/blob/49885e1cddcbd4dad74f46a185f35f7089380765/apps/reef/app/wax/components/menu/radio-item.tsx"
+      }
+    ],
+    "liveUrl": "https://withcoral.com",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "The 'wax' rich-text editor's menu family: one slim file per part (container/trigger/item/submenu/radio-group/...), building the editor's toolbar dropdowns directly on Menu parts.",
+    "diversityTags": [
+      "editor-toolbar-menu",
+      "per-part-files",
+      "radio-items"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-017",
+    "component": "menu",
+    "repo": "seek-oss/playroom",
+    "repoUrl": "https://github.com/seek-oss/playroom",
+    "stars": 4581,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/Menu/Menu.tsx",
+        "permalink": "https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Playroom's frame/settings menus: one Menu.tsx drives top-level menus and submenus, with closeOnClick={false} on checkbox/radio settings items and onOpenChangeComplete to reset submenu state after the close animation.",
+    "diversityTags": [
+      "checkbox-settings-menu",
+      "submenu-state-reset",
+      "dev-tool"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-018",
+    "component": "menu",
+    "repo": "usekaneo/kaneo",
+    "repoUrl": "https://github.com/usekaneo/kaneo",
+    "stars": 3795,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/site/components/ui/menu.tsx",
+        "permalink": "https://github.com/usekaneo/kaneo/blob/067880c44dcb2354ada3aa19b5d4e9cd9bb3875e/apps/site/components/ui/menu.tsx"
+      },
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/usekaneo/kaneo/blob/067880c44dcb2354ada3aa19b5d4e9cd9bb3875e/apps/web/src/components/ui/menu.tsx"
+      },
+      {
+        "path": "apps/web/src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/usekaneo/kaneo/blob/067880c44dcb2354ada3aa19b5d4e9cd9bb3875e/apps/web/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://kaneo.app/",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger",
+      "createHandle"
+    ],
+    "contextSummary": "Kaneo project-management app: shadcn-style full-part wrapper including a createHandle re-export (detached menu handles) plus a menubar wrapper.",
+    "diversityTags": [
+      "createhandle",
+      "kanban-app",
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-019",
+    "component": "menu",
+    "repo": "imskyleen/animate-ui",
+    "repoUrl": "https://github.com/imskyleen/animate-ui",
+    "stars": 3769,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-31",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/www/registry/primitives/base/menu/index.tsx",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/registry/primitives/base/menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://animate-ui.com",
+    "partsUsed": [
+      "Arrow",
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Animate UI registry 'base menu' primitive: every Menu part (incl. Arrow) wrapped with motion/react springs, animating the popup via render props and AnimatePresence instead of CSS transitions.",
+    "diversityTags": [
+      "animation-wrapper",
+      "motion-integration",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-020",
+    "component": "menu",
+    "repo": "bytebase/dbhub",
+    "repoUrl": "https://github.com/bytebase/dbhub",
+    "stars": 3108,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-30",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/bytebase/dbhub/blob/08e522ced0503a8d234472f07b0b318e386dbb94/frontend/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://dbhub.ai",
+    "partsUsed": [],
+    "contextSummary": "Zero-dependency, token-efficient database MCP server for Postgres, MySQL, SQL Server, MariaDB, SQLite: menu usage appears as a shadcn-style menu wrapper (frontend/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-021",
+    "component": "menu",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-03-30",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "app/(create)/customizer/picker.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/0946f9667f4bea44873cf9391b3b801c16660c01/app/(create)/customizer/picker.tsx"
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "ReUI theme-customizer picker uses Menu directly with an anchor prop passthrough and Checkbox/Radio items for switching design tokens.",
+    "diversityTags": [
+      "theme-customizer",
+      "anchor-prop",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-022",
+    "component": "menu",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/dropdown/dropdown.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/dropdown/dropdown.tsx"
+      },
+      {
+        "path": "packages/kumo/src/primitives/index.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/index.ts"
+      },
+      {
+        "path": "packages/kumo/src/primitives/menu.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/menu.ts"
+      },
+      {
+        "path": "packages/kumo/src/primitives/menubar.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/menubar.ts"
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "LinkItem",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Cloudflare's Kumo design system: a primitives re-export layer plus a Dropdown composite that promotes Menu.LinkItem for navigation (JSDoc deprecates href-on-Item), danger-styled items, and a container-aware Portal.",
+    "diversityTags": [
+      "design-system-composite",
+      "link-items",
+      "deprecation-guidance"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-023",
+    "component": "menu",
+    "repo": "tale/headplane",
+    "repoUrl": "https://github.com/tale/headplane",
+    "stars": 2683,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "app/components/menu.tsx",
+        "permalink": "https://github.com/tale/headplane/blob/17e7b3547838a45101266e80f46722542a65e9b0/app/components/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://headplane.net",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "Headplane (Headscale admin UI) shared menu.tsx wrapper (Item/Separator) powering machine and user row-action menus.",
+    "diversityTags": [
+      "admin-ui",
+      "row-actions-menu"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-024",
+    "component": "menu",
+    "repo": "siriwatknp/mui-treasury",
+    "repoUrl": "https://github.com/siriwatknp/mui-treasury",
+    "stars": 2444,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/website/registry/components/menubar-01/menubar-01.tsx",
+        "permalink": "https://github.com/siriwatknp/mui-treasury/blob/8fa129a0519d08764af1a208bafd3e83e19fd9c6/apps/website/registry/components/menubar-01/menubar-01.tsx"
+      }
+    ],
+    "liveUrl": "https://mui-treasury.com",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Menubar recipe by a Material UI maintainer: Base UI Menubar + Menu with every item rendered into a Material UI MenuItem via render props (plus a SKILL.md teaching agents the integration).",
+    "diversityTags": [
+      "material-ui-integration",
+      "menubar-composition",
+      "recipe"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-025",
+    "component": "menu",
+    "repo": "bitfocus/companion",
+    "repoUrl": "https://github.com/bitfocus/companion",
+    "stars": 2215,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "launcher-ui/src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/bitfocus/companion/blob/aa1b1fbb424fae0a5dbfb1a9b7567f30a0ae44d3/launcher-ui/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://companion.free/",
+    "partsUsed": [],
+    "contextSummary": "Bitfocus Companion enables the Elgato Stream Deck and other controllers to be a professional shotbox surface for an increasing amount of different presentation switchers, video playback software and broadcast equipment: menu usage appears as a shadcn-style menu wrapper (launcher-ui/src/components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-026",
+    "component": "menu",
+    "repo": "astrofox-io/astrofox",
+    "repoUrl": "https://github.com/astrofox-io/astrofox",
+    "stars": 1922,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-22",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/astrofox-io/astrofox/blob/2640e9de0ff177bcb02c63ba3b2f626c09d0e14d/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://astrofox.io",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Astrofox audio-visualizer studio: desktop-app-style dropdown-menu wrapper (full parts incl. Checkbox/Radio/Submenu) for the editor chrome.",
+    "diversityTags": [
+      "desktop-app-menus",
+      "media-editor"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-027",
+    "component": "menu",
+    "repo": "BearStudio/start-ui-web",
+    "repoUrl": "https://github.com/BearStudio/start-ui-web",
+    "stars": 1738,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "starter-template",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/BearStudio/start-ui-web/blob/f74b508012b6db2acb8195fb64a352a4ccb9d681/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://demo.start-ui.com",
+    "partsUsed": [],
+    "contextSummary": "\ud83d\ude80 Start UI [web] is an opinionated UI starter from the \ud83d\udc3b BearStudio Team with \u2699\ufe0f Node.js, \ud83d\udfe6 TypeScript, \u269b\ufe0f React, \ud83d\udce6 TanStack Start, \ud83d\udca8 Tailwind CSS, \ud83e\udde9 shadcn/ui, \ud83d\udccb React Hook Form, \ud83d\udd0c oRPC, \ud83d\udee0 Prisma, \ud83d\udd10 Better Auth, \ud83d\udcda Storybook, \ud83e\uddea Vitest, \ud83c\udfad Playwright: menu usage appears as a shadcn-style menu wrapper (src/components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "starter-template"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-028",
+    "component": "menu",
+    "repo": "wevm/vocs",
+    "repoUrl": "https://github.com/wevm/vocs",
+    "stars": 1507,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/react/internal/MobileNav.tsx",
+        "permalink": "https://github.com/wevm/vocs/blob/861a096100f07cd04ada43797048c1e28ff44e69/src/react/internal/MobileNav.tsx"
+      }
+    ],
+    "liveUrl": "https://vocs.dev",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "Vocs docs framework MobileNav: Menu.RadioGroup marks the current page, RadioItems render as links grouped into sections, with data-checked styling as the selection indicator.",
+    "diversityTags": [
+      "nav-menu",
+      "radio-selection-state",
+      "mobile-nav"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-029",
+    "component": "menu",
+    "repo": "wannabespace/conar",
+    "repoUrl": "https://github.com/wannabespace/conar",
+    "stars": 1399,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/dropdown-menu.tsx",
+        "permalink": "https://github.com/wannabespace/conar/blob/beaf74707070a0c5b42274feb33562d5d5ae1d79/packages/ui/src/components/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://conar.app",
+    "partsUsed": [],
+    "contextSummary": "AI-powered tool for working with Postgres, MySQL, MSSQL and Clickhouse: menu usage appears as a shadcn-style menu wrapper (packages/ui/src/components/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-030",
+    "component": "menu",
+    "repo": "databuddy-analytics/Databuddy",
+    "repoUrl": "https://github.com/databuddy-analytics/Databuddy",
+    "stars": 1097,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/dropdown-menu.tsx",
+        "permalink": "https://github.com/databuddy-analytics/Databuddy/blob/676b576f53be75fc02dc48c9987232b264b4abb0/packages/ui/src/components/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://www.databuddy.cc",
+    "partsUsed": [],
+    "contextSummary": "Databuddy is a privacy-first analytics platform with a focus on user experience, with it's foundation built on privacy, it ensures complete compliance with most major data privacy laws out of the box: menu usage appears as a shadcn-style menu wrapper (packages/ui/src/components/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-031",
+    "component": "menu",
+    "repo": "manaflow-ai/manaflow",
+    "repoUrl": "https://github.com/manaflow-ai/manaflow",
+    "stars": 1088,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/client/src/components/OpenEditorSplitButton.tsx",
+        "permalink": "https://github.com/manaflow-ai/manaflow/blob/23e83e46160a746c786b18be9883b6e512fe9974/apps/client/src/components/OpenEditorSplitButton.tsx"
+      },
+      {
+        "path": "apps/client/src/components/ui/dropdown.parts.tsx",
+        "permalink": "https://github.com/manaflow-ai/manaflow/blob/23e83e46160a746c786b18be9883b6e512fe9974/apps/client/src/components/ui/dropdown.parts.tsx"
+      },
+      {
+        "path": "apps/client/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/manaflow-ai/manaflow/blob/23e83e46160a746c786b18be9883b6e512fe9974/apps/client/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Arrow",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "OpenEditorSplitButton: split button whose menu is a RadioGroup persisting the preferred editor; ui/menu.tsx re-exports Menu.Arrow.",
+    "diversityTags": [
+      "split-button-menu",
+      "radio-preference"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-032",
+    "component": "menu",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menu.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://green-wall.leoku.dev",
+    "partsUsed": [
+      "CheckboxItem",
+      "CheckboxItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "RadioItemIndicator",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Green Wall GitHub-contributions poster generator: full-part menu wrapper on the old package name incl. Checkbox/Radio/Submenu parts.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "old-package-name"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-033",
+    "component": "menu",
+    "repo": "lumen-notes/lumen",
+    "repoUrl": "https://github.com/lumen-notes/lumen",
+    "stars": 708,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-25",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/dropdown-menu.tsx",
+        "permalink": "https://github.com/lumen-notes/lumen/blob/a9bfe82bf1ccba5391fcc2d146c32bfc1532e36e/src/components/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://uselumen.com",
+    "partsUsed": [
+      "Group",
+      "GroupLabel",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "Lumen notes app dropdown-menu wrapper (Group/GroupLabel/Separator, no submenus) used for note action menus.",
+    "diversityTags": [
+      "notes-app",
+      "minimal-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-034",
+    "component": "menu",
+    "repo": "iurvish/uselayouts",
+    "repoUrl": "https://github.com/iurvish/uselayouts",
+    "stars": 404,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-27",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/iurvish/uselayouts/blob/5ed0d94454374b47ed9805bf204a412bc2d3d456/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://uselayouts.com",
+    "partsUsed": [],
+    "contextSummary": "Free premium animated React components and micro-interactions built with Framer Motion and Tailwind CSS: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-035",
+    "component": "menu",
+    "repo": "turbostarter/loading-ui",
+    "repoUrl": "https://github.com/turbostarter/loading-ui",
+    "stars": 400,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/turbostarter/loading-ui/blob/3634050f786341c0a3f25d0ac6c6a2dcfd547c07/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://loading-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Spinners, loaders and loading animations for modern web apps \u23f3: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-036",
+    "component": "menu",
+    "repo": "sankeyangshu/lemon-admin",
+    "repoUrl": "https://github.com/sankeyangshu/lemon-admin",
+    "stars": 391,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-18",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/sankeyangshu/lemon-admin/blob/677fe6cf978d2e3201a17d5283f4907b198925a9/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A full-stack monorepo project built with NestJS (backend) and React (admin dashboard) \ud83d\ude80 \u4e00\u4e2a\u57fa\u4e8e NestJS \u540e\u7aef\u4e0e React \u540e\u53f0\u7ba1\u7406\u7cfb\u7edf\u7684\u5168\u6808 Monorepo \u9879\u76ee: menu usage appears as a shadcn-style menu wrapper (src/components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-037",
+    "component": "menu",
+    "repo": "x1xhlol/zero-calendar",
+    "repoUrl": "https://github.com/x1xhlol/zero-calendar",
+    "stars": 356,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-26",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/x1xhlol/zero-calendar/blob/5e277794ee524082bc2f1ffff20e3b273c396e23/components/ui/dropdown-menu.tsx"
+      },
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/x1xhlol/zero-calendar/blob/5e277794ee524082bc2f1ffff20e3b273c396e23/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://zerocalendar.com",
+    "partsUsed": [],
+    "contextSummary": "Zero Calendar is an open-source AI-native calendar that manages your schedule intelligently, giving you more time for what matters: menu usage appears as a menubar wrapper and a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-038",
+    "component": "menu",
+    "repo": "bearlyai/OpenADE",
+    "repoUrl": "https://github.com/bearlyai/OpenADE",
+    "stars": 324,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "projects/web/src/components/ui/Menu.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/components/ui/Menu.tsx"
+      }
+    ],
+    "liveUrl": "https://openade.ai",
+    "partsUsed": [],
+    "contextSummary": "Agentic Development Environment for Devs Who Don't Ship Slop: menu usage appears as a shadcn-style menu wrapper (projects/web/src/components/ui/Menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-039",
+    "component": "menu",
+    "repo": "DariusLukasukas/nextjs-weather-app",
+    "repoUrl": "https://github.com/DariusLukasukas/nextjs-weather-app",
+    "stars": 307,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-03-05",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/DariusLukasukas/nextjs-weather-app/blob/c2136017f5273442059838bd1386985a7a5db8b0/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://vertex-weather.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Apple Weather inspired web app with Mapbox and OpenWeather: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-040",
+    "component": "menu",
+    "repo": "preetsuthar17/loftlyy",
+    "repoUrl": "https://github.com/preetsuthar17/loftlyy",
+    "stars": 302,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-26",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/preetsuthar17/loftlyy/blob/d70a62f2787187099cd8f15e22a8f53c94d58d87/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://loftlyy.com",
+    "partsUsed": [],
+    "contextSummary": "Brand identity of brands for inspiration: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-041",
+    "component": "menu",
+    "repo": "pacekit/gsap",
+    "repoUrl": "https://github.com/pacekit/gsap",
+    "stars": 269,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-24",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/pacekit/gsap/blob/6d06069bd8c12aafd25ce6629875d0bdeda879c2/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://gsap.pacekit.dev",
+    "partsUsed": [],
+    "contextSummary": "Build faster with practical UI blocks for real apps: menu usage appears as a menubar wrapper (src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-042",
+    "component": "menu",
+    "repo": "AgusMayol/optics",
+    "repoUrl": "https://github.com/AgusMayol/optics",
+    "stars": 223,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-11",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "registry/optics/menubar.jsx",
+        "permalink": "https://github.com/AgusMayol/optics/blob/1742d26f0944d4a31708bc4ed74aff72f19cf43a/registry/optics/menubar.jsx"
+      }
+    ],
+    "liveUrl": "https://optics.agusmayol.com.ar",
+    "partsUsed": [],
+    "contextSummary": "AgusMayol/optics: menu usage appears as a menubar wrapper (registry/optics/menubar.jsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-043",
+    "component": "menu",
+    "repo": "oxidecomputer/console",
+    "repoUrl": "https://github.com/oxidecomputer/console",
+    "stars": 222,
+    "license": "MPL-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "app/ui/lib/DropdownMenu.tsx",
+        "permalink": "https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx"
+      }
+    ],
+    "liveUrl": "https://console-preview.oxide.computer",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Oxide cloud console UI lib: DropdownMenu re-exports Root with a modal={false} default (comment: prevent scroll locking), parses a semantic anchor=\"bottom end\" string into side/align/offsets, and backs table row-action menus across the console.",
+    "diversityTags": [
+      "row-actions-menu",
+      "non-modal-default",
+      "api-simplification"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-044",
+    "component": "menu",
+    "repo": "futantan/agent-skills.md",
+    "repoUrl": "https://github.com/futantan/agent-skills.md",
+    "stars": 220,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-20",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/futantan/agent-skills.md/blob/98cd624fb1542ad7880e1112576061bb2874de8e/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "http://agent-skills.md/",
+    "partsUsed": [],
+    "contextSummary": "Find awesome Agent Skills: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-045",
+    "component": "menu",
+    "repo": "wevm/curl.md",
+    "repoUrl": "https://github.com/wevm/curl.md",
+    "stars": 214,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-08",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/routes/docs/-render.tsx",
+        "permalink": "https://github.com/wevm/curl.md/blob/91469a7fbf2957a2cda20ec25add0807717ba3aa/src/routes/docs/-render.tsx"
+      },
+      {
+        "path": "src/routes/docs/route.tsx",
+        "permalink": "https://github.com/wevm/curl.md/blob/91469a7fbf2957a2cda20ec25add0807717ba3aa/src/routes/docs/route.tsx"
+      }
+    ],
+    "liveUrl": "https://curl.md",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Trigger"
+    ],
+    "contextSummary": "curl.md docs site mobile outline menu: modal={false} with Positioner anchor={mobileOutlineTriggerRef} (anchored to an external ref, not the trigger), items render <a href> with closeOnClick and data-[active] styling.",
+    "diversityTags": [
+      "anchor-ref-positioning",
+      "docs-outline-menu",
+      "non-modal-menu"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-046",
+    "component": "menu",
+    "repo": "shift-editor/shift",
+    "repoUrl": "https://github.com/shift-editor/shift",
+    "stars": 205,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/menu/Menu.tsx",
+        "permalink": "https://github.com/shift-editor/shift/blob/357e516a32494ef9be1d904a99849d7d82f92e31/packages/ui/src/components/menu/Menu.tsx"
+      }
+    ],
+    "liveUrl": "https://www.shift.graphics/",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "Shift font editor UI package Menu (Item/Separator) for editor chrome menus.",
+    "diversityTags": [
+      "editor-menus",
+      "font-tooling"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-047",
+    "component": "menu",
+    "repo": "raphaelsalaja/cambio",
+    "repoUrl": "https://github.com/raphaelsalaja/cambio",
+    "stars": 199,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-01-24",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "website/components/menu/index.tsx",
+        "permalink": "https://github.com/raphaelsalaja/cambio/blob/3a17891104602501cc56a07f5288a7a55bf60aa8/website/components/menu/index.tsx"
+      }
+    ],
+    "liveUrl": "https://cambio.raphaelsalaja.com",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "Cambio (image comparison tool) website menu: hand-rolled on Menu parts with render-prop items and Separator, finely motion-polished by a designer known for interaction craft.",
+    "diversityTags": [
+      "personal-site",
+      "render-prop-items",
+      "motion-design"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-048",
+    "component": "menu",
+    "repo": "oxidecomputer/rfd-site",
+    "repoUrl": "https://github.com/oxidecomputer/rfd-site",
+    "stars": 189,
+    "license": "MPL-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "app/components/Dropdown.tsx",
+        "permalink": "https://github.com/oxidecomputer/rfd-site/blob/d59a41415b5bb25b4270fa99131834f6dbb79f15/app/components/Dropdown.tsx"
+      }
+    ],
+    "liveUrl": "https://rfd.shared.oxide.computer",
+    "partsUsed": [
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "RadioGroup",
+      "RadioItem",
+      "Root",
+      "Separator",
+      "SubmenuRoot",
+      "SubmenuTrigger",
+      "Trigger"
+    ],
+    "contextSummary": "Oxide RFD site Dropdown mirroring the console pattern: modal={false} wrapper with RadioGroup and submenu support.",
+    "diversityTags": [
+      "row-actions-menu",
+      "docs-site"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-049",
+    "component": "menu",
+    "repo": "formbase-dev/formbase",
+    "repoUrl": "https://github.com/formbase-dev/formbase",
+    "stars": 155,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "packages/ui/primitives/menubar.tsx",
+        "permalink": "https://github.com/formbase-dev/formbase/blob/f831f9af5aa21ad75d3b5ed4305cb3d1772de1c6/packages/ui/primitives/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://formbase.dev",
+    "partsUsed": [],
+    "contextSummary": "Open Source Form Backend: menu usage appears as a menubar wrapper (packages/ui/primitives/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-050",
+    "component": "menu",
+    "repo": "soulfiremc-com/SoulFireClient",
+    "repoUrl": "https://github.com/soulfiremc-com/SoulFireClient",
+    "stars": 142,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/soulfiremc-com/SoulFireClient/blob/8dd16cd171c85bbba8c82b15efd2bf1e6bff817c/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://app.soulfiremc.com",
+    "partsUsed": [],
+    "contextSummary": "\ud83e\uddd9 Frontend client for SoulFire: menu usage appears as a menubar wrapper (src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-051",
+    "component": "menu",
+    "repo": "pgplex/pgconsole",
+    "repoUrl": "https://github.com/pgplex/pgconsole",
+    "stars": 126,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menu.tsx",
+        "permalink": "https://github.com/pgplex/pgconsole/blob/a7fead0e383109b1c2fd98c40450c7e99b13afe5/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://www.pgconsole.com",
+    "partsUsed": [],
+    "contextSummary": "Minimal Postgres editor for speed, collaboration, and AI: menu usage appears as a shadcn-style menu wrapper (src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-052",
+    "component": "menu",
+    "repo": "hjinco/mdto",
+    "repoUrl": "https://github.com/hjinco/mdto",
+    "stars": 117,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-20",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "client/components/UserMenu.tsx",
+        "permalink": "https://github.com/hjinco/mdto/blob/39611d4cb51daef1dbc70708104819f5285568e0/client/components/UserMenu.tsx"
+      }
+    ],
+    "liveUrl": "https://mdto.page",
+    "partsUsed": [],
+    "contextSummary": "Turn markdown into shareable pages: menu usage appears as feature code (client/components/UserMenu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "direct-usage"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-053",
+    "component": "menu",
+    "repo": "mathematic-inc/earl",
+    "repoUrl": "https://github.com/mathematic-inc/earl",
+    "stars": 113,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-11",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "web/src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/mathematic-inc/earl/blob/d017c842ddf051fcab0e58c4a91aac60647012c9/web/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://mathematic-inc.github.io/earl/",
+    "partsUsed": [],
+    "contextSummary": "Secure CLI proxy for AI agents \u2014 HCL-defined operation templates with OS keychain secrets, MCP integration, and prompt injection protection: menu usage appears as a menubar wrapper (web/src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-054",
+    "component": "menu",
+    "repo": "jakejarvis/jarv.is",
+    "repoUrl": "https://github.com/jakejarvis/jarv.is",
+    "stars": 103,
+    "license": "CC-BY-4.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/jakejarvis/jarv.is/blob/dcddf6e3ecf11ccd5ead58a7292540035940ea9f/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://jarv.is",
+    "partsUsed": [],
+    "contextSummary": "\ud83c\udfe1 My humble abode on the World Wide Web: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-055",
+    "component": "menu",
+    "repo": "Agions/story-fab",
+    "repoUrl": "https://github.com/Agions/story-fab",
+    "stars": 100,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/Agions/story-fab/blob/4a419e9e9f2645cac7e68063f40de4c7637a7b0f/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://agions.github.io/story-fab/",
+    "partsUsed": [],
+    "contextSummary": "\u5f00\u6e90 AI \u5f71\u89c6\u89e3\u8bf4\u521b\u4f5c\u5de5\u574a (Tauri 2 + Rust)\u3002\u957f\u89c6\u9891 \u2192 AI \u62c6\u6761 + \u591a Agent \u667a\u80fd\u89e3\u8bf4 + \u672c\u5730 Whisper \u5b57\u5e55 + \u914d\u97f3\u5408\u6210\uff0c9:16/1:1/16:9 \u591a\u683c\u5f0f\u5bfc\u51fa\uff0c100% \u672c\u5730\u5904\u7406\u96f6\u4e0a\u4f20\u3002: menu usage appears as a shadcn-style menu wrapper (src/components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-056",
+    "component": "menu",
+    "repo": "brianlovin/tax-ui",
+    "repoUrl": "https://github.com/brianlovin/tax-ui",
+    "stars": 100,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-02-11",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/Menu.tsx",
+        "permalink": "https://github.com/brianlovin/tax-ui/blob/9a479443b9dd6b542cb7d3b0b11ad43184d2826e/src/components/Menu.tsx"
+      }
+    ],
+    "liveUrl": "https://tax-ui.brianlovin.com",
+    "partsUsed": [],
+    "contextSummary": "Visualize and chat with your tax returns: menu usage appears as a shadcn-style menu wrapper (src/components/Menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-057",
+    "component": "menu",
+    "repo": "AryaLabsHQ/bunli",
+    "repoUrl": "https://github.com/AryaLabsHQ/bunli",
+    "stars": 92,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/components/ui/menubar.tsx",
+        "permalink": "https://github.com/AryaLabsHQ/bunli/blob/52335c04bf0aa90dd62d7c4f47d3c785c7ad0f26/apps/web/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://bunli.dev/",
+    "partsUsed": [],
+    "contextSummary": "Complete CLI Development Ecosystem for Bun: menu usage appears as a menubar wrapper (apps/web/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-058",
+    "component": "menu",
+    "repo": "kyle1an/sub-vocab",
+    "repoUrl": "https://github.com/kyle1an/sub-vocab",
+    "stars": 92,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-23",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/ui/components/ui/menubar.tsx",
+        "permalink": "https://github.com/kyle1an/sub-vocab/blob/6b1cd7b1577ba032b584cbb761b989d2f344953c/apps/ui/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://www.subvocab.com",
+    "partsUsed": [],
+    "contextSummary": "A speedy tool for extracting and categorizing vocabulary/sentences from English materials: menu usage appears as a menubar wrapper (apps/ui/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-059",
+    "component": "menu",
+    "repo": "TheOrcDev/github-creature",
+    "repoUrl": "https://github.com/TheOrcDev/github-creature",
+    "stars": 90,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-18",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/TheOrcDev/github-creature/blob/ffdbe6872787b7c06476e81500f5c2f3bc414f48/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://githubcreature.com",
+    "partsUsed": [],
+    "contextSummary": "An open source project where you summon your EPIC creature card based on your GitHub stats: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-060",
+    "component": "menu",
+    "repo": "vibe-stack/three-maps",
+    "repoUrl": "https://github.com/vibe-stack/three-maps",
+    "stars": 90,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-23",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "src/features/menu/components/menu-bar.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/menu/components/menu-bar.tsx"
+      },
+      {
+        "path": "src/features/shared/add-object-menu.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/shared/add-object-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://vibe-stack.github.io/three-maps/",
+    "partsUsed": [],
+    "contextSummary": "A rapid 3d blockout / greyboxing tool for the web : menu usage appears as feature code (src/features/menu/components/menu-bar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "direct-usage"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-061",
+    "component": "menu",
+    "repo": "Jason-uxui/gray-ui-crm",
+    "repoUrl": "https://github.com/Jason-uxui/gray-ui-crm",
+    "stars": 89,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-04",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/Jason-uxui/gray-ui-crm/blob/7085cf661bb5e0026cdcdb47adf99355dabfbef4/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://gray-ui-crm.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Jason-uxui/gray-ui-crm: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-062",
+    "component": "menu",
+    "repo": "msviderok/base-ui-solid",
+    "repoUrl": "https://github.com/msviderok/base-ui-solid",
+    "stars": 84,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-06-22",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "docs/src/app/(private)/experiments/context-menu.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/context-menu.tsx"
+      },
+      {
+        "path": "docs/src/app/(private)/experiments/menu/complex-nesting.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/menu/complex-nesting.tsx"
+      },
+      {
+        "path": "docs/src/app/(private)/experiments/menu/menu-anchor-el.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/menu/menu-anchor-el.tsx"
+      },
+      {
+        "path": "docs/src/app/(private)/experiments/menu/menu-anchor-ref.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/menu/menu-anchor-ref.tsx"
+      },
+      {
+        "path": "docs/src/app/(private)/experiments/menu/menu-fully-featured.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/menu/menu-fully-featured.tsx"
+      },
+      {
+        "path": "docs/src/app/(private)/experiments/menu/menu-horizontal.tsx",
+        "permalink": "https://github.com/msviderok/base-ui-solid/blob/e49117f0106493a3f3981ea048c7b274c9fe0c2e/docs/src/app/(private)/experiments/menu/menu-horizontal.tsx"
+      }
+    ],
+    "liveUrl": "https://base-ui-solid.msviderok.com",
+    "partsUsed": [],
+    "contextSummary": "Unofficial port of Base UI to SolidJS: menu usage appears as a context-menu wrapper and a menubar wrapper and feature code (docs/src/app/(private)/experiments/context-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-063",
+    "component": "menu",
+    "repo": "revokslab/codecrawl",
+    "repoUrl": "https://github.com/revokslab/codecrawl",
+    "stars": 80,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-01-25",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/revokslab/codecrawl/blob/b50696ebd07653b7eb6e1aae69dc657072b5ce85/apps/web/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://crawl.revoks.dev",
+    "partsUsed": [],
+    "contextSummary": "\ud83c\udf0a Turn entire codebases into LLM-ready data. Extract data, search, and llms.txt from any repo with a single API: menu usage appears as a shadcn-style menu wrapper (apps/web/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-064",
+    "component": "menu",
+    "repo": "mohitkumhar/business-ai-agent",
+    "repoUrl": "https://github.com/mohitkumhar/business-ai-agent",
+    "stars": 72,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-15",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "landing-page/src/lib/packages/ui/components/Menu.tsx",
+        "permalink": "https://github.com/mohitkumhar/business-ai-agent/blob/1def311285d1e82d5db48bdd82baa54eed125474/landing-page/src/lib/packages/ui/components/Menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "mohitkumhar/business-ai-agent: menu usage appears as a shadcn-style menu wrapper (landing-page/src/lib/packages/ui/components/Menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-065",
+    "component": "menu",
+    "repo": "ccssmnn/tilly",
+    "repoUrl": "https://github.com/ccssmnn/tilly",
+    "stars": 63,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-18",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/shared/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/ccssmnn/tilly/blob/ca36a6da9e0378e06eb6568ab9586af90e6c4c8c/src/shared/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://tilly.social",
+    "partsUsed": [],
+    "contextSummary": "Tilly is a relationship journal. An offline capable PWA that feels really good. It has an AI agent for maximum convenience: menu usage appears as a shadcn-style menu wrapper (src/shared/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-066",
+    "component": "menu",
+    "repo": "reactvideoeditor/clippkit",
+    "repoUrl": "https://github.com/reactvideoeditor/clippkit",
+    "stars": 62,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-18",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/docs/registry/default/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/reactvideoeditor/clippkit/blob/5973421d5dbf88954ec22c21ab666b3bfc2dac46/apps/docs/registry/default/ui/dropdown-menu.tsx"
+      },
+      {
+        "path": "apps/docs/types/docs/dropdown.ts",
+        "permalink": "https://github.com/reactvideoeditor/clippkit/blob/5973421d5dbf88954ec22c21ab666b3bfc2dac46/apps/docs/types/docs/dropdown.ts"
+      }
+    ],
+    "liveUrl": "https://www.clippkit.com/",
+    "partsUsed": [],
+    "contextSummary": "Clippkit is a growing collection of reusable components for people building videos with code. It's like a UI library, but instead of buttons and modals, you get intros, text effects, animations, transitions, and full video scenes: menu usage appears as a shadcn-style menu wrapper and feature code (apps/docs/registry/default/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-067",
+    "component": "menu",
+    "repo": "kapishdima/dialectcn",
+    "repoUrl": "https://github.com/kapishdima/dialectcn",
+    "stars": 61,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-05-28",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/base/ui/menubar.tsx",
+        "permalink": "https://github.com/kapishdima/dialectcn/blob/3ecc098a109365d00b5db16a13c79f06366d09d3/components/base/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://dialectcn.xyz",
+    "partsUsed": [],
+    "contextSummary": "A living library of shadcn presets: menu usage appears as a menubar wrapper (components/base/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-068",
+    "component": "menu",
+    "repo": "ui-layouts/mdx-starter-repo",
+    "repoUrl": "https://github.com/ui-layouts/mdx-starter-repo",
+    "stars": 60,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "starter-template",
+    "lastActivity": "2026-02-19",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/ui-layouts/mdx-starter-repo/blob/c7a952600295768e31461af8e1c112505ff2e41a/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://uilayout-starter-repo.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "An open-source starter repo for those who want to create their own component library: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "starter-template"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-069",
+    "component": "menu",
+    "repo": "Debbl/shadcn-hooks",
+    "repoUrl": "https://github.com/Debbl/shadcn-hooks",
+    "stars": 58,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/Debbl/shadcn-hooks/blob/4e6bf49600bcf14065a27f58899d2a689f621153/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://shadcn-hooks.com/",
+    "partsUsed": [],
+    "contextSummary": "A React Hooks Collection built with Shadcn: menu usage appears as a menubar wrapper (src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-070",
+    "component": "menu",
+    "repo": "vibe-stack/freed",
+    "repoUrl": "https://github.com/vibe-stack/freed",
+    "stars": 56,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-02-22",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "src/features/menu/components/menu-bar.tsx",
+        "permalink": "https://github.com/vibe-stack/freed/blob/2354da681678b01843c09386372bf546c1dc00d1/src/features/menu/components/menu-bar.tsx"
+      },
+      {
+        "path": "src/features/shared/add-object-menu.tsx",
+        "permalink": "https://github.com/vibe-stack/freed/blob/2354da681678b01843c09386372bf546c1dc00d1/src/features/shared/add-object-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://vibe-stack.github.io/freed/",
+    "partsUsed": [],
+    "contextSummary": "A web based 3d editor inspired by blender, demo app for the vibe coding book: menu usage appears as feature code (src/features/menu/components/menu-bar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "direct-usage"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-071",
+    "component": "menu",
+    "repo": "cahyawibawa/ui-topia",
+    "repoUrl": "https://github.com/cahyawibawa/ui-topia",
+    "stars": 54,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-11-18",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/web/registry/ui/menu.tsx",
+        "permalink": "https://github.com/cahyawibawa/ui-topia/blob/c1e64b284091dd3cb313fad961a1270dcb6d79d3/apps/web/registry/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://uitopia.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A collection of fine UI components: menu usage appears as a shadcn-style menu wrapper (apps/web/registry/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-072",
+    "component": "menu",
+    "repo": "sumon-ohid/better-paas",
+    "repoUrl": "https://github.com/sumon-ohid/better-paas",
+    "stars": 51,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "frontend/components/ui/menu.tsx",
+        "permalink": "https://github.com/sumon-ohid/better-paas/blob/e24cb6d11e532aa0e6519ebd4d9aaeae2eba62d4/frontend/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://better-paas.com/demo",
+    "partsUsed": [],
+    "contextSummary": "Deploy from Cursor / Claude Code with scoped tokens - self-hosted PaaS: menu usage appears as a shadcn-style menu wrapper (frontend/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-073",
+    "component": "menu",
+    "repo": "KartikLabhshetwar/Mercurius",
+    "repoUrl": "https://github.com/KartikLabhshetwar/Mercurius",
+    "stars": 50,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2025-12-13",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/menu.tsx",
+        "permalink": "https://github.com/KartikLabhshetwar/Mercurius/blob/21cdbdfae439da8af43a8bb82981b5aa68c0fd8a/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://mercurius.kartikk.tech",
+    "partsUsed": [],
+    "contextSummary": "A private, self-destructing chat room application. Rooms automatically expire after 10 minutes, ensuring ephemeral conversations: menu usage appears as a shadcn-style menu wrapper (components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-074",
+    "component": "menu",
+    "repo": "finitoapp/finito",
+    "repoUrl": "https://github.com/finitoapp/finito",
+    "stars": 43,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-29",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/finitoapp/finito/blob/ae5379b147993220775a7022a4408f4594cce9f3/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://finitoapp.netlify.app/",
+    "partsUsed": [],
+    "contextSummary": "Make business payments self-custody again: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-075",
+    "component": "menu",
+    "repo": "basehub-ai/forums",
+    "repoUrl": "https://github.com/basehub-ai/forums",
+    "stars": 41,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-25",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/components/ui/menu.tsx",
+        "permalink": "https://github.com/basehub-ai/forums/blob/a020e937daa18707ca5e83109325124ffd530965/apps/web/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://forums.basehub.com",
+    "partsUsed": [],
+    "contextSummary": "basehub-ai/forums: menu usage appears as a shadcn-style menu wrapper (apps/web/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-076",
+    "component": "menu",
+    "repo": "ui-layouts/Obfuscated-tailwindcss",
+    "repoUrl": "https://github.com/ui-layouts/Obfuscated-tailwindcss",
+    "stars": 41,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-03-31",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/ui-layouts/Obfuscated-tailwindcss/blob/c6c470ffef8aab7dac8219e0ee1b14e71d14c7dd/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://obfustail.ui-layouts.com/",
+    "partsUsed": [],
+    "contextSummary": "Hide Your TailwindCSS \ud83d\udc40: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-077",
+    "component": "menu",
+    "repo": "Codennnn/NestJS-Docs-CN",
+    "repoUrl": "https://github.com/Codennnn/NestJS-Docs-CN",
+    "stars": 39,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-01",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menu.tsx",
+        "permalink": "https://github.com/Codennnn/NestJS-Docs-CN/blob/6dcb6c709661cfbed0f269c8c74eaf4bd93f0e05/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://nestjs.leoku.dev",
+    "partsUsed": [],
+    "contextSummary": "\u57fa\u4e8e NestJS \u5b98\u65b9\u82f1\u6587\u6587\u6863\u7684\u4e2d\u6587\u7ffb\u8bd1\u9879\u76ee\uff0c\u5bf9\u5185\u5bb9\u7ed3\u6784\u8fdb\u884c\u6574\u7406\u4e0e\u4f18\u5316\uff0c\u964d\u4f4e\u521d\u5b66\u8005\u7406\u89e3\u95e8\u69db\u3002: menu usage appears as a shadcn-style menu wrapper (src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-078",
+    "component": "menu",
+    "repo": "851-labs/tokenmaxxing",
+    "repoUrl": "https://github.com/851-labs/tokenmaxxing",
+    "stars": 39,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-27",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/851-labs/tokenmaxxing/blob/5e85a672a99bd4a3aa2e75c6067cf8decd999aa8/apps/www/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://tokenmaxxing.sh",
+    "partsUsed": [],
+    "contextSummary": "Social leaderboard for LLM token usage \u2014 sync your agent usage with the CLI, climb the leaderboard: menu usage appears as a shadcn-style menu wrapper (apps/www/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-079",
+    "component": "menu",
+    "repo": "shuvamk/opensight",
+    "repoUrl": "https://github.com/shuvamk/opensight",
+    "stars": 36,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-05",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/components/ui/menu.tsx",
+        "permalink": "https://github.com/shuvamk/opensight/blob/0a0ca52c14455d21e648566a22eaf4ed832351d9/apps/web/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://www.opensight.dev/",
+    "partsUsed": [],
+    "contextSummary": "See how AI talks about your brand: menu usage appears as a shadcn-style menu wrapper (apps/web/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-080",
+    "component": "menu",
+    "repo": "lauridskern/cindra",
+    "repoUrl": "https://github.com/lauridskern/cindra",
+    "stars": 36,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-18",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/DropdownMenu.tsx",
+        "permalink": "https://github.com/lauridskern/cindra/blob/04499a114f7e67c5415a70ebfe3ba0e4e7775e8f/src/components/ui/DropdownMenu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Desktop coding-agent interface powered by Forgecode: menu usage appears as a shadcn-style menu wrapper (src/components/ui/DropdownMenu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-081",
+    "component": "menu",
+    "repo": "alonronin/orbit",
+    "repoUrl": "https://github.com/alonronin/orbit",
+    "stars": 34,
+    "license": "Unlicense",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-18",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/alonronin/orbit/blob/008bcf310446502c2665284ab879a2545d1a3cc5/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://orbit-oneq.vercel.app/",
+    "partsUsed": [],
+    "contextSummary": "A better search engine for your github starred collection: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-082",
+    "component": "menu",
+    "repo": "mattzh72/minecraftlm",
+    "repoUrl": "https://github.com/mattzh72/minecraftlm",
+    "stars": 31,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-26",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/mattzh72/minecraftlm/blob/90b7a343d5054a9154fce453bd776264bd5e028a/frontend/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Generate minecraft worlds via natural language: menu usage appears as a shadcn-style menu wrapper (frontend/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-083",
+    "component": "menu",
+    "repo": "rezailmi/made-refine",
+    "repoUrl": "https://github.com/rezailmi/made-refine",
+    "stars": 29,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-26",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/toolbar/settings-popover.tsx",
+        "permalink": "https://github.com/rezailmi/made-refine/blob/4375aba6f2fd22e821124be12abf48c0f9ff5b6e/src/toolbar/settings-popover.tsx"
+      },
+      {
+        "path": "src/ui/menu.tsx",
+        "permalink": "https://github.com/rezailmi/made-refine/blob/4375aba6f2fd22e821124be12abf48c0f9ff5b6e/src/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://usehandmade.com",
+    "partsUsed": [],
+    "contextSummary": "Drop-in visual editor for React that talks to AI agents: menu usage appears as a shadcn-style menu wrapper and feature code (src/toolbar/settings-popover.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-084",
+    "component": "menu",
+    "repo": "bohdanbirdie/cloudstash",
+    "repoUrl": "https://github.com/bohdanbirdie/cloudstash",
+    "stars": 29,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-24",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/bohdanbirdie/cloudstash/blob/ca7b805235373d476b171952d151466e960cebb4/src/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "bohdanbirdie/cloudstash: menu usage appears as a shadcn-style menu wrapper (src/components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-085",
+    "component": "menu",
+    "repo": "mezotv/portfolio",
+    "repoUrl": "https://github.com/mezotv/portfolio",
+    "stars": 27,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-06-28",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/mezotv/portfolio/blob/3175238ddab5d377b058aae2f1c02b0e008b0dc0/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://dominikkoch.dev/",
+    "partsUsed": [],
+    "contextSummary": "Blazingly fast portfolio built with Next.js & tailwind. With integrated shadcn registry, blog and fully AI ready!: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-086",
+    "component": "menu",
+    "repo": "ossmeet/ossmeet",
+    "repoUrl": "https://github.com/ossmeet/ossmeet",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-19",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/ossmeet/ossmeet/blob/2e383e499247ad5bfde530e6b35577f60e9d23bf/apps/web/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://ossmeet.com",
+    "partsUsed": [],
+    "contextSummary": "ossmeet/ossmeet: menu usage appears as a shadcn-style menu wrapper (apps/web/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-087",
+    "component": "menu",
+    "repo": "productdevbook/seslen",
+    "repoUrl": "https://github.com/productdevbook/seslen",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-30",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "web/src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/productdevbook/seslen/blob/66515f04a7596e2ac11c837a576d64e98c487b13/web/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://seslen.productdevbook.com",
+    "partsUsed": [],
+    "contextSummary": "Zero-dep, tree-shakeable Web Audio library with synthesised UI presets, buses + ducking, polyphony cap, throttle, jitter, fades, pan, sprites, OfflineAudioContext render-to-WAV, AnalyserNode tap, prefers-reduced-motion + SSR-safe. Strict TypeScript: menu usage appears as a menubar wrapper (web/src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-088",
+    "component": "menu",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "apps/www/registry/ui/menubar.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/registry/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Composable React components powered by Base UI and Tailwind CSS: menu usage appears as a menubar wrapper (apps/www/registry/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-089",
+    "component": "menu",
+    "repo": "knervous/eqsage",
+    "repoUrl": "https://github.com/knervous/eqsage",
+    "stars": 25,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-03-19",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "src/components/quail/file-explorer.jsx",
+        "permalink": "https://github.com/knervous/eqsage/blob/d5dc8328c9e30a88e352ca8a81ccb0efb32bc986/src/components/quail/file-explorer.jsx"
+      }
+    ],
+    "liveUrl": "https://eqsage.vercel.app",
+    "partsUsed": [
+      "Arrow",
+      "Item",
+      "Popup",
+      "Portal",
+      "Positioner",
+      "Root",
+      "Separator",
+      "Trigger"
+    ],
+    "contextSummary": "EQ Sage EverQuest 3D asset browser: quail file-explorer actions menu using Menu.Arrow (a pointer arrow on a dropdown) plus Separator, on the old package name.",
+    "diversityTags": [
+      "arrow-usage",
+      "game-tooling",
+      "direct-usage"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-090",
+    "component": "menu",
+    "repo": "InseeFr/Pogues",
+    "repoUrl": "https://github.com/InseeFr/Pogues",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "next/src/components/ui/Menu.tsx",
+        "permalink": "https://github.com/InseeFr/Pogues/blob/a7e89f83d30fa379a6f4e5a16a2ed4075737b172/next/src/components/ui/Menu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Questionnaire designer: menu usage appears as a shadcn-style menu wrapper (next/src/components/ui/Menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-091",
+    "component": "menu",
+    "repo": "electr1fy0/blindsay",
+    "repoUrl": "https://github.com/electr1fy0/blindsay",
+    "stars": 22,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/electr1fy0/blindsay/blob/d158246f2f719fe5573353eaaee6b820f42387ed/components/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://blindsay.xyz",
+    "partsUsed": [],
+    "contextSummary": "Anonymous messages for AMAs: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-092",
+    "component": "menu",
+    "repo": "Jacksonmills/jem-ui",
+    "repoUrl": "https://github.com/Jacksonmills/jem-ui",
+    "stars": 22,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-12",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/components/ui/dropdown-menu.tsx"
+      },
+      {
+        "path": "registry/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/registry/ui/dropdown-menu.tsx"
+      }
+    ],
+    "liveUrl": "https://jem-ui.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A shadcn based custom registry for using Base UI components: menu usage appears as a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-093",
+    "component": "menu",
+    "repo": "Atiqullah-Naemi/forgeai",
+    "repoUrl": "https://github.com/Atiqullah-Naemi/forgeai",
+    "stars": 21,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-07",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/Atiqullah-Naemi/forgeai/blob/8c386cf7e8d17d0cd44ffe1e0ad3efd5268824f6/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://forgeai-lovat.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Atiqullah-Naemi/forgeai: menu usage appears as a menubar wrapper (components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-094",
+    "component": "menu",
+    "repo": "okmr-d/kopi-ui",
+    "repoUrl": "https://github.com/okmr-d/kopi-ui",
+    "stars": 20,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-01-12",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/menu.tsx",
+        "permalink": "https://github.com/okmr-d/kopi-ui/blob/d1469383ad719a915193c04be3bd2ac4aee3dbaa/apps/www/src/components/ui/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://kopi-ui.com",
+    "partsUsed": [],
+    "contextSummary": "okmr-d/kopi-ui: menu usage appears as a shadcn-style menu wrapper (apps/www/src/components/ui/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-095",
+    "component": "menu",
+    "repo": "f312213213/legislator-wealth.tw",
+    "repoUrl": "https://github.com/f312213213/legislator-wealth.tw",
+    "stars": 19,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "components/ui/dropdown-menu.tsx",
+        "permalink": "https://github.com/f312213213/legislator-wealth.tw/blob/a370a617686df92dd26254bbae7faf84da0b09eb/components/ui/dropdown-menu.tsx"
+      },
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/f312213213/legislator-wealth.tw/blob/a370a617686df92dd26254bbae7faf84da0b09eb/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "f312213213/legislator-wealth.tw: menu usage appears as a menubar wrapper and a shadcn-style menu wrapper (components/ui/dropdown-menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper",
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-096",
+    "component": "menu",
+    "repo": "nauvalazhar/silo",
+    "repoUrl": "https://github.com/nauvalazhar/silo",
+    "stars": 19,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-07",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "src/components/DropdownMenu.tsx",
+        "permalink": "https://github.com/nauvalazhar/silo/blob/28b6b5939ddb8c505d8e07bcfcfab4c31e972b39/src/components/DropdownMenu.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Chrome extension that audits SEO health in a persistent side panel: menu usage appears as a shadcn-style menu wrapper (src/components/DropdownMenu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-097",
+    "component": "menu",
+    "repo": "cotect-dev/cotect",
+    "repoUrl": "https://github.com/cotect-dev/cotect",
+    "stars": 18,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-16",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/cotect-dev/cotect/blob/ce0f19afffc0734c386e531b0d4e9e79d5458244/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://cotect.dev",
+    "partsUsed": [],
+    "contextSummary": "A fast, read-first code inspector for the agent era: watch AI-written changes land live and review every hunk before it ships: menu usage appears as a menubar wrapper (src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-098",
+    "component": "menu",
+    "repo": "ataschz/tanstack-start-mastra-example",
+    "repoUrl": "https://github.com/ataschz/tanstack-start-mastra-example",
+    "stars": 17,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-01-22",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/ataschz/tanstack-start-mastra-example/blob/704083d79f34da46d7ecff9be09bf2d7ab16f74f/src/components/ui/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://retrip.ai",
+    "partsUsed": [],
+    "contextSummary": "AI-powered travel assistant built with Mastra, TanStack Start, and AI SDK. Features agent networks, real-time streaming, and dynamic UI for tool calls and reasoning: menu usage appears as a menubar wrapper (src/components/ui/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-099",
+    "component": "menu",
+    "repo": "The-AI-Republic/pi-dash",
+    "repoUrl": "https://github.com/The-AI-Republic/pi-dash",
+    "stars": 16,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/menu",
+    "files": [
+      {
+        "path": "packages/propel/src/menu/menu.tsx",
+        "permalink": "https://github.com/The-AI-Republic/pi-dash/blob/6f3dc5e855ca4137dcd533057a8818a72d0018fd/packages/propel/src/menu/menu.tsx"
+      }
+    ],
+    "liveUrl": "https://airepublic.com",
+    "partsUsed": [],
+    "contextSummary": "AI Agent Orchestration Platform: menu usage appears as a shadcn-style menu wrapper (packages/propel/src/menu/menu.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "shadcn-style-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menu-100",
+    "component": "menu",
+    "repo": "pjborowiecki/pjborowiecki.com",
+    "repoUrl": "https://github.com/pjborowiecki/pjborowiecki.com",
+    "stars": 14,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-06",
+    "importSpecifier": "@base-ui/react/menu",
+    "files": [
+      {
+        "path": "src/components/shadcn/menubar.tsx",
+        "permalink": "https://github.com/pjborowiecki/pjborowiecki.com/blob/c31c63a03ac0744ba714137593517a9206f0f8db/src/components/shadcn/menubar.tsx"
+      }
+    ],
+    "liveUrl": "https://pjborowiecki.com",
+    "partsUsed": [],
+    "contextSummary": "A production-grade developer portfolio and blog engineered for high performance and scalability. Built with Next.js 16, TypeScript, next-intl, Fumadocs, Tailwind, and GSAP for fluid animations. Deployed on Vercel: menu usage appears as a menubar wrapper (src/components/shadcn/menubar.tsx). Not inspected in depth.",
+    "diversityTags": [
+      "menubar-wrapper"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

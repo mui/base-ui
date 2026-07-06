@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Mastra is the modern TypeScript framework for AI-powered applications and agents.",
+ "fork": false,
+ "homepage": "https://mastra.ai",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-06T20:36:46Z",
+ "stars": 25871,
+ "head_sha": "e900f25dfe2c9237f15b26cb109ac55aa9de3000"
+}

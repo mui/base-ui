@@ -35,12 +35,12 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 | Component | Tier | C brief | C story-plan | D candidates | D ranked+examples | E stories | E MDX |
 |---|---|---|---|---|---|---|---|
-| select | 1 | - | - | - | - | - | - |
+| select | 1 | ok | ok | ok | ok | - | - |
 | combobox | 1 | - | - | - | - | - | - |
 | autocomplete | 1 | - | - | - | - | - | - |
-| menu | 1 | - | - | - | - | - | - |
-| dialog | 1 | - | - | - | - | - | - |
-| popover | 1 | - | - | - | - | - | - |
+| menu | 1 | ok | ok | WIP | WIP | - | - |
+| dialog | 1 | ok | ok | ok | ok | - | - |
+| popover | 1 | ok | ok | WIP | WIP | - | - |
 | toast | 1 | - | - | - | - | - | - |
 | field | 1 | - | - | - | - | - | - |
 | form | 1 | - | - | - | - | - | - |
@@ -68,7 +68,7 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | meter | 3 | - | - | - | - | - | - |
 | progress | 3 | - | - | - | - | - | - |
 | separator | 3 | - | - | - | - | - | - |
-| switch | 3 | - | - | - | - | - | - |
+| switch | 3 | - (pilot: docs+source evidence inline) | - | - | - | ok (7 stories, vitest green) | ok (pilot page; [G] slots pending brief) |
 | toggle | 3 | - | - | - | - | - | - |
 | toggle-group | 3 | - | - | - | - | - | - |
 | toolbar | 3 | - | - | - | - | - | - |
@@ -81,9 +81,9 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 | Cluster | Status |
 |---|---|
-| overlays: popover/tooltip/preview-card/dialog/alert-dialog/drawer | - |
-| pickers: select/combobox/autocomplete | - |
-| menus: menu/context-menu/menubar/navigation-menu | - |
+| overlays: popover/tooltip/preview-card/dialog/alert-dialog/drawer | ok (by popover agent) |
+| pickers: select/combobox/autocomplete | ok (by select agent) |
+| menus: menu/context-menu/menubar/navigation-menu | ok (by menu agent) |
 | binary controls: toggle/switch/checkbox | - |
 | disclosure: accordion/collapsible/tabs | - |
 | status: progress/meter | - |

@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "Databuddy is a privacy-first analytics platform with a focus on user experience, with it's foundation built on privacy, it ensures complete compliance with most major data privacy laws out of the box",
+ "fork": false,
+ "homepage": "https://www.databuddy.cc",
+ "license": "AGPL-3.0",
+ "pushed_at": "2026-07-05T18:55:50Z",
+ "stars": 1097,
+ "head_sha": "676b576f53be75fc02dc48c9987232b264b4abb0"
+}

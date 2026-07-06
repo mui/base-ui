@@ -1,0 +1,2114 @@
+{
+ "wenerme/wener": {
+  "paths": [
+   "notes/web/react/base-ui.md"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "imskyleen/animate-ui": {
+  "paths": [
+   "apps/www/public/r/primitives-base-popover.json",
+   "apps/www/registry/primitives/base/popover/index.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nandanmen/NotANumber": {
+  "paths": [
+   "app/(main)/(content)/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "databuddy-analytics/Databuddy": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Codennnn/Green-Wall": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "1771-Technologies/lytenyte": {
+  "paths": [
+   "documentation/content/docs/v1/(components)/demos/popover-frame/demo.tsx",
+   "documentation/examples/(components)/popover-frame/src/demo.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "InseeFr/Pogues": {
+  "paths": [
+   "next/src/components/ui/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Jacksonmills/jem-ui": {
+  "paths": [
+   "components/ui/popover.tsx",
+   "public/r/popover.json",
+   "registry/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "cahyawibawa/ui-topia": {
+  "paths": [
+   "apps/web/public/r/popover.json",
+   "apps/web/registry/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "msviderok/base-ui-solid": {
+  "paths": [
+   "docs/src/app/(private)/experiments/anchor-side-animations.tsx",
+   "docs/src/app/(private)/experiments/menu/menu-rtl.tsx",
+   "docs/src/app/(private)/experiments/motion.tsx",
+   "docs/src/app/(private)/experiments/popups/popups-transform-origin.tsx",
+   "docs/src/app/(private)/experiments/rtl.tsx",
+   "docs/src/app/(private)/experiments/toolbar/triggers.tsx",
+   "docs/src/app/(public)/(content)/react/components/popover/demos/hero/css-modules/index.tsx",
+   "docs/src/app/(public)/(content)/react/components/popover/demos/hero/tailwind/index.tsx",
+   "docs/src/app/(public)/(content)/react/components/popover/page.mdx",
+   "docs/src/components/Experiments/SettingsPanel.tsx",
+   "docs/src/components/ReferenceTable/ReferenceTablePopover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "secondsky/claude-skills": {
+  "paths": [
+   "plugins/base-ui-react/README.md",
+   "plugins/base-ui-react/SKILL-ORIGINAL-BACKUP.md",
+   "plugins/base-ui-react/skills/base-ui-react/references/migration-from-radix.md",
+   "plugins/base-ui-react/skills/base-ui-react/templates/Popover.tsx",
+   "plugins/base-ui-react/skills/base-ui-react/templates/migration-example.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "ahmedragab20/diffing": {
+  "paths": [
+   "src/ui/primitives/Popover.tsx",
+   "vite.config.ts"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "karakum-team/mui-kotlin": {
+  "paths": [
+   "MUI_V6_TODO.md"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "graphprotocol/hypergraph": {
+  "paths": [
+   "apps/connect/src/components/SpacesCard.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "devxoul/skillpad": {
+  "paths": [
+   "STYLE_GUIDE.md",
+   "src/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "bearlyai/OpenADE": {
+  "paths": [
+   "projects/web/src/components/InputBar.tsx",
+   "projects/web/src/pages/TaskCreatePage.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "reactvideoeditor/clippkit": {
+  "paths": [
+   "apps/docs/registry/default/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "mohitkumhar/business-ai-agent": {
+  "paths": [
+   "landing-page/src/lib/packages/ui/components/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "The-AI-Republic/pi-dash": {
+  "paths": [
+   "packages/propel/src/popover/root.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Lay3rLabs/TrustGraph": {
+  "paths": [
+   "frontend/components/Tooltip.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "opral/flashtype": {
+  "paths": [
+   "src/extensions/markdown/components/formatting-toolbar.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "mattzh72/minecraftlm": {
+  "paths": [
+   "frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "joshuawootonn/tmux-reference": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "penne-0505/otibo-ui": {
+  "paths": [
+   "src/core-ui/popover/popover.tsx",
+   "vite.config.ts"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "juliusmarminge/thestakk": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "okmr-d/kopi-ui": {
+  "paths": [
+   "apps/www/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "NemeZZiZZ/tradedash": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "BasicallyPolaris/ursa-markup": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "jackspace/ClaudeSkillz": {
+  "paths": [
+   "skills/base-ui-react/README.md",
+   "skills/base-ui-react/SKILL.md",
+   "skills/base-ui-react/SKILL.md.backup"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "ArtemioPadilla/inceptor": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "australia/mobtranslate.com": {
+  "paths": [
+   "packages/ui/src/components/popover/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "ancs21/screenshots-banana": {
+  "paths": [
+   "src/components/Controls/BackgroundPicker.tsx",
+   "src/components/Controls/CanvasSize.tsx",
+   "src/components/Controls/ExportButtons.tsx",
+   "src/components/Controls/FramePicker.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "vibe-stack/three-maps": {
+  "paths": [
+   "src/features/toolbar/components/ai-generate-popover.tsx",
+   "src/features/toolbar/components/top-toolbar.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "twendykirn/unlingo": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "DeForge-Labs/app": {
+  "paths": [
+   "components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "vibe-stack/freed": {
+  "paths": [
+   "src/features/toolbar/components/top-toolbar.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "prizm-design/prizm": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Pancholot/Trayek_Dashboard": {
+  "paths": [
+   "src/components/ui/popup/popup.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "linked-planet/ui-kit-ts": {
+  "paths": [
+   "library/src/components/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "oussama-debug/portfoliokit": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "xraph/forge": {
+  "paths": [
+   "extensions/dashboard/contract/shell/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "kebot/doubar": {
+  "paths": [
+   "src/components/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nononcrust/msw-devtool": {
+  "paths": [
+   "src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "heymynameisrob/natter": {
+  "paths": [
+   "src/components/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "gracefullight/krds": {
+  "paths": [
+   "packages/krds-tw/src/components/coach-mark.tsx",
+   "packages/krds-tw/src/components/contextual-help.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nestarz/deno-vite-issue-3": {
+  "paths": [
+   "src/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "winstonpurnomo/turborepo-starter": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Livog/impact.livog.com": {
+  "paths": [
+   "src/app/bundles/ui/baseui/popover/client.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "GonzaloCoz/farmaplus-pwa": {
+  "paths": [
+   "src/components/ui/hover-card.tsx",
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Callumk7/game-master-web": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Sturdzza/cal": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "arinaldi/pa-tsr": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Callumk7/mord-client": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nononcrust/editor": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "davidbasilefilho/brasa.ai": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "majiayu000/claude-skill-registry-data": {
+  "paths": [
+   "testing/base-ui-react/SKILL.md"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "cbcruk/featured_today": {
+  "paths": [
+   "src/components/DatePicker.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "spicysauce-xyz/rolledout-xyz": {
+  "paths": [
+   "packages/ui/src/components/popover/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "herrhelms/cythera-components": {
+  "paths": [
+   "components/ui-base/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "loveconnor/loveui": {
+  "paths": [
+   "registry/default/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "achromaticlabs/shadcn-modal-manager": {
+  "paths": [
+   "apps/docs/content/docs/adapters/base-ui/popover.mdx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nkurunziza-saddy/dukora": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Srivathsav-max/magic-icons": {
+  "paths": [
+   "packages/ui/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "H3xKatana/microhack-kardon": {
+  "paths": [
+   "packages/propel/src/popover/root.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "nkurunziza-saddy/lexi": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Love-Freelancing/connorco-nextjs-starter": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "MTI-System/MTI-site": {
+  "paths": [
+   "src/components/pickers/DatePicker.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "Eelkedejong/recipe-shopping-list": {
+  "paths": [
+   "src/components/ui/Popover/index.jsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "urbanlab/site-erasme-front": {
+  "paths": [
+   "app/_ui/_components/filterPopover/filterPopover.tsx"
+  ],
+  "specs": [
+   "@base-ui-components/react/popover"
+  ]
+ },
+ "keenthemes/reui": {
+  "paths": [
+   "registry/bases/base/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "martpie/museeks": {
+  "paths": [
+   "src/components/Header.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ajanraj/OpenChat": {
+  "paths": [
+   "vite.config.ts"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kristal374/HDrezka-Grabber": {
+  "paths": [
+   "src/components/ui/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "AgusMayol/optics": {
+  "paths": [
+   "registry/optics/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "vibemafiaclub/argos": {
+  "paths": [
+   "docs/adr.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "egoist/takopi": {
+  "paths": [
+   "src/components/mention-popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "KaioFelps/portfolio-frontend-2": {
+  "paths": [
+   "src/component/popover/index.ts"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "rohitpaulk/are-we-acp-yet": {
+  "paths": [
+   "web/src/components/AgentCard.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Gnomeek/hsbc_fund_analyzer": {
+  "paths": [
+   "src/components/ColumnToggle.tsx",
+   "src/components/FilterBar.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Microck/opendots-microck": {
+  "paths": [
+   "skills/base-ui/references/examples.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kpyszkowski/lumo": {
+  "paths": [
+   "agent-instructions/base-ui-patterns.md",
+   "packages/ui/src/components/popover/popover-trigger.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "MrInspection/beatsflow": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "RiobVO/credit-assistant": {
+  "paths": [
+   "docs/session-log.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "JoshuaMarkle/pigedex": {
+  "paths": [
+   "src/components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "cybergaz/webroom-admin": {
+  "paths": [
+   "src/components/ui/phone-input.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "guillempuche/batuda": {
+  "paths": [
+   "docs/repos/base-ui/packages/react/src/tabs/root/TabsRoot.test.tsx",
+   "packages/ui/src/pri/pri-popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "MateusRosa26/EcommercerTemplate": {
+  "paths": [
+   "web/src/admin/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "code-yeongyu/asteroid-impact-simulator": {
+  "paths": [
+   "src/components/ui/Popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "dannyhw/claude-code-container": {
+  "paths": [
+   "web/src/components/DevServerPanel.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "patttw-ux/ventori": {
+  "paths": [
+   "components/layout/sidebar.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "takitahmid20/nextjs-centric-crm": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "JunoCatto/Capstone-Project": {
+  "paths": [
+   "client/src/components/Sidebar.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "simonknittel/sam": {
+  "paths": [
+   "app/eslint.config.mjs"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "oscardobsonbrown/pennywise": {
+  "paths": [
+   "src/components/DatePicker.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "preetjdp/raspberry": {
+  "paths": [
+   "docs/base-ui.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Chilfish/anonTweet": {
+  "paths": [
+   "vite.config.ts"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "baseui-cn/baseui-cn": {
+  "paths": [
+   "scripts/gen-mdx.mjs"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "GiannisBab/moovio": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "myasonik/Gen-Con-Buddy": {
+  "paths": [
+   "src/ui/Toggletip/Toggletip.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sandrekynt/paldo": {
+  "paths": [
+   "components/inventory/forms.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "broisnischal/timeline": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "vanlong2712/layout-ui": {
+  "paths": [
+   "src/layout/select.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "fransek/ui": {
+  "paths": [
+   "src/components/date-picker.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "webscit/toolkit": {
+  "paths": [
+   "packages/registry/src/components/popover/popover.tsx",
+   "packages/registry/vitest.config.ts"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sdawn29/lamda": {
+  "paths": [
+   "apps/web/src/shared/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sehandev/shadcn-tanstack-start-template": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "shug0/notion-wiki-template": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nyg/autoscout24-trends": {
+  "paths": [
+   "frontend/src/components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "beagleknight/levelrise": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "hidonguyen/trade-ops": {
+  "paths": [
+   "components/ui/multi-combobox.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ahmedhesham001/habit-tracker-proj": {
+  "paths": [
+   "src/components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nodebill/stripe-billing-arg": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "cmdNiels/uikit": {
+  "paths": [
+   "components/popover/PopoverTitle.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "DorianGallo/holaOS-local": {
+  "paths": [
+   "desktop/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Siho-ily/Atlex": {
+  "paths": [
+   "src/components/common/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "thebayaan/bayaan-web": {
+  "paths": [
+   "src/components/quran/surah-picker.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Wilsman/glitch-gauntlet": {
+  "paths": [
+   "src/components/RunMapOverlay.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mohvn/portfolio": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ryankidcath/spatial-database-project-management": {
+  "paths": [
+   "app/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "CloudAI-X/base-ui-playground": {
+  "paths": [
+   "base-ui-docs/animation.md",
+   "docs/ARCHITECTURE.md",
+   "src/app/components/overlays/page.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "davidwinalda/frontend-skills": {
+  "paths": [
+   "app/jakubkrehel-and-ibelick/page.js"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "yyamazaki-lym/raid-repository": {
+  "paths": [
+   ".claude/todos/72.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "FrekiManagarm/dunlo": {
+  "paths": [
+   "apps/front/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "koide-labs/ui": {
+  "paths": [
+   "src/components/popover/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "pritamscodee/habit-tracker": {
+  "paths": [
+   "client/src/components/HomePage.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "praveenperera/rentsomehash": {
+  "paths": [
+   "web/src/components/ui/tooltip.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "everr-labs/everr": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "smartmediatech/embedded-viewer-example": {
+  "paths": [
+   "src/components/AppHeader.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kentoespdam/mail-fe": {
+  "paths": [
+   "plan/issues/mobile-auto-close-sidebar.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "zihadm654/atcampus-dev": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "tashfiqul-islam/integration-docs-v2": {
+  "paths": [
+   "src/components/llm-actions.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nocdn/portfolio-ssr": {
+  "paths": [
+   "components/TwitterHover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "damien-schneider/reflet": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "delbyte/ioit-social-network": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Bernard301094/Producao-Por-Linha": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "fr0mpy/so-log-db": {
+  "paths": [
+   ".claude/component-recipes/popover.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "bigfoot2iq-pixel/desart-barber-shop": {
+  "paths": [
+   "components/ui/date-range-picker.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "manifestinteractive/hhpc2": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nirwanadoteth/posiframe": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ipactif-code/onboarding-bdr-v2": {
+  "paths": [
+   "docs/UI_ARCHITECTURE.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Newspicel/lattice": {
+  "paths": [
+   "src/renderer/ui/shell/ProfileCard.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "crhistian-cornejo/CADHY": {
+  "paths": [
+   ".agents/memories/MEMORIES.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "qaws7791/turbo-hono-next": {
+  "paths": [
+   "packages/ui/src/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Radiergummi/cetacean": {
+  "paths": [
+   "frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Netko-Labs/Anko": {
+  "paths": [
+   "src/components/ui/popover/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "jsanchez034/obsidian-todos": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "NathanBrodin/Portfolio": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "jalucenyo/employee-shift-manager": {
+  "paths": [
+   "frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "madeleinewoodbury/water-at-work": {
+  "paths": [
+   "components/NotificationBell.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "carthagoqa-web/Maazym": {
+  "paths": [
+   "maazym/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sfrangulov/ephemeris": {
+  "paths": [
+   "components/dashboard/badge-builder.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sebasgc0399/SecondMind": {
+  "paths": [
+   "Spec/features/SPEC-feature-29-factory-retry-queue.md"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "bohdanbirdie/cloudstash": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Alex-1116/doc-flow": {
+  "paths": [
+   "frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "jasp-stats-modules/modules-app": {
+  "paths": [
+   "src/App.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "TunkShif/dian-bot-ng": {
+  "paths": [
+   "assets/js/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "langliu/todos": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "documenso/examples": {
+  "paths": [
+   "acme-deals/components/ui/popover.tsx",
+   "acme-gig/components/ui/popover.tsx",
+   "acme-trials/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "jamnxdev/arkivo": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "aditsuru/glimpse": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Bugs-Over-Flowers/ibc-website": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "albertopasqualetto/bond-calc": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "teckexplorers/TE-Weather-App-V2": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "gaganref/convex-api-keys": {
+  "paths": [
+   "example/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "BitencourtVitor/business_operation_review": {
+  "paths": [
+   "BOR2/apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "codedthemes/uiable": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "JivanTupkar/Fsd200projects": {
+  "paths": [
+   "cartifyhub/apps/v4/public/r/styles/base-mira/popover.json",
+   "shadui-nextgen/apps/v4/public/r/styles/base-luma/popover.json"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Zerodayu/oxalis-app": {
+  "paths": [
+   "frontend/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "LilNait-S/profe-guest": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Lorch19/portfolio-dashboard": {
+  "paths": [
+   "frontend/src/components/CalendarPopover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "quanphung1120/exe-prototype": {
+  "paths": [
+   "apps/web/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "volta-wtf/volta.wtf": {
+  "paths": [
+   "registry/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "dinnertime-who/briefly": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "gdomaradzki/settle": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mevlutcantuna/patient-tracking-system": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mblode/blode-ui": {
+  "paths": [
+   "public/r/popover.json"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "akshat-OwO/artifacts": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nauvalazhar/ai": {
+  "paths": [
+   "public/shadcn/r/citation.json"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "TicketSolutionsPtyLtd/roadie": {
+  "paths": [
+   "packages/components/src/components/Popover/PopoverDescription.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "CameronFoxly/patch-studio": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "intuition-box/Atlas": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "usyeimar/tito-ai": {
+  "paths": [
+   "resources/ts/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "cabird/quickscribe": {
+  "paths": [
+   "v2/frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "browleytwilio/segmentdemobuilder": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "phuccodenub/Kit_Analyze": {
+  "paths": [
+   "Antigravity_Kit/antigravity-kit/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kartik-212004/collaborative-board": {
+  "paths": [
+   "apps/web/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "NexGenCloud/hyperstack-support-scripts": {
+  "paths": [
+   "customers/vm-troubleshooting-dashboard/frontend/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "lifinance/design-system": {
+  "paths": [
+   "registry/core/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "KevinVandy/pointmystory": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "AlanECE/dimed": {
+  "paths": [
+   "apps/web/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "HenriqueRamalho/app-playkourt": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "danielcmadeley/form-function": {
+  "paths": [
+   "platform/apps/web-app/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Maniktherana/deployable": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "brendanv/float": {
+  "paths": [
+   "web/src/components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Rohit-Singh-Rawat/neo": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "youpele52/bigCode": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "meetqy/awesome-product-launch-platforms": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sonsu-lee/next15-template": {
+  "paths": [
+   "src/app/page.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "saschb2b/okf-viewer": {
+  "paths": [
+   "src/components/GraphControls.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mylife-as-miles/Dream-Studio": {
+  "paths": [
+   "apps/editor/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Joelabc123/immo-manager": {
+  "paths": [
+   "apps/nextjs/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "GameTec-live/plutus": {
+  "paths": [
+   "components/ui/tooltip.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mhamas/knotviz": {
+  "paths": [
+   "src/graph/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "huangwg2529/nsy_chat_live": {
+  "paths": [
+   "replive-web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "phaseoteam/Phaseo": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Shaya16/Spent": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ByteLogicLabs/Table-Relay": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "PBLIZZ/omniFlow": {
+  "paths": [
+   "src/components/ui/hover-card.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "martin-dinahet/nextjs-todo-app": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "VV01T3K/ResearchCruiseApp": {
+  "paths": [
+   "frontend/src/modules/core/components/table/desktop/AppDesktopTableHeaderDropdown.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "willianhf/rumors": {
+  "paths": [
+   "apps/web/src/modules/shared/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mijelDeve/DevContractShield2": {
+  "paths": [
+   "dev_contract_shield_frontend/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nashthecoder/ai-democracy-map-dev": {
+  "paths": [
+   "aixd-threatmap-master 2/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "growgami/seo-machine": {
+  "paths": [
+   "apps/web/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "dododcdc/wb-data": {
+  "paths": [
+   "wb-data-frontend/src/views/operations/OperationsTimeFilter.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "0-don/coding.global-web": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "compozy/agh": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "najmus-sakib-hossain/dx": {
+  "paths": [
+   "apps/www/public/r/styles/base-vega/popover.json"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "sammyyyyy1/opencode-projects": {
+  "paths": [
+   "taskflow/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ysansan98/ant-chat": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "bnofao/c-zo": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Unnoticed6875/Gantt-experiment": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Prathamesh-chougale-17/acme-platform-starter": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "eemilkorkka/x-clone": {
+  "paths": [
+   "components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "bimalmagar10/trackmyjob": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "shan061774-Shan/reactive-resume": {
+  "paths": [
+   "packages/ui/src/components/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "eduardocampusti/smebrotas-site": {
+  "paths": [
+   "sme-brotas-portal/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mikr13/better-bookmark": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Qredence/fleet-pi": {
+  "paths": [
+   "packages/hax-design/src/components/agent-elements/input/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mui/mui-public": {
+  "paths": [
+   "docs/components/TypeRef/TypeRef.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "dreamers-gcp/pal": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "SrivarsanK/RideSuraksha": {
+  "paths": [
+   "apps/app-dashboard/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "shatrughantwt/twtty": {
+  "paths": [
+   "apps/web/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "SlavaMelanko/smela": {
+  "paths": [
+   "packages/ui/src/components/ui/popover.jsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "furaihan/optic-visualizer": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "mohammed-abdelhafiz/Postinger-app": {
+  "paths": [
+   "src/shared/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "daltonkyemiller/pressroom": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "pgplex/pgconsole": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kintsu/docs": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ambir513/fellownotes-frontend": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "Zahid40/video-sync": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "ronitk21/crazyfolio": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "pacekit/creembase": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "paceui/tanstack-better-auth-starter": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "xtofuub/REVios-AI": {
+  "paths": [
+   "gui/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "armancurr/research-agent": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "wjkennedy/a9-tooscut-confluence": {
+  "paths": [
+   "apps/ui/src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "drewsephski/formsquid": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "brasga-a/pipeline": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "kcc989/logoer": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "crhistian-cornejo/spreadsheets-agi": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "gooooooooney/Focu": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "iulspop/production-app-template-with-demo": {
+  "paths": [
+   "app/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "jakedahn/vite-boilerplate": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "nass59/n8n-clone": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "devsujalpatel/haki": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "brasga-a/minimal-blink": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "eldarshamukhamedov/shadcn-import": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ },
+ "alexf37/carely": {
+  "paths": [
+   "src/components/ui/popover.tsx"
+  ],
+  "specs": [
+   "@base-ui/react/popover"
+  ]
+ }
+}

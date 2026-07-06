@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "\ud83d\udcac Typebot is a powerful chatbot builder that you can self-host.",
+ "fork": false,
+ "homepage": "https://typebot.io",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-04T14:12:41Z",
+ "stars": 10120,
+ "head_sha": "ef1b4c67c520ff00018db709620dc101f717e9ac"
+}

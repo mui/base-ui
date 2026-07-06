@@ -1,0 +1,859 @@
+{
+ "Codennnn/Green-Wall": {
+  "src__components__ui__menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 266
+  }
+ },
+ "PostHog/posthog": {
+  "frontend__src__lib__components__Account__NewAccountMenu.tsx": {
+   "parts": [
+    "Backdrop",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 450
+  },
+  "frontend__src__lib__components__HelpMenu__HelpMenu.tsx": {
+   "parts": [
+    "Backdrop",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 383
+  },
+  "frontend__src__lib__components__Menus__ThemeMenu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "SubmenuRoot",
+    "SubmenuTrigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 86
+  },
+  "packages__quill__packages__primitives__src__dropdown-menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 395
+  },
+  "packages__quill__packages__primitives__src__menubar.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Props",
+    "RadioItem",
+    "RadioItemIndicator"
+   ],
+   "specs": [
+    "@base-ui/react/menu",
+    "@base-ui/react/menubar"
+   ],
+   "lines": 257
+  }
+ },
+ "WordPress/gutenberg": {
+  "packages__ui__src__alert-dialog__stories__index.story.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 433
+  }
+ },
+ "amruthpillai/reactive-resume": {
+  "packages__ui__src__components__dropdown-menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 257
+  }
+ },
+ "astrofox-io/astrofox": {
+  "src__components__ui__dropdown-menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 272
+  }
+ },
+ "baptisteArno/typebot.io": {
+  "packages__ui__src__components__Menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 109
+  }
+ },
+ "cloudflare/kumo": {
+  "packages__kumo__src__components__dropdown__dropdown.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "LinkItem",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 524
+  },
+  "packages__kumo__src__primitives__menu.ts": {
+   "parts": [],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 13
+  },
+  "packages__kumo__src__primitives__menubar.ts": {
+   "parts": [],
+   "specs": [
+    "@base-ui/react/menubar"
+   ],
+   "lines": 13
+  }
+ },
+ "cosscom/coss": {
+  "packages__ui__src__components__menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "LinkItem",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger",
+    "createHandle"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 352
+  }
+ },
+ "electric-sql/electric": {
+  "packages__agents-server-ui__src__ui__Menu.tsx": {
+   "parts": [
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 141
+  }
+ },
+ "imskyleen/animate-ui": {
+  "apps__www__registry__primitives__base__menu__index.tsx": {
+   "parts": [
+    "Arrow",
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 463
+  }
+ },
+ "keenthemes/reui": {
+  "app__(create)__customizer__picker.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 290
+  }
+ },
+ "knervous/eqsage": {
+  "src__components__quail__file-explorer.jsx": {
+   "parts": [
+    "Arrow",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 344
+  }
+ },
+ "langgenius/dify": {
+  "packages__dify-ui__src__dropdown-menu__index.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "LinkItem",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 280
+  }
+ },
+ "lumen-notes/lumen": {
+  "src__components__dropdown-menu.tsx": {
+   "parts": [
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 155
+  }
+ },
+ "makeplane/plane": {
+  "packages__propel__src__menu__menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 211
+  }
+ },
+ "manaflow-ai/cmux": {
+  "web__app__[locale]__components__download-button.tsx": {
+   "parts": [
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 270
+  }
+ },
+ "manaflow-ai/manaflow": {
+  "apps__client__src__components__OpenEditorSplitButton.tsx": {
+   "parts": [
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 294
+  },
+  "apps__client__src__components__ui__menu.tsx": {
+   "parts": [
+    "Arrow"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 23
+  }
+ },
+ "mastra-ai/mastra": {
+  "packages__playground-ui__src__ds__components__DropdownMenu__dropdown-menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 330
+  }
+ },
+ "memser-spaceport/pln-directory-portal-v2": {
+  "components__common__filters__SortDropdown__SortDropdown.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 65
+  },
+  "components__page__forum__ItemMenu__ItemMenu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 54
+  }
+ },
+ "oxidecomputer/console": {
+  "app__ui__lib__DropdownMenu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 163
+  }
+ },
+ "oxidecomputer/rfd-site": {
+  "app__components__Dropdown.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 162
+  }
+ },
+ "pingdotgg/t3code": {
+  "apps__web__src__components__ui__menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger",
+    "createHandle"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 310
+  }
+ },
+ "raphaelsalaja/cambio": {
+  "website__components__menu__index.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 145
+  }
+ },
+ "seek-oss/playroom": {
+  "src__components__Menu__Menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 330
+  }
+ },
+ "shift-editor/shift": {
+  "packages__ui__src__components__menu__Menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 86
+  }
+ },
+ "stagewise-io/stagewise": {
+  "apps__browser__src__ui__components__file-context-menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/context-menu",
+    "@base-ui/react/menu"
+   ],
+   "lines": 77
+  },
+  "apps__browser__src__ui__screens__main___components__shared-agent-context-menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 284
+  },
+  "packages__stage-ui__src__components__menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 192
+  }
+ },
+ "tale/headplane": {
+  "app__components__menu.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Separator",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 102
+  }
+ },
+ "usekaneo/kaneo": {
+  "apps__web__src__components__ui__menu.tsx": {
+   "parts": [
+    "CheckboxItem",
+    "CheckboxItemIndicator",
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "RadioItemIndicator",
+    "Root",
+    "Separator",
+    "SubmenuRoot",
+    "SubmenuTrigger",
+    "Trigger",
+    "createHandle"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 334
+  }
+ },
+ "vercel/next.js": {
+  "packages__next__src__next-devtools__dev-overlay__components__overview__segment-boundary-trigger.tsx": {
+   "parts": [
+    "Group",
+    "GroupLabel",
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui-components/react/menu"
+   ],
+   "lines": 331
+  }
+ },
+ "wevm/curl.md": {
+  "src__routes__docs__-render.tsx": {
+   "parts": [
+    "Item",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu",
+    "@base-ui/react/tabs"
+   ],
+   "lines": 2628
+  }
+ },
+ "wevm/vocs": {
+  "src__react__internal__MobileNav.tsx": {
+   "parts": [
+    "Group",
+    "GroupLabel",
+    "Popup",
+    "Portal",
+    "Positioner",
+    "RadioGroup",
+    "RadioItem",
+    "Root",
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/dialog",
+    "@base-ui/react/menu"
+   ],
+   "lines": 188
+  }
+ },
+ "withcoral/coral": {
+  "apps__reef__app__wax__components__menu__container.tsx": {
+   "parts": [
+    "Root"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 6
+  },
+  "apps__reef__app__wax__components__menu__item.tsx": {
+   "parts": [
+    "Item"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 67
+  },
+  "apps__reef__app__wax__components__menu__radio-group.tsx": {
+   "parts": [
+    "RadioGroup"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 19
+  },
+  "apps__reef__app__wax__components__menu__submenu.tsx": {
+   "parts": [
+    "Popup",
+    "Portal",
+    "Positioner",
+    "SubmenuRoot",
+    "SubmenuTrigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 97
+  },
+  "apps__reef__app__wax__components__menu__trigger.tsx": {
+   "parts": [
+    "Trigger"
+   ],
+   "specs": [
+    "@base-ui/react/menu"
+   ],
+   "lines": 23
+  }
+ }
+}

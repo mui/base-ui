@@ -1,0 +1,184 @@
+{
+ "data": {
+  "r0": {
+   "nameWithOwner": "juliusmarminge/thestakk",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "4583b0fe7a0d5895115d898f0fc044af063fc279"
+    }
+   }
+  },
+  "r1": {
+   "nameWithOwner": "kapishdima/dialectcn",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "3ecc098a109365d00b5db16a13c79f06366d09d3"
+    }
+   }
+  },
+  "r2": {
+   "nameWithOwner": "kcufl/back2",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "abd7dd7e0a5d5c024a1f43fff226d89ed0a86bd2"
+    }
+   }
+  },
+  "r3": {
+   "nameWithOwner": "keenthemes/reui",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "0946f9667f4bea44873cf9391b3b801c16660c01"
+    }
+   }
+  },
+  "r4": {
+   "nameWithOwner": "kieranklaassen/breathwork",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "ccb031d784265e0635a15b46fca80c7be7b41fa8"
+    }
+   }
+  },
+  "r5": {
+   "nameWithOwner": "kulkarniankita/stackshop-app",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "4dfd9ff5fbe053d47d2ec9af432ed0560bde429a"
+    }
+   }
+  },
+  "r6": {
+   "nameWithOwner": "langgenius/dify",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "fc01d112a06cc286f5b47d34112387c46503ddb2"
+    }
+   }
+  },
+  "r7": {
+   "nameWithOwner": "line/abc-def",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "2c96d4f01a324b62c02a3c9bf4d286639b89beca"
+    }
+   }
+  },
+  "r8": {
+   "nameWithOwner": "linqiuu/dailybits",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "94e093feca2806907c2fd3ad0e128bfd48c3feef"
+    }
+   }
+  },
+  "r9": {
+   "nameWithOwner": "liwenka1/bongo-cat-next",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "ef39ee2180d2555eea30fb08ffb89c1089ecac4d"
+    }
+   }
+  },
+  "r10": {
+   "nameWithOwner": "lnikell/loopndroll",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "15469239ca2c5ed2a661d9a3c75bfe2e2dfa4fd8"
+    }
+   }
+  },
+  "r11": {
+   "nameWithOwner": "martin-amaro/stocker",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "f21e3c86e5f7db0afd1866875799f329142b7223"
+    }
+   }
+  },
+  "r12": {
+   "nameWithOwner": "mastra-ai/mastra",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "e900f25dfe2c9237f15b26cb109ac55aa9de3000"
+    }
+   }
+  },
+  "r13": {
+   "nameWithOwner": "mattzh72/minecraftlm",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "90b7a343d5054a9154fce453bd776264bd5e028a"
+    }
+   }
+  },
+  "r14": {
+   "nameWithOwner": "mehdibha/dotUI",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "39ac792221b9a3bad446beb016679fb7e58f03a5"
+    }
+   }
+  },
+  "r15": {
+   "nameWithOwner": "mezotv/portfolio",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "3175238ddab5d377b058aae2f1c02b0e008b0dc0"
+    }
+   }
+  },
+  "r16": {
+   "nameWithOwner": "michaelshimeles/claw-city",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "cb884507077a201cba16ac7acae260368ec5bfd3"
+    }
+   }
+  },
+  "r17": {
+   "nameWithOwner": "mohitkumhar/business-ai-agent",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "1def311285d1e82d5db48bdd82baa54eed125474"
+    }
+   }
+  },
+  "r18": {
+   "nameWithOwner": "mushfikurr/overline-zebar",
+   "defaultBranchRef": {
+    "name": "main",
+    "target": {
+     "oid": "ed39ba4481e06aad90602538404642143dee60d9"
+    }
+   }
+  },
+  "r19": {
+   "nameWithOwner": "nauvalazhar/selia",
+   "defaultBranchRef": {
+    "name": "master",
+    "target": {
+     "oid": "55ba90ba64a090653217a2b3afd60537c7b12444"
+    }
+   }
+  }
+ }
+}

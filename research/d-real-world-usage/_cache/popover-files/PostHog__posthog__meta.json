@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "master",
+ "description": "\ud83e\udd94 PostHog is an all-in-one developer platform for building successful products. We offer product analytics, web analytics, session replay, error tracking, feature flags, experimentation, surveys, data warehouse, a CDP, and an AI product assistant to help debug your code, ship features faster, and keep all your usage and customer data in one stack.",
+ "fork": false,
+ "homepage": "https://posthog.com",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-06T21:21:52Z",
+ "stars": 35353,
+ "head_sha": "c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b"
+}

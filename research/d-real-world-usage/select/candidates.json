@@ -1,0 +1,3724 @@
+[
+  {
+    "id": "select-001",
+    "component": "select",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/select/select.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx"
+      },
+      {
+        "path": "packages/kumo/src/primitives/select.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/select.ts"
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator"
+    ],
+    "contextSummary": "Cloudflare's official component library. Its Select supports single and multiple selection, an items object-map/array API with per-item disabled reasons, a renderValue formatter, and JSDoc that steers hidden labels to aria-label.",
+    "diversityTags": [
+      "oss-design-system",
+      "corporate-design-system",
+      "multi-select",
+      "object-values",
+      "form-integration",
+      "rich-jsdoc"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The strongest single teaching example found: a corporate design system (Cloudflare) whose Select wrapper exercises multiple selection, the items prop as object-map or array (with per-item disabled + disabledReason descriptors), renderValue formatting, and Field-integrated labels - with JSDoc that explicitly deprecates hidden visible labels in favor of aria-label. A recomposed story would demo single vs multiple and object-map items with disabled reasons. Feeds: prop-level guidance (items, multiple), a11y contract, form integration."
+  },
+  {
+    "id": "select-002",
+    "component": "select",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/form/primitives/select/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/trigger.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/trigger.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/item.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/item.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/popup.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/popup.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/positioner.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/positioner.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/select/portal.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/portal.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "WordPress' Block Editor monorepo. The new @wordpress/ui package wraps Base UI Select as one-file-per-part form primitives (root/trigger/item/popup/positioner/portal), pins single-select via Root<Value, false>, and documents object-value equality (Object.is, isItemEqualToValue, itemToStringLabel).",
+    "diversityTags": [
+      "framework-primitives",
+      "object-values",
+      "per-part-files",
+      "cms"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 2,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "WordPress' new @wordpress/ui form primitives wrap Base UI Select one file per part - the cleanest anatomical decomposition in the wild - and the Root JSDoc documents object-value pitfalls (Object.is comparison, isItemEqualToValue, itemToStringLabel) while deliberately pinning single-select via Root<Value, false>. A recomposed story would show object values with items for label resolution. Feeds: anatomy, prop-level guidance (items/object values), decision-log narrative (what a mega-project standardizes)."
+  },
+  {
+    "id": "select-003",
+    "component": "select",
+    "repo": "mastra-ai/mastra",
+    "repoUrl": "https://github.com/mastra-ai/mastra",
+    "stars": 25871,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/playground-ui/src/ds/components/Select/select.tsx",
+        "permalink": "https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx"
+      }
+    ],
+    "liveUrl": "https://mastra.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group"
+    ],
+    "contextSummary": "AI agent framework's playground design system. Select wrapper documents its Radix-to-Base-UI migration inline: onValueChange eventDetails second arg, alignItemWithTrigger={false} to match Radix popper, and auto-derives an items map from declared SelectItems so the closed trigger can resolve labels.",
+    "diversityTags": [
+      "migration-from-radix",
+      "ai-tooling",
+      "items-derivation",
+      "compat-shim"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 3,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A documented Radix-to-Base-UI migration in production code: comments explain the onValueChange eventDetails second argument, set alignItemWithTrigger={false} to preserve Radix popper behavior, and implement an items auto-derivation shim because Select.Value only resolves labels from mounted items. A recomposed story would contrast alignItemWithTrigger true/false and show the items-map fix for closed-trigger labels. Feeds: behavior (positioning/value resolution), migration guidance, pitfalls & FAQ."
+  },
+  {
+    "id": "select-004",
+    "component": "select",
+    "repo": "opral/flashtype",
+    "repoUrl": "https://github.com/opral/flashtype",
+    "stars": 268,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/extensions/markdown/components/formatting-toolbar.tsx",
+        "permalink": "https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://flashtype.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Markdown editor for Claude & Codex. The formatting toolbar embeds Select as a block-type switcher composed via Toolbar.Button render={<Select.Trigger/>} with nativeButton={false}, controlled open state, alignItemWithTrigger={false}, and data-[starting-style] popup animation.",
+    "diversityTags": [
+      "editor-toolbar",
+      "custom-trigger",
+      "render-prop-composition",
+      "controlled-open",
+      "animation"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 4,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A block-type switcher inside a markdown editor's toolbar: Toolbar.Button render={<Select.Trigger/>} with nativeButton={false} is the canonical cross-component render-prop composition, plus controlled open state, alignItemWithTrigger={false}, popup-open icon rotation, and data-[starting-style] animation. Story: click the toolbar select, keyboard-navigate block types, watch the editor update. Feeds: composition handbook, animation, toolbar cluster docs."
+  },
+  {
+    "id": "select-005",
+    "component": "select",
+    "repo": "graphql/graphql.github.io",
+    "repoUrl": "https://github.com/graphql/graphql.github.io",
+    "stars": 887,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/theme-switch.tsx",
+        "permalink": "https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx"
+      }
+    ],
+    "liveUrl": "https://graphql.org",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "graphql.org website. The site-wide theme switcher is a Base UI Select with an icon trigger, sr-only Value in compact mode, aria-label on the trigger, and align='end' positioning; wired to next-themes.",
+    "diversityTags": [
+      "theme-picker",
+      "icon-trigger",
+      "a11y-labeling",
+      "live-famous-site"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 5,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Theme switcher on graphql.org: an icon-trigger Select with aria-label and title on the trigger, sr-only Value in compact mode, align='end' + sideOffset positioning, wired to next-themes with a type-guarded onValueChange. Story: open the theme select, arrow through light/dark/system, verify the resolved icon swaps. Feeds: when-to-use (compact pickers), a11y contract (labelling icon triggers), real-world examples."
+  },
+  {
+    "id": "select-006",
+    "component": "select",
+    "repo": "shadcn-ui/ui",
+    "repoUrl": "https://github.com/shadcn-ui/ui",
+    "stars": 118257,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "apps/v4/registry/bases/base/ui/select.tsx",
+        "permalink": "https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://ui.shadcn.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "The canonical shadcn/ui registry: apps/v4/registry/bases/base is the Base UI 'base' that generates the components/ui/select.tsx wrapper found in thousands of downstream apps (16 parts, data-slot styling contract).",
+    "diversityTags": [
+      "registry-wrapper",
+      "oss-design-system",
+      "canonical-template",
+      "data-slot"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 6,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The canonical template behind thousands of hits: shadcn/ui's Base UI 'base' registry select (apps/v4/registry/bases/base/ui/select.tsx) covers 16 parts with the data-slot styling contract and size variants. Ranking it once explains the entire components/ui/select.tsx archetype and lets other slots go to distinctive usage. Feeds: anatomy, styling contract, ecosystem/real-world section."
+  },
+  {
+    "id": "select-007",
+    "component": "select",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/selia/select.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/select.tsx"
+      },
+      {
+        "path": "components/examples/select/multiple.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/select/multiple.tsx"
+      },
+      {
+        "path": "components/examples/select/render.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/select/render.tsx"
+      }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Backdrop",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Selia component library docs and registry. Its select wrapper uses the fullest anatomy observed in the wild - Backdrop, Arrow, ScrollUp/DownArrows, Groups, Separator - and re-exposes Positioner props (side/align/anchor/sticky/positionMethod); examples cover multiple selection and render-prop items.",
+    "diversityTags": [
+      "oss-design-system",
+      "full-anatomy",
+      "multi-select",
+      "positioner-passthrough",
+      "render-prop"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 7,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The fullest select anatomy observed anywhere: Backdrop, Arrow, ScrollUp/DownArrows, Group/GroupLabel, Separator, plus a Popup wrapper that re-exposes Positioner props (side/align/anchor/sticky/positionMethod), and docs examples for multiple selection and render-prop items. A recomposed story is a part-by-part anatomy tour. Feeds: anatomy (all optional parts), positioning, multi-select example."
+  },
+  {
+    "id": "select-008",
+    "component": "select",
+    "repo": "InseeFr/Pogues",
+    "repoUrl": "https://github.com/InseeFr/Pogues",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "next/src/components/ui/form/Select.tsx",
+        "permalink": "https://github.com/InseeFr/Pogues/blob/a7e89f83d30fa379a6f4e5a16a2ed4075737b172/next/src/components/ui/form/Select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Questionnaire designer by INSEE (French national statistics institute). A typed options-driven form Select whose JSDoc states it is for small lists and that a Combobox should be used otherwise - live select-vs-combobox boundary evidence.",
+    "diversityTags": [
+      "public-sector",
+      "form-integration",
+      "options-api",
+      "select-vs-combobox",
+      "typed-generics"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 8,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "France's national statistics institute questionnaire designer wraps Select as a typed options-driven form control whose JSDoc states: for small lists, otherwise use a Combobox - rare first-party evidence of the select-vs-combobox decision boundary in production. Story: options-array form select with typed generic values. Feeds: when-to-use/when-not-to-use, select-vs-combobox cluster, form integration."
+  },
+  {
+    "id": "select-009",
+    "component": "select",
+    "repo": "climatepolicyradar/knowledge-graph",
+    "repoUrl": "https://github.com/climatepolicyradar/knowledge-graph",
+    "stars": 23,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "vibe-checker/webapp/components/PredictionFilters.tsx",
+        "permalink": "https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx"
+      }
+    ],
+    "liveUrl": "https://climatepolicyradar.wikibase.cloud",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "Climate Policy Radar's concept-labelling QA webapp. A prediction filter bar composes several Selects (items prop, empty-string 'All' sentinel values) with a Base UI Slider for threshold filtering.",
+    "diversityTags": [
+      "filter-bar",
+      "data-tooling",
+      "items-prop",
+      "sentinel-value",
+      "multi-control"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 9,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A real ML-evaluation filter bar: multiple Selects with the items prop and empty-string 'All' sentinel values, composed alongside a Base UI Slider for threshold filtering, all controlled from a shared filters state. Story: set two filters and a slider, assert the filtered count updates, then clear all. Feeds: controlled usage, items prop, filter-bar archetype in real-world examples."
+  },
+  {
+    "id": "select-010",
+    "component": "select",
+    "repo": "felixhabib/race-pace-table",
+    "repoUrl": "https://github.com/felixhabib/race-pace-table",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-08",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "components/DistanceSelect.tsx",
+        "permalink": "https://github.com/felixhabib/race-pace-table/blob/3ac064600401fa718b65d845bf218e5f50b51611/components/DistanceSelect.tsx"
+      }
+    ],
+    "liveUrl": "https://racepacetable.com/marathon/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "Race pace calculator site. DistanceSelect drives Next.js router navigation on selection (marathon/half/custom slugs), items prop, aria-label='Race' on a pill-shaped trigger.",
+    "diversityTags": [
+      "navigation-select",
+      "items-prop",
+      "a11y-labeling",
+      "micro-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 10,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Select as navigation: choosing a race distance pushes a Next.js route (with a 'custom' escape hatch), items prop, aria-label='Race' on a pill trigger with Value auto-resolving labels. Story: select 'Half marathon', assert URL change; select 'Custom...' for the special flow. Feeds: when-to-use boundaries (select vs menu for navigation - instructive tension), items prop guidance."
+  },
+  {
+    "id": "select-011",
+    "component": "select",
+    "repo": "gracefullight/krds",
+    "repoUrl": "https://github.com/gracefullight/krds",
+    "stars": 46,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/krds-tw/src/components/language-switcher.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/language-switcher.tsx"
+      },
+      {
+        "path": "packages/krds-tw/src/components/select.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://krds.gracefullight.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Community Tailwind port of KRDS, the Korean government design system. Ships a full select component plus a LanguageSwitcher built directly on Base UI Select with a Korean aria-label default and globe icon trigger.",
+    "diversityTags": [
+      "gov-design-system",
+      "locale-picker",
+      "i18n",
+      "a11y-labeling"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 11,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Korean government design system (KRDS) Tailwind port: a dedicated LanguageSwitcher built straight on Select parts with a globe icon, Korean-language aria-label default, and label lookup from the languages array - plus a full generic select component. Story: locale picker switching document language. Feeds: i18n/locale-picker archetype, a11y labelling, gov-DS credibility for real-world section."
+  },
+  {
+    "id": "select-012",
+    "component": "select",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/select/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/select/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator"
+    ],
+    "contextSummary": "Dify, the highest-starred repo using Base UI select (147k). Its dify-ui package wraps 14 select parts with Group/GroupLabel/Separator support for the platform's workflow-builder UI.",
+    "diversityTags": [
+      "platform-ui-kit",
+      "ai-tooling",
+      "grouped-options"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 12,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The highest-profile adopter (147k stars): Dify's dify-ui package wraps 14 parts including Group/GroupLabel/Separator for its agentic-workflow platform UI. Valuable mostly as credibility and grouped-options evidence; composition is standard. Story: grouped model-picker select. Feeds: real-world examples header, Group/GroupLabel guidance."
+  },
+  {
+    "id": "select-013",
+    "component": "select",
+    "repo": "emoss08/Trenova",
+    "repoUrl": "https://github.com/emoss08/Trenova",
+    "stars": 48,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react",
+    "files": [
+      {
+        "path": "client/src/components/ui/base-select.tsx",
+        "permalink": "https://github.com/emoss08/Trenova/blob/fa1219fea8cd0edafa2db3664afa8eef306f2910/client/src/components/ui/base-select.tsx"
+      }
+    ],
+    "liveUrl": "https://trenova.app",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "AI-driven transportation management system. base-select.tsx imports the Select namespace from the @base-ui/react barrel (not the subpath), adds cva size variants and a clearable X affordance; used across enterprise admin forms.",
+    "diversityTags": [
+      "enterprise-forms",
+      "clearable",
+      "barrel-import",
+      "cva-variants"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 13,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Enterprise TMS forms: imports Select from the @base-ui/react barrel rather than the subpath (bundle-size teaching moment), layers cva size variants, and adds a clearable X affordance on the trigger. Story: clearable select in an admin form. Feeds: prop-level guidance (clearing value with null), import-style guidance, enterprise-form archetype."
+  },
+  {
+    "id": "select-014",
+    "component": "select",
+    "repo": "sn0w12/Akari",
+    "repoUrl": "https://github.com/sn0w12/Akari",
+    "stars": 27,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-30",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/sn0w12/Akari/blob/eb4b9ed7cc69bb86c627b78b76f1d99ab72e242f/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Manga reader built with TanStack Start. Its select wrapper is itself composed with Base UI's useRender and mergeProps utilities - the deepest use of Base UI's composition utilities observed for select.",
+    "diversityTags": [
+      "use-render",
+      "merge-props",
+      "utilities-idiom",
+      "media-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 14,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The only wrapper found that builds its select on Base UI's own composition utilities - useRender and mergeProps - showing how the library's utility layer and component layer interlock. Story: a custom-rendered trigger via useRender. Feeds: useRender/mergeProps util docs cross-link, advanced composition section."
+  },
+  {
+    "id": "select-015",
+    "component": "select",
+    "repo": "socle-commun/simple-picto",
+    "repoUrl": "https://github.com/socle-commun/simple-picto",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-07-13",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/features/i18n/LocaleSelector.tsx",
+        "permalink": "https://github.com/socle-commun/simple-picto/blob/81374eee3b921cd6acdf613fbc0765d5b1ac8fdd/src/features/i18n/LocaleSelector.tsx"
+      }
+    ],
+    "liveUrl": "https://socle-commun.github.io/simple-picto/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "AAC pictogram app for accessibility use. Settings-page LocaleSelector uses Select for language choice but hacks positioning with sideOffset={100} instead of alignItemWithTrigger={false} - an instructive misuse of the positioning API.",
+    "diversityTags": [
+      "locale-picker",
+      "settings-form",
+      "a11y-app",
+      "instructive-misuse",
+      "positioning"
+    ],
+    "instructiveMisuse": true,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 15,
+    "scores": {
+      "illustrative": 2,
+      "realWorld": 3,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "INSTRUCTIVE MISUSE: an AAC accessibility app's locale picker pushes the popup away with sideOffset={100} - almost certainly compensating for the default alignItemWithTrigger overlay behavior instead of setting alignItemWithTrigger={false}. Also renders an icon-font ligature string inside Select.Icon. The contrast story teaches the positioning model explicitly. Feeds: pitfalls & FAQ (positioning), behavior docs."
+  },
+  {
+    "id": "select-016",
+    "component": "select",
+    "repo": "baptisteArno/typebot.io",
+    "repoUrl": "https://github.com/baptisteArno/typebot.io",
+    "stars": 10120,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/Select.tsx",
+        "permalink": "https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://typebot.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Typebot chatbot-builder platform. Shared UI-kit Select wraps all 16 common parts with data-slot conventions and size variants for the builder's settings surfaces.",
+    "diversityTags": [
+      "platform-ui-kit",
+      "saas-builder",
+      "data-slot"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-017",
+    "component": "select",
+    "repo": "astrofox-io/astrofox",
+    "repoUrl": "https://github.com/astrofox-io/astrofox",
+    "stars": 1922,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-22",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/astrofox-io/astrofox/blob/2640e9de0ff177bcb02c63ba3b2f626c09d0e14d/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://astrofox.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Astrofox motion-graphics editor (Electron). Full 16-part select wrapper used for control panels that configure audio-reactive visualizations.",
+    "diversityTags": [
+      "creative-tool",
+      "electron-app",
+      "control-panel"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-018",
+    "component": "select",
+    "repo": "databuddy-analytics/Databuddy",
+    "repoUrl": "https://github.com/databuddy-analytics/Databuddy",
+    "stars": 1097,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/select.tsx",
+        "permalink": "https://github.com/databuddy-analytics/Databuddy/blob/676b576f53be75fc02dc48c9987232b264b4abb0/packages/ui/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.databuddy.cc",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel"
+    ],
+    "contextSummary": "Privacy-first analytics platform. Shared UI select (12 parts, no List/scroll arrows) used across dashboard filters and settings.",
+    "diversityTags": [
+      "analytics",
+      "dashboard",
+      "filter-bar"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-019",
+    "component": "select",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://green-wall.leoku.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "GitHub contributions poster generator (806 stars, live). 16-part wrapper on the legacy @base-ui-components package, used for graph appearance settings.",
+    "diversityTags": [
+      "settings-form",
+      "dev-tool",
+      "legacy-package"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-020",
+    "component": "select",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-02-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/select.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/ui/select.tsx"
+      },
+      {
+        "path": "apps/www/src/components/demos/select/select-multiple-demo.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/demos/select/select-multiple-demo.tsx"
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "9ui component distribution built on Base UI and Tailwind. Select docs include a dedicated multiple-selection demo, groups demo, and custom-value demo.",
+    "diversityTags": [
+      "oss-design-system",
+      "multi-select",
+      "demo-rich"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-021",
+    "component": "select",
+    "repo": "PrefectHQ/prefab",
+    "repoUrl": "https://github.com/PrefectHQ/prefab",
+    "stars": 562,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "renderer/src/ui/select.tsx",
+        "permalink": "https://github.com/PrefectHQ/prefab/blob/d81dce796c1f1c0371ebd2285cb2d574a616ad23/renderer/src/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://prefab.prefect.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Prefect's generative UI framework desktop app. 15-part select wrapper (no Separator) in the renderer's UI kit.",
+    "diversityTags": [
+      "ai-tooling",
+      "electron-app",
+      "ui-kit"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-022",
+    "component": "select",
+    "repo": "iurvish/uselayouts",
+    "repoUrl": "https://github.com/iurvish/uselayouts",
+    "stars": 404,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-27",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/iurvish/uselayouts/blob/5ed0d94454374b47ed9805bf204a412bc2d3d456/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://uselayouts.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Animated React component collection site. 16-part select among its premium-feel components.",
+    "diversityTags": [
+      "oss-design-system",
+      "animation"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-023",
+    "component": "select",
+    "repo": "x1xhlol/zero-calendar",
+    "repoUrl": "https://github.com/x1xhlol/zero-calendar",
+    "stars": 356,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-26",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/x1xhlol/zero-calendar/blob/5e277794ee524082bc2f1ffff20e3b273c396e23/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://zerocalendar.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Open-source AI calendar. 16-part select wrapper for scheduling settings.",
+    "diversityTags": [
+      "calendar",
+      "consumer-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-024",
+    "component": "select",
+    "repo": "bearlyai/OpenADE",
+    "repoUrl": "https://github.com/bearlyai/OpenADE",
+    "stars": 324,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "projects/web/src/components/ui/Select.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/components/ui/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://openade.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Agentic development environment web client. 13-part select wrapper with items-prop usage.",
+    "diversityTags": [
+      "ai-tooling",
+      "ide"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-025",
+    "component": "select",
+    "repo": "WINOFFRG/limeplay",
+    "repoUrl": "https://github.com/WINOFFRG/limeplay",
+    "stars": 276,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "apps/www/components/ui/select.tsx",
+        "permalink": "https://github.com/WINOFFRG/limeplay/blob/a1c6556e601a05cb42f6befd3a39592da5ff5580/apps/www/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://limeplay.winoffrg.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Headless video-player UI library's docs site. 16-part select wrapper used in player settings demos (quality/speed pickers).",
+    "diversityTags": [
+      "media-player",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-026",
+    "component": "select",
+    "repo": "blinkdisk/blinkdisk",
+    "repoUrl": "https://github.com/blinkdisk/blinkdisk",
+    "stars": 182,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "libs/ui/src/select.tsx",
+        "permalink": "https://github.com/blinkdisk/blinkdisk/blob/17d8bf437c8118acf909ca914bdadfbae07f938d/libs/ui/src/select.tsx"
+      }
+    ],
+    "liveUrl": "https://blinkdisk.com/?ref=github",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Cross-platform backup app. 13-part select wrapper in the shared UI library used for backup policy and schedule settings.",
+    "diversityTags": [
+      "desktop-app",
+      "settings-form"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-027",
+    "component": "select",
+    "repo": "pgplex/pgconsole",
+    "repoUrl": "https://github.com/pgplex/pgconsole",
+    "stars": 126,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/pgplex/pgconsole/blob/a7fead0e383109b1c2fd98c40450c7e99b13afe5/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.pgconsole.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Minimal collaborative Postgres editor. Full 16-part select wrapper for query-console controls.",
+    "diversityTags": [
+      "dev-tool",
+      "database"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-028",
+    "component": "select",
+    "repo": "ccssmnn/tilly",
+    "repoUrl": "https://github.com/ccssmnn/tilly",
+    "stars": 63,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/shared/ui/select.tsx",
+        "permalink": "https://github.com/ccssmnn/tilly/blob/ca36a6da9e0378e06eb6568ab9586af90e6c4c8c/src/shared/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://tilly.social",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Relationship-journal PWA with an AI agent. 16-part select wrapper in shared UI.",
+    "diversityTags": [
+      "pwa",
+      "consumer-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-029",
+    "component": "select",
+    "repo": "Bridgetamana/neobrutal-ui",
+    "repoUrl": "https://github.com/Bridgetamana/neobrutal-ui",
+    "stars": 61,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-29",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/Bridgetamana/neobrutal-ui/blob/12921e88d4453155d843450fa0ddccf97a91bff6/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.neobrutalui.live/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Neobrutalism-styled component collection built on Base UI. Full 16-part select wrapper with strong visual identity.",
+    "diversityTags": [
+      "oss-design-system",
+      "styled-registry"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-030",
+    "component": "select",
+    "repo": "mushfikurr/overline-zebar",
+    "repoUrl": "https://github.com/mushfikurr/overline-zebar",
+    "stars": 53,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-19",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/select/index.tsx",
+        "permalink": "https://github.com/mushfikurr/overline-zebar/blob/ed39ba4481e06aad90602538404642143dee60d9/packages/ui/src/components/select/index.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Zebar desktop status-bar widget config. 15-part select wrapper rendered inside a native-like desktop widget environment.",
+    "diversityTags": [
+      "desktop-widget",
+      "settings-form"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-031",
+    "component": "select",
+    "repo": "taiyomoe/taiyo",
+    "repoUrl": "https://github.com/taiyomoe/taiyo",
+    "stars": 27,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-21",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/select.tsx",
+        "permalink": "https://github.com/taiyomoe/taiyo/blob/6362d6d9d82967141e00c8202a631f4af3f4dc65/packages/ui/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://taiyo.moe",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Manga reading platform monorepo. 12-part select wrapper in shared UI package.",
+    "diversityTags": [
+      "media-app",
+      "monorepo-ui"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-032",
+    "component": "select",
+    "repo": "devxoul/skillpad",
+    "repoUrl": "https://github.com/devxoul/skillpad",
+    "stars": 24,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/ui/select.tsx",
+        "permalink": "https://github.com/devxoul/skillpad/blob/c46cc82fbb91feb7b3bbdc35410f0ac94902394a/src/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://skillpad.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "GUI for Agent Skills by devxoul. 10-part select in its UI kit.",
+    "diversityTags": [
+      "ai-tooling",
+      "desktop-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-033",
+    "component": "select",
+    "repo": "f312213213/legislator-wealth.tw",
+    "repoUrl": "https://github.com/f312213213/legislator-wealth.tw",
+    "stars": 19,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/f312213213/legislator-wealth.tw/blob/a370a617686df92dd26254bbae7faf84da0b09eb/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Taiwanese civic-tech site visualizing legislators' declared wealth. 16-part select wrapper for dataset filtering.",
+    "diversityTags": [
+      "civic-tech",
+      "filter-bar"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-034",
+    "component": "select",
+    "repo": "twendykirn/unlingo",
+    "repoUrl": "https://github.com/twendykirn/unlingo",
+    "stars": 11,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-01-29",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/select.tsx",
+        "permalink": "https://github.com/twendykirn/unlingo/blob/6ddc056c7912e2f0ca6eff05a6a2030ec69f0999/apps/web/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://unlingo.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Open-source i18n translation platform. Full 16-part select wrapper across project/language management screens.",
+    "diversityTags": [
+      "i18n",
+      "saas",
+      "settings-form"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-035",
+    "component": "select",
+    "repo": "juliusmarminge/tanstack-themes",
+    "repoUrl": "https://github.com/juliusmarminge/tanstack-themes",
+    "stars": 9,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-02",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "examples/react/src/components/select.tsx",
+        "permalink": "https://github.com/juliusmarminge/tanstack-themes/blob/5738fe70e7ce344b36b08fc86e46a2217c3f64ef/examples/react/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Theming library for TanStack Start apps by a t3-oss maintainer. Example app ships a 16-part select used as the theme picker.",
+    "diversityTags": [
+      "theme-picker",
+      "example-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-036",
+    "component": "select",
+    "repo": "P0u4a/yorha",
+    "repoUrl": "https://github.com/P0u4a/yorha",
+    "stars": 7,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-02-24",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/Select.tsx",
+        "permalink": "https://github.com/P0u4a/yorha/blob/1a14ab7cbd3e7cd9d8c54d316bc2ab718b634e76/src/components/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://yorha-design.vercel.app/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "NieR:Automata-inspired design system. Compact 9-part select showing a minimal-but-complete composition with custom retro styling.",
+    "diversityTags": [
+      "themed-design-system",
+      "minimal-anatomy"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-037",
+    "component": "select",
+    "repo": "australia/mobtranslate.com",
+    "repoUrl": "https://github.com/australia/mobtranslate.com",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/select/select.tsx",
+        "permalink": "https://github.com/australia/mobtranslate.com/blob/6aa4f30cb2d672b55f16c9aa76da89b295f5de0a/packages/ui/src/components/select/select.tsx"
+      }
+    ],
+    "liveUrl": "https://mobtranslate.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator"
+    ],
+    "contextSummary": "Aboriginal language dictionary platform. 13-part select wrapper used for dictionary/language switching.",
+    "diversityTags": [
+      "i18n",
+      "locale-picker",
+      "nonprofit"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-038",
+    "component": "select",
+    "repo": "Livog/impact.livog.com",
+    "repoUrl": "https://github.com/Livog/impact.livog.com",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-12-03",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/app/bundles/ui/baseui/select/client.tsx",
+        "permalink": "https://github.com/Livog/impact.livog.com/blob/1b91ad7d0213ffe6b584b0e514497dffb5447bca/src/app/bundles/ui/baseui/select/client.tsx"
+      }
+    ],
+    "liveUrl": "https://impact.livog.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Backdrop",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Personal performance-focused site; select client bundle notably includes Backdrop part usage.",
+    "diversityTags": [
+      "backdrop",
+      "micro-site"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-039",
+    "component": "select",
+    "repo": "nebari-dev/nebari-design",
+    "repoUrl": "https://github.com/nebari-dev/nebari-design",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "registry/nebari/ui/select.tsx",
+        "permalink": "https://github.com/nebari-dev/nebari-design/blob/20c988e976d53044f620e571d09f155d6eff80c2/registry/nebari/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://nebari-dev.github.io/nebari-design",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "ScrollUpArrow",
+      "ScrollDownArrow",
+      "Separator"
+    ],
+    "contextSummary": "Official design system of Nebari (open-source data platform). Full 16-part select in its component registry.",
+    "diversityTags": [
+      "oss-design-system",
+      "data-platform"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-040",
+    "component": "select",
+    "repo": "urbanlab/site-erasme-front",
+    "repoUrl": "https://github.com/urbanlab/site-erasme-front",
+    "stars": 1,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2025-07-30",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "app/_ui/_components/selectBox/selectBox.tsx",
+        "permalink": "https://github.com/urbanlab/site-erasme-front/blob/eda799114ebde8966c965f33ad07f65be7d7e53b/app/_ui/_components/selectBox/selectBox.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText"
+    ],
+    "contextSummary": "Erasme (Lyon metropole urban lab) site. Standalone selectBox component on the legacy package.",
+    "diversityTags": [
+      "public-sector",
+      "settings-form"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-041",
+    "component": "select",
+    "repo": "ecklf/tailwindcss-base-ui",
+    "repoUrl": "https://github.com/ecklf/tailwindcss-base-ui",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-07-04",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "demo/components/select.tsx",
+        "permalink": "https://github.com/ecklf/tailwindcss-base-ui/blob/8db36394f2ea9f1127a002096051f8b4ed81a1dc/demo/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://tailwindcss-base-ui.vercel.app",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Item",
+      "ItemText",
+      "ItemIndicator",
+      "ScrollUpArrow",
+      "ScrollDownArrow"
+    ],
+    "contextSummary": "Demo/library port by the tailwindcss-radix author exploring Base UI styling with Tailwind data-attribute variants.",
+    "diversityTags": [
+      "oss-design-system",
+      "tailwind-variants"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-042",
+    "component": "select",
+    "repo": "martin-amaro/stocker",
+    "repoUrl": "https://github.com/martin-amaro/stocker",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2025-06-14",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/gui/GuiOption.jsx",
+        "permalink": "https://github.com/martin-amaro/stocker/blob/f21e3c86e5f7db0afd1866875799f329142b7223/src/components/gui/GuiOption.jsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Item",
+      "ItemText",
+      "ItemIndicator"
+    ],
+    "contextSummary": "Inventory demo app. GuiOption file uses only Item/ItemIndicator/ItemText - parts split across files in a decomposed custom select.",
+    "diversityTags": [
+      "decomposed-parts",
+      "demo"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-043",
+    "component": "select",
+    "repo": "lnikell/loopndroll",
+    "repoUrl": "https://github.com/lnikell/loopndroll",
+    "stars": 566,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-16",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/lnikell/loopndroll/blob/15469239ca2c5ed2a661d9a3c75bfe2e2dfa4fd8/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Keep Codex running forever. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-044",
+    "component": "select",
+    "repo": "sankeyangshu/lemon-admin",
+    "repoUrl": "https://github.com/sankeyangshu/lemon-admin",
+    "stars": 391,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/sankeyangshu/lemon-admin/blob/677fe6cf978d2e3201a17d5283f4907b198925a9/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A full-stack monorepo project built with NestJS (backend) and React (admin dashboard) \ud83d\ude80 \u4e00\u4e2a\u57fa\u4e8e NestJS \u540e\u7aef\u4e0e React \u540e\u53f0\u7ba1\u7406\u7cfb\u7edf\u7684\u5168\u6808 Monorepo \u9879\u76ee. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-045",
+    "component": "select",
+    "repo": "pacekit/gsap",
+    "repoUrl": "https://github.com/pacekit/gsap",
+    "stars": 269,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-24",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/pacekit/gsap/blob/6d06069bd8c12aafd25ce6629875d0bdeda879c2/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://gsap.pacekit.dev",
+    "partsUsed": [],
+    "contextSummary": "Build faster with practical UI blocks for real apps. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-046",
+    "component": "select",
+    "repo": "ruru-m07/gitru",
+    "repoUrl": "https://github.com/ruru-m07/gitru",
+    "stars": 224,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/components/select.tsx",
+        "permalink": "https://github.com/ruru-m07/gitru/blob/1f0a4b5e3cc4e4c61e402fdad6b3575ceff4e5ed/packages/ui/src/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://gitru.app",
+    "partsUsed": [],
+    "contextSummary": "A Git Client. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-047",
+    "component": "select",
+    "repo": "AgusMayol/optics",
+    "repoUrl": "https://github.com/AgusMayol/optics",
+    "stars": 223,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-11",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "registry/optics/select.jsx",
+        "permalink": "https://github.com/AgusMayol/optics/blob/1742d26f0944d4a31708bc4ed74aff72f19cf43a/registry/optics/select.jsx"
+      }
+    ],
+    "liveUrl": "https://optics.agusmayol.com.ar",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-048",
+    "component": "select",
+    "repo": "futantan/agent-skills.md",
+    "repoUrl": "https://github.com/futantan/agent-skills.md",
+    "stars": 220,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-20",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/futantan/agent-skills.md/blob/98cd624fb1542ad7880e1112576061bb2874de8e/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "http://agent-skills.md/",
+    "partsUsed": [],
+    "contextSummary": "Find awesome Agent Skills. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-049",
+    "component": "select",
+    "repo": "ajanraj/OpenChat",
+    "repoUrl": "https://github.com/ajanraj/OpenChat",
+    "stars": 150,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "vite.config.ts",
+        "permalink": "https://github.com/ajanraj/OpenChat/blob/fdb46a0f528959454838f0926b4d6de3239d03fe/vite.config.ts"
+      }
+    ],
+    "liveUrl": "https://oschat.ai",
+    "partsUsed": [],
+    "contextSummary": "Every AI model, one blazing fast workspace - see how they think, schedule what you need. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-050",
+    "component": "select",
+    "repo": "liwenka1/bongo-cat-next",
+    "repoUrl": "https://github.com/liwenka1/bongo-cat-next",
+    "stars": 130,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/liwenka1/bongo-cat-next/blob/ef39ee2180d2555eea30fb08ffb89c1089ecac4d/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "\ud83d\udc31 A modern desktop pet app with cute Live2D cats | \u73b0\u4ee3\u5316\u684c\u9762\u5ba0\u7269\u5e94\u7528\uff0c\u53ef\u7231Live2D\u732b\u54aa\u966a\u4f34\u7f16\u7a0b. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-051",
+    "component": "select",
+    "repo": "Austin-Patrician/multi-cli-studio",
+    "repoUrl": "https://github.com/Austin-Patrician/multi-cli-studio",
+    "stars": 125,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-20",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/Austin-Patrician/multi-cli-studio/blob/8bfc0cf149e59287839b94876ead212768276e18/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Multi CLI Studio is a Tauri desktop workspace for people who do not want to be locked into a single AI coding CLI or a single model vendor. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-052",
+    "component": "select",
+    "repo": "fluid-design-io/payload-better-auth-starter",
+    "repoUrl": "https://github.com/fluid-design-io/payload-better-auth-starter",
+    "stars": 114,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "starter-template",
+    "lastActivity": "2026-06-13",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/fluid-design-io/payload-better-auth-starter/blob/5f571b473dbb57b890abed13c7c5ca3bfffde1f1/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://payload-better-auth-starter.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A production-ready PayloadCMS starter with Better Auth, modern UI components, and full-stack development tools. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "starter-template"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-053",
+    "component": "select",
+    "repo": "jakejarvis/jarv.is",
+    "repoUrl": "https://github.com/jakejarvis/jarv.is",
+    "stars": 103,
+    "license": "CC-BY-4.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/jakejarvis/jarv.is/blob/dcddf6e3ecf11ccd5ead58a7292540035940ea9f/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://jarv.is",
+    "partsUsed": [],
+    "contextSummary": "\ud83c\udfe1 My humble abode on the World Wide Web. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-054",
+    "component": "select",
+    "repo": "Agions/story-fab",
+    "repoUrl": "https://github.com/Agions/story-fab",
+    "stars": 100,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/Agions/story-fab/blob/4a419e9e9f2645cac7e68063f40de4c7637a7b0f/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://agions.github.io/story-fab/",
+    "partsUsed": [],
+    "contextSummary": "\u5f00\u6e90 AI \u5f71\u89c6\u89e3\u8bf4\u521b\u4f5c\u5de5\u574a (Tauri 2 + Rust)\u3002\u957f\u89c6\u9891 \u2192 AI \u62c6\u6761 + \u591a Agent \u667a\u80fd\u89e3\u8bf4 + \u672c\u5730 Whisper \u5b57\u5e55 + \u914d\u97f3\u5408\u6210\uff0c9:16/1:1/16:9 \u591a\u683c\u5f0f\u5bfc\u51fa\uff0c100% \u672c\u5730\u5904\u7406\u96f6\u4e0a\u4f20\u3002. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-055",
+    "component": "select",
+    "repo": "TheOrcDev/github-creature",
+    "repoUrl": "https://github.com/TheOrcDev/github-creature",
+    "stars": 90,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/TheOrcDev/github-creature/blob/ffdbe6872787b7c06476e81500f5c2f3bc414f48/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://githubcreature.com",
+    "partsUsed": [],
+    "contextSummary": "An open source project where you summon your EPIC creature card based on your GitHub stats. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-056",
+    "component": "select",
+    "repo": "Jason-uxui/gray-ui-crm",
+    "repoUrl": "https://github.com/Jason-uxui/gray-ui-crm",
+    "stars": 89,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/Jason-uxui/gray-ui-crm/blob/7085cf661bb5e0026cdcdb47adf99355dabfbef4/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://gray-ui-crm.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-057",
+    "component": "select",
+    "repo": "mohitkumhar/business-ai-agent",
+    "repoUrl": "https://github.com/mohitkumhar/business-ai-agent",
+    "stars": 72,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-15",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "landing-page/src/lib/packages/ui/components/Select.tsx",
+        "permalink": "https://github.com/mohitkumhar/business-ai-agent/blob/1def311285d1e82d5db48bdd82baa54eed125474/landing-page/src/lib/packages/ui/components/Select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-058",
+    "component": "select",
+    "repo": "linqiuu/dailybits",
+    "repoUrl": "https://github.com/linqiuu/dailybits",
+    "stars": 67,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/linqiuu/dailybits/blob/94e093feca2806907c2fd3ad0e128bfd48c3feef/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-059",
+    "component": "select",
+    "repo": "reactvideoeditor/clippkit",
+    "repoUrl": "https://github.com/reactvideoeditor/clippkit",
+    "stars": 62,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-18",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/docs/types/docs/select.ts",
+        "permalink": "https://github.com/reactvideoeditor/clippkit/blob/5973421d5dbf88954ec22c21ab666b3bfc2dac46/apps/docs/types/docs/select.ts"
+      },
+      {
+        "path": "apps/docs/registry/default/ui/select.tsx",
+        "permalink": "https://github.com/reactvideoeditor/clippkit/blob/5973421d5dbf88954ec22c21ab666b3bfc2dac46/apps/docs/registry/default/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.clippkit.com/",
+    "partsUsed": [],
+    "contextSummary": "Clippkit is a growing collection of reusable components for people building videos with code. It's like a UI library, but instead of buttons and modals, you get intros, text effects, animations, transitions, and full video scenes. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-060",
+    "component": "select",
+    "repo": "kapishdima/dialectcn",
+    "repoUrl": "https://github.com/kapishdima/dialectcn",
+    "stars": 61,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-05-28",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/kapishdima/dialectcn/blob/3ecc098a109365d00b5db16a13c79f06366d09d3/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://dialectcn.xyz",
+    "partsUsed": [],
+    "contextSummary": "A living library of shadcn presets. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-061",
+    "component": "select",
+    "repo": "Debbl/shadcn-hooks",
+    "repoUrl": "https://github.com/Debbl/shadcn-hooks",
+    "stars": 58,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/Debbl/shadcn-hooks/blob/4e6bf49600bcf14065a27f58899d2a689f621153/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://shadcn-hooks.com/",
+    "partsUsed": [],
+    "contextSummary": "A React Hooks Collection built with Shadcn. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-062",
+    "component": "select",
+    "repo": "cahyawibawa/ui-topia",
+    "repoUrl": "https://github.com/cahyawibawa/ui-topia",
+    "stars": 54,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-11-18",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/web/registry/ui/select.tsx",
+        "permalink": "https://github.com/cahyawibawa/ui-topia/blob/c1e64b284091dd3cb313fad961a1270dcb6d79d3/apps/web/registry/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://uitopia.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A collection of fine UI components. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-063",
+    "component": "select",
+    "repo": "KartikLabhshetwar/Mercurius",
+    "repoUrl": "https://github.com/KartikLabhshetwar/Mercurius",
+    "stars": 50,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2025-12-13",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/KartikLabhshetwar/Mercurius/blob/21cdbdfae439da8af43a8bb82981b5aa68c0fd8a/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://mercurius.kartikk.tech",
+    "partsUsed": [],
+    "contextSummary": "A private, self-destructing chat room application. Rooms automatically expire after 10 minutes, ensuring ephemeral conversations. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-064",
+    "component": "select",
+    "repo": "kulkarniankita/stackshop-app",
+    "repoUrl": "https://github.com/kulkarniankita/stackshop-app",
+    "stars": 46,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-12-18",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/kulkarniankita/stackshop-app/blob/4dfd9ff5fbe053d47d2ec9af432ed0560bde429a/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-065",
+    "component": "select",
+    "repo": "finitoapp/finito",
+    "repoUrl": "https://github.com/finitoapp/finito",
+    "stars": 43,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-29",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/finitoapp/finito/blob/ae5379b147993220775a7022a4408f4594cce9f3/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://finitoapp.netlify.app/",
+    "partsUsed": [],
+    "contextSummary": "Make business payments self-custody again. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-066",
+    "component": "select",
+    "repo": "getbeton/inspector",
+    "repoUrl": "https://github.com/getbeton/inspector",
+    "stars": 33,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-08",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/getbeton/inspector/blob/ec503e1eb380c923253f88cc92d55457da172ed2/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.getbeton.ai/",
+    "partsUsed": [],
+    "contextSummary": "Open-source revenue intelligence \u2014 detect buying signals from your PostHog + CRM data and route the warmest leads to sales. Self-hostable. The open-source alternative to Pocus and Common Room. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-067",
+    "component": "select",
+    "repo": "mattzh72/minecraftlm",
+    "repoUrl": "https://github.com/mattzh72/minecraftlm",
+    "stars": 31,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-26",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/select.tsx",
+        "permalink": "https://github.com/mattzh72/minecraftlm/blob/90b7a343d5054a9154fce453bd776264bd5e028a/frontend/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Generate minecraft worlds via natural language. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-068",
+    "component": "select",
+    "repo": "rezailmi/made-refine",
+    "repoUrl": "https://github.com/rezailmi/made-refine",
+    "stars": 29,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-26",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/ui/select.tsx",
+        "permalink": "https://github.com/rezailmi/made-refine/blob/4375aba6f2fd22e821124be12abf48c0f9ff5b6e/src/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://usehandmade.com",
+    "partsUsed": [],
+    "contextSummary": "Drop-in visual editor for React that talks to AI agents. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-069",
+    "component": "select",
+    "repo": "mezotv/portfolio",
+    "repoUrl": "https://github.com/mezotv/portfolio",
+    "stars": 27,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-06-28",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/mezotv/portfolio/blob/3175238ddab5d377b058aae2f1c02b0e008b0dc0/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://dominikkoch.dev/",
+    "partsUsed": [],
+    "contextSummary": "Blazingly fast portfolio built with Next.js & tailwind. With integrated shadcn registry, blog and fully AI ready! Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-070",
+    "component": "select",
+    "repo": "shadcn/shadcn-vite-geist",
+    "repoUrl": "https://github.com/shadcn/shadcn-vite-geist",
+    "stars": 23,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-01-22",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/shadcn/shadcn-vite-geist/blob/382127d7569f693149db6a675e6fe4dcfddd3dbf/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Example app with shadcn + vite + geist. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-071",
+    "component": "select",
+    "repo": "Jacksonmills/jem-ui",
+    "repoUrl": "https://github.com/Jacksonmills/jem-ui",
+    "stars": 22,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-12",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "registry/ui/select.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/registry/ui/select.tsx"
+      },
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/Jacksonmills/jem-ui/blob/4ad4e3978df49d7c6a9331a6402227efd9f94435/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://jem-ui.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "A shadcn based custom registry for using Base UI components. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-072",
+    "component": "select",
+    "repo": "electr1fy0/blindsay",
+    "repoUrl": "https://github.com/electr1fy0/blindsay",
+    "stars": 22,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/electr1fy0/blindsay/blob/d158246f2f719fe5573353eaaee6b820f42387ed/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://blindsay.xyz",
+    "partsUsed": [],
+    "contextSummary": "Anonymous messages for AMAs. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-073",
+    "component": "select",
+    "repo": "Atiqullah-Naemi/forgeai",
+    "repoUrl": "https://github.com/Atiqullah-Naemi/forgeai",
+    "stars": 21,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-07",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/Atiqullah-Naemi/forgeai/blob/8c386cf7e8d17d0cd44ffe1e0ad3efd5268824f6/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://forgeai-lovat.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-074",
+    "component": "select",
+    "repo": "okmr-d/kopi-ui",
+    "repoUrl": "https://github.com/okmr-d/kopi-ui",
+    "stars": 20,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2025-01-12",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/select.tsx",
+        "permalink": "https://github.com/okmr-d/kopi-ui/blob/d1469383ad719a915193c04be3bd2ac4aee3dbaa/apps/www/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://kopi-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-075",
+    "component": "select",
+    "repo": "shamubernetes/siren",
+    "repoUrl": "https://github.com/shamubernetes/siren",
+    "stars": 20,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/shamubernetes/siren/blob/bd32d1de08f03c39bc8cd331c30d9a183bbd8b61/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A simple, clean AlertManager dashboard. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-076",
+    "component": "select",
+    "repo": "amitripshtos/drumtrack",
+    "repoUrl": "https://github.com/amitripshtos/drumtrack",
+    "stars": 19,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-20",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/amitripshtos/drumtrack/blob/8f3d2c68e59beedf607be4682c3a72406a7fb48e/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Isolate drums from any song and generate a playable MIDI drum track. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-077",
+    "component": "select",
+    "repo": "proofsh/proofkit",
+    "repoUrl": "https://github.com/proofsh/proofkit",
+    "stars": 17,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/docs/src/components/ui/select.tsx",
+        "permalink": "https://github.com/proofsh/proofkit/blob/2d0c0e8b9983fab88f50053efca2dcee08912971/apps/docs/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://proofkit.dev",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-078",
+    "component": "select",
+    "repo": "verona-team/verona-atlas",
+    "repoUrl": "https://github.com/verona-team/verona-atlas",
+    "stars": 17,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-28",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/verona-team/verona-atlas/blob/5fd626f51e02f648e51f6b2550679644bb66d86c/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Verona bug bashes your product like a human. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-079",
+    "component": "select",
+    "repo": "ParthJadhav/Supervisor",
+    "repoUrl": "https://github.com/ParthJadhav/Supervisor",
+    "stars": 16,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-19",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/ParthJadhav/Supervisor/blob/9bda3f6926135e922ed4c4fdc6045f5261d137a3/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://supervisor.parthjadhav.com/",
+    "partsUsed": [],
+    "contextSummary": "Agent orchestrator & monitor. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-080",
+    "component": "select",
+    "repo": "egoist/takopi",
+    "repoUrl": "https://github.com/egoist/takopi",
+    "stars": 15,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-24",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "a personal ai assistant, also known as takopi \ud83d\udc7d\ud83d\udc19\ud83d\udc7e. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-081",
+    "component": "select",
+    "repo": "michaelshimeles/claw-city",
+    "repoUrl": "https://github.com/michaelshimeles/claw-city",
+    "stars": 15,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-12",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/michaelshimeles/claw-city/blob/cb884507077a201cba16ac7acae260368ec5bfd3/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.clawcity.xyz",
+    "partsUsed": [],
+    "contextSummary": "A persistent simulated economy where AI agents live, work, trade, form friendships, join gangs, and compete. Built with Next.js and Convex. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-082",
+    "component": "select",
+    "repo": "NathanBrodin/Portfolio",
+    "repoUrl": "https://github.com/NathanBrodin/Portfolio",
+    "stars": 14,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/NathanBrodin/Portfolio/blob/488dd32195edadcc4eb9c8d11cca9eb8d800eddd/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://brodin.dev",
+    "partsUsed": [],
+    "contextSummary": "My Portfolio, to showcase my work as a Frontend Engineer. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-083",
+    "component": "select",
+    "repo": "SkidGod4444/prexo",
+    "repoUrl": "https://github.com/SkidGod4444/prexo",
+    "stars": 14,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-01-25",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "apps/app/components/ui/select.tsx",
+        "permalink": "https://github.com/SkidGod4444/prexo/blob/ca989d4eef111c922e4bb4084ccb96c35979c445/apps/app/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://prexoai.xyz",
+    "partsUsed": [],
+    "contextSummary": "We\u2019re developing AI agents tailored for sales and customer support. If you follow our documentation closely, you can operate this service almost entirely for free\u201499% free, in fact! Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-084",
+    "component": "select",
+    "repo": "ahmedragab20/diffing",
+    "repoUrl": "https://github.com/ahmedragab20/diffing",
+    "stars": 14,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-14",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/ui/primitives/Select.tsx",
+        "permalink": "https://github.com/ahmedragab20/diffing/blob/7d60c59d4509b5ae1d602aafdaed06fbdc3d9077/src/ui/primitives/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://diffing--ahmedragab19.replit.app/",
+    "partsUsed": [],
+    "contextSummary": "A local-first code review and planning tool with User <-> AI realtime communication. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-085",
+    "component": "select",
+    "repo": "algerian-tech-makers/Badir",
+    "repoUrl": "https://github.com/algerian-tech-makers/Badir",
+    "stars": 14,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/algerian-tech-makers/Badir/blob/8fe53e2d2b85434ea796ef20e0fc6306cff57de5/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://badir.space",
+    "partsUsed": [],
+    "contextSummary": "A youth volunteer platform that organizes efforts and builds bridges between those who have the ability to give and those who are looking for someone to help them. Solution for Bunian Hackathon. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-086",
+    "component": "select",
+    "repo": "rclone/rclone-web",
+    "repoUrl": "https://github.com/rclone/rclone-web",
+    "stars": 14,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/rclone/rclone-web/blob/2b0ae91fa3bd5857f88578cd6aa5fb35b50188bb/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A web interface for rclone. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-087",
+    "component": "select",
+    "repo": "gear-foundation/vara-wiki",
+    "repoUrl": "https://github.com/gear-foundation/vara-wiki",
+    "stars": 13,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-09",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/gear-foundation/vara-wiki/blob/d189b8eb8733d3d3b736faee521943bc7b56ebeb/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://wiki.vara.network",
+    "partsUsed": [],
+    "contextSummary": "Complete documentation regarding Vara Network. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-088",
+    "component": "select",
+    "repo": "Tekwondo-RAM/taekwondo-app",
+    "repoUrl": "https://github.com/Tekwondo-RAM/taekwondo-app",
+    "stars": 12,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-04",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "src/common/Select.tsx",
+        "permalink": "https://github.com/Tekwondo-RAM/taekwondo-app/blob/cd4f3397e44007f147ab8b6fa96e754136d4b234/src/common/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://taekwondo-app.netlify.app/",
+    "partsUsed": [],
+    "contextSummary": "PWA taekwondo app. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-089",
+    "component": "select",
+    "repo": "dylsteck/ship",
+    "repoUrl": "https://github.com/dylsteck/ship",
+    "stars": 12,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-31",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "packages/ui/src/select.tsx",
+        "permalink": "https://github.com/dylsteck/ship/blob/4e53f9d9d6bdbaf61b9b495a55471a85841cac23/packages/ui/src/select.tsx"
+      }
+    ],
+    "liveUrl": "https://ship.dylansteck.com",
+    "partsUsed": [],
+    "contextSummary": "A background coding agent. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-090",
+    "component": "select",
+    "repo": "edbnme/ui",
+    "repoUrl": "https://github.com/edbnme/ui",
+    "stars": 12,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "lib/primitives.ts",
+        "permalink": "https://github.com/edbnme/ui/blob/cca4177d141bd83ff45d3902b997575fc79122f5/lib/primitives.ts"
+      }
+    ],
+    "liveUrl": "https://ui.edbn.me",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "oss-design-system"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-091",
+    "component": "select",
+    "repo": "juliusmarminge/thestakk",
+    "repoUrl": "https://github.com/juliusmarminge/thestakk",
+    "stars": 8,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2025-11-27",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/juliusmarminge/thestakk/blob/4583b0fe7a0d5895115d898f0fc044af063fc279/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://thestakk.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-092",
+    "component": "select",
+    "repo": "bratsos/polizy",
+    "repoUrl": "https://github.com/bratsos/polizy",
+    "stars": 7,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-22",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "examples/app1/app/components/ui/select.tsx",
+        "permalink": "https://github.com/bratsos/polizy/blob/ee0584af45f468773702f90402abe57699befbaa/examples/app1/app/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://polizy.dev/",
+    "partsUsed": [],
+    "contextSummary": "A flexible, Zanzibar-inspired authorization library for Node.js and TypeScript. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-093",
+    "component": "select",
+    "repo": "eliesgalvira/IRoboPF",
+    "repoUrl": "https://github.com/eliesgalvira/IRoboPF",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-20",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.tsx",
+        "permalink": "https://github.com/eliesgalvira/IRoboPF/blob/5efcc56b10b6940665b8b92e0162026abb208ff8/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": "https://irobopf.com",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-094",
+    "component": "select",
+    "repo": "BasicallyPolaris/ursa-markup",
+    "repoUrl": "https://github.com/BasicallyPolaris/ursa-markup",
+    "stars": 4,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-20",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/components/ui/select.tsx",
+        "permalink": "https://github.com/BasicallyPolaris/ursa-markup/blob/aef4fcabfe29b4f4106361c10752f66b31b59db6/src/components/ui/select.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "A cross-platform tool for marking up and highlighting screenshots, built with Tauri. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-095",
+    "component": "select",
+    "repo": "Chilfish/anonTweet",
+    "repoUrl": "https://github.com/Chilfish/anonTweet",
+    "stars": 4,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-23",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "vite.config.ts",
+        "permalink": "https://github.com/Chilfish/anonTweet/blob/d603cd17ff18fcb2bfc744d19b35748aa2ae5a6e/vite.config.ts"
+      }
+    ],
+    "liveUrl": "https://anon-tweet.chilfish.top/",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-096",
+    "component": "select",
+    "repo": "kieranklaassen/breathwork",
+    "repoUrl": "https://github.com/kieranklaassen/breathwork",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-18",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "components/select/index.tsx",
+        "permalink": "https://github.com/kieranklaassen/breathwork/blob/ccb031d784265e0635a15b46fca80c7be7b41fa8/components/select/index.tsx"
+      }
+    ],
+    "liveUrl": "https://breathwork-gray.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-097",
+    "component": "select",
+    "repo": "DeForge-Labs/app",
+    "repoUrl": "https://github.com/DeForge-Labs/app",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-10",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "components/ui/select.jsx",
+        "permalink": "https://github.com/DeForge-Labs/app/blob/2524fb59423d59586722f434a2eb6fcfa32a7560/components/ui/select.jsx"
+      }
+    ],
+    "liveUrl": "https://app.deforge.io",
+    "partsUsed": [],
+    "contextSummary": "Node graph editor of Deforge. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-098",
+    "component": "select",
+    "repo": "erfnk/naqsh-app",
+    "repoUrl": "https://github.com/erfnk/naqsh-app",
+    "stars": 3,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-04",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "packages/ui/components/select.tsx",
+        "permalink": "https://github.com/erfnk/naqsh-app/blob/66fbf08b5a16e882be77e6affef38cbed4ab69b4/packages/ui/components/select.tsx"
+      }
+    ],
+    "liveUrl": "https://www.naqsh.app",
+    "partsUsed": [],
+    "contextSummary": "Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-099",
+    "component": "select",
+    "repo": "ff6347/obsidian-canvas-context",
+    "repoUrl": "https://github.com/ff6347/obsidian-canvas-context",
+    "stars": 3,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/select",
+    "files": [
+      {
+        "path": "src/ui/components/react-view.tsx",
+        "permalink": "https://github.com/ff6347/obsidian-canvas-context/blob/222087c7777212704255fc1228c2930a04ef4659/src/ui/components/react-view.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "An Obsidian plugin to wire up context on the canvas for interaction with LLMs. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "demo-or-sandbox"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "select-100",
+    "component": "select",
+    "repo": "plyght/uncommit",
+    "repoUrl": "https://github.com/plyght/uncommit",
+    "stars": 3,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-20",
+    "importSpecifier": "@base-ui/react/select",
+    "files": [
+      {
+        "path": "components/Select.tsx",
+        "permalink": "https://github.com/plyght/uncommit/blob/5e4654330b443f17ced89e88f31c7f4bb69607b8/components/Select.tsx"
+      }
+    ],
+    "liveUrl": "https://uncommit.sh",
+    "partsUsed": [],
+    "contextSummary": "uncommit generates ai-powered release notes from your code diffs. Uses a shadcn-style Base UI select wrapper; wrapper file present but not inspected in detail.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "production-app"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

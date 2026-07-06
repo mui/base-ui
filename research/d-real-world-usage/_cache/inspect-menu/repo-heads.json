@@ -1,0 +1,566 @@
+{
+ "vercel/next.js": {
+  "archived": false,
+  "branch": "canary",
+  "homepage": "https://nextjs.org",
+  "license": "MIT",
+  "pushed": "2026-07-06T21:14:24Z",
+  "stars": 140364,
+  "sha": "b1eba13dc082d89e62d064fd8351d64463994d22"
+ },
+ "PostHog/posthog": {
+  "archived": false,
+  "branch": "master",
+  "homepage": "https://posthog.com",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-06T21:21:52Z",
+  "stars": 35353,
+  "sha": "c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b"
+ },
+ "makeplane/plane": {
+  "archived": false,
+  "branch": "preview",
+  "homepage": "http://plane.so",
+  "license": "AGPL-3.0",
+  "pushed": "2026-07-03T10:59:09Z",
+  "stars": 53964,
+  "sha": "7fbf14a6cb494bbf5866e2b293b28a6d8a7e52c3"
+ },
+ "langgenius/dify": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://dify.ai",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-06T19:29:09Z",
+  "stars": 147918,
+  "sha": "fc01d112a06cc286f5b47d34112387c46503ddb2"
+ },
+ "stagewise-io/stagewise": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://stagewise.io",
+  "license": "AGPL-3.0",
+  "pushed": "2026-07-04T06:17:39Z",
+  "stars": 6718,
+  "sha": "ef9d249f29f2a98dfeac80b2f1013315333994d6"
+ },
+ "withcoral/coral": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://withcoral.com",
+  "license": "Apache-2.0",
+  "pushed": "2026-07-06T17:40:52Z",
+  "stars": 5076,
+  "sha": "49885e1cddcbd4dad74f46a185f35f7089380765"
+ },
+ "mastra-ai/mastra": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://mastra.ai",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-06T20:36:46Z",
+  "stars": 25871,
+  "sha": "e900f25dfe2c9237f15b26cb109ac55aa9de3000"
+ },
+ "amruthpillai/reactive-resume": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://rxresu.me",
+  "license": "MIT",
+  "pushed": "2026-07-05T22:32:01Z",
+  "stars": 39393,
+  "sha": "dfc5559625db3c665b05de8292dcb6abdd5d1ac5"
+ },
+ "baptisteArno/typebot.io": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://typebot.io",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-04T14:12:41Z",
+  "stars": 10120,
+  "sha": "ef1b4c67c520ff00018db709620dc101f717e9ac"
+ },
+ "electric-sql/electric": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://electric.ax",
+  "license": "Apache-2.0",
+  "pushed": "2026-07-06T16:09:53Z",
+  "stars": 10257,
+  "sha": "640509c306eb96e38901edd2713ba85e148fcdad"
+ },
+ "cloudflare/kumo": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://kumo-ui.com",
+  "license": "MIT",
+  "pushed": "2026-07-06T18:32:09Z",
+  "stars": 2782,
+  "sha": "8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26"
+ },
+ "seek-oss/playroom": {
+  "archived": false,
+  "branch": "master",
+  "homepage": "",
+  "license": "MIT",
+  "pushed": "2026-07-01T04:29:09Z",
+  "stars": 4581,
+  "sha": "aa778ceb26c20436eb32878a9beba14535b80993"
+ },
+ "keenthemes/reui": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://reui.io",
+  "license": "MIT",
+  "pushed": "2026-03-30T12:19:39Z",
+  "stars": 3045,
+  "sha": "0946f9667f4bea44873cf9391b3b801c16660c01"
+ },
+ "imskyleen/animate-ui": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://animate-ui.com",
+  "license": "NOASSERTION",
+  "pushed": "2025-12-31T12:51:05Z",
+  "stars": 3769,
+  "sha": "efeb96ffd7a3b7a4868667e4ac3c346620fb3044"
+ },
+ "astrofox-io/astrofox": {
+  "archived": false,
+  "branch": "master",
+  "homepage": "https://astrofox.io",
+  "license": "MIT",
+  "pushed": "2026-06-22T18:57:16Z",
+  "stars": 1922,
+  "sha": "2640e9de0ff177bcb02c63ba3b2f626c09d0e14d"
+ },
+ "wevm/vocs": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://vocs.dev",
+  "license": "MIT",
+  "pushed": "2026-07-06T03:17:37Z",
+  "stars": 1507,
+  "sha": "861a096100f07cd04ada43797048c1e28ff44e69"
+ },
+ "oxidecomputer/console": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://console-preview.oxide.computer",
+  "license": "MPL-2.0",
+  "pushed": "2026-07-06T17:32:52Z",
+  "stars": 222,
+  "sha": "975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5"
+ },
+ "lumen-notes/lumen": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://uselumen.com",
+  "license": "MIT",
+  "pushed": "2026-02-25T23:15:42Z",
+  "stars": 708,
+  "sha": "a9bfe82bf1ccba5391fcc2d146c32bfc1532e36e"
+ },
+ "manaflow-ai/cmux": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://cmux.com",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-06T21:22:37Z",
+  "stars": 23762,
+  "sha": "fa3f388c17eb6fa9e7eac3daa761508cc46343dc"
+ },
+ "manaflow-ai/manaflow": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "",
+  "license": "MIT",
+  "pushed": "2026-07-06T18:47:43Z",
+  "stars": 1088,
+  "sha": "23e83e46160a746c786b18be9883b6e512fe9974"
+ },
+ "tale/headplane": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://headplane.net",
+  "license": "MIT",
+  "pushed": "2026-07-05T10:14:10Z",
+  "stars": 2683,
+  "sha": "17e7b3547838a45101266e80f46722542a65e9b0"
+ },
+ "usekaneo/kaneo": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://kaneo.app/",
+  "license": "MIT",
+  "pushed": "2026-07-05T01:49:48Z",
+  "stars": 3795,
+  "sha": "067880c44dcb2354ada3aa19b5d4e9cd9bb3875e"
+ },
+ "oxidecomputer/rfd-site": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://rfd.shared.oxide.computer",
+  "license": "MPL-2.0",
+  "pushed": "2026-07-01T13:00:48Z",
+  "stars": 189,
+  "sha": "d59a41415b5bb25b4270fa99131834f6dbb79f15"
+ },
+ "raphaelsalaja/cambio": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://cambio.raphaelsalaja.com",
+  "license": "MIT",
+  "pushed": "2026-01-24T14:51:09Z",
+  "stars": 199,
+  "sha": "3a17891104602501cc56a07f5288a7a55bf60aa8"
+ },
+ "memser-spaceport/pln-directory-portal-v2": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://directory.plnetwork.io",
+  "license": "none",
+  "pushed": "2026-07-06T20:01:18Z",
+  "stars": 2,
+  "sha": "44bf0ffe4c0ed6eef08ee4c897658e89d4a264fc"
+ },
+ "Codennnn/Green-Wall": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://green-wall.leoku.dev",
+  "license": "MIT",
+  "pushed": "2026-06-17T20:14:59Z",
+  "stars": 806,
+  "sha": "dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036"
+ },
+ "shift-editor/shift": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://www.shift.graphics/",
+  "license": "GPL-3.0",
+  "pushed": "2026-07-05T15:58:31Z",
+  "stars": 205,
+  "sha": "357e516a32494ef9be1d904a99849d7d82f92e31"
+ },
+ "wevm/curl.md": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://curl.md",
+  "license": "MIT",
+  "pushed": "2026-06-08T16:12:57Z",
+  "stars": 214,
+  "sha": "91469a7fbf2957a2cda20ec25add0807717ba3aa"
+ },
+ "knervous/eqsage": {
+  "archived": false,
+  "branch": "master",
+  "homepage": "https://eqsage.vercel.app",
+  "license": "none",
+  "pushed": "2025-03-19T14:29:33Z",
+  "stars": 25,
+  "sha": "d5dc8328c9e30a88e352ca8a81ccb0efb32bc986"
+ },
+ "WordPress/gutenberg": {
+  "archived": false,
+  "branch": "trunk",
+  "homepage": "https://wordpress.org/gutenberg/",
+  "license": "NOASSERTION",
+  "pushed": "2026-07-06T21:20:38Z",
+  "stars": 11718,
+  "sha": "73d48b46f8caa925fbaffb4e97246f02a1b3ce80"
+ },
+ "pingdotgg/t3code": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://t3.codes",
+  "license": "MIT",
+  "pushed": "2026-07-06T17:24:38Z",
+  "stars": 13328,
+  "sha": "32e7844837b35ca0a0ff038997a45ea75cb7103f"
+ },
+ "cosscom/coss": {
+  "archived": false,
+  "branch": "main",
+  "homepage": "https://coss.com",
+  "license": "AGPL-3.0",
+  "pushed": "2026-07-06T19:58:26Z",
+  "stars": 10195,
+  "sha": "996b077952a733e7866e4a2c19a4df002cb58608"
+ },
+ "siriwatknp/mui-treasury": {
+  "branch": "master",
+  "sha": "8fa129a0519d08764af1a208bafd3e83e19fd9c6"
+ },
+ "tonyantony300/alt-sendme": {
+  "branch": "main",
+  "sha": "92e5d0f6c8d3df92083cfd3e25a9cee15cbca841"
+ },
+ "generalaction/emdash": {
+  "branch": "main",
+  "sha": "5b89d8772a6ed5765a79eecaf9ddad0147459986"
+ },
+ "bytebase/dbhub": {
+  "branch": "main",
+  "sha": "08e522ced0503a8d234472f07b0b318e386dbb94"
+ },
+ "bitfocus/companion": {
+  "branch": "main",
+  "sha": "aa1b1fbb424fae0a5dbfb1a9b7567f30a0ae44d3"
+ },
+ "BearStudio/start-ui-web": {
+  "branch": "main",
+  "sha": "f74b508012b6db2acb8195fb64a352a4ccb9d681"
+ },
+ "wannabespace/conar": {
+  "branch": "tamery",
+  "sha": "beaf74707070a0c5b42274feb33562d5d5ae1d79"
+ },
+ "databuddy-analytics/Databuddy": {
+  "branch": "main",
+  "sha": "676b576f53be75fc02dc48c9987232b264b4abb0"
+ },
+ "iurvish/uselayouts": {
+  "branch": "main",
+  "sha": "5ed0d94454374b47ed9805bf204a412bc2d3d456"
+ },
+ "turbostarter/loading-ui": {
+  "branch": "main",
+  "sha": "3634050f786341c0a3f25d0ac6c6a2dcfd547c07"
+ },
+ "sankeyangshu/lemon-admin": {
+  "branch": "main",
+  "sha": "677fe6cf978d2e3201a17d5283f4907b198925a9"
+ },
+ "x1xhlol/zero-calendar": {
+  "branch": "main",
+  "sha": "5e277794ee524082bc2f1ffff20e3b273c396e23"
+ },
+ "bearlyai/OpenADE": {
+  "branch": "main",
+  "sha": "a904a491bd10893a997d383d2ac5b5a9e1d0bd20"
+ },
+ "DariusLukasukas/nextjs-weather-app": {
+  "branch": "main",
+  "sha": "c2136017f5273442059838bd1386985a7a5db8b0"
+ },
+ "preetsuthar17/loftlyy": {
+  "branch": "master",
+  "sha": "d70a62f2787187099cd8f15e22a8f53c94d58d87"
+ },
+ "pacekit/gsap": {
+  "branch": "main",
+  "sha": "6d06069bd8c12aafd25ce6629875d0bdeda879c2"
+ },
+ "AgusMayol/optics": {
+  "branch": "main",
+  "sha": "1742d26f0944d4a31708bc4ed74aff72f19cf43a"
+ },
+ "futantan/agent-skills.md": {
+  "branch": "main",
+  "sha": "98cd624fb1542ad7880e1112576061bb2874de8e"
+ },
+ "formbase-dev/formbase": {
+  "branch": "main",
+  "sha": "f831f9af5aa21ad75d3b5ed4305cb3d1772de1c6"
+ },
+ "soulfiremc-com/SoulFireClient": {
+  "branch": "main",
+  "sha": "8dd16cd171c85bbba8c82b15efd2bf1e6bff817c"
+ },
+ "pgplex/pgconsole": {
+  "branch": "main",
+  "sha": "a7fead0e383109b1c2fd98c40450c7e99b13afe5"
+ },
+ "hjinco/mdto": {
+  "branch": "main",
+  "sha": "39611d4cb51daef1dbc70708104819f5285568e0"
+ },
+ "mathematic-inc/earl": {
+  "branch": "main",
+  "sha": "d017c842ddf051fcab0e58c4a91aac60647012c9"
+ },
+ "jakejarvis/jarv.is": {
+  "branch": "main",
+  "sha": "dcddf6e3ecf11ccd5ead58a7292540035940ea9f"
+ },
+ "Agions/story-fab": {
+  "branch": "main",
+  "sha": "4a419e9e9f2645cac7e68063f40de4c7637a7b0f"
+ },
+ "brianlovin/tax-ui": {
+  "branch": "main",
+  "sha": "9a479443b9dd6b542cb7d3b0b11ad43184d2826e"
+ },
+ "AryaLabsHQ/bunli": {
+  "branch": "main",
+  "sha": "52335c04bf0aa90dd62d7c4f47d3c785c7ad0f26"
+ },
+ "kyle1an/sub-vocab": {
+  "branch": "master",
+  "sha": "6b1cd7b1577ba032b584cbb761b989d2f344953c"
+ },
+ "TheOrcDev/github-creature": {
+  "branch": "main",
+  "sha": "ffdbe6872787b7c06476e81500f5c2f3bc414f48"
+ },
+ "vibe-stack/three-maps": {
+  "branch": "main",
+  "sha": "758a46ecd2dfdad106651b0b4c1f8ff949c13ead"
+ },
+ "Jason-uxui/gray-ui-crm": {
+  "branch": "main",
+  "sha": "7085cf661bb5e0026cdcdb47adf99355dabfbef4"
+ },
+ "msviderok/base-ui-solid": {
+  "branch": "master",
+  "sha": "e49117f0106493a3f3981ea048c7b274c9fe0c2e"
+ },
+ "revokslab/codecrawl": {
+  "branch": "main",
+  "sha": "b50696ebd07653b7eb6e1aae69dc657072b5ce85"
+ },
+ "mohitkumhar/business-ai-agent": {
+  "branch": "main",
+  "sha": "1def311285d1e82d5db48bdd82baa54eed125474"
+ },
+ "ccssmnn/tilly": {
+  "branch": "main",
+  "sha": "ca36a6da9e0378e06eb6568ab9586af90e6c4c8c"
+ },
+ "reactvideoeditor/clippkit": {
+  "branch": "main",
+  "sha": "5973421d5dbf88954ec22c21ab666b3bfc2dac46"
+ },
+ "kapishdima/dialectcn": {
+  "branch": "main",
+  "sha": "3ecc098a109365d00b5db16a13c79f06366d09d3"
+ },
+ "ui-layouts/mdx-starter-repo": {
+  "branch": "main",
+  "sha": "c7a952600295768e31461af8e1c112505ff2e41a"
+ },
+ "Debbl/shadcn-hooks": {
+  "branch": "main",
+  "sha": "4e6bf49600bcf14065a27f58899d2a689f621153"
+ },
+ "vibe-stack/freed": {
+  "branch": "main",
+  "sha": "2354da681678b01843c09386372bf546c1dc00d1"
+ },
+ "cahyawibawa/ui-topia": {
+  "branch": "main",
+  "sha": "c1e64b284091dd3cb313fad961a1270dcb6d79d3"
+ },
+ "sumon-ohid/better-paas": {
+  "branch": "main",
+  "sha": "e24cb6d11e532aa0e6519ebd4d9aaeae2eba62d4"
+ },
+ "KartikLabhshetwar/Mercurius": {
+  "branch": "main",
+  "sha": "21cdbdfae439da8af43a8bb82981b5aa68c0fd8a"
+ },
+ "finitoapp/finito": {
+  "branch": "main",
+  "sha": "ae5379b147993220775a7022a4408f4594cce9f3"
+ },
+ "basehub-ai/forums": {
+  "branch": "main",
+  "sha": "a020e937daa18707ca5e83109325124ffd530965"
+ },
+ "ui-layouts/Obfuscated-tailwindcss": {
+  "branch": "main",
+  "sha": "c6c470ffef8aab7dac8219e0ee1b14e71d14c7dd"
+ },
+ "Codennnn/NestJS-Docs-CN": {
+  "branch": "main",
+  "sha": "6dcb6c709661cfbed0f269c8c74eaf4bd93f0e05"
+ },
+ "851-labs/tokenmaxxing": {
+  "branch": "main",
+  "sha": "5e85a672a99bd4a3aa2e75c6067cf8decd999aa8"
+ },
+ "shuvamk/opensight": {
+  "branch": "main",
+  "sha": "0a0ca52c14455d21e648566a22eaf4ed832351d9"
+ },
+ "lauridskern/cindra": {
+  "branch": "main",
+  "sha": "04499a114f7e67c5415a70ebfe3ba0e4e7775e8f"
+ },
+ "alonronin/orbit": {
+  "branch": "master",
+  "sha": "008bcf310446502c2665284ab879a2545d1a3cc5"
+ },
+ "mattzh72/minecraftlm": {
+  "branch": "main",
+  "sha": "90b7a343d5054a9154fce453bd776264bd5e028a"
+ },
+ "rezailmi/made-refine": {
+  "branch": "main",
+  "sha": "4375aba6f2fd22e821124be12abf48c0f9ff5b6e"
+ },
+ "bohdanbirdie/cloudstash": {
+  "branch": "main",
+  "sha": "ca7b805235373d476b171952d151466e960cebb4"
+ },
+ "mezotv/portfolio": {
+  "branch": "main",
+  "sha": "3175238ddab5d377b058aae2f1c02b0e008b0dc0"
+ },
+ "ossmeet/ossmeet": {
+  "branch": "main",
+  "sha": "2e383e499247ad5bfde530e6b35577f60e9d23bf"
+ },
+ "productdevbook/seslen": {
+  "branch": "main",
+  "sha": "66515f04a7596e2ac11c837a576d64e98c487b13"
+ },
+ "patrick-xin/lumi-ui": {
+  "branch": "main",
+  "sha": "fcacb7da77aab99f863104764dd995fd8ba5fb45"
+ },
+ "InseeFr/Pogues": {
+  "branch": "main",
+  "sha": "a7e89f83d30fa379a6f4e5a16a2ed4075737b172"
+ },
+ "electr1fy0/blindsay": {
+  "branch": "main",
+  "sha": "d158246f2f719fe5573353eaaee6b820f42387ed"
+ },
+ "Jacksonmills/jem-ui": {
+  "branch": "main",
+  "sha": "4ad4e3978df49d7c6a9331a6402227efd9f94435"
+ },
+ "Atiqullah-Naemi/forgeai": {
+  "branch": "master",
+  "sha": "8c386cf7e8d17d0cd44ffe1e0ad3efd5268824f6"
+ },
+ "okmr-d/kopi-ui": {
+  "branch": "main",
+  "sha": "d1469383ad719a915193c04be3bd2ac4aee3dbaa"
+ },
+ "f312213213/legislator-wealth.tw": {
+  "branch": "main",
+  "sha": "a370a617686df92dd26254bbae7faf84da0b09eb"
+ },
+ "nauvalazhar/silo": {
+  "branch": "main",
+  "sha": "28b6b5939ddb8c505d8e07bcfcfab4c31e972b39"
+ },
+ "cotect-dev/cotect": {
+  "branch": "main",
+  "sha": "ce0f19afffc0734c386e531b0d4e9e79d5458244"
+ },
+ "ataschz/tanstack-start-mastra-example": {
+  "branch": "main",
+  "sha": "704083d79f34da46d7ecff9be09bf2d7ab16f74f"
+ },
+ "The-AI-Republic/pi-dash": {
+  "branch": "main",
+  "sha": "6f3dc5e855ca4137dcd533057a8818a72d0018fd"
+ },
+ "pjborowiecki/pjborowiecki.com": {
+  "branch": "main",
+  "sha": "c31c63a03ac0744ba714137593517a9206f0f8db"
+ }
+}

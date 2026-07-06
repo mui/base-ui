@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "coss.com/ui is the official design system of Cal.com",
+ "fork": false,
+ "homepage": "https://coss.com",
+ "license": "AGPL-3.0",
+ "pushed_at": "2026-07-06T19:58:26Z",
+ "stars": 10195,
+ "head_sha": "996b077952a733e7866e4a2c19a4df002cb58608"
+}

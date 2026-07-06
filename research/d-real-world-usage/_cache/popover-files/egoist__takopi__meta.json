@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "a personal ai assistant, also known as takopi \ud83d\udc7d\ud83d\udc19\ud83d\udc7e",
+ "fork": false,
+ "homepage": "",
+ "license": "Apache-2.0",
+ "pushed_at": "2026-02-24T14:19:02Z",
+ "stars": 15,
+ "head_sha": "027d2e142e24d7556cdbbb2b761948be5cb16662"
+}

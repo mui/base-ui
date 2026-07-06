@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "An interactive blog on computer science and web dev \ud83d\udca1",
+ "fork": false,
+ "homepage": "https://nan.fyi",
+ "license": null,
+ "pushed_at": "2026-05-24T23:55:41Z",
+ "stars": 1499,
+ "head_sha": "8b6fc90db45b49a1013ecd028ca5ce0d0c6866c4"
+}

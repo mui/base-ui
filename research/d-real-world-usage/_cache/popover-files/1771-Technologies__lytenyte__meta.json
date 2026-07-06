@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "LyteNyte Grid monorepo: Build powerful data tables with a lightning-fast, zero-dependency React data grid (~40 KB). Headless or pre-styled. Declarative API. 150+ enterprise-grade features. Supported by 1771 Technologies.",
+ "fork": false,
+ "homepage": "https://www.1771technologies.com/",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-06T18:11:28Z",
+ "stars": 938,
+ "head_sha": "0efae21e64f58cef11e42ad1223ff73aede9bbe4"
+}

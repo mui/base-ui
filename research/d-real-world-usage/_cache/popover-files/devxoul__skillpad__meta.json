@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "GUI for Agent Skills",
+ "fork": false,
+ "homepage": "https://skillpad.dev",
+ "license": null,
+ "pushed_at": "2026-05-22T02:01:31Z",
+ "stars": 24,
+ "head_sha": "c46cc82fbb91feb7b3bbdc35410f0ac94902394a"
+}

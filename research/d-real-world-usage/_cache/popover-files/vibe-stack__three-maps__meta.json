@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": "A rapid 3d blockout / greyboxing tool for the web ",
+ "fork": false,
+ "homepage": "https://vibe-stack.github.io/three-maps/",
+ "license": "MIT",
+ "pushed_at": "2026-02-23T23:03:24Z",
+ "stars": 90,
+ "head_sha": "758a46ecd2dfdad106651b0b4c1f8ff949c13ead"
+}

@@ -1,0 +1,759 @@
+[
+  {
+    "id": "popover-001",
+    "component": "popover",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/popover/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/title.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/title.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/close.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/close.tsx"
+      },
+      {
+        "path": "packages/ui/src/popover/arrow.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/arrow.tsx"
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Popup",
+      "Positioner",
+      "Portal",
+      "Arrow",
+      "Close",
+      "Title",
+      "Description",
+      "Backdrop"
+    ],
+    "contextSummary": "WordPress's next-generation editor. The new @wordpress/ui package builds its entire Popover family on Base UI, one file per part, with slot-overridable Portal/Positioner (for the iframed editor canvas), an optional Backdrop, dev-time validation that a Title is present, and a hook that deprioritizes Close buttons when resolving initial focus.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "iframe-portal",
+      "focus-management",
+      "backdrop",
+      "flagship"
+    ],
+    "rank": 1,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The richest Base UI popover composition found anywhere: WordPress's new @wordpress/ui package wraps every part (incl. Backdrop) one-file-per-part, adds slot-overridable Portal/Positioner for the iframed editor canvas, dev-time validation that a Title is present ('required for accessibility, can be visually hidden'), a Close-required-when-modal rule, and a useDeprioritizedInitialFocus hook that skips close buttons when resolving initial focus. Feeds the anatomy, accessibility-contract, and prop-guidance (initialFocus, modal, Backdrop) doc sections; a recomposed story could demo backdrop + focus-deprioritization. GPL/dual licensing = link-only, but as evidence it is unmatched."
+  },
+  {
+    "id": "popover-020",
+    "component": "popover",
+    "repo": "martpie/museeks",
+    "repoUrl": "https://github.com/martpie/museeks",
+    "stars": 2123,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/Header.tsx",
+        "permalink": "https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx"
+      }
+    ],
+    "liveUrl": "https://museeks.io",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Cross-platform Tauri music player (museeks.io). The header's play-queue popover anchors to a wrapper div via anchor={queueAnchorRef} (decoupled from the Trigger), composes the Trigger over a custom ButtonIcon via render, and styles with StyleX.",
+    "diversityTags": [
+      "app-level-usage",
+      "custom-anchor",
+      "render-prop-trigger",
+      "desktop-tauri"
+    ],
+    "rank": 2,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Real app-level usage (not a wrapper): the play-queue popover in a Tauri music player's title bar. Shows anchor={ref} decoupled from the Trigger (popup aligns to a wrapper div, not the icon button), Trigger composed over a custom ButtonIcon via the render prop, StyleX styling, and align='end'/alignOffset tuning. MIT + live site (museeks.io) + 2.1k stars. Story recomposition: 'queue popover' \u2014 icon trigger, custom anchor, end-aligned panel; feeds the anchor prop-guidance and render-prop sections."
+  },
+  {
+    "id": "popover-015",
+    "component": "popover",
+    "repo": "opral/flashtype",
+    "repoUrl": "https://github.com/opral/flashtype",
+    "stars": 268,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/extensions/markdown/components/formatting-toolbar.tsx",
+        "permalink": "https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://flashtype.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close"
+    ],
+    "contextSummary": "AI markdown editor (flashtype.com). The formatting toolbar's link editor is a Popover whose Trigger is composed into Toolbar.Button via render (nativeButton={false}), openOnHover disabled, and initialFocus pointed at the URL input \u2014 a form-in-popover inside a roving-tabindex toolbar.",
+    "diversityTags": [
+      "form-in-popover",
+      "toolbar-composition",
+      "initial-focus",
+      "editor"
+    ],
+    "rank": 3,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Form-in-popover inside a roving-tabindex Toolbar: the markdown editor's link editor composes Toolbar.Button render={<Popover.Trigger/>} with nativeButton={false}, disables openOnHover, and sets initialFocus={linkInputRef} so the URL input focuses on open. The best found example of cross-component composition (popover x toolbar) and deliberate focus routing. MIT, live (flashtype.com). Story: 'edit link' toolbar popover with play-function typing a URL; feeds composition and initialFocus guidance."
+  },
+  {
+    "id": "popover-002",
+    "component": "popover",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/popover/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx"
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "createHandle"
+    ],
+    "contextSummary": "Dify's internal design system (packages/dify-ui) wraps Popover behind a single `placement` prop parsed into side/align, re-exports createHandle, and animates via data-starting/ending-style with motion-reduce support. Serves the flagship LLM app platform's UI.",
+    "diversityTags": [
+      "design-system-wrapper",
+      "placement-abstraction",
+      "detached-handle",
+      "ai-platform",
+      "flagship"
+    ],
+    "rank": 4,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Highest-star adopter (147.9k): Dify's dify-ui design system wraps popover behind a single `placement` prop parsed to side/align, re-exports createHandle for detached triggering, and demonstrates the canonical data-starting/ending-style scale/opacity transition with motion-reduce fallback. Custom license = link-only, but it is the flagship 'production platform standardizes on Base UI popover' citation; feeds the styling/animation contract section."
+  },
+  {
+    "id": "popover-021",
+    "component": "popover",
+    "repo": "egoist/takopi",
+    "repoUrl": "https://github.com/egoist/takopi",
+    "stars": 15,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-24",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "src/components/mention-popover.tsx",
+        "permalink": "https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Personal AI assistant by egoist. @-mention file autocomplete: a triggerless controlled Popover anchored to the chat textarea (anchor={textareaRef}, side='top'), with initialFocus={false}/finalFocus={false} so typing never leaves the textarea; highlight/keyboard nav handled externally.",
+    "diversityTags": [
+      "detached-trigger",
+      "mention-autocomplete",
+      "focus-opt-out",
+      "ai-assistant"
+    ],
+    "rank": 5,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Triggerless, externally-controlled popover: @-mention file autocomplete anchored to a textarea (Positioner anchor={textareaRef}, side='top'), with initialFocus={false} and finalFocus={false} so keyboard focus never leaves the textarea while arrowing through suggestions. The cleanest evidence for the detached-trigger + focus-opt-out pattern the docs barely cover. Apache-2.0. Story: mention-autocomplete popover with play-function typing '@'."
+  },
+  {
+    "id": "popover-019",
+    "component": "popover",
+    "repo": "gracefullight/krds",
+    "repoUrl": "https://github.com/gracefullight/krds",
+    "stars": 46,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "packages/krds-tw/src/components/coach-mark.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/coach-mark.tsx"
+      },
+      {
+        "path": "packages/krds-tw/src/components/contextual-help.tsx",
+        "permalink": "https://github.com/gracefullight/krds/blob/23d4f4d119274c826a8c23e60dc5cb8a3ddcae38/packages/krds-tw/src/components/contextual-help.tsx"
+      }
+    ],
+    "liveUrl": "https://krds.gracefullight.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Unofficial Tailwind implementation of KRDS (Korea government design system). CoachMark renders sequential onboarding steps as an always-open Popover with a hidden zero-size Trigger whose getBoundingClientRect is overridden to a selector-resolved target; ContextualHelp is a second popover-based pattern.",
+    "diversityTags": [
+      "coach-mark",
+      "onboarding-tour",
+      "external-anchor-workaround",
+      "gov-design-system",
+      "contextual-help"
+    ],
+    "rank": 6,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "A coach-mark/onboarding-tour archetype from a government design system (Korean KRDS, Tailwind port): one always-open controlled Popover per step, hidden zero-size Trigger whose getBoundingClientRect is overridden to a selector-resolved target, step counter with aria-live, Escape-to-skip. Also instructive as a workaround: Base UI's own anchor prop could replace the rect override \u2014 exactly the kind of guidance a 'use the anchor prop when...' doc section should give. Feeds when-to-use (tours/onboarding) and anchor guidance."
+  },
+  {
+    "id": "popover-012",
+    "component": "popover",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/ui/popover.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/popover.tsx"
+      }
+    ],
+    "liveUrl": "https://green-wall.leoku.dev",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "GitHub-contributions poster generator (green-wall.leoku.dev). Ships a coss-lineage wrapper using the new Viewport part, createHandle re-export, and a tooltipStyle variant; popovers drive the appearance settings UI.",
+    "diversityTags": [
+      "shadcn-style-wrapper",
+      "viewport-part",
+      "create-handle",
+      "dev-tool"
+    ],
+    "rank": 7,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Production app (GitHub-contributions poster generator, live) shipping the modern coss-lineage wrapper: uses the new Viewport part for size-transition content swaps, re-exports createHandle, and offers a tooltipStyle variant \u2014 the newest 1.x popover APIs seen in an MIT app rather than a registry. Story: settings popover with Viewport-animated content; feeds Viewport/createHandle prop guidance."
+  },
+  {
+    "id": "popover-027",
+    "component": "popover",
+    "repo": "1771-Technologies/lytenyte",
+    "repoUrl": "https://github.com/1771-Technologies/lytenyte",
+    "stars": 937,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "documentation/content/docs/v1/(components)/demos/popover-frame/demo.tsx",
+        "permalink": "https://github.com/1771-Technologies/lytenyte/blob/0efae21e64f58cef11e42ad1223ff73aede9bbe4/documentation/content/docs/v1/(components)/demos/popover-frame/demo.tsx"
+      },
+      {
+        "path": "documentation/examples/(components)/popover-frame/src/demo.tsx",
+        "permalink": "https://github.com/1771-Technologies/lytenyte/blob/0efae21e64f58cef11e42ad1223ff73aede9bbe4/documentation/examples/(components)/popover-frame/src/demo.tsx"
+      }
+    ],
+    "liveUrl": "https://www.1771technologies.com/",
+    "partsUsed": [
+      "Root",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "LyteNyte Grid (commercial React data grid) docs demo: grid 'popover frames' render an always-open Popover per activated cell with anchor={params.target} (the clicked cell element), closed through the grid API \u2014 Base UI popover as the grid's cell-attached UI layer.",
+    "diversityTags": [
+      "data-grid",
+      "cell-anchored",
+      "imperative-anchor",
+      "docs-demo"
+    ],
+    "rank": 8,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Popover as a data-grid's cell-attached UI layer: LyteNyte Grid 'popover frames' render an always-open Popover keyed per cell with anchor={params.target} (the clicked cell DOM node) and close through the grid's imperative API. Best example of anchoring to arbitrary, dynamically-chosen elements and of integrating popover lifecycle with an external system. Docs-demo of a commercial grid (NOASSERTION = link-only); feeds anchor + controlled-open guidance."
+  },
+  {
+    "id": "popover-014",
+    "component": "popover",
+    "repo": "bearlyai/OpenADE",
+    "repoUrl": "https://github.com/bearlyai/OpenADE",
+    "stars": 324,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "projects/web/src/components/InputBar.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/components/InputBar.tsx"
+      },
+      {
+        "path": "projects/web/src/pages/TaskCreatePage.tsx",
+        "permalink": "https://github.com/bearlyai/OpenADE/blob/a904a491bd10893a997d383d2ac5b5a9e1d0bd20/projects/web/src/pages/TaskCreatePage.tsx"
+      }
+    ],
+    "liveUrl": "https://openade.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Open agentic development environment. The prompt InputBar opens an MCP-server selector popover (side='top' align='end') portalled into a custom container element; TaskCreatePage hosts similar option popovers.",
+    "diversityTags": [
+      "ai-agent-ui",
+      "custom-portal-container",
+      "settings-popover"
+    ],
+    "rank": 9,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Agentic IDE web client: the prompt InputBar's MCP-server selector popover portals into a custom container (Portal container={portalContainer}) and opens side='top' align='end' above the composer \u2014 practical evidence for the container prop (stacking/overflow control in complex layouts) and for settings-popover UX in AI tools. No license = link-only."
+  },
+  {
+    "id": "popover-023",
+    "component": "popover",
+    "repo": "MTI-System/MTI-site",
+    "repoUrl": "https://github.com/MTI-System/MTI-site",
+    "stars": 5,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-04-05",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/components/pickers/DatePicker.tsx",
+        "permalink": "https://github.com/MTI-System/MTI-site/blob/ec78d052ab53c3055244630396ba442ac4acd520/src/components/pickers/DatePicker.tsx"
+      }
+    ],
+    "liveUrl": "https://mtiyt.ru",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "Russian-language production site (mtiyt.ru). DatePicker hosts react-day-picker inside a controlled Popover and commits the picked date/range on close (onOpenChange(false) \u2192 onPick), plus an explicit apply button.",
+    "diversityTags": [
+      "date-picker-host",
+      "commit-on-close",
+      "controlled-state"
+    ],
+    "rank": 10,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Date-picker-host archetype: react-day-picker rendered inside a controlled Popover; the picked date/range is committed when the popover closes (onOpenChange(false) \u2192 onPick) plus an explicit apply button. Live production site. Clean evidence for the 'popover hosting a third-party widget' use case and commit-on-close state pattern; feeds when-to-use and controlled/uncontrolled behavior sections."
+  },
+  {
+    "id": "popover-017",
+    "component": "popover",
+    "repo": "vibe-stack/three-maps",
+    "repoUrl": "https://github.com/vibe-stack/three-maps",
+    "stars": 90,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-02-23",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "src/features/toolbar/components/ai-generate-popover.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/toolbar/components/ai-generate-popover.tsx"
+      },
+      {
+        "path": "src/features/toolbar/components/top-toolbar.tsx",
+        "permalink": "https://github.com/vibe-stack/three-maps/blob/758a46ecd2dfdad106651b0b4c1f8ff949c13ead/src/features/toolbar/components/top-toolbar.tsx"
+      }
+    ],
+    "liveUrl": "https://vibe-stack.github.io/three-maps/",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Title",
+      "Close"
+    ],
+    "contextSummary": "AI 3D map editor. The toolbar's 'Generate Object' popover is a small AI-prompt form with Popover.Title and Popover.Close, glassmorphism styling, and streaming generation status.",
+    "diversityTags": [
+      "form-in-popover",
+      "ai-generation",
+      "3d-editor"
+    ],
+    "rank": 11,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "AI-prompt form popover in a 3D map editor's toolbar: uses Title + Close semantics correctly, hosts an async generate flow (streaming status inside the popup) \u2014 a compact real 'form in popover with lifecycle' example under MIT with a live demo. Story: generate-object popover with interaction test on the Close button."
+  },
+  {
+    "id": "popover-026",
+    "component": "popover",
+    "repo": "Lay3rLabs/TrustGraph",
+    "repoUrl": "https://github.com/Lay3rLabs/TrustGraph",
+    "stars": 8,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-11",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "frontend/components/Tooltip.tsx",
+        "permalink": "https://github.com/Lay3rLabs/TrustGraph/blob/5378be01e32893eecbb82f141ebea664a2ef2a1b/frontend/components/Tooltip.tsx"
+      }
+    ],
+    "liveUrl": "https://trust-graph-demo.vercel.app",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow"
+    ],
+    "contextSummary": "Web3 governance tool. A generic Tooltip component is built from Popover.Root openOnHover delay={0} with an Arrow, rendering Markdown titles; trigger clicks are stopPropagation'd. Instructive: rich/interactive hover content on Popover vs the dedicated Tooltip component's non-interactive semantics.",
+    "diversityTags": [
+      "popover-as-tooltip",
+      "hover-card-like",
+      "openOnHover",
+      "instructive-misuse"
+    ],
+    "rank": 12,
+    "instructiveMisuse": true,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 2,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The labeled instructive-misuse pick: a generic Tooltip component built from Popover.Root openOnHover delay={0} + Arrow rendering Markdown. Shows why teams reach for popover (rich, selectable, interactive hover content) and what is lost vs the dedicated Tooltip component (describedby semantics, non-interactive contract) \u2014 ideal evidence for the popover-vs-tooltip decision boundary section. MIT, live demo."
+  },
+  {
+    "id": "popover-018",
+    "component": "popover",
+    "repo": "graphprotocol/hypergraph",
+    "repoUrl": "https://github.com/graphprotocol/hypergraph",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-16",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/connect/src/components/SpacesCard.tsx",
+        "permalink": "https://github.com/graphprotocol/hypergraph/blob/53f932a643422705ca2d0fb7c6d8bc6049cca6d1/apps/connect/src/components/SpacesCard.tsx"
+      }
+    ],
+    "liveUrl": "https://docs.hypergraph.thegraph.com/docs/quickstart",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "The Graph's Hypergraph connect app. SpacesCard conditionally composes: in view mode the card is a Popover.Root with an info Popup (+Arrow) describing space visibility; in selection mode the same markup renders a Checkbox instead.",
+    "diversityTags": [
+      "conditional-composition",
+      "info-popover",
+      "web3"
+    ],
+    "rank": 13,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 3,
+      "diversityContribution": 3,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Conditional composition: the same SpacesCard renders Popover.Root/Trigger in view mode but Fragment/Checkbox.Root in selection mode \u2014 evidence that Base UI parts compose polymorphically with sibling components. The info-popover (+Arrow, Title, Description) explains space visibility. MIT; The Graph's connect app. Feeds anatomy/composition guidance."
+  },
+  {
+    "id": "popover-008",
+    "component": "popover",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/popover",
+    "files": [
+      {
+        "path": "packages/ui/src/components/popover.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/popover.tsx"
+      },
+      {
+        "path": "apps/ui/registry/default/ui/popover.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/registry/default/ui/popover.tsx"
+      },
+      {
+        "path": "apps/ui/public/r/popover.json",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/public/r/popover.json"
+      }
+    ],
+    "liveUrl": "https://coss.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Close",
+      "Title",
+      "Description",
+      "Viewport",
+      "createHandle"
+    ],
+    "contextSummary": "coss ui \u2014 the cal.com team's Base UI registry. Popover wrapper re-exports createHandle, wires the new Viewport part for smooth size transitions, offers a tooltipStyle variant, and passes through portalProps/anchor.",
+    "diversityTags": [
+      "registry",
+      "create-handle",
+      "viewport-part",
+      "tooltip-variant"
+    ],
+    "rank": 14,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Origin of the dominant wrapper lineage: the cal.com team's coss ui registry popover (createHandle re-export, Viewport part, tooltipStyle variant, portalProps/anchor passthrough) is visibly copied into multiple downstream apps in this corpus (Green-Wall and others match it nearly line-for-line). Ranked despite sameness-risk because it documents how the ecosystem standardizes Base UI popover; AGPL = link-only."
+  },
+  {
+    "id": "popover-010",
+    "component": "popover",
+    "repo": "imskyleen/animate-ui",
+    "repoUrl": "https://github.com/imskyleen/animate-ui",
+    "stars": 3769,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2025-12-31",
+    "importSpecifier": "@base-ui-components/react/popover",
+    "files": [
+      {
+        "path": "apps/www/public/r/primitives-base-popover.json",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/public/r/primitives-base-popover.json"
+      },
+      {
+        "path": "apps/www/registry/primitives/base/popover/index.tsx",
+        "permalink": "https://github.com/imskyleen/animate-ui/blob/efeb96ffd7a3b7a4868667e4ac3c346620fb3044/apps/www/registry/primitives/base/popover/index.tsx"
+      }
+    ],
+    "liveUrl": "https://animate-ui.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Arrow",
+      "Backdrop",
+      "Close",
+      "Title",
+      "Description"
+    ],
+    "contextSummary": "Animate UI's Base primitives distribution: Popover integrated with motion/react \u2014 AnimatePresence-driven exit animations, a context bridging controlled open state, and a Portal that forces keepMounted so unmount animations can play.",
+    "diversityTags": [
+      "registry",
+      "animation",
+      "motion-integration"
+    ],
+    "rank": 15,
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Motion-library integration: Animate UI's base popover keeps the Portal keepMounted (removing it from the public prop surface), bridges controlled open state through context, and drives exit animations with AnimatePresence + motion.div inside Popup render props. The canonical evidence for 'animating Base UI popover with an external animation library' \u2014 a documented handbook concern. Link-only (no license file found)."
+  }
+]

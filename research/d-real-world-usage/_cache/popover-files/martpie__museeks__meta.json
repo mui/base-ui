@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "master",
+ "description": "\ud83c\udfb5 A simple, clean and cross-platform music player",
+ "fork": false,
+ "homepage": "https://museeks.io",
+ "license": "MIT",
+ "pushed_at": "2026-07-03T11:38:11Z",
+ "stars": 2123,
+ "head_sha": "7163f6019a3184043c06352caeec0ed1bf6ccff5"
+}

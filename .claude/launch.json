@@ -10,9 +10,8 @@
     {
       "name": "storybook",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "apps/storybook", "exec", "storybook", "dev", "--ci", "--port", "$PORT"],
-      "port": 6006,
-      "autoPort": true
+      "runtimeArgs": ["--dir", "apps/storybook", "exec", "storybook", "dev", "--ci", "--port", "6006"],
+      "port": 6006
     }
   ]
 }

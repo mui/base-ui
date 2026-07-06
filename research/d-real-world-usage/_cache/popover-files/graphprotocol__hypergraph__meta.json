@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "main",
+ "description": null,
+ "fork": false,
+ "homepage": "https://docs.hypergraph.thegraph.com/docs/quickstart",
+ "license": "MIT",
+ "pushed_at": "2026-03-16T08:26:00Z",
+ "stars": 23,
+ "head_sha": "53f932a643422705ca2d0fb7c6d8bc6049cca6d1"
+}

@@ -1,0 +1,11 @@
+{
+ "archived": false,
+ "default_branch": "trunk",
+ "description": "The Block Editor project for WordPress and beyond. Plugin is available from the official repository.",
+ "fork": false,
+ "homepage": "https://wordpress.org/gutenberg/",
+ "license": "NOASSERTION",
+ "pushed_at": "2026-07-06T21:20:38Z",
+ "stars": 11718,
+ "head_sha": "73d48b46f8caa925fbaffb4e97246f02a1b3ce80"
+}
