@@ -52,14 +52,14 @@ export interface UseHoverReferenceInteractionProps {
    */
   shouldOpen?: (() => boolean) | undefined;
   /**
-   * Also cancels a pending hover-open from the trigger's `mouseout`, not just
-   * its `mouseleave`. Works around a Chrome bug where a fast pointer sweep
-   * across adjacent triggers drops the non-bubbling `mouseleave` (but not the
-   * bubbling `mouseout`), leaving a stale hover-open queued that opens a submenu
-   * the pointer already left and strands the parent at `pointer-events: none`.
-   * Intended for single-trigger roots: unlike `mouseleave`, this cancels even
-   * when the pointer moves to a sibling enabled trigger of the same root.
-   * See #5152.
+   * Regression workaround (#5152): also cancels a pending hover-open from the
+   * trigger's `mouseout`, backing up a `mouseleave` that Chrome can drop during
+   * a fast pointer sweep and leave a submenu stuck open.
+   *
+   * WARNING: only enable on single-trigger, hover-driven roots (e.g.
+   * `Menu.SubmenuTrigger`). It skips the `isClickLikeOpenEvent()` and
+   * `isInsideEnabledTrigger()` checks `mouseleave` applies, so on a
+   * multi-trigger or click-driven root it cancels legitimate opens/closes.
    * @default false
    */
   guardStaleOpen?: boolean | undefined;
