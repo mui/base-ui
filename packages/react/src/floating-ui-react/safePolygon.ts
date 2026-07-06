@@ -1,83 +1,167 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import type { Rect, Side } from './types';
+import type { ClientRectObject, Rect, Side } from './types';
 import type { HandleClose, HandleCloseOptions } from './hooks/useHoverShared';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
-
-/* eslint-disable no-nested-ternary */
 
 const CURSOR_SPEED_THRESHOLD = 0.1;
 const CURSOR_SPEED_THRESHOLD_SQUARED = CURSOR_SPEED_THRESHOLD * CURSOR_SPEED_THRESHOLD;
 const POLYGON_BUFFER = 0.5;
 
-function hasIntersectingEdge(
-  pointX: number,
-  pointY: number,
-  xi: number,
-  yi: number,
-  xj: number,
-  yj: number,
-) {
-  return yi >= pointY !== yj >= pointY && pointX <= ((xj - xi) * (pointY - yi)) / (yj - yi) + xi;
-}
+// Cursor classifications returned by `classifySafePolygonCursor`.
+// Exported for tests.
+export const CURSOR_OPPOSITE_SIDE = 0;
+export const CURSOR_IN_TROUGH = 1;
+export const CURSOR_INSIDE_POLYGON = 2;
+export const CURSOR_OUTSIDE_POLYGON = 3;
 
-function isPointInQuadrilateral(
-  pointX: number,
-  pointY: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  x3: number,
-  y3: number,
-  x4: number,
-  y4: number,
-) {
+/**
+ * Determines if a point is inside a polygon using the even-odd ray casting
+ * algorithm. `points` is a flat list of vertex coordinates.
+ */
+function isPointInPolygon(pointX: number, pointY: number, points: number[]) {
   let isInsideValue = false;
 
-  if (hasIntersectingEdge(pointX, pointY, x1, y1, x2, y2)) {
-    isInsideValue = !isInsideValue;
-  }
+  for (let i = 0, j = points.length - 2; i < points.length; j = i, i += 2) {
+    const startX = points[j];
+    const startY = points[j + 1];
+    const endX = points[i];
+    const endY = points[i + 1];
 
-  if (hasIntersectingEdge(pointX, pointY, x2, y2, x3, y3)) {
-    isInsideValue = !isInsideValue;
-  }
-
-  if (hasIntersectingEdge(pointX, pointY, x3, y3, x4, y4)) {
-    isInsideValue = !isInsideValue;
-  }
-
-  if (hasIntersectingEdge(pointX, pointY, x4, y4, x1, y1)) {
-    isInsideValue = !isInsideValue;
+    if (
+      startY >= pointY !== endY >= pointY &&
+      pointX <= ((endX - startX) * (pointY - startY)) / (endY - startY) + startX
+    ) {
+      isInsideValue = !isInsideValue;
+    }
   }
 
   return isInsideValue;
 }
 
+function isInsideBand(value: number, edgeA: number, edgeB: number) {
+  return value >= Math.min(edgeA, edgeB) && value <= Math.max(edgeA, edgeB);
+}
+
 function isInsideRect(pointX: number, pointY: number, rect: Rect) {
   return (
-    pointX >= rect.x &&
-    pointX <= rect.x + rect.width &&
-    pointY >= rect.y &&
-    pointY <= rect.y + rect.height
+    isInsideBand(pointX, rect.x, rect.x + rect.width) &&
+    isInsideBand(pointY, rect.y, rect.y + rect.height)
   );
 }
 
-function isInsideAxisAlignedRect(
-  pointX: number,
-  pointY: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-) {
-  const minX = Math.min(x1, x2);
-  const maxX = Math.max(x1, x2);
-  const minY = Math.min(y1, y2);
-  const maxY = Math.max(y1, y2);
+/**
+ * Classifies where the cursor sits relative to the safe polygon geometry for
+ * the given side. All four sides share one axis-parameterized computation: the
+ * main axis runs along the shared edge of the two elements, and the cross axis
+ * runs across the gap between them.
+ * Exported for tests.
+ */
+export function classifySafePolygonCursor(
+  side: Side,
+  x: number,
+  y: number,
+  clientX: number,
+  clientY: number,
+  refRect: ClientRectObject,
+  rect: ClientRectObject,
+): number {
+  const isXAxis = side === 'top' || side === 'bottom';
+  // Whether the floating element sits on the negative (top/left) side of the
+  // reference on the cross axis.
+  const isBeforeRef = side === 'top' || side === 'left';
 
-  return pointX >= minX && pointX <= maxX && pointY >= minY && pointY <= maxY;
+  const cursorMain = isXAxis ? x : y;
+  const cursorCross = isXAxis ? y : x;
+  const clientMain = isXAxis ? clientX : clientY;
+  const clientCross = isXAxis ? clientY : clientX;
+
+  const rectMainStart = isXAxis ? rect.left : rect.top;
+  const rectMainEnd = isXAxis ? rect.right : rect.bottom;
+  const rectMainSize = isXAxis ? rect.width : rect.height;
+  const rectCrossStart = isXAxis ? rect.top : rect.left;
+  const rectCrossEnd = isXAxis ? rect.bottom : rect.right;
+  const refCrossStart = isXAxis ? refRect.top : refRect.left;
+  const refCrossEnd = isXAxis ? refRect.bottom : refRect.right;
+  // Cross-axis edges facing the gap between the two elements.
+  const rectCrossNear = isBeforeRef ? rectCrossEnd : rectCrossStart;
+  const rectCrossFar = isBeforeRef ? rectCrossStart : rectCrossEnd;
+  const refCrossNear = isBeforeRef ? refCrossStart : refCrossEnd;
+  const refCrossFar = isBeforeRef ? refCrossEnd : refCrossStart;
+
+  // If the pointer is leaving from the opposite side, the "buffer" logic
+  // creates a point where the floating element remains open, but should be
+  // ignored.
+  // A constant of 1 handles floating point rounding errors.
+  if (isBeforeRef ? cursorCross >= refCrossFar - 1 : cursorCross <= refCrossFar + 1) {
+    return CURSOR_OPPOSITE_SIDE;
+  }
+
+  const isFloatingLarger = rectMainSize > (isXAxis ? refRect.width : refRect.height);
+  // Main-axis extent of the narrower of the two elements.
+  const boundingRect = isFloatingLarger ? refRect : rect;
+  const bandMainStart = isXAxis ? boundingRect.left : boundingRect.top;
+  const bandMainEnd = isXAxis ? boundingRect.right : boundingRect.bottom;
+
+  // Ignore when the cursor is within the rectangular trough between the
+  // two elements. Since the triangle is created from the cursor point,
+  // which can start beyond the ref element's edge, traversing back and
+  // forth from the ref to the floating element can cause it to close. This
+  // ensures it always remains open in that case.
+  if (
+    isInsideBand(clientMain, bandMainStart, bandMainEnd) &&
+    isInsideBand(
+      clientCross,
+      isBeforeRef ? refCrossNear + 1 : refCrossNear - 1,
+      isBeforeRef ? rectCrossNear - 1 : rectCrossNear + 1,
+    )
+  ) {
+    return CURSOR_IN_TROUGH;
+  }
+
+  const cursorLeaveFromMainEnd = cursorMain > rectMainEnd - rectMainSize / 2;
+  const cursorOffset = isFloatingLarger ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
+  const sharedOffset = cursorLeaveFromMainEnd ? cursorOffset : -cursorOffset;
+  const cursorPointMain1 = cursorMain + (isFloatingLarger ? cursorOffset : sharedOffset);
+  const cursorPointMain2 = cursorMain + (isFloatingLarger ? -cursorOffset : sharedOffset);
+  const cursorPointCross = isBeforeRef
+    ? cursorCross + POLYGON_BUFFER + 1
+    : cursorCross - POLYGON_BUFFER;
+
+  // Cross-axis positions of the polygon corners on the floating element.
+  const nearCorner = isBeforeRef ? rectCrossNear - POLYGON_BUFFER : rectCrossNear + POLYGON_BUFFER;
+  const swingCorner = isFloatingLarger ? nearCorner : rectCrossFar;
+  const cornerCrossMainStart = cursorLeaveFromMainEnd ? nearCorner : swingCorner;
+  const cornerCrossMainEnd = cursorLeaveFromMainEnd ? swingCorner : nearCorner;
+
+  const isInsidePolygon = isPointInPolygon(
+    clientX,
+    clientY,
+    isXAxis
+      ? [
+          cursorPointMain1,
+          cursorPointCross,
+          cursorPointMain2,
+          cursorPointCross,
+          rectMainStart,
+          cornerCrossMainStart,
+          rectMainEnd,
+          cornerCrossMainEnd,
+        ]
+      : [
+          cursorPointCross,
+          cursorPointMain1,
+          cursorPointCross,
+          cursorPointMain2,
+          cornerCrossMainStart,
+          rectMainStart,
+          cornerCrossMainEnd,
+          rectMainEnd,
+        ],
+  );
+
+  return isInsidePolygon ? CURSOR_INSIDE_POLYGON : CURSOR_OUTSIDE_POLYGON;
 }
 
 export interface SafePolygonOptions extends HandleCloseOptions {}
@@ -88,7 +172,6 @@ export interface SafePolygonOptions extends HandleCloseOptions {}
  * @see https://floating-ui.com/docs/useHover#safepolygon
  */
 export function safePolygon(options: SafePolygonOptions = {}) {
-  const { blockPointerEvents = false } = options;
   const timeout = new Timeout();
 
   const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
@@ -96,7 +179,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
     let hasLanded = false;
     let lastX: number | null = null;
     let lastY: number | null = null;
-    let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
+    let lastCursorTime = performance.now();
 
     function isCursorMovingSlowly(nextX: number, nextY: number) {
       const currentTime = performance.now();
@@ -180,82 +263,22 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       }
 
       const refRect = domReference.getBoundingClientRect();
-      const rect = floating.getBoundingClientRect();
-      const cursorLeaveFromRight = x > rect.right - rect.width / 2;
-      const cursorLeaveFromBottom = y > rect.bottom - rect.height / 2;
-      const isFloatingWider = rect.width > refRect.width;
-      const isFloatingTaller = rect.height > refRect.height;
-      const left = (isFloatingWider ? refRect : rect).left;
-      const right = (isFloatingWider ? refRect : rect).right;
-      const top = (isFloatingTaller ? refRect : rect).top;
-      const bottom = (isFloatingTaller ? refRect : rect).bottom;
+      const status = classifySafePolygonCursor(
+        side,
+        x,
+        y,
+        clientX,
+        clientY,
+        refRect,
+        floating.getBoundingClientRect(),
+      );
 
-      // If the pointer is leaving from the opposite side, the "buffer" logic
-      // creates a point where the floating element remains open, but should be
-      // ignored.
-      // A constant of 1 handles floating point rounding errors.
-      if (
-        (side === 'top' && y >= refRect.bottom - 1) ||
-        (side === 'bottom' && y <= refRect.top + 1) ||
-        (side === 'left' && x >= refRect.right - 1) ||
-        (side === 'right' && x <= refRect.left + 1)
-      ) {
+      if (status === CURSOR_OPPOSITE_SIDE) {
         closeIfNoOpenChild();
         return undefined;
       }
 
-      // Ignore when the cursor is within the rectangular trough between the
-      // two elements. Since the triangle is created from the cursor point,
-      // which can start beyond the ref element's edge, traversing back and
-      // forth from the ref to the floating element can cause it to close. This
-      // ensures it always remains open in that case.
-      let isInsideTroughRect = false;
-
-      switch (side) {
-        case 'top':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            left,
-            refRect.top + 1,
-            right,
-            rect.bottom - 1,
-          );
-          break;
-        case 'bottom':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            left,
-            rect.top + 1,
-            right,
-            refRect.bottom - 1,
-          );
-          break;
-        case 'left':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            rect.right - 1,
-            bottom,
-            refRect.left + 1,
-            top,
-          );
-          break;
-        case 'right':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            refRect.right - 1,
-            bottom,
-            rect.left + 1,
-            top,
-          );
-          break;
-        default:
-      }
-
-      if (isInsideTroughRect) {
+      if (status === CURSOR_IN_TROUGH) {
         return undefined;
       }
 
@@ -269,169 +292,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         return undefined;
       }
 
-      let isInsidePolygon = false;
-
-      switch (side) {
-        case 'top': {
-          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneX = isFloatingWider
-            ? x + cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointTwoX = isFloatingWider
-            ? x - cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointY = y + POLYGON_BUFFER + 1;
-
-          const commonYLeft = cursorLeaveFromRight
-            ? rect.bottom - POLYGON_BUFFER
-            : isFloatingWider
-              ? rect.bottom - POLYGON_BUFFER
-              : rect.top;
-          const commonYRight = cursorLeaveFromRight
-            ? isFloatingWider
-              ? rect.bottom - POLYGON_BUFFER
-              : rect.top
-            : rect.bottom - POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointOneX,
-            cursorPointY,
-            cursorPointTwoX,
-            cursorPointY,
-            rect.left,
-            commonYLeft,
-            rect.right,
-            commonYRight,
-          );
-          break;
-        }
-        case 'bottom': {
-          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneX = isFloatingWider
-            ? x + cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointTwoX = isFloatingWider
-            ? x - cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointY = y - POLYGON_BUFFER;
-
-          const commonYLeft = cursorLeaveFromRight
-            ? rect.top + POLYGON_BUFFER
-            : isFloatingWider
-              ? rect.top + POLYGON_BUFFER
-              : rect.bottom;
-          const commonYRight = cursorLeaveFromRight
-            ? isFloatingWider
-              ? rect.top + POLYGON_BUFFER
-              : rect.bottom
-            : rect.top + POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointOneX,
-            cursorPointY,
-            cursorPointTwoX,
-            cursorPointY,
-            rect.left,
-            commonYLeft,
-            rect.right,
-            commonYRight,
-          );
-          break;
-        }
-        case 'left': {
-          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneY = isFloatingTaller
-            ? y + cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointTwoY = isFloatingTaller
-            ? y - cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointX = x + POLYGON_BUFFER + 1;
-
-          const commonXTop = cursorLeaveFromBottom
-            ? rect.right - POLYGON_BUFFER
-            : isFloatingTaller
-              ? rect.right - POLYGON_BUFFER
-              : rect.left;
-          const commonXBottom = cursorLeaveFromBottom
-            ? isFloatingTaller
-              ? rect.right - POLYGON_BUFFER
-              : rect.left
-            : rect.right - POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            commonXTop,
-            rect.top,
-            commonXBottom,
-            rect.bottom,
-            cursorPointX,
-            cursorPointOneY,
-            cursorPointX,
-            cursorPointTwoY,
-          );
-          break;
-        }
-        case 'right': {
-          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneY = isFloatingTaller
-            ? y + cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointTwoY = isFloatingTaller
-            ? y - cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointX = x - POLYGON_BUFFER;
-
-          const commonXTop = cursorLeaveFromBottom
-            ? rect.left + POLYGON_BUFFER
-            : isFloatingTaller
-              ? rect.left + POLYGON_BUFFER
-              : rect.right;
-          const commonXBottom = cursorLeaveFromBottom
-            ? isFloatingTaller
-              ? rect.left + POLYGON_BUFFER
-              : rect.right
-            : rect.left + POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointX,
-            cursorPointOneY,
-            cursorPointX,
-            cursorPointTwoY,
-            commonXTop,
-            rect.top,
-            commonXBottom,
-            rect.bottom,
-          );
-          break;
-        }
-        default:
-      }
-
-      if (!isInsidePolygon) {
+      if (status === CURSOR_OUTSIDE_POLYGON) {
         closeIfNoOpenChild();
       } else if (!hasLanded) {
         timeout.start(40, closeIfNoOpenChild);
@@ -442,10 +303,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
   };
 
   // eslint-disable-next-line no-underscore-dangle
-  fn.__options = {
-    ...options,
-    blockPointerEvents,
-  };
+  fn.__options = options;
 
   return fn;
 }
