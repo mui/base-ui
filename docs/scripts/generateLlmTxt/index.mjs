@@ -23,6 +23,45 @@ const NETLIFY_DEPLOYMENT_URL =
   process.env.PULL_REQUEST === 'true' ? process.env.DEPLOY_PRIME_URL : process.env.URL;
 // Use the deployment URL if available, just root relative otherwise
 const BASE_URL = NETLIFY_DEPLOYMENT_URL || '/';
+const REACT_DOCS_ROUTE_MAPPINGS = [
+  [/^\/react\/overview$/, '/react/quick-start'],
+  [/^\/react\/handbook$/, '/react/styling'],
+  [/^\/react\/components$/, '/react'],
+  [/^\/react\/utils$/, '/react'],
+  [/^\/react\/\(overview\)\/releases$/, '/react/releases'],
+  [/^\/react\/\(overview\)\/releases\/([^/]+)$/, '/react/releases/$1'],
+  [/^\/react\/\(overview\)\/(quick-start|accessibility|community|about)$/, '/react/$1'],
+  [
+    /^\/react\/\(handbook\)\/(styling|animation|composition|customization|forms|typescript)$/,
+    '/react/$1',
+  ],
+  [/^\/react\/\(components\)\/([^/]+)$/, '/react/$1'],
+  [/^\/react\/\(utils\)\/([^/]+)$/, '/react/$1'],
+  [/^\/react\/overview\/releases$/, '/react/releases'],
+  [/^\/react\/overview\/releases\/([^/]+)$/, '/react/releases/$1'],
+  [/^\/react\/overview\/(quick-start|accessibility|community|about)$/, '/react/$1'],
+  [
+    /^\/react\/handbook\/(styling|animation|composition|customization|forms|typescript)$/,
+    '/react/$1',
+  ],
+  [/^\/react\/components\/([^/]+)$/, '/react/$1'],
+  [/^\/react\/utils\/([^/]+)$/, '/react/$1'],
+];
+
+function getCanonicalReactDocsUrl(url) {
+  for (const [pattern, replacement] of REACT_DOCS_ROUTE_MAPPINGS) {
+    if (pattern.test(url)) {
+      return url.replace(pattern, replacement);
+    }
+  }
+
+  return url;
+}
+
+function getMarkdownOutputPath(urlPath) {
+  const relativePath = urlPath.replace(/^\/react\/?/, '');
+  return path.join(OUTPUT_REACT_DIR, `${relativePath}.md`);
+}
 
 /**
  * Remark plugin to increment heading levels by a specified amount
@@ -96,6 +135,7 @@ async function generateLlmsTxt() {
   try {
     // Create output directories if they don't exist
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
+    await fs.rm(OUTPUT_REACT_DIR, { recursive: true, force: true });
     await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
 
     const metadataByUrl = new Map();
@@ -124,9 +164,10 @@ async function generateLlmsTxt() {
     const mdxFilesInfo = mdxFiles.map((mdxFile) => {
       const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
       const dirPath = path.dirname(relativePath);
-      const urlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
-      const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
-      return { urlPath, mdxFile, outputFilePath };
+      const sourceUrlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
+      const urlPath = getCanonicalReactDocsUrl(sourceUrlPath);
+      const outputFilePath = getMarkdownOutputPath(urlPath);
+      return { sourceUrlPath, urlPath, mdxFile, outputFilePath };
     });
 
     const urlsWithMdVersion = new Set(mdxFilesInfo.map((info) => info.urlPath));
@@ -135,8 +176,8 @@ async function generateLlmsTxt() {
     const processSection = async (sectionName) => {
       console.log(`Processing ${sectionName} section...`);
 
-      for (const { urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
-        if (!urlPath.startsWith(`/react/${sectionName}/`)) {
+      for (const { sourceUrlPath, urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
+        if (!sourceUrlPath.startsWith(`/react/(${sectionName})/`)) {
           continue;
         }
 

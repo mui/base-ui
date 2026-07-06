@@ -51,11 +51,11 @@ export default function ExampleNavigationMenu() {
                         padding: 20,
                         borderRadius: 8,
                         minHeight: 200,
-                        width: hoveredLink === '/react/overview/quick-start' ? 200 : 400,
-                        height: hoveredLink === '/react/overview/accessibility' ? 150 : 300,
+                        width: hoveredLink === '/react/quick-start' ? 200 : 400,
+                        height: hoveredLink === '/react/accessibility' ? 150 : 300,
                       }}
                     >
-                      {hoveredLink === '/react/overview/quick-start' && (
+                      {hoveredLink === '/react/quick-start' && (
                         <div>
                           <h4 style={{ marginBottom: 10 }}>Quick Start Guide</h4>
                           <p>
@@ -65,7 +65,7 @@ export default function ExampleNavigationMenu() {
                           </p>
                         </div>
                       )}
-                      {hoveredLink === '/react/overview/accessibility' && (
+                      {hoveredLink === '/react/accessibility' && (
                         <div>
                           <h4 style={{ marginBottom: 10 }}>Accessibility Features</h4>
                           <p>
@@ -74,7 +74,7 @@ export default function ExampleNavigationMenu() {
                           </p>
                         </div>
                       )}
-                      {hoveredLink === '/react/overview/releases' && (
+                      {hoveredLink === '/react/releases' && (
                         <div>
                           <h4 style={{ marginBottom: 10 }}>Latest Releases</h4>
                           <p>
@@ -83,7 +83,7 @@ export default function ExampleNavigationMenu() {
                           </p>
                         </div>
                       )}
-                      {hoveredLink === '/react/overview/about' && (
+                      {hoveredLink === '/react/about' && (
                         <div>
                           <h4 style={{ marginBottom: 10 }}>About Base UI</h4>
                           <p>
@@ -135,7 +135,7 @@ export default function ExampleNavigationMenu() {
                 ))}
                 {renderExtraItem && (
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                    <Link className={styles.LinkCard} href="/react/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -236,7 +236,7 @@ export default function ExampleNavigationMenu() {
                     <td>
                       <ul className={styles.FlexLinkList}>
                         <li>
-                          <Link className={styles.LinkCard} href="/react/components">
+                          <Link className={styles.LinkCard} href="/react">
                             <h3 className={styles.LinkTitle}>Components</h3>
                             <p className={styles.LinkDescription}>
                               Browse primitives for building product UI.
@@ -353,7 +353,7 @@ export default function ExampleNavigationMenu() {
                 ))}
                 {renderExtraItem && (
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                    <Link className={styles.LinkCard} href="/react/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -414,7 +414,7 @@ function MixedNestedNavigationMenuContent() {
 
                 <ul className={styles.FlexLinkList}>
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                    <Link className={styles.LinkCard} href="/react/quick-start">
                       <h3 className={styles.LinkTitle}>Quick start</h3>
                       <p className={styles.LinkDescription}>
                         Install Base UI and get your first interactive primitive on screen fast.
@@ -422,7 +422,7 @@ function MixedNestedNavigationMenuContent() {
                     </Link>
                   </li>
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/accessibility">
+                    <Link className={styles.LinkCard} href="/react/accessibility">
                       <h3 className={styles.LinkTitle}>Accessibility</h3>
                       <p className={styles.LinkDescription}>
                         Review keyboard support and semantic defaults before anything ships.
@@ -555,22 +555,22 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 
 const overviewLinks = [
   {
-    href: '/react/overview/quick-start',
+    href: '/react/quick-start',
     title: 'Quick Start',
     description: 'Install and assemble your first component.',
   },
   {
-    href: '/react/overview/accessibility',
+    href: '/react/accessibility',
     title: 'Accessibility',
     description: 'Learn how we build accessible components.',
   },
   {
-    href: '/react/overview/releases',
+    href: '/react/releases',
     title: 'Releases',
     description: 'See what’s new in the latest Base UI versions.',
   },
   {
-    href: '/react/overview/about',
+    href: '/react/about',
     title: 'About',
     description: 'Learn more about Base UI and our mission.',
   },
@@ -578,19 +578,19 @@ const overviewLinks = [
 
 const handbookLinks = [
   {
-    href: '/react/handbook/styling',
+    href: '/react/styling',
     title: 'Styling',
     description:
       'Base UI components can be styled with plain CSS, Tailwind CSS, CSS-in-JS, or CSS Modules.',
   },
   {
-    href: '/react/handbook/animation',
+    href: '/react/animation',
     title: 'Animation',
     description:
       'Base UI components can be animated with CSS transitions, CSS animations, or JavaScript libraries.',
   },
   {
-    href: '/react/handbook/composition',
+    href: '/react/composition',
     title: 'Composition',
     description:
       'Base UI components can be replaced and composed with your own existing components.',
@@ -599,12 +599,12 @@ const handbookLinks = [
 
 const deepLinks = [
   {
-    href: '/react/handbook/composition',
+    href: '/react/composition',
     title: 'Composition handbook',
     description: 'Follow the hover path into this popup and confirm the entire chain stays open.',
   },
   {
-    href: '/react/components/navigation-menu',
+    href: '/react/navigation-menu',
     title: 'Navigation Menu docs',
     description: 'Compare the experiment against the shipped component guidance and examples.',
   },

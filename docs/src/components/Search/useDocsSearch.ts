@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
+import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { getCanonicalReactDocsUrl } from 'docs/src/utils/canonicalReactDocsUrl';
 import { type SearchSitemapLoader } from './searchSitemap';
 import { slugifyWithParentContext } from './searchUtils';
 
@@ -70,5 +72,16 @@ export function useDocsSearch(
   // avoid rendering the default list under a real query.
   const isSearchPending = hasQuery && (!isReady || completedSearchId !== latestSearchIdRef.current);
 
-  return { ...searchApi, results: acceptedResults, hasQuery, isSearchPending, performSearch };
+  const buildResultUrl = useStableCallback((result: SearchResult) =>
+    getCanonicalReactDocsUrl(searchApi.buildResultUrl(result)),
+  );
+
+  return {
+    ...searchApi,
+    buildResultUrl,
+    results: acceptedResults,
+    hasQuery,
+    isSearchPending,
+    performSearch,
+  };
 }

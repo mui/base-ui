@@ -4,18 +4,62 @@ import { GitHubIcon } from '../../icons/GitHubIcon';
 
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 const SOURCE_CODE_REF = process.env.LIB_VERSION ? `v${process.env.LIB_VERSION}` : undefined;
-const SOURCE_PATH_PREFIXES = ['/react/components/', '/react/utils/'] as const;
+const SOURCE_SLUGS = new Set([
+  'accordion',
+  'alert-dialog',
+  'autocomplete',
+  'avatar',
+  'button',
+  'checkbox',
+  'checkbox-group',
+  'collapsible',
+  'combobox',
+  'context-menu',
+  'csp-provider',
+  'dialog',
+  'direction-provider',
+  'drawer',
+  'field',
+  'fieldset',
+  'form',
+  'input',
+  'menu',
+  'menubar',
+  'merge-props',
+  'meter',
+  'navigation-menu',
+  'number-field',
+  'otp-field',
+  'popover',
+  'preview-card',
+  'progress',
+  'radio',
+  'scroll-area',
+  'select',
+  'separator',
+  'slider',
+  'switch',
+  'tabs',
+  'toast',
+  'toggle',
+  'toggle-group',
+  'toolbar',
+  'tooltip',
+  'use-render',
+]);
 
 function getSourceUrl(pathname: string) {
-  const sourcePathPrefix = SOURCE_PATH_PREFIXES.find((prefix) => pathname.startsWith(prefix));
-
-  if (sourcePathPrefix == null) {
+  if (!pathname.startsWith('/react/')) {
     return null;
   }
 
-  const sourceSlug = pathname.slice(sourcePathPrefix.length).split('/').filter(Boolean);
+  const sourceSlug = pathname.slice('/react/'.length).split('/').filter(Boolean);
 
   if (sourceSlug.length !== 1) {
+    return null;
+  }
+
+  if (!SOURCE_SLUGS.has(sourceSlug[0])) {
     return null;
   }
 

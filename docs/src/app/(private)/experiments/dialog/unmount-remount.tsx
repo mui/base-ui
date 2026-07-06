@@ -2,7 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { Dialog } from '@base-ui/react/dialog';
-import demoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/hero/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/(components)/dialog/demos/hero/css-modules/index.module.css';
 import styles from './dialog.module.css';
 
 const dialogHandle = Dialog.createHandle();

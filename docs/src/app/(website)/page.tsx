@@ -54,7 +54,7 @@ export default function Homepage() {
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
-          <Link className="Text sz-2 bui-d-if" href="/react/overview/quick-start" withArrow>
+          <Link className="Text sz-2 bui-d-if" href="/react/quick-start" withArrow>
             Documentation
           </Link>
         </div>

@@ -1,4 +1,5 @@
 import type { Sitemap } from '@mui/internal-docs-infra/useSearch/types';
+import { getCanonicalReactDocsUrl } from './canonicalReactDocsUrl';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
@@ -9,7 +10,7 @@ export function isSitemapPageVisible(page: SitemapPage) {
   return page.audience === 'private' ? showPrivatePages : true;
 }
 
-export function getSitemapPageInfo(section: SitemapSection, page: SitemapPage) {
+export function getSitemapPageInfo(section: Pick<SitemapSection, 'prefix'>, page: SitemapPage) {
   const badges: Array<'Private' | 'Preview' | 'New'> = [];
   const isPrivatePage = page.audience === 'private';
   const isPreviewPage = page.tags?.includes('Preview') ?? false;
@@ -30,8 +31,10 @@ export function getSitemapPageInfo(section: SitemapSection, page: SitemapPage) {
   return {
     badges,
     external: page.tags?.includes('External') ?? false,
-    href: page.path.startsWith('./')
-      ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-      : page.path,
+    href: getCanonicalReactDocsUrl(
+      page.path.startsWith('./')
+        ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+        : page.path,
+    ),
   };
 }
