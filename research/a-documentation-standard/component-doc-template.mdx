@@ -1,0 +1,177 @@
+{/*
+  ANNOTATED TEMPLATE — Base UI component docs page for Storybook (addon-docs MDX).
+  Implements research/a-documentation-standard/documentation-definition-of-done.md (DoD).
+  Each slot names the DoD section it implements and the research field that feeds it:
+    brief §N  = research/c-components/<slug>/brief.md section N
+    plan      = research/c-components/<slug>/story-plan.md
+    ranked    = research/d-real-world-usage/<slug>/ranked.json + examples.md
+  Rules:
+    - Keep every H2 below unless the DoD marks it optional AND research is empty; a section whose
+      research came up empty keeps a visible "[G] …" line instead of being deleted silently.
+    - Every normative rule carries its rationale ("…, because …").
+    - Citations render as links: ([#1234](https://github.com/mui/base-ui/pull/1234)).
+    - Stories are the single source of truth for code: <Canvas of={…}/> everywhere, no dead code blocks.
+*/}
+
+import { Meta, Canvas, Controls, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ComponentStories from './component.stories';
+
+<Meta of={ComponentStories} />
+
+{/* ── 1. Identity strip — DoD §1 · brief §1 ─────────────────────────────── */}
+
+# Component
+
+A one-sentence purpose statement in Base UI's own voice (from the docs page Subtitle).
+
+<ul>
+  <li><b>Import:</b> <code>import {'{ Component }'} from '@base-ui/react/component';</code></li>
+  <li><b>Parts:</b> N parts (Root, Trigger, …) — see Anatomy.</li>
+  <li><b>Status:</b> Stable since vX.Y (or Preview — export carries the `Preview` suffix). {/* DoD §20 · brief §1 */}</li>
+  <li><b>ARIA pattern:</b> [Name](https://www.w3.org/WAI/ARIA/apg/patterns/…) {/* DoD §9e */}</li>
+  <li><b>Docs verified against:</b> @base-ui/react vX.Y.Z.</li>
+</ul>
+
+{/* ── 2. Hero — DoD §2 · plan story #1 (styled like base-ui.com hero demo) ─ */}
+
+<Canvas of={ComponentStories.Hero} />
+
+{/* ── 3. Features — DoD §3 · brief §2/§6 ── 4–8 bullets, one capability each,
+      emphasizing the invisible machinery (focus, anchoring, typeahead…). */}
+
+## Features
+
+- **Capability** — one sentence on what you get for free.
+
+{/* ── 4/5. Decision sections — DoD §4/§5 · brief §3/§4 + _clusters/… ──────
+      GOV.UK rule: "When not to use" ALWAYS names and links the alternative. */}
+
+## When to use
+
+- [E]-evidenced scenario bullets.
+
+## When not to use
+
+- To do X, use [Alternative](?path=/docs/…) instead, because … {/* link the cluster comparison page if one exists */}
+
+{/* ── 6. Anatomy — DoD §6 · brief §5 ── code part tree (import + full JSX),
+      per-part one-liner table ("Renders a <div>"), optional-part notes,
+      Portal/Positioner/Popup layering grammar. Visual diagram when available. */}
+
+## Anatomy
+
+```tsx
+// the canonical part tree, props-free
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+
+{/* ── 7. How it works — DoD §7 · brief §6 ── one H3 per behavior, each with
+      its own story Canvas (GOV.UK "How it works" shape). Must cover:
+      controlled/uncontrolled, open/close + eventDetails (reason/cancel),
+      dismissal, focus behavior. Forms (DoD §13) and failure states (DoD §14)
+      appear here for form controls; Animation (DoD §11) for popups. */}
+
+## How it works
+
+### Behavior name
+
+Prose + rationale.
+
+<Canvas of={ComponentStories.BehaviorStory} />
+
+{/* ── 8. Examples — DoD §8 · plan "one story per use case" ── every story
+      carries a one-line "Use when…" description (parameters.docs.description.story). */}
+
+## Examples
+
+<Canvas of={ComponentStories.UseCaseStory} />
+
+{/* ── 9. Keyboard & screen reader — DoD §9 · brief §7 ── MIND-shaped contract. */}
+
+## Keyboard & screen reader
+
+| Key | Action |
+|---|---|
+
+- **ARIA**: roles/states the component manages for you.
+- **Screen reader**: expected announcements.
+- **You must provide**: focus-visible styles, contrast, accessible name via … (the consumer side of the contract).
+- **Known issues**: [#NNNN](…) — honest disclosure, or "[G] none found (searched upstream issues YYYY-MM)".
+
+{/* ── 10. Styling contract — DoD §10 · brief §8 + *DataAttributes/*CssVars ── */}
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+
+{/* ── 11. Per-prop guidance — DoD §12 · brief §8/§9 ── judgment layer, NOT the
+      API table: "Use `prop` when …, because … ([#NNNN](…))". Decision-relevant props only. */}
+
+## Choosing the right props
+
+- **`propName`** — use it when …, because … ([#NNNN](…)).
+
+{/* ── 12. Do / Don't — DoD §16 · brief §10 ── each Don't cites the issue where
+      a real user hit it. */}
+
+## Do / Don't
+
+**Do**
+
+- … because …
+
+**Don't**
+
+- … ([#NNNN](…) — real-world failure this prevents)
+
+{/* ── 13. Real-world examples — DoD §17 · ranked/examples.md ── top 3–5:
+      live link + source permalink + license/reuse flag + why it's instructive.
+      Respect reuse:"link-only" — link, never copy code. */}
+
+## In the wild
+
+- **[Product/Repo](liveUrl)** ([source](permalink), LICENSE) — what to learn from it. {/* rankRationale */}
+
+{/* ── 14. Decision log — DoD §18 · brief §9 ── dated, cited. */}
+
+## Decision log
+
+- **YYYY-MM** — decided X because Y ([#NNNN](…)).
+
+{/* ── 15. Research & known issues — DoD §19 · brief §7/§10. */}
+
+## Known issues & open questions
+
+- [#NNNN](…) — status, workaround if any.
+
+{/* ── 16. Related — DoD §21 · brief §4 + taxonomy clusters — task-framed. */}
+
+## Related
+
+- To …, use [Component](…).
+
+{/* ── 17. API reference — DoD §22 ── auto-generated per part. One ArgTypes per
+      part (compound components), or <Controls/> for single-part components. */}
+
+## API reference
+
+### Component.Root
+
+<ArgTypes of={ComponentStories.Hero} />
+
+{/* Repeat per part via subcomponent stories or per-part ArgTypes targets. */}
+
+{/* ── 18. Testing — DoD §23 · component's own *.test.tsx patterns — optional. */}
+
+## Testing your composition
+
+- Query by role …; the play functions in the stories above are living examples.
+
+{/* ── 19. Feedback loop — DoD §24 ── pre-filtered upstream issue search + edit link. */}
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+component) · [Edit this page](repo link).*
