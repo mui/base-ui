@@ -8,7 +8,7 @@ import type { FloatingPortal } from '../../floating-ui-react';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/drawer)
  */
 export const DrawerPortal = DialogPortal as DrawerPortal;
 

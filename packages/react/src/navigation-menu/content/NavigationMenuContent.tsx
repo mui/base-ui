@@ -38,7 +38,7 @@ const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState>
  * when the item is active.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/navigation-menu)
  */
 export const NavigationMenuContent = React.forwardRef(function NavigationMenuContent(
   componentProps: NavigationMenuContent.Props,

@@ -28,7 +28,7 @@ import type { PayloadChildRenderFunction } from '../../utils/popups';
  * Groups all parts of the drawer.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/drawer)
  */
 export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) {
   const {

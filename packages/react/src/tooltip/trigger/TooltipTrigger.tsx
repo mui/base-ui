@@ -66,7 +66,7 @@ function closestEnabledTooltipTrigger(element: Element | null): Element | null {
  * An element to attach the tooltip to.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/tooltip)
  */
 export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,

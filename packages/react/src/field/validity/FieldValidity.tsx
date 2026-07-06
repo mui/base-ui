@@ -9,7 +9,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  * Used to display a custom message based on the field's validity.
  * Requires `children` to be a function that accepts field validity state as an argument.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/field)
  */
 export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;

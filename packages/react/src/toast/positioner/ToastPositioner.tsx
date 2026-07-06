@@ -22,7 +22,7 @@ import { usePositioner } from '../../utils/usePositioner';
  * Positions the toast against the anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastPositioner = React.forwardRef(function ToastPositioner(
   componentProps: ToastPositioner.Props,

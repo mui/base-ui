@@ -10,7 +10,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A title that labels the toast.
  * Renders an `<h2>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,

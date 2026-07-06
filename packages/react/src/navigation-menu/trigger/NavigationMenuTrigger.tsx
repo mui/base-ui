@@ -64,7 +64,7 @@ const DEFAULT_SIZE = { width: 0, height: 0 };
  * associated content.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/navigation-menu)
  */
 export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTrigger(
   componentProps: NavigationMenuTrigger.Props,

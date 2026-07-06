@@ -10,7 +10,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * Visualizes the completion status of the task.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/progress)
  */
 export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   componentProps: ProgressIndicator.Props,

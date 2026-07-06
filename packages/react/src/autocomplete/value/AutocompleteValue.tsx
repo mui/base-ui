@@ -6,7 +6,7 @@ import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootCo
  * The current value of the autocomplete.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Autocomplete](https://base-ui.com/react/autocomplete)
  */
 export function AutocompleteValue(props: AutocompleteValue.Props): React.ReactElement {
   const { children } = props;

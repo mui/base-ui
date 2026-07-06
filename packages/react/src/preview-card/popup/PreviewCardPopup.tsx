@@ -15,7 +15,7 @@ import { useHoverFloatingInteraction } from '../../floating-ui-react';
  * A container for the preview card contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
  */
 export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   componentProps: PreviewCardPopup.Props,

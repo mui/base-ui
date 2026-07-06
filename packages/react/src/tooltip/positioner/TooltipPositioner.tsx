@@ -18,7 +18,7 @@ import { usePositioner } from '../../utils/usePositioner';
  * Positions the tooltip against the trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/tooltip)
  */
 export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   componentProps: TooltipPositioner.Props,

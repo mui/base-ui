@@ -11,7 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Displays an element positioned against the preview card anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
  */
 export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   componentProps: PreviewCardArrow.Props,

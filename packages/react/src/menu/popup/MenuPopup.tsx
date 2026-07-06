@@ -21,7 +21,7 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
  * A container for the menu items.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
  */
 export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,

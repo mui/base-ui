@@ -116,7 +116,7 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
  * Groups all parts of the preview card.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
  */
 export const PreviewCardRoot = fastComponent(function PreviewCardRoot<Payload>(
   props: PreviewCardRoot.Props<Payload>,

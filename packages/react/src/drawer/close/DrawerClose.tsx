@@ -7,7 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
  * A button that closes the drawer.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/drawer)
  */
 export const DrawerClose = DialogClose as DrawerClose;
 

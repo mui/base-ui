@@ -8,7 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types
  * A button component that can be used to trigger actions.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Button](https://base-ui.com/react/components/button)
+ * Documentation: [Base UI Button](https://base-ui.com/react/button)
  */
 export const Button = React.forwardRef(function Button(
   componentProps: Button.Props,

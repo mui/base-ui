@@ -11,7 +11,7 @@ import type { SliderRootState } from '../root/SliderRoot';
  * Displays the current value of the slider as text.
  * Renders an `<output>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui.com/react/slider)
  */
 export const SliderValue = React.forwardRef(function SliderValue(
   componentProps: SliderValue.Props,

@@ -21,7 +21,7 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
  * Groups all parts of the progress bar and provides the task completion status to screen readers.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui.com/react/progress)
  */
 export const ProgressRoot = React.forwardRef(function ProgressRoot(
   componentProps: ProgressRoot.Props,

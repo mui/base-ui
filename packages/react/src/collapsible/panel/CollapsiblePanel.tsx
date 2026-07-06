@@ -16,7 +16,7 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
  * A panel with the collapsible contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/collapsible)
  */
 export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   componentProps: CollapsiblePanel.Props,

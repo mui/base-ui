@@ -11,7 +11,7 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
  * Indicates whether the select item is selected.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/select)
  */
 export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   componentProps: SelectItemIndicator.Props,

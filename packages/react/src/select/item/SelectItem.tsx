@@ -26,7 +26,7 @@ import { isVirtualClick } from '../../floating-ui-react/utils/event';
  * An individual option in the select popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/select)
  */
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(

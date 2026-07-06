@@ -10,7 +10,7 @@ import { ToastStore } from '../store';
 /**
  * Provides a context for creating and managing toasts.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;

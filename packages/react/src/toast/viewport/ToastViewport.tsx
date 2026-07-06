@@ -17,7 +17,7 @@ import { ToastViewportCssVars } from './ToastViewportCssVars';
  * A container viewport for toasts.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastViewport = React.forwardRef(function ToastViewport(
   componentProps: ToastViewport.Props,

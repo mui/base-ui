@@ -10,7 +10,7 @@ import { useMenuGroupRootContext } from '../group/MenuGroupContext';
  * An accessible label that is automatically associated with its parent group.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
  */
 export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
   componentProps: MenuGroupLabel.Props,

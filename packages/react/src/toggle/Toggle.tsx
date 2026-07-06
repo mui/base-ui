@@ -20,7 +20,7 @@ import { REASONS } from '../internals/reasons';
  * A two-state button that can be on or off.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
+ * Documentation: [Base UI Toggle](https://base-ui.com/react/toggle)
  */
 export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   componentProps: Toggle.Props<Value>,

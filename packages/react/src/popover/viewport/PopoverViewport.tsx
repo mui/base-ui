@@ -12,7 +12,7 @@ import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopu
  * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverViewport = React.forwardRef(function PopoverViewport(
   componentProps: PopoverViewport.Props,

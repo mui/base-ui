@@ -213,7 +213,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
  * Groups all parts of the field.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/field)
  */
 export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,

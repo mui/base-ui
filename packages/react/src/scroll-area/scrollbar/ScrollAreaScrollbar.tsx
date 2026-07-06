@@ -17,7 +17,7 @@ import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
  * A vertical or horizontal scrollbar for the scroll area.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/scroll-area)
  */
 export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   componentProps: ScrollAreaScrollbar.Props,

@@ -40,7 +40,7 @@ const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_S
  * Groups all parts of an individual toast.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastRoot = React.forwardRef(function ToastRoot(
   componentProps: ToastRoot.Props,

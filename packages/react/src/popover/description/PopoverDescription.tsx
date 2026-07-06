@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A paragraph with additional information about the popover.
  * Renders a `<p>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverDescription = React.forwardRef(function PopoverDescription(
   componentProps: PopoverDescription.Props,

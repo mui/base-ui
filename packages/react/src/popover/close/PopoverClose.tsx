@@ -12,7 +12,7 @@ import { useClosePartRegistration } from '../../utils/closePart';
  * A button that closes the popover.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui.com/react/popover)
  */
 export const PopoverClose = React.forwardRef(function PopoverClose(
   componentProps: PopoverClose.Props,

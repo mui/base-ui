@@ -9,7 +9,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * A wrapper for the input and its associated controls.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Autocomplete](https://base-ui.com/react/autocomplete)
  */
 export const AutocompleteInputGroup = ComboboxInputGroup as AutocompleteInputGroup;
 

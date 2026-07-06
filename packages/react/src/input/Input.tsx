@@ -4,10 +4,10 @@ import type { BaseUIComponentProps } from '../internals/types';
 import { Field, type FieldControlState } from '../field';
 
 /**
- * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
+ * A native input element that automatically works with [Field](https://base-ui.com/react/field).
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
+ * Documentation: [Base UI Input](https://base-ui.com/react/input)
  */
 export const Input = React.forwardRef(function Input(
   props: Input.Props,

@@ -9,7 +9,7 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
  */
 export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
   props: PreviewCardPortal.Props,

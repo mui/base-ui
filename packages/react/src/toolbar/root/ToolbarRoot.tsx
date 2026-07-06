@@ -13,7 +13,7 @@ import { ToolbarRootContext } from './ToolbarRootContext';
  * A container for grouping a set of controls, such as buttons, toggle groups, or menus.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui.com/react/toolbar)
  */
 export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   componentProps: ToolbarRoot.Props,

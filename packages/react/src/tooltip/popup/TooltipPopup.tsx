@@ -15,7 +15,7 @@ import { useHoverFloatingInteraction } from '../../floating-ui-react';
  * A container for the tooltip contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/tooltip)
  */
 export const TooltipPopup = React.forwardRef(function TooltipPopup(
   componentProps: TooltipPopup.Props,

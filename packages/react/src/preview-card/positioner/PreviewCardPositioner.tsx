@@ -21,7 +21,7 @@ import { createInlineMiddleware } from '../../utils/popups';
  * Positions the popup against the trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
  */
 export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   componentProps: PreviewCardPositioner.Props,

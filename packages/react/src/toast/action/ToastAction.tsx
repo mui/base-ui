@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Performs an action when clicked.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
  */
 export const ToastAction = React.forwardRef(function ToastAction(
   componentProps: ToastAction.Props,

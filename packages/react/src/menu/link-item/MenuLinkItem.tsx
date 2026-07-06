@@ -14,7 +14,7 @@ import { mergeProps } from '../../merge-props';
  * A link in the menu that can be used to navigate to a different page or section.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
  */
 export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   componentProps: MenuLinkItem.Props,

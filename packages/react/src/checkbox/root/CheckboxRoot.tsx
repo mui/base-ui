@@ -42,7 +42,7 @@ export const PARENT_CHECKBOX = 'data-parent';
  * Represents the checkbox itself.
  * Renders a `<span>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/checkbox)
  */
 export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   componentProps: CheckboxRoot.Props,
@@ -501,7 +501,7 @@ export interface CheckboxRootProps
   /**
    * Whether the checkbox controls a group of child checkboxes.
    *
-   * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
+   * Must be used in a [Checkbox Group](https://base-ui.com/react/checkbox-group).
    * @default false
    */
   parent?: boolean | undefined;
@@ -511,7 +511,7 @@ export interface CheckboxRootProps
    */
   uncheckedValue?: string | undefined;
   /**
-   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.
+   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/checkbox-group), falling back to `name` when omitted.
    * When submitting a form, a checked box submits `value`; with no `value`, it submits the native "on".
    */
   value?: string | undefined;

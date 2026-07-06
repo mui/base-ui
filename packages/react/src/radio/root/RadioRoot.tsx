@@ -30,7 +30,7 @@ import { RadioRootContext } from './RadioRootContext';
  * Represents the radio button itself.
  * Renders a `<span>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio](https://base-ui.com/react/radio)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   componentProps: RadioRoot.Props<Value>,

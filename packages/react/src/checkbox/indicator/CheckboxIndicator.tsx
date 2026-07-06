@@ -15,7 +15,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
  * Indicates whether the checkbox is ticked.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/checkbox)
  */
 export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   componentProps: CheckboxIndicator.Props,
