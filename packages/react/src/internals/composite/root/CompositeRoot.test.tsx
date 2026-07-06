@@ -1,6 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, createRenderer, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import {
+  act,
+  createRenderer,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
@@ -201,6 +208,41 @@ describe('Composite', () => {
       await user.keyboard('{ArrowDown}');
       expect(item3).toHaveFocus();
     });
+
+    it.skipIf(isJSDOM)(
+      'updates the order of items when their containers are reordered',
+      async () => {
+        function App(props: { groups: string[] }) {
+          return (
+            <CompositeRoot>
+              {props.groups.map((group) => (
+                <div key={group} role="group">
+                  <CompositeItem data-testid={group}>{group}</CompositeItem>
+                </div>
+              ))}
+            </CompositeRoot>
+          );
+        }
+        // StrictMode masks the bug: it re-runs the item registration effects when
+        // the containers move, which re-sorts the indices even without the fix.
+        const { user, rerender } = render(<App groups={['a', 'b', 'c']} />, { strict: false });
+        rerender(<App groups={['b', 'a', 'c']} />);
+
+        const itemA = screen.getByTestId('a');
+        const itemB = screen.getByTestId('b');
+
+        // The re-sort commits asynchronously (MutationObserver); once it does,
+        // the roving tab stop (highlighted index 0) belongs to the first item in
+        // the new DOM order.
+        await waitFor(() => {
+          expect(itemB).toHaveAttribute('tabindex', '0');
+        });
+
+        act(() => itemB.focus());
+        await user.keyboard('{ArrowDown}');
+        expect(itemA).toHaveFocus();
+      },
+    );
 
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
