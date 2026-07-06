@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { DropdownMenu, Tooltip, Popover, Dialog, HoverCard } from 'radix-ui';
-import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import tooltipDemoStyles from 'docs/src/app/(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import popoverDemoStyles from 'docs/src/app/(docs)/react/components/popover/demos/_index.module.css';
-import dialogDemoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/_index.module.css';
-import previewCardDemoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
+import menuDemoStyles from 'docs/src/app/(docs)/react/(components)/menu/demos/submenu/css-modules/index.module.css';
+import tooltipDemoStyles from 'docs/src/app/(docs)/react/(components)/tooltip/demos/hero/css-modules/index.module.css';
+import popoverDemoStyles from 'docs/src/app/(docs)/react/(components)/popover/demos/_index.module.css';
+import dialogDemoStyles from 'docs/src/app/(docs)/react/(components)/dialog/demos/_index.module.css';
+import previewCardDemoStyles from 'docs/src/app/(docs)/react/(components)/preview-card/demos/index.module.css';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './perf.module.css';
 import PerformanceBenchmark from './utils/benchmark';

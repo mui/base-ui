@@ -33,7 +33,7 @@ export function ReleaseTimeline() {
               <h2 className="TimelineVersion">
                 <Link
                   className="TimelineVersionLink"
-                  href={`/react/overview/releases/${release.versionSlug}`}
+                  href={`/react/releases/${release.versionSlug}`}
                 >
                   {release.version}
                 </Link>

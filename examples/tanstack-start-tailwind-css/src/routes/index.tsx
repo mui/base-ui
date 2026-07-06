@@ -18,7 +18,7 @@ function App() {
           <h2 className="my-1 text-lg font-bold text-balance">Base UI + TanStack Start</h2>
           <p className="text-sm">
             This is a{' '}
-            <Link href="https://tanstack.com/start/latest/docs/framework/react/overview">
+            <Link href="https://tanstack.com/start/latest/docs/framework/react/quick-start">
               TanStack Start
             </Link>{' '}
             app with <Link href="https://base-ui.com">Base UI components</Link> and{' '}
@@ -88,7 +88,7 @@ function App() {
                       <li>
                         <NavigationMenu.Link
                           variant="card"
-                          href="https://base-ui.com/react/handbook/forms#tanstack-form"
+                          href="https://base-ui.com/react/forms#tanstack-form"
                           target="_blank"
                         >
                           <h3 className="mb-1 text-sm font-medium">TanStack Form Example</h3>

@@ -6,7 +6,7 @@ From the creators of Radix, Floating UI, and Material UI, Base UI is an unsty
 
 ## Documentation
 
-To get started, check out the [Base UI documentation](https://base-ui.com/react/overview/quick-start).
+To get started, check out the [Base UI documentation](https://base-ui.com/react/quick-start).
 
 ## Contributing
 
@@ -14,7 +14,7 @@ Read our [contributing guide](/CONTRIBUTING.md) to learn about our development p
 
 ## Releases
 
-To see the latest updates, check out the [releases](https://base-ui.com/react/overview/releases).
+To see the latest updates, check out the [releases](https://base-ui.com/react/releases).
 
 ## Community
 

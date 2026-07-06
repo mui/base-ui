@@ -52,7 +52,7 @@ export function processReleaseTimeline() {
 
   for (const release of releases) {
     // Heading with version linked to release page
-    const url = `/react/overview/releases/${release.versionSlug}`;
+    const url = `/react/releases/${release.versionSlug}`;
     const headingChildren = [{ type: 'link', url, children: [mdx.text(release.version)] }];
     if (release.latest) {
       headingChildren.push(mdx.text(' (Latest)'));
