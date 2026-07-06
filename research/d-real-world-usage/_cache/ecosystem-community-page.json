@@ -1,0 +1,25 @@
+{
+  "sources": [
+    "local file: docs/src/app/(docs)/react/overview/community/page.mdx (matches live page)",
+    "https://base-ui.com/react/overview/community (WebFetch 2026-07-06)"
+  ],
+  "styledLibraries": [
+    { "name": "Kumo", "liveUrl": "https://kumo-ui.com", "resolvedRepo": "cloudflare/kumo", "note": "Cloudflare's component library" },
+    { "name": "coss ui", "liveUrl": "https://coss.com/ui", "resolvedRepo": "cosscom/coss", "note": "by the cal.com team" },
+    { "name": "Fragments", "liveUrl": "https://www.usefragments.com", "resolvedRepo": null, "note": "no public GitHub repo found; live-only entry, not in repos.json" },
+    { "name": "9ui", "liveUrl": "https://www.9ui.dev", "resolvedRepo": "borabaloglu/9ui" },
+    { "name": "Prototyper UI", "liveUrl": "https://prototyper-ui.com", "resolvedRepo": "PrototyperAI/prototyper-ui" },
+    { "name": "Lumi UI", "liveUrl": "https://www.lumiui.dev", "resolvedRepo": "patrick-xin/lumi-ui" },
+    { "name": "Olyx UI", "liveUrl": "https://www.olyxui.com", "resolvedRepo": "ramo4040/olyx-ui" },
+    { "name": "ReUI", "liveUrl": "https://reui.io", "resolvedRepo": "keenthemes/reui" },
+    { "name": "Fig UI", "liveUrl": "https://figui.dev", "resolvedRepo": "anxndsgn/FigUI" },
+    { "name": "Selia", "liveUrl": "https://selia.earth", "resolvedRepo": "nauvalazhar/selia" }
+  ],
+  "unofficialPorts": [
+    { "name": "base-ui-solid", "resolvedRepo": "msviderok/base-ui-solid" },
+    { "name": "base-ui-vue", "resolvedRepo": "vuepont/base-ui-vue" }
+  ],
+  "foundation": [
+    { "name": "shadcn/ui", "liveUrl": "https://ui.shadcn.com", "resolvedRepo": "shadcn-ui/ui", "note": "page states shadcn/ui uses Base UI as its unstyled foundation" }
+  ]
+}
