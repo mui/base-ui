@@ -151,16 +151,26 @@ describe('<Tabs.Indicator />', () => {
       );
     }
 
-    // Compares the rendered indicator's box to the active tab's box. Both share the
-    // ancestor transform, so when the indicator is positioned correctly their on-screen
-    // rects coincide — regardless of the transform.
-    function assertBubbleOverlapsActiveTab(bubble: HTMLElement, activeTab: HTMLElement) {
-      const bubbleRect = bubble.getBoundingClientRect();
-      const tabRect = activeTab.getBoundingClientRect();
-      expect(Math.abs(bubbleRect.left - tabRect.left)).toBeLessThanOrEqual(1);
-      expect(Math.abs(bubbleRect.top - tabRect.top)).toBeLessThanOrEqual(1);
-      expect(Math.abs(bubbleRect.right - tabRect.right)).toBeLessThanOrEqual(1);
-      expect(Math.abs(bubbleRect.bottom - tabRect.bottom)).toBeLessThanOrEqual(1);
+    function waitForEdgesToMatch(
+      edge: 'left' | 'top' | 'right' | 'bottom',
+      bubble: HTMLElement,
+      activeTab: HTMLElement,
+    ) {
+      return waitFor(() => {
+        const bubbleRect = bubble.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        expect(Math.abs(bubbleRect[edge] - tabRect[edge])).toBeLessThanOrEqual(1);
+      });
+    }
+
+    // Waits until the rendered indicator's box coincides with the active tab's box.
+    // Both share the ancestor transform, so when the indicator is positioned correctly
+    // their on-screen rects coincide — regardless of the transform.
+    async function waitForBubbleToOverlapActiveTab(bubble: HTMLElement, activeTab: HTMLElement) {
+      await waitForEdgesToMatch('left', bubble, activeTab);
+      await waitForEdgesToMatch('top', bubble, activeTab);
+      await waitForEdgesToMatch('right', bubble, activeTab);
+      await waitForEdgesToMatch('bottom', bubble, activeTab);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
@@ -297,9 +307,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -309,9 +317,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -326,6 +332,9 @@ describe('<Tabs.Indicator />', () => {
       await waitFor(() => {
         const bubbleComputedStyle = window.getComputedStyle(bubble);
         assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), 160);
+      });
+      await waitFor(() => {
+        const bubbleComputedStyle = window.getComputedStyle(bubble);
         assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), 0);
       });
     });
@@ -336,9 +345,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -348,9 +355,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -360,9 +365,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -397,9 +400,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
     });
 
     it('follows the active tab when it uses the translate longhand', async () => {
@@ -426,9 +427,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
     });
 
     it('follows the active tab when the translate longhand uses percentages', async () => {
@@ -456,9 +455,7 @@ describe('<Tabs.Indicator />', () => {
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      await waitFor(() => {
-        assertBubbleOverlapsActiveTab(bubble, activeTab);
-      });
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
     });
 
     it('updates position when a different tab resizes', async () => {

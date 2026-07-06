@@ -32,13 +32,6 @@
     return;
   }
 
-  let left = 0;
-  let right = 0;
-  let top = 0;
-  let bottom = 0;
-  let width = 0;
-  let height = 0;
-
   function getCssDimensions(element) {
     const css = getComputedStyle(element);
     let cssWidth = parseFloat(css.width) || 0;
@@ -89,27 +82,22 @@
     return { left: offsetLeft, top: offsetTop };
   }
 
-  if (activeTab != null && tabsList != null) {
-    const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+  const { width, height } = getCssDimensions(activeTab);
 
-    width = computedWidth;
-    height = computedHeight;
+  // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
+  // They are off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
+  // recomputes the variables with sub-pixel precision as soon as React hydrates.
+  //
+  // Clamp to the content box: a rounded-up offset could otherwise overshoot the tab
+  // list's scrollable extent and trigger a transient scrollbar before hydration. The
+  // clamp is a no-op when the active tab doesn't define the edge (e.g. trailing list
+  // padding), and it also keeps `--active-tab-right`/`--active-tab-bottom` >= 0.
+  const layoutOffset = getLayoutOffset(activeTab, tabsList);
+  const left = Math.min(layoutOffset.left, tabsList.scrollWidth - width);
+  const top = Math.min(layoutOffset.top, tabsList.scrollHeight - height);
 
-    // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
-    // They are off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
-    // recomputes the variables with sub-pixel precision as soon as React hydrates.
-    //
-    // Clamp to the content box: a rounded-up offset could otherwise overshoot the tab
-    // list's scrollable extent and trigger a transient scrollbar before hydration. The
-    // clamp is a no-op when the active tab doesn't define the edge (e.g. trailing list
-    // padding), and it also keeps `--active-tab-right`/`--active-tab-bottom` >= 0.
-    const layoutOffset = getLayoutOffset(activeTab, tabsList);
-    left = Math.min(layoutOffset.left, tabsList.scrollWidth - width);
-    top = Math.min(layoutOffset.top, tabsList.scrollHeight - height);
-
-    right = tabsList.scrollWidth - left - width;
-    bottom = tabsList.scrollHeight - top - height;
-  }
+  const right = tabsList.scrollWidth - left - width;
+  const bottom = tabsList.scrollHeight - top - height;
 
   function setProp(name, value) {
     indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
