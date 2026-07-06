@@ -19,6 +19,10 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import {
+  useComboboxVirtualItemContext,
+  type ComboboxVirtualItemMetadata,
+} from '../virtualizer/ComboboxVirtualItemContext';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -28,6 +32,7 @@ interface ComboboxItemInnerProps {
    * subscribes to it) so the inner component doesn't re-subscribe to the store.
    */
   virtualized: boolean;
+  virtualItem: ComboboxVirtualItemMetadata | undefined;
   /**
    * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
    * `undefined` for the common path, where the index is derived from `index` prop or the
@@ -37,7 +42,7 @@ interface ComboboxItemInnerProps {
 }
 
 function ComboboxItemInner(props: ComboboxItemInnerProps) {
-  const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
+  const { componentProps, forwardedRef, virtualized, virtualItem, indexFromFilter } = props;
   const {
     render,
     className,
@@ -50,8 +55,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   } = componentProps;
 
   const textRef = React.useRef<HTMLElement | null>(null);
+  const explicitIndex = indexProp ?? virtualItem?.index;
   const listItem = useCompositeListItem({
-    index: indexProp,
+    index: explicitIndex,
     textRef,
     indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
@@ -65,7 +71,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
+  const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = listItem.index !== -1;
 
   const rootId = useStore(store, selectors.id);
@@ -79,7 +85,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const selected = matchesSelectedValue && selectable;
 
   useIsoLayoutEffect(() => {
-    const shouldRun = hasRegistered && (virtualized || indexProp != null);
+    const shouldRun = hasRegistered && (virtualized || explicitIndex != null);
     if (!shouldRun) {
       return undefined;
     }
@@ -90,7 +96,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     return () => {
       delete list[index];
     };
-  }, [hasRegistered, virtualized, index, indexProp, store]);
+  }, [hasRegistered, virtualized, index, explicitIndex, store]);
 
   useIsoLayoutEffect(() => {
     if (!hasRegistered || hasItems) {
@@ -191,9 +197,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
+    ref: [buttonRef, forwardedRef, listItem.ref, itemRef, virtualItem?.measureRef],
     state,
-    props: [itemProps, defaultProps, elementProps, getButtonProps],
+    props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
   });
 
   const contextValue: ComboboxItemContext = React.useMemo(
@@ -238,6 +244,7 @@ function ComboboxItemVirtualizedIndex(props: {
       componentProps={componentProps}
       forwardedRef={forwardedRef}
       virtualized
+      virtualItem={undefined}
       indexFromFilter={indexFromFilter}
     />
   );
@@ -256,11 +263,12 @@ export const ComboboxItem = React.memo(
   ) {
     const store = useComboboxRootContext();
     const virtualized = useStore(store, selectors.virtualized);
+    const virtualItem = useComboboxVirtualItemContext();
 
     // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
     // item's lifetime: the two branches return different component types, so flipping it at
     // runtime remounts the item and resets its refs and effects.
-    if (virtualized && componentProps.index == null) {
+    if (virtualized && componentProps.index == null && virtualItem == null) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );
@@ -270,7 +278,8 @@ export const ComboboxItem = React.memo(
       <ComboboxItemInner
         componentProps={componentProps}
         forwardedRef={forwardedRef}
-        virtualized={virtualized}
+        virtualized={virtualized || virtualItem != null}
+        virtualItem={virtualItem}
         indexFromFilter={undefined}
       />
     );

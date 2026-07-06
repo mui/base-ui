@@ -77,6 +77,8 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   grid: boolean;
+  externalVirtualized: boolean;
+  virtualizerMounted: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
@@ -165,6 +167,8 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
+  externalVirtualized: createSelector((state: State) => state.externalVirtualized),
+  virtualizerMounted: createSelector((state: State) => state.virtualizerMounted),
   virtualized: createSelector((state: State) => state.virtualized),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),

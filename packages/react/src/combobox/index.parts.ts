@@ -5,6 +5,7 @@ export { ComboboxInput as Input } from './input/ComboboxInput';
 export { ComboboxInputGroup as InputGroup } from './input-group/ComboboxInputGroup';
 export { ComboboxTrigger as Trigger } from './trigger/ComboboxTrigger';
 export { ComboboxList as List } from './list/ComboboxList';
+export { ComboboxVirtualizer as Virtualizer } from './virtualizer/ComboboxVirtualizer';
 export { ComboboxStatus as Status } from './status/ComboboxStatus';
 export { ComboboxPortal as Portal } from './portal/ComboboxPortal';
 export { ComboboxBackdrop as Backdrop } from './backdrop/ComboboxBackdrop';
