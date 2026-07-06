@@ -11,7 +11,19 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@base-ui/react": ["../../packages/react/src"],
+      "@base-ui/react/*": ["../../packages/react/src/*"],
+      "@base-ui/utils": ["../../packages/utils/src"],
+      "@base-ui/utils/*": ["../../packages/utils/src/*"]
+    }
   },
-  "include": ["src", ".storybook", "vite.config.ts"]
+  "include": [
+    "src",
+    ".storybook",
+    "vite.config.ts",
+    "vitest.config.mts",
+    "../../packages/react/src/global.d.ts"
+  ]
 }
