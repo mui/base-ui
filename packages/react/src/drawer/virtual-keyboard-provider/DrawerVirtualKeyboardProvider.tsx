@@ -105,7 +105,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const keyboardScrollAdjustmentRef = React.useRef<ScrollAdjustment | null>(null);
   const programmaticKeyboardFocusRef = React.useRef(false);
   const keyboardFocusFrame = useAnimationFrame();
-  const preemptedFocusFrame = useAnimationFrame();
   const keyboardRealignTimeout = useTimeout();
 
   const restoreKeyboardScrollAdjustment = useStableCallback(() => {
@@ -189,16 +188,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const win = ownerWindow(rootElement);
     const visualViewport = win.visualViewport;
 
-    // Alignment scroll bookkeeping: the last computed destination, how many consecutive
-    // checks it has been moving (settle gate), and whether a scroll toward it was issued
-    // (so later passes can tell an in-flight scroll from a stalled one via `observed`).
-    let keyboardScrollState: {
-      element: HTMLElement;
-      destination: number;
-      checks: number;
-      committed: boolean;
-      observed: number;
-    } | null = null;
+    // Alignment scroll bookkeeping: destination stability, whether a scroll was issued,
+    // and the last observed progress so delayed passes can distinguish moving from stalled.
+    let keyboardScrollElement: HTMLElement | null = null;
+    let keyboardScrollDestination = 0;
+    let keyboardScrollChecks = 0;
+    let keyboardScrollObserved = -1;
 
     const setDrawerKeyboardInset = (inset: number) => {
       rootElement.style.setProperty(
@@ -207,14 +202,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       );
     };
 
-    const resetDrawerKeyboardInset = () => {
-      setDrawerKeyboardInset(0);
-    };
-
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
-      keyboardScrollState = null;
-      resetDrawerKeyboardInset();
+      keyboardScrollElement = null;
+      setDrawerKeyboardInset(0);
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
       keyboardRealignTimeout.clear();
@@ -253,12 +244,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let restorePreemptedFocus: (() => void) | null = null;
 
     const consumePreemptedFocus = () => {
-      if (!restorePreemptedFocus) {
-        return;
-      }
-      restorePreemptedFocus();
+      restorePreemptedFocus?.();
       restorePreemptedFocus = null;
-      preemptedFocusFrame.cancel();
     };
 
     const preemptFocusReveal = (target: HTMLElement, keyboardViewport: KeyboardVisualViewport) => {
@@ -269,23 +256,25 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // the field as already centered in the visible band above the keyboard instead makes
       // both the in-page reveal and the viewport pan no-ops.
       const rect = target.getBoundingClientRect();
-      const visibleCenter = (keyboardViewport.top + keyboardViewport.bottom) / 2;
-      const rectCenter = (rect.top + rect.bottom) / 2;
 
-      restorePreemptedFocus = overrideGeometryDuringFocus(target, visibleCenter - rectCenter);
-      // If focus never lands on the target (no `focusin` follows), restore on the next
-      // frame so the field doesn't stay hidden.
-      preemptedFocusFrame.request(consumePreemptedFocus);
+      restorePreemptedFocus = overrideGeometryDuringFocus(
+        target,
+        (keyboardViewport.top + keyboardViewport.bottom - rect.top - rect.bottom) / 2,
+      );
     };
 
     const alignFocusedKeyboardTarget = () => {
+      // If focus never lands on a preempted target, the focusout-scheduled alignment still
+      // restores it on the next frame before paint.
+      consumePreemptedFocus();
+
       const target = focusedKeyboardTargetRef.current;
       // If the focused field is removed from the DOM without firing `focusout` (e.g. it is
       // conditionally rendered away), any applied scroll slack is restored here on the next
       // focus/viewport event or when the drawer closes. This self-corrects rather than
       // tracking each field's lifecycle.
       if (nestedDrawerOpen || !target || !contains(rootElement, target)) {
-        resetDrawerKeyboardInset();
+        setDrawerKeyboardInset(0);
         restoreKeyboardScrollAdjustment();
         return;
       }
@@ -296,12 +285,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       const keyboardViewport = getKeyboardVisualViewport(win);
       if (!keyboardViewport) {
-        resetDrawerKeyboardInset();
+        setDrawerKeyboardInset(0);
         restoreKeyboardScrollAdjustment();
         return;
       }
 
-      setDrawerKeyboardInset(getDrawerKeyboardInset(win, keyboardViewport));
+      setDrawerKeyboardInset(Math.max(0, win.innerHeight - keyboardViewport.bottom));
 
       const scrollTarget = findKeyboardScrollTarget(target, rootElement);
       if (!scrollTarget) {
@@ -310,7 +299,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       if (!scrollTarget.isConnected || !contains(rootElement, scrollTarget)) {
-        resetDrawerKeyboardInset();
+        setDrawerKeyboardInset(0);
         restoreKeyboardScrollAdjustment();
         return;
       }
@@ -333,16 +322,14 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       const targetRect = target.getBoundingClientRect();
-      const targetCenter = (targetRect.top + targetRect.bottom) / 2;
-      const visibleCenter = (visibleTop + visibleBottom) / 2;
-      const nextScrollTop = scrollTarget.scrollTop + targetCenter - visibleCenter;
+      const nextScrollTop =
+        scrollTarget.scrollTop +
+        (targetRect.top + targetRect.bottom - visibleTop - visibleBottom) / 2;
       const destination = Math.round(clamp(nextScrollTop, 0, maxScrollTop));
 
-      const state = keyboardScrollState;
       const settled =
-        state !== null &&
-        state.element === scrollTarget &&
-        Math.abs(state.destination - destination) <= 1;
+        keyboardScrollElement === scrollTarget &&
+        Math.abs(keyboardScrollDestination - destination) <= 1;
 
       if (!settled) {
         // Commit the scroll only once the destination holds across two consecutive checks.
@@ -351,20 +338,17 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         // mid-transition destination overshoots, then visibly pulls back once corrected.
         // The destination is scroll-position-invariant, so an in-flight scroll of the
         // container itself never defers the commit.
-        const checks = state && state.element === scrollTarget ? state.checks + 1 : 1;
-        keyboardScrollState = {
-          element: scrollTarget,
-          destination,
-          checks,
-          committed: false,
-          observed: scrollTarget.scrollTop,
-        };
+        const checks = keyboardScrollElement === scrollTarget ? keyboardScrollChecks + 1 : 1;
+        keyboardScrollElement = scrollTarget;
+        keyboardScrollDestination = destination;
+        keyboardScrollChecks = checks;
+        keyboardScrollObserved = -1;
         // Re-check next frame; give up and scroll anyway if layout never settles.
         if (checks <= KEYBOARD_SETTLE_FRAME_LIMIT) {
           keyboardFocusFrame.request(alignFocusedKeyboardTarget);
           return;
         }
-      } else if (state.committed) {
+      } else if (keyboardScrollObserved >= 0) {
         // A scroll toward this destination is already out. Leave it alone while it has
         // arrived or is still progressing — re-issuing restarts the smooth-scroll easing
         // curve, a visible stutter on every realign pass — and re-issue only when it
@@ -374,19 +358,16 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         if (Math.abs(current - destination) <= 1) {
           return;
         }
-        if (current !== state.observed) {
-          state.observed = current;
+        if (current !== keyboardScrollObserved) {
+          keyboardScrollObserved = current;
           return;
         }
       }
 
-      keyboardScrollState = {
-        element: scrollTarget,
-        destination,
-        checks: 0,
-        committed: true,
-        observed: scrollTarget.scrollTop,
-      };
+      keyboardScrollElement = scrollTarget;
+      keyboardScrollDestination = destination;
+      keyboardScrollChecks = 0;
+      keyboardScrollObserved = scrollTarget.scrollTop;
       animateKeyboardScroll(scrollTarget, destination);
     };
 
@@ -403,11 +384,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     // until both settle; the alignment's scroll bookkeeping observes before re-issuing,
     // so passes that find the scroll on course are inert.
     const scheduleDelayedKeyboardRealign = () => {
-      let passes = 0;
+      let remainingPasses = KEYBOARD_REALIGN_MAX_PASSES;
       const realign = () => {
         alignFocusedKeyboardTarget();
-        passes += 1;
-        if (passes < KEYBOARD_REALIGN_MAX_PASSES) {
+        remainingPasses -= 1;
+        if (remainingPasses > 0) {
           keyboardRealignTimeout.start(KEYBOARD_REALIGN_INTERVAL, realign);
         }
       };
@@ -429,7 +410,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // A new field starts a fresh alignment; the scroll bookkeeping must not carry
       // over from the previous field's scroll.
       if (focusedKeyboardTargetRef.current !== target) {
-        keyboardScrollState = null;
+        keyboardScrollElement = null;
       }
       focusedKeyboardTargetRef.current = target;
       return true;
@@ -521,7 +502,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     mounted,
     nestedDrawerOpen,
     open,
-    preemptedFocusFrame,
     restoreKeyboardScrollAdjustment,
     rootElement,
     setKeyboardScrollSlack,
@@ -613,7 +593,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // reposition the caret, rather than blurring and re-focusing the same input.
       if (
         activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
-        isKeyboardVisualViewportOpen(win)
+        (!win.visualViewport || getKeyboardVisualViewport(win) != null)
       ) {
         resetTouchTrackingState();
         return;
@@ -852,12 +832,4 @@ function getKeyboardVisualViewport(win: Window): KeyboardVisualViewport | null {
     top,
     bottom: Math.min(win.innerHeight, top + visualViewport.height),
   };
-}
-
-function getDrawerKeyboardInset(win: Window, keyboardViewport: KeyboardVisualViewport): number {
-  return Math.max(0, win.innerHeight - keyboardViewport.bottom);
-}
-
-function isKeyboardVisualViewportOpen(win: Window): boolean {
-  return !win.visualViewport || getKeyboardVisualViewport(win) != null;
 }
