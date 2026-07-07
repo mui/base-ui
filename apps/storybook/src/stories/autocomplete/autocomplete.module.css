@@ -1,0 +1,646 @@
+/* Adapted from docs/src/app/(docs)/react/components/autocomplete/demos/
+   {hero,grouped,fuzzy-matching,limit,async,auto-highlight,command-palette,grid,virtualized}
+   /css-modules/index.module.css, plus combobox/demos/hero (InputGroup/Clear/Trigger)
+   and the select pilot's shared story scaffolding. */
+
+.Label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Input {
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  width: 16rem;
+  height: 2rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: none;
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+/* Input + trailing Clear/Trigger buttons (combobox hero pattern) */
+
+.InputGroup {
+  box-sizing: border-box;
+  position: relative;
+  width: 16rem;
+  height: 2rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &:focus-within {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.GroupedInput {
+  box-sizing: border-box;
+  padding: 0 calc(0.5rem + 3rem) 0 0.5rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  outline: none;
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+}
+
+.ActionButtons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ActionButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 100%;
+  color: oklch(14.5% 0 0deg);
+  border: none;
+  padding: 0;
+  background: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* Popup layering */
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  width: var(--anchor-width);
+  max-width: var(--available-width);
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    border: 1px solid white;
+    box-shadow: none;
+  }
+}
+
+/* Visible enter/exit transition for the animation story only */
+.PopupAnimated {
+  composes: Popup;
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms ease-out,
+    opacity 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.List {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.25rem;
+  scroll-padding-block: 0.25rem;
+  outline: 0;
+  max-height: min(22.5rem, var(--available-height));
+
+  &[data-empty] {
+    padding: 0;
+  }
+}
+
+.Item {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  display: flex;
+  font-size: 0.875rem;
+  line-height: 1rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Empty {
+  box-sizing: border-box;
+  padding: 1rem 1rem 1rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Status {
+  box-sizing: border-box;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+  border-top: 1px solid oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+    border-top-color: oklch(26.9% 0 0deg);
+  }
+}
+
+/* Groups */
+
+.Group {
+  display: block;
+
+  &:not(:last-child) {
+    margin-block-end: 0.25rem;
+  }
+}
+
+.GroupLabel {
+  box-sizing: border-box;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Two-line items (fuzzy matching) and label+meta rows (async, palette) */
+
+.ItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.ItemTitle {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.ItemDescription {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  [data-highlighted] & {
+    color: oklch(70.8% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(43.9% 0 0deg);
+    }
+  }
+}
+
+.ItemRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.ItemMeta {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  [data-highlighted] & {
+    color: oklch(70.8% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(43.9% 0 0deg);
+    }
+  }
+}
+
+/* Grid layout (emoji picker) */
+
+.GridPopup {
+  composes: Popup;
+  width: 14rem;
+}
+
+.InsetInput {
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  width: 100%;
+  height: 2rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: white;
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.GridList {
+  box-sizing: border-box;
+  padding: 0.25rem 0.5rem 0.5rem;
+
+  &[data-empty] {
+    padding: 0;
+  }
+}
+
+.GridRow {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+}
+
+.GridItem {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0.5rem 0.125rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+
+    &::before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      inset: 0;
+      background-color: oklch(92.2% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(37.1% 0 0deg);
+      }
+    }
+  }
+}
+
+/* Command palette (dialog chrome adapted from the command-palette docs demo) */
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 20%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(0 0 0 / 60%);
+  }
+}
+
+.PalettePopup {
+  box-sizing: border-box;
+  position: fixed;
+  top: 4.5rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 22rem;
+  max-width: calc(100vw - 3rem);
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    border-color: white;
+    box-shadow: none;
+  }
+}
+
+.PaletteInput {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  width: 100%;
+  height: 2.5rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: white;
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.PaletteList {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 16rem;
+  padding-block: 0.25rem;
+
+  &[data-empty] {
+    padding: 0;
+  }
+}
+
+.PaletteItem {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.875rem;
+  line-height: 1.25;
+
+  &[data-highlighted] {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+}
+
+/* Virtualized list (manual windowing; no external virtualizer dependency) */
+
+.VirtualScroller {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 18rem;
+}
+
+.VirtualSpacer {
+  position: relative;
+  width: 100%;
+}
+
+/* Shared story scaffolding (matches the switch/select pilots) */
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Description {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+  max-width: 20rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
