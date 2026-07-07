@@ -36,7 +36,7 @@ A container for grouping a set of buttons and controls.
 
 - **A menu bar hosting drop-down application menus (File/Edit/View) → [Menubar](?path=/docs/navigation-menubar--docs)**, not Toolbar. Toolbar's items are directly-actionable controls sharing one composite tab stop; Menubar is a `role="menubar"` container of `Menu.Root`s whose triggers become `role="menuitem"` composite items with hover-switching between open sibling menus — a fundamentally different interaction model (opening drop-downs, not directly acting).
 - **Plain unrelated action buttons that don't need shared keyboard navigation → no wrapper at all**, or `role="group"` around plain `<button>`s ([#4008](https://github.com/mui/base-ui/issues/4008)).
-- **A row of exclusive/multi-select toggle buttons with no other mixed content → [Toggle Group](?path=/docs/actions-togglegroup--docs) alone**, standalone, without a hosting Toolbar.
+- **A row of exclusive/multi-select toggle buttons with no other mixed content → [Toggle Group](?path=/docs/actions-toggle-group--docs) alone**, standalone, without a hosting Toolbar.
 - **A single popup trigger with no surrounding command bar → use the popup component's own Trigger directly**, not `Toolbar.Button render={<Menu.Trigger/>}`.
 
 ## Anatomy
@@ -69,7 +69,7 @@ import { Toolbar } from '@base-ui/react/toolbar';
 
 ### Composite keyboard navigation
 
-`Toolbar.Root` wraps a `CompositeRoot`: the toolbar is a single Tab stop, and arrow keys move roving focus across *all* item types (Button, Link, grouped Buttons, Input) in document order, wrapping at the ends if `loopFocus` (default `true`). Home/End are **not** wired — `enableHomeAndEndKeys` is never passed to Toolbar's `CompositeRoot`, unlike a standalone [Toggle Group](?path=/docs/actions-togglegroup--docs)'s own composite root.
+`Toolbar.Root` wraps a `CompositeRoot`: the toolbar is a single Tab stop, and arrow keys move roving focus across *all* item types (Button, Link, grouped Buttons, Input) in document order, wrapping at the ends if `loopFocus` (default `true`). Home/End are **not** wired — `enableHomeAndEndKeys` is never passed to Toolbar's `CompositeRoot`, unlike a standalone [Toggle Group](?path=/docs/actions-toggle-group--docs)'s own composite root.
 
 <Canvas of={ToolbarStories.Hero} />
 
@@ -167,7 +167,7 @@ No CSS variables — no dynamic measurements to expose.
 ## Related
 
 - For a menu bar of drop-down application menus, use [Menubar](?path=/docs/navigation-menubar--docs).
-- For a standalone exclusive/multi-toggle cluster with no other mixed content, use [Toggle Group](?path=/docs/actions-togglegroup--docs).
+- For a standalone exclusive/multi-toggle cluster with no other mixed content, use [Toggle Group](?path=/docs/actions-toggle-group--docs).
 - For a single actionable control, use [Button](?path=/docs/actions-button--docs).
 
 ## API reference

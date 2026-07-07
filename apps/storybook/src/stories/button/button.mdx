@@ -35,7 +35,7 @@ A button component that can be rendered as another tag or focusable when disable
 
 - **Never for links.** Button enforces `role="button"` and button keyboard interaction; if a link needs to look like a button, style the `<a>` element directly with CSS instead of wrapping it in `<Button render={<a />}>` — docs Usage guidelines, verbatim.
 - **A plain `<button>` HTML element**, whenever no `disabled`/`focusableWhenDisabled`/tag-polymorphism is needed — Button adds zero value over the native element in that case.
-- **A group of buttons → no `ButtonGroup`, none exists.** A non-toggle button group is just `role="group"` around plain buttons ([#4008](https://github.com/mui/base-ui/issues/4008)); use [Toggle Group](?path=/docs/actions-togglegroup--docs) for pressed-state/roving-focus semantics, or [Toolbar](?path=/docs/actions-toolbar--docs) for a mixed command bar.
+- **A group of buttons → no `ButtonGroup`, none exists.** A non-toggle button group is just `role="group"` around plain buttons ([#4008](https://github.com/mui/base-ui/issues/4008)); use [Toggle Group](?path=/docs/actions-toggle-group--docs) for pressed-state/roving-focus semantics, or [Toolbar](?path=/docs/actions-toolbar--docs) for a mixed command bar.
 - **A two-state on/off control → [Toggle](?path=/docs/actions-toggle--docs)**, not Button with a manually-toggled `aria-pressed`.
 
 ## Anatomy
@@ -147,7 +147,7 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 - For a two-state on/off control, use [Toggle](?path=/docs/actions-toggle--docs).
 - For a mixed command bar of buttons/toggles/inputs sharing one tab stop, use [Toolbar](?path=/docs/actions-toolbar--docs).
-- For an exclusive/multi-toggle cluster, use [Toggle Group](?path=/docs/actions-togglegroup--docs).
+- For an exclusive/multi-toggle cluster, use [Toggle Group](?path=/docs/actions-toggle-group--docs).
 
 ## API reference
 

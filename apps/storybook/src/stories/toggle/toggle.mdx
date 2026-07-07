@@ -12,7 +12,7 @@ A two-state button that can be on or off.
 
 - **Import:** `import { Toggle } from '@base-ui/react/toggle';`
 - **Parts:** 1 — no sub-parts; renders a single `<button>` (or via `CompositeItem` when grouped).
-- **Status:** Stable. Introduced jointly with [Toggle Group](?path=/docs/actions-togglegroup--docs) in a single PR ([#763](https://github.com/mui/base-ui/pull/763)) — the two components have never existed independently.
+- **Status:** Stable. Introduced jointly with [Toggle Group](?path=/docs/actions-toggle-group--docs) in a single PR ([#763](https://github.com/mui/base-ui/pull/763)) — the two components have never existed independently.
 - **ARIA pattern:** [Toggle Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/#toggle_button).
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
@@ -28,14 +28,14 @@ A two-state button that can be on or off.
 ## When to use
 
 - A standalone two-state on/off control whose state doesn't need to submit with a form and doesn't need to announce as a native checkbox/switch — e.g. a "bold" toggle in a text editor, a single filter toggle, a favorite/star button (the hero demo above).
-- As the building block for [Toggle Group](?path=/docs/actions-togglegroup--docs) — every item inside a group is an ordinary `<Toggle value="...">`.
+- As the building block for [Toggle Group](?path=/docs/actions-toggle-group--docs) — every item inside a group is an ordinary `<Toggle value="...">`.
 - Inside a [Toolbar](?path=/docs/actions-toolbar--docs), composed via `Toolbar.Button render={<Toggle />}`.
 
 ## When not to use
 
 See the [Binary controls](?path=/docs/research-c-component-briefs-clusters-binary-controls--docs) research page for the full comparative table.
 
-- **A single-select-you-can't-clear semantic → [Radio Group](?path=/docs/form-inputs-radiogroup--docs)**, not a single-mode Toggle Group. "A single-select-you-can't-clear widget *is* a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert — open, unresolved community concern).
+- **A single-select-you-can't-clear semantic → [Radio Group](?path=/docs/form-inputs-radio--docs)**, not a single-mode Toggle Group. "A single-select-you-can't-clear widget *is* a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert — open, unresolved community concern).
 - **A value that must submit with a `<form>` or participate in native constraint validation → [Switch](?path=/docs/form-inputs-switch--docs)**. Toggle explicitly discards `form`/`type` (see below) — it has no hidden-input form-participation machinery.
 - **A binary immediate-effect setting with an on/off metaphor (not a "pressed button" metaphor) → Switch.**
 - **A single independent action, not a persisted state → [Button](?path=/docs/actions-button--docs)**, not Toggle.
@@ -140,7 +140,7 @@ No CSS variables — no dynamic measurements to expose.
 
 - To capture a boolean **at submit time**, use [Checkbox](?path=/docs/form-inputs-checkbox--docs).
 - For a boolean setting with **immediate effect** and an on/off metaphor, use [Switch](?path=/docs/form-inputs-switch--docs).
-- To group related toggles with shared pressed-state bookkeeping, use [Toggle Group](?path=/docs/actions-togglegroup--docs).
+- To group related toggles with shared pressed-state bookkeeping, use [Toggle Group](?path=/docs/actions-toggle-group--docs).
 
 ## API reference
 
