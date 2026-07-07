@@ -1,0 +1,86 @@
+[
+  {
+    "id": "drawer-001",
+    "component": "drawer",
+    "repo": "baseui-cn/baseui-cn",
+    "repoUrl": "https://github.com/baseui-cn/baseui-cn",
+    "stars": 10,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-23",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [],
+    "liveUrl": "https://www.baseui-cn.com",
+    "partsUsed": [],
+    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. [Signal note (description-based, not a direct cached subpath search): Description explicitly lists Drawer among the Base UI components this shadcn-style registry fixes/wraps.]",
+    "diversityTags": [
+      "oss-design-system",
+      "description-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-002",
+    "component": "drawer",
+    "repo": "australia/mobtranslate.com",
+    "repoUrl": "https://github.com/australia/mobtranslate.com",
+    "stars": 4,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "packages/ui/src/components/drawer/drawer.tsx",
+        "permalink": "https://github.com/australia/mobtranslate.com/blob/HEAD/packages/ui/src/components/drawer/drawer.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://mobtranslate.com",
+    "partsUsed": [],
+    "contextSummary": "No description available. [Signal note (filename-based, not a direct cached subpath search): File literally named drawer.tsx in a component-registry path; repo found via Base UI dialog/menu/popover/select subpath searches.]",
+    "diversityTags": [
+      "production-app",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-003",
+    "component": "drawer",
+    "repo": "xuerzong/redis-dash",
+    "repoUrl": "https://github.com/xuerzong/redis-dash",
+    "stars": 4,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-02",
+    "importSpecifier": "@base-ui/react/dialog",
+    "files": [
+      {
+        "path": "app/src/client/components/ui/Drawer/index.tsx",
+        "permalink": "https://github.com/xuerzong/redis-dash/blob/HEAD/app/src/client/components/ui/Drawer/index.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://redis-dash.xuco.me/",
+    "partsUsed": [],
+    "contextSummary": "\ud83d\ude80 A lightweight, cross-platform Redis GUI Client. [Signal note (filename-based, not a direct cached subpath search): File literally named Drawer/index.tsx in a shadcn-style ui/ directory; repo found via Base UI dialog subpath search.]",
+    "diversityTags": [
+      "production-app",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

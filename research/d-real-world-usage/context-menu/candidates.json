@@ -1,0 +1,32 @@
+[
+  {
+    "id": "context-menu-001",
+    "component": "context-menu",
+    "repo": "zweien/docx-template-system",
+    "repoUrl": "https://github.com/zweien/docx-template-system",
+    "stars": 6,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "starter-template",
+    "lastActivity": "2026-06-02",
+    "importSpecifier": "@base-ui/react/context-menu",
+    "files": [
+      {
+        "path": "src/components/ui/context-menu.tsx",
+        "permalink": "https://github.com/zweien/docx-template-system/blob/HEAD/src/components/ui/context-menu.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://zweien.github.io/docx-template-system/",
+    "partsUsed": [],
+    "contextSummary": "\u6a21\u677f\u9a71\u52a8\u7684\u529e\u516c\u81ea\u52a8\u5316\u7cfb\u7edf \u2014 DOCX \u6a21\u677f\u7ba1\u7406\u3001\u52a8\u6001\u8868\u5355\u3001\u6587\u6863\u751f\u6210\u3001\u62a5\u544a\u64b0\u5199\u3001\u6587\u6863\u6536\u96c6\u3001\u9884\u7b97\u62a5\u544a\u3001\u4e3b\u6570\u636e\u7ba1\u7406\u3001AI \u52a9\u624b\u3001\u81ea\u52a8\u5316\u5f15\u64ce\u548c\u684c\u9762\u5e94\u7528 [Signal note (filename-based, not a direct cached subpath search): File literally named context-menu.tsx in a shadcn-style ui/ directory; repo found via Base UI menu subpath search.]",
+    "diversityTags": [
+      "starter-template",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "switch-001",
+    "component": "switch",
+    "repo": "graphql/graphql.github.io",
+    "repoUrl": "https://github.com/graphql/graphql.github.io",
+    "stars": 887,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/switch",
+    "files": [
+      {
+        "path": "src/components/theme-switch.tsx",
+        "permalink": "https://github.com/graphql/graphql.github.io/blob/HEAD/src/components/theme-switch.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://graphql.org",
+    "partsUsed": [],
+    "contextSummary": "The code of the graphql.org website [Signal note (filename-based, not a direct cached subpath search): File named theme-switch.tsx, a common real-world use of a Switch primitive for dark-mode toggling; repo found via Base UI select subpath search.]",
+    "diversityTags": [
+      "production-app",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

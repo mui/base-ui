@@ -1,0 +1,62 @@
+[
+  {
+    "id": "toggle-001",
+    "component": "toggle",
+    "repo": "joshuawootonn/tmux-reference",
+    "repoUrl": "https://github.com/joshuawootonn/tmux-reference",
+    "stars": 6,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-14",
+    "importSpecifier": "@base-ui/react/toggle",
+    "files": [
+      {
+        "path": "src/components/theme-toggle.tsx",
+        "permalink": "https://github.com/joshuawootonn/tmux-reference/blob/HEAD/src/components/theme-toggle.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://tmuxreference.com",
+    "partsUsed": [],
+    "contextSummary": "A quick reference for tmux shortcuts [Signal note (filename-based, not a direct cached subpath search): File named theme-toggle.tsx; repo found via Base UI menu/popover subpath searches.]",
+    "diversityTags": [
+      "production-app",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "toggle-002",
+    "component": "toggle",
+    "repo": "aditya-vinodh/ui",
+    "repoUrl": "https://github.com/aditya-vinodh/ui",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2025-07-21",
+    "importSpecifier": "@base-ui/react/toggle",
+    "files": [
+      {
+        "path": "src/components/mode-toggle.tsx",
+        "permalink": "https://github.com/aditya-vinodh/ui/blob/HEAD/src/components/mode-toggle.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://ui-chi-flame.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "Cool looking UI components [Signal note (filename-based, not a direct cached subpath search): File named mode-toggle.tsx in an oss-design-system repo; repo found via Base UI menu subpath search.]",
+    "diversityTags": [
+      "oss-design-system",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

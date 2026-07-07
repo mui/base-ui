@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tooltip-001",
+    "component": "tooltip",
+    "repo": "Lay3rLabs/TrustGraph",
+    "repoUrl": "https://github.com/Lay3rLabs/TrustGraph",
+    "stars": 8,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-11",
+    "importSpecifier": "@base-ui/react/tooltip",
+    "files": [
+      {
+        "path": "frontend/components/Tooltip.tsx",
+        "permalink": "https://github.com/Lay3rLabs/TrustGraph/blob/HEAD/frontend/components/Tooltip.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://trust-graph-demo.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "TrustGraph is governance tool that turns social trust into a measurable signal for collective decision-making. [Signal note (filename-based, not a direct cached subpath search): Standalone Tooltip.tsx file; repo found via Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI).]",
+    "diversityTags": [
+      "production-app",
+      "filename-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

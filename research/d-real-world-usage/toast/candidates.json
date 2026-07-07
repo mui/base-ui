@@ -1,0 +1,50 @@
+[
+  {
+    "id": "toast-001",
+    "component": "toast",
+    "repo": "baseui-cn/baseui-cn",
+    "repoUrl": "https://github.com/baseui-cn/baseui-cn",
+    "stars": 10,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-23",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [],
+    "liveUrl": "https://www.baseui-cn.com",
+    "partsUsed": [],
+    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. [Signal note (description-based, not a direct cached subpath search): Description explicitly lists Toast among the Base UI components this shadcn-style registry fixes/wraps.]",
+    "diversityTags": [
+      "oss-design-system",
+      "description-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "toast-002",
+    "component": "toast",
+    "repo": "vcode-sh/popser",
+    "repoUrl": "https://github.com/vcode-sh/popser",
+    "stars": 1,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-03",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [],
+    "liveUrl": "https://popser.vcui.dev",
+    "partsUsed": [],
+    "contextSummary": "Toast notifications for React. Built on Base UI \u2014 the headless primitives era starts now. Sonner-compatible API. 7.4 KB gzipped. No !important. No memory leaks. [Signal note (description-based, not a direct cached subpath search): Description explicitly identifies this as a dedicated toast library 'Built on Base UI'.]",
+    "diversityTags": [
+      "production-app",
+      "description-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

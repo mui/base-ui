@@ -1,0 +1,602 @@
+[
+  {
+    "id": "menubar-001",
+    "component": "menubar",
+    "repo": "siriwatknp/mui-treasury",
+    "repoUrl": "https://github.com/siriwatknp/mui-treasury",
+    "stars": 2444,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-05-22",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "apps/website/registry/components/menubar-01/menubar-01.tsx",
+        "permalink": "https://github.com/siriwatknp/mui-treasury/blob/HEAD/apps/website/registry/components/menubar-01/menubar-01.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://mui-treasury.com",
+    "partsUsed": [],
+    "contextSummary": "A collection of ready-to-use components based on Material-UI [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-002",
+    "component": "menubar",
+    "repo": "x1xhlol/zero-calendar",
+    "repoUrl": "https://github.com/x1xhlol/zero-calendar",
+    "stars": 356,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-26",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/x1xhlol/zero-calendar/blob/HEAD/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://zerocalendar.com",
+    "partsUsed": [],
+    "contextSummary": "Zero Calendar is an open-source AI-native calendar that manages your schedule intelligently, giving you more time for what matters. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-003",
+    "component": "menubar",
+    "repo": "pacekit/gsap",
+    "repoUrl": "https://github.com/pacekit/gsap",
+    "stars": 269,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-24",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/pacekit/gsap/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://gsap.pacekit.dev",
+    "partsUsed": [],
+    "contextSummary": "Build faster with practical UI blocks for real apps [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-004",
+    "component": "menubar",
+    "repo": "AgusMayol/optics",
+    "repoUrl": "https://github.com/AgusMayol/optics",
+    "stars": 223,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-11",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "registry/optics/menubar.jsx",
+        "permalink": "https://github.com/AgusMayol/optics/blob/HEAD/registry/optics/menubar.jsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://optics.agusmayol.com.ar",
+    "partsUsed": [],
+    "contextSummary": "No description available. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-005",
+    "component": "menubar",
+    "repo": "formbase-dev/formbase",
+    "repoUrl": "https://github.com/formbase-dev/formbase",
+    "stars": 155,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-06-06",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "packages/ui/primitives/menubar.tsx",
+        "permalink": "https://github.com/formbase-dev/formbase/blob/HEAD/packages/ui/primitives/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://formbase.dev",
+    "partsUsed": [],
+    "contextSummary": "Open Source Form Backend [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-006",
+    "component": "menubar",
+    "repo": "soulfiremc-com/SoulFireClient",
+    "repoUrl": "https://github.com/soulfiremc-com/SoulFireClient",
+    "stars": 142,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/soulfiremc-com/SoulFireClient/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://app.soulfiremc.com",
+    "partsUsed": [],
+    "contextSummary": "\ud83e\uddd9 Frontend client for SoulFire. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-007",
+    "component": "menubar",
+    "repo": "mathematic-inc/earl",
+    "repoUrl": "https://github.com/mathematic-inc/earl",
+    "stars": 113,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-11",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "web/src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/mathematic-inc/earl/blob/HEAD/web/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://mathematic-inc.github.io/earl/",
+    "partsUsed": [],
+    "contextSummary": "Secure CLI proxy for AI agents \u2014 HCL-defined operation templates with OS keychain secrets, MCP integration, and prompt injection protection [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-008",
+    "component": "menubar",
+    "repo": "AryaLabsHQ/bunli",
+    "repoUrl": "https://github.com/AryaLabsHQ/bunli",
+    "stars": 92,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "apps/web/components/ui/menubar.tsx",
+        "permalink": "https://github.com/AryaLabsHQ/bunli/blob/HEAD/apps/web/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://bunli.dev/",
+    "partsUsed": [],
+    "contextSummary": "Complete CLI Development Ecosystem for Bun [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-009",
+    "component": "menubar",
+    "repo": "kyle1an/sub-vocab",
+    "repoUrl": "https://github.com/kyle1an/sub-vocab",
+    "stars": 92,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-23",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "apps/ui/components/ui/menubar.tsx",
+        "permalink": "https://github.com/kyle1an/sub-vocab/blob/HEAD/apps/ui/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.subvocab.com",
+    "partsUsed": [],
+    "contextSummary": "A speedy tool for extracting and categorizing vocabulary/sentences from English materials [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-010",
+    "component": "menubar",
+    "repo": "kapishdima/dialectcn",
+    "repoUrl": "https://github.com/kapishdima/dialectcn",
+    "stars": 61,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-05-28",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "components/base/ui/menubar.tsx",
+        "permalink": "https://github.com/kapishdima/dialectcn/blob/HEAD/components/base/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://dialectcn.xyz",
+    "partsUsed": [],
+    "contextSummary": "A living library of shadcn presets [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "oss-design-system",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-011",
+    "component": "menubar",
+    "repo": "Debbl/shadcn-hooks",
+    "repoUrl": "https://github.com/Debbl/shadcn-hooks",
+    "stars": 58,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-01",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/Debbl/shadcn-hooks/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://shadcn-hooks.com/",
+    "partsUsed": [],
+    "contextSummary": "A React Hooks Collection built with Shadcn [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "oss-design-system",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-012",
+    "component": "menubar",
+    "repo": "productdevbook/seslen",
+    "repoUrl": "https://github.com/productdevbook/seslen",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-04-30",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "web/src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/productdevbook/seslen/blob/HEAD/web/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://seslen.productdevbook.com",
+    "partsUsed": [],
+    "contextSummary": "Zero-dep, tree-shakeable Web Audio library with synthesised UI presets, buses + ducking, polyphony cap, throttle, jitter, fades, pan, sprites, OfflineAudioContext render-to-WAV, AnalyserNode tap, prefers-reduced-motion + SSR-safe. Strict TypeScript. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-013",
+    "component": "menubar",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "apps/www/registry/ui/menubar.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Composable React components powered by Base UI and Tailwind CSS [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "oss-design-system",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-014",
+    "component": "menubar",
+    "repo": "Atiqullah-Naemi/forgeai",
+    "repoUrl": "https://github.com/Atiqullah-Naemi/forgeai",
+    "stars": 21,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-02-07",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/Atiqullah-Naemi/forgeai/blob/HEAD/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://forgeai-lovat.vercel.app",
+    "partsUsed": [],
+    "contextSummary": "No description available. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-015",
+    "component": "menubar",
+    "repo": "f312213213/legislator-wealth.tw",
+    "repoUrl": "https://github.com/f312213213/legislator-wealth.tw",
+    "stars": 19,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "components/ui/menubar.tsx",
+        "permalink": "https://github.com/f312213213/legislator-wealth.tw/blob/HEAD/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "No description available. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-016",
+    "component": "menubar",
+    "repo": "itechmeat/llm-code",
+    "repoUrl": "https://github.com/itechmeat/llm-code",
+    "stars": 19,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-13",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "skills/base-ui/references/menubar.md",
+        "permalink": "https://github.com/itechmeat/llm-code/blob/HEAD/skills/base-ui/references/menubar.md",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Cross-tool AI assets: documentation-based skills for Copilot, Claude, Cursor, and other coding assistants [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-017",
+    "component": "menubar",
+    "repo": "cotect-dev/cotect",
+    "repoUrl": "https://github.com/cotect-dev/cotect",
+    "stars": 18,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-16",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/cotect-dev/cotect/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://cotect.dev",
+    "partsUsed": [],
+    "contextSummary": "A fast, read-first code inspector for the agent era: watch AI-written changes land live and review every hunk before it ships [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-018",
+    "component": "menubar",
+    "repo": "ataschz/tanstack-start-mastra-example",
+    "repoUrl": "https://github.com/ataschz/tanstack-start-mastra-example",
+    "stars": 17,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-01-22",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/ataschz/tanstack-start-mastra-example/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://retrip.ai",
+    "partsUsed": [],
+    "contextSummary": "AI-powered travel assistant built with Mastra, TanStack Start, and AI SDK. Features agent networks, real-time streaming, and dynamic UI for tool calls and reasoning. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "demo-or-sandbox",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-019",
+    "component": "menubar",
+    "repo": "pjborowiecki/pjborowiecki.com",
+    "repoUrl": "https://github.com/pjborowiecki/pjborowiecki.com",
+    "stars": 14,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-05-06",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/shadcn/menubar.tsx",
+        "permalink": "https://github.com/pjborowiecki/pjborowiecki.com/blob/HEAD/src/components/shadcn/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://pjborowiecki.com",
+    "partsUsed": [],
+    "contextSummary": "A production-grade developer portfolio and blog engineered for high performance and scalability. Built with Next.js 16, TypeScript, next-intl, Fumadocs, Tailwind, and GSAP for fluid animations. Deployed on Vercel. [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "menubar-020",
+    "component": "menubar",
+    "repo": "IntelligentFalcon/falconlauncher",
+    "repoUrl": "https://github.com/IntelligentFalcon/falconlauncher",
+    "stars": 12,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/menubar",
+    "files": [
+      {
+        "path": "src/components/ui/menubar.tsx",
+        "permalink": "https://github.com/IntelligentFalcon/falconlauncher/blob/HEAD/src/components/ui/menubar.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "\u0644\u0627\u0646\u0686\u0631 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0648 \u0627\u0648\u067e\u0646 \u0633\u0648\u0631\u0633 \u0627\u06cc\u0631\u0627\u0646\u06cc \u0628\u0631\u0627\u06cc \u0645\u0627\u06cc\u0646\u06a9\u0631\u0641\u062a \u0628\u0647 \u062c\u0647\u062a \u0628\u0647\u0628\u0648\u062f \u06a9\u06cc\u0641\u06cc\u062a \u062f\u0631 \u0628\u0627\u0632\u06cc :) [Signal note: file path match only (menubar.tsx under a component-registry path); the repo was found via cached menu/select/dialog subpath searches, not a menubar-specific search, and the menubar import itself is not directly cache-verified.]",
+    "diversityTags": [
+      "production-app",
+      "path-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]
