@@ -11,8 +11,29 @@ import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 import './SearchTrigger.css';
 
-const loadSearchDialog = () => import('./Search/SearchDialog');
-const loadMobileNavDrawer = () => import('./MobileNavDrawer');
+const importSearchDialog = () => import('./Search/SearchDialog');
+const importMobileNavDrawer = () => import('./MobileNavDrawer');
+
+let searchDialogPromise: ReturnType<typeof importSearchDialog> | undefined;
+let mobileNavDrawerPromise: ReturnType<typeof importMobileNavDrawer> | undefined;
+
+function loadSearchDialog() {
+  searchDialogPromise ??= importSearchDialog().catch((error) => {
+    searchDialogPromise = undefined;
+    throw error;
+  });
+
+  return searchDialogPromise;
+}
+
+function loadMobileNavDrawer() {
+  mobileNavDrawerPromise ??= importMobileNavDrawer().catch((error) => {
+    mobileNavDrawerPromise = undefined;
+    throw error;
+  });
+
+  return mobileNavDrawerPromise;
+}
 
 const LazySearchDialog = React.lazy(() =>
   loadSearchDialog().then((module) => ({ default: module.SearchDialog })),
@@ -45,7 +66,7 @@ export function SearchControls({
   const [mobileRequested, setMobileRequested] = React.useState(false);
   const [desktopReady, setDesktopReady] = React.useState(false);
   const [mobileReady, setMobileReady] = React.useState(false);
-  const fallbackPreloadTimeout = useTimeout();
+  const preloadTimeout = useTimeout();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -158,18 +179,18 @@ export function SearchControls({
 
       const target = getShortcutTarget(desktopTriggerRef.current, mobileTriggerRef.current);
       preloadTarget(target);
+
+      if (target === 'desktop') {
+        setDesktopRequested(true);
+        return;
+      }
+
+      setMobileRequested(true);
     };
 
-    if (typeof window.requestIdleCallback === 'function') {
-      const idleCallbackId = window.requestIdleCallback(preload);
-      return () => {
-        window.cancelIdleCallback(idleCallbackId);
-      };
-    }
-
-    fallbackPreloadTimeout.start(1000, preload);
-    return fallbackPreloadTimeout.clear;
-  }, [fallbackPreloadTimeout, preloadTarget]);
+    preloadTimeout.start(250, preload);
+    return preloadTimeout.clear;
+  }, [preloadTarget, preloadTimeout]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
