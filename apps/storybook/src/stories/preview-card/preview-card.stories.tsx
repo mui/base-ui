@@ -146,13 +146,11 @@ export const PositioningWithArrow: Story = {
 function ControlledOpenExample() {
   const [open, setOpen] = React.useState(false);
   const [reason, setReason] = React.useState<string | null>(null);
-  const actionsRef = React.useRef<PreviewCard.Root.Actions>(null);
 
   return (
     <div className={styles.Stack}>
       <PreviewCard.Root
         open={open}
-        actionsRef={actionsRef}
         onOpenChange={(nextOpen, eventDetails) => {
           setOpen(nextOpen);
           setReason(eventDetails.reason ?? null);
@@ -179,13 +177,6 @@ function ControlledOpenExample() {
           </PreviewCard.Positioner>
         </PreviewCard.Portal>
       </PreviewCard.Root>
-      <button
-        type="button"
-        className={styles.Button}
-        onClick={() => actionsRef.current?.close()}
-      >
-        Close programmatically
-      </button>
       <output className={styles.Output}>
         open={String(open)} reason={String(reason)}
       </output>
@@ -193,7 +184,7 @@ function ControlledOpenExample() {
   );
 }
 
-/** External `open`/`onOpenChange` state drives the card; `eventDetails.reason` reports which interaction caused each transition (`trigger-focus` for the focus-open path used here, `imperative-action` for the external "close programmatically" button via `actionsRef`). */
+/** External `open`/`onOpenChange` state drives the card exactly like an uncontrolled Root's internal state would, plus `eventDetails.reason` reports which interaction caused each transition — `trigger-focus` on open here, `escape-key` on close. */
 export const ControlledOpen: Story = {
   render: () => <ControlledOpenExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -207,11 +198,11 @@ export const ControlledOpen: Story = {
     });
     await waitFor(() => expect(canvas.getByText(/reason=trigger-focus/)).toBeVisible());
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Close programmatically' }));
+    await userEvent.keyboard('{Escape}');
     await waitFor(() =>
       expect(body.queryByText('Controlled preview card')).not.toBeInTheDocument(),
     );
-    await waitFor(() => expect(canvas.getByText(/reason=imperative-action/)).toBeVisible());
+    await waitFor(() => expect(canvas.getByText(/reason=escape-key/)).toBeVisible());
   },
 };
 
@@ -219,16 +210,16 @@ export const ControlledOpen: Story = {
 export const DelayTuning: Story = {
   render: () => (
     <div className={styles.Container}>
-      <p className={styles.Paragraph}>
-        <PreviewCard.Trigger
-          className={styles.Link}
-          delay={0}
-          href="https://en.wikipedia.org/wiki/Typography"
-        >
-          instant
-        </PreviewCard.Trigger>
-      </p>
       <PreviewCard.Root>
+        <p className={styles.Paragraph}>
+          <PreviewCard.Trigger
+            className={styles.Link}
+            delay={0}
+            href="https://en.wikipedia.org/wiki/Typography"
+          >
+            instant
+          </PreviewCard.Trigger>
+        </p>
         <PreviewCard.Portal>
           <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
             <PreviewCard.Popup className={styles.Popup}>
@@ -241,15 +232,15 @@ export const DelayTuning: Story = {
         </PreviewCard.Portal>
       </PreviewCard.Root>
 
-      <p className={styles.Paragraph}>
-        <PreviewCard.Trigger
-          className={styles.Link}
-          href="https://en.wikipedia.org/wiki/Typography"
-        >
-          default delay
-        </PreviewCard.Trigger>
-      </p>
       <PreviewCard.Root>
+        <p className={styles.Paragraph}>
+          <PreviewCard.Trigger
+            className={styles.Link}
+            href="https://en.wikipedia.org/wiki/Typography"
+          >
+            default delay
+          </PreviewCard.Trigger>
+        </p>
         <PreviewCard.Portal>
           <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
             <PreviewCard.Popup className={styles.Popup}>

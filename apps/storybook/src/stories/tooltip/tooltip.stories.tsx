@@ -230,13 +230,11 @@ export const PositioningMatrix: Story = {
 function ControlledOpenExample() {
   const [open, setOpen] = React.useState(false);
   const [reason, setReason] = React.useState<string | null>(null);
-  const actionsRef = React.useRef<Tooltip.Root.Actions>(null);
 
   return (
     <div className={styles.Row}>
       <Tooltip.Root
         open={open}
-        actionsRef={actionsRef}
         onOpenChange={(nextOpen, eventDetails) => {
           setOpen(nextOpen);
           setReason(eventDetails.reason ?? null);
@@ -252,13 +250,6 @@ function ControlledOpenExample() {
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>
-      <button
-        type="button"
-        className={styles.TextButton}
-        onClick={() => actionsRef.current?.close()}
-      >
-        Close programmatically
-      </button>
       <output className={styles.Output}>
         open={String(open)} reason={String(reason)}
       </output>
@@ -266,7 +257,7 @@ function ControlledOpenExample() {
   );
 }
 
-/** External `open`/`onOpenChange` state drives the tooltip; `eventDetails.reason` reports which interaction caused each transition (`trigger-focus` for the focus-open path used here, `imperative-action` for the external "close programmatically" button via `actionsRef`). */
+/** External `open`/`onOpenChange` state drives the tooltip exactly like an uncontrolled Root's internal state would, plus `eventDetails.reason` reports which interaction caused each transition — `trigger-focus` on open here, `escape-key` on close. */
 export const ControlledOpen: Story = {
   render: () => <ControlledOpenExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -278,9 +269,9 @@ export const ControlledOpen: Story = {
     await waitFor(() => expect(body.getByText('Controlled tooltip')).toBeVisible());
     await waitFor(() => expect(canvas.getByText(/reason=trigger-focus/)).toBeVisible());
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Close programmatically' }));
+    await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(body.queryByText('Controlled tooltip')).not.toBeInTheDocument());
-    await waitFor(() => expect(canvas.getByText(/reason=imperative-action/)).toBeVisible());
+    await waitFor(() => expect(canvas.getByText(/reason=escape-key/)).toBeVisible());
   },
 };
 

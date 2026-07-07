@@ -1,6 +1,14 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MenuStories from './menu.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
+import { RowActionsExample } from './recreations/RowActionsExample';
+import { SettingsMenuExample } from './recreations/SettingsMenuExample';
+import { ShadowPortalExample } from './recreations/ShadowPortalExample';
+import rowActionsSource from './recreations/RowActionsExample.tsx?raw';
+import settingsMenuSource from './recreations/SettingsMenuExample.tsx?raw';
+import shadowPortalSource from './recreations/ShadowPortalExample.tsx?raw';
+import menuCss from './menu.module.css?raw';
 import nextjsOrgShot from '../../../../../research/d-real-world-usage/_captures/nextjs-org.png';
 import consolePreviewOxideComputerOpenShot from '../../../../../research/d-real-world-usage/_captures/console-preview-oxide-computer-open.png';
 import kumoUiComOpenShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com-open.png';
@@ -333,13 +341,46 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
   </WildCard>
 </WildCards>
 
-Three recreations live in this Storybook — table row actions (Oxide), a settings menu that stays open (Playroom), and a shadow-DOM-portalled overlay menu (Next.js DevTools):
+Three recreations live in this Storybook — table row actions (Oxide), a settings menu that stays open (Playroom), and a shadow-DOM-portalled overlay menu (Next.js DevTools). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
 
-<Canvas of={MenuStories.RealWorldRowActions} />
+<MiniPlayground
+  title="Table row actions"
+  source={{
+    repo: 'oxidecomputer/console',
+    href: 'https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx',
+    license: 'MPL-2.0',
+  }}
+  code={rowActionsSource}
+  css={menuCss}
+>
+  <RowActionsExample />
+</MiniPlayground>
 
-<Canvas of={MenuStories.RealWorldSettingsMenu} />
+<MiniPlayground
+  title="Settings menu that stays open"
+  source={{
+    repo: 'seek-oss/playroom',
+    href: 'https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx',
+    license: 'MIT',
+  }}
+  code={settingsMenuSource}
+  css={menuCss}
+>
+  <SettingsMenuExample />
+</MiniPlayground>
 
-<Canvas of={MenuStories.RealWorldShadowDomPortal} />
+<MiniPlayground
+  title="Shadow-DOM-portalled overlay menu"
+  source={{
+    repo: 'vercel/next.js',
+    href: 'https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx',
+    license: 'MIT',
+  }}
+  code={shadowPortalSource}
+  css={menuCss}
+>
+  <ShadowPortalExample />
+</MiniPlayground>
 
 ## Decision log
 

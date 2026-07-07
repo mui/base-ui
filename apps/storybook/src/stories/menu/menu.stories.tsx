@@ -5,6 +5,17 @@ import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import styles from './menu.module.css';
+import {
+  CaretDownIcon,
+  CaretRightIcon,
+  CheckIcon,
+  EllipsisIcon,
+  BoltIcon,
+  ExternalLinkIcon,
+} from './icons';
+import { RowActionsExample } from './recreations/RowActionsExample';
+import { SettingsMenuExample } from './recreations/SettingsMenuExample';
+import { ShadowPortalExample } from './recreations/ShadowPortalExample';
 
 /**
  * Stories follow research/c-components/menu (Tier 1): the kept docs demos
@@ -361,7 +372,9 @@ export const SubmenuKeyboard: Story = {
     trigger.focus();
     await userEvent.keyboard('{ArrowDown}');
     const rootMenu = await body.findByRole('menu', { name: 'Song' });
-    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Add to Library' })).toHaveFocus());
+    await waitFor(() =>
+      expect(body.getByRole('menuitem', { name: 'Add to Library' })).toHaveFocus(),
+    );
 
     await userEvent.keyboard('{ArrowDown}');
     const submenuTrigger = body.getByRole('menuitem', { name: 'Add to Playlist' });
@@ -370,7 +383,9 @@ export const SubmenuKeyboard: Story = {
     // ArrowRight opens the submenu and focuses its first item (LTR).
     await userEvent.keyboard('{ArrowRight}');
     const submenu = await body.findByRole('menu', { name: 'Add to Playlist' });
-    await waitFor(() => expect(within(submenu).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus());
+    await waitFor(() =>
+      expect(within(submenu).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus(),
+    );
 
     // Escape closes only the submenu level; the root menu stays open.
     await userEvent.keyboard('{Escape}');
@@ -383,7 +398,9 @@ export const SubmenuKeyboard: Story = {
     // ArrowLeft also closes the submenu and refocuses its trigger.
     await userEvent.keyboard('{ArrowRight}');
     const reopened = await body.findByRole('menu', { name: 'Add to Playlist' });
-    await waitFor(() => expect(within(reopened).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus());
+    await waitFor(() =>
+      expect(within(reopened).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus(),
+    );
     await userEvent.keyboard('{ArrowLeft}');
     await waitFor(() =>
       expect(body.queryByRole('menu', { name: 'Add to Playlist' })).not.toBeInTheDocument(),
@@ -633,7 +650,9 @@ export const ControlledMultiTrigger: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Library' }));
-    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Add to library' })).toBeVisible());
+    await waitFor(() =>
+      expect(body.getByRole('menuitem', { name: 'Add to library' })).toBeVisible(),
+    );
     await expect(canvas.getByText('active trigger: library-trigger')).toBeVisible();
 
     await userEvent.keyboard('{Escape}');
@@ -679,12 +698,7 @@ export const ViewportContentTransition: Story = {
   render: () => (
     <div className={styles.Row}>
       {(Object.keys(viewportMenus) as ViewportMenuKey[]).map((key) => (
-        <Menu.Trigger
-          key={key}
-          className={styles.Button}
-          handle={viewportMenuHandle}
-          payload={key}
-        >
+        <Menu.Trigger key={key} className={styles.Button} handle={viewportMenuHandle} payload={key}>
           {viewportMenus[key].heading}
         </Menu.Trigger>
       ))}
@@ -871,7 +885,9 @@ export const Typeahead: Story = {
     await body.findByRole('menu');
     await waitFor(() => expect(body.getByRole('menuitem', { name: 'Aa' })).toHaveFocus());
     await userEvent.keyboard('q');
-    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Quick actions' })).toHaveFocus());
+    await waitFor(() =>
+      expect(body.getByRole('menuitem', { name: 'Quick actions' })).toHaveFocus(),
+    );
   },
 };
 
@@ -1066,9 +1082,7 @@ function EventDetailsExample() {
           Outside area
         </button>
       </div>
-      <output className={styles.Output}>
-        reasons: {log.length > 0 ? log.join(', ') : 'none'}
-      </output>
+      <output className={styles.Output}>reasons: {log.length > 0 ? log.join(', ') : 'none'}</output>
     </div>
   );
 }
@@ -1215,7 +1229,9 @@ export const RTLSubmenu: Story = {
     trigger.focus();
     await userEvent.keyboard('{ArrowDown}');
     await body.findByRole('menu', { name: 'Song' });
-    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Add to Library' })).toHaveFocus());
+    await waitFor(() =>
+      expect(body.getByRole('menuitem', { name: 'Add to Library' })).toHaveFocus(),
+    );
 
     await userEvent.keyboard('{ArrowDown}');
     const submenuTrigger = body.getByRole('menuitem', { name: 'Add to Playlist' });
@@ -1224,7 +1240,9 @@ export const RTLSubmenu: Story = {
     // RTL: ArrowLeft opens the submenu…
     await userEvent.keyboard('{ArrowLeft}');
     const submenu = await body.findByRole('menu', { name: 'Add to Playlist' });
-    await waitFor(() => expect(within(submenu).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus());
+    await waitFor(() =>
+      expect(within(submenu).getByRole('menuitem', { name: 'Get Up!' })).toHaveFocus(),
+    );
 
     // …and ArrowRight closes it, refocusing the trigger.
     await userEvent.keyboard('{ArrowRight}');
@@ -1324,81 +1342,6 @@ export const ImperativeHandle: Story = {
 /* Real-world recreations (research/d-real-world-usage/menu)           */
 /* ------------------------------------------------------------------ */
 
-const fleetInstances = [
-  { id: 'db-primary', dram: '16 GiB', status: 'running' },
-  { id: 'db-replica', dram: '16 GiB', status: 'running' },
-  { id: 'web-frontend', dram: '8 GiB', status: 'stopped' },
-];
-
-function RowActionsExample() {
-  const [lastAction, setLastAction] = React.useState('none');
-  return (
-    <div className={styles.Stack}>
-      <table className={styles.Table}>
-        <thead>
-          <tr>
-            <th>Instance</th>
-            <th>DRAM</th>
-            <th>Status</th>
-            <th aria-label="Actions" />
-          </tr>
-        </thead>
-        <tbody>
-          {fleetInstances.map((instance) => (
-            <tr key={instance.id}>
-              <td>{instance.id}</td>
-              <td>{instance.dram}</td>
-              <td>{instance.status}</td>
-              <td>
-                {/* modal={false}: row-action menus must not lock page scroll. */}
-                <Menu.Root modal={false}>
-                  <Menu.Trigger
-                    className={styles.IconButton}
-                    aria-label={`Row actions for ${instance.id}`}
-                  >
-                    <EllipsisIcon />
-                  </Menu.Trigger>
-                  <Menu.Portal>
-                    <Menu.Positioner
-                      className={styles.Positioner}
-                      side="bottom"
-                      align="end"
-                      sideOffset={4}
-                    >
-                      <Menu.Popup className={styles.Popup}>
-                        <Menu.Item
-                          className={styles.Item}
-                          onClick={() => setLastAction(`Start ${instance.id}`)}
-                        >
-                          Start
-                        </Menu.Item>
-                        <Menu.Item
-                          className={styles.Item}
-                          onClick={() => setLastAction(`Stop ${instance.id}`)}
-                        >
-                          Stop
-                        </Menu.Item>
-                        <Menu.Separator className={styles.Separator} />
-                        <Menu.Item
-                          className={`${styles.Item} ${styles.DangerItem}`}
-                          onClick={() => setLastAction(`Delete ${instance.id}`)}
-                        >
-                          Delete
-                        </Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.Root>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <output className={styles.Output}>last action: {lastAction}</output>
-    </div>
-  );
-}
-
 /**
  * Recreation of a data-table row-actions menu: kebab trigger per row,
  * `modal={false}` so the page never locks scroll (the wrapper's own stated
@@ -1419,69 +1362,6 @@ export const RealWorldRowActions: Story = {
     await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
   },
 };
-
-const settingsFrames = ['Desktop', 'Tablet', 'Phone'];
-
-function SettingsMenuExample() {
-  const [frames, setFrames] = React.useState<Record<string, boolean>>({
-    Desktop: true,
-    Tablet: false,
-    Phone: true,
-  });
-  const [theme, setTheme] = React.useState('system');
-  const [phase, setPhase] = React.useState('idle');
-  const visibleCount = Object.values(frames).filter(Boolean).length;
-  return (
-    <div className={styles.Stack}>
-      <Menu.Root onOpenChangeComplete={(open) => setPhase(open ? 'open settled' : 'close settled')}>
-        <Menu.Trigger className={styles.Button}>
-          Settings <CaretDownIcon />
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner className={styles.Positioner} sideOffset={8}>
-            <Menu.Popup className={styles.Popup}>
-              <Menu.Group>
-                <Menu.GroupLabel className={styles.GroupLabel}>Visible frames</Menu.GroupLabel>
-                {settingsFrames.map((frame) => (
-                  <Menu.CheckboxItem
-                    key={frame}
-                    checked={frames[frame]}
-                    onCheckedChange={(checked) =>
-                      setFrames((previous) => ({ ...previous, [frame]: checked }))
-                    }
-                    className={styles.CheckboxItem}
-                  >
-                    <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                      <CheckIcon />
-                    </Menu.CheckboxItemIndicator>
-                    <span className={styles.CheckboxItemText}>{frame}</span>
-                  </Menu.CheckboxItem>
-                ))}
-              </Menu.Group>
-              <Menu.Separator className={styles.Separator} />
-              <Menu.RadioGroup value={theme} onValueChange={setTheme}>
-                <Menu.GroupLabel className={styles.GroupLabel}>Editor theme</Menu.GroupLabel>
-                {['system', 'light', 'dark'].map((option) => (
-                  <Menu.RadioItem key={option} className={styles.RadioItem} value={option}>
-                    <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
-                      <CheckIcon />
-                    </Menu.RadioItemIndicator>
-                    <span className={styles.RadioItemText}>
-                      {option[0].toUpperCase() + option.slice(1)}
-                    </span>
-                  </Menu.RadioItem>
-                ))}
-              </Menu.RadioGroup>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-      <output className={styles.Output}>
-        {visibleCount} frames visible · theme: {theme} · {phase}
-      </output>
-    </div>
-  );
-}
 
 /**
  * Recreation of an editor settings menu that stays open while toggling:
@@ -1514,54 +1394,6 @@ export const RealWorldSettingsMenu: Story = {
   },
 };
 
-function ShadowPortalExample() {
-  const hostRef = React.useRef<HTMLDivElement | null>(null);
-  const [shadowRoot, setShadowRoot] = React.useState<ShadowRoot | null>(null);
-
-  React.useEffect(() => {
-    const host = hostRef.current;
-    if (!host) {
-      return;
-    }
-    const root = host.shadowRoot ?? host.attachShadow({ mode: 'open' });
-    // The overlay owns its shadow root's styles: clone the page stylesheets in
-    // so the CSS Modules classes resolve inside the isolation boundary too.
-    if (!root.hasChildNodes()) {
-      host.ownerDocument
-        .querySelectorAll('style, link[rel="stylesheet"]')
-        .forEach((styleElement) => root.appendChild(styleElement.cloneNode(true)));
-    }
-    setShadowRoot(root);
-  }, []);
-
-  return (
-    <div className={styles.Stack}>
-      <Menu.Root modal={false}>
-        <Menu.Trigger className={styles.Button}>
-          Route segment <CaretDownIcon />
-        </Menu.Trigger>
-        <Menu.Portal container={shadowRoot}>
-          <Menu.Positioner className={styles.Positioner} sideOffset={8}>
-            <Menu.Popup className={styles.Popup}>
-              <Menu.Group>
-                <Menu.GroupLabel className={styles.PlainGroupLabel}>
-                  Toggle overrides
-                </Menu.GroupLabel>
-                <Menu.Item className={styles.Item}>Trigger loading boundary</Menu.Item>
-                <Menu.Item className={styles.Item}>Trigger error boundary</Menu.Item>
-                <Menu.Item className={styles.Item}>Trigger not-found</Menu.Item>
-              </Menu.Group>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-      <div ref={hostRef} data-testid="shadow-host" className={styles.ShadowPanel}>
-        shadow root host (popup portals in here)
-      </div>
-    </div>
-  );
-}
-
 /**
  * Recreation of a devtools-overlay menu living inside a shadow root:
  * `Menu.Portal container={shadowRoot}` keeps the popup inside the overlay's
@@ -1584,102 +1416,3 @@ export const RealWorldShadowDomPortal: Story = {
     await expect(body.queryByRole('menu')).not.toBeInTheDocument();
   },
 };
-
-/* ------------------------------------------------------------------ */
-/* Icons (inlined — stories must not import docs assets)               */
-/* ------------------------------------------------------------------ */
-
-function CaretDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 6H4l4 4.5z" />
-    </svg>
-  );
-}
-
-function CaretRightIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M6 12V4l4.5 4z" />
-    </svg>
-  );
-}
-
-function CheckIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="m2.5 8.5 4 4 7-9" />
-    </svg>
-  );
-}
-
-function EllipsisIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <circle cx="3" cy="8" r="1" />
-      <circle cx="8" cy="8" r="1" />
-      <circle cx="13" cy="8" r="1" />
-    </svg>
-  );
-}
-
-function BoltIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M9.5 1.5 3 9h3.5L6 14.5 13 7H9z" />
-    </svg>
-  );
-}
-
-function ExternalLinkIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M6.5 3.5h-3v9h9v-3M9.5 2.5h4v4M13 3 7.5 8.5" />
-    </svg>
-  );
-}

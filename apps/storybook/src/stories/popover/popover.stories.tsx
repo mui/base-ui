@@ -3,8 +3,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
 import { Popover } from '@base-ui/react/popover';
 import { Checkbox } from '@base-ui/react/checkbox';
-import { Toolbar } from '@base-ui/react/toolbar';
 import styles from './popover.module.css';
+import { QueuePopoverExample } from './recreations/QueuePopoverExample';
+import { LinkEditorToolbarExample } from './recreations/LinkEditorToolbarExample';
+import { MentionAutocompleteExample } from './recreations/MentionAutocompleteExample';
 
 /**
  * Stories follow research/c-components/popover (Tier 1): the five kept docs demos,
@@ -1069,7 +1071,11 @@ function InitialFinalFocusExample() {
         <Popover.Trigger className={styles.Button}>Add bookmark</Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner sideOffset={8}>
-            <Popover.Popup className={styles.Popup} initialFocus={urlInputRef} finalFocus={summaryRef}>
+            <Popover.Popup
+              className={styles.Popup}
+              initialFocus={urlInputRef}
+              finalFocus={summaryRef}
+            >
               <Popover.Title className={styles.Title}>Add bookmark</Popover.Title>
               <label className={styles.Label}>
                 Name
@@ -1077,7 +1083,11 @@ function InitialFinalFocusExample() {
               </label>
               <label className={styles.Label}>
                 URL
-                <input ref={urlInputRef} className={styles.Input} defaultValue="https://base-ui.com" />
+                <input
+                  ref={urlInputRef}
+                  className={styles.Input}
+                  defaultValue="https://base-ui.com"
+                />
               </label>
             </Popover.Popup>
           </Popover.Positioner>
@@ -1138,7 +1148,9 @@ export const ViewportContentDirection: Story = {
             <Popover.Positioner className={styles.AnimatedPositioner} sideOffset={8}>
               <Popover.Popup className={styles.AnimatedPopup}>
                 <Popover.Viewport className={styles.Viewport}>
-                  <Popover.Description className={styles.Description}>{payload}</Popover.Description>
+                  <Popover.Description className={styles.Description}>
+                    {payload}
+                  </Popover.Description>
                 </Popover.Viewport>
               </Popover.Popup>
             </Popover.Positioner>
@@ -1178,38 +1190,6 @@ export const ArrowSides: Story = {
 /* Real-world recreations (research/d-real-world-usage/popover)        */
 /* ------------------------------------------------------------------ */
 
-function ButtonIcon(props: React.ComponentProps<'button'>) {
-  return <button type="button" {...props} />;
-}
-
-function QueuePopoverExample() {
-  const headerRef = React.useRef<HTMLDivElement>(null);
-  return (
-    <div className={styles.QueueHeader} ref={headerRef}>
-      <span className={styles.Label}>Nightfall — Aurora Fields</span>
-      <Popover.Root>
-        <Popover.Trigger
-          render={<ButtonIcon aria-label="Open the queue" className={styles.IconButton} />}
-        >
-          ≡
-        </Popover.Trigger>
-        <Popover.Portal>
-          <Popover.Positioner anchor={headerRef} side="bottom" align="end" sideOffset={4}>
-            <Popover.Popup className={styles.Popup}>
-              <Popover.Title className={styles.Title}>Up next</Popover.Title>
-              <ol className={styles.QueueList}>
-                <li>Aurora Fields — Nightfall</li>
-                <li>Glass Harbor — Undertow</li>
-                <li>Marble Sky — Second Sun</li>
-              </ol>
-            </Popover.Popup>
-          </Popover.Positioner>
-        </Popover.Portal>
-      </Popover.Root>
-    </div>
-  );
-}
-
 /**
  * Recreation of the play-queue popover in the museeks music player's title bar:
  * the Trigger composes a custom icon button via `render`, while the Positioner's
@@ -1237,51 +1217,6 @@ export const RealWorldQueuePopover: Story = {
     );
   },
 };
-
-function LinkEditorToolbarExample() {
-  const urlInputRef = React.useRef<HTMLInputElement>(null);
-  const [href, setHref] = React.useState('https://example.com/docs');
-  const [draft, setDraft] = React.useState(href);
-  return (
-    <div className={styles.Stack}>
-      <Toolbar.Root className={styles.Toolbar}>
-        <Toolbar.Button className={styles.IconButton} aria-label="Bold">
-          B
-        </Toolbar.Button>
-        <Toolbar.Button className={styles.IconButton} aria-label="Italic">
-          I
-        </Toolbar.Button>
-        <Popover.Root>
-          <Toolbar.Button className={styles.Button} render={<Popover.Trigger />}>
-            Edit link
-          </Toolbar.Button>
-          <Popover.Portal>
-            <Popover.Positioner sideOffset={8}>
-              <Popover.Popup className={styles.Popup} initialFocus={urlInputRef}>
-                <Popover.Close className={styles.Button} onClick={() => setHref('')}>
-                  Remove link
-                </Popover.Close>
-                <label className={styles.Label}>
-                  URL
-                  <input
-                    ref={urlInputRef}
-                    className={styles.Input}
-                    value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
-                  />
-                </label>
-                <Popover.Close className={styles.Button} onClick={() => setHref(draft)}>
-                  Save
-                </Popover.Close>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      </Toolbar.Root>
-      <output className={styles.Output}>href: {href || 'none'}</output>
-    </div>
-  );
-}
 
 /**
  * Recreation of the link editor in the flashtype markdown editor's formatting
@@ -1316,60 +1251,6 @@ export const RealWorldLinkEditorToolbar: Story = {
     await waitFor(() => expect(editLink).toHaveFocus());
   },
 };
-
-const mentionFiles = ['README.md', 'package.json', 'src/index.ts', 'src/theme.css'];
-
-function MentionAutocompleteExample() {
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const [message, setMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
-
-  function insertMention(file: string) {
-    setMessage((current) => `${current}${file} `);
-    setOpen(false);
-    textareaRef.current?.focus();
-  }
-
-  return (
-    <div className={styles.Stack}>
-      <textarea
-        ref={textareaRef}
-        className={styles.Textarea}
-        aria-label="Message"
-        placeholder="Type @ to mention a file"
-        rows={3}
-        value={message}
-        onChange={(event) => {
-          setMessage(event.target.value);
-          setOpen(event.target.value.endsWith('@'));
-        }}
-      />
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Portal>
-          <Popover.Positioner anchor={textareaRef} side="top" align="start" sideOffset={4}>
-            <Popover.Popup className={styles.Popup} initialFocus={false} finalFocus={false}>
-              <ul className={styles.QueueList}>
-                {mentionFiles.map((file) => (
-                  <li key={file}>
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      className={styles.MentionItem}
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => insertMention(file)}
-                    >
-                      {file}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </Popover.Popup>
-          </Popover.Positioner>
-        </Popover.Portal>
-      </Popover.Root>
-    </div>
-  );
-}
 
 /**
  * Recreation of the @-mention file autocomplete in takopi (a personal AI

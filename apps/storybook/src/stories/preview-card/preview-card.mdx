@@ -98,7 +98,7 @@ Since focus obeys the same delay as hover (unlike Tooltip, where only hover has 
 
 <Canvas of={PreviewCardStories.ControlledOpen} />
 
-External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` reporting which interaction caused each transition.
+External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` reporting which interaction caused each transition — `trigger-focus` when the story's trigger is focused, `escape-key` when `Escape` closes it.
 
 ### Detached triggers via `createHandle()`
 

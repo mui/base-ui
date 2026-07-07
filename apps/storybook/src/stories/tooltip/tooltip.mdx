@@ -92,7 +92,7 @@ Hover opens after `delay` (Trigger prop, default `600ms` — `OPEN_DELAY` in `ut
 
 <Canvas of={TooltipStories.ControlledOpen} />
 
-External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` (`trigger-hover`/`trigger-focus`/`escape-key`/`outside-press`/`imperative-action`) reporting which interaction caused each transition.
+External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` (`trigger-hover`/`trigger-focus`/`escape-key`/`outside-press`/`imperative-action`) reporting which interaction caused each transition — `trigger-focus` when the story's trigger is focused, `escape-key` when `Escape` closes it.
 
 ### Disabling a tooltip
 
