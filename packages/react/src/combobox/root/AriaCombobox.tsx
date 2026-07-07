@@ -1245,10 +1245,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () => ({
       query,
       hasItems,
+      hasFilteredItems: hasFilteredItemsProp,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, hasItems, hasFilteredItemsProp, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {

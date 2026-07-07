@@ -30,7 +30,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredItems, hasItems, hasFilteredItems } =
+    useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
@@ -117,14 +118,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // unmounting (unmounting clears the registered labels). Rendered labels only need to be
   // registered when the list is force-mounted to match browser autofill against rendered text.
   // Virtualized lists never register labels: only a window of items is rendered.
-  const labelsRef =
-    virtualized || (hasItems && !forceMounted) ? undefined : store.state.labelsRef;
+  const labelsRef = virtualized || (hasItems && !forceMounted) ? undefined : store.state.labelsRef;
 
   return (
     <CompositeList
       elementsRef={store.state.listRef}
       labelsRef={labelsRef}
-      itemCount={hasItems ? flatFilteredItems.length : undefined}
+      itemCount={hasItems || hasFilteredItems ? flatFilteredItems.length : undefined}
     >
       {element}
     </CompositeList>

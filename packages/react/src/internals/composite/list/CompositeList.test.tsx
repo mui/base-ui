@@ -275,7 +275,7 @@ describe('<CompositeList />', () => {
 
     it('updates labels without re-registering the item', async () => {
       function Item(props: { label: string }) {
-        const { ref } = useCompositeListItem({ label: props.label });
+        const { ref } = useCompositeListItem({ index: 0, label: props.label });
         return <div ref={ref}>fallback</div>;
       }
 
@@ -312,11 +312,49 @@ describe('<CompositeList />', () => {
       expect(onMapChange).toHaveBeenCalledTimes(mapChangeCallCount);
     });
 
+    it('returns to the registered length when itemCount is removed', async () => {
+      function Item(props: { index: number }) {
+        const { ref } = useCompositeListItem({ index: props.index });
+        return <div ref={ref} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function TestComponent(props: { itemCount?: number | undefined }) {
+        return (
+          <CompositeList
+            elementsRef={elementsRef}
+            labelsRef={labelsRef}
+            itemCount={props.itemCount}
+          >
+            <Item index={0} />
+            <Item index={1} />
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent itemCount={5} />);
+
+      expect(elementsRef.current).toHaveLength(5);
+      expect(labelsRef.current).toHaveLength(5);
+
+      await setProps({ itemCount: undefined });
+
+      expect(elementsRef.current).toHaveLength(2);
+      expect(labelsRef.current).toHaveLength(2);
+    });
+
     describe('mixed controlled and uncontrolled indexes', () => {
       const expectedMessage =
         'Base UI: A CompositeList is mixing controlled and uncontrolled indexes. ' +
         'Decide between using a controlled or uncontrolled index prop for all items in the CompositeList. ' +
-        'The indexing mode is determined by the first registered item. ' +
+        'Changing mode after registration leaves indexes inconsistent, which breaks navigation and highlighting. ' +
+        'The indexing mode is fixed by the first registered item for the list instance. ' +
         'An item is considered controlled when its index prop is not `undefined`.';
 
       function Item(props: { index?: number | undefined }) {

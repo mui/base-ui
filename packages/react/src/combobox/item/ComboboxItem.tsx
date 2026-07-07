@@ -295,7 +295,7 @@ export interface ComboboxItemProps
    */
   onClick?: BaseUIComponentProps<'div', ComboboxItemState>['onClick'] | undefined;
   /**
-   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+   * The index of the item in the list. If specified for one item, it must be specified for every item in the same list.
    */
   index?: number | undefined;
   /**

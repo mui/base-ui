@@ -25,7 +25,8 @@ export enum IndexGuessBehavior {
 }
 
 /**
- * Used to register a list item and its index (DOM position) in the `CompositeList`.
+ * Used to register a list item and its index in the `CompositeList`.
+ * The index is derived from DOM position, or from the explicit `index` when controlled.
  */
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},

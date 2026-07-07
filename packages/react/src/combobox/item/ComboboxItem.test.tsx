@@ -524,6 +524,58 @@ describe('<Combobox.Item />', () => {
       });
       expect(screen.getByTestId('list-ref-snapshot')).toHaveTextContent('||three|four|');
     });
+
+    it('uses filteredItems as the total count when items is omitted', async () => {
+      function ListRefProbe() {
+        const store = useComboboxRootContext();
+        const [length, setLength] = React.useState(0);
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              data-testid="refresh-list-ref"
+              onClick={() => setLength(store.state.listRef.current.length)}
+            />
+            <div data-testid="list-ref-length">{length}</div>
+          </React.Fragment>
+        );
+      }
+
+      function WindowedItems() {
+        const items = Combobox.useFilteredItems<string>();
+        return items.slice(2, 4).map((item) => (
+          <Combobox.Item key={item} value={item}>
+            {item}
+          </Combobox.Item>
+        ));
+      }
+
+      const { user } = await render(
+        <Combobox.Root virtualized filteredItems={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <ListRefProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <WindowedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      fireEvent.click(screen.getByTestId('refresh-list-ref'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('list-ref-length')).toHaveTextContent('5');
+      });
+    });
   });
 
   describe('virtualized with explicit index', () => {

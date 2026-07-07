@@ -35,11 +35,12 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
     if (controlledRef.current === null) {
       controlledRef.current = isControlled;
-    } else if (controlledRef.current !== isControlled) {
+    } else if (process.env.NODE_ENV !== 'production' && controlledRef.current !== isControlled) {
       error(
         `A CompositeList is mixing controlled and uncontrolled indexes.`,
         `Decide between using a controlled or uncontrolled index prop for all items in the CompositeList.`,
-        'The indexing mode is determined by the first registered item.',
+        'Changing mode after registration leaves indexes inconsistent, which breaks navigation and highlighting.',
+        'The indexing mode is fixed by the first registered item for the list instance.',
         'An item is considered controlled when its index prop is not `undefined`.',
       );
     }
@@ -109,16 +110,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // Apply `itemCount` changes that arrive without a registration change (for example,
   // the filtered set shrinks while the rendered window stays the same).
   useIsoLayoutEffect(() => {
-    if (itemCount == null) {
-      return;
-    }
-    if (elementsRef.current.length !== itemCount) {
-      elementsRef.current.length = itemCount;
-    }
-    if (labelsRef && labelsRef.current.length !== itemCount) {
-      labelsRef.current.length = itemCount;
-    }
-  }, [itemCount, elementsRef, labelsRef]);
+    syncRefs(sortedMapRef.current);
+  }, [itemCount, sortedMapRef, syncRefs]);
 
   useIsoLayoutEffect(() => {
     const isControlled = controlledRef.current === true;
@@ -282,30 +275,21 @@ function sortMap<Metadata>(
   isControlled: boolean,
 ) {
   const sortedMap = new Map<HTMLElement, CompositeMetadata<Metadata>>();
-  const sortFn = isControlled ? sortByMetadataIndex(map) : sortByDocumentPosition;
-
   // Filter out disconnected elements before sorting to avoid inconsistent
   // compareDocumentPosition results when elements are detached from the DOM.
-  const sortedNodes = Array.from(map.keys())
-    .filter((node) => node.isConnected)
-    .sort(sortFn);
+  const sortedEntries = Array.from(map).filter(([node]) => node.isConnected);
 
   if (isControlled) {
-    sortedNodes.forEach((node) => {
-      sortedMap.set(node, map.get(node) as CompositeMetadata<Metadata>);
-    });
+    sortedEntries
+      .sort((a, b) => (a[1].index ?? 0) - (b[1].index ?? 0))
+      .forEach(([node, metadata]) => sortedMap.set(node, metadata));
   } else {
-    sortedNodes.forEach((node, index) => {
-      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-      sortedMap.set(node, { ...metadata, index });
-    });
+    sortedEntries
+      .sort(([a], [b]) => sortByDocumentPosition(a, b))
+      .forEach(([node, metadata], index) => sortedMap.set(node, { ...metadata, index }));
   }
 
   return sortedMap;
-}
-
-function sortByMetadataIndex<Metadata>(map: Map<HTMLElement, CompositeMetadata<Metadata>>) {
-  return (a: HTMLElement, b: HTMLElement) => (map.get(a)?.index ?? 0) - (map.get(b)?.index ?? 0);
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
@@ -341,8 +325,7 @@ export interface CompositeListProps<Metadata> {
   labelsRef?: React.RefObject<Array<string | null>> | undefined;
   onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
   /**
-   * The total number of items in the list when only a subset is rendered (windowed or
-   * virtualized lists with controlled indexes). Sets the authoritative length of
+   * The total number of items in the list. Sets the authoritative length of
    * `elementsRef`/`labelsRef` so navigation can target indexes beyond the rendered window.
    */
   itemCount?: number | undefined;

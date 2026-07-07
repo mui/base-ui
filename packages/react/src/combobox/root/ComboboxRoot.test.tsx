@@ -1117,7 +1117,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.List>
                   {(item: string, index: number) => (
-                    <Combobox.Item key={item} value={item} index={index}>
+                    <Combobox.Item key={item} value={item} index={items.length - 1 - index}>
                       {item}
                     </Combobox.Item>
                   )}
@@ -1132,17 +1132,19 @@ describe('<Combobox.Root />', () => {
       await user.click(input);
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute('data-highlighted');
+        expect(screen.getByRole('option', { name: 'cherry' })).toHaveAttribute('data-highlighted');
       });
 
-      const cherry = screen.getByRole('option', { name: 'cherry' });
-      await user.hover(cherry);
+      const apple = screen.getByRole('option', { name: 'apple' });
+      await user.hover(apple);
 
       await waitFor(() => {
-        expect(cherry).toHaveAttribute('data-highlighted');
+        expect(apple).toHaveAttribute('data-highlighted');
       });
-      expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-highlighted');
-      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+      expect(input).toHaveAttribute('aria-activedescendant', apple.id);
     });
 
     it('clicking on "listbox" keeps the focus on the input', async () => {
