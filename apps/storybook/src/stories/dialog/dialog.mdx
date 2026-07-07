@@ -1,6 +1,12 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as DialogStories from './dialog.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
+import { SidePanelExample } from './recreations/SidePanelExample';
+import { SettingsModalExample } from './recreations/SettingsModalExample';
+import sidePanelSource from './recreations/SidePanelExample.tsx?raw';
+import settingsModalSource from './recreations/SettingsModalExample.tsx?raw';
+import dialogCss from './dialog.module.css?raw';
 import uiShadcnComOpenShot from '../../../../../research/d-real-world-usage/_captures/ui-shadcn-com-open.png';
 import wordpressOrgGutenbergOpenShot from '../../../../../research/d-real-world-usage/_captures/wordpress-org-gutenberg-open.png';
 import consolePreviewOxideComputerOpenShot from '../../../../../research/d-real-world-usage/_captures/console-preview-oxide-computer-open.png';
@@ -273,11 +279,33 @@ CSS transitions hook onto `[data-starting-style]`/`[data-ending-style]` on Popup
   </WildCard>
 </WildCards>
 
-Two recreations live in this Storybook — an edge-docked side panel (Oxide) and a wrapper-based settings modal (shadcn/ui):
+Two recreations live in this Storybook — an edge-docked side panel (Oxide) and a wrapper-based settings modal (shadcn/ui). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
 
-<Canvas of={DialogStories.RecreationSidePanel} />
+<MiniPlayground
+  title="Edge-docked side panel"
+  source={{
+    repo: 'oxidecomputer/console',
+    href: 'https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/SideModal.tsx',
+    license: 'MPL-2.0',
+  }}
+  code={sidePanelSource}
+  css={dialogCss}
+>
+  <SidePanelExample />
+</MiniPlayground>
 
-<Canvas of={DialogStories.RecreationSettingsModal} />
+<MiniPlayground
+  title="Wrapper-based settings modal"
+  source={{
+    repo: 'shadcn-ui/ui',
+    href: 'https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/dialog.tsx',
+    license: 'MIT',
+  }}
+  code={settingsModalSource}
+  css={dialogCss}
+>
+  <SettingsModalExample />
+</MiniPlayground>
 
 ## Decision log
 

@@ -8,6 +8,9 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import styles from './dialog.module.css';
+import { XIcon } from './icons';
+import { SidePanelExample } from './recreations/SidePanelExample';
+import { SettingsModalExample } from './recreations/SettingsModalExample';
 
 /**
  * Stories follow research/c-components/dialog (Tier 1): the eight kept docs demos,
@@ -1072,7 +1075,9 @@ export const InitialAndFinalFocus: Story = {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(dialog).not.toBeInTheDocument());
     // finalFocus redirects close-focus away from the trigger.
-    await waitFor(() => expect(canvas.getByRole('button', { name: 'View audit log' })).toHaveFocus());
+    await waitFor(() =>
+      expect(canvas.getByRole('button', { name: 'View audit log' })).toHaveFocus(),
+    );
   },
 };
 
@@ -1358,61 +1363,6 @@ export const KeepMounted: Story = {
 /* Real-world recreations (research/d-real-world-usage/dialog)         */
 /* ------------------------------------------------------------------ */
 
-function SidePanelExample() {
-  const [open, setOpen] = React.useState(false);
-  const [saved, setSaved] = React.useState<string | null>(null);
-  const nameId = React.useId();
-  return (
-    <div className={styles.Stack}>
-      {/* No Dialog.Trigger: app state opens the panel, oxide-console style. */}
-      <button type="button" className={styles.Button} onClick={() => setOpen(true)}>
-        Edit instance
-      </button>
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        <Dialog.Portal>
-          <Dialog.Backdrop className={styles.Backdrop} />
-          <Dialog.Popup className={styles.SheetPopup}>
-            <div className={styles.Intro}>
-              <Dialog.Title className={styles.Title}>Edit instance</Dialog.Title>
-              <Dialog.Description className={styles.Description}>
-                db-primary · us-east-1
-              </Dialog.Description>
-            </div>
-            <form
-              className={styles.SheetForm}
-              onSubmit={(event) => {
-                event.preventDefault();
-                const data = new FormData(event.currentTarget);
-                setSaved(String(data.get('name')));
-                setOpen(false);
-              }}
-            >
-              <div className={styles.Field}>
-                <label className={styles.Label} htmlFor={nameId}>
-                  Instance name
-                </label>
-                <input
-                  id={nameId}
-                  name="name"
-                  defaultValue="db-primary"
-                  className={styles.Input}
-                />
-              </div>
-              <div className={styles.SheetFooter}>
-                <Dialog.Close className={styles.GhostButton}>Cancel</Dialog.Close>
-                <button type="submit" className={styles.Button}>
-                  Save changes
-                </button>
-              </div>
-            </form>
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
-      {saved !== null ? <output className={styles.Output}>Saved: {saved}</output> : null}
-    </div>
-  );
-}
-
 /**
  * Recreation of an edge-docked side panel: a fully controlled Dialog with no Trigger
  * (routes/app state open it), positioned against the viewport edge with a slide
@@ -1440,38 +1390,6 @@ export const RecreationSidePanel: Story = {
 };
 
 /**
- * Wrapper layer in the shadcn/ui style: one component hides the
- * `Portal > Backdrop > Popup` plumbing and always renders a corner X close button.
- */
-function AppDialogContent({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <Dialog.Portal>
-      <Dialog.Backdrop className={styles.Backdrop} />
-      <Dialog.Popup className={styles.Popup}>
-        <div className={styles.Intro}>
-          <Dialog.Title className={styles.Title}>{title}</Dialog.Title>
-          {description ? (
-            <Dialog.Description className={styles.Description}>{description}</Dialog.Description>
-          ) : null}
-        </div>
-        {children}
-        <Dialog.Close className={styles.CornerClose} aria-label="Close">
-          <XIcon />
-        </Dialog.Close>
-      </Dialog.Popup>
-    </Dialog.Portal>
-  );
-}
-
-/**
  * Recreation of the canonical copy-paste wrapper: a `DialogContent`-style component
  * (Popup→Content, Backdrop→Overlay vocabulary) used here as a settings dialog with
  * sections. Recomposed from shadcn-ui/ui `apps/v4/registry/bases/base/ui/dialog.tsx`
@@ -1479,24 +1397,7 @@ function AppDialogContent({
  */
 export const RecreationSettingsModal: Story = {
   tags: ['recreation'],
-  render: () => (
-    <Dialog.Root>
-      <Dialog.Trigger className={styles.Button}>Open settings</Dialog.Trigger>
-      <AppDialogContent title="Workspace settings" description="Changes apply immediately.">
-        <div className={styles.Section}>
-          <h3 className={styles.SectionTitle}>Appearance</h3>
-          <p className={styles.SectionBody}>Theme, density, and accent color.</p>
-        </div>
-        <div className={styles.Section}>
-          <h3 className={styles.SectionTitle}>Notifications</h3>
-          <p className={styles.SectionBody}>Mentions, replies, and weekly digests.</p>
-        </div>
-        <div className={styles.EndActions}>
-          <Dialog.Close className={styles.Button}>Done</Dialog.Close>
-        </div>
-      </AppDialogContent>
-    </Dialog.Root>
-  ),
+  render: () => <SettingsModalExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
@@ -1510,25 +1411,3 @@ export const RecreationSettingsModal: Story = {
     await waitFor(() => expect(dialog).not.toBeInTheDocument());
   },
 };
-
-/* ------------------------------------------------------------------ */
-/* Icons (inlined — stories must not import docs assets)               */
-/* ------------------------------------------------------------------ */
-
-function XIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="square"
-      strokeLinejoin="round"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="m2.5 2.5 11 11m-11 0 11-11" />
-    </svg>
-  );
-}

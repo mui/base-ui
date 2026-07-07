@@ -329,13 +329,46 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
 
 Ecosystem note: the cal.com team's [coss ui](https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/popover.tsx) registry (AGPL — link-only) is the origin of the dominant wrapper lineage (createHandle re-export + Viewport part + tooltip-style variant), copied nearly line-for-line into downstream MIT apps such as [Green-Wall](https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/popover.tsx).
 
-Three recreations live in this Storybook — the museeks queue popover, the Flashtype link editor, and the takopi mention autocomplete:
+Three recreations live in this Storybook — the museeks queue popover, the Flashtype link editor, and the takopi mention autocomplete. Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
 
-<Canvas of={PopoverStories.RealWorldQueuePopover} />
+<MiniPlayground
+  title="Queue popover"
+  source={{
+    repo: 'martpie/museeks',
+    href: 'https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx',
+    license: 'MIT',
+  }}
+  code={queuePopoverSource}
+  css={popoverCss}
+>
+  <QueuePopoverExample />
+</MiniPlayground>
 
-<Canvas of={PopoverStories.RealWorldLinkEditorToolbar} />
+<MiniPlayground
+  title="Link editor toolbar"
+  source={{
+    repo: 'opral/flashtype',
+    href: 'https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx',
+    license: 'MIT',
+  }}
+  code={linkEditorToolbarSource}
+  css={popoverCss}
+>
+  <LinkEditorToolbarExample />
+</MiniPlayground>
 
-<Canvas of={PopoverStories.RealWorldMentionAutocomplete} />
+<MiniPlayground
+  title="Mention autocomplete"
+  source={{
+    repo: 'egoist/takopi',
+    href: 'https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx',
+    license: 'Apache-2.0',
+  }}
+  code={mentionAutocompleteSource}
+  css={popoverCss}
+>
+  <MentionAutocompleteExample />
+</MiniPlayground>
 
 ## Decision log
 
