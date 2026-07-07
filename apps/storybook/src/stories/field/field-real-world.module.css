@@ -1,0 +1,61 @@
+/* Extra styles for the real-world recreation stories (grid-layout field). The
+   flat-prop wrapper recreation reuses field.module.css directly. */
+
+.GridField {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  column-gap: 0.5rem;
+  row-gap: 0.25rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.GridLabel {
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.GridIcon {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.GridInput {
+  composes: Input from './field.module.css';
+  grid-column: 2;
+}
+
+.GridDescription {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.GridError {
+  composes: GridDescription;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}

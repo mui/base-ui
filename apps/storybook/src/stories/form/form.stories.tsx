@@ -1,19 +1,22 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, waitFor } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { NumberField } from '@base-ui/react/number-field';
 import { Button } from '@base-ui/react/button';
 import styles from './form.module.css';
+import { MultiControlQuoteFormExample } from './recreations/MultiControlQuoteFormExample';
+import { ZeroJSFieldsetFormExample } from './recreations/ZeroJSFieldsetFormExample';
 
 /**
  * Stories follow research/c-components/form (Tier 1): the kept docs demos (hero,
  * Server Function action, Zod-style schema mapping) plus one story per documented
  * use case — submit gating with focus-first-invalid, the `errors` prop lifecycle,
  * `onFormSubmit` payload assembly, the `validationMode` cascade, imperative
- * validation via `actionsRef`, the `noValidate` boundary, and a react-hook-form
- * style integration.
+ * validation via `actionsRef`, the `noValidate` boundary, a react-hook-form style
+ * integration, and two real-world recreations picked from the code-ok entries in
+ * research/d-real-world-usage/form/ranked.json.
  */
 const meta = {
   title: 'Form inputs/Form',
@@ -844,5 +847,66 @@ export const ReactHookFormIntegration: Story = {
 
     await userEvent.click(submit);
     await expect(await canvas.findByText('Launching abc-01 in eu-central-1')).toBeVisible();
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/form)           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Recreation of the "request a project quote" form in lumi-ui's `form-rhf.tsx`: one
+ * `<Form>` around a deliberately heterogeneous control set (Autocomplete, NumberField,
+ * a plain Field.Control) — proof that Form doesn't care what's nested inside it.
+ * Recomposed from the ideas in patrick-xin/lumi-ui `form-rhf.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/form/ranked.json #1).
+ */
+export const RealWorldMultiControlQuoteForm: Story = {
+  tags: ['recreation'],
+  render: () => <MultiControlQuoteFormExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const submit = canvas.getByRole('button', { name: 'Request quote' });
+
+    // Submitting empty required fields blocks submission and renders both errors.
+    await userEvent.click(submit);
+    await expect(await canvas.findByText('Please enter a project type.')).toBeVisible();
+    await expect(canvas.getByText('Please enter your email.')).toBeVisible();
+
+    const projectType = canvas.getByRole('combobox');
+    await userEvent.type(projectType, 'Web');
+    await userEvent.click(await body.findByRole('option', { name: 'Web app' }));
+    await userEvent.type(canvas.getByLabelText('Contact email'), 'ada@example.com');
+
+    // The default budget (5000) rides along with no interaction required.
+    await userEvent.click(submit);
+    await expect(await canvas.findByText(/"projectType":"Web app"/)).toBeVisible();
+    await expect(canvas.getByText(/"budget":5000/)).toBeVisible();
+    await expect(canvas.getByText(/"email":"ada@example.com"/)).toBeVisible();
+  },
+};
+
+/**
+ * Recreation of nauvalazhar/selia's zero-JS validation demo: a `Fieldset` groups two
+ * required inputs, and native `required` plus a children-only `Field.Error
+ * match="valueMissing"` is the entire validation story — no `validate` function, no
+ * schema library. Recomposed from the ideas in nauvalazhar/selia `form.tsx`/`basic.tsx`
+ * (MIT, code-ok, research/d-real-world-usage/form/ranked.json #3).
+ */
+export const RealWorldZeroJSFieldsetForm: Story = {
+  tags: ['recreation'],
+  render: () => <ZeroJSFieldsetFormExample />,
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByRole('group', { name: 'Contact information' })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Submit' }));
+    const requiredErrors = await canvas.findAllByText('This is required');
+    await expect(requiredErrors).toHaveLength(2);
+
+    await userEvent.type(canvas.getByLabelText('Name'), 'Ada');
+    await userEvent.type(canvas.getByLabelText('Email'), 'ada@example.com');
+    await userEvent.click(canvas.getByRole('button', { name: 'Submit' }));
+
+    await expect(await canvas.findByText('Submitted')).toBeVisible();
   },
 };

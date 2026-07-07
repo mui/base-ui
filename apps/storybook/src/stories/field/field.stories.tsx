@@ -10,12 +10,16 @@ import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Select } from '@base-ui/react/select';
 import styles from './field.module.css';
+import { FlatPropFieldExample } from './recreations/FlatPropFieldExample';
+import { GridLayoutFieldExample } from './recreations/GridLayoutFieldExample';
 
 /**
  * Stories follow research/c-components/field (Tier 1): the docs hero, the forms-handbook
  * labeling and grouping patterns, the validation-mode matrix (onSubmit default per #3013),
  * custom/cross-field/async validate, a control-swap set (Input/Select/Checkbox/textarea),
- * the state-attribute machine, server errors, and the RHF-style controlled adapter (#2950).
+ * the state-attribute machine, server errors, the RHF-style controlled adapter (#2950),
+ * and two real-world recreations picked from the code-ok entries in
+ * research/d-real-world-usage/field/ranked.json.
  */
 const meta = {
   title: 'Form inputs/Field',
@@ -815,6 +819,64 @@ export const ErrorTransitionAnimation: Story = {
     await userEvent.type(input, 'Base UI');
     await waitFor(() =>
       expect(canvas.queryByText('This field is required.')).not.toBeInTheDocument(),
+    );
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/field)          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Recreation of a design-system wrapper: the whole composition collapses into one flat
+ * prop set (`label`, `required`, `description`, `errorMessage`, `hideLabel`) instead of
+ * exposing `Field.Label`/`Field.Description`/`Field.Error` as JSX children, with a
+ * `hideLabel` escape hatch for controls that supply their own accessible label.
+ * Recomposed from the ideas in cloudflare/kumo `field.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/field/ranked.json #1).
+ */
+export const RealWorldFlatPropWrapper: Story = {
+  tags: ['recreation'],
+  render: () => <FlatPropFieldExample />,
+  play: async ({ canvas, userEvent }) => {
+    const fullName = canvas.getByLabelText('Full name');
+    // hideLabel renders no visible/associated Field.Label — the control names itself.
+    const search = canvas.getByRole('textbox', { name: 'Search' });
+    await expect(canvas.queryByText('Search')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
+    await expect(await canvas.findByText('Please enter your full name.')).toBeVisible();
+    await expect(canvas.getByText('Please enter a search term.')).toBeVisible();
+
+    await userEvent.type(fullName, 'Ada Lovelace');
+    await userEvent.type(search, 'field');
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
+
+    await expect(await canvas.findByText('Saved')).toBeVisible();
+    await expect(canvas.queryByText('Please enter your full name.')).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Recreation of a `grid-cols-[auto_1fr]` field layout: description/error text is pinned
+ * to the second column so it aligns under the control (next to its leading icon) rather
+ * than under the label — an alternative to the vertical-stack layout every other story
+ * on this page uses. Recomposed from the ideas in nauvalazhar/selia `field.tsx` (MIT,
+ * code-ok, research/d-real-world-usage/field/ranked.json #6).
+ */
+export const RealWorldGridLayout: Story = {
+  tags: ['recreation'],
+  render: () => <GridLayoutFieldExample />,
+  play: async ({ canvas, userEvent }) => {
+    const input = canvas.getByLabelText('Search the docs');
+
+    await userEvent.type(input, 'x');
+    await userEvent.clear(input);
+    await expect(await canvas.findByText('A search term is required.')).toBeVisible();
+
+    await userEvent.type(input, 'useRender');
+    await waitFor(() =>
+      expect(canvas.queryByText('A search term is required.')).not.toBeInTheDocument(),
     );
   },
 };

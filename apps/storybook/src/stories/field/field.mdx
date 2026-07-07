@@ -1,8 +1,14 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FieldStories from './field.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
+import { FlatPropFieldExample } from './recreations/FlatPropFieldExample';
+import { GridLayoutFieldExample } from './recreations/GridLayoutFieldExample';
+import flatPropFieldSource from './recreations/FlatPropFieldExample.tsx?raw';
+import gridLayoutFieldSource from './recreations/GridLayoutFieldExample.tsx?raw';
+import fieldRealWorldCss from './field-real-world.module.css?raw';
 
 <Meta of={FieldStories} />
 
@@ -217,6 +223,33 @@ Field itself adds only one keyboard binding — everything else belongs to whate
     a Tailwind wrapper published both as an installable registry item and inside the distributable package.
   </WildCard>
 </WildCards>
+
+Two recreations live in this Storybook — a flat-prop wrapper (Kumo) and a grid-layout field (Selia). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
+
+<MiniPlayground
+  title="Flat-prop wrapper"
+  source={{
+    repo: 'cloudflare/kumo',
+    href: 'https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/field/field.tsx',
+    license: 'MIT',
+  }}
+  code={flatPropFieldSource}
+>
+  <FlatPropFieldExample />
+</MiniPlayground>
+
+<MiniPlayground
+  title="Grid-layout field"
+  source={{
+    repo: 'nauvalazhar/selia',
+    href: 'https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/field.tsx',
+    license: 'MIT',
+  }}
+  code={gridLayoutFieldSource}
+  css={fieldRealWorldCss}
+>
+  <GridLayoutFieldExample />
+</MiniPlayground>
 
 ## Decision log
 

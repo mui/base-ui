@@ -1,8 +1,14 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AutocompleteStories from './autocomplete.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import { FieldIntegratedAutocompleteExample } from './recreations/FieldIntegratedAutocompleteExample';
+import { MultiSkinAutocompleteExample } from './recreations/MultiSkinAutocompleteExample';
+import fieldIntegratedAutocompleteSource from './recreations/FieldIntegratedAutocompleteExample.tsx?raw';
+import multiSkinAutocompleteSource from './recreations/MultiSkinAutocompleteExample.tsx?raw';
+import autocompleteRealWorldCss from './autocomplete-real-world.module.css?raw';
 
 <Meta of={AutocompleteStories} />
 
@@ -320,6 +326,33 @@ There is **no `data-selected`** on Item (removed from the public contract in [#4
     a command-palette / quick-picker dialog composing Autocomplete inside a Dialog with ScrollArea for the list — the file header cites Base UI's own documented command-palette recipe, adopted in a well-known Git client.
   </WildCard>
 </WildCards>
+
+Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and a full-anatomy multi-skin registry component (reui). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
+
+<MiniPlayground
+  title="Field-integrated wrapper"
+  source={{
+    repo: 'cloudflare/kumo',
+    href: 'https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/autocomplete/autocomplete.tsx',
+    license: 'MIT',
+  }}
+  code={fieldIntegratedAutocompleteSource}
+>
+  <FieldIntegratedAutocompleteExample />
+</MiniPlayground>
+
+<MiniPlayground
+  title="Multi-skin registry component"
+  source={{
+    repo: 'keenthemes/reui',
+    href: 'https://github.com/keenthemes/reui/blob/0946f9667f4bea44873cf9391b3b801c16660c01/registry-reui/bases/base/reui/autocomplete.tsx',
+    license: 'MIT',
+  }}
+  code={multiSkinAutocompleteSource}
+  css={autocompleteRealWorldCss}
+>
+  <MultiSkinAutocompleteExample />
+</MiniPlayground>
 
 ## Decision log
 

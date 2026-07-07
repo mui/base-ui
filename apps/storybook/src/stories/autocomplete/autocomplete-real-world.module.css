@@ -1,0 +1,140 @@
+/* Extra styles for the real-world recreation stories (field-integrated wrapper,
+   multi-skin registry). Common popup/item chrome comes from autocomplete.module.css. */
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+/* Multi-skin registry (reui-style) */
+
+.SkinRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.SkinSwitcher {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.SkinButton {
+  box-sizing: border-box;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[aria-pressed='true'] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+}
+
+.SkinBackdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.SkinPopup {
+  composes: Popup from './autocomplete.module.css';
+
+  &[data-skin='vega'] {
+    background-color: white;
+    color: oklch(14.5% 0 0deg);
+    border-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+      border-color: white;
+    }
+  }
+
+  &[data-skin='nova'] {
+    background-color: oklch(27% 0.05 264deg);
+    color: white;
+    border-color: oklch(60% 0.15 264deg);
+    box-shadow: 0.25rem 0.25rem 0 oklch(60% 0.15 264deg / 30%);
+  }
+}
+
+.SkinArrow {
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
+
+  &[data-side='top'] {
+    bottom: -6px;
+    rotate: 180deg;
+  }
+
+  &[data-side='bottom'] {
+    top: -6px;
+    rotate: 0deg;
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    transform: translate(-50%, 50%) rotate(45deg);
+  }
+
+  &[data-skin='vega']::before {
+    background-color: white;
+    border: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+      border-color: white;
+    }
+  }
+
+  &[data-skin='nova']::before {
+    background-color: oklch(27% 0.05 264deg);
+    border: 1px solid oklch(60% 0.15 264deg);
+  }
+}
+
+.SkinItem {
+  composes: Item from './autocomplete.module.css';
+
+  &[data-skin='nova'][data-highlighted] {
+    color: oklch(27% 0.05 264deg);
+  }
+
+  &[data-skin='nova'][data-highlighted]::before {
+    background-color: oklch(80% 0.12 264deg);
+  }
+}

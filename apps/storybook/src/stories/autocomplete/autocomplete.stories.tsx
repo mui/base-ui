@@ -6,14 +6,17 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import styles from './autocomplete.module.css';
+import { FieldIntegratedAutocompleteExample } from './recreations/FieldIntegratedAutocompleteExample';
+import { MultiSkinAutocompleteExample } from './recreations/MultiSkinAutocompleteExample';
 
 /**
  * Stories follow research/c-components/autocomplete (Tier 1): the kept docs demos
  * (hero, inline completion, grouped, fuzzy, limit, auto-highlight, command palette,
  * grid, virtualized, async), one story per documented use case (filtering modes,
  * empty state, free-text submit, `submitOnItemClick`, Escape behaviors, forms…),
- * and the required type→suggest→select interaction story. Real-world recreations
- * are pending Phase D (research/d-real-world-usage/autocomplete does not exist yet).
+ * and the required type→suggest→select interaction story, plus two real-world
+ * recreations picked from the code-ok entries in
+ * research/d-real-world-usage/autocomplete/ranked.json.
  */
 const meta = {
   title: 'Form inputs/Autocomplete',
@@ -1423,6 +1426,71 @@ export const AnimatedPopup: Story = {
     await expect(await canvas.findByText('animation settled: closed')).toBeVisible();
     // After the exit transition completes the popup unmounts.
     await waitFor(() => expect(body.queryByRole('listbox')).not.toBeInTheDocument());
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/autocomplete)   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Recreation of a design-system wrapper: label/required/description/error flow in as
+ * flat top-level props instead of composed `Field` children, and the component wraps
+ * `Field.Root` around `Autocomplete.Root` internally. Recomposed from the ideas in
+ * cloudflare/kumo `autocomplete.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/autocomplete/ranked.json #7).
+ */
+export const RealWorldFieldIntegratedWrapper: Story = {
+  tags: ['recreation'],
+  render: () => <FieldIntegratedAutocompleteExample />,
+  play: async ({ canvas, userEvent }) => {
+    const input = canvas.getByRole('combobox');
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+    await expect(await canvas.findByText('Please enter a destination.')).toBeVisible();
+    await expect(input).toHaveAttribute('data-invalid');
+
+    // Free-form text (not in the suggestion list) still satisfies the required constraint.
+    await userEvent.type(input, 'Reykjavik');
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+
+    await expect(await canvas.findByText('Submitted')).toBeVisible();
+    await expect(canvas.queryByText('Please enter a destination.')).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Recreation of the fullest anatomy observed for this component anywhere in the
+ * research corpus — `Backdrop` + `Arrow` rendered alongside the usual parts — with
+ * every class list compound-styled so one `data-skin` attribute swaps the whole visual
+ * skin (reui's `style-vega`/`style-nova`/… convention). Recomposed from the ideas in
+ * keenthemes/reui `registry-reui/bases/base/reui/autocomplete.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/autocomplete/ranked.json #4).
+ */
+export const RealWorldMultiSkinRegistry: Story = {
+  tags: ['recreation'],
+  render: () => <MultiSkinAutocompleteExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const input = canvas.getByRole('combobox');
+
+    await userEvent.type(input, 'b');
+    await expect((await body.findByRole('listbox')).closest('[data-skin]')).toHaveAttribute(
+      'data-skin',
+      'vega',
+    );
+
+    // Close the popup first: while open, the switcher buttons sit outside the anchor's
+    // accessible subtree (Combobox/Autocomplete hides background content from AT users).
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(canvas.getByRole('button', { name: 'nova' }));
+
+    await userEvent.type(input, 'b');
+    const reopenedListbox = await body.findByRole('listbox');
+    await waitFor(() =>
+      expect(reopenedListbox.closest('[data-skin]')).toHaveAttribute('data-skin', 'nova'),
+    );
   },
 };
 

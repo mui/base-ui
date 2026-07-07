@@ -1,9 +1,15 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FormStories from './form.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
 import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
+import { MultiControlQuoteFormExample } from './recreations/MultiControlQuoteFormExample';
+import { ZeroJSFieldsetFormExample } from './recreations/ZeroJSFieldsetFormExample';
+import multiControlQuoteFormSource from './recreations/MultiControlQuoteFormExample.tsx?raw';
+import zeroJsFieldsetFormSource from './recreations/ZeroJSFieldsetFormExample.tsx?raw';
+import formRealWorldCss from './form-real-world.module.css?raw';
 
 <Meta of={FormStories} />
 
@@ -189,6 +195,33 @@ See the [Field styling contract](?path=/docs/form-inputs-field--docs) for the fu
     Cal.com's design system registry also ships a dedicated Form wrapper alongside its Field/Fieldset files.
   </WildCard>
 </WildCards>
+
+Two recreations live in this Storybook — a multi-control "request a quote" form (lumi-ui) and a zero-JS Fieldset form (Selia). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
+
+<MiniPlayground
+  title="Multi-control quote form"
+  source={{
+    repo: 'patrick-xin/lumi-ui',
+    href: 'https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/components/examples/ui/form/form-rhf.tsx',
+    license: 'MIT',
+  }}
+  code={multiControlQuoteFormSource}
+  css={formRealWorldCss}
+>
+  <MultiControlQuoteFormExample />
+</MiniPlayground>
+
+<MiniPlayground
+  title="Zero-JS Fieldset form"
+  source={{
+    repo: 'nauvalazhar/selia',
+    href: 'https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/form/basic.tsx',
+    license: 'MIT',
+  }}
+  code={zeroJsFieldsetFormSource}
+>
+  <ZeroJSFieldsetFormExample />
+</MiniPlayground>
 
 ## Decision log
 
