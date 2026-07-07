@@ -177,7 +177,8 @@ export function safePolygon(options: SafePolygonOptions = {}) {
     let hasLanded = false;
     let lastX: number | null = null;
     let lastY: number | null = null;
-    let lastCursorTime = performance.now();
+    // `performance` is missing in some exotic runtimes.
+    let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
 
     function isCursorMovingSlowly(nextX: number, nextY: number) {
       const currentTime = performance.now();
