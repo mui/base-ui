@@ -1,0 +1,270 @@
+[
+  {
+    "url": "https://wordpress.org/gutenberg/",
+    "domain": "wordpress.org",
+    "components": [
+      "select",
+      "dialog",
+      "menu",
+      "popover"
+    ],
+    "file": "wordpress-org-gutenberg.png",
+    "fileOpen": "wordpress-org-gutenberg-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 87109 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/wordpress-org-gutenberg-open.png (93656 bytes)"
+    ],
+    "bytes": 87109,
+    "bytesOpen": 93656
+  },
+  {
+    "url": "https://posthog.com",
+    "domain": "posthog.com",
+    "components": [
+      "dialog",
+      "menu",
+      "popover"
+    ],
+    "file": "posthog-com.png",
+    "fileOpen": "posthog-com-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 620786 bytes",
+      "retry viewport 1200x750 (was >400KB): ok, 426563 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/posthog-com-open.png (422555 bytes)"
+    ],
+    "bytes": 426563,
+    "bytesOpen": 422555
+  },
+  {
+    "url": "https://dify.ai",
+    "domain": "dify.ai",
+    "components": [
+      "select",
+      "dialog",
+      "menu",
+      "popover"
+    ],
+    "file": "dify-ai.png",
+    "fileOpen": "dify-ai-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 332430 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/dify-ai-open.png (213265 bytes)"
+    ],
+    "bytes": 332430,
+    "bytesOpen": 213265
+  },
+  {
+    "url": "https://mastra.ai",
+    "domain": "mastra.ai",
+    "components": [
+      "select",
+      "dialog",
+      "menu",
+      "popover"
+    ],
+    "file": "mastra-ai.png",
+    "fileOpen": "mastra-ai-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 215723 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/mastra-ai-open.png (217070 bytes)"
+    ],
+    "bytes": 215723,
+    "bytesOpen": 217070
+  },
+  {
+    "url": "https://green-wall.leoku.dev",
+    "domain": "green-wall.leoku.dev",
+    "components": [
+      "select",
+      "dialog",
+      "menu",
+      "popover"
+    ],
+    "file": "green-wall-leoku-dev.png",
+    "fileOpen": "green-wall-leoku-dev-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 119951 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/green-wall-leoku-dev-open.png (131495 bytes)"
+    ],
+    "bytes": 119951,
+    "bytesOpen": 131495
+  },
+  {
+    "url": "https://ui.shadcn.com",
+    "domain": "ui.shadcn.com",
+    "components": [
+      "select",
+      "dialog"
+    ],
+    "file": "ui-shadcn-com.png",
+    "fileOpen": "ui-shadcn-com-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 141302 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/ui-shadcn-com-open.png (131877 bytes)"
+    ],
+    "bytes": 141302,
+    "bytesOpen": 131877
+  },
+  {
+    "url": "https://kumo-ui.com",
+    "domain": "kumo-ui.com",
+    "components": [
+      "select",
+      "dialog",
+      "menu"
+    ],
+    "file": "kumo-ui-com.png",
+    "fileOpen": "kumo-ui-com-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 65721 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/kumo-ui-com-open.png (70091 bytes)"
+    ],
+    "bytes": 65721,
+    "bytesOpen": 70091
+  },
+  {
+    "url": "https://flashtype.com",
+    "domain": "flashtype.com",
+    "components": [
+      "select",
+      "popover"
+    ],
+    "file": "flashtype-com.png",
+    "fileOpen": "flashtype-com-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 144224 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/flashtype-com-open.png (141748 bytes)"
+    ],
+    "bytes": 144224,
+    "bytesOpen": 141748
+  },
+  {
+    "url": "https://krds.gracefullight.dev",
+    "domain": "krds.gracefullight.dev",
+    "components": [
+      "select",
+      "dialog",
+      "popover"
+    ],
+    "file": "krds-gracefullight-dev.png",
+    "fileOpen": "krds-gracefullight-dev-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 133436 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/krds-gracefullight-dev-open.png (96764 bytes)"
+    ],
+    "bytes": 133436,
+    "bytesOpen": 96764
+  },
+  {
+    "url": "https://openade.ai",
+    "domain": "openade.ai",
+    "components": [
+      "select",
+      "menu",
+      "popover"
+    ],
+    "file": "openade-ai.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 670194 bytes",
+      "retry viewport 1200x750 (was >400KB): ok, 586329 bytes",
+      "open-state interaction: no clickable trigger produced a detectable overlay, skipped"
+    ],
+    "bytes": 586329,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://nextjs.org",
+    "domain": "nextjs.org",
+    "components": [
+      "menu"
+    ],
+    "file": "nextjs-org.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 72610 bytes",
+      "open-state interaction: no clickable trigger produced a detectable overlay, skipped"
+    ],
+    "bytes": 72610,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://console-preview.oxide.computer",
+    "domain": "console-preview.oxide.computer",
+    "components": [
+      "dialog",
+      "menu"
+    ],
+    "file": "console-preview-oxide-computer.png",
+    "fileOpen": "console-preview-oxide-computer-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 56955 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/console-preview-oxide-computer-open.png (59628 bytes)"
+    ],
+    "bytes": 56955,
+    "bytesOpen": 59628
+  },
+  {
+    "url": "https://cmux.com",
+    "domain": "cmux.com",
+    "components": [
+      "dialog",
+      "menu"
+    ],
+    "file": "cmux-com.png",
+    "fileOpen": "cmux-com-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 155448 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/cmux-com-open.png (164759 bytes)"
+    ],
+    "bytes": 155448,
+    "bytesOpen": 164759
+  },
+  {
+    "url": "https://t3.codes",
+    "domain": "t3.codes",
+    "components": [
+      "dialog",
+      "menu"
+    ],
+    "file": "t3-codes.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 713955 bytes",
+      "retry viewport 1200x750 (was >400KB): ok, 515075 bytes",
+      "open-state interaction: no clickable trigger produced a detectable overlay, skipped"
+    ],
+    "bytes": 515075,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://graphql.org",
+    "domain": "graphql.org",
+    "components": [
+      "select"
+    ],
+    "file": "graphql-org.png",
+    "fileOpen": "graphql-org-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok, 250111 bytes",
+      "open-state interaction: clicked a trigger, overlay detected, captured /Users/yannbraga/open-source/base-ui/research/d-real-world-usage/_captures/graphql-org-open.png (214402 bytes)"
+    ],
+    "bytes": 250111,
+    "bytesOpen": 214402
+  }
+]

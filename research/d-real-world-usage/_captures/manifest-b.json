@@ -1,0 +1,315 @@
+[
+  {
+    "url": "https://www.9ui.dev",
+    "domain": "9ui.dev",
+    "components": [
+      "tabs",
+      "autocomplete",
+      "alert-dialog",
+      "navigation-menu",
+      "number-field",
+      "otp-field",
+      "slider",
+      "preview-card",
+      "scroll-area",
+      "accordion",
+      "radio",
+      "avatar",
+      "button",
+      "collapsible",
+      "input",
+      "meter",
+      "progress",
+      "separator",
+      "toggle-group",
+      "toolbar",
+      "checkbox-group",
+      "form"
+    ],
+    "file": "9ui-dev.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "open-state interaction failed: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for getByText('Accordion').first()\n",
+      "saved base screenshot: 264234 bytes"
+    ],
+    "bytes": 264234,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://reui.io",
+    "domain": "reui.io",
+    "components": [
+      "drawer",
+      "switch",
+      "tooltip",
+      "toggle",
+      "context-menu",
+      "scroll-area",
+      "accordion",
+      "checkbox",
+      "avatar"
+    ],
+    "file": "reui-io.png",
+    "fileOpen": "reui-io-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 101915 bytes",
+      "saved open-state screenshot: 100659 bytes"
+    ],
+    "bytes": 101915,
+    "bytesOpen": 100659
+  },
+  {
+    "url": "https://www.lumiui.dev",
+    "domain": "lumiui.dev",
+    "components": [
+      "toast",
+      "menubar",
+      "context-menu",
+      "alert-dialog",
+      "navigation-menu",
+      "field",
+      "number-field",
+      "otp-field",
+      "slider",
+      "preview-card",
+      "accordion",
+      "avatar",
+      "meter",
+      "progress",
+      "separator",
+      "toggle-group",
+      "toolbar",
+      "checkbox-group",
+      "form"
+    ],
+    "file": "lumiui-dev.png",
+    "fileOpen": "lumiui-dev-open.png",
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 285020 bytes",
+      "saved open-state screenshot: 158987 bytes"
+    ],
+    "bytes": 285020,
+    "bytesOpen": 158987
+  },
+  {
+    "url": "https://coss.com/ui",
+    "domain": "coss.com",
+    "components": [
+      "combobox",
+      "drawer",
+      "toggle",
+      "context-menu",
+      "number-field",
+      "otp-field",
+      "slider",
+      "preview-card",
+      "checkbox",
+      "fieldset",
+      "progress",
+      "checkbox-group",
+      "form"
+    ],
+    "file": "coss-com-ui.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 88956 bytes"
+    ],
+    "bytes": 88956,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://www.baseui-cn.com",
+    "domain": "baseui-cn.com",
+    "components": [
+      "toast",
+      "drawer"
+    ],
+    "file": "baseui-cn-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 87233 bytes"
+    ],
+    "bytes": 87233,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://developers.cloudflare.com",
+    "domain": "developers.cloudflare.com",
+    "components": [
+      "combobox"
+    ],
+    "file": "developers-cloudflare-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 128605 bytes"
+    ],
+    "bytes": 128605,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://typebot.io",
+    "domain": "typebot.io",
+    "components": [
+      "combobox"
+    ],
+    "file": "typebot-io.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 46391 bytes"
+    ],
+    "bytes": 46391,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://gitbutler.com",
+    "domain": "gitbutler.com",
+    "components": [
+      "combobox"
+    ],
+    "file": "gitbutler-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 246829 bytes"
+    ],
+    "bytes": 246829,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://chanhdai.com",
+    "domain": "chanhdai.com",
+    "components": [
+      "ecosystem"
+    ],
+    "file": "chanhdai-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 173283 bytes"
+    ],
+    "bytes": 173283,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://woocommerce.com",
+    "domain": "woocommerce.com",
+    "components": [
+      "combobox"
+    ],
+    "file": "woocommerce-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "viewport 1440x900 produced 582085 bytes (>400KB), retrying smaller",
+      "viewport 1200x750, waitUntil=networkidle: ok",
+      "viewport 1200x750 produced 422754 bytes (>400KB), retrying smaller",
+      "viewport 1000x650, waitUntil=networkidle: ok",
+      "saved base screenshot: 307111 bytes"
+    ],
+    "bytes": 307111,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://electric.ax",
+    "domain": "electric.ax",
+    "components": [
+      "combobox"
+    ],
+    "file": "electric-ax.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 195191 bytes"
+    ],
+    "bytes": 195191,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://latitude.so",
+    "domain": "latitude.so",
+    "components": [
+      "combobox"
+    ],
+    "file": "latitude-so.jpg",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=load (networkidle timed out): ok",
+      "viewport 1440x900 produced 719877 bytes (>400KB), retrying smaller",
+      "viewport 1200x750, waitUntil=load (networkidle timed out): ok",
+      "viewport 1200x750 produced 619878 bytes (>400KB), retrying smaller",
+      "viewport 1000x650, waitUntil=load (networkidle timed out): ok",
+      "viewport 1000x650 produced 462702 bytes (>400KB), retrying smaller",
+      "viewport 900x600, waitUntil=load (networkidle timed out): ok",
+      "900x600 PNG still 453803 bytes (>400KB); final fallback: re-captured 1440x900 as JPEG quality=60: 82189 bytes"
+    ],
+    "bytes": 82189,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://kaneo.app/",
+    "domain": "kaneo.app",
+    "components": [
+      "combobox"
+    ],
+    "file": "kaneo-app.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 121882 bytes"
+    ],
+    "bytes": 121882,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://dbhub.ai",
+    "domain": "dbhub.ai",
+    "components": [
+      "combobox"
+    ],
+    "file": "dbhub-ai.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 131348 bytes"
+    ],
+    "bytes": 131348,
+    "bytesOpen": null
+  },
+  {
+    "url": "https://mui-treasury.com",
+    "domain": "mui-treasury.com",
+    "components": [
+      "menubar"
+    ],
+    "file": "mui-treasury-com.png",
+    "fileOpen": null,
+    "status": "captured",
+    "attempts": [
+      "viewport 1440x900, waitUntil=networkidle: ok",
+      "saved base screenshot: 77800 bytes"
+    ],
+    "bytes": 77800,
+    "bytesOpen": null
+  }
+]

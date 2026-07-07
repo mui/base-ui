@@ -1,0 +1,17 @@
+[
+  {"url": "https://wordpress.org/gutenberg/", "slug": "wordpress-org-gutenberg", "components": ["select", "dialog", "menu", "popover"], "domain": "wordpress.org"},
+  {"url": "https://posthog.com", "slug": "posthog-com", "components": ["dialog", "menu", "popover"], "domain": "posthog.com"},
+  {"url": "https://dify.ai", "slug": "dify-ai", "components": ["select", "dialog", "menu", "popover"], "domain": "dify.ai"},
+  {"url": "https://mastra.ai", "slug": "mastra-ai", "components": ["select", "dialog", "menu", "popover"], "domain": "mastra.ai"},
+  {"url": "https://green-wall.leoku.dev", "slug": "green-wall-leoku-dev", "components": ["select", "dialog", "menu", "popover"], "domain": "green-wall.leoku.dev"},
+  {"url": "https://ui.shadcn.com", "slug": "ui-shadcn-com", "components": ["select", "dialog"], "domain": "ui.shadcn.com"},
+  {"url": "https://kumo-ui.com", "slug": "kumo-ui-com", "components": ["select", "dialog", "menu"], "domain": "kumo-ui.com"},
+  {"url": "https://flashtype.com", "slug": "flashtype-com", "components": ["select", "popover"], "domain": "flashtype.com"},
+  {"url": "https://krds.gracefullight.dev", "slug": "krds-gracefullight-dev", "components": ["select", "dialog", "popover"], "domain": "krds.gracefullight.dev"},
+  {"url": "https://openade.ai", "slug": "openade-ai", "components": ["select", "menu", "popover"], "domain": "openade.ai"},
+  {"url": "https://nextjs.org", "slug": "nextjs-org", "components": ["menu"], "domain": "nextjs.org"},
+  {"url": "https://console-preview.oxide.computer", "slug": "console-preview-oxide-computer", "components": ["dialog", "menu"], "domain": "console-preview.oxide.computer"},
+  {"url": "https://cmux.com", "slug": "cmux-com", "components": ["dialog", "menu"], "domain": "cmux.com"},
+  {"url": "https://t3.codes", "slug": "t3-codes", "components": ["dialog", "menu"], "domain": "t3.codes"},
+  {"url": "https://graphql.org", "slug": "graphql-org", "components": ["select"], "domain": "graphql.org"}
+]
