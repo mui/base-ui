@@ -229,7 +229,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       if (win.scrollX !== baseScrollX || win.scrollY !== baseScrollY) {
-        win.scrollTo(baseScrollX, baseScrollY);
+        // Force an instant jump: the two-argument form defaults `behavior` to `auto`, which
+        // obeys the page's `scroll-behavior`, so a global `scroll-behavior: smooth` would
+        // animate the restore. The measurements that follow assume the page is already back
+        // at rest, and a smooth restore also re-emits `scroll`, re-entering this handler.
+        win.scrollTo({ left: baseScrollX, top: baseScrollY, behavior: 'instant' });
         return true;
       }
 

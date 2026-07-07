@@ -2218,7 +2218,9 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           Object.defineProperty(window, 'scrollY', { configurable: true, value: 120 });
           window.dispatchEvent(new Event('scroll'));
 
-          expect(scrollToSpy).toHaveBeenCalledWith(0, 0);
+          // Must restore instantly so the following measurements read the resting page; the
+          // two-argument form would obey a global `scroll-behavior: smooth` and animate.
+          expect(scrollToSpy).toHaveBeenCalledWith({ left: 0, top: 0, behavior: 'instant' });
         } finally {
           scrollToSpy.mockRestore();
           if (originalScrollYDescriptor) {
