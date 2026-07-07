@@ -1,0 +1,253 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (full brief, capped mining) —
+    research/c-components/menubar/brief.md. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as MenubarStories from './menubar.stories';
+
+<Meta of={MenubarStories} />
+
+# Menubar
+
+The container for menus — a persistent, `role="menubar"` bar hosting several
+`Menu.Root` instances as roving-focus items, the desktop-application File/Edit/View
+mental model.
+
+- **Import:** `import { Menubar } from '@base-ui/react/menubar';`
+- **Parts:** 1 — `Menubar` itself, a single `<div role="menubar">`. **No namespace,
+  no `index.parts.ts`, no `Menubar.Root`/`Menubar.Item`.** Menubar hosts ordinary
+  `Menu.Root` instances and changes their behavior via context detection instead of
+  introducing a parallel parts API.
+- **Own props**: `orientation` (default `'horizontal'`), `loopFocus` (default
+  `true`), `modal` (default `true`), `disabled` (default `false`) — the component's
+  entire public surface.
+- **Status:** Stable. Introduced by
+  [#1684](https://github.com/mui/base-ui/pull/1684) "[menubar] Create the Menubar
+  component" (closes [#1407](https://github.com/mui/base-ui/issues/1407)), which
+  shipped complete — a fully-checked to-do list covering modality, tests, docs and
+  demos, vertical orientation, and `CompositeRoot`-based implementation.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={MenubarStories.Hero} />
+
+## Features
+
+- **A thin host, not a parallel parts namespace** — Menu detects a Menubar ancestor
+  via `useMenubarContext(true)` and branches across `MenuTrigger.tsx`, `MenuRoot.tsx`,
+  `MenuPositioner.tsx`, `MenuPopup.tsx`, `MenuStore.ts`. Menubar owns zero popup
+  rendering logic itself; everything the user perceives as "menubar behavior" is
+  Menu code conditionally activated by menubar parentage:
+
+  ```ts
+  // MenuTrigger.tsx
+  const isInMenubar = parent.type === 'menubar';
+  // …
+  isInMenubar ? { role: 'menuitem' } : {};
+  ```
+
+- **Hover-switch only after the first click** — a trigger's effective `openOnHover`
+  is `false` until _some_ sibling submenu is already open, at which point every
+  trigger in the bar becomes hover-openable:
+
+  ```ts
+  // MenuTrigger.tsx
+  const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
+  ```
+
+  This is the exact mechanism behind the documented UX: hovering File/Edit/View does
+  nothing until the user clicks one open; after that, hovering the others switches
+  between them without another click.
+
+- **One roving Tab stop for the whole bar** — `CompositeRoot` mechanics: `Tab` moves
+  focus into/out of the bar as a single stop, while arrow keys rove between
+  top-level triggers within it. `Home`/`End` jump to first/last
+  ([#4922](https://github.com/mui/base-ui/pull/4922)).
+- **`disabled` cascades from the bar to every hosted menu** — setting `disabled` on
+  `<Menubar>` disables every child `Menu.Root` without touching each one
+  individually (`MenuStore.ts` ORs the menubar's `disabled` into each menu's own).
+- **Bar-wide modality** — `modal` (default `true`) is set once on `<Menubar>` and
+  threaded down to every hosted popup; a child `Menu.Root` doesn't independently
+  choose its own modality while hosted in the bar.
+- **Vertical orientation, fixed in #4922** — before
+  [#4922](https://github.com/mui/base-ui/pull/4922) (merged 2026-05-28), vertical
+  menubars still defaulted their popups to open on the `'bottom'` side (appropriate
+  for horizontal bars, awkward for vertical ones). The fix switches the default to
+  `'inline-end'` for `orientation="vertical"`.
+
+## When to use
+
+- Application chrome: File/Edit/View-style command bars for desktop-style web apps —
+  the hero demo's own shape.
+- When several _related, persistent_ menus should behave as one coordinated unit:
+  hovering between open menus switches without re-clicking, a shared modal/disabled/
+  orientation policy, and one roving Tab stop for the whole bar.
+- Vertical orientation for sidebar-style command bars.
+- A keyboard-navigable command surface that should read to assistive technology as
+  "menubar," not "toolbar" or "navigation."
+
+## When not to use
+
+Full cluster comparison: `research/c-components/_clusters/menus.md`.
+
+- **vs plain Menu** — "Menubar is not a different menu — it's a _composite
+  container_… Use Menubar when several menus form one persistent bar; a lone Menubar
+  with one menu is just a Menu" (menus cluster). If there's only ever one menu on
+  screen, wrapping it in a `<Menubar>` buys nothing.
+- **vs Toolbar** — the two are deliberately separate ARIA patterns implemented by
+  deliberately separate code paths (`isInMenubar` vs `insideToolbar` — two independent
+  context checks, not a shared "am I in some kind of bar" flag). A Toolbar may
+  contain a single menu-triggered button without ever becoming a Menubar; if the
+  bar's primary content is persistent, always-visible menu triggers rather than a
+  mix of buttons/toggles/inputs, that's the Menubar shape, not Toolbar-with-a-menu-
+  button.
+- **vs Navigation Menu** — Menubar = application commands (actions that _do
+  things_); Navigation Menu = website destinations (links that _navigate_) with no
+  menu ARIA roles at all.
+
+## Anatomy
+
+```tsx
+import { Menubar } from '@base-ui/react/menubar';
+import { Menu } from '@base-ui/react/menu';
+
+<Menubar>
+  <Menu.Root>
+    <Menu.Trigger>File</Menu.Trigger>
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Item>New</Menu.Item>
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+  {/* …more Menu.Root siblings */}
+</Menubar>;
+```
+
+| Part                    | Renders                    | Purpose                                                                    | Optional?                |
+| ----------------------- | -------------------------- | -------------------------------------------------------------------------- | ------------------------ |
+| `Menubar`               | `<div role="menubar">`     | The single element in this component; hosts ordinary `Menu.Root` children  | required                 |
+| `Menu.Root` (hosted)    | no element                 | An ordinary Menu root; detects menubar parentage via context               | one per top-level menu   |
+| `Menu.Trigger` (hosted) | `<button role="menuitem">` | Converts to a roving `menuitem`, hover-switch-aware once a sibling is open | required per hosted menu |
+
+No mandatory Portal at the Menubar level — Menubar itself renders no popup; each
+hosted `Menu.Root` carries its own `Menu.Portal` exactly as it would standalone. A
+`Menu.Root disabled>` with no popup content at all (no `Portal`/`Positioner`/`Popup`)
+is a valid pattern for a menu that occupies a roving-focus stop but never opens
+anything — the hero demo's own "Help" entry.
+
+## How it works
+
+### Roving arrows across the bar
+
+Click a trigger to open its menu; `ArrowRight`/`ArrowLeft` close the current submenu
+and open the adjacent top-level trigger's submenu in one step:
+
+<Canvas of={MenubarStories.Hero} />
+
+### Disabled cascade
+
+`disabled` on the bar cascades to every hosted menu at once; disabling a single
+`Menu.Root` instead only takes out that one menu:
+
+<Canvas of={MenubarStories.DisabledCascade} />
+
+## Keyboard & screen reader
+
+| Key                                                                       | Context                           | Action                                                                                    |
+| ------------------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------- |
+| `Tab`                                                                     | anywhere in the bar               | Moves focus into/out of the bar as **one stop**                                           |
+| `ArrowRight`/`ArrowLeft` (horizontal) or `ArrowDown`/`ArrowUp` (vertical) | bar focused                       | Rove focus between top-level triggers; loops when `loopFocus` (default `true`)            |
+| `Home`/`End`                                                              | bar focused                       | Jump to first/last trigger ([#4922](https://github.com/mui/base-ui/pull/4922))            |
+| `Enter`/`Space`                                                           | trigger focused, closed           | Opens that trigger's submenu                                                              |
+| Hover (mouse)                                                             | no submenu open yet               | **No-op** — hover-open is disabled until the user has clicked one trigger open            |
+| Hover (mouse)                                                             | a sibling submenu is already open | Switches the open submenu to the hovered trigger without an extra click                   |
+| `ArrowRight`/`ArrowLeft`                                                  | a submenu is open                 | Closes the current submenu and opens the adjacent top-level trigger's submenu in one step |
+
+- **ARIA wiring**: `Menubar` root — `role="menubar"`, `aria-orientation` (mirrors
+  `orientation`). Each hosted `Menu.Trigger` — `role="menuitem"` when inside a
+  menubar instead of its standalone button role; `aria-haspopup="menu"`,
+  `aria-controls` unchanged from standalone Menu.
+- **Data attribute**: `data-has-submenu-open` on the Menubar root, plus `data-modal`,
+  `data-orientation`.
+- **Known gap, honestly flagged**: no RTL-specific tests exist for Menubar — the
+  full 1,343-line `Menubar.test.tsx` has no `dir="rtl"` coverage for horizontal-
+  orientation arrow-key direction. Treat RTL correctness as an honest unknown rather
+  than assuming it "just works" by inheritance from `DirectionProvider`/Composite
+  internals.
+
+## Choosing the right props
+
+- **`orientation`** (default `'horizontal'`) — switches the roving-focus axis and,
+  since [#4922](https://github.com/mui/base-ui/pull/4922), the default submenu-open
+  side (`'bottom'` for horizontal, `'inline-end'` for vertical).
+- **`loopFocus`** (default `true`) — whether reaching the last (or first) top-level
+  trigger with arrow keys wraps back around.
+- **`modal`** (default `true`) — sets the modality policy for _every_ hosted menu's
+  popup at once; a child `Menu.Root` cannot independently opt out while hosted.
+- **`disabled`** (default `false`) — cascades to every hosted `Menu.Root`, including
+  keeping already-open menu items disabled (#4922's fix). Use for a whole-bar
+  disabled state rather than disabling each `Menu.Root` individually.
+
+## Do / Don't
+
+**Do**
+
+- Reach for Menubar when several related, persistent menus should behave as one
+  coordinated unit (shared modality, one Tab stop, hover-switch-after-first-click).
+- Give a Menubar-hosted `Menu.Root` its own `Menu.Portal`/`Positioner`/`Popup` tree
+  exactly as you would standalone — Menubar adds no anatomy rules of its own.
+
+**Don't**
+
+- Don't reach for Menubar just to get roving-tabindex keyboard navigation across
+  unrelated, non-menu controls — its roving focus is specifically wired for hosting
+  `Menu.Root`s with `role="menuitem"` triggers. A generic arrow-key-navigable row of
+  buttons is a Toolbar or a hand-rolled composite.
+- Don't expect a bar with only one menu to need Menubar at all — that's just a Menu.
+- Don't mix Toolbar and Menubar semantics — a Toolbar with an embedded menu button
+  is a different ARIA pattern than a bar of persistent menus, even when visually
+  similar.
+
+## FAQ
+
+- **"Hovering over my menubar items does nothing until I click one"** → by design,
+  not a bug: hover-switch only activates once a sibling submenu is already open.
+  Click one trigger first; hovering the others then switches without another click.
+- **"My vertical Menubar's submenus open on the wrong side / overlap the bar"** →
+  fixed by [#4922](https://github.com/mui/base-ui/pull/4922) (merged 2026-05-28);
+  upgrade if seeing this on an older version.
+- **"Setting `disabled` on one `Menu.Root` inside my Menubar doesn't fully disable it
+  — items still respond"** → check whether the _Menubar's own_ `disabled` prop is
+  what's needed instead (it cascades and, since #4922, also correctly disables
+  already-open items).
+- **"Why isn't there a `Menubar.Item` or `Menubar.Trigger` part?"** → there isn't one
+  — Menubar hosts ordinary `Menu.Root` instances and changes their behavior via
+  context detection; use `Menu.Trigger`/`Menu.Item`/etc. exactly as you would
+  standalone. This is the component's core architectural choice, not a missing-parts
+  oversight.
+
+## Related
+
+- Menubar hosts ordinary [Menu](?path=/docs/overlays-menu--docs) instances — read
+  Menu's docs for submenu, checkbox/radio item, and positioning behavior, all
+  unchanged by menubar parentage.
+- For right-click/long-press contextual actions instead of a persistent bar, use
+  [Context Menu](?path=/docs/overlays-context-menu--docs) — a different mechanism
+  solving the opposite discoverability problem.
+- Cluster-level decision guidance for all menu components: `research/c-components/_clusters/menus.md`.
+
+## API reference
+
+### Menubar
+
+<ArgTypes of={MenubarStories.Hero} />
+
+_Full JSDoc-driven reference:
+[base-ui.com/react/components/menubar](https://base-ui.com/react/components/menubar#api-reference)._
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+menubar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/menubar)._
