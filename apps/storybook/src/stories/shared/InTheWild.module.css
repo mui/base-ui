@@ -35,6 +35,23 @@
   }
 }
 
+.PreviewButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  margin: 0;
+  background: none;
+  cursor: zoom-in;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:focus-visible {
+    outline: 2px solid oklch(55% 0.15 250deg);
+    outline-offset: -2px;
+  }
+}
+
 .Body {
   display: flex;
   flex-direction: column;
@@ -113,5 +130,219 @@
 
   @media (prefers-color-scheme: dark) {
     color: oklch(85% 0 0deg);
+  }
+}
+
+/* Fullscreen viewer (Dialog) */
+
+.ViewerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  background-color: oklch(14.5% 0 0deg / 60%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg / 60%);
+  }
+}
+
+.ViewerPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 2147483001;
+  display: flex;
+  overflow: hidden;
+  width: min(94vw, 1200px);
+  max-height: 94vh;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  background-color: white;
+  box-shadow:
+    0 1.5rem 4rem oklch(0% 0 0deg / 35%),
+    0 0 0 1px oklch(87% 0 0deg);
+  outline: none;
+  transform: translate(-50%, -50%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(18% 0 0deg);
+    box-shadow:
+      0 1.5rem 4rem oklch(0% 0 0deg / 60%),
+      0 0 0 1px oklch(30% 0 0deg);
+  }
+}
+
+.ViewerStage {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  background-color: oklch(96% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(12% 0 0deg);
+  }
+}
+
+.ViewerImage {
+  display: block;
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+}
+
+.ViewerNavPrev,
+.ViewerNavNext {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(87% 0 0deg);
+  border-radius: 999px;
+  background-color: oklch(100% 0 0deg / 85%);
+  color: oklch(14.5% 0 0deg);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  transform: translateY(-50%);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(35% 0 0deg);
+    background-color: oklch(25% 0 0deg / 85%);
+    color: white;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(32% 0 0deg);
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(55% 0.15 250deg);
+    outline-offset: 2px;
+  }
+}
+
+.ViewerNavPrev {
+  left: 1rem;
+}
+
+.ViewerNavNext {
+  right: 1rem;
+}
+
+.ViewerClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(87% 0 0deg);
+  border-radius: 999px;
+  background-color: oklch(100% 0 0deg / 85%);
+  color: oklch(14.5% 0 0deg);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(35% 0 0deg);
+    background-color: oklch(25% 0 0deg / 85%);
+    color: white;
+  }
+
+  &:hover {
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(32% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(55% 0.15 250deg);
+    outline-offset: 2px;
+  }
+}
+
+.ViewerFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid oklch(87% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: oklch(30% 0 0deg);
+  }
+}
+
+.ViewerAttribution {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ViewerTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: oklch(14.5% 0 0deg);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.ViewerRepo {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: oklch(45% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0 0deg);
+  }
+}
+
+.ViewerLive {
+  font-size: 0.75rem;
+  color: oklch(45% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0 0deg);
+  }
+}
+
+.ViewerCounter {
+  flex: none;
+  font-size: 0.75rem;
+  color: oklch(45% 0 0deg);
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0 0deg);
   }
 }
