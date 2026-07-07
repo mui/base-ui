@@ -35,6 +35,7 @@ const withMdx = nextMdx({
             ],
             baseDir,
             indexFileName: 'index.mdx',
+            onlyUpdateIndexes: true,
             useVisibleDescription: true,
           },
         },
