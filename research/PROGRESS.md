@@ -50,8 +50,8 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | context-menu | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
 | menubar | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
 | number-field | 2 | ok (orphan sub-agent completed post-pause; spinbutton-absence verified [E]) | ok (14 stories) | - | - | - | - |
-| otp-field | 2 | - (batch killed) | - | - | - | - | - |
-| slider | 2 | - (batch killed) | - | - | - | - | - |
+| otp-field | 2 | ok (lean-plus; §1 states Preview→stable timeline #4365→#5029 + [New]-tag finding) | ok (10 stories) | - | - | - | - |
+| slider | 2 | ok (lean-plus; new-API rewrite #373; native input[type=range] a11y finding) | ok (14 stories) | - | - | - | - |
 | tabs | 2 | - | - | - | - | - | - |
 | tooltip | 2 | - | - | - | - | - | - |
 | preview-card | 2 | - | - | - | - | - | - |
