@@ -32,7 +32,7 @@ const meta = {
     'Menu.GroupLabel': Menu.GroupLabel,
     'Menu.Separator': Menu.Separator,
   },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Menu.Root>;
 
 export default meta;
@@ -92,7 +92,9 @@ export const OpenOnHover: Story = {
     const trigger = canvas.getByRole('button', { name: 'Add to playlist' });
 
     await userEvent.hover(trigger);
-    await expect(await body.findByRole('menu')).toBeVisible();
+    // The popup mounts at `[data-starting-style]` (opacity 0), so visibility
+    // needs a waitFor while the enter transition runs.
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
     // Simulated unhover cannot exercise the safe-polygon close path reliably;
@@ -169,7 +171,7 @@ export const CheckboxItems: Story = {
     await waitFor(() => expect(sidebar).toHaveAttribute('aria-checked', 'true'));
 
     // Checkbox items don't close the menu by default (closeOnClick=false).
-    await expect(body.getByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
   },
 };
 
@@ -225,7 +227,7 @@ export const RadioItems: Story = {
     await expect(date).toHaveAttribute('aria-checked', 'false');
 
     // Radio items keep the menu open by default (closeOnClick=false).
-    await expect(body.getByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
   },
 };
 
@@ -295,7 +297,7 @@ export const GroupLabels: Story = {
     await body.findByRole('menu');
 
     // GroupLabel wires role="group" + aria-labelledby automatically.
-    await expect(body.getByRole('group', { name: 'Sort' })).toBeVisible();
+    await waitFor(() => expect(body.getByRole('group', { name: 'Sort' })).toBeVisible());
     await expect(body.getByRole('group', { name: 'Workspace' })).toBeVisible();
   },
 };
@@ -376,7 +378,7 @@ export const SubmenuKeyboard: Story = {
     await waitFor(() =>
       expect(body.queryByRole('menu', { name: 'Add to Playlist' })).not.toBeInTheDocument(),
     );
-    await expect(rootMenu).toBeVisible();
+    await waitFor(() => expect(rootMenu).toBeVisible());
     await waitFor(() => expect(submenuTrigger).toHaveFocus());
 
     // ArrowLeft also closes the submenu and refocuses its trigger.
@@ -488,7 +490,7 @@ export const DetachedTriggersSimple: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Project actions' }));
-    await expect(await body.findByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(body.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
   },
 };
@@ -537,13 +539,13 @@ export const DetachedTriggersPayload: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Q1 report' }));
-    await expect(await body.findByRole('group', { name: 'Q1 report' })).toBeVisible();
+    await waitFor(() => expect(body.getByRole('group', { name: 'Q1 report' })).toBeVisible());
 
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
 
     await userEvent.click(canvas.getByRole('button', { name: 'Q2 forecast' }));
-    await expect(await body.findByRole('group', { name: 'Q2 forecast' })).toBeVisible();
+    await waitFor(() => expect(body.getByRole('group', { name: 'Q2 forecast' })).toBeVisible());
   },
 };
 
@@ -632,7 +634,7 @@ export const ControlledMultiTrigger: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Library' }));
-    await expect(await body.findByRole('menuitem', { name: 'Add to library' })).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Add to library' })).toBeVisible());
     await expect(canvas.getByText('active trigger: library-trigger')).toBeVisible();
 
     await userEvent.keyboard('{Escape}');
@@ -640,7 +642,7 @@ export const ControlledMultiTrigger: Story = {
 
     // Programmatic open against a specific trigger id anchors the popup to it.
     await userEvent.click(canvas.getByRole('button', { name: 'Open share menu programmatically' }));
-    await expect(await body.findByRole('menuitem', { name: 'Copy link' })).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menuitem', { name: 'Copy link' })).toBeVisible());
     await expect(canvas.getByText('active trigger: share-trigger')).toBeVisible();
   },
 };
@@ -759,7 +761,7 @@ export const OpenClose: Story = {
 
     // Click open: the popup portals to document.body.
     await userEvent.click(trigger);
-    await expect(await body.findByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect(trigger).toHaveAttribute('data-popup-open');
 
@@ -908,7 +910,7 @@ export const CloseOnClickConfig: Story = {
 
     // closeOnClick={false} keeps the menu open after activating an Item.
     await userEvent.click(stayOpenItem);
-    await expect(body.getByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
 
     // closeOnClick on a CheckboxItem makes the toggle dismiss the menu.
     await userEvent.click(body.getByRole('menuitemcheckbox', { name: 'Auto-refresh (closes)' }));
@@ -982,7 +984,7 @@ export const DisabledItems: Story = {
 
     // …but cannot be activated.
     await userEvent.keyboard('{Enter}');
-    await expect(body.getByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(canvas.getByText('last action: none')).toBeVisible();
   },
 };
@@ -1019,7 +1021,7 @@ export const NonModal: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Filters' }));
-    await expect(await body.findByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
 
     // Non-modal: the outside button still receives the click (which also dismisses).
     await userEvent.click(canvas.getByRole('button', { name: 'Clicks: 0' }));
@@ -1033,10 +1035,12 @@ function EventDetailsExample() {
   const [log, setLog] = React.useState<string[]>([]);
 
   const handleOpenChange = (nextOpen: boolean, eventDetails: Menu.Root.ChangeEventDetails) => {
-    // Veto light dismissal: only explicit actions may close the menu.
-    if (eventDetails.reason === 'outside-press') {
+    // Veto light dismissal: only explicit actions may close the menu. An
+    // outside click fires `outside-press`, and the outside element taking
+    // focus then fires `focus-out` — cancel both, or the second one closes it.
+    if (eventDetails.reason === 'outside-press' || eventDetails.reason === 'focus-out') {
       eventDetails.cancel();
-      setLog((entries) => [...entries, 'outside-press (canceled)']);
+      setLog((entries) => [...entries, `${eventDetails.reason} (canceled)`]);
       return;
     }
     setOpen(nextOpen);
@@ -1070,7 +1074,7 @@ function EventDetailsExample() {
   );
 }
 
-/** Every `onOpenChange` call carries `eventDetails`: a typed `reason` (`trigger-press`, `outside-press`, `escape-key`, `item-press`…) plus `.cancel()` to veto the change while staying uncontrolled-friendly. */
+/** Every `onOpenChange` call carries `eventDetails`: a typed `reason` (`trigger-press`, `outside-press`, `focus-out`, `escape-key`, `item-press`…) plus `.cancel()` to veto the change while staying uncontrolled-friendly. */
 export const EventDetailsReasons: Story = {
   render: () => <EventDetailsExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -1080,10 +1084,11 @@ export const EventDetailsReasons: Story = {
     const menu = await body.findByRole('menu');
     await expect(canvas.getByText(/trigger-press/)).toBeVisible();
 
-    // Outside press is canceled by the handler, so the menu stays open.
+    // Outside press (and the follow-up focus-out) is canceled by the handler,
+    // so the menu stays open.
     await userEvent.click(canvas.getByRole('button', { name: 'Outside area' }));
     await expect(canvas.getByText(/outside-press \(canceled\)/)).toBeVisible();
-    await expect(menu).toBeVisible();
+    await waitFor(() => expect(menu).toBeVisible());
 
     // Escape is not canceled and closes the menu.
     await userEvent.keyboard('{Escape}');
@@ -1143,7 +1148,7 @@ export const OpenDialogFromMenu: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Project' }));
     await userEvent.click(await body.findByRole('menuitem', { name: 'Delete…' }));
 
-    await expect(await body.findByRole('dialog')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('dialog')).toBeVisible());
     await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
   },
 };
@@ -1307,7 +1312,7 @@ export const ImperativeHandle: Story = {
     const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByRole('button', { name: 'handle.open()' }));
-    await expect(await body.findByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(canvas.getByText('menu is open')).toBeVisible();
 
     await userEvent.click(canvas.getByRole('button', { name: 'handle.close()' }));
@@ -1499,7 +1504,7 @@ export const RealWorldSettingsMenu: Story = {
     await expect(await canvas.findByText(/3 frames visible/)).toBeVisible();
     await userEvent.click(body.getByRole('menuitemcheckbox', { name: 'Phone' }));
     await expect(await canvas.findByText(/2 frames visible/)).toBeVisible();
-    await expect(body.getByRole('menu')).toBeVisible();
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
 
     // onOpenChangeComplete fires only after the exit transition settles.
     await userEvent.keyboard('{Escape}');

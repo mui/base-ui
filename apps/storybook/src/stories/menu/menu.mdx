@@ -1,0 +1,376 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
+    — research/c-components/menu/brief.md); real-world data from research/d-real-world-usage/menu. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as MenuStories from './menu.stories';
+
+<Meta of={MenuStories} />
+
+# Menu
+
+A list of actions in a dropdown, enhanced with keyboard navigation — a button trigger opening a `role="menu"` popup of commands, with typeahead, submenus, and checkbox/radio items.
+
+- **Import:** `import { Menu } from '@base-ui/react/menu';`
+- **Parts:** 20 (+ the non-element exports `Menu.createHandle()` / `Menu.Handle`) — the largest popup component by part count; see Anatomy.
+- **Status:** Stable since v1.0.0. The new-API Menu shipped in Aug 2024 ([#468](https://github.com/mui/base-ui/pull/468)), replacing the legacy `@mui/base` Menu/Dropdown and closing its founding issues (dismissal that survives CSS transitions, configurable close-on-click, press-drag-release, focus restoration).
+- **ARIA pattern:** [Menu Button](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) + [Menu/Menubar](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={MenuStories.Hero} />
+
+## Features
+
+- **The full menu keyboard contract for free** — one tab stop, arrow-key roving highlight, `Home`/`End`, looping, and typeahead with a `label` override for icon items.
+- **Native-feeling pointer behavior** — opens on `mousedown` and items activate on `mouseup`, so one press-drag-release gesture opens the menu and runs an action, macOS-style ([#63](https://github.com/mui/base-ui/issues/63) → [#468](https://github.com/mui/base-ui/pull/468), pinned by tests).
+- **Animation-aware dismissal** — click-away and unmounting respect your CSS transitions (a founding requirement: user styling once broke dismissal entirely, [#9](https://github.com/mui/base-ui/issues/9)), with `data-instant` marking moments animations should skip.
+- **A complete action-item family** — `Item`, `LinkItem` (a real `<a>`), `CheckboxItem`, `RadioGroup`/`RadioItem`, with deliberately asymmetric `closeOnClick` defaults for settings menus.
+- **Submenus that stay open while you travel** — `SubmenuRoot` + safe-polygon hover tracking, one-level `Escape`, RTL-mirrored arrow keys, and a guard against a Chrome regression that dropped `mouseleave` mid-sweep ([#5153](https://github.com/mui/base-ui/pull/5153)).
+- **One menu, many triggers** — detached triggers via `createHandle()` with per-trigger typed `payload`, plus `Viewport` content morphing when switching triggers ([#3170](https://github.com/mui/base-ui/pull/3170), [#4060](https://github.com/mui/base-ui/pull/4060)).
+- **The engine for two other components** — Context Menu re-exports every part except Root/Trigger, and Menubar hosts plain `Menu.Root`s, so one styled menu serves click, right-click, and app-chrome modalities ([#3365](https://github.com/mui/base-ui/issues/3365)).
+
+## When to use
+
+- Action lists behind a button — the docs hero is a Song menu ("Add to Library, Play Next, Share"): commands that *do things* and forget, with keyboard navigation for free (docs subtitle).
+- Toggleable settings and exclusive option sets *inside* the dropdown — `CheckboxItem` for view options, `RadioGroup`/`RadioItem` for sort order — plus grouped sections, nested command trees, links, and hover-opened menus (docs Examples).
+- One shared menu for many launch points — "a card list that controls a menu rendered near the document root" with `payload` deciding content per trigger; table/list row-action menus are the canonical case (docs "Detached triggers").
+- Reusing one styled menu across modalities: "all the context menu parts are direct reexports of regular menu parts so they are interchangeable" — build it once, drive it from a button (Menu), right-click ([Context Menu](?path=/docs/overlays-context-menu--docs)), or a bar ([Menubar](?path=/docs/navigation-menubar--docs)) ([#3365](https://github.com/mui/base-ui/issues/3365)).
+- Desktop-app-like interactions — press-drag-release, typeahead, submenus: Menu is the closest Base UI gets to native OS menus. [I] from [#63](https://github.com/mui/base-ui/issues/63) and the test suite.
+
+## When not to use
+
+Comparative guidance for the four menu-shaped components lives in the cluster note (`research/c-components/_clusters/menus.md`); the short version: *button-anchored actions → Menu; right-click/long-press → Context Menu; persistent app-chrome bar → Menubar; site navigation links → Navigation Menu.*
+
+- **Choosing a value for a form** → [Select](?path=/docs/form-inputs-select--docs). Menu items fire actions and the widget forgets; Select holds a `value`, renders it in the trigger, and participates in forms. Menu has no `value`, `name`, or form integration at Root level — `Menu.RadioGroup` exists for exclusive *settings* (view density, sort order), not form data. [I] derived from API affordances; no maintainer statement found [G].
+- **Filterable command palette / searchable list** → [Autocomplete](?path=/docs/form-inputs-autocomplete--docs): "Autocomplete can be used as a filterable menu, but it has no support for nested submenus" ([#4157](https://github.com/mui/base-ui/issues/4157), maintainer-recommended, open).
+- **Right-click / long-press target** → [Context Menu](?path=/docs/overlays-context-menu--docs) — same parts, different Root/Trigger, positioned at the pointer.
+- **A persistent horizontal bar of menus** (File/Edit/View app chrome) → [Menubar](?path=/docs/navigation-menubar--docs) wrapping `Menu.Root`s.
+- **Website navigation with rich panels** → [Navigation Menu](?path=/docs/navigation-navigation-menu--docs): it renders a semantic `<nav>` + `ul`/`li` and is deliberately *not* `role="menu"` ([#2526](https://github.com/mui/base-ui/pull/2526)) — links-for-navigation in a menu-shaped widget mislead screen-reader users.
+- **Popups containing free-form interactive content** (inputs, arbitrary buttons, forms) → [Popover](?path=/docs/overlays-popover--docs): "Only the components with `menuitem*` roles are supported as interactive elements inside a menu" ([#2693](https://github.com/mui/base-ui/issues/2693)); typing in an input nested inside a menu is a known conflict ([#2755](https://github.com/mui/base-ui/issues/2755), open).
+- **A tooltip/popover attached to a disabled item** — possible but partial: `Popover.Trigger render={<Button focusableWhenDisabled/>}` works for pointer, keyboard flow is still imperfect ([#2693](https://github.com/mui/base-ui/issues/2693), open).
+
+## Anatomy
+
+```tsx
+import { Menu } from '@base-ui/react/menu';
+
+<Menu.Root>
+  <Menu.Trigger />
+  <Menu.Portal>
+    <Menu.Backdrop />
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Arrow />
+        <Menu.Item />
+        <Menu.LinkItem />
+        <Menu.Separator />
+        <Menu.SubmenuRoot>
+          <Menu.SubmenuTrigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>{/* … */}</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.SubmenuRoot>
+        <Menu.Group>
+          <Menu.GroupLabel />
+          {/* <Menu.Item /> … */}
+        </Menu.Group>
+        <Menu.RadioGroup>
+          <Menu.RadioItem>
+            <Menu.RadioItemIndicator />
+          </Menu.RadioItem>
+        </Menu.RadioGroup>
+        <Menu.CheckboxItem>
+          <Menu.CheckboxItemIndicator />
+        </Menu.CheckboxItem>
+        <Menu.Viewport>{/* only for multi-trigger content transitions */}</Menu.Viewport>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Menu.Root` | no element | Groups all parts; owns open state, modality, and highlight behavior | required |
+| `Menu.Trigger` | `<button>` | Opens the menu; hover props live here; supports `handle`/`payload` for detached use | required — at least one trigger (or a `handle` on both sides) since [#3170](https://github.com/mui/base-ui/pull/3170) |
+| `Menu.Portal` | `<div>` | Moves the popup subtree to `<body>` (or `container`); `keepMounted` lives here | required — its absence throws ([#1222](https://github.com/mui/base-ui/pull/1222)) |
+| `Menu.Backdrop` | `<div>` | Styleable overlay layer while open | yes |
+| `Menu.Positioner` | `<div>` | Anchors the popup; side/align/collision config; positioning CSS variables | required |
+| `Menu.Popup` | `<div>` | The `role="menu"` container; `finalFocus` prop | required |
+| `Menu.Viewport` | `<div>` | Content-transition container — "only required if one popup can be opened by multiple triggers, its content changes based on the trigger, and switching between them is animated" (JSDoc) | yes |
+| `Menu.Arrow` | `<div>` | Visual pointer to the anchor | yes |
+| `Menu.Item` | `<div>` | `role="menuitem"` command | expected |
+| `Menu.LinkItem` | `<a>` | `role="menuitem"` navigation entry (v1.2.0, [#3400](https://github.com/mui/base-ui/pull/3400)) | yes |
+| `Menu.SubmenuRoot` | no element | Groups a nested menu — never nest a second `Menu.Root` ([#2042](https://github.com/mui/base-ui/pull/2042)) | yes |
+| `Menu.SubmenuTrigger` | `<div>` | The item that opens its submenu; throws outside `SubmenuRoot` | with SubmenuRoot |
+| `Menu.Group` | `<div>` | `role="group"` wrapper with automatic `aria-labelledby` | yes |
+| `Menu.GroupLabel` | `<div>` | Label for a Group/RadioGroup (`role="presentation"`, auto-wired) | yes |
+| `Menu.RadioGroup` | `<div>` | Exclusive `menuitemradio` set with `value`/`onValueChange` | yes |
+| `Menu.RadioItem` | `<div>` | `role="menuitemradio"` option | with RadioGroup |
+| `Menu.RadioItemIndicator` | `<span>` | Marks the selected radio item; unmounts when unchecked ([#1123](https://github.com/mui/base-ui/pull/1123)) | yes |
+| `Menu.CheckboxItem` | `<div>` | `role="menuitemcheckbox"` toggle | yes |
+| `Menu.CheckboxItemIndicator` | `<span>` | Marks the checked state | yes |
+| `Menu.Separator` | `<div>` | Divider between items — a re-export of the standalone Separator (born inside the Menu PR [#535](https://github.com/mui/base-ui/pull/535)) | yes |
+
+Non-element exports: `Menu.createHandle()` returns a `Menu.Handle` that connects detached triggers to a Root and doubles as an imperative API (`open(triggerId)`, `close()`, `isOpen`).
+
+Submenus have no `modal`, `handle`, or `triggerId` props — "only top-level menus can have detached triggers" (docs).
+
+## How it works
+
+### The open/close contract
+
+Click toggles the menu (open on `mousedown`; items execute on `mouseup` at least 200ms later — the press-drag-release flow from [#63](https://github.com/mui/base-ui/issues/63)). The trigger reflects state via `aria-expanded` and `data-popup-open`, `Escape` closes and refocuses the trigger, and pressing outside dismisses. Closing always returns focus to the (active) trigger, while `Tab` moves focus past it instead ([#411](https://github.com/mui/base-ui/issues/411)).
+
+<Canvas of={MenuStories.OpenClose} />
+
+### Open on hover
+
+Set `openOnHover` on the *Trigger* (moved off Root in [#3170](https://github.com/mui/base-ui/pull/3170)), with `delay` (default 100ms) and `closeDelay`. Hover-opened menus are never modal, only hover-opened menus close on hover-out, and "impatient" clicks within 500ms of a hover-open won't toggle the menu shut (the stick behavior) — a later deliberate click upgrades it to modal ([#3455](https://github.com/mui/base-ui/pull/3455)).
+
+<Canvas of={MenuStories.OpenOnHover} />
+
+### Keyboard navigation and focus
+
+Keyboard open (`Enter`/`Space`/`ArrowDown`) focuses the first item (`ArrowUp`: the last). Pointer open deliberately does **not**: "Keyboard activation is a commitment to operate the menu. Pointer activation is often just revealing the menu… ARIA examples don't move focus when opened via pointer. macOS doesn't… All of the top libs do it this way" ([#4818](https://github.com/mui/base-ui/issues/4818)). Inside, arrows rove one tab stop through the items, `Home`/`End` jump, and navigation loops while `loopFocus` (default `true`).
+
+<Canvas of={MenuStories.KeyboardNavigation} />
+
+### Typeahead
+
+Typing highlights the next matching item; consecutive characters build one search string, and `Space` during active typing is a character, not activation ([#542](https://github.com/mui/base-ui/pull/542)). Give items whose content is icons or complex markup a `label` prop — text inference can otherwise pick up stray SVG content ([#3256](https://github.com/mui/base-ui/issues/3256), open).
+
+<Canvas of={MenuStories.Typeahead} />
+
+### Checkbox and radio items
+
+`CheckboxItem` (`role="menuitemcheckbox"`) is for toggleable settings, `RadioGroup`/`RadioItem` (`role="menuitemradio"`) for an exclusive option set — *settings*, not form values. Both keep the menu open on activation by default (`closeOnClick` defaults to `false` for them) so several settings can be changed in one visit — configurable close-on-click was a founding requirement ([#46](https://github.com/mui/base-ui/issues/46)).
+
+<Canvas of={MenuStories.CheckboxItems} />
+
+<Canvas of={MenuStories.RadioItems} />
+
+### Groups and labels
+
+`Group` + `GroupLabel` label related items: the label is `role="presentation"` and the group gets `aria-labelledby` automatically; `GroupLabel` works directly inside `RadioGroup` too ([#4826](https://github.com/mui/base-ui/pull/4826)).
+
+<Canvas of={MenuStories.GroupLabels} />
+
+### Link items
+
+`LinkItem` renders a real `<a href>` with `role="menuitem"` — the replacement for `Menu.Item render={<a/>}` ([#3400](https://github.com/mui/base-ui/pull/3400), v1.2.0). `Space` activates on keydown and navigates links, matching react-aria/Fluent ([#4053](https://github.com/mui/base-ui/pull/4053), closing [#1746](https://github.com/mui/base-ui/issues/1746)). Like checkbox/radio items, `closeOnClick` defaults to `false`.
+
+<Canvas of={MenuStories.LinkItems} />
+
+### Submenus
+
+Nest menus with `SubmenuRoot` + `SubmenuTrigger` — never a nested `Root`: the dedicated part "disambiguates a submenu from a new but nested root menu" and unlocks dialog-trigger-as-menu-item cases ([#2042](https://github.com/mui/base-ui/pull/2042)). Submenus position to the inline-end side by default ([#1081](https://github.com/mui/base-ui/pull/1081)), open on hover after a plain 100ms delay (no pointer-rest requirement since [#4990](https://github.com/mui/base-ui/pull/4990)), and safe-polygon tracking keeps them open while the pointer travels diagonally.
+
+<Canvas of={MenuStories.Submenu} />
+
+The keyboard contract: `ArrowRight` opens and focuses the first child item, `ArrowLeft` closes and refocuses the submenu trigger, and `Escape` closes only one level — `closeParentOnEsc` defaults to `false`, aligned with ARIA/MDN in [#2493](https://github.com/mui/base-ui/pull/2493).
+
+<Canvas of={MenuStories.SubmenuKeyboard} />
+
+Under `DirectionProvider direction="rtl"` the submenu arrows mirror:
+
+<Canvas of={MenuStories.RTLSubmenu} />
+
+### Close semantics and event details
+
+Every close path is a typed `onOpenChange` reason: `trigger-press`, `item-press`, `outside-press`, `focus-out`, `escape-key`, `sibling-open`, `imperative-action`, and more. `eventDetails.cancel()` vetoes a change while staying uncontrolled-friendly (menus add `preventUnmountOnClose()`), which is how you keep a menu open through light dismissal:
+
+<Canvas of={MenuStories.EventDetailsReasons} />
+
+`closeOnClick` defaults are deliberately asymmetric — plain `Item` closes the menu, checkbox/radio/link items don't ([#46](https://github.com/mui/base-ui/issues/46); values pinned in JSDoc). Override per item in either direction:
+
+<Canvas of={MenuStories.CloseOnClickConfig} />
+
+### Disabled items stay focusable
+
+Disabled items are highlightable and reachable by keyboard but cannot be activated — the ARIA APG stance, defended repeatedly: "Screen readers do not expect disabled items to be skipped… VoiceOver does not skip disabled items" ([#1733](https://github.com/mui/base-ui/issues/1733), [#4881](https://github.com/mui/base-ui/issues/4881), both closed as expected behavior). Style them via `data-disabled`.
+
+<Canvas of={MenuStories.DisabledItems} />
+
+### Modality
+
+`modal` defaults to `true`: page scroll locks and outside pointer interactions are blocked by an internal backdrop. Nested menus ignore `modal` (dev warning), hover-opened menus are never modal, and on touch the page stays scrollable unless the popup spans roughly the whole viewport width, "matching native iOS behavior" (Root JSDoc). Use `modal={false}` for dense toolbars and row actions where the page must stay interactive:
+
+<Canvas of={MenuStories.NonModal} />
+
+### Detached triggers, payloads, and handles
+
+State comes in three tiers: uncontrolled (`defaultOpen`) → controlled (`open` + `onOpenChange`, plus `triggerId` when several triggers exist) → handle (`createHandle()`). A handle connects a Root and any number of triggers rendered anywhere in the tree, no shared React state needed ([#3170](https://github.com/mui/base-ui/pull/3170)):
+
+<Canvas of={MenuStories.DetachedTriggersSimple} />
+
+Give each trigger a typed `payload`; the Root's function child renders content for whichever trigger opened the menu:
+
+<Canvas of={MenuStories.DetachedTriggersPayload} />
+
+In fully controlled mode, pair `open` with `triggerId` and read `eventDetails.trigger` in `onOpenChange` to track which trigger asked to open:
+
+<Canvas of={MenuStories.ControlledMultiTrigger} />
+
+Handles double as an imperative API — `handle.open(triggerId)` / `handle.close()` from any event handler. Calls are ignored unless a Root using the handle is mounted: no replay, no carry-over (Handle JSDoc):
+
+<Canvas of={MenuStories.ImperativeHandle} />
+
+### Positioning and the arrow
+
+The Positioner owns `side`/`align`/`sideOffset`/collision config and exposes `--available-width/height`, `--anchor-width/height`, `--transform-origin`, and `--positioner-width/height` as CSS variables. `Menu.Arrow` adds a visual pointer styled per side via `data-side`:
+
+<Canvas of={MenuStories.Arrow} />
+
+### Animation
+
+CSS transitions hook into `data-open`/`data-closed`/`data-starting-style`/`data-ending-style` with `transform-origin: var(--transform-origin)`; `data-instant` (`click | dismiss | group | trigger-change`) marks moments to skip the transition, such as keyboard close or menubar sibling-switching. `onOpenChangeComplete` fires after the transition settles, and `actionsRef.unmount()` serves JS animation libraries:
+
+<Canvas of={MenuStories.TransitionAnimation} />
+
+For multi-trigger menus, freeze the Positioner to `var(--positioner-width/height)`, transition the Popup's `width`/`height`, and let `Menu.Viewport` cross-fade old/new content via `data-previous`/`data-current` wrappers with `data-activation-direction` ([#4060](https://github.com/mui/base-ui/pull/4060)):
+
+<Canvas of={MenuStories.ViewportContentTransition} />
+
+### Server rendering
+
+[G] No menu-specific SSR caveats found — trigger ARIA renders server-side (searched release notes and upstream issues, 2026-07).
+
+## Keyboard & screen reader
+
+Pattern: [APG Menu Button](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) + [Menu/Menubar](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/) — maintainers cite the APG verbatim when defending behavior ([#1733](https://github.com/mui/base-ui/issues/1733)).
+
+| Key | Context | Action |
+|---|---|---|
+| `Enter` / `Space` / `ArrowDown` | closed trigger | Open; focus the first item |
+| `ArrowUp` | closed trigger | Open; focus the last item |
+| `ArrowDown` / `ArrowUp` | in menu | Move highlight; loops while `loopFocus` (default `true`); disabled items are *included* |
+| `Home` / `End` | in menu | First / last item |
+| Printable characters | in menu | Typeahead to a matching item (`label` prop overrides matching text); `Space` during active typing is a character, not activation |
+| `Enter` / `Space` | on item | Activate; `Space` fires on keydown and also navigates `LinkItem` ([#4053](https://github.com/mui/base-ui/pull/4053)) |
+| `ArrowRight` (LTR, vertical) | on SubmenuTrigger | Open the submenu and focus its first item; `ArrowLeft` closes it and refocuses the SubmenuTrigger. Mirrored in RTL; horizontal menus use `ArrowDown`/`ArrowUp` |
+| `Escape` | in menu | Close; focus returns to the trigger. In a submenu, closes only that level (`closeParentOnEsc` default `false`, [#2493](https://github.com/mui/base-ui/pull/2493)) |
+| `Tab` / `Shift+Tab` | in menu | Close the whole menu; focus moves to the next element / back past the trigger ([#411](https://github.com/mui/base-ui/issues/411)) |
+
+- **ARIA managed for you**: Trigger — `<button aria-haspopup="menu" aria-expanded>` (inside a Menubar it additionally gets `role="menuitem"`). Popup — `role="menu"` + `aria-labelledby={triggerId}`. Item/LinkItem — `role="menuitem"`. CheckboxItem — `role="menuitemcheckbox"` + `aria-checked`. RadioItem — `role="menuitemradio"` + `aria-checked`. Group/RadioGroup — `role="group"` auto-labelled by GroupLabel (`role="presentation"`). Disabled items get `aria-disabled`, never the `disabled` attribute.
+- **Screen reader**: pointer open leaves focus on the trigger by design ([#4818](https://github.com/mui/base-ui/issues/4818)); disabled items are announced rather than skipped (VoiceOver behavior, [#4881](https://github.com/mui/base-ui/issues/4881)).
+- **You must provide**: an accessible name for icon-only triggers (`aria-label`), a `label` for icon-only items, visible `:focus-visible` styling, and sufficient contrast for `data-highlighted`/`data-disabled` states.
+- **Known issues**: [#5139](https://github.com/mui/base-ui/issues/5139) (open) — no `focusableWhenDisabled` opt-out exposed on Menu items; [#3256](https://github.com/mui/base-ui/issues/3256) (open) — typeahead label inference can include SVG text; [#2693](https://github.com/mui/base-ui/issues/2693) (open) — keyboard access to popovers on disabled items unresolved; [#1894](https://github.com/mui/base-ui/issues/1894) (open) — no non-cascading/drilldown submenu option for narrow screens. Fixed and shipped: `Space` activation timing ([#4053](https://github.com/mui/base-ui/pull/4053)), Safari/Firefox visible-focus restore after keyboard close ([#5093](https://github.com/mui/base-ui/pull/5093)).
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Trigger | `data-popup-open` | the menu is open |
+| Trigger | `data-pressed` | pressed — kept distinct from `data-popup-open` on purpose ([#3036](https://github.com/mui/base-ui/issues/3036)) |
+| Item / LinkItem / SubmenuTrigger | `data-highlighted` | one unified highlight for pointer and keyboard; the highlighted item carries the roving `tabIndex={0}` |
+| any item | `data-disabled` | the item is disabled |
+| CheckboxItem / RadioItem | `data-checked` / `data-unchecked` | checked state (indicators unmount when unchecked, [#1123](https://github.com/mui/base-ui/pull/1123)) |
+| Popup / Backdrop | `data-open` / `data-closed` / `data-starting-style` / `data-ending-style` | open/close transition lifecycle |
+| Popup / Positioner | `data-side` / `data-align` | anchored positioning result |
+| Popup | `data-instant` (`click`, `dismiss`, `group`, `trigger-change`) | moments animations should be skipped |
+| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin` | while positioned |
+| Positioner (CSS vars) | `--positioner-width/height` | "important to set when using CSS to animate size changes" (docs) — multi-trigger morphing |
+| Viewport | `data-current` / `data-previous` / `data-transitioning`, `data-activation-direction`, `--popup-width/height` | during trigger-switch content transitions |
+
+To keep pointer `:hover` visually distinct from the keyboard highlight, disable `highlightItemOnHover` and style the two states separately — the same split users asked for in Combobox ([#2731](https://github.com/mui/base-ui/issues/2731), synced across menu/select/combobox in [#3377](https://github.com/mui/base-ui/pull/3377)):
+
+<Canvas of={MenuStories.HighlightItemOnHoverDisabled} />
+
+## Choosing the right props
+
+- **`modal` (Root, default `true`)** — keep the default for dropdown menus (matches native behavior); use `modal={false}` when the page must stay interactive — dense toolbars, table row actions. The internal backdrop needs the quick-start `isolation: isolate` app-root setup to always win stacking ([#4012](https://github.com/mui/base-ui/issues/4012)).
+- **`openOnHover` / `delay` / `closeDelay` (Trigger)** — moved from Root to Trigger in [#3170](https://github.com/mui/base-ui/pull/3170); hover menus are never modal and ignore impatient clicks for 500ms after opening. On `SubmenuTrigger`, `openOnHover` defaults to `true` — set it `false` for click-only submenus.
+- **`closeOnClick` (all item types)** — deliberately asymmetric defaults: `Item` `true`; `CheckboxItem`/`RadioItem`/`LinkItem` `false`, because toggling several settings shouldn't force the menu to be reopened each time (origin [#46](https://github.com/mui/base-ui/issues/46); checkbox/radio close bug fixed in [#1301](https://github.com/mui/base-ui/pull/1301)). Override per item.
+- **`closeParentOnEsc` (SubmenuRoot, default `false`)** — flipped in [#2493](https://github.com/mui/base-ui/pull/2493) citing MDN: `Escape` should close one level and refocus the submenu trigger; set `true` to collapse the whole tree at once.
+- **`loopFocus` (Root, default `true`)** — arrow navigation wraps from last to first item and back; set `false` when the menu mirrors a fixed-order native menu where hitting the end should stop.
+- **`highlightItemOnHover` (Root, default `true`)** — set `false` to decouple CSS `:hover` from the keyboard-driven `data-highlighted` state ([#3377](https://github.com/mui/base-ui/pull/3377)).
+- **`orientation` (Root, default `'vertical'`)** — switches the roving-focus axis, and therefore which arrow keys open/close submenus.
+- **`label` (any item)** — typeahead text override; use it whenever item content is icons or complex markup ([#3256](https://github.com/mui/base-ui/issues/3256)).
+- **`nativeButton` (items, default `false`)** — items render `<div role="menuitem">`; declare `nativeButton` if `render` swaps in a real `<button>`. Never pass `render={<button disabled/>}`: "Browsers can't focus truly disabled buttons, so… you're effectively preventing the highlighting logic" ([#1733](https://github.com/mui/base-ui/issues/1733); warning added in [#3858](https://github.com/mui/base-ui/pull/3858)).
+- **`triggerId` / `defaultTriggerId` (Root)** — only for controlled menus with multiple triggers; read `eventDetails.trigger` in `onOpenChange` to track the active one (docs "Controlled mode with multiple triggers").
+- **`actionsRef` (Root)** — `{ unmount, close }`; `unmount` for externally orchestrated exit animations.
+- **`finalFocus` (Popup)** — boolean/ref/function-by-interaction-type control of where focus lands on close ([#1918](https://github.com/mui/base-ui/pull/1918)).
+
+## Do / Don't
+
+**Do**
+
+- React to open state with `onOpenChange`, not trigger `onClick` — the modal backdrop once swallowed trigger clicks entirely, and the guidance outlived the fix ([#1965](https://github.com/mui/base-ui/issues/1965)).
+- Apply the quick-start `isolation: isolate` root and put `z-index` (if you need one at all) on the Positioner, never the Popup ([#4012](https://github.com/mui/base-ui/issues/4012), [#2450](https://github.com/mui/base-ui/issues/2450)).
+- Give icon-only items a `label` (typeahead) plus an `aria-label` (accessible name) — inference picks up SVG text otherwise ([#3256](https://github.com/mui/base-ui/issues/3256)).
+- Keep the whole Portal subtree mounted (`keepMounted` + AnimatePresence recipe) when you need exit animations, rather than conditionally rendering the Popup (handbook animation guidance; [#2186](https://github.com/mui/base-ui/issues/2186) pattern).
+- Upgrade to ≥ v1.6.x for the Chrome fast-sweep submenu bug instead of patching CSS ([#5153](https://github.com/mui/base-ui/pull/5153)).
+
+**Don't**
+
+- Don't put inputs, arbitrary buttons, or forms inside the popup — "Only the components with `menuitem*` roles are supported as interactive elements inside a menu"; use [Popover](?path=/docs/overlays-popover--docs) for free-form content ([#2693](https://github.com/mui/base-ui/issues/2693) — real user hit this attaching popovers to items).
+- Don't nest an input for search/filtering either — typing inside a menu conflicts with typeahead and item activation ([#2755](https://github.com/mui/base-ui/issues/2755), open); reach for [Autocomplete](?path=/docs/form-inputs-autocomplete--docs).
+- Don't nest a second `Menu.Root` to build a submenu — `SubmenuRoot` exists precisely to disambiguate ([#2042](https://github.com/mui/base-ui/pull/2042)); `SubmenuTrigger` outside it throws.
+- Don't extend a trigger's tap area with an absolutely-positioned child — the menu closes as soon as it opens because outside-press sees the overlay ([#3184](https://github.com/mui/base-ui/issues/3184), open).
+- Don't `render={<button disabled/>}` on items — it breaks highlighting; use `data-disabled` styling with the `disabled` prop instead ([#1733](https://github.com/mui/base-ui/issues/1733)).
+- Don't port Radix idioms: there is no `asChild` (use `render`), no `data-state` (use `data-open`/`data-popup-open`), and submenus need `SubmenuRoot`, not nested roots ([#3983](https://github.com/mui/base-ui/issues/3983), [#717](https://github.com/mui/base-ui/issues/717)).
+
+## In the wild
+
+- **[PostHog](https://posthog.com)** ([source](https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Account/NewAccountMenu.tsx), custom license — link-only, do not copy) — the richest direct product usage found: the account/org/project switcher is a controlled Menu with the corpus's only `Menu.Backdrop` sighting, two nested `SubmenuRoot`s ("All projects", "All organizations"), `render`-prop triggers into their ButtonPrimitive, and a popup height-capped by `--available-height` behind scroll shadows.
+- **[Next.js DevTools](https://nextjs.org)** ([source](https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx), MIT, code-ok) — the dev-overlay segment explorer runs `modal={false}` with `Menu.Portal container={shadowRoot}`: the canonical citation for portalling into a shadow root and keeping the host page interactive.
+- **[Playroom (SEEK)](https://github.com/seek-oss/playroom)** ([source](https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx), MIT, code-ok) — the best `closeOnClick` teacher in the corpus: one shared MenuItem abstraction sets `closeOnClick={false}` for checkbox/radio settings and submenu triggers, with `onOpenChangeComplete` resetting submenu state only after the exit animation.
+- **[Oxide Console](https://console-preview.oxide.computer)** ([source](https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx), MPL-2.0, code-ok) — wraps `Menu.Root` with `modal={false}` as the house default and a comment explaining why (prevent scroll locking), plus a semantic `anchor="bottom end"` string parsed into `side`/`align`; backs the console's table row-action menus.
+- **[Cloudflare Kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/dropdown/dropdown.tsx), MIT, code-ok) — the design system documents an API migration in its own JSDoc: `href`-on-Item is deprecated in favor of `Menu.LinkItem` for navigation, alongside danger-styled items and a container-aware Portal.
+
+Three recreations live in this Storybook — table row actions (Oxide), a settings menu that stays open (Playroom), and a shadow-DOM-portalled overlay menu (Next.js DevTools):
+
+<Canvas of={MenuStories.RealWorldRowActions} />
+
+<Canvas of={MenuStories.RealWorldSettingsMenu} />
+
+<Canvas of={MenuStories.RealWorldShadowDomPortal} />
+
+## Decision log
+
+- **2024-08** — the new-API Menu ships, designed against a Notion API doc ([#214](https://github.com/mui/base-ui/issues/214)) and closing the founding issues: animation-aware dismissal ([#9](https://github.com/mui/base-ui/issues/9)), configurable `closeOnClick` ([#46](https://github.com/mui/base-ui/issues/46)), press-drag-release ([#63](https://github.com/mui/base-ui/issues/63)), and Tab-close focus restoration ([#411](https://github.com/mui/base-ui/issues/411)) ([#468](https://github.com/mui/base-ui/pull/468), breaking).
+- **2024-09** — CheckboxItem, RadioItem, and Group ship as designed-in parts; Separator is born inside the Menu work ([#533](https://github.com/mui/base-ui/pull/533), [#534](https://github.com/mui/base-ui/pull/534), [#535](https://github.com/mui/base-ui/pull/535)).
+- **2025-01** — Portal becomes a required part, adopting the library-wide popup grammar ([#1222](https://github.com/mui/base-ui/pull/1222)).
+- **2025-06 (beta.1)** — `SubmenuRoot` replaces nested `Menu.Root` "to avoid ambiguity", unlocking ContextMenu submenus and dialog-trigger-as-menu-item cases ([#2042](https://github.com/mui/base-ui/pull/2042), breaking).
+- **2025-08** — `closeParentOnEsc` default flips to `false`, aligning `Escape` with ARIA/MDN one-level dismissal ([#2493](https://github.com/mui/base-ui/pull/2493), community PR); `onOpenChange` migrates to `(open, eventDetails)` with typed reasons and `cancel()` (library-wide, [#2382](https://github.com/mui/base-ui/pull/2382)).
+- **2025-11 (beta.5)** — detached triggers: `createHandle()`, `payload`, multiple triggers per Root; breaking: `openOnHover`/`delay`/`closeDelay` move Root→Trigger and every menu needs at least one trigger ([#3170](https://github.com/mui/base-ui/pull/3170)).
+- **2026-01 (v1.2.0)** — `LinkItem` part, "replacement for `<Menu.Item render={<a href/>}>`" ([#3400](https://github.com/mui/base-ui/pull/3400)).
+- **2026-03 (v1.3.0)** — `Space` activates on keydown and navigates LinkItem, matching react-aria/Fluent ([#4053](https://github.com/mui/base-ui/pull/4053)); `Viewport` content transitions for multi-trigger menus ([#4060](https://github.com/mui/base-ui/pull/4060)).
+- **2026-06/07** — submenu hover-open uses a plain delay without waiting for pointer rest ([#4990](https://github.com/mui/base-ui/pull/4990)); guard against Chrome dropping `mouseleave` during fast sweeps ([#5153](https://github.com/mui/base-ui/pull/5153)).
+- **Standing decision** — pointer open does not focus the first item; keyboard open does. Defended with APG examples, macOS behavior, and library consensus ([#4818](https://github.com/mui/base-ui/issues/4818)). Likewise: disabled items stay focusable per APG/VoiceOver ([#1733](https://github.com/mui/base-ui/issues/1733), [#4881](https://github.com/mui/base-ui/issues/4881)).
+
+## Known issues & open questions
+
+- [#5139](https://github.com/mui/base-ui/issues/5139) — `focusableWhenDisabled` opt-out not exposed on Menu items (open).
+- [#3256](https://github.com/mui/base-ui/issues/3256) — typeahead label inference can include SVG text content; use the `label` prop as the workaround (open).
+- [#2693](https://github.com/mui/base-ui/issues/2693) — keyboard access to popovers attached to disabled menu items unresolved; only `menuitem*` roles are supported inside a menu (open).
+- [#1894](https://github.com/mui/base-ui/issues/1894) — no non-cascading/drilldown submenu option; an API sketch (`submenuBehavior="drilldown"`) exists in-thread but is unshipped (open).
+- [#2755](https://github.com/mui/base-ui/issues/2755) — typing in an input nested inside a menu conflicts with typeahead (open).
+- [#4157](https://github.com/mui/base-ui/issues/4157) — searchable/filterable menu is acknowledged but undecided; today's answer is Autocomplete, which lacks submenus (open).
+
+## Related
+
+- For **right-click or long-press** actions on a surface, use [Context Menu](?path=/docs/overlays-context-menu--docs) — same parts, pointer-anchored.
+- For a persistent **File/Edit/View application bar**, use [Menubar](?path=/docs/navigation-menubar--docs) hosting `Menu.Root`s.
+- For **site navigation with link panels**, use [Navigation Menu](?path=/docs/navigation-navigation-menu--docs) — semantic `<nav>`, no menu roles.
+- For **free-form interactive popup content**, use [Popover](?path=/docs/overlays-popover--docs).
+- To **choose a form value** from a dropdown, use [Select](?path=/docs/form-inputs-select--docs).
+- For a **filterable command list**, use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs).
+- To **confirm a destructive item**, open a [Dialog](?path=/docs/overlays-dialog--docs) from `Menu.Item onClick` (see the recipe story):
+
+<Canvas of={MenuStories.OpenDialogFromMenu} />
+
+## API reference
+
+### Menu.Root
+
+<ArgTypes of={MenuStories.Hero} />
+
+*Per-part tables (`Menu.Trigger`, `Menu.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/menu](https://base-ui.com/react/components/menu#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+menu) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/menu).*
