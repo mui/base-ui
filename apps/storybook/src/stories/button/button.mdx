@@ -1,0 +1,134 @@
+{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from './button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+A button component that can be rendered as another tag or focusable when disabled.
+
+- **Import:** `import { Button } from '@base-ui/react/button';`
+- **Parts:** 1 — no sub-parts; renders a single `<button>` (or the `render`-swapped tag).
+- **Status:** Stable. Merged in mid-2025 (`#2363`) — one of the youngest components by introduction date, despite being conceptually primitive.
+- **ARIA pattern:** [Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) (native-button case). [I] — general web knowledge, not a docs citation.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={ButtonStories.Hero} />
+
+## Features
+
+- **Tag polymorphism with kept accessibility** — render as another tag (e.g. `div`) via `render`, while Base UI replicates the keyboard/role semantics a real `<button>` gives you for free.
+- **`focusableWhenDisabled`** — keeps a disabled button reachable via Tab and hoverable, for loading/pending states that shouldn't break focus continuity.
+- **Shared building block** — the internal `useButton` hook backing Button is reused library-wide by Toggle, `Toolbar.Button`, and any "acts like a button" composite item, so disabled/keyboard logic isn't duplicated per component.
+- **Composite-context awareness** — Space activates on `keydown` instead of `keyup` automatically when the button is a composite item (e.g. inside a Toolbar), matching the roving-focus convention.
+
+## When to use
+
+- Any actionable control that isn't a native `<button>` for a good reason — e.g. it must render as another tag while keeping button semantics ("Rendering as another tag" docs example).
+- Buttons that enter a **loading/pending state** after being clicked and must not lose focus or drop out of tab order — the `focusableWhenDisabled` recipe (`FocusableWhenDisabled` story above).
+- As the reusable building block Base UI itself composes into other parts (`Toolbar.Button render={<Menu.Trigger />}`, Toggle) — reach for it when hand-rolling a similar "acts as a button" custom part.
+
+## When not to use
+
+- **Never for links.** Button enforces `role="button"` and button keyboard interaction; if a link needs to look like a button, style the `<a>` element directly with CSS instead of wrapping it in `<Button render={<a />}>` — docs Usage guidelines, verbatim.
+- **A plain `<button>` HTML element**, whenever no `disabled`/`focusableWhenDisabled`/tag-polymorphism is needed — Button adds zero value over the native element in that case.
+- **A group of buttons → no `ButtonGroup`, none exists.** A non-toggle button group is just `role="group"` around plain buttons ([#4008](https://github.com/mui/base-ui/issues/4008)); use [Toggle Group](?path=/docs/actions-togglegroup--docs) for pressed-state/roving-focus semantics, or [Toolbar](?path=/docs/actions-toolbar--docs) for a mixed command bar.
+- **A two-state on/off control → [Toggle](?path=/docs/actions-toggle--docs)**, not Button with a manually-toggled `aria-pressed`.
+
+## Anatomy
+
+```tsx
+import { Button } from '@base-ui/react/button';
+
+<Button />;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Button` | `<button>` (or the `render`-swapped tag) | The single element: state, keyboard normalization, disabled semantics | required |
+
+## How it works
+
+### `disabled` vs `focusableWhenDisabled`
+
+On a real `<button>`, `disabled` sets the native `disabled` attribute: the element is fully removed from the tab order and every interaction handler no-ops. Passing `focusableWhenDisabled` alongside `disabled` instead applies `aria-disabled="true"` while keeping `tabindex="0"` — the element stays Tab-reachable and hoverable, but activation is still suppressed. This is the exact mechanism behind the "loading state" recipe Button was built to solve.
+
+<Canvas of={ButtonStories.FocusableWhenDisabled} />
+
+### Rendering as another tag
+
+The default element is a `<button>`. Passing both `render` and `nativeButton={false}` swaps the rendered tag (e.g. to a `<div>`) while Base UI synthesizes Enter/Space -> click activation, which a non-native element doesn't get from the browser for free.
+
+<Canvas of={ButtonStories.RenderComposition} />
+
+## Keyboard & screen reader
+
+| Key | Action |
+|---|---|
+| `Enter` | Activates the button (native on a real `<button>`; synthesized by Base UI on a `render`-swapped tag) |
+| `Space` | Activates on `keyup` when standalone; normalized to `keydown` when the button is a composite item (e.g. inside a Toolbar) |
+| `Tab` | Skips the button when `disabled` (unless `focusableWhenDisabled` is set, in which case it stays reachable) |
+
+- **ARIA**: `role="button"` only on non-native renders; `aria-disabled="true"` when disabled (either non-native, or native + `focusableWhenDisabled`); native `disabled` attribute only for a native `<button>` without `focusableWhenDisabled`.
+- **You must provide**: an accessible name (text content or `aria-label`), visible `:focus-visible` styling.
+- **Dev-time correctness guard**: a mismatched `nativeButton` vs actual rendered tag throws a console `Base UI:` error explaining the risk, in both directions.
+- **Known issues**: [G] no Button-specific open a11y bug found in the mined discussions/issues corpus beyond the scope debate covered in the decision log below; the absence is unverified rather than confirmed-clean.
+
+## Styling hooks
+
+| Attribute | Present when |
+|---|---|
+| `data-disabled` | the button is disabled (regardless of `focusableWhenDisabled`) |
+
+No CSS variables — Button has no dynamic measurements to expose, the leanest styling contract of any component in this batch.
+
+## Choosing the right props
+
+- **`disabled`** — use for a genuinely inert action; native `<button disabled>` semantics apply when `nativeButton` is true (fully removed from AT and tab order) — correct when the disabled state should not be discoverable.
+- **`focusableWhenDisabled`** — use when a button enters a loading state after being clicked, to ensure focus remains on the button and the tab order stays intact.
+- **`nativeButton`** (default `true`) — set to `false` whenever `render` swaps the rendered tag away from `<button>`, so ARIA and keyboard normalization apply correctly.
+- **`render`** — the standard composition escape hatch; the only Button-specific caveat is the link boundary above: don't `render={<a />}` to fake a link-styled-as-button.
+
+## Do / Don't
+
+**Do**
+
+- Pair `focusableWhenDisabled` with `disabled` whenever the disabled state is temporary/predictable (loading, pending submit) — losing focus there would disorient the user.
+
+**Don't**
+
+- Don't render a link as a Button (`render={<a />}`) — it breaks native anchor semantics (no more native right-click/open-in-new-tab, different Enter-vs-Space conventions). Style the `<a>` directly instead.
+
+## In the wild
+
+[G] pending Phase D dataset for button (Tier 3 — see `research/d-real-world-usage/`).
+
+## Decision log
+
+- **Pre-#2225 — initially rejected.** A headless `<button>` primitive was proposed and rejected under the library's scope test (colmtuite): ship a primitive only where (a) HTML lacks the functionality, (b) the element can't be styled, or (c) no good HTML primitive exists. A plain `<button>` fails all three — so Button "shouldn't" exist by that test.
+- **Reversed and merged — [#2363](https://github.com/mui/base-ui/pull/2363) "[button] New `Button` component"** (closing [#2225](https://github.com/mui/base-ui/issues/2225), which itself traces to [#2138](https://github.com/mui/base-ui/issues/2138)): the scope test was overridden specifically for accessibility reasons — `focusableWhenDisabled` (native `disabled` removes an element from the accessibility tree and tab order entirely, hiding loading/pending buttons from assistive technology), Enter/Space activation normalization on non-native tags, and browser-bug patching. Explicitly scoped **out**: press/pointer-event normalization, tracked separately as [#1726](https://github.com/mui/base-ui/issues/1726). Button exists purely for these a11y affordances — it is not a styling convenience.
+- **`#3643`** — Remove discriminated props union (API simplification, post-1.0 minor).
+- **`#3929`** — Improve dev warnings (shared with Field).
+
+## Known issues & open questions
+
+- [G] No Button-specific open a11y bug surfaced in the mined discussions/issues corpus (`button / toolbar | 4008, 4021, 5150, 3759` — these are scope/API discussions, not a11y bugs; #4021/#5150/#3759 not individually verified in this pass).
+
+## Related
+
+- For a two-state on/off control, use [Toggle](?path=/docs/actions-toggle--docs).
+- For a mixed command bar of buttons/toggles/inputs sharing one tab stop, use [Toolbar](?path=/docs/actions-toolbar--docs).
+- For an exclusive/multi-toggle cluster, use [Toggle Group](?path=/docs/actions-togglegroup--docs).
+
+## API reference
+
+### Button
+
+<ArgTypes of={ButtonStories.Hero} />
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+button) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/button).*
