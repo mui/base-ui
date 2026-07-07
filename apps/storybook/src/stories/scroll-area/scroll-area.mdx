@@ -1,0 +1,171 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (source, docs, tests, experiments, 1 targeted upstream PR
+    lookup — research/c-components/scroll-area/brief.md). */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ScrollAreaStories from './scroll-area.stories';
+
+<Meta of={ScrollAreaStories} />
+
+# Scroll Area
+
+A native scroll container with custom scrollbars.
+
+- **Import:** `import { ScrollArea } from '@base-ui/react/scroll-area';`
+- **Parts:** 6 (`Root`, `Viewport`, `Content`, `Scrollbar`, `Thumb`, `Corner`) — see Anatomy.
+- **Status:** Stable, no `[New]`/`[Preview]` tag. Introduced 2024-11-05 ([#665](https://github.com/mui/base-ui/pull/665), closing mui/mui-x#649).
+- **ARIA pattern:** none — there is no dedicated "custom scrollbar decoration over native scroll" ARIA widget. Root and Viewport both render `role="presentation"`; Scrollbar/Thumb/Corner carry no ARIA roles at all.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={ScrollAreaStories.Hero} />
+
+## Features
+
+- **Decorates native scrolling — it does not replace it.** Scroll Area reads real `scrollTop`/`scrollLeft`/`scrollHeight` from the underlying `<div>` and drives thumb position/visibility from those measurements; dragging the thumb or clicking the track writes back to native scroll properties directly.
+- **Conditional scrollbar rendering** — by default (`keepMounted={false}`) an axis with no overflow doesn't render a scrollbar at all, not merely hide it via CSS.
+- **`Corner` appears only when both axes overflow simultaneously**, so the two scrollbar tracks never intersect.
+- **Overflow-edge data attributes and CSS vars** drive gradient scroll-fade masks without any JavaScript in the consumer's styling layer.
+- **Full RTL support** — horizontal scroll math and logical CSS positioning are direction-aware throughout.
+
+## When to use
+
+- Any custom-styled scrollable region where the browser's native scrollbar chrome should be replaced with themeable markup, while keeping native scroll behavior (momentum, keyboard, wheel, touch) intact — the "Slack/Linear-style app shell" case.
+- Long lists or overflowing panels where a gradient scroll-fade affordance is wanted at the edges, driven by the viewport overflow CSS variables.
+- Popups/menus that need a scrollable region inside their popup content while keeping the popup's own layering/positioning untouched.
+
+## When not to use
+
+- **Large virtualized lists** — Scroll Area does not virtualize; it only decorates a real overflowing `<div>`. Treat virtualization as an orthogonal, compatible concern the app must add itself if content is huge. [G] No maintainer statement explicitly contrasting Scroll Area with a virtualization library was found in the mined corpus.
+- **Average, non-decorated overflow** — plain CSS `overflow: auto` with the browser's native scrollbar remains the simpler default when no custom styling of the scrollbar chrome itself is required.
+- **Select's own popup scrolling** — `Select.Popup`/`Select.List` has its own built-in scroll handling plus dedicated scroll-up/down arrow parts, architecturally independent of `ScrollArea.*`. The two mechanisms can coexist when deliberately composed, but they are not designed to interoperate — pick one scroll mechanism per popup, not both.
+
+## Anatomy
+
+```tsx
+import { ScrollArea } from '@base-ui/react/scroll-area';
+
+<ScrollArea.Root>
+  <ScrollArea.Viewport>
+    <ScrollArea.Content />
+  </ScrollArea.Viewport>
+  <ScrollArea.Scrollbar>
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Scrollbar orientation="horizontal">
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Corner />
+</ScrollArea.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `ScrollArea.Root` | `<div>` | Non-scrolling coordination layer (`role="presentation"`); owns all shared measurement state and injects the scrollbar-hiding `<style>` tag | required |
+| `ScrollArea.Viewport` | `<div>` | The only element that actually scrolls (`overflow: scroll`, `role="presentation"`); `tabIndex` is computed — `0` only when there is real overflow to scroll | required |
+| `ScrollArea.Content` | `<div>` | Optional but recommended measured wrapper (`min-width: fit-content`); a `ResizeObserver` watches it independently of the Viewport | recommended |
+| `ScrollArea.Scrollbar` | `<div>` | A vertical (default) or horizontal scrollbar track; conditionally rendered based on overflow, unless `keepMounted` | yes, per axis you want visible chrome for |
+| `ScrollArea.Thumb` | `<div>` | The draggable indicator of scroll position — size/position come entirely from Root-level CSS vars, no independent geometry logic | yes |
+| `ScrollArea.Corner` | `<div>` | Small rectangle at the intersection of both scrollbars — renders only when both axes overflow simultaneously | yes — recommended whenever both scrollbars are used |
+
+## How it works
+
+### The scrollbar hides the native chrome via an injected `<style>` tag
+
+`<ScrollArea.Viewport>` is one of exactly two components library-wide that must inject a real `<style>` tag rather than relying on inline styles — the other is `Select.Popup`/`Select.List` under `alignItemWithTrigger`. **Safari forced this design**: from the introducing PR review, atomiks: "I think we can remove them by default, but Safari requires a `<style>` tag, right?" — WebKit does not respect `scrollbar-width`/`::-webkit-scrollbar` via inline `style` attributes alone. This is governed by `CSPProvider`'s `nonce`/`disableStyleElements` — wrap the tree in `<CSPProvider nonce={...}>` under a strict Content-Security-Policy, or pass `disableStyleElements` and supply the `scrollbar-width: none`/`::-webkit-scrollbar{display:none}` rule yourself externally.
+
+### Keyboard scrolling stays fully native
+
+No keyboard event handling exists anywhere in `Scrollbar`/`Thumb` for arrow keys, Page Up/Down, Home/End, or Space — all keyboard scrolling works because the Viewport `<div>` is a real scrollable element the browser already handles once it's focused. This is precisely why the Viewport's `tabIndex` computation matters: a non-overflowing Viewport is deliberately taken **out** of the tab order (citing [accessibility-insights guidance](https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/) directly in source), and an overflowing one is kept **in** it. The Thumb and Scrollbar track are pointer-only convenience affordances — nothing makes them keyboard-focusable or keyboard-operable; a keyboard or screen-reader user scrolls via the native Viewport instead, which remains fully capable. This is genuinely decorative chrome over genuinely native semantics, not a gap papered over by ARIA roles that would misrepresent non-interactive `<div>`s as interactive widgets.
+
+### Both scrollbars and the Corner
+
+`orientation="horizontal"` on `Scrollbar` is the only way to get a horizontal scrollbar — there is no `orientation="both"`. Render two `<ScrollArea.Scrollbar>` elements, one per axis, plus a `<ScrollArea.Corner>` so the tracks don't intersect once both axes overflow.
+
+<Canvas of={ScrollAreaStories.BothAxesWithCorner} />
+
+<Canvas of={ScrollAreaStories.HorizontalOnly} />
+
+### Overflow-edge data attributes
+
+`data-has-overflow-x`/`-y` are static (is there any overflow on this axis at all); `data-overflow-x-start`/`-x-end`/`-y-start`/`-y-end` are dynamic — present only once the user has scrolled far enough from that specific edge, gated by `overflowEdgeThreshold` (default `0`). The matching CSS vars `--scroll-area-overflow-{x,y}-{start,end}` (pixel distance from each edge) are the mechanism behind gradient scroll-fade masks.
+
+<Canvas of={ScrollAreaStories.OverflowEdgeStyling} />
+
+## Examples
+
+<Canvas of={ScrollAreaStories.Hero} />
+
+## Keyboard & screen reader
+
+Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollbar decoration over native scroll." Root and Viewport both render `role="presentation"`; Scrollbar/Thumb/Corner carry no ARIA roles or states at all.
+
+| Key | Context | Result |
+|---|---|---|
+| Tab | closed track focus, Viewport overflows | Focuses the Viewport (`tabIndex={0}`) |
+| Arrow keys / Page Up/Down / Home/End / Space | Viewport focused | Native browser scrolling — not reimplemented by Scroll Area |
+| Tab | Viewport does not overflow | Skipped — `tabIndex={-1}`, kept out of tab order per accessibility-insights guidance |
+
+- **ARIA managed for you**: none, by deliberate design — the actual scrolling affordance and its accessible semantics belong entirely to the native, real `overflow: scroll` Viewport; Scrollbar/Thumb/Corner are purely visual/pointer-driven mirrors of what the browser already exposes correctly.
+- **Screen reader**: the Viewport is announced as a real scrollable region (native browser behavior); the Scrollbar/Thumb/Corner chrome is not announced at all, because it carries no role.
+- **You must provide**: visible `:focus-visible` styling on the Viewport, since it can enter the tab order.
+- **Known issues**: [G] the mined GitHub issues/discussions corpus has zero entries for this component (`research/c-components/scroll-area/brief.md` §7) — no open accessibility bug reports were found, but this reflects a search-budget gap as much as a genuinely quiet component, and neither can be ruled out from this pass alone.
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Root / Viewport / Scrollbar / Content | `data-scrolling` | a scroll is in progress on either axis (excludes programmatic scrolls — [#1908](https://github.com/mui/base-ui/pull/1908)) |
+| Root / Viewport / Content | `data-has-overflow-x` / `-y` | that axis has any overflow at all |
+| Viewport / Content | `data-overflow-x-start` / `-x-end` / `-y-start` / `-y-end` | the user has scrolled far enough from that edge (gated by `overflowEdgeThreshold`) |
+| Viewport (CSS vars) | `--scroll-area-overflow-{x,y}-{start,end}` | pixel distance from each edge — the gradient-scroll-fade mechanism |
+| Scrollbar | `data-orientation`, `data-hovering` | resolved axis / pointer is over the region (excludes touch) |
+| Thumb (CSS vars, via Scrollbar) | `--scroll-area-thumb-height` / `-width` | internal sizing plumbing |
+| Corner (CSS vars, via Root) | `--scroll-area-corner-height` / `-width` | reserved space so tracks don't overlap the corner |
+
+## Choosing the right props
+
+- **`overflowEdgeThreshold` (Root, default `0`)** — the only meaningfully configurable prop on Root; raise it to suppress edge-fade flicker on the very first pixel of scroll. Accepts a single number or a partial `{ xStart, xEnd, yStart, yEnd }` object.
+- **`orientation` (Scrollbar, default `'vertical'`)** — the only way to get a horizontal scrollbar; render a second `Scrollbar` for the other axis.
+- **`keepMounted` (Scrollbar, default `false`)** — set `true` to keep a currently-non-overflowing axis's Scrollbar/Thumb DOM present (still visually hidden until measured), needed for exit-transition styling or to avoid layout thrash when overflow toggles frequently.
+
+## Do / Don't
+
+**Do**
+
+- Render `<ScrollArea.Corner>` whenever both scrollbars are used, because it reserves the exact space needed to keep the two tracks from intersecting.
+- Wrap the tree in `<CSPProvider nonce={...}>` under a strict CSP, because the Viewport's scrollbar-hiding `<style>` tag is unavoidable (Safari does not support the alternative).
+
+**Don't**
+
+- Don't style `[data-scrolling]` expecting it to fire for an app-triggered scroll (e.g. a "scroll to top" button) — it's defined to track *user*-driven scrolling only ([#1908](https://github.com/mui/base-ui/pull/1908)).
+- Don't expect `Select.ScrollUpArrow`/`ScrollDownArrow` to combine with `ScrollArea.*` inside the same popup — they don't share any composition point; pick one scroll mechanism per popup.
+- Don't reach for Scroll Area to virtualize a huge list — it decorates a real, fully-rendered overflowing container, it does not manage which items exist in the DOM.
+
+## Decision log
+
+- **2024-11-05** — Scroll Area ships ([#665](https://github.com/mui/base-ui/pull/665), atomiks), closing mui/mui-x#649. Debated in review — oliviertassinari floated scoping it out of core into a premium tier; colmtuite pushed back: "It's just a basic building block of high-quality web dev… Very many web apps (Slack, Linear, Radix docs etc.) have custom scrollbars… We need it for our new docs (for the sidebar and code blocks)." It shipped in core.
+- **Safari forced the injected-`<style>` design** (same PR thread) — the origin of the CSP exception documented for this component.
+- **CSS variable inheritance disabled for performance** ([#3156](https://github.com/mui/base-ui/pull/3156), via `CSS.registerProperty`), with a Safari-specific correction ([#3208](https://github.com/mui/base-ui/pull/3208)) since WebKit doesn't support the same child-`inherit` opt-in.
+- **2026-03 ([#4220](https://github.com/mui/base-ui/pull/4220))** — focus-trap fix for a non-scrollable Viewport, verified via a `DialogRoot.test.tsx` addition — direct evidence of Dialog+ScrollArea composition being an actively maintained interop path.
+- **2026 ([#5099](https://github.com/mui/base-ui/pull/5099), most recent)** — thumb-drag divide-by-zero and per-scroll re-render fix.
+
+## Known issues & open questions
+
+- [G] `research/b-library-principles/_mining/discussions.md` has zero entries for scroll-area — no open accessibility or behavioral bug reports were surfaced in this pass. This is stated honestly as a search-budget limitation, not evidence the component is bug-free.
+
+## Related
+
+- For popup content that needs its own scroll mechanism, prefer composing `ScrollArea.*` as the *entire* scroll mechanism, not alongside Select's own scroll-arrow parts.
+- For CSP-constrained deployments, see the `CSPProvider` docs (`nonce`/`disableStyleElements`).
+
+## API reference
+
+### ScrollArea.Root
+
+<ArgTypes of={ScrollAreaStories.Hero} />
+
+*Per-part tables (`ScrollArea.Viewport`, `ScrollArea.Scrollbar`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/scroll-area](https://base-ui.com/react/components/scroll-area#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+scroll-area) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/scroll-area).*

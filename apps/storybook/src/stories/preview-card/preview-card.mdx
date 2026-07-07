@@ -1,0 +1,175 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (source, docs, tests, git history, 2 targeted upstream issue
+    lookups — research/c-components/preview-card/brief.md). Overlay decision guidance
+    from research/c-components/_clusters/overlays.md. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as PreviewCardStories from './preview-card.stories';
+
+<Meta of={PreviewCardStories} />
+
+# Preview Card
+
+A popup that appears when a link is hovered, showing a preview for sighted users.
+
+- **Import:** `import { PreviewCard } from '@base-ui/react/preview-card';`
+- **Parts:** 8 (`Root`, `Trigger`, `Portal`, `Backdrop`, `Positioner`, `Popup`, `Arrow`, `Viewport`) plus the `PreviewCard.createHandle()` factory — see Anatomy.
+- **Status:** Stable, no `[New]`/`[Preview]` tag.
+- **ARIA pattern:** none — there is no W3C APG pattern for a link-hover preview. This is a real-world pattern (Wikipedia, GitHub) rather than a codified ARIA role.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={PreviewCardStories.Hero} />
+
+## Features
+
+- **The trigger is always a link** — `PreviewCard.Trigger` renders an `<a>` unconditionally, because the whole pattern only makes sense when a real navigable destination exists.
+- **Focus opens it too, with the same delay as hover** — this is the one non-mouse modality Preview Card still supports (see How it works).
+- **No `Provider`** — unlike Tooltip, there is no shared cross-card delay-grouping mechanism; each `Trigger`'s `delay`/`closeDelay` is independent (see Related).
+- **Detached triggers and typed payloads** — `PreviewCard.createHandle<Payload>()` mirrors Tooltip's handle pattern for a Trigger that can't be nested inside its Root.
+- **Hoverable popup** — moving the pointer from the Trigger into the Popup keeps the card open, satisfying the WCAG 1.4.13 "hoverable" sub-requirement.
+
+## When to use
+
+- Showing a preview of what a **link** points to before the user commits to navigating — the canonical evidenced examples are Wikipedia-style article previews and GitHub-style profile/PR hover previews, both named directly by maintainers ([#4170](https://github.com/mui/base-ui/issues/4170), [#4778](https://github.com/mui/base-ui/issues/4778)) as the real-world precedent this component follows.
+- Multiple links on a page that should each preview differently, optionally sharing one popup instance via a `handle` for DOM-reuse.
+- When the destination page is itself the source of truth for everything in the preview — the popup is a convenience peek, never a place to put facts the user can only get by hovering.
+
+## When not to use
+
+Both Tooltip and Preview Card are hover/focus-only and sighted-only, never move focus into themselves, and never open on touch. The dividing line is the **trigger's element and purpose**, stated directly by a maintainer ([#4778](https://github.com/mui/base-ui/issues/4778), colmtuite): "The pattern is intended for links only, in both Base UI and Radix. … If you're not rendering a link, you should not use PreviewCard. Popover with `openOnHover` might be a good fit, depending on your use case."
+
+- **Preview Card's trigger is a link whose purpose is navigation** — the popup exists to preview *where that link goes* before the user commits to leaving the page.
+- **[Tooltip](?path=/docs/overlays-tooltip--docs)'s trigger is typically a non-link control** (a button/icon) whose purpose is unrelated to the tooltip content — the tooltip is a label for a tool, not the point of interacting with the trigger.
+- If touch/keyboard/screen-reader access to the content is **required**, use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover` instead — Popover supports every input modality and moves focus in; Preview Card by design never does either. Both [#4170](https://github.com/mui/base-ui/issues/4170) and [#4778](https://github.com/mui/base-ui/issues/4778) were closed as "use something else," not "we'll fix accessibility."
+
+## Anatomy
+
+```tsx
+import { PreviewCard } from '@base-ui/react/preview-card';
+
+<PreviewCard.Root>
+  <PreviewCard.Trigger />
+  <PreviewCard.Portal>
+    <PreviewCard.Backdrop />
+    <PreviewCard.Positioner>
+      <PreviewCard.Popup>
+        <PreviewCard.Arrow />
+        <PreviewCard.Viewport />
+      </PreviewCard.Popup>
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
+</PreviewCard.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `PreviewCard.Root` | no element | Groups all parts; owns open state | required |
+| `PreviewCard.Trigger` | `<a>` | A link that opens the preview card; carries `delay`/`closeDelay`/`payload` | required in practice |
+| `PreviewCard.Portal` | portal | Moves the popup subtree to `<body>`; required for the popup to render at all | required |
+| `PreviewCard.Backdrop` | `<div>` | Presentational overlay beneath the popup — a sibling of Positioner, not a wrapper around it | yes |
+| `PreviewCard.Positioner` | `<div>` | Positions the popup against the trigger | required |
+| `PreviewCard.Popup` | `<div>` | Container for the preview card contents — carries no ARIA role | required |
+| `PreviewCard.Arrow` | `<div>` | Visual pointer at the anchor | yes |
+| `PreviewCard.Viewport` | `<div>` | Content-transition container — only needed when one popup serves multiple triggers with animated content swaps | yes |
+| `PreviewCard.createHandle<P>()` | — | Factory returning a handle: connect detached triggers and Roots | yes |
+
+**No `Provider` part exists** — confirmed by the source tree (no `provider/` directory, no `Provider` export in `index.parts.ts`). If a page has ten Preview Card triggers, hovering the second one within the first one's close-delay window does not get a shortened/instant open the way grouped tooltips do — each `PreviewCard.Root` (or handle-backed cluster) tracks its own delay state independently.
+
+## How it works
+
+### Hover opens after a delay — and so does focus
+
+`packages/react/src/preview-card/utils/constants.ts` defines `OPEN_DELAY = 600` and `CLOSE_DELAY = 300`, both re-exported as `@default` JSDoc on `Trigger.delay`/`.closeDelay`. **Both props live on `Trigger`, not `Root`** (moved there in [#3182](https://github.com/mui/base-ui/pull/3182)) — reinforcing that there is no shared/Provider-level delay the way Tooltip has.
+
+Focus opens the card too, with the **same delay** as hover — `useFocus(floatingRootContext, { delay })` is wired unconditionally alongside the hover interaction, and `PreviewCardRoot.test.tsx` has dedicated tests ("should open when the trigger is focused" / "should close when the trigger is blurred") pinning this. This means a sighted keyboard user tabbing through links does get the preview card, subject to the same 600ms delay — it is only touch and screen-reader/AT users who are excluded by design (see Keyboard & screen reader).
+
+<Canvas of={PreviewCardStories.KeyboardFocusOpen} />
+
+### Touch never opens it
+
+No touch-specific interaction hook is wired in `PreviewCardTrigger.tsx` — `mouseOnly: true` on the hover interaction is the direct code-level confirmation. Maintainer confirmation, twice: "with *touch* or *keyboard* modalities, it's as if the component doesn't exist" ([#4778](https://github.com/mui/base-ui/issues/4778), referring to touch specifically — keyboard focus does work, per above). A user-facing bug report asking for touch parity with Radix's hover-card was closed as expected behavior in both [#4170](https://github.com/mui/base-ui/issues/4170) and [#4778](https://github.com/mui/base-ui/issues/4778).
+
+### Positioning
+
+All positioning lives on the Positioner: `side`, `align`, `sideOffset`. `PreviewCard.Arrow`'s `data-side` attribute drives the rotation.
+
+<Canvas of={PreviewCardStories.PositioningWithArrow} />
+
+## Examples
+
+<Canvas of={PreviewCardStories.Hero} />
+
+## Keyboard & screen reader
+
+Pattern: **none** — there is no W3C APG pattern for a link-hover preview (unlike Select→Combobox or Dialog→Dialog). This is a design pattern seen on real sites (Wikipedia, GitHub) rather than a codified ARIA role/pattern.
+
+| Key / action | Context | Result |
+|---|---|---|
+| Tab to focus the trigger | closed | Opens after `delay` (default `600ms`) — same delay as hover |
+| Shift+Tab / Tab away (blur) | open | Closes |
+| Enter | trigger focused | Native `<a>` activation — navigates to `href`; not intercepted |
+| Escape | open | Closes; can reopen on a fresh hover/focus afterward |
+| Touch tap on trigger | any | **Never opens** the card |
+
+- **ARIA managed for you**: none — a total absence, verified by grepping the entire `packages/react/src/preview-card/` tree: the only hits are `PreviewCard.Arrow`'s `aria-hidden` (decorative) and `PreviewCard.Backdrop`'s `role="presentation"`. **No `role="tooltip"`, no `role="dialog"`, no `aria-describedby`/`aria-expanded`/`aria-haspopup`** anywhere.
+- **Screen reader**: a screen reader user tabbing to the trigger hears only the link's own accessible name/href — nothing about the popup's existence or content. This is the intended, maintainer-confirmed behavior, not a bug.
+- **You must provide**: nothing extra for the trigger's own accessible name (it's a real link), but never put content in the popup that isn't also reachable at the link's destination — that's the whole accessibility contract.
+- **Known issues**: [#4170](https://github.com/mui/base-ui/issues/4170) ("no a11y warning in the docs") — closed, resolved by adding a Usage guidelines section and underlining demo links, not by changing the accessibility model. [#4778](https://github.com/mui/base-ui/issues/4778) ("Touch support") — closed as expected/by-design.
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Trigger | `data-popup-open` | the only trigger data attribute — no `data-pressed`-style richness, because the trigger is a plain link |
+| Popup / Arrow / Backdrop / Positioner | `data-open` / `data-closed`, `data-starting-style` / `data-ending-style`, `data-side` / `data-align` (not on Backdrop), `data-anchor-hidden` (Positioner), `data-uncentered` (Arrow) | open state / transition frames / resolved placement |
+| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin`, `--positioner-width/height` | while positioned |
+| Viewport (CSS vars) | `--popup-width/height` | on the "previous" content container during a transition |
+
+## Choosing the right props
+
+- **`Trigger.delay` (default `600`) / `.closeDelay` (default `300`)** — the only delay knobs, since there is no Provider; set per-trigger when different links warrant different hover patience.
+- **`handle` (Root + Trigger, via `PreviewCard.createHandle<P>()`)** — reach for this only when a Trigger cannot be practically nested inside its Root, or when several distant links should share one popup.
+- **`Trigger.href`** — always give the Trigger a real `href`; every test fixture, docs demo, and maintainer statement treats it as expected in practice even though it's not required at the type level.
+
+## Do / Don't
+
+**Do**
+
+- Always give `PreviewCard.Trigger` an `href` and let it render its default `<a>`, because the pattern is links-only in both Base UI and Radix.
+- Make sure everything inside the Popup also exists at the link's destination, because that redundancy is the entire accessibility justification for the component.
+
+**Don't**
+
+- Don't reach for Preview Card when there's no real link — use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover` instead ([#4778](https://github.com/mui/base-ui/issues/4778)).
+- Don't expect a second preview card to open instantly the way grouped tooltips do — there is no Provider/shared-delay part for Preview Card.
+- Don't rely on Preview Card for content a touch or screen-reader user must reach — it is excluded by design, confirmed twice by maintainers ([#4170](https://github.com/mui/base-ui/issues/4170), [#4778](https://github.com/mui/base-ui/issues/4778)).
+
+## Decision log
+
+- **Introducing commit** — `00aebe315` "[PreviewCard] Create new component" ([#469](https://github.com/mui/base-ui/pull/469)).
+- **`[preview card] Move delay props to trigger`** ([#3182](https://github.com/mui/base-ui/pull/3182)) — the load-bearing decision cementing the "no shared/Provider-level delay" shape.
+- **`[preview card] Support detached triggers`** ([#3566](https://github.com/mui/base-ui/pull/3566)) — introduced the Handle/detached-trigger pattern.
+- **mui/base-ui#4170 (closed, docs-only fix)** — accessibility-warning-in-docs request; resolved by adding a Usage guidelines section and underlining demo links, not by changing behavior.
+- **mui/base-ui#4778 (closed, no change)** — touch-support request; closed as expected behavior, with Popover(`openOnHover`) named as the correct alternative.
+
+## Known issues & open questions
+
+- [G] No further open accessibility issues were found beyond [#4170](https://github.com/mui/base-ui/issues/4170)/[#4778](https://github.com/mui/base-ui/issues/4778) within this pass's mining budget (both confirmed as the only two issue numbers indexed for preview-card in the mined discussions corpus).
+
+## Related
+
+- To label a control whose **own action** is the point, use [Tooltip](?path=/docs/overlays-tooltip--docs) — sighted-hover-only hint, no link required.
+- For **essential or interactive** anchored content reachable by every modality, use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover`.
+- Cluster-wide overlay decision guidance: `research/c-components/_clusters/overlays.md`.
+
+## API reference
+
+### PreviewCard.Root
+
+<ArgTypes of={PreviewCardStories.Hero} />
+
+*Per-part tables (`PreviewCard.Trigger`, `PreviewCard.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/preview-card](https://base-ui.com/react/components/preview-card#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+preview-card) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/preview-card).*
