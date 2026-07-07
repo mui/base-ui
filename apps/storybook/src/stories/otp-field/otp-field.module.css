@@ -114,3 +114,33 @@
     color: oklch(70.8% 0 0deg);
   }
 }
+
+.Row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+.CheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}

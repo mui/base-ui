@@ -1,5 +1,3 @@
-{/* Evidence tier: Tier 2 lean-plus (research/c-components/otp-field/brief.md). Sections pending the full Tier-1 sweep carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as OTPFieldStories from './otp-field.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -96,6 +94,54 @@ All slots share one contiguous string value under the hood (`value[index]` per s
 <Canvas of={OTPFieldStories.FormSubmit} />
 
 The full value is carried by a hidden, `aria-hidden` validation `<input type="text">` rendered as a sibling of the visible slots — carrying `pattern`/`minLength`/`maxLength`/`name`/`form`/`autoComplete`/`inputMode` derived from `length` and `validationType`. This is the element real password-manager/SMS autofill actually targets, and the same "hidden input carries native semantics" pattern used by [Number Field](?path=/docs/form-inputs-number-field--docs) and [Slider](?path=/docs/form-inputs-slider--docs).
+
+### `autoSubmit` and native validation
+
+<Canvas of={OTPFieldStories.FormSubmitWithAutoSubmit} />
+
+`autoSubmit` calls `form.requestSubmit()` the moment the code completes — but that's native form submission, so it still respects every field's native validity. An unrelated invalid sibling (here, an unchecked `required` checkbox) blocks it and receives focus, exactly like a manual submit click would.
+
+### Masked slots
+
+<Canvas of={OTPFieldStories.MaskedVariant} />
+
+`mask` renders each slot as `type="password"`. Confirmed live in this story's own play function: a `type="password"` input has **no implicit ARIA role at all**, so `getByRole('textbox')` cannot find a masked slot — querying must fall back to the tag itself. What a screen reader announces for a masked slot still needs independent verification.
+
+### Rejected characters
+
+<Canvas of={OTPFieldStories.InvalidCharacterFeedback} />
+
+The default `validationType="numeric"` rejects non-digit characters outright (the slot stays unchanged), and `onValueInvalid` fires with the raw rejected string — the same signal `demos/custom-sanitize`'s `useInvalidFeedback` pattern is built on.
+
+### `Field` integration
+
+<Canvas of={OTPFieldStories.FieldValidation} />
+
+The root registers with a surrounding `Field.Root` the same way Number Field and Slider do. `data-valid`/`data-invalid` land on `OTPField.Root` itself (which renders `role="group"`), and `Field.Error` renders from `validate`.
+
+### Disabled and read-only
+
+<Canvas of={OTPFieldStories.DisabledAndReadOnly} />
+
+`disabled` makes every slot a real native `disabled` input — unfocusable entirely. `readOnly` preserves ArrowLeft/Right/Home/End/Up/Down navigation (the top-level `onKeyDown` guard only checks `disabled`, not `readOnly`) while blocking Backspace/Delete/typing/paste from changing the value.
+
+### Grouped layout with a Separator
+
+<Canvas of={OTPFieldStories.GroupedWithSeparator} />
+
+Slots can be nested in arbitrary DOM structure — here two plain `<div>` groups split by `OTPField.Separator`. The `CompositeList` tracks logical slot order independently of DOM sibling structure, so typing still auto-advances focus across the group boundary. Recreates `demos/grouped`.
+
+### Alphanumeric codes
+
+<Canvas of={OTPFieldStories.Alphanumeric} />
+
+`validationType="alphanumeric"` accepts both letters and digits, unlike the `"numeric"` default. Recreates `demos/alphanumeric`.
+
+### Custom length
+
+<Canvas of={OTPFieldStories.CustomLength} />
+
+`length` isn't hardcoded to 6 — any positive integer works, here a 4-character PIN.
 
 ## Keyboard & screen reader
 

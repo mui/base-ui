@@ -163,9 +163,7 @@ export const ScrubArea: Story = {
     const box = scrubArea.getBoundingClientRect();
     const start = { clientX: box.left + box.width / 2, clientY: box.top + box.height / 2 };
 
-    scrubArea.dispatchEvent(
-      new PointerEvent('pointerdown', { bubbles: true, ...start }),
-    );
+    scrubArea.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, ...start }));
     scrubArea.dispatchEvent(
       new PointerEvent('pointermove', {
         bubbles: true,

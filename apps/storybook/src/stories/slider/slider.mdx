@@ -1,5 +1,3 @@
-{/* Evidence tier: Tier 2 lean-plus (research/c-components/slider/brief.md). Sections pending the full Tier-1 sweep carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SliderStories from './slider.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -95,6 +93,56 @@ Passing an array `value`/`defaultValue` puts the slider into range mode — one 
 <Canvas of={SliderStories.FormIntegration} />
 
 Each Thumb's nested native `<input type="range">` carries `name`/`form`/`min`/`max`/`step` directly, so a single-thumb slider participates in native form submission with zero extra machinery.
+
+### Keyboard stepping, the full contract
+
+<Canvas of={SliderStories.KeyboardStepping} />
+
+ArrowRight/Left step by `step`; Shift+Arrow and PageUp/PageDown both step by `largeStep`, always; Home/End jump to `min`/`max`. Every keyboard change commits immediately.
+
+### `minStepsBetweenValues` also gates the keyboard path
+
+<Canvas of={SliderStories.MinStepsBetweenValues} />
+
+`minStepsBetweenValues` is enforced by `handleInputChange`'s own `validateMinimumDistance` check, so it applies to keyboard stepping too, not only pointer drag — a rejected change leaves the value untouched rather than partially applying it.
+
+### RTL: the physical direction flip
+
+<Canvas of={SliderStories.RTL} />
+
+In RTL, ArrowRight still visually advances the thumb rightward, but the *underlying numeric value decreases* — `getNewValue` is called with a flipped direction sign. This is the easy-to-miss half of the RTL contract (the purely visual `dir="rtl"` + `DirectionProvider` pairing is shown without a play in `direction-provider.stories.tsx`).
+
+### Controlled value, with `onValueCommitted` tracked separately
+
+<Canvas of={SliderStories.ControlledValueWithCommit} />
+
+A fully controlled slider (`value` + `onValueChange`) with `onValueCommitted` tracked in a separate counter. For keyboard interactions the two fire 1:1; a drag would fire `onValueChange` continuously but `onValueCommitted` only once, on release.
+
+### `Field` integration
+
+<Canvas of={SliderStories.FieldIntegration} />
+
+The slider registers with a surrounding `Field.Root` the same way Number Field does. `data-valid`/`data-invalid` land on every part's own host element — including Thumb's outer `<div>`, not the nested `role="slider"` `<input>` itself.
+
+### Marks (a hand-composed recipe, not a built-in feature)
+
+<Canvas of={SliderStories.CustomMarks} />
+
+Recreates the `DelayUntilRepeat` pattern from `experiments/slider/slider.tsx`: plain `<span>` marks as flex children of `Track`, laid out with `justify-content: space-between`. `Indicator`/`Thumb` stay absolutely positioned by the library, so they layer over the marks without conflict.
+
+### Formatted value and a custom `aria-valuetext`
+
+<Canvas of={SliderStories.FormattedValueWithGetAriaValueText} />
+
+`Slider.Value`'s `format`/`locale` (read from `Slider.Root`) drive the visible readout; `Slider.Thumb`'s `getAriaValueText` can produce a more meaningful screen-reader announcement than the raw formatted number.
+
+### Disabled
+
+<Canvas of={SliderStories.DisabledState} />
+
+`data-disabled` lands on every part, and the nested `<input type="range">` gets a real native `disabled` attribute — genuinely excluded from the Tab order, unlike Number Field's stepper buttons which use `aria-disabled` to stay focusable.
+
+**Not covered this round (honesty note)**: `thumbCollisionBehavior` (`push`/`swap`/`none`) and the track-press-vs-drag `data-dragging` contrast both require a real, multi-step pointer-drag sequence with precise coordinate math to exercise meaningfully — verified from source, `thumbCollisionBehavior`'s `resolveThumbCollision` is only invoked from `SliderControl`'s pointer path, never from the keyboard path (`handleInputChange` only calls `validateMinimumDistance`, so keyboard stepping behaves like `"none"` regardless of the prop). Same for `thumbAlignment="edge"`'s real layout-measurement (`getBoundingClientRect`) contrast. All three are left as a follow-up rather than risking a flaky drag simulation in this pass.
 
 ## Keyboard & screen reader
 

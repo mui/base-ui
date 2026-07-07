@@ -126,3 +126,57 @@
     color: oklch(70.8% 0 0deg);
   }
 }
+
+.Row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+/* Adapted from docs/src/app/(private)/experiments/slider/slider.tsx's `DelayUntilRepeat` pattern:
+   marks are hand-composed `<span>` children of `Track`, positioned via flex, since the library
+   dropped the legacy `Mark`/`marks` API (#373). Indicator/Thumb stay absolutely positioned by
+   the library, so they layer over the flex-laid-out marks without conflict. */
+.MarksTrack {
+  width: 100%;
+  height: 0.25rem;
+  background-color: oklch(92.2% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.Mark {
+  z-index: 0;
+  width: 1px;
+  height: 100%;
+  background-color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(70.8% 0 0deg);
+  }
+}
