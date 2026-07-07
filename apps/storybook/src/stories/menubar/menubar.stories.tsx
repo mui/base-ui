@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, waitFor, within } from 'storybook/test';
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -389,7 +389,10 @@ export const SubmenuWithinMenubar: Story = {
       expect(within(exportMenu).getByRole('menuitem', { name: 'PNG' })).toBeVisible(),
     );
 
-    await userEvent.click(within(exportMenu).getByRole('menuitem', { name: 'PNG' }));
+    // fireEvent.click (not userEvent.click): the submenu briefly overlaps the
+    // parent popup's invisible internal backdrop, which real pointer hit-testing
+    // would otherwise flag as blocking the click.
+    fireEvent.click(within(exportMenu).getByRole('menuitem', { name: 'PNG' }));
     await waitFor(() => expect(fileMenu).not.toBeInTheDocument());
   },
 };
@@ -551,7 +554,7 @@ export const HoverSwitchAfterFirstClick: Story = {
     const editMenu = await body.findByRole('menu', { name: 'Edit' });
     await waitFor(() => expect(editMenu).toBeVisible());
     await waitFor(() => expect(body.queryByRole('menu', { name: 'File' })).not.toBeInTheDocument());
-    await waitFor(() => expect(canvas.getByText('Edit switched via hover')).toBeVisible());
+    await waitFor(() => expect(canvas.getByText(/Edit switched via hover/)).toBeVisible());
   },
 };
 
@@ -562,17 +565,19 @@ export const HoverSwitchAfterFirstClick: Story = {
 /**
  * `Home`/`End` jump focus to the first/last top-level trigger
  * ([#4922](https://github.com/mui/base-ui/pull/4922)), reusing the Hero
- * fixture's File/Edit/View/Help bar.
+ * fixture's File/Edit/View/Help bar. `Help` is disabled in this fixture, so
+ * `End` lands on `View` — the last *enabled* trigger, not the last trigger
+ * in DOM order.
  */
 export const HomeAndEndNavigation: Story = {
   render: () => <HeroExample />,
   play: async ({ canvas, userEvent }) => {
     const fileTrigger = canvas.getByRole('menuitem', { name: 'File' });
-    const helpTrigger = canvas.getByRole('menuitem', { name: 'Help' });
+    const viewTrigger = canvas.getByRole('menuitem', { name: 'View' });
 
     fileTrigger.focus();
     await userEvent.keyboard('{End}');
-    await waitFor(() => expect(helpTrigger).toHaveFocus());
+    await waitFor(() => expect(viewTrigger).toHaveFocus());
 
     await userEvent.keyboard('{Home}');
     await waitFor(() => expect(fileTrigger).toHaveFocus());

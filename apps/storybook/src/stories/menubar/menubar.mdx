@@ -152,6 +152,53 @@ and open the adjacent top-level trigger's submenu in one step:
 
 <Canvas of={MenubarStories.DisabledCascade} />
 
+### Vertical orientation
+
+`orientation="vertical"` switches the roving-focus axis and, since
+[#4922](https://github.com/mui/base-ui/pull/4922), defaults hosted popups to the
+`inline-end` side instead of `bottom`:
+
+<Canvas of={MenubarStories.VerticalOrientation} />
+
+### loopFocus
+
+<Canvas of={MenubarStories.LoopFocusToggle} />
+
+### Submenu within a menubar-hosted menu
+
+<Canvas of={MenubarStories.SubmenuWithinMenubar} />
+
+### Checkbox and radio items inside a menubar-hosted menu
+
+<Canvas of={MenubarStories.CheckboxAndRadioItemsInMenubar} />
+
+### Hover-switch only after the first click
+
+A trigger's effective `openOnHover` is `false` until some sibling submenu is
+already open — hovering does nothing pre-click, but once a trigger has been
+clicked open, hovering the others switches without another click:
+
+<Canvas of={MenubarStories.HoverSwitchAfterFirstClick} />
+
+### Home/End navigation
+
+<Canvas of={MenubarStories.HomeAndEndNavigation} />
+
+### Menubar vs Toolbar
+
+`isInMenubar` and `insideToolbar` are two independent context checks — a Toolbar
+may embed a single menu-triggered button without ever becoming a Menubar:
+
+<Canvas of={MenubarStories.ToolbarContrastSideBySide} />
+
+### RTL — an honest gap
+
+No RTL-specific tests exist for Menubar's horizontal-orientation arrow-key
+direction. This story has no `play` function deliberately — its correctness is
+unverified upstream, not a guarantee:
+
+<Canvas of={MenubarStories.RTLGapHonestyNote} />
+
 ## Keyboard & screen reader
 
 | Key                                                                       | Context                           | Action                                                                                    |

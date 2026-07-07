@@ -159,6 +159,56 @@ the destructive action behind a typed confirmation phrase:
 
 <Canvas of={AlertDialogStories.FormWithConfirmation} />
 
+### Cross-type nesting: AlertDialog inside a Dialog
+
+A regular, dismissible Dialog for the main flow, guarded by a controlled AlertDialog
+that opens if the user tries to close a dirty form — the canonical "close
+confirmation" pattern. The nested AlertDialog still counts toward the parent's
+`[data-nested-dialog-open]` machinery even though it's a different component type:
+
+<Canvas of={AlertDialogStories.NestedCloseConfirmation} />
+
+### Controlled mode and opening from elsewhere
+
+`open`/`onOpenChange` work with no `AlertDialog.Trigger` at all:
+
+<Canvas of={AlertDialogStories.ControlledMode} />
+
+Opening from a `Menu.Item`'s `onClick` is a documented composition, identical to
+Dialog's "Open from a menu" pattern:
+
+<Canvas of={AlertDialogStories.TriggerFromMenu} />
+
+### Exit animation
+
+`onOpenChangeComplete` fires once a CSS transition genuinely finishes — the popup
+stays mounted through the exit transition:
+
+<Canvas of={AlertDialogStories.ExitAnimation} />
+
+### Custom render composition
+
+`render` composes both the Trigger (a custom button component) and the Popup (a
+native `<section>` instead of the default `<div>`) while every AlertDialog behavior
+is preserved unchanged:
+
+<Canvas of={AlertDialogStories.CustomRenderComposition} />
+
+### Esc closes and returns focus
+
+Esc is the one dismissal path still open — closing via Esc restores focus to the
+Trigger that opened the dialog:
+
+<Canvas of={AlertDialogStories.EscFocusReturn} />
+
+### Handle + payload reused across many triggers
+
+One `AlertDialog.createHandle<Payload>()` shared by many detached triggers, each
+with its own `payload` — a single confirmation instance reused across a list of
+delete buttons:
+
+<Canvas of={AlertDialogStories.HandleWithPayload} />
+
 ## Keyboard & screen reader
 
 | Key                              | Action                                                                                                              |

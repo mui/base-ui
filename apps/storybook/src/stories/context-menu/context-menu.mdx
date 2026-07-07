@@ -160,6 +160,48 @@ identical rule Menu documents for itself:
 
 <Canvas of={ContextMenuStories.CheckboxAndRadioItems} />
 
+### Custom anchor override
+
+An explicit `anchor` prop on `Positioner` always wins over the automatic
+pointer-derived anchor — a fix landed by
+[#3202](https://github.com/mui/base-ui/pull/3202), not the original behavior:
+
+<Canvas of={ContextMenuStories.CustomAnchorOverride} />
+
+### Disabled trigger — native menu restored
+
+`disabled` restores native OS behavior completely, not just "no Base UI popup":
+
+<Canvas of={ContextMenuStories.DisabledTrigger} />
+
+### Long-press on touch
+
+<Canvas of={ContextMenuStories.LongPressDescription} />
+
+### Group labels
+
+`Group` + `GroupLabel` are direct re-exports of the Menu parts:
+
+<Canvas of={ContextMenuStories.GroupLabels} />
+
+### Link items
+
+`LinkItem` is a direct re-export of `Menu.LinkItem` — a real `<a href>` carrying
+`role="menuitem"`:
+
+<Canvas of={ContextMenuStories.LinkItems} />
+
+### Mixed `Menu.*`/`ContextMenu.*` composition
+
+Bare `Menu.*` parts nested directly inside a `ContextMenu.Popup` — proof the
+re-exported parts genuinely interchange:
+
+<Canvas of={ContextMenuStories.MixedMenuPartsComposition} />
+
+### `closeOnClick` configuration
+
+<Canvas of={ContextMenuStories.CloseOnClickConfiguration} />
+
 ## Keyboard & gesture reference
 
 | Key / gesture                                         | Context      | Action                                                                                                                                        |

@@ -271,7 +271,7 @@ function CustomAnchorOverrideExample() {
  */
 export const CustomAnchorOverride: Story = {
   render: () => <CustomAnchorOverrideExample />,
-  play: async ({ canvas, canvasElement, userEvent }) => {
+  play: async ({ canvas, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByTestId('trigger');
     const marker = canvas.getByTestId('marker');
