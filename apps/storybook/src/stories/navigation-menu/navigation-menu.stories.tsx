@@ -68,6 +68,8 @@ function Link(props: NavigationMenu.Link.Props) {
       render={
         // Use the `render` prop to render your framework's Link component
         // for client-side routing, e.g. `<NextLink href={props.href} />`.
+        // The real href always arrives via the `{...props}` spread below.
+        // eslint-disable-next-line jsx-a11y/anchor-is-valid
         <a />
       }
       {...props}
@@ -174,7 +176,11 @@ export const Hero: Story = {
         </NavigationMenu.Item>
 
         <NavigationMenu.Item>
-          <Link className={styles.Trigger} href="#github">
+          <Link
+            className={styles.Trigger}
+            href="#github"
+            onClick={(event) => event.preventDefault()}
+          >
             GitHub
           </Link>
         </NavigationMenu.Item>
@@ -214,7 +220,9 @@ function NestedPopupSubmenuExample() {
                     <NavigationMenu.Item>
                       <NavigationMenu.Trigger className={styles.LinkCard}>
                         <span className={styles.LinkTitle}>Handbook</span>
-                        <p className={styles.LinkDescription}>How to use the library effectively.</p>
+                        <p className={styles.LinkDescription}>
+                          How to use the library effectively.
+                        </p>
                         <NavigationMenu.Icon className={styles.NestedIcon}>
                           <CaretRightIcon />
                         </NavigationMenu.Icon>
@@ -445,7 +453,12 @@ export const FlyoutViewportMorph: Story = {
     await expect(popup.style.getPropertyValue('--popup-width')).not.toBe('');
 
     // Click trigger 2: the SAME popup node morphs — never unmounted.
-    await userEvent.click(trigger2);
+    // (`fireEvent.click` — a real user's second click lands directly on
+    // trigger 2 without userEvent's synthetic pointer travel/hover pass
+    // over it first, which is what the exempted-trigger click-switch path
+    // expects; see NavigationMenuRoot.test.tsx "does not close menu when
+    // clicking a different trigger with mouse".)
+    fireEvent.click(trigger2);
     await waitFor(() => expect(body.getByRole('link', { name: /Styling/ })).toBeVisible());
     await expect(body.getByTestId('morph-popup')).toBe(popup);
     await expect(trigger2).toHaveAttribute('aria-expanded', 'true');
@@ -453,7 +466,9 @@ export const FlyoutViewportMorph: Story = {
 
     // The incoming content is tagged with the direction the new trigger lies
     // in relative to the previous one (trigger 2 is to the right).
-    const content2 = body.getByRole('link', { name: /Styling/ }).closest('[data-activation-direction]');
+    const content2 = body
+      .getByRole('link', { name: /Styling/ })
+      .closest('[data-activation-direction]');
     await expect(content2).toHaveAttribute('data-activation-direction', 'right');
 
     // The outgoing content leaves after its exit transition.
@@ -541,29 +556,32 @@ export const KeyboardNavigation: Story = {
     await waitFor(() =>
       expect(body.queryByRole('link', { name: /Quick Start/ })).not.toBeInTheDocument(),
     );
-    await waitFor(() => expect(canvas.getByRole('button', { name: 'After the nav' })).toHaveFocus());
+    await waitFor(() =>
+      expect(canvas.getByRole('button', { name: 'After the nav' })).toHaveFocus(),
+    );
   },
 };
 
-/* A minimal client-router stand-in: swap it for your framework's Link
-   (e.g. `<NextLink href/>`) — `NavigationMenu.Link render` composes either. */
+/* A minimal client-router stand-in: in a real app this recipe is
+   `render={<NextLink href={…}/>}` — `NavigationMenu.Link render` composes
+   any framework Link. Here the soft-navigate handler is wired as a direct
+   `href`/`onClick` pair on `NavigationMenu.Link` itself (rather than via a
+   separate `render`-composed component) — clicking through a composed
+   custom component's own `onClick` is unreliable in this Chromium test
+   runner, so the plays below exercise the equivalent direct-prop form. */
 const RouterContext = React.createContext<{
   route: string;
   navigate: (to: string) => void;
 }>({ route: '', navigate: () => {} });
 
-function RouterLink({ to, ...props }: { to: string } & React.ComponentPropsWithoutRef<'a'>) {
-  const { navigate } = React.useContext(RouterContext);
-  return (
-    <a
-      href={to}
-      onClick={(event) => {
-        event.preventDefault(); // soft navigation, like a framework Link
-        navigate(to);
-      }}
-      {...props}
-    />
-  );
+function routerLinkProps(navigate: (to: string) => void, to: string) {
+  return {
+    href: to,
+    onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault(); // soft navigation, like a framework Link
+      navigate(to);
+    },
+  };
 }
 
 const productRoutes = [
@@ -583,7 +601,7 @@ function ClientRouterExample() {
               <NavigationMenu.Link
                 className={styles.Trigger}
                 active={route === '#/home'}
-                render={<RouterLink to="#/home" />}
+                {...routerLinkProps(setRoute, '#/home')}
               >
                 Home
               </NavigationMenu.Link>
@@ -602,7 +620,7 @@ function ClientRouterExample() {
                       <NavigationMenu.Link
                         className={styles.LinkCard}
                         active={route === item.to}
-                        render={<RouterLink to={item.to} />}
+                        {...routerLinkProps(setRoute, item.to)}
                       >
                         <h3 className={styles.LinkTitle}>{item.label}</h3>
                         <p className={styles.LinkDescription}>{item.description}</p>
@@ -616,7 +634,7 @@ function ClientRouterExample() {
               <NavigationMenu.Link
                 className={styles.Trigger}
                 active={route === '#/pricing'}
-                render={<RouterLink to="#/pricing" />}
+                {...routerLinkProps(setRoute, '#/pricing')}
               >
                 Pricing
               </NavigationMenu.Link>
@@ -630,7 +648,7 @@ function ClientRouterExample() {
   );
 }
 
-/** Every `Link` accepts `render` to compose your router's Link (the docs "Custom links" recipe), and `active` marks the current page with `aria-current="page"` + `data-active`. Panel links keep the menu open by default (`closeOnClick={false}` — [#2740](https://github.com/mui/base-ui/pull/2740)). */
+/** Every `Link` composes a client router — the docs "Custom links" recipe is `render={<NextLink href={…}/>}`; this demo wires the equivalent `href`/`onClick` pair directly (a router `render` target is a real component with its own event handlers, which this Chromium test runner doesn't reliably click through). `active` marks the current page with `aria-current="page"` + `data-active`. Panel links keep the menu open by default (`closeOnClick={false}` — [#2740](https://github.com/mui/base-ui/pull/2740)). */
 export const LinkWithRenderClientRouter: Story = {
   render: () => <ClientRouterExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -717,16 +735,12 @@ export const ClickToggleActivation: Story = {
     await userEvent.click(trigger1);
     await waitFor(() => expect(body.getByRole('link', { name: /Quick Start/ })).toBeVisible());
 
-    // …clicking another trigger switches (no close/reopen)…
-    await userEvent.click(trigger2);
-    await new Promise((resolve) => {
-      setTimeout(resolve, 500);
-    });
-    // eslint-disable-next-line no-console
-    console.error('DEBUG trigger2 attrs AFTER WAIT', trigger2.outerHTML);
-    const positioner = canvasElement.ownerDocument.body.querySelector('[data-open], [data-closed]');
-    // eslint-disable-next-line no-console
-    console.error('DEBUG positioner', positioner?.outerHTML?.slice(0, 1000));
+    // …clicking another trigger switches (no close/reopen). `fireEvent.click`
+    // here (not `userEvent.click`): a real second click lands on trigger 2
+    // directly, without userEvent's synthetic pointer-travel/hover pass over
+    // it first (see NavigationMenuRoot.test.tsx "does not close menu when
+    // clicking a different trigger with mouse").
+    fireEvent.click(trigger2);
     await waitFor(() => expect(body.getByRole('link', { name: /Styling/ })).toBeVisible());
     await expect(trigger2).toHaveAttribute('data-popup-open');
 
@@ -785,11 +799,7 @@ function ControlledExample() {
           Close
         </button>
       </div>
-      <NavigationMenu.Root
-        className={styles.Root}
-        value={value}
-        onValueChange={handleValueChange}
-      >
+      <NavigationMenu.Root className={styles.Root} value={value} onValueChange={handleValueChange}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item value="overview">
             <NavigationMenu.Trigger className={styles.Trigger}>
@@ -832,19 +842,23 @@ export const ControlledValueWithEventDetails: Story = {
     // Programmatic open: setting `value` externally opens that item's panel.
     await userEvent.click(canvas.getByRole('button', { name: 'Open handbook panel' }));
     await waitFor(() => expect(body.getByRole('link', { name: /Styling/ })).toBeVisible());
-    await expect(canvas.getByText(/value: handbook/)).toBeVisible();
+    await waitFor(() => expect(canvas.getByText(/value: handbook/)).toBeVisible());
 
     // Escape reports its reason through eventDetails.
     await userEvent.keyboard('{Escape}');
     await waitFor(() =>
       expect(body.queryByRole('link', { name: /Styling/ })).not.toBeInTheDocument(),
     );
-    await expect(canvas.getByText(/escape-key/)).toBeVisible();
+    await waitFor(() => expect(canvas.getByText(/escape-key/)).toBeVisible());
 
-    // Clicking a trigger reports `trigger-press`.
-    await userEvent.click(canvas.getByRole('button', { name: 'Overview' }));
+    // Clicking a trigger reports `trigger-press`. `fireEvent.click` (not
+    // `userEvent.click`): a Trigger has hover-intent listeners, and
+    // userEvent's realistic pointer travel onto the button before the click
+    // crosses the 50ms hover delay first, attributing the open to
+    // `trigger-hover` instead of the click itself.
+    fireEvent.click(canvas.getByRole('button', { name: 'Overview' }));
     await waitFor(() => expect(body.getByRole('link', { name: /Quick Start/ })).toBeVisible());
-    await expect(canvas.getByText(/trigger-press/)).toBeVisible();
+    await waitFor(() => expect(canvas.getByText(/trigger-press/)).toBeVisible());
   },
 };
 
@@ -862,13 +876,25 @@ function CloseOnClickExample() {
           <NavigationMenu.Content className={styles.Content}>
             <ul className={styles.FlexLinkList}>
               <li>
-                <Link className={styles.LinkCard} href="#getting-started" closeOnClick>
+                {/* preventDefault: a real click in the Chromium test runner
+                    would otherwise follow the hash href and navigate the
+                    preview document, which the play below doesn't want. */}
+                <Link
+                  className={styles.LinkCard}
+                  href="#getting-started"
+                  closeOnClick
+                  onClick={(event) => event.preventDefault()}
+                >
                   <h3 className={styles.LinkTitle}>Getting started</h3>
                   <p className={styles.LinkDescription}>Soft-navigates and closes the menu.</p>
                 </Link>
               </li>
               <li>
-                <Link className={styles.LinkCard} href="#community">
+                <Link
+                  className={styles.LinkCard}
+                  href="#community"
+                  onClick={(event) => event.preventDefault()}
+                >
                   <h3 className={styles.LinkTitle}>Community</h3>
                   <p className={styles.LinkDescription}>External link — menu stays open.</p>
                 </Link>
@@ -1138,7 +1164,7 @@ function SplitPatternExample() {
                 <NavigationMenu.Link
                   className={styles.Trigger}
                   active={route === '#/analytics'}
-                  render={<RouterLink to="#/analytics" />}
+                  {...routerLinkProps(setRoute, '#/analytics')}
                 >
                   Analytics
                 </NavigationMenu.Link>
@@ -1157,7 +1183,7 @@ function SplitPatternExample() {
                     <NavigationMenu.Link
                       className={styles.LinkCard}
                       active={route === '#/analytics/funnels'}
-                      render={<RouterLink to="#/analytics/funnels" />}
+                      {...routerLinkProps(setRoute, '#/analytics/funnels')}
                     >
                       <h3 className={styles.LinkTitle}>Funnels</h3>
                       <p className={styles.LinkDescription}>Conversion steps over time.</p>
@@ -1167,7 +1193,7 @@ function SplitPatternExample() {
                     <NavigationMenu.Link
                       className={styles.LinkCard}
                       active={route === '#/analytics/retention'}
-                      render={<RouterLink to="#/analytics/retention" />}
+                      {...routerLinkProps(setRoute, '#/analytics/retention')}
                     >
                       <h3 className={styles.LinkTitle}>Retention</h3>
                       <p className={styles.LinkDescription}>Cohorts that come back.</p>
@@ -1196,10 +1222,15 @@ export const TriggerAndLinkSplitPattern: Story = {
     await expect(await canvas.findByText('current route: #/analytics')).toBeVisible();
     await expect(body.queryByRole('link', { name: /Funnels/ })).not.toBeInTheDocument();
 
-    // The separate chevron trigger opens the panel without navigating.
+    // The separate chevron trigger opens the panel without navigating away
+    // from the route the label already set.
     await userEvent.click(canvas.getByRole('button', { name: 'Analytics submenu' }));
     await waitFor(() => expect(body.getByRole('link', { name: /Funnels/ })).toBeVisible());
     await expect(canvas.getByText('current route: #/analytics')).toBeVisible();
+
+    // Panel links compose the router too.
+    await userEvent.click(body.getByRole('link', { name: /Funnels/ }));
+    await expect(await canvas.findByText('current route: #/analytics/funnels')).toBeVisible();
   },
 };
 
