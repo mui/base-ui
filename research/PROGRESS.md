@@ -35,23 +35,23 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 | Component | Tier | C brief | C story-plan | D candidates | D ranked+examples | E stories | E MDX |
 |---|---|---|---|---|---|---|---|
-| select | 1 | ok | ok | ok | ok | - | - |
-| combobox | 1 | - | - | - | - | - | - |
-| autocomplete | 1 | - | - | - | - | - | - |
-| menu | 1 | ok | ok | WIP | WIP | - | - |
-| dialog | 1 | ok | ok | ok | ok | - | - |
-| popover | 1 | ok | ok | WIP | WIP | - | - |
-| toast | 1 | - | - | - | - | - | - |
-| field | 1 | - | - | - | - | - | - |
-| form | 1 | - | - | - | - | - | - |
-| navigation-menu | 1 | - | - | - | - | - | - |
-| drawer | 1 | - | - | - | - | - | - |
-| alert-dialog | 2 | - | - | - | - | - | - |
-| context-menu | 2 | - | - | - | - | - | - |
-| menubar | 2 | - | - | - | - | - | - |
-| number-field | 2 | - | - | - | - | - | - |
-| otp-field | 2 | - | - | - | - | - | - |
-| slider | 2 | - | - | - | - | - | - |
+| select | 1 | ok | ok | ok | ok | ok (29 stories vitest-green incl. 3 recreations; tags ai-generated) | ok (367 lines; render spot-check pending) |
+| combobox | 1 | ok | ok | - | - | - | - |
+| autocomplete | 1 | ok | ok | - | - | - | - |
+| menu | 1 | ok | ok | ok | ok | WIP (28 stories written, 11 failing, needs-work tag on) | - |
+| dialog | 1 | ok | ok | ok | ok | WIP (only dialog.module.css; stories killed pre-write) | - |
+| popover | 1 | ok | ok | ok | ok | WIP (30 stories written, 7 failing, needs-work tag on) | - |
+| toast | 1 | ok | ok | - | - | - | - |
+| field | 1 | ok | ok | - | - | - | - |
+| form | 1 | ok | ok | - | - | - | - |
+| navigation-menu | 1 | ok | ok | - | - | - | - |
+| drawer | 1 | - (agent killed twice; empty dir) | - | - | - | - | - |
+| alert-dialog | 2 | - (batch killed) | - | - | - | - | - |
+| context-menu | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
+| menubar | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
+| number-field | 2 | - (batch killed) | - | - | - | - | - |
+| otp-field | 2 | - (batch killed) | - | - | - | - | - |
+| slider | 2 | - (batch killed) | - | - | - | - | - |
 | tabs | 2 | - | - | - | - | - | - |
 | tooltip | 2 | - | - | - | - | - | - |
 | preview-card | 2 | - | - | - | - | - | - |
@@ -60,22 +60,22 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | radio (+radio-group) | 2 | - | - | - | - | - | - |
 | checkbox | 2 | - | - | - | - | - | - |
 | checkbox-group | 2 | - | - | - | - | - | - |
-| avatar | 3 | - | - | - | - | - | - |
-| button | 3 | - | - | - | - | - | - |
+| avatar | 3 | ok | ok | - | - | - | - |
+| button | 3 | ok | ok | - | - | - | - |
 | collapsible | 3 | - | - | - | - | - | - |
 | fieldset | 3 | - | - | - | - | - | - |
 | input | 3 | - | - | - | - | - | - |
-| meter | 3 | - | - | - | - | - | - |
-| progress | 3 | - | - | - | - | - | - |
-| separator | 3 | - | - | - | - | - | - |
+| meter | 3 | ok | ok | - | - | - | - |
+| progress | 3 | ok | ok | - | - | - | - |
+| separator | 3 | ok | ok | - | - | - | - |
 | switch | 3 | - (pilot: docs+source evidence inline) | - | - | - | ok (7 stories, vitest green) | ok (pilot page; [G] slots pending brief) |
-| toggle | 3 | - | - | - | - | - | - |
-| toggle-group | 3 | - | - | - | - | - | - |
-| toolbar | 3 | - | - | - | - | - | - |
-| csp-provider (util) | 3 | - | - | n/a | n/a | - | - |
-| direction-provider (util) | 3 | - | - | n/a | n/a | - | - |
-| merge-props (util) | 3 | - | - | n/a | n/a | - | - |
-| use-render (util) | 3 | - | - | n/a | n/a | - | - |
+| toggle | 3 | ok | ok | - | - | - | - |
+| toggle-group | 3 | ok | ok | - | - | - | - |
+| toolbar | 3 | ok | ok | - | - | - | - |
+| csp-provider (util) | 3 | ok | ok (MDX-only, no story) | n/a | n/a | - | - |
+| direction-provider (util) | 3 | ok | ok | n/a | n/a | - | - |
+| merge-props (util) | 3 | ok | ok | n/a | n/a | - | - |
+| use-render (util) | 3 | ok | ok | n/a | n/a | - | - |
 
 ## Cluster notes (§8.3)
 
@@ -84,13 +84,17 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | overlays: popover/tooltip/preview-card/dialog/alert-dialog/drawer | ok (by popover agent) |
 | pickers: select/combobox/autocomplete | ok (by select agent) |
 | menus: menu/context-menu/menubar/navigation-menu | ok (by menu agent) |
-| binary controls: toggle/switch/checkbox | - |
+| binary controls: toggle/switch/checkbox | ok (by actions lean batch) |
 | disclosure: accordion/collapsible/tabs | - |
-| status: progress/meter | - |
+| status: progress/meter | ok (by progress/meter/avatar/separator lean-Tier-3 batch agent) |
 | dialog-vs-drawer | (fold into overlays or standalone) |
 | toolbar-vs-menubar | - |
 
 ## Decisions log
+
+- 2026-07-07 09:45: **SESSION PAUSED by user** ("about to hit my limit"). All running agents stopped via TaskStop; caffeinate stopped; zero token burn confirmed via TaskList. Kill-state salvage: select E COMPLETE (29 stories vitest-green + MDX — I verified the vitest run myself post-kill); menu/popover stories written but failing (11/28 and 7/30, needs-work tags on, no MDX); dialog stories not written (CSS only); drawer/alert-dialog/number-field/otp-field/slider briefs produced nothing; context-menu + menubar sub-miners completed AFTER the kill and their full evidence is preserved verbatim in `<slug>/_mining-salvage.md` (briefs still unwritten — start there, incl. their listed pending gh lookups). **RESUME ORDER**: (1) fix menu/popover failing stories + write their MDX + dialog stories/MDX; (2) briefs from salvage: context-menu, menubar; fresh: drawer (killed twice — budget the agent tightly), alert-dialog, number-field/otp-field/slider, tabs/tooltip/preview-card (+disclosure cluster), scroll-area/accordion, radio/checkbox/checkbox-group, input/fieldset/collapsible; (3) lean D candidates for all remaining (corpus-only, per compression decision below); (4) E floor waves Tier 2/3; (5) close-out §13. Note for resume: killed batch agents had spawned sub-agents — grandchildren may orphan-complete; salvage their results the same way.
+
+- 2026-07-07 (later): **progress/meter/avatar/separator Tier-3 briefs + status.md cluster note completed** (4 parallel research agents, source+docs+main-test-file+targeted issue search per component, ≤4 GitHub lookups total across the batch). Key corrections to the original task framing worth carrying forward: (1) **neither Progress nor Meter has any `*CssVars.ts` file** — both compute Indicator fill as a plain inline `style.width` percentage, not a `--custom-property`; this contradicts the assumption that "progress/meter CSS vars matter" and is now documented as a genuine B-P14 exception in `_clusters/status.md`. (2) **Meter does have a dedicated W3C ARIA APG pattern page** (https://www.w3.org/WAI/ARIA/apg/patterns/meter/, verified live) — corrects an assumption that it didn't; Progress and Separator, by contrast, genuinely have no APG pattern page (verified: APG's 30-pattern index has no "Progressbar"/"Separator" entry). (3) Separator's re-export map verified by direct grep across all `index.parts.ts` files: Menu/Select/Combobox/Autocomplete/ContextMenu/OTPField re-export the standalone `Separator` unchanged; Toolbar wraps it via `ToolbarSeparator` (auto-inverts orientation relative to the toolbar's own — confirmed intentional by closed issue #4647, not a bug). (4) Two live, currently-open upstream issues affect both Progress and Meter: #4184 (NVDA/JAWS label announcement, partially mitigated by PR #4200's hidden-span workaround) and #4616 (SSR `Intl.NumberFormat` locale hydration mismatch on `aria-valuetext`). Avatar has its own open issue, #4468/#4469 (SSR cached-image fallback flash, partially fixed) and a rejected community PR #3095 (`aria-hidden` on Fallback, closed not merged). All four briefs' §7 flag a genuine, undocumented `alt`-text gap (avatar) or role-omission gap (separator) as [G]/[I] rather than papering over it.
 
 - 2026-07-07 09:40: **Scope compression under time pressure** (user: "I don't have that much time anymore"), applying PROMPT §12's cut order: (1) screenshots formally CUT session-wide (all `screenshot.status` stay "not-attempted"); (2) remaining Phase D (Tier-1 remainder + all Tier 2/3) reduced to corpus-derived candidates.json only — no new code searches, no ranked.json beyond what exists (select/dialog/menu/popover keep full datasets); (3) recreation stories only for the 4 components with ranked data; (4) Tier-2 C briefs demoted to lean-plus (source+docs+mined-index, ≤4 gh lookups), batched 3–4 per sonnet agent like Tier 3; (5) coverage floor unchanged: every component ends with brief + candidates.json + ≥1 verified story + MDX page. Tier-1 briefs/stories stay full depth.
 

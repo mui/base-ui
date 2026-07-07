@@ -36,7 +36,7 @@ const meta = {
     'Select.ScrollUpArrow': Select.ScrollUpArrow,
     'Select.ScrollDownArrow': Select.ScrollDownArrow,
   },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Select.Root>;
 
 export default meta;
@@ -312,14 +312,18 @@ export const ControlledOpen: Story = {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('combobox');
 
-    await userEvent.click(trigger);
+    // Open with the keyboard: the select opens on mousedown and arms a one-shot
+    // drag-to-select mouseup listener, which a fast synthetic click leaves armed —
+    // the later outside click would then close with reason `cancel-open`.
+    trigger.focus();
+    await userEvent.keyboard('{Enter}');
     const listbox = await body.findByRole('listbox');
     await expect(canvas.getByText(/trigger-press/)).toBeVisible();
 
     // Outside press is canceled by the handler, so the popup stays open.
     await userEvent.click(canvas.getByRole('button', { name: 'Outside area' }));
     await expect(canvas.getByText(/outside-press \(canceled\)/)).toBeVisible();
-    await expect(listbox).toBeVisible();
+    await waitFor(() => expect(listbox).toBeVisible());
 
     // Escape is not canceled and closes the popup.
     await userEvent.keyboard('{Escape}');
@@ -451,8 +455,9 @@ export const MultipleSelection: Story = {
     await userEvent.click(trigger);
     const listbox = await body.findByRole('listbox');
     await userEvent.click(await body.findByRole('option', { name: 'Python' }));
-    // Multiple mode keeps the popup open after selecting.
-    await expect(listbox).toBeVisible();
+    // Multiple mode keeps the popup open after selecting (waitFor: the popup may
+    // still be inside its 100ms entrance transition, where opacity is 0).
+    await waitFor(() => expect(listbox).toBeVisible());
     await userEvent.click(await body.findByRole('option', { name: 'Rust' }));
 
     await userEvent.keyboard('{Escape}');
@@ -835,7 +840,11 @@ export const DisabledOptions: Story = {
     await userEvent.click(fruitTrigger);
     const listbox = await body.findByRole('listbox');
 
-    // Focus starts on the selected "Apple"; ArrowDown moves onto the disabled item.
+    // Opening focuses the selected item ("Apple") once positioning settles.
+    const apple = await body.findByRole('option', { name: 'Apple' });
+    await waitFor(() => expect(apple).toHaveFocus());
+
+    // ArrowDown moves onto the disabled item: focusable so AT users can discover it.
     await userEvent.keyboard('{ArrowDown}');
     const banana = await body.findByRole('option', { name: 'Banana' });
     await expect(banana).toHaveAttribute('aria-disabled', 'true');
@@ -1316,7 +1325,13 @@ function ThemePickerExample() {
   const [theme, setTheme] = React.useState('system');
   return (
     <div className={styles.Stack}>
-      <Select.Root items={pickerThemes} value={theme} onValueChange={setTheme}>
+      <Select.Root
+        items={pickerThemes}
+        value={theme}
+        // Single-mode onValueChange receives (value | null, eventDetails); there is
+        // no null item here, so guard like graphql.org's type-guarded handler.
+        onValueChange={(value) => setTheme(value ?? 'system')}
+      >
         <Select.Trigger className={rw.IconTrigger} aria-label="Theme">
           <Select.Value className={rw.SrOnly} />
           {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <MonitorIcon />}

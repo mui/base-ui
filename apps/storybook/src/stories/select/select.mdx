@@ -1,0 +1,367 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
+    — research/c-components/select/brief.md); real-world data from research/d-real-world-usage/select. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as SelectStories from './select.stories';
+
+<Meta of={SelectStories} />
+
+# Select
+
+A common form component for choosing a predefined value in a dropdown menu — a button trigger opening a listbox popup, with native-`<select>` behavior and full styling control.
+
+- **Import:** `import { Select } from '@base-ui/react/select';`
+- **Parts:** 19 — see Anatomy.
+- **Status:** Stable since v1.0.0. A ground-up rewrite ([#541](https://github.com/mui/base-ui/pull/541), Nov 2024) that closed 15 accumulated issues from the legacy `@mui/base` select.
+- **ARIA pattern:** [Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) in its *select-only* form — the trigger is a `role="combobox"` button, not a listbox ([#4754](https://github.com/mui/base-ui/issues/4754)).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={SelectStories.Basic} />
+
+## Features
+
+- **Native-select feel, styleable** — opens on `mousedown` with one-gesture drag-to-select, and typing on the *closed* trigger commits a value without opening, exactly like a native `<select>` ([#3969](https://github.com/mui/base-ui/pull/3969), [#5025](https://github.com/mui/base-ui/pull/5025)).
+- **Item-aligned positioning** — the popup overlaps the trigger so the selected item's text lines up with the trigger text (macOS style), falling back to an anchored dropdown on touch or when space is tight ([#2721](https://github.com/mui/base-ui/pull/2721)).
+- **Form participation for free** — a visually-hidden input carries `name`/value into native submission, constraint validation, and browser autofill ([#2084](https://github.com/mui/base-ui/pull/2084), [#4005](https://github.com/mui/base-ui/pull/4005)).
+- **Highlight as fast as CSS `:hover`** — `data-highlighted` is applied by direct DOM mutation, bypassing React re-renders for long lists ([#1570](https://github.com/mui/base-ui/pull/1570)).
+- **Multiple selection with one prop** — `multiple` switches to array values and keeps the popup open while selecting ([#2173](https://github.com/mui/base-ui/pull/2173)).
+- **Object values** — non-string values with pluggable equality, label, and form-serialization functions ([#2704](https://github.com/mui/base-ui/pull/2704)).
+- **ARIA wiring managed for you** — combobox trigger, listbox popup, option/group roles, label association, and focus movement all come built in.
+
+## When to use
+
+- Choosing one predefined value in a dropdown, especially inside forms — the hidden-input contract makes it a first-class form control (docs subtitle; forms handbook).
+- When the item count is small enough that keyboard typeahead suffices instead of filtering (select docs usage guidelines).
+- When no text input is rendered: "Use Select instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input" (combobox docs usage guidelines).
+- Multiple selection without filtering — the `multiple` prop ([#2173](https://github.com/mui/base-ui/pull/2173)).
+- When you need object values, formatted trigger labels, grouped options, or scroll arrows — capabilities the native `<select>` cannot offer.
+
+## When not to use
+
+Decision guidance for the three listbox-driven pickers lives in `research/c-components/_clusters/pickers.md`; the short version: *free-form text → Autocomplete; visible filter input over a fixed set → Combobox; button + predefined values → Select; popup that performs actions → Menu.*
+
+- For large, filterable lists, use [Combobox](?path=/docs/form-inputs-combobox--docs), because "Combobox is a filterable Select — prefer it when the number of items is sufficiently large to warrant filtering" (select/combobox docs usage guidelines).
+- For free-form text with suggestions, use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs), because its input text *is* the value; Select and Combobox only commit predefined items.
+- For a built-in Clear affordance, compose a [Combobox](?path=/docs/form-inputs-combobox--docs) without a visible input (`Trigger` + `Value` + `Clear`), because Select deliberately ships no clear button — "native HTML and OS ones just don't have a clear button" ([#2734](https://github.com/mui/base-ui/issues/2734)). A controlled Select with an external clear control also works (see the clear-all story below).
+- For a list of *actions* rather than a persisted value, use Menu — the dividing line is whether choosing writes a `value` that submits with a form (Select) or performs a command (Menu).
+- For binary or tiny option sets, prefer Radio, Switch, or Checkbox — a popup is overhead when all options can be visible. [I] derived from API affordances; no maintainer statement found [G].
+
+## Anatomy
+
+```tsx
+import { Select } from '@base-ui/react/select';
+
+<Select.Root>
+  <Select.Label />
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Icon />
+  </Select.Trigger>
+  <Select.Portal>
+    <Select.Backdrop />
+    <Select.Positioner>
+      <Select.Popup>
+        <Select.ScrollUpArrow />
+        <Select.Arrow />
+        <Select.List>
+          <Select.Item>
+            <Select.ItemText />
+            <Select.ItemIndicator />
+          </Select.Item>
+          <Select.Separator />
+          <Select.Group>
+            <Select.GroupLabel />
+            {/* <Select.Item /> … */}
+          </Select.Group>
+        </Select.List>
+        <Select.ScrollDownArrow />
+      </Select.Popup>
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Select.Root` | no element | Groups all parts; owns value/open state and the hidden form input | required |
+| `Select.Label` | `<div>` | Accessible label auto-associated with the trigger; clicking focuses without opening ([#4167](https://github.com/mui/base-ui/pull/4167)) | yes — or `Field.Label`/`aria-label` |
+| `Select.Trigger` | `<button>` | Opens the popup; carries the combobox role and all form-state attributes | required |
+| `Select.Value` | `<span>` | Selected item's label; resolution order: `children` function > `items` lookup > raw value | yes — expected in practice |
+| `Select.Icon` | `<span>` | Caret indicating the trigger opens a popup | yes |
+| `Select.Portal` | `<div>` | Moves the popup subtree to `<body>` (or `container`); `keepMounted` lives here | required ([#1222](https://github.com/mui/base-ui/pull/1222)) |
+| `Select.Backdrop` | `<div>` | Styleable overlay beneath the popup | yes |
+| `Select.Positioner` | `<div>` | Positions the popup against the trigger; owns `alignItemWithTrigger` | required |
+| `Select.Popup` | `<div>` | Outer visual container; is the listbox itself when no `List` is present | required |
+| `Select.List` | `<div>` | The scrollable listbox; lets `Arrow`/`ScrollArrows` escape the scroll context ([#2596](https://github.com/mui/base-ui/pull/2596)); carries the ARIA listbox attributes when present ([#2855](https://github.com/mui/base-ui/pull/2855)) | yes — omit for simple selects |
+| `Select.Item` | `<div>` | An individual option (`role="option"`) | required |
+| `Select.ItemText` | `<div>` | The item's text label — also what the trigger displays when selected | yes — recommended |
+| `Select.ItemIndicator` | `<span>` | Marks the selected item (checkmark) | yes |
+| `Select.Arrow` | `<div>` | Arrow pointing at the anchor — rare for selects | yes |
+| `Select.ScrollUpArrow` / `Select.ScrollDownArrow` | `<div>` | Scroll the list on hover; not rendered on touch input | yes |
+| `Select.Group` | `<div>` | Groups related items (`role="group"`) | yes |
+| `Select.GroupLabel` | `<div>` | Label auto-associated with its parent group | yes |
+| `Select.Separator` | `<div>` | Visual divider between items/groups (re-exports the standalone `Separator`) | yes |
+
+Note: `Select.Popup`/`Select.List` inject a scrollbar-hiding `<style>` tag while `alignItemWithTrigger` is active — relevant under a strict CSP.
+
+## How it works
+
+### The full interaction
+
+Open on click (`mousedown`, so press-drag-release selects in one gesture), move the highlight with arrow keys, commit with `Enter`, and receive `(value, eventDetails)` in `onValueChange`. The popup portals to `document.body`.
+
+<Canvas of={SelectStories.OpenSelectClose} />
+
+### Controlled vs uncontrolled value
+
+Uncontrolled by default with `defaultValue`; pass `value` + `onValueChange` when external state drives the select. Clear with `null` — never `''`, which is treated as a real value and keeps the field `data-filled` ([#1922](https://github.com/mui/base-ui/issues/1922), [#4644](https://github.com/mui/base-ui/issues/4644)). Programmatic value changes no longer force-mount the popup ([#5119](https://github.com/mui/base-ui/pull/5119)).
+
+<Canvas of={SelectStories.ControlledValue} />
+
+### Open state and event details
+
+`open` + `onOpenChange` control the popup. Every change request carries a typed `reason` (`trigger-press | outside-press | escape-key | item-press | focus-out | window-resize | …`), and `eventDetails.cancel()` vetoes the change — useful to keep the popup open through light dismissal, and the documented workaround for spurious `window-resize` closes in Firefox extension popups ([#3546](https://github.com/mui/base-ui/issues/3546)).
+
+<Canvas of={SelectStories.ControlledOpen} />
+
+### Mount lifecycle
+
+Unique among Base UI popups: the portal subtree defers mounting until the trigger is focused (closed-trigger typeahead needs the item labels), then **stays mounted after the first open** — trading slower first open for 35% of the previous scripting cost with 1,000 items ([#1906](https://github.com/mui/base-ui/pull/1906), [#1590](https://github.com/mui/base-ui/issues/1590)). Don't expect close to unmount it; memoize heavy items or drive unmount via `actionsRef` if you truly need it.
+
+### Item-aligned positioning
+
+`alignItemWithTrigger` (Positioner, default `true`) overlaps the popup with the trigger so the selected item's text aligns with the trigger's value text, macOS-select style. While active, `side`/`align` are **ignored** and `data-side` is `"none"` ([#2712](https://github.com/mui/base-ui/issues/2712)). It deactivates automatically when opened by touch, when viewport height is insufficient, or when the trigger sits within ~20px of a viewport edge ([#2721](https://github.com/mui/base-ui/pull/2721)).
+
+<Canvas of={SelectStories.AlignItemWithTriggerDefault} />
+
+Set it to `false` for a conventional anchored dropdown — only then do `side`, `align`, and `sideOffset` take effect:
+
+<Canvas of={SelectStories.ConventionalDropdownPositioning} />
+
+Item alignment and indicator columns follow the text direction under `DirectionProvider`:
+
+<Canvas of={SelectStories.RTLItemAlignment} />
+
+### Typeahead
+
+Typing on the *closed* trigger commits a matching value without opening (single mode only; disabled items are skipped like native `<select>`, [#5025](https://github.com/mui/base-ui/pull/5025)). While open, typing moves the highlight instead — the only typeahead available in `multiple` mode ([#2274](https://github.com/mui/base-ui/issues/2274)).
+
+<Canvas of={SelectStories.TypeaheadKeyboard} />
+
+### Disabled and read-only
+
+Disabled items stay focusable so assistive-technology users can discover them, but they cannot be selected; a `disabled` root disables the whole control. `readOnly` keeps the value readable and submittable while blocking opening by pointer and keyboard ([#2717](https://github.com/mui/base-ui/issues/2717)) — prefer it over `disabled` for temporarily locked form state.
+
+<Canvas of={SelectStories.DisabledOptions} />
+
+<Canvas of={SelectStories.ReadOnly} />
+
+### Modality
+
+`modal` defaults to `true`: page scroll is locked and outside pointer interactions are disabled through an internal backdrop, cut out around the trigger so trigger hover/click still work ([#2141](https://github.com/mui/base-ui/pull/2141)). Set `modal={false}` to keep the rest of the page interactive while the popup is open:
+
+<Canvas of={SelectStories.NonModal} />
+
+### Value display
+
+`Select.Value` resolves its text as `children` (string or function) > `items` lookup > raw value. Use `placeholder` for display-only placeholder text (styled via `[data-placeholder]`) — with placeholders alone, users cannot clear the value from the select itself:
+
+<Canvas of={SelectStories.PlaceholderValue} />
+
+Render a `{ value: null }` item when users should be able to clear the selection from the popup (docs "Placeholder values"):
+
+<Canvas of={SelectStories.ClearableNullItem} />
+
+Pass a function as `Select.Value` children to format the rendered value:
+
+<Canvas of={SelectStories.FormattedValue} />
+
+### Multiple selection
+
+`multiple` turns the value into an array: the popup stays open while selecting, the trigger renders comma-separated labels via `items`, and an empty array serializes to `""` for forms.
+
+<Canvas of={SelectStories.MultipleSelection} />
+
+There is deliberately no built-in Clear button ([#2734](https://github.com/mui/base-ui/issues/2734)) — pair a controlled select with an external action:
+
+<Canvas of={SelectStories.MultipleControlledWithClearAll} />
+
+### Object values
+
+Values don't have to be strings. Provide `isItemEqualToValue` for non-referential matching (defaults to `Object.is`), `itemToStringLabel` for the trigger/typeahead label, and `itemToStringValue` for form serialization ([#2704](https://github.com/mui/base-ui/pull/2704), [#3441](https://github.com/mui/base-ui/pull/3441)):
+
+<Canvas of={SelectStories.ObjectValues} />
+
+### Groups and long lists
+
+`Group` + `GroupLabel` (auto-associated) and `Separator` structure related options; a grouped array also feeds the `items` prop:
+
+<Canvas of={SelectStories.GroupedItems} />
+
+With long lists the popup fills the available height and the scroll arrows scroll on hover — they only mount while scrollable, and never on touch:
+
+<Canvas of={SelectStories.LongListScrollArrows} />
+
+### Forms
+
+A visually-hidden `<input>` carries `name`/value into native submission, constraint validation, and browser autofill (`autoComplete` provides the hint, [#4005](https://github.com/mui/base-ui/pull/4005)). Inside `Field`/`Form`, validation runs when the popup blurs, and `data-invalid`/`data-touched`/`data-filled` style the trigger:
+
+<Canvas of={SelectStories.InFieldWithValidation} />
+
+<Canvas of={SelectStories.NativeFormSubmission} />
+
+<Canvas of={SelectStories.BrowserAutofillHint} />
+
+### Animation
+
+Standard popup hooks: `data-open`/`data-closed`/`data-starting-style`/`data-ending-style` on Popup and Backdrop, `--transform-origin` on the Positioner. Transform and max-height animations work with `alignItemWithTrigger` after the fix series [#3532](https://github.com/mui/base-ui/pull/3532)–[#3831](https://github.com/mui/base-ui/pull/3831). `onOpenChangeComplete` fires when the transition settles; `actionsRef.unmount()` serves JS animation libraries:
+
+<Canvas of={SelectStories.AnimatedPopup} />
+
+### Interop with other popups
+
+A select nested in a dialog needs no `z-index` at all — popups layer correctly by DOM order. If you must set one, put it on the `Positioner`, never the `Popup` ([#2450](https://github.com/mui/base-ui/issues/2450)):
+
+<Canvas of={SelectStories.InsideDialog} />
+
+### TypeScript
+
+`Select.Root.Props<Value, Multiple>` supports typed wrappers with conditional value types ([#2369](https://github.com/mui/base-ui/pull/2369)) — `defaultValue` must be an array exactly when `multiple` is set (users asked for this example in [#2474](https://github.com/mui/base-ui/issues/2474)):
+
+<Canvas of={SelectStories.TypedWrapper} />
+
+## Keyboard & screen reader
+
+Pattern: [APG select-only combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/).
+
+| Key | Context | Action |
+|---|---|---|
+| `Enter` / `Space` | trigger, closed | Opens the popup (`readOnly` blocks it) |
+| `ArrowDown` / `ArrowUp` | trigger, closed | Opens the popup (`openOnArrowKeyDown`, default true) |
+| Printable characters | trigger, closed | Typeahead commits a matching value **without opening**; skips disabled items; disabled in `multiple` mode |
+| `ArrowDown` / `ArrowUp` | popup open | Move highlight and DOM focus through items — disabled items are focusable for discovery but cannot be selected |
+| `Home` / `End` | popup open | Highlight first / last item |
+| Printable characters | popup open | Typeahead moves the highlight (works in `multiple` mode) |
+| `Enter` / `Space` | popup open | Selects the highlighted item; closes in single mode, stays open in `multiple` mode |
+| `Escape` | popup open | Closes (reason `escape-key`); propagation to parent popups stopped by default |
+| `Tab` / focus out | popup open | Closes (reason `focus-out`); no tabbable option is left behind when closed-but-mounted |
+
+- **ARIA managed for you**: Trigger — `role="combobox"`, `aria-expanded`, `aria-haspopup="listbox"`, `aria-controls`, `aria-labelledby` (auto-linked from `Select.Label`/`Field.Label`), `aria-readonly`, `aria-required`. List (or Popup when no List) — `role="listbox"`, `aria-multiselectable` in multiple mode. Item — `role="option"`, `aria-selected`. Group — `role="group"` with label association. The hidden form input is `aria-hidden` and forwards focus to the trigger.
+- **Screen reader**: opening announces the listbox and the focused (selected) option; disabled options remain focusable so they can be discovered.
+- **You must provide**: an accessible name — `Select.Label`, `Field.Label`, or `aria-label` on the Trigger for icon-only triggers — plus visible `:focus-visible` styling and sufficient contrast.
+- **Known issues**: [#5139](https://github.com/mui/base-ui/issues/5139) (open) — `focusableWhenDisabled` not configurable on items; [#1761](https://github.com/mui/base-ui/issues/1761) (open, has workaround) — focus indicator lost on the trigger while the popup is open; [#1425](https://github.com/mui/base-ui/issues/1425) (open) — Field does not invalidate some required controls including Select. [G] No open screen-reader-specific select bugs found beyond the answered [#4754](https://github.com/mui/base-ui/issues/4754) (searched upstream 2026-07).
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Trigger | `data-popup-open` | the popup is open |
+| Trigger | `data-pressed` | pressed |
+| Trigger | `data-placeholder` | no value is selected ([#2737](https://github.com/mui/base-ui/pull/2737)) |
+| Trigger | `data-popup-side` | popup is open, mirrors its side ([#4671](https://github.com/mui/base-ui/pull/4671)) |
+| Trigger | `data-disabled` / `data-readonly` / `data-required` | corresponding prop set |
+| Trigger | `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-filled` / `data-focused` | Field validation/interaction state |
+| Item | `data-selected` | the item is selected |
+| Item | `data-highlighted` | highlighted — set by direct DOM mutation; style it in CSS only ([#1570](https://github.com/mui/base-ui/pull/1570)) |
+| Item | `data-disabled` | the item is disabled |
+| Popup / Positioner | `data-open` / `data-closed` / `data-starting-style` / `data-ending-style` | open/close transition lifecycle |
+| Popup / Positioner | `data-side` / `data-align` | anchored positioning — `data-side="none"` while item-aligned |
+| ScrollUpArrow / ScrollDownArrow | `data-visible`, `data-direction`, `data-side` | arrow can scroll; style hidden by default and visible via `[data-visible]` ([#2596](https://github.com/mui/base-ui/pull/2596)) |
+| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin` | while positioned |
+
+To keep pointer `:hover` visually distinct from the keyboard highlight, disable `highlightItemOnHover` and style both states separately ([#3377](https://github.com/mui/base-ui/pull/3377)):
+
+<Canvas of={SelectStories.HoverVersusHighlight} />
+
+## Choosing the right props
+
+- **`items` (Root)** — supply it whenever `Select.Value` should render the item's *label* instead of the raw value; accepts an object map, `{ label, value }` array, or grouped arrays ([#2087](https://github.com/mui/base-ui/pull/2087)). Without it, format via a `children` function on `Value`.
+- **`multiple` (Root)** — array values, popup stays open, comma-separated labels; conditional typing flows through `Select.Root.Props<Value, Multiple>` ([#2173](https://github.com/mui/base-ui/pull/2173), [#2369](https://github.com/mui/base-ui/pull/2369)).
+- **`alignItemWithTrigger` (Positioner, default `true`)** — set `false` for a conventional dropdown, when you need `side`/`align` to apply ([#2712](https://github.com/mui/base-ui/issues/2712)), or inside environments firing spurious resize events ([#3546](https://github.com/mui/base-ui/issues/3546)).
+- **`modal` (Root, default `true`)** — set `false` to keep the page scrollable and interactive while open (see the `NonModal` story); default locks scroll and disables outside pointers via an internal backdrop cut out around the trigger ([#2141](https://github.com/mui/base-ui/pull/2141)).
+- **`value={null}`** — the only way to clear; `''` is a legitimate value and marks the field `data-filled` ([#1922](https://github.com/mui/base-ui/issues/1922)).
+- **`isItemEqualToValue` / `itemToStringLabel` / `itemToStringValue`** — object-value equality, display, and form serialization; argument order fixed in [#4056](https://github.com/mui/base-ui/pull/4056), serialization respected on submit since [#3441](https://github.com/mui/base-ui/pull/3441).
+- **`highlightItemOnHover` (Root, default `true`)** — set `false` to differentiate CSS `:hover` from keyboard `[data-highlighted]`; mouse selection still works ([#3377](https://github.com/mui/base-ui/pull/3377), [#4699](https://github.com/mui/base-ui/pull/4699)).
+- **Form wiring** — `name` (submission key), `form` (owning form id), `required`, `readOnly` (blocks opening, [#2717](https://github.com/mui/base-ui/issues/2717)), `disabled`, `autoComplete` (autofill hint, [#4005](https://github.com/mui/base-ui/pull/4005)), `inputRef` (hidden input access, [#1683](https://github.com/mui/base-ui/issues/1683)).
+- **Lifecycle** — `actionsRef` (`unmount()` for JS exit animations), `onOpenChangeComplete`, `finalFocus` (Popup; [#3785](https://github.com/mui/base-ui/pull/3785)) to redirect close-focus somewhere other than the trigger.
+- **Trigger `nativeButton`** — declare `false` when `render` swaps the trigger away from `<button>` so ARIA and keyboard handling adapt ([#3177](https://github.com/mui/base-ui/pull/3177), [#1909](https://github.com/mui/base-ui/pull/1909)).
+
+## Do / Don't
+
+**Do**
+
+- Give every select an accessible name — `Select.Label`, `Field.Label`, or `aria-label` on icon-only triggers — it's the consumer half of the a11y contract.
+- Clear with `null` (or a `{ value: null }` item), because `''` is treated as a real value ([#1922](https://github.com/mui/base-ui/issues/1922)).
+- Reset a dependent select's value to `null` when its parent select changes, so stale values never point at removed items ([#2577](https://github.com/mui/base-ui/pull/2577)).
+- Portal the select into the drawer container (`<Select.Portal container={…}>`) when it lives inside a Radix/vaul drawer that sets `pointer-events: none` on `<body>` ([#3725](https://github.com/mui/base-ui/issues/3725)).
+
+**Don't**
+
+- Don't set `z-index` on `Select.Popup` — popups layer correctly by DOM order; if you must, use the `Positioner` ([#2450](https://github.com/mui/base-ui/issues/2450) — select rendering behind a dialog).
+- Don't try to control `data-highlighted` from React state — impossible since [#1570](https://github.com/mui/base-ui/pull/1570); style `[data-highlighted]` in CSS, and use `highlightItemOnHover={false}` to separate hover from keyboard highlight.
+- Don't expect the popup to unmount on close — it stays mounted after first interaction ([#1906](https://github.com/mui/base-ui/pull/1906)); drive unmount via `actionsRef` if needed.
+- Don't expect closed-trigger typeahead in `multiple` mode — intentional; open the popup first ([#2274](https://github.com/mui/base-ui/issues/2274)).
+- Don't `render` a non-button trigger without `nativeButton={false}` — the trigger is a native `<button>` since beta.5 ([#3177](https://github.com/mui/base-ui/pull/3177)).
+- Don't push the popup away with a large `sideOffset` to "fix" the default overlap — that's `alignItemWithTrigger` working as designed; set it to `false` instead (observed misuse in the wild, `research/d-real-world-usage/select/ranked.json` #15).
+
+## In the wild
+
+- **[Cloudflare Kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx), MIT, code-ok) — the richest wrapper observed: typed `multiple` generic, `items` as object map or array with per-item `disabled` + `disabledReason`, a `renderValue` formatter, and JSDoc steering hidden labels to `aria-label`. The registry-select story below recomposes its ideas.
+- **[WordPress Gutenberg](https://wordpress.org/gutenberg/)** ([source](https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx), no SPDX license detected — link-only, do not copy) — one-file-per-part form primitives; the Root JSDoc independently documents the object-value pitfalls (`Object.is` equality, `isItemEqualToValue`, `itemToStringLabel`) and pins single-select via `Root<Value, false>`.
+- **[Mastra](https://mastra.ai)** ([source](https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx), no SPDX license detected — link-only) — a documented Radix→Base UI migration: `eventDetails` second argument, `alignItemWithTrigger={false}` to match Radix popper behavior, and an `items`-map shim so the closed trigger can resolve labels.
+- **[Flashtype](https://flashtype.com)** ([source](https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx), MIT, code-ok) — block-type switcher in a markdown editor toolbar: `Toolbar.Button render={<Select.Trigger/>}` with `nativeButton={false}`, controlled open, `data-[starting-style]` animation.
+- **[graphql.org](https://graphql.org)** ([source](https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx), MIT, code-ok) — the site-wide theme switcher: icon trigger with `aria-label`, visually hidden `Select.Value`, `align="end"`, wired to next-themes.
+
+Ecosystem note: shadcn/ui's Base UI registry ([source](https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/select.tsx), MIT) is the template behind thousands of downstream `components/ui/select.tsx` files.
+
+Three recreations live in this Storybook — a theme picker (graphql.org), a registry-style wrapper (Kumo), and a filter bar (from [climatepolicyradar/knowledge-graph](https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx), Apache-2.0, code-ok):
+
+<Canvas of={SelectStories.RealWorldThemePicker} />
+
+<Canvas of={SelectStories.RealWorldWrappedRegistrySelect} />
+
+<Canvas of={SelectStories.RealWorldDashboardFilter} />
+
+## Decision log
+
+- **2024-11** — the new Select ships as a ground-up rewrite closing 15 legacy `@mui/base` issues, with item-aligned positioning and Field integration from day one ([#541](https://github.com/mui/base-ui/pull/541)).
+- **2024-12** — `Select.Option` renamed to `Select.Item`, unifying vocabulary with Menu ([#1014](https://github.com/mui/base-ui/pull/1014)).
+- **2025-01 (alpha.5)** — `Portal` becomes a required part; `keepMounted` moves to it ([#1222](https://github.com/mui/base-ui/pull/1222)).
+- **2025-04 (alpha.8)** — highlighted state removed from React for performance: `data-highlighted` set by direct DOM mutation, "as fast as CSS `:hover`"; customizing it is no longer possible ([#1570](https://github.com/mui/base-ui/pull/1570), breaking).
+- **2025-04 (beta.0)** — `Root.alignItemToTrigger` moves to `Positioner.alignItemWithTrigger` — positioning config belongs on the Positioner ([#1713](https://github.com/mui/base-ui/pull/1713)).
+- **2025-05 (beta.0)** — popup mounting deferred until trigger focus, then kept mounted after first open: 35% of previous load-time scripting for 1,000 items, traded against slower first open ([#1906](https://github.com/mui/base-ui/pull/1906)).
+- **2025-06 (beta.1)** — `Select.Value` prints the raw value; `items` prop introduced for label lookup ([#2087](https://github.com/mui/base-ui/pull/2087), breaking).
+- **2025-07 (beta.2)** — `multiple` prop, one prop rather than a separate MultiSelect component ([#2173](https://github.com/mui/base-ui/pull/2173)).
+- **2025-09 (beta.4)** — `Select.List` part added so Arrow/ScrollArrows escape the scroll context; ARIA listbox attributes move to List when present ([#2596](https://github.com/mui/base-ui/pull/2596), breaking; [#2855](https://github.com/mui/base-ui/pull/2855)).
+- **2025-11 (beta.5)** — Trigger renders a native `<button>` by default, previously blocked by a Safari bug ([#3177](https://github.com/mui/base-ui/pull/3177), breaking).
+- **2025-11 (beta.6)** — `placeholder` prop returns on `Select.Value` ([#3604](https://github.com/mui/base-ui/pull/3604)); `null` accepted for controlled `value` ([#3488](https://github.com/mui/base-ui/pull/3488)); `highlightItemOnHover` ([#3377](https://github.com/mui/base-ui/pull/3377)).
+- **2026-03 (v1.3.0)** — `Select.Label` part: first-class visible labeling without Field ([#4167](https://github.com/mui/base-ui/pull/4167)).
+
+## Known issues & open questions
+
+- [#1761](https://github.com/mui/base-ui/issues/1761) — focus indicator lost on the trigger while the popup is open (open, workaround in thread).
+- [#4698](https://github.com/mui/base-ui/issues/4698) — mouse selection is a no-op in React StrictMode dev builds (open, dev-only).
+- [#3546](https://github.com/mui/base-ui/issues/3546) — popup closes instantly inside Firefox extension popups (wontfix; cancel `window-resize` via `eventDetails.cancel()` or set `alignItemWithTrigger={false}`).
+- [#5139](https://github.com/mui/base-ui/issues/5139) — request to make `focusableWhenDisabled` configurable on items (open).
+- [#2734](https://github.com/mui/base-ui/issues/2734) — clearable-select remains an acknowledged gray area between Select and Combobox (open).
+- [#2474](https://github.com/mui/base-ui/issues/2474) — docs ask for a conditional-prop-types example (open; the `TypedWrapper` story above covers it).
+
+## Related
+
+- To let users **filter** a large list, use [Combobox](?path=/docs/form-inputs-combobox--docs).
+- To accept **free-form text** with suggestions, use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs).
+- To show a dropdown of **actions**, use Menu.
+- To add labels, descriptions, and validation, wrap in [Field](?path=/docs/form-inputs-field--docs) inside a [Form](?path=/docs/form-inputs-form--docs).
+
+## API reference
+
+### Select.Root
+
+<ArgTypes of={SelectStories.Basic} />
+
+*Per-part tables (`Select.Trigger`, `Select.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/select](https://base-ui.com/react/components/select#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+select) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/select).*
