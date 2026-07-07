@@ -1,0 +1,150 @@
+{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (lean). Sections pending the full C brief carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as CheckboxGroupStories from './checkbox-group.stories';
+
+<Meta of={CheckboxGroupStories} />
+
+# Checkbox Group
+
+Turns N independently-toggleable checkboxes into one array-valued, form-participating field — the direct multi-select counterpart to [Radio Group](?path=/docs/form-inputs-radio--docs)'s single-value coordination.
+
+- **Import:** `import { CheckboxGroup } from '@base-ui/react/checkbox-group';`
+- **Parts:** 1 — single default export `CheckboxGroup`, no namespace, no sub-parts of its own. Composes with the separately-exported `Checkbox.Root`/`Checkbox.Indicator`.
+- **Status:** Stable. Introducing commit `9c04f2c3e`, "[CheckboxGroup] Implement components and hooks" (`#458`).
+- **ARIA pattern:** No single named APG composite pattern — `role="group"` around N independent [Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/) widgets, each following the plain Checkbox pattern individually.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={CheckboxGroupStories.Basic} />
+
+## Features
+
+- **Submits as one named array field** — the motivating use case (`#1948`): checking two of three checkboxes submits `["a","b"]` under a single field name, once wrapped in `Field.Root`.
+- **A built-in "select all" parent-checkbox pattern** — not a userland recipe: a dedicated `useCheckboxGroupParent` hook, its own test file, and a cluster of maintenance PRs hardening it against edge cases.
+- **The parent-click cycle is a specific, tested algorithm, not "toggle everything"** — clicking a parent in a genuinely mixed state (some but not all children checked) follows `mixed → on → off → mixed`, and the final step **restores the exact prior subset** rather than resetting to empty.
+- **No arrow-key composite navigation** — unlike Radio Group's `role="radiogroup"` + roving tabindex, Checkbox Group renders a plain `<div role="group">`; each checkbox is its own independent Tab stop.
+
+## When to use
+
+- Several related checkboxes whose checked states should coordinate as **one named, array-valued form field**.
+- Any set of checkboxes needing a "select all" / parent-child summary control, including nested groups (app-composed via two `CheckboxGroup` instances with shared `onValueChange` propagation — there is no native multi-level tree API).
+- Grouping labeling: `Field.Item` wraps each option, `Fieldset.Legend` labels the whole group — identical composition to Radio Group.
+
+## When not to use
+
+- **Large or filterable option sets that need to submit as an array** → prefer a Combobox in `multiple` mode. The closest evidence: a maintainer explicitly declined building a checkbox tree *inside* Combobox ("trees are out of combobox scope… can't marry CheckboxGroup with Combobox," `mui/base-ui#2695`), while providing a modified multiple-select Combobox demo with its own select-all item as the recommended alternative.
+- **A tree/hierarchical multi-select with nested select-all at arbitrary depth** → not built in anywhere; the closest first-party pattern is the app-composed two-instance nesting above, and the Combobox-tree request was declined (`#2695`).
+- **An exclusive, always-exactly-one choice** → [Radio Group](?path=/docs/form-inputs-radio--docs), not Checkbox Group.
+- **A single independent checkbox that never needs to coordinate with siblings** → standalone [Checkbox.Root](?path=/docs/form-inputs-checkbox--docs), no group wrapper needed.
+
+## Anatomy
+
+```tsx
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+
+<CheckboxGroup>
+  <Checkbox.Root />
+  {/* …repeated per option, each with its own value */}
+</CheckboxGroup>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `CheckboxGroup` | `<div role="group">` | Shared array-valued state for a series of checkboxes | required |
+| `Checkbox.Root` (child) | `<span role="checkbox">` | One independently-toggleable option, contributing its `value` to the group's array | required, one per option |
+| `Checkbox.Root parent` | `<span role="checkbox">` + `data-parent` | The "select all" coordinator; `name` is force-unset so it's excluded from submission | optional |
+
+A parent checkbox's `aria-controls` is a space-separated list of every child's id, derived from the group's id scheme — setting a custom `id` on a child breaks this (`mui/base-ui#2691`).
+
+## How it works
+
+### Uncontrolled vs controlled
+
+`defaultValue`/`value`/`onValueChange` (all `string[]`), with `defaultValue` defaulting to `[]` when omitted. Each child's click independently pushes/removes its `value` from the array (filter-based removal, not a re-sort).
+
+### The parent "select all" tri-state cycle
+
+<Canvas of={CheckboxGroupStories.ParentCheckboxTriState} />
+
+The parent's `checked`/`indeterminate` are computed automatically from the live child array (`checked = value.length === allValues.length`, `indeterminate` when some but not all are checked) — unless manually overridden. Clicking the parent when all-or-nothing is checked simply flips select-all/select-none. But from a genuinely **mixed** state, the click cycle is `mixed → on → off → mixed`, and the final click restores exactly the subset that was checked before, not an empty set. Clicking the parent fires only the parent's own `onCheckedChange` — it does **not** fire each child's individual callback.
+
+Requires `allValues` (every child's value) and a **controlled** `value` + `onValueChange` — the parent pattern is not supported in fully-uncontrolled mode.
+
+### Form integration
+
+<Canvas of={CheckboxGroupStories.FormSubmitArray} />
+
+`CheckboxGroup` has no `name` prop of its own — wrap it in `Field.Root name` (composed with `Fieldset.Root render={<CheckboxGroup />}`) to submit the checked values as one array-valued field (`#1948`). No per-checkbox `name` is needed.
+
+### The counter-intuitive `required` contract
+
+Setting `required` on individual group members means **every** `required` checkbox must be checked before the group's error clears — it does **not** mean "at least one must be checked," which is what "required" might intuitively suggest for a multi-select set. This is directly confirmed by a dedicated test: checking only one of two `required` checkboxes in a group does not clear the group's validation error; it only clears once every required checkbox is checked. If "at least one" is the desired semantics, implement it via a custom `Field.Root validate` function reading the group's array length — there is no built-in prop for it.
+
+## Keyboard & screen reader
+
+| Key | Context | Action |
+|---|---|---|
+| `Tab` | anywhere in the group | Moves focus to the **next individual checkbox** — each is its own Tab stop, unlike Radio Group's single composite stop |
+| `Space` | a focused child checkbox | Toggles that checkbox, pushing/removing its `value` from the group array |
+| `Space` | a focused **parent** checkbox | Cycles the tri-state select-all/select-none/restore-mixed algorithm |
+| `Enter` | any focused checkbox | Submits the owning form, does not toggle — identical to standalone Checkbox |
+
+- **ARIA**: `role="group"`, `aria-labelledby` from `Field.Label`/`Fieldset.Legend`. No `aria-required`/`aria-disabled` of its own — those cascade individually to children, unlike Radio Group which sets them on the group container itself.
+- **You must provide**: a group label (`Fieldset.Legend` or `aria-labelledby`) and a label for each option, identical to standalone Checkbox.
+- **Known issues**: a custom `id` set on a child inside a parent-coordinated group silently breaks the parent's derived `aria-controls` (`mui/base-ui#2691`, acknowledged in a source `TODO`).
+
+## Styling hooks
+
+The group container itself carries only `data-disabled`, plus the full Field validity set (`data-valid`/`data-invalid`/`data-touched`/`data-dirty`/`data-filled`/`data-focused`) — no `data-checked`/`data-unchecked`/`data-indeterminate` of its own, since "checked" isn't meaningful for the container. Each child (and optional parent) carries the full `Checkbox.Root`/`Checkbox.Indicator` attribute set — see [Checkbox](?path=/docs/form-inputs-checkbox--docs#styling-hooks).
+
+## Choosing the right props
+
+- **`allValues`** — required for the parent-checkbox pattern to compute its tri-state correctly; must be paired with a controlled `value`+`onValueChange`.
+- **`disabled` (group-level)** — cascades to every child and takes precedence over any individual child's own `disabled={false}`; disabled children are excluded from the parent's bulk select-all/select-none computation.
+- **`required` (per-child, not group-level)** — see the counter-intuitive contract above; there is no group-level prop meaning "at least one selected."
+
+## Do / Don't
+
+**Do**
+
+- Wrap in `Field.Root name` when the array-valued result needs to reach native `FormData` as one field.
+
+**Don't**
+
+- Don't rely on individual child `required` to mean "pick at least one" — it means "every required one must be checked." Use a custom `validate` function instead.
+- Don't set a custom `id` on a child inside a parent-coordinated group — it breaks the parent's `aria-controls`.
+
+## In the wild
+
+[G] Pending Phase D dataset for checkbox-group (Tier 2 — see `research/d-real-world-usage/`). Strongly signaled by the built-in parent-checkbox feature and its own docs demos: permission/role-assignment forms, filter-checkbox panels with a "select all" toggle, and file/folder tree selectors.
+
+## Decision log
+
+- **(`#458`)** — Checkbox Group ships as "[CheckboxGroup] Implement components and hooks."
+- **(`#1948`)** — "Enable submitting checkbox group value as one field": the array-as-one-named-field submission contract, the component's clearest raison d'être.
+- **2025-11 (`#3205`, shared scope)** — Root renders `<span>` not `<button>`, applying identically to every checkbox in the group.
+- **2026 (`#4535`)** — "Fix uncontrolled default initialization": an array-valued-specific initialization edge case.
+- **2026 (`#4660`)** — "Remove `index.parts.ts` from Checkbox Group": confirms the single-part-component framing was a deliberate cleanup.
+- **2026 (`#4912`, `#4941`)** — Parent-checkbox hardening wave: "Fix parent checkbox with custom `validate` fn" and "Fix parent group cancellation and indeterminate state."
+- **2026 (`#4958`)** — "Fix validation with multiple required checkboxes": directly hardens the all-required-must-be-checked contract.
+- **`#2695` (declined)** — A user asked for a tree of grouped checkboxes with a "select all" root item *inside Combobox*; maintainers declined, scoping the parent-checkbox pattern deliberately to Checkbox Group's flat list rather than generalizing it into a tree widget.
+
+## Related
+
+- For an exclusive, always-exactly-one choice, use [Radio Group](?path=/docs/form-inputs-radio--docs).
+- For a single independent checkbox with no group coordination, use [Checkbox](?path=/docs/form-inputs-checkbox--docs).
+- To add labels, descriptions, and validation, wrap in [Field](?path=/docs/form-inputs-field--docs).
+
+## API reference
+
+### CheckboxGroup
+
+<ArgTypes of={CheckboxGroupStories.Basic} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/checkbox-group](https://base-ui.com/react/components/checkbox-group#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+checkbox-group) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/checkbox-group).*
