@@ -1,0 +1,159 @@
+{/* Evidence tier: Tier 2 (leaner depth, research/c-components/number-field/brief.md). Sections pending the full Tier-1 sweep carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as NumberFieldStories from './number-field.stories';
+
+<Meta of={NumberFieldStories} />
+
+# Number Field
+
+A numeric input element with increment and decrement buttons, and a scrub area.
+
+- **Import:** `import { NumberField } from '@base-ui/react/number-field';`
+- **Parts:** 7 — `NumberField.Root`, `Group`, `Input`, `Increment`, `Decrement`, `ScrubArea`, `ScrubAreaCursor`.
+- **Status:** Stable. One of Base UI's three founding components (alpha.0, April 2024, PR #186), continuously maintained — a dense 2026 cluster of parsing/formatting correctness fixes shows the format pipeline is still actively invested surface, not settled legacy code.
+- **ARIA pattern:** No dedicated APG pattern is implemented (see below) — the closest named pattern is [Spinbutton](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/), which this component deliberately does **not** use.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={NumberFieldStories.Hero} />
+
+## Features
+
+- **Typed, formatted numeric entry first, stepping as an enhancement** — the visible `Input` renders `type="text"`, not `type="number"`, so `Intl.NumberFormat`-quality display (currency, percent, units, grouping) can be shown and edited; a hidden `<input type="number">` carries native constraint validation and form submission, decoupled from the formatted text.
+- **Two change callbacks, not one** — `onValueChange` fires on every parseable intermediate change; a separate `onValueCommitted` fires only once a value is finalized (blur, pointer release, or immediately for keyboard steps). Document them together — the split is easy to misread as redundant.
+- **A scrub area for pointer users** — click-and-drag anywhere in `ScrubArea` to change the value continuously, with a portaled virtual cursor (`ScrubAreaCursor`) replacing the OS cursor during the gesture. Fully optional; both parts render `role="presentation"`.
+- **Locale- and format-aware** — `format` (raw `Intl.NumberFormatOptions`) and `locale` control currency, percent, unit, and numeral-system display without a separate parsing layer to maintain yourself.
+
+## When to use
+
+- Any numeric value that benefits from formatted display (currency, percent, units) alongside typed entry and click-to-step controls — the entire `parse.ts`/`validate.ts`/`formatNumber` pipeline exists specifically for this.
+- Forms needing native constraint validation (`min`/`max`/`step`/`required`) on a numeric field, where the formatted display must never pollute the submitted value.
+- A bounded, steppable range where increment/decrement affordances and/or drag-to-scrub add value beyond free-text entry.
+- [G] Fuller evidenced real-world archetypes (checkout quantity fields, currency settings panels) are plausible but not yet corpus-verified — Phase D real-world usage mining has not run for this component.
+
+## When not to use
+
+- For continuous/glanceable range selection where exact typed precision matters less than position-relative-to-bounds, prefer [Slider](?path=/docs/form-inputs-slider--docs) — its primary interaction is the drag gesture itself, with no typed-entry path at all. [I] — inferred from the two components' divergent design poles, not a direct maintainer quote comparing them.
+- For plain unformatted numeric entry with no locale/formatting/stepping need, a bare `Input` (or native `<input type="number">`) is lower overhead. [G] — no maintainer quote found making this comparison directly; this follows from Number Field's stated purpose.
+- Not for math-expression evaluation (`"5+20"`) — maintainers explicitly declined this direction and suggested a separate component (mui/base-ui#2152).
+
+## Anatomy
+
+```tsx
+import { NumberField } from '@base-ui/react/number-field';
+
+<NumberField.Root>
+  <NumberField.ScrubArea>
+    <NumberField.ScrubAreaCursor />
+  </NumberField.ScrubArea>
+  <NumberField.Group>
+    <NumberField.Decrement />
+    <NumberField.Input />
+    <NumberField.Increment />
+  </NumberField.Group>
+</NumberField.Root>;
+```
+
+| Part                                  | Renders                       | Purpose                                                                                      | Optional?                                   |
+| ------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `NumberField.Root`                    | `<div>`                       | Manages state; renders a hidden `<input type="number">` for native form participation        | required                                    |
+| `NumberField.Group`                   | `<div>`, `role="group"`       | Semantic wrapper around Decrement/Input/Increment                                            | yes — purely ARIA/visual grouping           |
+| `NumberField.Input`                   | `<input type="text">`         | The only structurally-required part beyond Root; the formatted, typed value                  | required                                    |
+| `NumberField.Increment` / `Decrement` | `<button>`                    | Stepper buttons; share one internal implementation, differing only in direction and boundary | yes                                         |
+| `NumberField.ScrubArea`               | `<span>`                      | Click-and-drag gesture area                                                                  | yes                                         |
+| `NumberField.ScrubAreaCursor`         | `<span>` (portaled to `body`) | Virtual cursor shown while scrubbing                                                         | yes, and only meaningful inside `ScrubArea` |
+
+## How it works
+
+### `onValueChange` vs `onValueCommitted`
+
+The single most decision-relevant behavioral contract in this component: `onValueChange(value, eventDetails)` fires on every parseable intermediate change (each keystroke that parses, each step). A separate `onValueCommitted(value, eventDetails)` fires only when a value is finalized — on blur after typing, on pointer release after scrubbing/button-press, or simultaneously with `onValueChange` for keyboard/wheel interactions. `onValueCommitted`'s own JSDoc warns: "This is a generic event not a change event" — only `onValueChange`'s `eventDetails.cancel()` can veto a change.
+
+### Keyboard stepping
+
+<Canvas of={NumberFieldStories.KeyboardStepping} />
+
+Arrow keys step by `step` (default `1`); Shift multiplies to `largeStep` (default `10`); Alt uses `smallStep` (default `0.1`). Home/End jump directly to `min`/`max` — but **only when those props are set**; otherwise the browser's native text-caret Home/End behavior takes over instead (source comment: "Let the browser handle ... Home/End without min/max").
+
+**PageUp/PageDown are deliberately native, not a large-step key** — this is a verified-absence finding, not an oversight: the source's own key-handling list explicitly falls through to native browser behavior for PageUp/PageDown, diverging from the ARIA spinbutton pattern's optional PageUp/PageDown-as-large-step convention. Consistent with the ARIA choice below, this component never adopted that pattern.
+
+### The scrub area
+
+<Canvas of={NumberFieldStories.ScrubArea} />
+
+Click-and-drag anywhere in `ScrubArea` to change the value continuously (pointer lock, outside Safari/WebKit which is explicitly excluded to avoid a native layout-shifting notification). **This story renders and describes the gesture rather than driving it with a play function**: real OS-level pointer lock is denied or inconsistent in headless browser automation, and the project's own `NumberFieldScrubArea.test.tsx` skips both JSDOM and WebKit for the same reason — an honest limitation, not a shortcut taken only here.
+
+### min / max / step
+
+<Canvas of={NumberFieldStories.MinMaxStep} />
+
+`step` (default `1`) governs stepping; unset `min`/`max` default internally to `Number.MIN_SAFE_INTEGER`/`MAX_SAFE_INTEGER`, but the _native_ hidden input only receives the literal `min`/`max` passed in — which matters for native `stepMismatch`/`rangeOverflow` validity.
+
+### Form integration
+
+<Canvas of={NumberFieldStories.FormIntegration} />
+
+The story applies `noValidate` on the surrounding `<form>` deliberately: the default `step={1}` triggers native step validation once an explicit `min` is present, and forms that skip `noValidate` can have submission silently blocked by a native browser popup the developer didn't expect (mui/base-ui#3552, a confirmed shadcn/RHF-forms pitfall). Base UI's own `Field`/`Form` validation is meant to be authoritative instead.
+
+## Keyboard & screen reader
+
+| Key                                                                                       | Context                        | Action                                                                              |
+| ----------------------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------- |
+| Any numeral / decimal / group / sign / currency / unit / percent symbol the format allows | Input focused                  | Typed directly; parseable intermediate values fire `onValueChange` (`input-change`) |
+| ArrowUp / ArrowDown                                                                       | Input focused                  | Steps by `step` (Shift → `largeStep`, Alt → `smallStep`); commits immediately       |
+| Home / End                                                                                | Input focused, `min`/`max` set | Jumps to `min`/`max`; commits immediately. No-op (native caret behavior) when unset |
+| PageUp / PageDown                                                                         | Input focused                  | **Not implemented** — falls through to native browser handling                      |
+| Backspace / Delete / ArrowLeft / ArrowRight / Tab / Enter / Escape                        | Input focused                  | Native text-editing/navigation, explicitly passed through                           |
+| Click-drag on ScrubArea                                                                   | Pointer down                   | Continuous stepping proportional to movement; pointer-only                          |
+
+- **ARIA — verified absence, not an assumption**: the Input does **not** use `role="spinbutton"`. Reading `NumberFieldInput.tsx` and grepping the entire `number-field/` source tree directly confirms there is no `role="spinbutton"`, no `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` anywhere. The Input is a plain implicit `role="textbox"` (confirmed by tests: `screen.getByRole('textbox')` is used pervasively across `NumberFieldRoot.test.tsx`). It additionally carries `aria-roledescription="Number field"` — a role _description_, not an accessible name; use `Field.Label`/`aria-label` for that.
+- This was a considered decision: the founding PR #186's checklist included "Research if spinbutton ARIA props become necessary for iOS" as an open TODO — the shipped component never added them, and no later PR reversed that. [I] The likely rationale (not a maintainer quote — [G]): a spinbutton's `aria-valuenow`/`aria-valuetext` model fits a value that's _set_, whereas this component's primary interaction is free-form formatted text editing where the visible text should simply be read like any other text input.
+- **Known issues**: [G] no dedicated open a11y issue sweep beyond source verification was performed for this Tier-2 brief.
+
+## Styling hooks
+
+State attributes present on **every** part (`data-scrubbing` included, per the library-wide duplicated-attribute doctrine):
+
+| Attribute                                                                                      | Present when                                                                                           |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `data-scrubbing`                                                                               | a scrub gesture is active — on every part, not just `ScrubArea`, useful for dimming steppers mid-scrub |
+| `data-disabled` / `data-readonly` / `data-required`                                            | matching prop set                                                                                      |
+| `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-filled` / `data-focused` | Field integration only                                                                                 |
+
+**No CSS custom properties exist for this component** — confirmed by directory listing; the only dynamic visual element (the scrub cursor) is positioned via a directly-set inline `transform`, not a variable.
+
+## Choosing the right props
+
+- **`format` / `locale`** — the entire formatting surface is delegated to standard `Intl.NumberFormatOptions`; combine with `locale` to vary independently.
+- **`allowOutOfRange`** — lets _direct text entry only_ (typing/paste/clear/autofill) exceed `min`/`max` so native range-overflow validation can fire; step-based interactions (arrows, buttons, wheel, scrub) always clamp regardless.
+- **`snapOnStep`** — snaps increment/decrement results to the nearest multiple of `step`, using directional snapping for regular steps and nearest-multiple snapping for Alt/`smallStep` moves.
+- **`allowWheelScrub`** — one step per discrete wheel tick while the input is focused; distinct from the accumulating drag-based `ScrubArea` gesture. Explicitly ignores `ctrlKey` wheel events (pinch-zoom) so it doesn't hijack browser zoom.
+
+## Do / Don't
+
+**Do**
+
+- Add `noValidate` to the surrounding `<form>` if you want Base UI's own `Field`/`Form` validation to be authoritative over native `step`/`min` constraint popups (mui/base-ui#3552).
+- Read the `onValueChange`/`onValueCommitted` split together — they are not redundant names for the same event.
+
+**Don't**
+
+- Don't expect `role="spinbutton"` or `aria-valuenow` — verified absent from source, not merely undocumented.
+- Don't expect PageUp/PageDown to large-step — only Home/End (when bounds are set) and Shift+Arrow do.
+
+## Related
+
+- For continuous/glanceable range selection instead of typed precision, use [Slider](?path=/docs/form-inputs-slider--docs).
+- To add labels, descriptions, and validation, wrap in [Field](?path=/docs/form-inputs-field--docs).
+
+## API reference
+
+### NumberField.Root
+
+<ArgTypes of={NumberFieldStories.Hero} />
+
+_Full JSDoc-driven reference: [base-ui.com/react/components/number-field](https://base-ui.com/react/components/number-field#api-reference)._
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+number-field) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/number-field)._

@@ -1,0 +1,164 @@
+{/* Evidence tier: Tier 2 lean-plus (research/c-components/otp-field/brief.md). Sections pending the full Tier-1 sweep carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as OTPFieldStories from './otp-field.stories';
+
+<Meta of={OTPFieldStories} />
+
+# OTP Field <span title="Recently added, not experimental — see the Identity strip below">[New]</span>
+
+A one-time password input composed of individual character slots.
+
+- **Import:** `import { OTPField } from '@base-ui/react/otp-field';`
+- **Parts:** 3 — `OTPField.Root`, `OTPField.Input` (one per slot), `OTPField.Separator` (a verbatim re-export of the standalone `Separator`).
+- **Status:** Stable since v1.6.0. **Preview → stable timeline:** shipped as a preview component in v1.4.0 (PR #4365, 2026-04-10, exported as `OTPFieldPreview`); graduated to stable in v1.6.0 (PR #5029, 2026-06-17), renaming the export `OTPFieldPreview` → `OTPField` as an explicit breaking change. Just over two months preview-to-stable — notably fast by this library's own standard.
+- **The `[New]` tag above is deliberate, not a stale badge.** The docs component index still shows OTP Field tagged `[New]` even though it is fully stable — PR #5029's own body states the intended change verbatim: "Components list: `OTP Field [Preview]` → `OTP Field [New]`." The maintainers chose to keep flagging it as recently-added-and-noteworthy rather than drop all badging once it left preview.
+- **ARIA pattern:** none directly applicable — there is no W3C APG pattern named "OTP input" or "PIN input"; this is architecturally _N_ separate native textboxes coordinated by roving `tabIndex` inside a `role="group"` container, not a single composite-widget role.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={OTPFieldStories.Hero} />
+
+## Features
+
+- **A real, separately-focusable native `<input>` per character slot** — each slot forwards native input events (change/keydown/paste/focus/blur) through a shared Root-level string state, rather than a single hidden input with visual overlays.
+- **`length` is the required, load-bearing source of truth** — not "count the rendered Inputs." It drives validation, hidden-input form integration, completion state, and deterministic SSR. A dev-only warning fires if the rendered `Input` count doesn't match it.
+- **Three built-in `validationType` presets** (`'numeric'` default, `'alpha'`, `'alphanumeric'`) plus a `'none'` + `normalizeValue` escape hatch for fully custom rules.
+- **`autoSubmit` and `onValueComplete` are independent capabilities** — `onValueComplete` fires whenever the code becomes complete regardless of `autoSubmit`; `autoSubmit` additionally calls `requestSubmit()` right after.
+
+## When to use
+
+- One-time password, SMS/email verification code, or 2FA code entry where each character should occupy its own visually distinct, individually-focusable box.
+- Numeric codes of a fixed, known length (`validationType="numeric"`, the default) — SMS/authenticator-app style codes.
+- Alphanumeric or alphabetic recovery/backup/invite codes (`validationType="alphanumeric"`/`"alpha"`).
+- Codes needing visual chunking for readability (e.g. `123-456`) without changing the underlying contiguous value — `OTPField.Separator` between grouped, plain-`<div>`-wrapped subsets of inputs.
+- Masked entry for shared-screen/kiosk scenarios (`mask`), or auto-submitting the instant the code is complete (`autoSubmit`).
+
+## When not to use
+
+- A short code with no need for individual-character visual segmentation → a plain text `Input`/`Field` is simpler; the whole roving-focus/paste-splitting/hidden-validation-input machinery is overhead a single box doesn't need. [G] — no maintainer quote directly compares the two; this follows from the component's stated purpose.
+- Long-form free text or multi-word entry → not a fit at all; the entire pipeline assumes a fixed `length`, one character per slot.
+- A masked _password_ field with an unknown/variable length → a plain password `Input`, not OTP Field with `mask`. [I] — OTP Field's fixed-`length` contract and per-slot navigation model are built for known-length codes, not open-ended password entry.
+- Math-expression or free-form numeric entry → [Number Field](?path=/docs/form-inputs-number-field--docs), which has an `Intl.NumberFormat`-based parsing pipeline this component doesn't.
+
+## Anatomy
+
+```tsx
+import { OTPField } from '@base-ui/react/otp-field';
+
+<OTPField.Root length={6}>
+  <OTPField.Input />
+  {/* …repeated, one per slot */}
+  <OTPField.Separator />
+</OTPField.Root>;
+```
+
+| Part                 | Renders                  | Purpose                                                                        | Optional?             |
+| -------------------- | ------------------------ | ------------------------------------------------------------------------------ | --------------------- |
+| `OTPField.Root`      | `<div>`, `role="group"`  | Owns the single string value, `length` contract, and a hidden validation input | required              |
+| `OTPField.Input`     | `<input>`                | One character slot; `length` of these are expected                             | required (× `length`) |
+| `OTPField.Separator` | re-export of `Separator` | Purely visual grouping between subsets of Inputs                               | yes                   |
+
+The anatomy is intentionally flat — no `Group`/`Slot`/`Digit` wrapper part exists. Arbitrary DOM nesting between Root and its Inputs is explicitly supported (the docs' own "Grouped layouts" demo wraps subsets of Inputs in plain `<div>`s), since slot order is tracked via actual render order, not tree depth.
+
+## How it works
+
+### Typing to completion
+
+<Canvas of={OTPFieldStories.TypeToComplete} />
+
+Typing a character matching `validationType` (or passing `normalizeValue`) fills the current slot and auto-advances focus to the next one. `onValueComplete(value, eventDetails)` fires once all `length` slots are filled — including firing again if a different complete value later replaces an already-complete one (see the paste story below).
+
+### Pasting a full code
+
+<Canvas of={OTPFieldStories.PasteCompletesCode} />
+
+Pasting normalizes the clipboard text and splices it into the value starting at the pasted-into slot (not necessarily slot 0), then re-clamps to `length`. The story's play function follows the project's own tested paste technique — a manually-defined `clipboardData` property on a real `paste` event — since higher-level testing-library paste helpers aren't sufficient here.
+
+### Backspace vs. Delete
+
+<Canvas of={OTPFieldStories.BackspaceNavigation} />
+
+This is the single most distinctive and easy-to-misread interaction in the component, so it's worth stating precisely:
+
+All slots share one contiguous string value under the hood (`value[index]` per slot), so removing a character is a real string splice — later characters shift left to fill the gap, not just "this slot goes blank."
+
+- **Backspace on a filled slot** removes that slot's character from the string (later characters shift left).
+- **Backspace on an _empty_, non-first slot** cascades backward: it removes the _nearest filled slot's_ character to the left and moves focus there — a deliberately forgiving UX matching the common OTP-input convention of "eating backward" through empty slots, not a bug.
+- **Delete** always removes the current slot's character and never moves focus — but because of the shared-string splice, a Delete on a _middle_ slot still visibly shifts every later slot's displayed character down by one (verified directly against `OTPFieldInput.test.tsx`: `defaultValue="1234"`, Delete on slot 1 → `['1','3','4','','','']`, focus stays on slot 1). This is a deliberate asymmetry from Backspace only in whether focus moves, not in whether later slots shift.
+- **Ctrl/Cmd+Backspace** clears the entire value in one keystroke and returns focus to the first slot.
+
+### Form submission
+
+<Canvas of={OTPFieldStories.FormSubmit} />
+
+The full value is carried by a hidden, `aria-hidden` validation `<input type="text">` rendered as a sibling of the visible slots — carrying `pattern`/`minLength`/`maxLength`/`name`/`form`/`autoComplete`/`inputMode` derived from `length` and `validationType`. This is the element real password-manager/SMS autofill actually targets, and the same "hidden input carries native semantics" pattern used by [Number Field](?path=/docs/form-inputs-number-field--docs) and [Slider](?path=/docs/form-inputs-slider--docs).
+
+## Keyboard & screen reader
+
+| Key                                     | Context      | Action                                                                             |
+| --------------------------------------- | ------------ | ---------------------------------------------------------------------------------- |
+| Any character matching `validationType` | Slot focused | Fills the slot; focus advances                                                     |
+| ArrowLeft / ArrowRight (flipped in RTL) | Slot focused | Moves focus to the previous/next slot; Ctrl/Cmd jumps to the first/end-target slot |
+| Home / ArrowUp                          | Slot focused | Jumps to the first slot                                                            |
+| End / ArrowDown                         | Slot focused | Jumps to the first empty slot, or the last slot if complete                        |
+| Backspace                               | Slot focused | Clears in place (filled) or cascades left (empty, non-first)                       |
+| Delete                                  | Slot focused | Clears the current slot only; focus never moves                                    |
+| Ctrl/Cmd+Backspace                      | Slot focused | Clears the entire value; focus returns to slot 0                                   |
+| Ctrl/Cmd+V                              | Slot focused | Pastes and distributes across slots from the current position                      |
+| Tab / Shift+Tab                         | Slot focused | Moves focus out of the field entirely — only the active slot is a tab stop         |
+
+- **Root renders `role="group"`**, not a composite-widget role. Each slot is `role="textbox"` (the native implicit role of `<input type="text">`), or the native role a `type="password"` input exposes when `mask` is set.
+- **Roving `tabIndex`, not full Tab-stops-on-every-slot**: only the active slot gets `tabIndex={0}`; every other slot gets `tabIndex={-1}`. Tab moves out of the field entirely.
+- **Labeling is asymmetric across slots — verify, don't assume.** Slot 0 inherits the field's overall accessible name via an external `<label htmlFor>` or `Field.Label`; slots 1..N-1 need their own `aria-label` (e.g. `"Character 2 of 6"`) to be distinguishable to assistive technology. A dev-only warning catches `aria-label` mistakenly placed on slot 0 — but there is **no** warning for the inverse mistake (forgetting `aria-label` on later slots entirely). This directly answers "single input semantics vs. per-slot labeling?": the actual contract is a hybrid of both, not either extreme.
+- `aria-invalid` is applied **per-slot**, not just at the group level — a screen-reader user landing on any slot hears the invalid state.
+- **Known issues**: [G] masked slots (`mask` prop, native `type="password"`) may not expose the same accessible `textbox` role that unmasked slots do in all browser/AT combinations — flagged as a nuance to verify independently with a real screen reader, not a confirmed fact. [G] No dedicated open a11y-issue sweep was performed beyond source verification for this Tier-2 brief.
+
+## Styling hooks
+
+| Attribute                                                                      | Where                | Present when                                                                                                                                                               |
+| ------------------------------------------------------------------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-complete`                                                                | Root and every Input | all slots are filled — on Input, this reflects the _whole field's_ state, not the individual slot                                                                          |
+| `data-filled`                                                                  | Root                 | at least one character exists anywhere in the value                                                                                                                        |
+| `data-filled`                                                                  | Input                | **this individual slot** has a character — a genuine naming collision with Root's meaning; a shared `[data-filled]` selector across both levels can give confusing results |
+| `data-disabled` / `data-readonly` / `data-required`                            | both                 | matching prop set                                                                                                                                                          |
+| `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-focused` | Root                 | Field integration only                                                                                                                                                     |
+
+**No CSS custom properties exist for this component** — no popup/positioning surface, and every slot is a plain styled `<input>` with nothing dynamic to expose.
+
+## Choosing the right props
+
+- **`length`** — must exactly match the rendered `Input` count; drives validation, forms, completion, and SSR.
+- **`validationType`** — `'numeric'` (default), `'alpha'`, `'alphanumeric'`, or `'none'` (defer fully to `normalizeValue`).
+- **`normalizeValue`** — runs after built-in filtering, and its output is filtered again afterward; must be idempotent since the pipeline may apply it more than once.
+- **`autoSubmit`** — submits the owning form via `requestSubmit()` right after `onValueComplete` fires; blocked if a sibling field in the same `Form` is invalid, with focus redirected there instead.
+- **`mask`** — switches every slot's native `type` to `"password"`; overridable per-slot via an explicit `type` prop.
+
+## Do / Don't
+
+**Do**
+
+- Label slot 0 via an external `<label>`/`Field.Label`, and give every other slot its own `aria-label`.
+- Add `noValidate`-equivalent care when combining `autoSubmit` with other `Form` fields — auto-submit is blocked library-wide when any sibling field fails validation.
+
+**Don't**
+
+- Don't put `aria-label` on slot 0 — it is silently dropped and a dev warning fires.
+- Don't assume `getByRole('textbox')` finds masked slots the same way it finds unmasked ones — verify independently.
+- Don't import `OTPFieldPreview` — it was renamed to `OTPField` as a breaking change in v1.6.0.
+
+## Related
+
+- For a plain, unsegmented numeric value with formatting, use [Number Field](?path=/docs/form-inputs-number-field--docs).
+- To add labels, descriptions, and validation, wrap in [Field](?path=/docs/form-inputs-field--docs).
+
+## API reference
+
+### OTPField.Root
+
+<ArgTypes of={OTPFieldStories.Hero} />
+
+_Full JSDoc-driven reference: [base-ui.com/react/components/otp-field](https://base-ui.com/react/components/otp-field#api-reference)._
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+otp-field) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/otp-field)._
