@@ -31,7 +31,10 @@ const meta = {
 } satisfies Meta<typeof Toast.Root>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// Toast.Root's required `toast` prop is only ever supplied internally by the
+// Provider/useToastManager scaffold, never via story args — every story here is
+// render-based, so the Story type is untyped on args.
+type Story = StoryObj;
 
 /* ------------------------------------------------------------------ */
 /* Shared scaffold                                                     */

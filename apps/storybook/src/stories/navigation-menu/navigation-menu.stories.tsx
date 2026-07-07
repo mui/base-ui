@@ -118,7 +118,11 @@ const handbookLinks = [
   },
 ] as const;
 
-function LinkCards({ links }: { links: readonly (typeof overviewLinks)[number][] }) {
+function LinkCards({
+  links,
+}: {
+  links: ReadonlyArray<{ href: string; title: string; description: string }>;
+}) {
   return (
     <ul className={styles.FlexLinkList}>
       {links.map((item) => (

@@ -1,44 +1,37 @@
-# Phase E coverage — verified 2026-07-07 (updated after the evening 1h sprint)
+# Phase E coverage — FINAL (2026-07-07 late evening)
 
-Verification evidence (sprint update 21:01): `npx vitest --project storybook run` (all 16 files) → **263/263 tests passed**. Earlier close-out evidence: `pnpm build-storybook` green; `npx tsc -p tsconfig.json --noEmit` clean (library graph included; re-verified clean by sprint agents); repo gates: `pnpm typescript` (tsgo -b) clean, `pnpm test:jsdom Switch --no-watch` 80 passed/8 browser-gated skips.
+**Definitive verification** (run at close-out, after the last fix):
+- `npx vitest --project storybook run` → **40 files passed, 337/337 tests passed**
+- `pnpm build-storybook` → completed successfully
+- `npx tsc -p tsconfig.json --noEmit` → clean, exit 0 (library source graph included)
+- Repo gates (verified at the earlier close-out; no library/docs source touched since): `pnpm typescript` (tsgo -b) clean; `pnpm test:jsdom Switch --no-watch` green.
 
-## Sprint additions (2026-07-07 evening)
+**Coverage floor: MET library-wide** — every one of the 37 components has ≥1 vitest-verified story + a DoD-shaped MDX docs page; all 4 documented utils covered (csp-provider is MDX-only by design — it renders nothing).
 
-| Component | Stories | MDX | Notes |
-|---|---|---|---|
-| toast | 21 | ✓ | manager pattern; announcement architecture asserted |
-| field | 18 | ✓ | fixes: `required` on Control; dirty-flag test nuance |
-| form | 10 | ✓ | submit gate + focus-first-invalid + server errors plays |
-| navigation-menu | 17 | ✓ | 3 real bugs fixed; Link+render browser-hang finding filed |
-| drawer | 17 | ✓ | SwipeArea inverse-direction finding; gesture plays deliberately excluded |
-| progress | 5 | ✓ | role/aria plays |
-| meter | 4 | ✓ | role=meter play |
-| avatar | 3 | ✓ | broken-src fallback play |
-| separator | 3 | ✓ | orientation plays |
+## Per-component story counts
 
-First Wave-A launch was killed by the Fable 5 usage limit mid-write; sonnet continuation agents recovered from committed salvage — several components turned out already complete on disk.
+Tier-1 deep sets (per-component agents): switch 7 (pilot, incl. the single project-wide CssCheck) · select 29 (3 recreations) · menu 28 (3 recreations) · popover 30 (3 recreations) · dialog 24 (2 recreations) · autocomplete 22 · combobox 26 · toast 21 · field 18 · form 10 · navigation-menu 17 · drawer 17.
 
-## Built components (7)
+Floor batches (counts per batch report, sums verified against the 337 total):
+- status four (progress/meter/avatar/separator): 14
+- disclosure trio (accordion/collapsible/tabs): 10
+- binary family (radio/checkbox/checkbox-group): 11
+- actions four (button/toggle/toggle-group/toolbar): 10
+- hover-cards + scroll (tooltip/preview-card/scroll-area): 11
+- overlay variants (alert-dialog/context-menu/menubar): 8
+- numeric trio (number-field/slider/otp-field): 14
+- input + fieldset + utils (input/fieldset/direction-provider/merge-props/use-render): 10; csp-provider: MDX only
 
-| Component | CSF file | Stories | Play functions | MDX page | Tags | Status |
-|---|---|---|---|---|---|---|
-| switch | src/stories/switch/switch.stories.tsx | 7 | 4 (incl. the project-wide CssCheck) | ✓ | ai-generated | all green |
-| select | src/stories/select/select.stories.tsx | 29 | ~14 (incl. 3 recreations: kumo/gutenberg-idea/flashtype) | ✓ | ai-generated | all green |
-| menu | src/stories/menu/menu.stories.tsx | 28 | ~18 (incl. 3 recreations) | ✓ | ai-generated | all green |
-| popover | src/stories/popover/popover.stories.tsx | 30 | ~20 (incl. 3 recreations) | ✓ | ai-generated | all green |
-| dialog | src/stories/dialog/dialog.stories.tsx | 24 | ~16 (incl. 2 recreations: oxide SideModal, shadcn settings) | ✓ | ai-generated | all green |
-| autocomplete | src/stories/autocomplete/autocomplete.stories.tsx | 22 | 17 | ✓ | ai-generated | all green |
-| combobox | src/stories/combobox/combobox.stories.tsx | 26 | 18 | ✓ | ai-generated | all green |
+All story files carry `tags: ['ai-generated']` — every `needs-work` tag was stripped only after its file's vitest run went green. Every overlay component has at least one full open/close interaction play; portal content is asserted via `within(canvasElement.ownerDocument.body)` throughout.
 
-Total: **166 stories**, every overlay component has full open/close interaction plays; every file's `needs-work` tag was stripped only after vitest green.
+## Final fixes at close-out
 
-## Not built (halted by user wind-down directive, 2026-07-07)
+- toast.stories.tsx: `StoryObj<typeof meta>` demanded the required `toast` prop, which is only ever supplied by the Provider scaffold — Story type untyped on args (all stories render-based).
+- navigation-menu.stories.tsx: `LinkCards` prop widened from one `as const` array's literal type to the structural link shape.
 
-30 components + 4 utils have complete briefs + story plans but no stories/MDX yet: toast, field, form, navigation-menu, drawer (Tier 1); alert-dialog, context-menu, menubar, number-field, otp-field, slider, tabs, tooltip, preview-card, scroll-area, accordion, radio(+radio-group), checkbox, checkbox-group (Tier 2); avatar, button, collapsible, fieldset, input, meter, progress, separator, toggle, toggle-group, toolbar (Tier 3); csp-provider (MDX-only planned), direction-provider, merge-props, use-render (utils).
+## Known caveats (honest)
 
-To continue: research/RESUME-PLAYBOOK.md §E-authoring (per-component prompts; known lessons baked in: waitFor around post-open visibility asserts, portal queries via ownerDocument.body, cancel both `outside-press` and `focus-out`).
-
-## Known caveats
-
-- MDX pages are compile-verified (build) and content-verified, but only switch's page was browser-spot-checked visually; the other six render the same block set (template-identical) — a visual pass is a follow-up.
-- The §13 coverage floor ("every component ≥1 story + MDX") is intentionally unmet due to the wind-down; recorded as a shortfall, not papered over.
+- MDX pages are compile+build-verified; only switch's page was visually spot-checked in the browser. A visual pass over the other 40 pages is a follow-up.
+- Full ranked/annotated real-world datasets exist for select/dialog/menu/popover only (compression decision); other components have candidates-only or honest-empty datasets.
+- One reproducible upstream-or-tooling finding filed during authoring: NavigationMenu.Link with a render-composed child hangs the vitest browser (worked around; follow-up chip filed).
+- Gesture interactions (drawer swipe, number-field scrub, toast swipe) are rendered and documented but not play-driven — pointer-capture gestures aren't reliably testable in this harness.
