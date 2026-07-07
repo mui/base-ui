@@ -92,6 +92,8 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 ## Decisions log
 
+- 2026-07-07 09:40: **Scope compression under time pressure** (user: "I don't have that much time anymore"), applying PROMPT §12's cut order: (1) screenshots formally CUT session-wide (all `screenshot.status` stay "not-attempted"); (2) remaining Phase D (Tier-1 remainder + all Tier 2/3) reduced to corpus-derived candidates.json only — no new code searches, no ranked.json beyond what exists (select/dialog/menu/popover keep full datasets); (3) recreation stories only for the 4 components with ranked data; (4) Tier-2 C briefs demoted to lean-plus (source+docs+mined-index, ≤4 gh lookups), batched 3–4 per sonnet agent like Tier 3; (5) coverage floor unchanged: every component ends with brief + candidates.json + ≥1 verified story + MDX page. Tier-1 briefs/stories stay full depth.
+
 - 2026-07-06: Work pushed to `origin` = yannbf/base-ui (brief's storybook-tmp/base-ui does not exist as a remote here; origin is the owner's fork — closest match to the brief's intent, upstream mui/base-ui remains read-only).
 - 2026-07-06: Phases A and B mined via parallel subagents writing directly into `research/`; synthesis artifacts (definition-of-done, principles.md, taxonomy) authored by the orchestrator from the mined notes.
 - 2026-07-06: Skipped unshallowing (clone already full).
