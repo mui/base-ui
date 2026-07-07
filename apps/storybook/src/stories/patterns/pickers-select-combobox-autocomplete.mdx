@@ -1,0 +1,118 @@
+{/* Pattern page. MDX-only — no stories.tsx. Deepens the Pickers section of
+    Overview/Choosing components with the anatomy-driven boundary, the clearable-select
+    gray zone, form-participation differences, and migration hints. Sourced from
+    research/c-components/_clusters/pickers.md. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Patterns/Pickers: select, combobox, autocomplete" />
+
+# Pickers: select, combobox, autocomplete
+
+[Select](?path=/docs/form-inputs-select--docs), [Combobox](?path=/docs/form-inputs-combobox--docs),
+and [Autocomplete](?path=/docs/form-inputs-autocomplete--docs) shipped with deliberately
+parallel part grammars — Combobox and Autocomplete even landed in the same PR
+([mui/base-ui#2105](https://github.com/mui/base-ui/pull/2105)) — because they're the same
+listbox-popup engine answering three different questions about the value. This page owns the
+boundary; [Overview/Choosing components](?path=/docs/overview-choosing-components--docs) has the
+condensed table.
+
+## The anatomy-driven boundary
+
+The single deciding signal, stated directly in the docs, is **whether a visible text input is
+rendered** — not list length: "Use Select instead of Combobox if no input is being rendered,
+which includes accessibility features specific to a listbox without an input" [E] (combobox
+docs usage guidelines). Once an input exists, the next question is whether it accepts free text:
+"Combobox does not allow free-form text input. For search widgets, consider using Autocomplete
+instead" [E] (same source).
+
+1. **Does the user type text that is itself the answer** (a search box, tags with novel values)?
+   → [Autocomplete](?path=/docs/form-inputs-autocomplete--docs) — free text *is* the value; the
+   list only suggests or completes it.
+2. **Is there a visible input filtering a fixed set of predefined values?** →
+   [Combobox](?path=/docs/form-inputs-combobox--docs): "Combobox is a filterable Select…
+   prefer Combobox over Select when the number of items is sufficiently large to warrant
+   filtering" [E] (combobox docs usage guidelines).
+3. **Neither** — a button plus a list of predefined values, form-friendly, where keyboard
+   typeahead is enough? → [Select](?path=/docs/form-inputs-select--docs): the presence of an
+   input is the deciding signal, not list length alone [E] (same source, inverted statement).
+4. **The popup performs actions rather than picking a persisted value?** None of these apply —
+   see [Menus & navigation](?path=/docs/patterns-menus-navigation--docs).
+
+## Decision table
+
+| Question | Select | Combobox | Autocomplete |
+|---|---|---|---|
+| Renders a text input? | never | yes | yes — it *is* the control |
+| Filterable by typing? | no (typeahead only) | yes — its reason to exist | yes |
+| Free-form text allowed? | no | no | yes |
+| Selection state remembered? | yes | yes | no committed selection |
+| Focus model | items get real DOM focus (no virtual focus, [#2569](https://github.com/mui/base-ui/issues/2569)) | virtual focus — input keeps DOM focus, items only highlighted | same virtual-focus model as Combobox |
+| ARIA shape | `role="combobox"` trigger button + `listbox` popup (APG *select-only combobox* [E], [mui/base-ui#4754](https://github.com/mui/base-ui/issues/4754)) | editable `role="combobox"` + listbox (APG editable combobox) | editable combobox with list autocomplete |
+| Built-in Clear button | no | yes (`Combobox.Clear`) | yes (`Autocomplete.Clear`) |
+| `multiple`? | yes | yes, plus `Chips`/`Chip`/`ChipRemove` for tokenized display | n/a — value is text |
+
+## The clearable-select gray zone
+
+Native `<select>` has no clear button — "native HTML and OS [selects] just don't have a clear
+button" [E] (mj12albert, [mui/base-ui#2734](https://github.com/mui/base-ui/issues/2734)) — which
+is a real, acknowledged gap when a Select's value should be resettable without a filter input.
+The gray zone is real, not just a missing prop: "This seems to exist in a kind of gray area
+between two use cases. It seems unlikely… that the listbox would be long enough that a clear
+button would be useful, but not long enough to warrant a filter input" [E] (colmtuite, same
+issue). The recipe maintainers point at: compose **Combobox without an input** —
+`Trigger`+`Value`+`Clear` parts, no visible `input` — i.e. a "clearable select" built from
+Combobox's parts rather than Select's [E] (mj12albert, same issue). Long-term convergence is on
+the record but not planned: "at some point I want a single Combobox component that can also
+serve as a Select, since Select is technically a combobox" [E] (diegohaz, relayed in the same
+thread) — treat this as sentiment, not roadmap. See
+[Select: clearable via a null item](?path=/story/form-inputs-select--clearable-null-item) for
+today's Select-side workaround, and
+[Combobox: clearable selection](?path=/story/form-inputs-combobox--clearable-selection) for the
+input-bearing version of the same affordance.
+
+## Form participation
+
+All three submit via the same hidden-input machinery Field wires up automatically, but their
+committed *value* differs in kind: Select and Combobox always resolve to one of the predefined
+items (or `null`); Autocomplete's value is arbitrary text with "no committed selection — avoid
+when selection state is needed: use Combobox instead" [E] (autocomplete docs usage guidelines).
+Multiple-selection Select and Combobox both support `multiple`, with Combobox additionally
+offering tokenized `Chips`. See
+[Select native form submission](?path=/story/form-inputs-select--native-form-submission),
+[Combobox in a field with validation](?path=/story/form-inputs-combobox--in-field-with-validation),
+and [Autocomplete: submit free text](?path=/story/form-inputs-autocomplete--free-text-submit).
+
+## Migration hints between them
+
+- **Select → Combobox**: once the option list needs filtering, swap `Select.Trigger`/`Select.Value`
+  for `Combobox.Input`/`Combobox.Trigger` (or an input-inside-popup layout — "the trigger is the
+  form control, labeled by `Combobox.Label`" [E], combobox docs) and keep the same `items`/
+  `value`/`onValueChange` shape — both share `isItemEqualToValue`/`itemToStringLabel|Value` props
+  landing on the same PRs ([#2704](https://github.com/mui/base-ui/pull/2704),
+  [#3604](https://github.com/mui/base-ui/pull/3604),
+  [#4005](https://github.com/mui/base-ui/pull/4005)).
+- **Combobox → Autocomplete**: drop the "must match a predefined item" constraint — Autocomplete
+  keeps the same virtual-focus popup engine but the input's own text becomes the value; add
+  `onItemHighlighted` if you need to track which suggestion is highlighted independent of the
+  committed value (see
+  [Autocomplete: highlight tracking](?path=/story/form-inputs-autocomplete--highlight-tracking-with-on-item-highlighted)).
+- **Autocomplete → Combobox**: the moment a product decision requires the value to always be one
+  of the predefined items (no free text survives blur), Combobox is the correct component, not an
+  Autocomplete with post-hoc validation against the list.
+- Scope guardrails shared by all three: no tree-of-checkboxes ("trees are out of combobox scope"
+  [E], [mj12albert](https://github.com/mui/base-ui/issues/2695)); "select all" rows are userland
+  recipes, since a listbox may only contain options [E]
+  ([mui/base-ui#4927](https://github.com/mui/base-ui/issues/4927)). None of the three is a
+  filterable *menu* — "Autocomplete can be used as a filterable menu, but it has no support for
+  nested submenus" [E] (atomiks, [mui/base-ui#4157](https://github.com/mui/base-ui/issues/4157)) —
+  see [Menus & navigation](?path=/docs/patterns-menus-navigation--docs) once actions, not values,
+  are what the popup performs.
+
+## Related pages
+
+[Select](?path=/docs/form-inputs-select--docs) ·
+[Combobox](?path=/docs/form-inputs-combobox--docs) ·
+[Autocomplete](?path=/docs/form-inputs-autocomplete--docs) ·
+[Overview/Choosing components](?path=/docs/overview-choosing-components--docs) ·
+[Build a validated form](?path=/docs/patterns-build-a-validated-form--docs).

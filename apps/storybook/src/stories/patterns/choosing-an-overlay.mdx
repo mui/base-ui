@@ -1,0 +1,137 @@
+{/* Pattern page. MDX-only — no stories.tsx. Deepens the Overlays section of
+    Overview/Choosing components into a decision flow + dismissal-recipe reference.
+    Sourced from research/c-components/_clusters/overlays.md and the dialog/drawer/
+    toast briefs. Does not repeat the comparison table already on the Overview page —
+    it walks the decision as a flow and documents the stacking/dismissal mechanics. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Patterns/Choosing an overlay" />
+
+# Choosing an overlay
+
+Base UI ships six page-level overlays plus Menu (an anchored action list, covered by
+[Menus & navigation](?path=/docs/patterns-menus-navigation--docs)). They share one Portal→
+(Backdrop→)Positioner→Popup layering grammar but answer different questions about what opens
+them, whether their content is optional, and whether they may interrupt the user. This page
+walks that decision as a flow; [Overview/Choosing components](?path=/docs/overview-choosing-components--docs)
+has the compressed comparison table.
+
+## The decision flow
+
+**1. What is the trigger's purpose?** The master heuristic, from the maintainer who drew the
+line: "a popover's trigger's purpose is to open the popover itself..., while a tooltip's
+trigger's purpose is unrelated to the tooltip (and touch platforms are excluded)" [E]
+([mui/base-ui#3530](https://github.com/mui/base-ui/issues/3530)). If the trigger exists *only*
+to reveal the popup, the content is essential and touch users must reach it — that rules out
+[Tooltip](?path=/docs/overlays-tooltip--docs). If the trigger does something else and the popup
+is a supplementary hint, Tooltip is fine — and required to skip touch entirely: "iOS has no
+OS-level tooltips; long-press conflicts with native context menus" [E] (same issue).
+
+**2. Is the content reachable on touch, and is it optional?** [Preview Card](?path=/docs/overlays-preview-card--docs)
+is Tooltip's link-hover sibling — hover-only, sighted-only — but its content must also exist at
+the link's destination, since touch/keyboard users never see the preview at all [E] (overlays
+cluster note). If a touch user would lose something essential, use
+[Popover](?path=/docs/overlays-popover--docs) even for an info-icon trigger that looks like a
+tooltip.
+
+**3. Does it need to command the whole page, or stay anchored to its trigger?** Popover
+positions against its trigger and defaults `modal={false}` — the page stays usable.
+[Dialog](?path=/docs/overlays-dialog--docs) centers "on top of the entire page" [E] (subtitle)
+and defaults `modal={true}` with a focus trap. There is no Positioner part on Dialog — it has no
+anchor, by design ([mui/base-ui#3596](https://github.com/mui/base-ui/issues/3596), open). If
+content should point at or flow from one element, anchor it (Popover); if it should take over
+the page, center it (Dialog).
+
+**4. Does the user's response gate progress?** [Alert Dialog](?path=/docs/overlays-alert-dialog--docs)
+is a Dialog specialization for exactly this: `role="alertdialog"`, always modal, and its
+`Props` type *omits* `modal`/`disablePointerDismissal` entirely — "dialog will let user click
+outside … while alert dialog won't" [E]
+([mui/base-ui#2146](https://github.com/mui/base-ui/issues/2146)). If the surface is dismissible
+by outside click, it's a Dialog, not an Alert Dialog, no matter how urgent the copy sounds.
+
+**5. Does it need gestures?** [Drawer](?path=/docs/overlays-drawer--docs) runs Dialog's own root
+in `'drawer'` mode and adds swipe-to-dismiss, snap points, and edge placement. Both docs pages
+state the boundary symmetrically: "Drawer extends Dialog: it adds gesture support, snap points,
+and indent effects. If you don't need these, use Dialog instead" [E] (drawer + dialog usage
+guidelines) — the boundary is gestures, not visual position. "A panel that slides in from the
+edge of the screen and doesn't need gesture support is a positioned Dialog" [E] (same source).
+
+**6. Is it self-expiring and app-triggered, not user-triggered?** Every overlay above opens
+because the user acted on a trigger. [Toast](?path=/docs/overlays-toast--docs) is the inverse —
+the app opens it imperatively via `useToastManager().add()`, it has no Trigger part, and it
+closes itself (timeout, limit, swipe) [E] (toast anatomy). Never use a toast when the user's
+response is required — "moving the focus to a toast is not desired… AlertDialog is better
+suited" [E] ([mui/base-ui#4533](https://github.com/mui/base-ui/issues/4533)); use an anchored
+Toast, not a Tooltip, for transient feedback like "Copied" so it's announced to screen readers
+[E] (tooltip page "Contextual feedback messages").
+
+## Per-overlay mini-profiles
+
+| | Opens on | Modal default | Anchoring | Dismissed by outside press |
+|---|---|---|---|---|
+| [Tooltip](?path=/docs/overlays-tooltip--docs) | hover/focus | never modal | anchored | n/a (hover-out) |
+| [Popover](?path=/docs/overlays-popover--docs) | click (+ opt. hover) | `false` | anchored | yes, cancelable |
+| [Preview Card](?path=/docs/overlays-preview-card--docs) | link hover | never modal | anchored | n/a (hover-out) |
+| [Dialog](?path=/docs/overlays-dialog--docs) | click/imperative | `true` | centered, no Positioner | yes, `disablePointerDismissal` to stop |
+| [Alert Dialog](?path=/docs/overlays-alert-dialog--docs) | click/imperative | forced `true` | centered | **never** |
+| [Drawer](?path=/docs/overlays-drawer--docs) | click/imperative/swipe | Dialog-like | screen edge | yes, plus swipe |
+| [Toast](?path=/docs/overlays-toast--docs) | imperative only (`add()`) | n/a — no Trigger | self-positioned viewport | n/a — self-closing |
+
+## The z-index / stacking model
+
+The recommended app shell is a root element with `isolation: isolate` so "popups always appear
+above the page contents, and any `z-index` property in your styles won't interfere" [E]
+(quick-start docs; defended against removal-requests in
+[mui/base-ui#2293](https://github.com/mui/base-ui/issues/2293)). If you must set `z-index` at
+all, it belongs on the **Positioner** (the positioned element), never on Popup [E]
+([mui/base-ui#2450](https://github.com/mui/base-ui/issues/2450)) — this is the single most
+support-magnet rule in the whole overlay system (B-M1). Third-party overlay libraries (sonner,
+react-toastify, Radix/vaul) must render **outside** the `isolation: isolate` root, where any
+z-index of theirs wins over Base UI's stack, or portal Base UI's own popups *into* their
+container via `Portal.container` [E]
+([mui/base-ui#2938](https://github.com/mui/base-ui/issues/2938),
+[#1935](https://github.com/mui/base-ui/issues/1935),
+[#3725](https://github.com/mui/base-ui/issues/3725),
+[#2854](https://github.com/mui/base-ui/issues/2854)). `container` semantics matter: `null` waits
+for the element, `undefined` uses the default and doesn't re-check [E]
+([mui/base-ui#2780](https://github.com/mui/base-ui/issues/2780)); set `container` only on the
+**root** Portal — nested popups automatically append inside their parent's tree [E]
+([mui/base-ui#1930](https://github.com/mui/base-ui/issues/1930)).
+
+## Dismissal-control recipes
+
+Every overlay's `onOpenChange(open, eventDetails)` exposes `.reason` (a typed union: `trigger-press`,
+`outside-press`, `escape-key`, `close-press`, `focus-out`, `imperative-action`, plus Drawer's own
+`swipe`/`close-watcher`), `.event`, and `.cancel()` — call `cancel()` to veto the change while
+staying uncontrolled [E] (principles B-P16). This is the sanctioned way to keep a popup open
+after an unwanted dismissal, rather than fighting `open` in a `useEffect`:
+
+```jsx
+<Dialog.Root
+  onOpenChange={(open, eventDetails) => {
+    if (!open && eventDetails.reason === 'outside-press' && hasUnsavedChanges) {
+      eventDetails.cancel(); // stay open; show a close-confirmation instead
+    }
+  }}
+/>
+```
+
+Dialog's **focus-out** reason is the non-modal companion to outside-press: when `modal={false}`,
+focus leaving the popup can close it the same way an outside click would, and
+`disablePointerDismissal` suppresses both at once — "also prevents the dialog from closing when
+focus moves outside of it" [E] (Dialog `disablePointerDismissal` JSDoc). Drawer's `swipe` reason
+is vetoable the same way — canceling it also clears the in-progress swipe-dismiss styles [E]
+(drawer brief §6). See these live:
+[Dialog change-reason inspector](?path=/story/overlays-dialog--change-reason-inspector),
+[Dialog cancel a close](?path=/story/overlays-dialog--cancel-close),
+[Dialog: modal vs non-modal](?path=/story/overlays-dialog--modal-vs-non-modal),
+[Drawer open/close reasons](?path=/story/overlays-drawer--open-close-reasons), and
+[Alert Dialog: no outside-press dismissal](?path=/story/overlays-alert-dialog--no-outside-press-dismissal).
+
+## Related pages
+
+[Overview/Choosing components](?path=/docs/overview-choosing-components--docs) ·
+[Animating open and close](?path=/docs/patterns-animating-open-and-close--docs) ·
+[Menus & navigation](?path=/docs/patterns-menus-navigation--docs) ·
+[Menu](?path=/docs/overlays-menu--docs).

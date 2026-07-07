@@ -1,0 +1,116 @@
+{/* Pattern page. MDX-only — no stories.tsx. Deepens the Menus & navigation section of
+    Overview/Choosing components: role=menu vs links, menu-vs-popover for embedded
+    controls, context-menu as enhancement-only, menubar hosting, and part
+    interchangeability. Sourced from research/c-components/_clusters/menus.md. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Patterns/Menus & navigation" />
+
+# Menus & navigation
+
+[Menu](?path=/docs/overlays-menu--docs), [Context Menu](?path=/docs/overlays-context-menu--docs),
+[Menubar](?path=/docs/navigation-menubar--docs), and
+[Navigation Menu](?path=/docs/navigation-navigation-menu--docs) share one popup engine but answer
+two independent questions: what gesture opens it, and does activating an item *do* something or
+*go* somewhere. [Overview/Choosing components](?path=/docs/overview-choosing-components--docs)
+has the condensed table; this page owns the ARIA-role reasoning and the part-sharing mechanics.
+
+## role="menu" vs links
+
+Menu is the reference implementation of the APG menu-button pattern: `role="menu"`, roving
+highlight, typeahead — every activation is a command. Navigation Menu renders **zero menu
+roles at all**: Root is a `<nav>`, the list is semantic `<ul>/<li>` (reworked in
+[mui/base-ui#2526](https://github.com/mui/base-ui/issues/2526)), and its entries are `Link`s, not
+`menuitem`s — because its entries are navigation destinations, not commands, and "using
+`role="menu"` for a site nav would mislead screen-reader users into expecting an application
+menu" [I] (menus cluster note, from #2526's semantics). If activating an entry navigates, prefer
+Navigation Menu (or `Menu.LinkItem` for the odd link *inside* an action menu) — never reach for
+`role="menu"` just because the visual shape looks like a dropdown.
+
+## Menu vs Popover for embedded controls
+
+Menu and Popover share the same anchored-popup mechanics but different roles: Menu is
+`role="menu"` for an action list; Popover is `role="dialog"` for free-form interactive content.
+"Popover Menu"/"Dropdown" searches land on Popover's own docs page via its SEO keywords [E]
+(popover page.mdx metadata) — a sign this confusion is common. The test that resolves it: if the
+popup's items are all commands with a consistent activation semantic (close-on-select,
+typeahead, `menuitemcheckbox`/`menuitemradio`), it's a Menu; if it embeds a form control, a
+scrollable region, or anything that isn't itself an action, it's a Popover
+([mui/base-ui#2693](https://github.com/mui/base-ui/issues/2693) is the canonical "I put a
+non-command control inside a Menu" support thread). Don't force a settings panel with a Slider or
+a Switch into `Menu.Item` — render it in a Popover instead.
+
+## Context menu: enhancement only
+
+Context Menu shares Menu's entire popup — "all the context menu parts are direct reexports of
+regular menu parts so they are interchangeable" [E]
+([mui/base-ui#3365](https://github.com/mui/base-ui/issues/3365)) — only `Root`/`Trigger` differ
+(pointer-anchored, right-click/long-press, no `openOnHover`, no detached triggers yet). The one
+hard rule: "Don't make a context menu the only way to perform actions… Always provide visible
+controls" [E] (context-menu docs usage guidelines — the only usage-guidelines block among the
+four menu components). A right-click action that has no equivalent visible button or menu item
+is invisible to keyboard, touch, and screen-reader users. See
+[Context Menu hero](?path=/docs/overlays-context-menu--docs) and
+[Context Menu: checkbox and radio items](?path=/story/overlays-context-menu--checkbox-and-radio-items)
+for the shared-item-styling pattern in practice.
+
+## Menubar hosting
+
+Menubar is not a different menu — it's a `role="menubar"` **container** of ordinary
+`Menu.Root`s. Placing a `Menu.Trigger` inside `Menubar.Root` turns it into a roving
+`role="menuitem"` composite item with left/right arrow-key movement and hover-switching between
+open sibling menus [E] (menus cluster note; `MenuTrigger.tsx` `isInMenubar` branch). Reach for
+Menubar only when several menus form a persistent, coordinated bar (a File/Edit/View application
+chrome); a lone Menubar with one menu inside it is just a Menu with extra container semantics
+[I]. See [Menubar hero](?path=/docs/navigation-menubar--docs) and
+[Menubar: disabled cascade](?path=/story/navigation-menubar--disabled-cascade).
+
+## Part interchangeability: ContextMenu composing Menu.*
+
+Because Context Menu's non-Root/Trigger parts are direct re-exports of Menu's, the same styled
+item module can serve both a button-triggered Menu and a right-click Context Menu exposing
+identical actions — "the same actions from button and right-click" is a one-line composition,
+not a duplicated implementation [E] (menus cluster note, citing a StackBlitz linked from
+[#3365](https://github.com/mui/base-ui/issues/3365)). In practice: import `Menu.Item`,
+`Menu.Separator`, `Menu.CheckboxItem`, etc. once, and use them under both `Menu.Root` and
+`ContextMenu.Root` — only the two outermost parts change.
+
+```jsx
+// shared item module
+function RowActions({ Root, Trigger }) {
+  return (
+    <Root>
+      <Trigger />
+      <Menu.Portal>
+        <Menu.Positioner>
+          <Menu.Popup>
+            <Menu.Item onClick={rename}>Rename</Menu.Item>
+            <Menu.Item onClick={duplicate}>Duplicate</Menu.Item>
+            <Menu.Separator />
+            <Menu.Item onClick={remove}>Delete</Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Root>
+  );
+}
+```
+
+## Menu vs Select (one paragraph)
+
+Menu triggers *do things*; Select triggers *hold a value*. `Menu.RadioGroup` exists for
+exclusive **settings** inside an action menu (view density, sort order) — not for form data [I]
+(menus cluster note). If the choice must persist, submit with a form, or be filterable/typed, the
+picker cluster applies instead — see
+[Pickers: select, combobox, autocomplete](?path=/docs/patterns-pickers-select-combobox-autocomplete--docs).
+
+## Related pages
+
+[Menu](?path=/docs/overlays-menu--docs) ·
+[Context Menu](?path=/docs/overlays-context-menu--docs) ·
+[Menubar](?path=/docs/navigation-menubar--docs) ·
+[Navigation Menu](?path=/docs/navigation-navigation-menu--docs) ·
+[Overview/Choosing components](?path=/docs/overview-choosing-components--docs) ·
+[Composite keyboard navigation](?path=/docs/patterns-composite-keyboard-navigation--docs) (Menubar's
+roving-focus contract).

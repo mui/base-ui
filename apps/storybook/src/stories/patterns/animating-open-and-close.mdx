@@ -1,0 +1,140 @@
+{/* Pattern page. MDX-only — no stories.tsx. Owns the animation model shared by every
+    popup plus collapsible/accordion/drawer: starting/ending styles vs data-open/closed
+    keyframes, transitions-over-animations, unmount-on-close + keepMounted +
+    actionsRef.unmount, the #2186 conditional-render pitfall, JS-library integration,
+    and per-component CSS-var hooks. Sourced from principles.md §4 (B-P23-B-P26) and
+    the dialog/drawer/collapsible/accordion briefs. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Patterns/Animating open and close" />
+
+# Animating open and close
+
+Every popup (Tooltip, Popover, Preview Card, Dialog, Alert Dialog, Drawer, Menu, Context Menu,
+Select, Combobox, Autocomplete, Toast) and every in-place disclosure (Collapsible, Accordion)
+shares one animation model: two style-hook pairs, an unmount-on-close default, and an explicit
+contract for exit animations. This page is the one canonical reference every component page
+should link instead of restating.
+
+## Two style-hook pairs, two techniques
+
+| Hooks | Technique | Why |
+|---|---|---|
+| `[data-starting-style]` / `[data-ending-style]` | CSS **transitions** | Recommended: "a transition can be smoothly cancelled midway. For example, if the user closes a popup before it finishes opening…" [E] (animation handbook) |
+| `[data-open]` / `[data-closed]` | CSS **keyframe animations** | The alternative, not the default — keyframes replay from scratch on every mount and don't interrupt mid-flight the way transitions do |
+
+`data-starting-style` exists for **exactly one frame** — the transition's source state, not its
+duration. This is a genuinely easy-to-misread semantic: a user expected it to persist through the
+whole opening animation to gate `overflow: hidden`, and maintainers confirmed the one-frame model
+while conceding the docs wording "is definitely imprecise and should be updated" [E]
+([mui/base-ui#4915](https://github.com/mui/base-ui/issues/4915)). Design your CSS around "what
+does the element look like one frame before it starts transitioning in," not "what should it
+look like throughout the transition."
+
+## Unmount-on-close is the default
+
+Popups and Collapsible's panel unmount from the DOM when closed unless told otherwise. Exit
+animations therefore require an explicit contract: either CSS ending styles on the same node
+(the transition path above), or — for JS animation libraries — `keepMounted` on `Portal`
+(popups) or on `Collapsible.Panel`/`Accordion.Panel`, paired with a controlled `open` and
+`actionsRef.current.unmount()` as the manual escape hatch once your library's exit animation
+finishes [E] (animation handbook; principles B-P24). If `opacity` isn't part of your animation,
+animate it anyway to a value close to `1` (e.g. `0.9999`) so Base UI's `getAnimations()`-based
+completion detection has something to watch [E] (same source).
+
+## The #2186 conditional-render pitfall
+
+Unmount detection watches the **Popup's own animations** — if you conditionally render only
+`Dialog.Popup` (or any popup's innermost part) while leaving the rest of the portal tree always
+mounted, the Portal gets stranded and never actually unmounts: "render the whole portal tree
+conditionally, or drive `actionsRef`" [E]
+([mui/base-ui#2186](https://github.com/mui/base-ui/issues/2186), atomiks, open). Concretely:
+
+```jsx
+// Wrong — strands the Portal; unmount detection never fires
+{open && <Dialog.Popup>…</Dialog.Popup>}
+
+// Right — the whole tree renders/unrenders together; Root drives visibility
+<Dialog.Root open={open}>
+  <Dialog.Portal keepMounted>
+    <Dialog.Popup>…</Dialog.Popup>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+If you need imperative control over unmount timing (e.g. after a JS library's promise resolves),
+call `actionsRef.current.unmount()` yourself rather than conditionally rendering. See
+[Dialog: keepMounted](?path=/story/overlays-dialog--keep-mounted) and
+[Dialog: exit animation](?path=/story/overlays-dialog--exit-animation).
+
+## JS-library integration
+
+For Motion/GSAP-driven exit animations: keep the Portal `keepMounted`, control `open` yourself,
+run your library's exit animation in an effect keyed on `open` turning `false`, then call
+`actionsRef.current.unmount()` when the library's own animation promise resolves. Base UI's own
+completion detection (`onOpenChangeComplete`) uses `element.getAnimations()` against the Popup
+node — a named environmental footgun here is Tailwind v4's `[hidden]{display:none!important}`
+reset, which defeats a JS library's inline styles outright; the workaround is `hidden={undefined}`
+on the animated node [E] ([mui/base-ui#1608](https://github.com/mui/base-ui/issues/1608)).
+Non-popup components need their own notes here too: Tabs' and Collapsible's panels lack the
+popup animation machinery entirely, and conditionally-rendered panels unmount instantly despite
+`keepMounted` unless the JS library's own presence-detection (e.g. `AnimatePresence`) drives them
+[E] (principles B-P26, citing [mui/base-ui#1494](https://github.com/mui/base-ui/issues/1494)).
+
+## Per-component CSS-var hooks
+
+Dynamic numeric values that CSS alone can't compute travel as CSS variables — the numeric
+complement to the boolean state attributes (principles B-P14). The two components where this is
+load-bearing, not cosmetic:
+
+**Collapsible / Accordion height animation** — `--collapsible-panel-height` /
+`--collapsible-panel-width` (and Accordion's identically-shaped `--accordion-panel-height` /
+`--accordion-panel-width`) are measured from `scrollHeight`/`scrollWidth` and written onto the
+panel's inline style every render, because animating to/from `height: auto` is not otherwise
+possible in CSS. The complete, minimal recipe (verbatim from the Collapsible hero demo CSS):
+
+```css
+.Panel {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height 150ms ease-out;
+}
+.Panel[hidden]:not([hidden='until-found']) {
+  display: none;
+}
+.Panel[data-starting-style],
+.Panel[data-ending-style] {
+  height: 0;
+}
+```
+
+Note the `:not([hidden='until-found'])` guard — a panel using `hiddenUntilFound` must **not**
+get `display: none`, or the browser's own find-in-page can no longer locate it [E] (collapsible
+brief §8). A development-mode warning fires if both a CSS transition and a CSS keyframe animation
+are detected simultaneously on the same panel: "Only one of either animation type should be used"
+[E] (`useCollapsiblePanel.ts`). See
+[Collapsible hero (animated height)](?path=/docs/disclosure-structure-collapsible--docs) and
+[Accordion hero](?path=/docs/disclosure-structure-accordion--docs).
+
+**Drawer swipe vars** — gesture-driven, not just transition-driven: `--drawer-swipe-movement-x`/
+`-y` track the live drag translation, `--drawer-swipe-progress` (on `Backdrop`) fades the scrim
+as the user drags (`opacity: calc(1 - var(--drawer-swipe-progress))`), `--drawer-snap-point-offset`
+positions a resting snap point, and `--drawer-swipe-strength` scales the release-transition
+duration. Gate your own CSS transitions off `[data-swiping]` so the panel tracks the finger
+instead of lagging behind it during the drag, and compose your transform as
+`translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)))` [E] (drawer
+docs; drawer brief §8). These variables are registered with `@property` and marked
+non-inheriting specifically for drag performance — driven natively, not through React re-renders,
+to avoid per-frame re-rasterization [E]
+([mui/base-ui#4980](https://github.com/mui/base-ui/pull/4980)). See
+[Drawer: swipe-progress styling](?path=/story/overlays-drawer--swipe-progress-styling) and
+[Drawer: exit animation](?path=/story/overlays-drawer--exit-animation).
+
+## Related pages
+
+[Dialog](?path=/docs/overlays-dialog--docs) ·
+[Drawer](?path=/docs/overlays-drawer--docs) ·
+[Collapsible](?path=/docs/disclosure-structure-collapsible--docs) ·
+[Accordion](?path=/docs/disclosure-structure-accordion--docs) ·
+[Choosing an overlay](?path=/docs/patterns-choosing-an-overlay--docs).

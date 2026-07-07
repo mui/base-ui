@@ -1,0 +1,152 @@
+{/* Pattern page. MDX-only — no stories.tsx. First-class docs (not research): the
+    composition recipe that spans form, field, fieldset, and every input component.
+    Sourced from research/c-components/{field,form,fieldset}/brief.md and
+    research/b-library-principles/principles.md §6. [E]/[I]/[G] markers mirror those
+    briefs. Component pages stay lean; this page owns the cross-component choreography. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Patterns/Build a validated form" />
+
+# Build a validated form
+
+A Base UI form is three layers working together: [Form](?path=/docs/form-inputs-form--docs)
+owns submission and server-error distribution, [Field](?path=/docs/form-inputs-field--docs)
+owns labeling and per-control validation, and [Fieldset](?path=/docs/form-inputs-fieldset--docs)
+labels a *group* of controls that share one legend. Every input component — Input, Select,
+Combobox, Checkbox, Radio, Switch, Slider, NumberField, OTPField — plugs into Field without
+extra wiring: "Input, Checkbox, or Select, among others, will work with Field out of the box"
+[E] (`Field.Control` JSDoc). This page is the recipe that connects the three layers; each
+component's own page documents only its own props.
+
+## The wiring
+
+```jsx
+<Form errors={serverErrors} onFormSubmit={handleSubmit}>
+  <Field.Root name="email" validate={validateEmail}>
+    <Field.Label>Email</Field.Label>
+    <Field.Control type="email" required />
+    <Field.Error />
+  </Field.Root>
+
+  <Fieldset.Root render={<RadioGroup name="plan" />}>
+    <Fieldset.Legend>Plan</Fieldset.Legend>
+    <Field.Item>
+      <Radio.Root value="free" />
+      <Field.Label>Free</Field.Label>
+    </Field.Item>
+    <Field.Item>
+      <Radio.Root value="pro" />
+      <Field.Label>Pro</Field.Label>
+    </Field.Item>
+  </Fieldset.Root>
+
+  <button type="submit">Create account</button>
+</Form>
+```
+
+One `Field.Root` = one named form value (`name` matches what `Form errors` keys against);
+`Fieldset.Root` labels a *group* — "compose `<Fieldset>` when a single label applies to
+multiple controls" [E] (field brief §4). For a repeated-option group (radio/checkbox), keep the
+group label on `Fieldset.Legend` and wrap each option in `Field.Item`, which opens its own
+nested labeling scope so per-option descriptions attach correctly while the group label stays
+on the Fieldset [E] (forms handbook, field brief §5).
+
+Two controls never share one `Field.Root` — wrapping Select and Checkbox under one Field caused
+an update loop; one Field is exactly one logical value [E]
+([mui/base-ui#3928](https://github.com/mui/base-ui/issues/3928)). Reach for Fieldset, not a
+second Field, when several controls need one shared label.
+
+## Validation modes — the onSubmit-default doctrine
+
+`validationMode` defaults to `'onSubmit'`, set fleet-wide on `<Form>` or per-`Field.Root`
+(Field's own value wins). This was a deliberate beta.5 flip from `onBlur`: "matches native form
+submission behavior and the defaults of RA, Ariakit and react-hook-form" [E]
+([mui/base-ui#3013](https://github.com/mui/base-ui/issues/3013)), citing Adam Silver's *The
+problem with live validation* as the rationale for an option "even less noisy than `onBlur`"
+([mui/base-ui#2142](https://github.com/mui/base-ui/issues/2142)).
+
+| Mode | When it validates | Use for |
+|---|---|---|
+| `onSubmit` (default) | Nothing until Form's submit; invalid fields then revalidate on every change | Ordinary forms — the native-feeling default |
+| `onBlur` | Commits validation when the control blurs | A middle ground when you want earlier feedback than submit |
+| `onChange` | Every change, debounced via `validationDebounceTime` | Instant feedback (username availability) with an async `validate` |
+
+Regardless of mode, an untouched, never-dirtied field is never marked invalid for
+`valueMissing` alone — only the recovery path (fixing a required field) is optimistic between
+commits; other native errors (`typeMismatch`, `patternMismatch`) wait for blur/submit so users
+aren't "scolded" mid-typing [E] (field brief §6, citing
+[#1810](https://github.com/mui/base-ui/pull/1810)/[#1840](https://github.com/mui/base-ui/pull/1840)).
+See the mode matrix live:
+[Validation mode: onSubmit](?path=/story/form-inputs-field--validation-mode-on-submit),
+[onBlur](?path=/story/form-inputs-field--validation-mode-on-blur), and
+[onChange](?path=/story/form-inputs-field--validation-mode-on-change).
+
+`validate` always runs **after** native constraint validation passes [E]
+([mui/base-ui#1926](https://github.com/mui/base-ui/pull/1926)), and receives every named
+field's current value as a second argument for cross-field rules like confirm-password [E]
+([mui/base-ui#1941](https://github.com/mui/base-ui/pull/1941)) — see
+[Cross-field validation](?path=/story/form-inputs-field--cross-field-validation) and
+[Async validation, debounced](?path=/story/form-inputs-field--async-validation-debounced).
+Async `validate` **cannot block submission** — "Async validation isn't supported to stop the
+submit event" [E] (`Form.tsx` source comment; form brief §6) — gate server-side instead.
+
+## Server errors
+
+Pass server/action errors to `<Form errors>`, keyed by each field's `name`:
+
+```jsx
+<Form errors={{ email: 'This email is already registered' }} onFormSubmit={submit}>
+```
+
+A matching entry marks that field invalid and `Field.Error` renders it. The entry **self-clears
+the instant the field's value changes** — no callback needed. This replaced `onClearErrors`,
+removed as a breaking change because "it's a better UX to optimistically clear external (server)
+errors on change… Makes `useActionState` viable" [E]
+([mui/base-ui#3136](https://github.com/mui/base-ui/pull/3136)). Do not try to re-set the same
+error object to "keep" an error the user is actively fixing — that fights the auto-clear
+contract. See [Server errors, `errors` prop](?path=/story/form-inputs-form--server-errors-prop)
+and, for React Server Functions, [`useActionState` action](?path=/story/form-inputs-form--server-function-action).
+Zod at submit time maps directly onto the same channel: `z.flattenError(result.error).fieldErrors`
+is shape-compatible with `errors` — see [Zod schema mapping](?path=/story/form-inputs-form--zod-schema-mapping).
+
+## Focus-first-invalid
+
+On submit, Form validates every registered field synchronously; if any is invalid it calls
+`preventDefault()`, focuses the first invalid control, and — for text inputs — selects its text
+[E] (form brief §6). This is the reason RHF integrations need ref forwarding: "For React Hook
+Form to focus invalid fields… you must ensure that any wrapping components forward the `ref`"
+[E] (forms handbook). The same focus-first-invalid behavior re-runs when a submitted form
+receives new server `errors`, so a second failed round-trip lands focus correctly again. Watch
+the full flow (submit empty → errors appear + focus moves → fix → submits) in
+[Submit flow with errors](?path=/story/form-inputs-form--submit-flow-with-errors).
+
+## Adapter guidance: React Hook Form / TanStack Form
+
+- **React Hook Form** keeps Base UI's `<Form>` as the rendered element while RHF owns state:
+  `<Form onSubmit={handleSubmit(submitForm)}>`. Map RHF's `<Controller>` render props onto
+  `Field.Root` (`invalid`, `touched`, `dirty`, `name` — added specifically for RHF/TanStack
+  parity [E], [mui/base-ui#2950](https://github.com/mui/base-ui/pull/2950)) and forward the
+  underlying input's `ref` for focus-on-error to work. See
+  [React Hook Form integration](?path=/story/form-inputs-form--react-hook-form-integration).
+- **TanStack Form** owns submission and validation outright — "The Base UI `<Form>` component
+  is not needed when using TanStack Form" [E] (forms handbook). Drive `Field.Root`/`Field.Control`
+  from TanStack's own field render props on a plain `<form>`.
+- **Custom controls** (a `<textarea>`, a color picker) participate fully via
+  `<Field.Control render={<textarea />} />` — the sanctioned integration path [E]
+  ([mui/base-ui#1996](https://github.com/mui/base-ui/issues/1996)). See
+  [Field wraps a custom textarea](?path=/story/form-inputs-field--wraps-custom-textarea).
+
+## Related pages
+
+[Field](?path=/docs/form-inputs-field--docs) ·
+[Fieldset](?path=/docs/form-inputs-fieldset--docs) ·
+[Form](?path=/docs/form-inputs-form--docs) ·
+[Input](?path=/docs/form-inputs-input--docs) ·
+[Select](?path=/docs/form-inputs-select--docs) ·
+[NumberField](?path=/docs/form-inputs-number-field--docs) ·
+[OTP Field](?path=/docs/form-inputs-otp-field--docs) ·
+[Radio](?path=/docs/form-inputs-radio--docs) ·
+[Checkbox Group](?path=/docs/form-inputs-checkbox-group--docs). For picking the right input
+widget in the first place, see
+[Pickers: select, combobox, autocomplete](?path=/docs/patterns-pickers-select-combobox-autocomplete--docs).

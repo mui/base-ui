@@ -24,6 +24,15 @@ const preview: Preview = {
         order: [
           'Overview',
           ['Introduction', 'Principles', 'Choosing components'],
+          'Patterns',
+          [
+            'Build a validated form',
+            'Choosing an overlay',
+            'Pickers: select, combobox, autocomplete',
+            'Menus & navigation',
+            'Composite keyboard navigation',
+            'Animating open and close',
+          ],
           'Form inputs',
           'Overlays',
           'Navigation',
