@@ -21,12 +21,12 @@ Session started: 2026-07-06. Brief: [PROMPT.md](./PROMPT.md). A future session m
 | A — taxonomy.md | done | 7 categories (count-checked), ambiguities flagged, 6 pattern-doc proposals |
 | B — mining (handbook/discussions/issues/history) | done | 4 mining files under b-library-principles/_mining/. NOTE: Discussions surface is dead (4 total); real Q&A corpus = Issues labels `support: question`/`type: expected behavior`/`has workaround` (226 catalogued) |
 | B — principles.md / sources.md / glossary.md | done | 48 principles (B-P1–40 + B-M1–8), 434 sources, 70 glossary terms; citation fidelity mechanically verified; mining-file conflicts flagged in-text |
-| C — component briefs | in-progress | see table below |
-| D — corpus + per-component mining | in-progress | _corpus/repos.json building; per-component mining starts with Tier 1 |
+| C — component briefs | done | 41/41 units (37 components + 4 utils); all cluster notes written |
+| D — corpus + per-component mining | done (compressed) | corpus 877 repos; FULL datasets (candidates+ranked+examples) for select/dialog/menu/popover; compressed candidates-only for the other 33 (8 evidenced, 25 honest-empty+NOTES) per the 2026-07-07 compression decision; screenshots cut |
 | E — Storybook scaffold | done | apps/storybook, SB 10.4.6, build green incl. story importing @base-ui/react from source. See e-storybook/decisions.md (Nx detection workaround; initializer's broken root-config edits reverted; source aliases) |
 | E — setup-prompt.md generated + committed | done | committed verbatim @ 6dde013c1 before acting on it |
-| E — stories + MDX per component | todo | see table below |
-| Close-out (SUMMARY.md, checklist, spot-check) | todo | |
+| E — stories + MDX per component | partial (wind-down) | 7/37 fully done (switch, select, menu, popover, dialog, autocomplete, combobox = 166 stories, all green); remaining halted by user wind-down directive 2026-07-07 |
+| Close-out (SUMMARY.md, checklist, spot-check) | done | SUMMARY.md + e-storybook/coverage.md; 10/10 citation spot-check pass; storybook build green; pnpm typescript green; Switch jsdom suite green |
 
 ## Component × phase table
 
@@ -35,47 +35,49 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 | Component | Tier | C brief | C story-plan | D candidates | D ranked+examples | E stories | E MDX |
 |---|---|---|---|---|---|---|---|
-| select | 1 | ok | ok | ok | ok | ok (29 stories vitest-green incl. 3 recreations; tags ai-generated) | ok (367 lines; render spot-check pending) |
-| combobox | 1 | ok | ok | - | - | - | - |
-| autocomplete | 1 | ok | ok | - | - | - | - |
-| menu | 1 | ok | ok | ok | ok | WIP (28 stories written, 11 failing, needs-work tag on) | - |
-| dialog | 1 | ok | ok | ok | ok | WIP (only dialog.module.css; stories killed pre-write) | - |
-| popover | 1 | ok | ok | ok | ok | WIP (30 stories written, 7 failing, needs-work tag on) | - |
-| toast | 1 | ok | ok | - | - | - | - |
-| field | 1 | ok | ok | - | - | - | - |
-| form | 1 | ok | ok | - | - | - | - |
-| navigation-menu | 1 | ok | ok | - | - | - | - |
-| drawer | 1 | - (agent killed twice; empty dir) | - | - | - | - | - |
-| alert-dialog | 2 | - (batch killed) | - | - | - | - | - |
-| context-menu | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
-| menubar | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
-| number-field | 2 | ok (orphan sub-agent completed post-pause; spinbutton-absence verified [E]) | ok (14 stories) | - | - | - | - |
-| otp-field | 2 | ok (lean-plus; §1 states Preview→stable timeline #4365→#5029 + [New]-tag finding) | ok (10 stories) | - | - | - | - |
-| slider | 2 | ok (lean-plus; new-API rewrite #373; native input[type=range] a11y finding) | ok (14 stories) | - | - | - | - |
-| tabs | 2 | - | - | - | - | - | - |
-| tooltip | 2 | - | - | - | - | - | - |
-| preview-card | 2 | - | - | - | - | - | - |
-| scroll-area | 2 | - | - | - | - | - | - |
-| accordion | 2 | - | - | - | - | - | - |
-| radio (+radio-group) | 2 | - | - | - | - | - | - |
-| checkbox | 2 | - | - | - | - | - | - |
-| checkbox-group | 2 | - | - | - | - | - | - |
-| avatar | 3 | ok | ok | - | - | - | - |
-| button | 3 | ok | ok | - | - | - | - |
-| collapsible | 3 | - | - | - | - | - | - |
-| fieldset | 3 | - | - | - | - | - | - |
-| input | 3 | - | - | - | - | - | - |
-| meter | 3 | ok | ok | - | - | - | - |
-| progress | 3 | ok | ok | - | - | - | - |
-| separator | 3 | ok | ok | - | - | - | - |
-| switch | 3 | - (pilot: docs+source evidence inline) | - | - | - | ok (7 stories, vitest green) | ok (pilot page; [G] slots pending brief) |
-| toggle | 3 | ok | ok | - | - | - | - |
-| toggle-group | 3 | ok | ok | - | - | - | - |
-| toolbar | 3 | ok | ok | - | - | - | - |
+| select | 1 | ok | ok | ok | ok | ok (29 green, 3 recreations) | ok |
+| combobox | 1 | ok | ok | ok (lean, 20 evidenced) | - (compressed) | ok (26 green) | ok |
+| autocomplete | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | ok (22 green) | ok |
+| menu | 1 | ok | ok | ok | ok | ok (28 green, 3 recreations) | ok |
+| dialog | 1 | ok | ok | ok | ok | ok (24 green, 2 recreations) | ok |
+| popover | 1 | ok | ok | ok | ok | ok (30 green, 3 recreations) | ok |
+| toast | 1 | ok | ok | ok (lean, 2) | - (compressed) | - | - |
+| field | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
+| form | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
+| navigation-menu | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
+| drawer | 1 | ok (attempt 3; vaul-successor [E]) | ok (18) | ok (lean, 3) | - (compressed) | - | - |
+| alert-dialog | 2 | ok | ok (12) | ok (lean, empty+notes) | - | - | - |
+| context-menu | 2 | ok (from salvage; Mac gate pinned) | ok (12) | ok (lean, 1) | - | - | - |
+| menubar | 2 | ok (from salvage; #1407 confirmed) | ok (12) | ok (lean, 20) | - | - | - |
+| number-field | 2 | ok (spinbutton-absence [E]) | ok (14) | ok (lean, empty+notes) | - | - | - |
+| otp-field | 2 | ok (Preview→[New] deliberate) | ok (10) | ok (lean, empty+notes) | - | - | - |
+| slider | 2 | ok (role=group + native inputs [E]) | ok (14) | ok (lean, empty+notes) | - | - | - |
+| tabs | 2 | ok (#3176 click-activation) | ok (15) | ok (lean, empty+notes) | - | - | - |
+| tooltip | 2 | ok (no role/aria-describedby [E]) | ok (11) | ok (lean, 1) | - | - | - |
+| preview-card | 2 | ok (no-Provider delta) | ok (8) | ok (lean, empty+notes) | - | - | - |
+| scroll-area | 2 | ok (style-injection exception) | ok (11) | ok (lean, empty+notes) | - | - | - |
+| accordion | 2 | ok (APG roving removal #4965/#4961) | ok (14) | ok (lean, empty+notes) | - | - | - |
+| radio (+radio-group) | 2 | ok (no-docs-page asymmetry flagged) | ok (13) | ok (lean, empty+notes) | - | - | - |
+| checkbox | 2 | ok (mixed-state; Enter submits #4713) | ok (11) | ok (lean, empty+notes) | - | - | - |
+| checkbox-group | 2 | ok (parent tri-state cycle) | ok (9) | ok (lean, empty+notes) | - | - | - |
+| avatar | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| button | 3 | ok (#2363 scope reversal) | ok | ok (lean, empty+notes) | - | - | - |
+| collapsible | 3 | ok (Accordion reuses its hooks) | ok (8) | ok (lean, empty+notes) | - | - | - |
+| fieldset | 3 | ok (Legend div-not-legend #3044) | ok (5) | ok (lean, empty+notes) | - | - | - |
+| input | 3 | ok (= Field.Control renamed) | ok (7) | ok (lean, empty+notes) | - | - | - |
+| meter | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| progress | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| separator | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| switch | 3 | ok (close-out formalization of pilot evidence) | ok (7, implemented) | ok (lean, 1) | - | ok (7 green, pilot + CssCheck) | ok |
+| toggle | 3 | ok | ok | ok (lean, 2) | - | - | - |
+| toggle-group | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| toolbar | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
 | csp-provider (util) | 3 | ok | ok (MDX-only, no story) | n/a | n/a | - | - |
 | direction-provider (util) | 3 | ok | ok | n/a | n/a | - | - |
 | merge-props (util) | 3 | ok | ok | n/a | n/a | - | - |
 | use-render (util) | 3 | ok | ok | n/a | n/a | - | - |
+
+**E-phase totals at wind-down**: 7/37 components fully done (166/166 stories green, `storybook build` green); 30 components + 4 utils have briefs/plans but no stories/MDX yet — see RESUME-PLAYBOOK.md §E to continue.
 
 ## Cluster notes (§8.3)
 
@@ -85,10 +87,10 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | pickers: select/combobox/autocomplete | ok (by select agent) |
 | menus: menu/context-menu/menubar/navigation-menu | ok (by menu agent) |
 | binary controls: toggle/switch/checkbox | ok (by actions lean batch) |
-| disclosure: accordion/collapsible/tabs | - |
+| disclosure: accordion/collapsible/tabs | ok (by tabs orphan agent; gaps closed by accordion agent) |
 | status: progress/meter | ok (by progress/meter/avatar/separator lean-Tier-3 batch agent) |
-| dialog-vs-drawer | (fold into overlays or standalone) |
-| toolbar-vs-menubar | - |
+| dialog-vs-drawer | ok (folded into overlays.md + drawer brief §4 delta) |
+| toolbar-vs-menubar | ok (toolbar brief §4 + menubar brief; two-integration-points evidence) |
 
 ## Decisions log
 
