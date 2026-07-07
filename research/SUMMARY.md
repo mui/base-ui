@@ -1,5 +1,7 @@
 # SUMMARY — session final report (2026-07-07)
 
+> **Addendum (evening 1h sprint)**: a resumed sprint pushed E-phase coverage from 7/37 to **16/37 components, 263/263 stories green** (added toast, field, form, navigation-menu, drawer, progress, meter, avatar, separator). The branch is now also mirrored to `storybook-tmp/base-ui`. Mid-sprint the Fable 5 usage limit killed the first wave again; sonnet continuation agents recovered everything from committed salvage — validating the salvage-first workflow. Remaining to full floor coverage: 21 components + 4 utils in 7 pre-planned batches (~45–60 min, RESUME-PLAYBOOK §E), then a final coverage/build refresh. Checklist items 5's "every component" shortfall now reads 16/37 rather than 7/37; all other checklist verdicts unchanged.
+
 One autonomous session (with one usage-limit interruption and a user-directed wind-down) produced the research foundation and the first working slice of a gold-standard Storybook for Base UI. Everything below is committed and pushed to `origin/research` (yannbf/base-ui).
 
 ## §13 checklist — verified honestly

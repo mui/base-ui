@@ -25,7 +25,7 @@ Session started: 2026-07-06. Brief: [PROMPT.md](./PROMPT.md). A future session m
 | D — corpus + per-component mining | done (compressed) | corpus 877 repos; FULL datasets (candidates+ranked+examples) for select/dialog/menu/popover; compressed candidates-only for the other 33 (8 evidenced, 25 honest-empty+NOTES) per the 2026-07-07 compression decision; screenshots cut |
 | E — Storybook scaffold | done | apps/storybook, SB 10.4.6, build green incl. story importing @base-ui/react from source. See e-storybook/decisions.md (Nx detection workaround; initializer's broken root-config edits reverted; source aliases) |
 | E — setup-prompt.md generated + committed | done | committed verbatim @ 6dde013c1 before acting on it |
-| E — stories + MDX per component | partial (wind-down) | 7/37 fully done (switch, select, menu, popover, dialog, autocomplete, combobox = 166 stories, all green); remaining halted by user wind-down directive 2026-07-07 |
+| E — stories + MDX per component | partial | 16/37 fully done, 263/263 stories green (1h sprint added toast/field/form/navigation-menu/drawer/progress/meter/avatar/separator); 21 components + 4 utils remain (7 Wave-B floor batches) |
 | Close-out (SUMMARY.md, checklist, spot-check) | done | SUMMARY.md + e-storybook/coverage.md; 10/10 citation spot-check pass; storybook build green; pnpm typescript green; Switch jsdom suite green |
 
 ## Component × phase table
@@ -41,11 +41,11 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | menu | 1 | ok | ok | ok | ok | ok (28 green, 3 recreations) | ok |
 | dialog | 1 | ok | ok | ok | ok | ok (24 green, 2 recreations) | ok |
 | popover | 1 | ok | ok | ok | ok | ok (30 green, 3 recreations) | ok |
-| toast | 1 | ok | ok | ok (lean, 2) | - (compressed) | - | - |
-| field | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
-| form | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
-| navigation-menu | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | - | - |
-| drawer | 1 | ok (attempt 3; vaul-successor [E]) | ok (18) | ok (lean, 3) | - (compressed) | - | - |
+| toast | 1 | ok | ok | ok (lean, 2) | - (compressed) | ok (21 green) | ok |
+| field | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | ok (18 green) | ok |
+| form | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | ok (10 green) | ok |
+| navigation-menu | 1 | ok | ok | ok (lean, empty+notes) | - (compressed) | ok (17 green) | ok |
+| drawer | 1 | ok (attempt 3; vaul-successor [E]) | ok (18) | ok (lean, 3) | - (compressed) | ok (17 green) | ok |
 | alert-dialog | 2 | ok | ok (12) | ok (lean, empty+notes) | - | - | - |
 | context-menu | 2 | ok (from salvage; Mac gate pinned) | ok (12) | ok (lean, 1) | - | - | - |
 | menubar | 2 | ok (from salvage; #1407 confirmed) | ok (12) | ok (lean, 20) | - | - | - |
@@ -60,14 +60,14 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | radio (+radio-group) | 2 | ok (no-docs-page asymmetry flagged) | ok (13) | ok (lean, empty+notes) | - | - | - |
 | checkbox | 2 | ok (mixed-state; Enter submits #4713) | ok (11) | ok (lean, empty+notes) | - | - | - |
 | checkbox-group | 2 | ok (parent tri-state cycle) | ok (9) | ok (lean, empty+notes) | - | - | - |
-| avatar | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| avatar | 3 | ok | ok | ok (lean, empty+notes) | - | ok (floor green) | ok |
 | button | 3 | ok (#2363 scope reversal) | ok | ok (lean, empty+notes) | - | - | - |
 | collapsible | 3 | ok (Accordion reuses its hooks) | ok (8) | ok (lean, empty+notes) | - | - | - |
 | fieldset | 3 | ok (Legend div-not-legend #3044) | ok (5) | ok (lean, empty+notes) | - | - | - |
 | input | 3 | ok (= Field.Control renamed) | ok (7) | ok (lean, empty+notes) | - | - | - |
-| meter | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
-| progress | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
-| separator | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
+| meter | 3 | ok | ok | ok (lean, empty+notes) | - | ok (floor green) | ok |
+| progress | 3 | ok | ok | ok (lean, empty+notes) | - | ok (floor green) | ok |
+| separator | 3 | ok | ok | ok (lean, empty+notes) | - | ok (floor green) | ok |
 | switch | 3 | ok (close-out formalization of pilot evidence) | ok (7, implemented) | ok (lean, 1) | - | ok (7 green, pilot + CssCheck) | ok |
 | toggle | 3 | ok | ok | ok (lean, 2) | - | - | - |
 | toggle-group | 3 | ok | ok | ok (lean, empty+notes) | - | - | - |
@@ -77,7 +77,7 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | merge-props (util) | 3 | ok | ok | n/a | n/a | - | - |
 | use-render (util) | 3 | ok | ok | n/a | n/a | - | - |
 
-**E-phase totals at wind-down**: 7/37 components fully done (166/166 stories green, `storybook build` green); 30 components + 4 utils have briefs/plans but no stories/MDX yet — see RESUME-PLAYBOOK.md §E to continue.
+**E-phase totals (post 1h sprint, 2026-07-07 evening)**: 16/37 components fully done — **263/263 stories green** (adds toast, field, form, navigation-menu, drawer, progress, meter, avatar, separator); 21 components + 4 utils remain = 7 pre-planned Wave-B floor batches (~45-60 min, RESUME-PLAYBOOK.md §E). Sprint note: the first Wave-A launch died on the Fable 5 limit; sonnet continuation agents recovered everything from salvage.
 
 ## Cluster notes (§8.3)
 

@@ -1,6 +1,22 @@
-# Phase E coverage — verified 2026-07-07 (close-out)
+# Phase E coverage — verified 2026-07-07 (updated after the evening 1h sprint)
 
-Verification evidence: `npx vitest --project storybook run` (all files) → **166/166 tests passed**; `pnpm build-storybook` → completed successfully; `npx tsc -p tsconfig.json --noEmit` → clean (library graph included); repo gates: `pnpm typescript` (tsgo -b) clean, `pnpm test:jsdom Switch --no-watch` 80 passed/8 browser-gated skips.
+Verification evidence (sprint update 21:01): `npx vitest --project storybook run` (all 16 files) → **263/263 tests passed**. Earlier close-out evidence: `pnpm build-storybook` green; `npx tsc -p tsconfig.json --noEmit` clean (library graph included; re-verified clean by sprint agents); repo gates: `pnpm typescript` (tsgo -b) clean, `pnpm test:jsdom Switch --no-watch` 80 passed/8 browser-gated skips.
+
+## Sprint additions (2026-07-07 evening)
+
+| Component | Stories | MDX | Notes |
+|---|---|---|---|
+| toast | 21 | ✓ | manager pattern; announcement architecture asserted |
+| field | 18 | ✓ | fixes: `required` on Control; dirty-flag test nuance |
+| form | 10 | ✓ | submit gate + focus-first-invalid + server errors plays |
+| navigation-menu | 17 | ✓ | 3 real bugs fixed; Link+render browser-hang finding filed |
+| drawer | 17 | ✓ | SwipeArea inverse-direction finding; gesture plays deliberately excluded |
+| progress | 5 | ✓ | role/aria plays |
+| meter | 4 | ✓ | role=meter play |
+| avatar | 3 | ✓ | broken-src fallback play |
+| separator | 3 | ✓ | orientation plays |
+
+First Wave-A launch was killed by the Fable 5 usage limit mid-write; sonnet continuation agents recovered from committed salvage — several components turned out already complete on disk.
 
 ## Built components (7)
 
