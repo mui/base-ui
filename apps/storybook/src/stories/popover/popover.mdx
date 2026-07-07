@@ -38,7 +38,7 @@ An accessible popup anchored to a button — an anchored mini-dialog for interac
 - **Interactive anchored panels** — notification inboxes (the hero above), filter and settings panels, link editors; the docs' own SEO keywords map the query space: "Anchored Popup", "Floating Panel", "Info Box", "Callout".
 - **One shared popup for many triggers** — e.g. dozens of table rows each opening the same panel with per-row context; the detached-triggers + payload pattern exists precisely for this ([#3577](https://github.com/mui/base-ui/issues/3577)).
 - **A popover that must behave like a small modal** — block outside interaction while open via the `modal` prop, added on request ([#1459](https://github.com/mui/base-ui/pull/1459) closing [#623](https://github.com/mui/base-ui/issues/623)).
-- **Hosting third-party widgets** — date pickers and similar commit-on-close panels are a recurring production pattern (`research/d-real-world-usage/popover/ranked.json` #10).
+- **Hosting third-party widgets** — date pickers and similar commit-on-close panels are a recurring production pattern (`research/d-real-world-usage/popover/ranked.json` [#10](https://github.com/mui/base-ui/issues/10)).
 
 ## When not to use
 
@@ -321,7 +321,7 @@ Three recreations live in this Storybook — the museeks queue popover, the Flas
 
 ## Decision log
 
-- **2024-06** — Popover ships ([#381](https://github.com/mui/base-ui/pull/381), closing founding issue [#35](https://github.com/mui/base-ui/issues/35)); the legacy `@mui/base` Popper and Popover merge into one anchored component — "they won't be separate components" (discussion #553).
+- **2024-06** — Popover ships ([#381](https://github.com/mui/base-ui/pull/381), closing founding issue [#35](https://github.com/mui/base-ui/issues/35)); the legacy `@mui/base` Popper and Popover merge into one anchored component — "they won't be separate components" (discussion [#553](https://github.com/mui/base-ui/issues/553)).
 - **2024-10/11** — `delayType` removed across hover popups ([#730](https://github.com/mui/base-ui/pull/730)); `initialFocus` ([#732](https://github.com/mui/base-ui/pull/732)) then `finalFocus` ([#773](https://github.com/mui/base-ui/pull/773)) added alongside Dialog.
 - **2024-12** — "impatient click" blending: clicks within ~500ms of a hover-open are ignored instead of closing ([#973](https://github.com/mui/base-ui/pull/973)).
 - **2025-01 (alpha.5)** — `Portal` becomes a required part; `keepMounted` moves onto it; a missing Portal throws ([#1222](https://github.com/mui/base-ui/pull/1222)).

@@ -1,6 +1,7 @@
 import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
 import content from '../../../../../research/a-documentation-standard/reference-notes/material.md?raw';
 
 <Meta title="Research/A — Documentation standard/Reference notes/Material 3" tags={['research']} />
 
-<Markdown>{content}</Markdown>
+<Markdown>{linkifyIssues(content)}</Markdown>

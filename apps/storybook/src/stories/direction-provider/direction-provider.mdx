@@ -53,7 +53,7 @@ Portaled popups (Tooltip, Menu, Select, etc.) render outside the `dir`-scoped re
 ## When to use
 
 - Any app or subtree rendered in an RTL language — wrap it so arrow-key navigation and positioning sides flip to match.
-- Per-section mixing — the provider configures "an app (or part of an app)" (#831); wrap only the RTL region.
+- Per-section mixing — the provider configures "an app (or part of an app)" ([#831](https://github.com/mui/base-ui/issues/831)); wrap only the RTL region.
 - `useDirection()` whenever you need the current direction outside the styled tree, most commonly for portaled popups.
 
 ## When not to use
@@ -64,7 +64,7 @@ Portaled popups (Tooltip, Menu, Select, etc.) render outside the `dir`-scoped re
 ## Pitfalls
 
 - **Expecting layout to flip** — the provider alone changes behavior only; visuals stay LTR until you set `dir`/CSS yourself.
-- **Portaled popups don't inherit your `dir` attribute** — a popup portaled to `<body>` escapes the `dir`-scoped region; read `useDirection()` and set `dir` on the popup yourself. Maintainers themselves note it's "a bit annoying to have to manually set this on every nested positioner level" (#3041).
+- **Portaled popups don't inherit your `dir` attribute** — a popup portaled to `<body>` escapes the `dir`-scoped region; read `useDirection()` and set `dir` on the popup yourself. Maintainers themselves note it's "a bit annoying to have to manually set this on every nested positioner level" ([#3041](https://github.com/mui/base-ui/issues/3041)).
 - **`dir="rtl"` without the provider** — layout flips, but arrow keys/dragging keep LTR semantics, since components read only the context.
 - **Assuming every component honors it** — coverage was patched in per component over time (e.g. ScrollArea didn't originally read it, [#1189](https://github.com/mui/base-ui/issues/1189)); logical-value gaps remain open (e.g. [#4402](https://github.com/mui/base-ui/issues/4402) for `swipeDirection`).
 

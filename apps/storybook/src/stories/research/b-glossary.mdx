@@ -1,6 +1,7 @@
 import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
 import content from '../../../../../research/b-library-principles/glossary.md?raw';
 
 <Meta title="Research/B — Library principles/Glossary" tags={['research']} />
 
-<Markdown>{content}</Markdown>
+<Markdown>{linkifyIssues(content)}</Markdown>

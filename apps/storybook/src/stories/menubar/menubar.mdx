@@ -69,7 +69,7 @@ mental model.
 - **Bar-wide modality** — `modal` (default `true`) is set once on `<Menubar>` and
   threaded down to every hosted popup; a child `Menu.Root` doesn't independently
   choose its own modality while hosted in the bar.
-- **Vertical orientation, fixed in #4922** — before
+- **Vertical orientation, fixed in [#4922](https://github.com/mui/base-ui/issues/4922)** — before
   [#4922](https://github.com/mui/base-ui/pull/4922) (merged 2026-05-28), vertical
   menubars still defaulted their popups to open on the `'bottom'` side (appropriate
   for horizontal bars, awkward for vertical ones). The fix switches the default to
@@ -188,7 +188,7 @@ and open the adjacent top-level trigger's submenu in one step:
 - **`modal`** (default `true`) — sets the modality policy for _every_ hosted menu's
   popup at once; a child `Menu.Root` cannot independently opt out while hosted.
 - **`disabled`** (default `false`) — cascades to every hosted `Menu.Root`, including
-  keeping already-open menu items disabled (#4922's fix). Use for a whole-bar
+  keeping already-open menu items disabled ([#4922](https://github.com/mui/base-ui/issues/4922)'s fix). Use for a whole-bar
   disabled state rather than disabling each `Menu.Root` individually.
 
 ## Do / Don't
@@ -230,7 +230,7 @@ The corpus's 20 Menubar hits are overwhelmingly one shadcn-derived `components/u
   upgrade if seeing this on an older version.
 - **"Setting `disabled` on one `Menu.Root` inside my Menubar doesn't fully disable it
   — items still respond"** → check whether the _Menubar's own_ `disabled` prop is
-  what's needed instead (it cascades and, since #4922, also correctly disables
+  what's needed instead (it cascades and, since [#4922](https://github.com/mui/base-ui/issues/4922), also correctly disables
   already-open items).
 - **"Why isn't there a `Menubar.Item` or `Menubar.Trigger` part?"** → there isn't one
   — Menubar hosts ordinary `Menu.Root` instances and changes their behavior via

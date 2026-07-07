@@ -11,7 +11,7 @@ An easily stylable range input.
 
 - **Import:** `import { Slider } from '@base-ui/react/slider';`
 - **Parts:** 7 — `Slider.Root`, `Label`, `Value`, `Control`, `Track`, `Indicator`, `Thumb`.
-- **Status:** Stable, no `[New]`/`[Preview]` tag. Current API shipped via PR #373 (2024-07-02), a ground-up rewrite of a legacy `@mui/base` lineage tracing back to 2023.
+- **Status:** Stable, no `[New]`/`[Preview]` tag. Current API shipped via PR [#373](https://github.com/mui/base-ui/issues/373) (2024-07-02), a ground-up rewrite of a legacy `@mui/base` lineage tracing back to 2023.
 - **ARIA pattern:** [Slider](https://www.w3.org/WAI/ARIA/apg/patterns/slider/) — via the browser's own native `<input type="range">` semantics, not a custom ARIA widget (see below).
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
@@ -34,8 +34,8 @@ An easily stylable range input.
 ## When not to use
 
 - For typed, formatted, or locale-sensitive numeric precision — an exact price, a quantity — prefer [Number Field](?path=/docs/form-inputs-number-field--docs): Slider has no `Intl.NumberFormat`-based parsing pipeline and no way to type an exact value; `Slider.Value`'s text is a read-only, formatted-for-display-only readout. [I] — inferred from the two components' divergent design poles; no direct maintainer quote compares them.
-- Built-in tick marks or restricted/snap-to-marks values are **not currently available** — the legacy `Mark`/`marks` API was deliberately dropped in the #373 rewrite, deferred to a still-open issue (#462). Marks must be hand-composed as positioned `<span>` children of `Track`.
-- A floating value-label bubble that tracks the thumb while dragging is also not built in — compose with `Tooltip` instead (the #373 PR body points at exactly this pattern).
+- Built-in tick marks or restricted/snap-to-marks values are **not currently available** — the legacy `Mark`/`marks` API was deliberately dropped in the [#373](https://github.com/mui/base-ui/issues/373) rewrite, deferred to a still-open issue ([#462](https://github.com/mui/base-ui/issues/462)). Marks must be hand-composed as positioned `<span>` children of `Track`.
+- A floating value-label bubble that tracks the thumb while dragging is also not built in — compose with `Tooltip` instead (the [#373](https://github.com/mui/base-ui/issues/373) PR body points at exactly this pattern).
 
 ## Anatomy
 
@@ -120,7 +120,7 @@ Each Thumb's nested native `<input type="range">` carries `name`/`form`/`min`/`m
 
 **No CSS custom properties are part of the documented styling contract** — unlike Select/Popover's `--anchor-width`, Slider's internal `--position`/`--start-position`/`--relative-size` are inline-style implementation plumbing, not a consumer-facing theming API.
 
-**`.Thumb:has(:focus-visible)`, not `.Thumb:focus-visible`** — focus never lands on the visible Thumb `<div>` itself; it lives on the nested input. Styling `:focus-visible` directly on a custom Thumb class does nothing (a breaking change from beta.3's TalkBack fix, #2578) — the hero demo's own CSS uses `:has(:focus-visible)`.
+**`.Thumb:has(:focus-visible)`, not `.Thumb:focus-visible`** — focus never lands on the visible Thumb `<div>` itself; it lives on the nested input. Styling `:focus-visible` directly on a custom Thumb class does nothing (a breaking change from beta.3's TalkBack fix, [#2578](https://github.com/mui/base-ui/issues/2578)) — the hero demo's own CSS uses `:has(:focus-visible)`.
 
 ## Do / Don't
 

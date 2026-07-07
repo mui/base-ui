@@ -303,7 +303,7 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 - Don't expect the popup to unmount on close — it stays mounted after first interaction ([#1906](https://github.com/mui/base-ui/pull/1906)); drive unmount via `actionsRef` if needed.
 - Don't expect closed-trigger typeahead in `multiple` mode — intentional; open the popup first ([#2274](https://github.com/mui/base-ui/issues/2274)).
 - Don't `render` a non-button trigger without `nativeButton={false}` — the trigger is a native `<button>` since beta.5 ([#3177](https://github.com/mui/base-ui/pull/3177)).
-- Don't push the popup away with a large `sideOffset` to "fix" the default overlap — that's `alignItemWithTrigger` working as designed; set it to `false` instead (observed misuse in the wild, `research/d-real-world-usage/select/ranked.json` #15).
+- Don't push the popup away with a large `sideOffset` to "fix" the default overlap — that's `alignItemWithTrigger` working as designed; set it to `false` instead (observed misuse in the wild, `research/d-real-world-usage/select/ranked.json` [#15](https://github.com/mui/base-ui/issues/15)).
 
 ## In the wild
 

@@ -1,6 +1,7 @@
 import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
 import content from '../../../../../research/c-components/_clusters/overlays.md?raw';
 
 <Meta title="Research/C — Component briefs/Clusters/Overlays" tags={['research']} />
 
-<Markdown>{content}</Markdown>
+<Markdown>{linkifyIssues(content)}</Markdown>

@@ -14,7 +14,7 @@ A native input element that automatically works with [Field](?path=/docs/form-in
 
 - **Import:** `import { Input } from '@base-ui/react/input';`
 - **Parts:** 1 — single node, no compound namespace (`Input`, not `Input.Root`).
-- **Status:** Stable, no version-tag. A rename of the pre-existing `TextInput` (`288bbdda`, #932); before the Base UI repo existed, the lineage traces to `@mui/base`'s `Input`/`InputBase`.
+- **Status:** Stable, no version-tag. A rename of the pre-existing `TextInput` (`288bbdda`, [#932](https://github.com/mui/base-ui/issues/932)); before the Base UI repo existed, the lineage traces to `@mui/base`'s `Input`/`InputBase`.
 - **ARIA pattern:** none of its own — a native `<input>`, plus whatever `Field` supplies when nested inside it.
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
@@ -59,7 +59,7 @@ Input's own docs page states exactly one usage guideline, verbatim: **"Form cont
 
 - **Standalone labeling** — wrap in a plain `<label>` (the docs hero pattern), no extra props.
 - **Field-integrated labeling** — `aria-labelledby`/`htmlFor` auto-wired from `Field.Label`'s id, inherited unmodified from `Field.Control`.
-- **Known issue** — #4643 ("How to clear the input value on a button click?") is open; the docs show no dedicated recipe. The standard controlled `value`/`onValueChange` triplet, reset externally, is the expected pattern, but the issue's own resolution was not read for this pass.
+- **Known issue** — [#4643](https://github.com/mui/base-ui/issues/4643) ("How to clear the input value on a button click?") is open; the docs show no dedicated recipe. The standard controlled `value`/`onValueChange` triplet, reset externally, is the expected pattern, but the issue's own resolution was not read for this pass.
 
 ## Styling hooks
 
@@ -98,8 +98,8 @@ Identical to `Field.Control`'s (brief §8) — no CSS variables of Input's own:
 ## Decision log
 
 - **Pre-2024** — `Input`/`InputBase` lineage inherited from `@mui/base`, predating Base UI's component-per-DOM-node rewrite.
-- **2024-12 (`288bbdda`, #932)** — `TextInput` renamed to `Input`.
-- **2025** — `Input` formally extends `Field.Control.State` in the type layer (#1954), and gains the `filled`/`focused` style hooks Field itself added (#1341).
+- **2024-12 (`288bbdda`, [#932](https://github.com/mui/base-ui/issues/932))** — `TextInput` renamed to `Input`.
+- **2025** — `Input` formally extends `Field.Control.State` in the type layer ([#1954](https://github.com/mui/base-ui/issues/1954)), and gains the `filled`/`focused` style hooks Field itself added ([#1341](https://github.com/mui/base-ui/issues/1341)).
 
 ## Related
 

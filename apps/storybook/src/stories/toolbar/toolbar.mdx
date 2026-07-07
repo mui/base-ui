@@ -12,7 +12,7 @@ A container for grouping a set of buttons and controls.
 
 - **Import:** `import { Toolbar } from '@base-ui/react/toolbar';`
 - **Parts:** 6 — `Toolbar.Root`, `Toolbar.Button`, `Toolbar.Link`, `Toolbar.Input`, `Toolbar.Group`, `Toolbar.Separator`.
-- **Status:** Stable. Introduced in [#1349](https://github.com/mui/base-ui/pull/1349) (closing legacy issue #661).
+- **Status:** Stable. Introduced in [#1349](https://github.com/mui/base-ui/pull/1349) (closing legacy issue [#661](https://github.com/mui/base-ui/issues/661)).
 - **ARIA pattern:** [Toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) — `role="toolbar"` with single-tab-stop roving `tabindex` and arrow-key navigation among focusable members.
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
@@ -128,7 +128,7 @@ No CSS variables — no dynamic measurements to expose.
 
 ## Decision log
 
-- **Introduced — [#1349](https://github.com/mui/base-ui/pull/1349)** "[Toolbar] Add Toolbar components" (closing #661): shipped with Root/Button/Input/Link/Group/Separator, `focusableWhenDisabled`, `orientation`, roving focus with `loop`, and a `cols` grid-layout prop; explicitly deferred a `hotkey` prop to [#1454](https://github.com/mui/base-ui/issues/1454).
+- **Introduced — [#1349](https://github.com/mui/base-ui/pull/1349)** "[Toolbar] Add Toolbar components" (closing [#661](https://github.com/mui/base-ui/issues/661)): shipped with Root/Button/Input/Link/Group/Separator, `focusableWhenDisabled`, `orientation`, roving focus with `loop`, and a `cols` grid-layout prop; explicitly deferred a `hotkey` prop to [#1454](https://github.com/mui/base-ui/issues/1454).
 - **`#3133`** — Drop `cols` prop — a rare shipped-then-retracted API surface for this component. [G] rationale not fetched; logged from commit subject only.
 - **`#2176`** — Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}`.
 - **`#4967`/`#4968`** — Do not forward `disabled` to the default toolbar button / fix disabled state and roving focus bugs — the two most recent Toolbar-scoped commits, explaining the asymmetric disabled-forwarding behavior above.

@@ -110,14 +110,14 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 ## Decision log
 
-- **Pre-#2225 — initially rejected.** A headless `<button>` primitive was proposed and rejected under the library's scope test (colmtuite): ship a primitive only where (a) HTML lacks the functionality, (b) the element can't be styled, or (c) no good HTML primitive exists. A plain `<button>` fails all three — so Button "shouldn't" exist by that test.
+- **Pre-[#2225](https://github.com/mui/base-ui/issues/2225) — initially rejected.** A headless `<button>` primitive was proposed and rejected under the library's scope test (colmtuite): ship a primitive only where (a) HTML lacks the functionality, (b) the element can't be styled, or (c) no good HTML primitive exists. A plain `<button>` fails all three — so Button "shouldn't" exist by that test.
 - **Reversed and merged — [#2363](https://github.com/mui/base-ui/pull/2363) "[button] New `Button` component"** (closing [#2225](https://github.com/mui/base-ui/issues/2225), which itself traces to [#2138](https://github.com/mui/base-ui/issues/2138)): the scope test was overridden specifically for accessibility reasons — `focusableWhenDisabled` (native `disabled` removes an element from the accessibility tree and tab order entirely, hiding loading/pending buttons from assistive technology), Enter/Space activation normalization on non-native tags, and browser-bug patching. Explicitly scoped **out**: press/pointer-event normalization, tracked separately as [#1726](https://github.com/mui/base-ui/issues/1726). Button exists purely for these a11y affordances — it is not a styling convenience.
 - **`#3643`** — Remove discriminated props union (API simplification, post-1.0 minor).
 - **`#3929`** — Improve dev warnings (shared with Field).
 
 ## Known issues & open questions
 
-- [G] No Button-specific open a11y bug surfaced in the mined discussions/issues corpus (`button / toolbar | 4008, 4021, 5150, 3759` — these are scope/API discussions, not a11y bugs; #4021/#5150/#3759 not individually verified in this pass).
+- [G] No Button-specific open a11y bug surfaced in the mined discussions/issues corpus (`button / toolbar | 4008, 4021, 5150, 3759` — these are scope/API discussions, not a11y bugs; [#4021](https://github.com/mui/base-ui/issues/4021)/#5150/#3759 not individually verified in this pass).
 
 ## Related
 

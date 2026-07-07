@@ -11,7 +11,7 @@ A numeric input element with increment and decrement buttons, and a scrub area.
 
 - **Import:** `import { NumberField } from '@base-ui/react/number-field';`
 - **Parts:** 7 — `NumberField.Root`, `Group`, `Input`, `Increment`, `Decrement`, `ScrubArea`, `ScrubAreaCursor`.
-- **Status:** Stable. One of Base UI's three founding components (alpha.0, April 2024, PR #186), continuously maintained — a dense 2026 cluster of parsing/formatting correctness fixes shows the format pipeline is still actively invested surface, not settled legacy code.
+- **Status:** Stable. One of Base UI's three founding components (alpha.0, April 2024, PR [#186](https://github.com/mui/base-ui/issues/186)), continuously maintained — a dense 2026 cluster of parsing/formatting correctness fixes shows the format pipeline is still actively invested surface, not settled legacy code.
 - **ARIA pattern:** No dedicated APG pattern is implemented (see below) — the closest named pattern is [Spinbutton](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/), which this component deliberately does **not** use.
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
@@ -107,7 +107,7 @@ The story applies `noValidate` on the surrounding `<form>` deliberately: the def
 | Click-drag on ScrubArea                                                                   | Pointer down                   | Continuous stepping proportional to movement; pointer-only                          |
 
 - **ARIA — verified absence, not an assumption**: the Input does **not** use `role="spinbutton"`. Reading `NumberFieldInput.tsx` and grepping the entire `number-field/` source tree directly confirms there is no `role="spinbutton"`, no `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` anywhere. The Input is a plain implicit `role="textbox"` (confirmed by tests: `screen.getByRole('textbox')` is used pervasively across `NumberFieldRoot.test.tsx`). It additionally carries `aria-roledescription="Number field"` — a role _description_, not an accessible name; use `Field.Label`/`aria-label` for that.
-- This was a considered decision: the founding PR #186's checklist included "Research if spinbutton ARIA props become necessary for iOS" as an open TODO — the shipped component never added them, and no later PR reversed that. [I] The likely rationale (not a maintainer quote — [G]): a spinbutton's `aria-valuenow`/`aria-valuetext` model fits a value that's _set_, whereas this component's primary interaction is free-form formatted text editing where the visible text should simply be read like any other text input.
+- This was a considered decision: the founding PR [#186](https://github.com/mui/base-ui/issues/186)'s checklist included "Research if spinbutton ARIA props become necessary for iOS" as an open TODO — the shipped component never added them, and no later PR reversed that. [I] The likely rationale (not a maintainer quote — [G]): a spinbutton's `aria-valuenow`/`aria-valuetext` model fits a value that's _set_, whereas this component's primary interaction is free-form formatted text editing where the visible text should simply be read like any other text input.
 - **Known issues**: [G] no dedicated open a11y issue sweep beyond source verification was performed for this Tier-2 brief.
 
 ## Styling hooks

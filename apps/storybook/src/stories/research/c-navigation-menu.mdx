@@ -1,6 +1,7 @@
 import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
 import content from '../../../../../research/c-components/navigation-menu/brief.md?raw';
 
 <Meta title="Research/C — Component briefs/Navigation Menu" tags={['research']} />
 
-<Markdown>{content}</Markdown>
+<Markdown>{linkifyIssues(content)}</Markdown>

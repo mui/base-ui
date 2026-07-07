@@ -48,7 +48,7 @@ Passing `state` as a hook parameter makes it available as the second argument to
 
 <Canvas of={UseRenderStories.StateToDataAttributes} />
 
-## Rules of render — the footguns (#4039)
+## Rules of render — the footguns ([#4039](https://github.com/mui/base-ui/issues/4039))
 
 - **`render={<Component />}` — yes.** The element form is auto-merged and is what you want by default.
 - **`render={Component}` — never.** Passing the bare component reference (not an element, not a callback) makes React treat each call as a new function identity; any hooks inside crash during reconciliation. This shipped a dev warning after [#4039](https://github.com/mui/base-ui/issues/4039): _"can break the Rules of Hooks during reconciliation."_

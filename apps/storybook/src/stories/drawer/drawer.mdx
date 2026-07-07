@@ -280,7 +280,7 @@ The `MobileNavigation` story above recreates the documented mobile-navigation ar
 The vaul succession, in order:
 
 - **Pre-history — the RFC** — issue [#38](https://github.com/mui/base-ui/issues/38) "Create the unstyled Drawer / Sheet component" collects explicit user demand, quoting Reddit verbatim: "I beg you please copy Vaul, make your own swipe-able drawer with handle and snap points and make sure it's smooth on mobile because Vaul is practically deprecated" (linking shadcn-ui#9191, shadcn-ui#8455, vaul#630). Design positions inside the thread: no built-in animations (michaldudak — "we can only provide style hooks"), Toast-style `swipe-movement-x/y` gestures (atomiks) — the swipe-var naming lineage traces to Toast, not to vaul.
-- **2026-02-13 — born as preview** — [#3680](https://github.com/mui/base-ui/pull/3680) "Create new Drawer / Sheet component" ships `DrawerPreview` in v1.2.0, closing #38. Integrates gestures **natively into Base UI's own Dialog engine** (`useRenderDialogRoot` mode `'drawer'`) rather than wrapping a third-party library. Launch checklist: nested drawers, background indent provider, text selection during swipes, dismissal momentum, snap points.
+- **2026-02-13 — born as preview** — [#3680](https://github.com/mui/base-ui/pull/3680) "Create new Drawer / Sheet component" ships `DrawerPreview` in v1.2.0, closing [#38](https://github.com/mui/base-ui/issues/38). Integrates gestures **natively into Base UI's own Dialog engine** (`useRenderDialogRoot` mode `'drawer'`) rather than wrapping a third-party library. Launch checklist: nested drawers, background indent provider, text selection during swipes, dismissal momentum, snap points.
 - **2026-02/03 — preview-period churn** — while the `Preview` namespace allowed breaking changes: swipe CSS vars made non-inheriting for perf ([#4099](https://github.com/mui/base-ui/pull/4099)); SwipeArea **removed then restored** ([#4102](https://github.com/mui/base-ui/pull/4102)); controlled-swipe dismissal guard ([#4133](https://github.com/mui/base-ui/pull/4133)).
 - **2026-03 — stable** — [#4293](https://github.com/mui/base-ui/pull/4293) "Unmark Drawer preview" ships v1.3.0, logged as a breaking change (`DrawerPreview` → `Drawer`).
 - **2026-04 — keyboard + isolation** — `VirtualKeyboardProvider` ([#4353](https://github.com/mui/base-ui/pull/4353)); dialogs excluded from the nested-*drawer* stack ([#4493](https://github.com/mui/base-ui/pull/4493)); Viewport-missing dev warning ([#4495](https://github.com/mui/base-ui/pull/4495)).
@@ -292,7 +292,7 @@ The vaul succession, in order:
 - Dialog-family issues apply verbatim: [#4678](https://github.com/mui/base-ui/issues/4678) (aria-hidden tabbables), [#4843](https://github.com/mui/base-ui/issues/4843) (`aria-modal`), [#4583](https://github.com/mui/base-ui/issues/4583) (multi-Esc).
 - [#3905](https://github.com/mui/base-ui/issues/3905) — Dialog's own CloseWatcher/Android-back-button request is still open; Drawer already ships this.
 - [G] No Drawer-specific open accessibility issue was found in a `[drawer]`-scoped search of git history and issues (2026-07).
-- [I] Parent-bound (absolute-positioned, `container`-portaled) drawers remain an unanswered request from the original #38 thread (dartess's `positionMethod='fixed' | 'absolute'` ask).
+- [I] Parent-bound (absolute-positioned, `container`-portaled) drawers remain an unanswered request from the original [#38](https://github.com/mui/base-ui/issues/38) thread (dartess's `positionMethod='fixed' | 'absolute'` ask).
 
 ## Related
 
