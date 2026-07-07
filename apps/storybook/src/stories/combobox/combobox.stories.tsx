@@ -1469,11 +1469,7 @@ const ROW_HEIGHT = 32;
 const VIEWPORT_HEIGHT = 288; // matches .Scroller max-height (18rem)
 const OVERSCAN = 6;
 
-function WindowedList({
-  scrollerRef,
-}: {
-  scrollerRef: React.RefObject<HTMLDivElement | null>;
-}) {
+function WindowedList({ scrollerRef }: { scrollerRef: React.RefObject<HTMLDivElement | null> }) {
   const filteredItems = Combobox.useFilteredItems<BigItem>();
   const [scrollTop, setScrollTop] = React.useState(0);
 

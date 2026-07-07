@@ -274,11 +274,7 @@ function SnapPointsExample() {
               <div className={styles.Grabber} />
               <Drawer.Title className={styles.SheetTitle}>Snap points</Drawer.Title>
               <div className={styles.SheetActions}>
-                <button
-                  type="button"
-                  className={styles.Button}
-                  onClick={() => setSnapPoint(1)}
-                >
+                <button type="button" className={styles.Button} onClick={() => setSnapPoint(1)}>
                   Expand
                 </button>
                 <button
@@ -293,8 +289,8 @@ function SnapPointsExample() {
             </div>
             <Drawer.Content className={styles.SnapScroll}>
               <Drawer.Description className={styles.SheetDescription}>
-                Drag the sheet between the compact peek and the full-height detent — or drive
-                the controlled `snapPoint` with the buttons above.
+                Drag the sheet between the compact peek and the full-height detent — or drive the
+                controlled `snapPoint` with the buttons above.
               </Drawer.Description>
               <div className={styles.Cards} aria-hidden>
                 {Array.from({ length: 12 }, (_, index) => (
@@ -364,8 +360,8 @@ export const SwipeProgressStyling: Story = {
             <Drawer.Content className={styles.Content}>
               <Drawer.Title className={styles.SheetTitle}>Swipe styling</Drawer.Title>
               <Drawer.Description className={styles.SheetDescription}>
-                Drag me down slowly: the backdrop fades in proportion to the drag distance
-                because its opacity is bound to the swipe progress variable.
+                Drag me down slowly: the backdrop fades in proportion to the drag distance because
+                its opacity is bound to the swipe progress variable.
               </Drawer.Description>
               <div className={styles.SheetActions}>
                 <Drawer.Close className={styles.Button}>Close</Drawer.Close>
@@ -415,8 +411,8 @@ export const SwipeAreaOpen: Story = {
             <Drawer.Content className={styles.Content}>
               <Drawer.Title className={styles.Title}>Library</Drawer.Title>
               <Drawer.Description className={styles.Description}>
-                Swipe from the tinted right-edge strip whenever you want to jump back into
-                your playlists — or use the button.
+                Swipe from the tinted right-edge strip whenever you want to jump back into your
+                playlists — or use the button.
               </Drawer.Description>
               <div className={styles.Actions}>
                 <Drawer.Close className={styles.Button}>Close</Drawer.Close>
@@ -532,8 +528,8 @@ export const NestedDrawers: Story = {
             <Drawer.Content className={styles.StackContent}>
               <Drawer.Title className={styles.SheetTitle}>Account</Drawer.Title>
               <Drawer.Description className={styles.SheetDescription}>
-                Nested drawers can be styled to stack, while each drawer remains
-                independently focus managed.
+                Nested drawers can be styled to stack, while each drawer remains independently focus
+                managed.
               </Drawer.Description>
               <div className={styles.SheetActions}>
                 <Drawer.Root>
@@ -1119,7 +1115,9 @@ export const RealWorldHandleFormReset: Story = {
     // Reopening resets the draft — the abandoned edit does not survive.
     await userEvent.click(canvas.getByRole('button', { name: 'Edit profile' }));
     const reopened = await body.findByRole('dialog');
-    await waitFor(() => expect(within(reopened).getByLabelText('Name')).toHaveValue('Ada Lovelace'));
+    await waitFor(() =>
+      expect(within(reopened).getByLabelText('Name')).toHaveValue('Ada Lovelace'),
+    );
 
     // Edit again and save this time.
     const reopenedInput = within(reopened).getByLabelText('Name');

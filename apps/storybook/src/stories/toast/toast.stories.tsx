@@ -1245,7 +1245,10 @@ function ArchiveFileRow() {
 
 function AnchoredActionExample() {
   return (
-    <ToastDemoShell viewportClassName={styles.AnchoredViewport} renderToast={renderAnchoredActionToast}>
+    <ToastDemoShell
+      viewportClassName={styles.AnchoredViewport}
+      renderToast={renderAnchoredActionToast}
+    >
       <ArchiveFileRow />
     </ToastDemoShell>
   );
@@ -1285,7 +1288,9 @@ interface AlertToastData {
   message: string;
 }
 
-function isAlertToast(toast: Toast.Root.ToastObject): toast is Toast.Root.ToastObject<AlertToastData> {
+function isAlertToast(
+  toast: Toast.Root.ToastObject,
+): toast is Toast.Root.ToastObject<AlertToastData> {
   return toast.data?.severity !== undefined;
 }
 
@@ -1312,11 +1317,7 @@ function Alert({
       <div className={styles.Text}>
         <p className={styles.Description}>{message}</p>
       </div>
-      <button
-        type="button"
-        className={styles.ActionButton}
-        onClick={() => setCopied(true)}
-      >
+      <button type="button" className={styles.ActionButton} onClick={() => setCopied(true)}>
         {copied ? 'Copied' : 'Copy'}
       </button>
       <button
@@ -1352,7 +1353,10 @@ function AlertToastButtons() {
         onClick={() =>
           toastManager.add({
             timeout: 0,
-            data: { severity: 'error', message: 'Bridge transaction failed to confirm.' } satisfies AlertToastData,
+            data: {
+              severity: 'error',
+              message: 'Bridge transaction failed to confirm.',
+            } satisfies AlertToastData,
           })
         }
       >
@@ -1392,6 +1396,8 @@ export const RealWorldAlertInsideContent: Story = {
     await expect(body.getByRole('button', { name: 'Copied' })).toBeVisible();
 
     await userEvent.click(body.getByRole('button', { name: 'Dismiss' }));
-    await waitFor(() => expect(body.queryByText('Bridge transaction failed to confirm.')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(body.queryByText('Bridge transaction failed to confirm.')).not.toBeInTheDocument(),
+    );
   },
 };

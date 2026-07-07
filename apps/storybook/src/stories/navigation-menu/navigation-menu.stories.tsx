@@ -7,8 +7,9 @@ import styles from './navigation-menu.module.css';
 /**
  * Stories follow research/c-components/navigation-menu (Tier 1): the kept docs
  * demos (hero, nested submenu, nested inline submenu), one story per documented
- * use case with the required viewport-morph and keyboard interaction coverage.
- * Real-world recreations are pending Phase D data ([G] — no ranked.json yet).
+ * use case with the required viewport-morph and keyboard interaction coverage,
+ * plus real-world recreations picked from the code-ok top set in
+ * research/d-real-world-usage/navigation-menu/ranked.json.
  *
  * Portal note: the popup subtree mounts on document.body, so plays query via
  * `within(canvasElement.ownerDocument.body)`. Plays prefer click over hover —
