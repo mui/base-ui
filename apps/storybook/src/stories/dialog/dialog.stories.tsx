@@ -32,7 +32,6 @@ const meta = {
     'Dialog.Description': Dialog.Description,
     'Dialog.Close': Dialog.Close,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Dialog.Root>;
 
 export default meta;
@@ -1422,6 +1421,7 @@ function SidePanelExample() {
  * research/d-real-world-usage/dialog/ranked.json #4).
  */
 export const RecreationSidePanel: Story = {
+  tags: ['recreation'],
   render: () => <SidePanelExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1478,6 +1478,7 @@ function AppDialogContent({
  * (MIT, code-ok, research/d-real-world-usage/dialog/ranked.json #1).
  */
 export const RecreationSettingsModal: Story = {
+  tags: ['recreation'],
   render: () => (
     <Dialog.Root>
       <Dialog.Trigger className={styles.Button}>Open settings</Dialog.Trigger>

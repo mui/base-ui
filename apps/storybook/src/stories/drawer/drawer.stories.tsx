@@ -45,7 +45,6 @@ const meta = {
     'Drawer.IndentBackground': Drawer.IndentBackground,
     'Drawer.VirtualKeyboardProvider': Drawer.VirtualKeyboardProvider,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Drawer.Root>;
 
 export default meta;

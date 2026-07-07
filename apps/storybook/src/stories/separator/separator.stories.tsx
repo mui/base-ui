@@ -11,7 +11,6 @@ import styles from './separator.module.css';
 const meta = {
   title: 'Disclosure & structure/Separator',
   component: Separator,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Separator>;
 
 export default meta;

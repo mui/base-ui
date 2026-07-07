@@ -29,7 +29,6 @@ const meta = {
     'AlertDialog.Description': AlertDialog.Description,
     'AlertDialog.Close': AlertDialog.Close,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof AlertDialog.Root>;
 
 export default meta;

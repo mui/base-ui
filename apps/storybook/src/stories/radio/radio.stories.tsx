@@ -18,7 +18,6 @@ const meta = {
   title: 'Form inputs/Radio',
   component: RadioGroup,
   subcomponents: { 'Radio.Root': Radio.Root, 'Radio.Indicator': Radio.Indicator },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof RadioGroup>;
 
 export default meta;

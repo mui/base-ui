@@ -32,7 +32,6 @@ const meta = {
     'NavigationMenu.Viewport': NavigationMenu.Viewport,
     'NavigationMenu.Arrow': NavigationMenu.Arrow,
   },
-  tags: ['ai-generated', 'needs-work'],
 } satisfies Meta<typeof NavigationMenu.Root>;
 
 export default meta;

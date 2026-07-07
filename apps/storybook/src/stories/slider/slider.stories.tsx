@@ -20,7 +20,6 @@ const meta = {
     'Slider.Thumb': Slider.Thumb,
     'Slider.Value': Slider.Value,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Slider.Root>;
 
 export default meta;

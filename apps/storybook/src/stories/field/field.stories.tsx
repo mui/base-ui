@@ -28,7 +28,6 @@ const meta = {
     'Field.Item': Field.Item,
     'Field.Validity': Field.Validity,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Field.Root>;
 
 export default meta;

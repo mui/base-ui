@@ -25,7 +25,6 @@ const meta = {
     'Accordion.Trigger': Accordion.Trigger,
     'Accordion.Panel': Accordion.Panel,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Accordion.Root>;
 
 export default meta;

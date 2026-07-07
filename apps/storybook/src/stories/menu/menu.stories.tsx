@@ -32,7 +32,6 @@ const meta = {
     'Menu.GroupLabel': Menu.GroupLabel,
     'Menu.Separator': Menu.Separator,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Menu.Root>;
 
 export default meta;
@@ -1408,6 +1407,7 @@ function RowActionsExample() {
  * research/d-real-world-usage/menu/ranked.json #4).
  */
 export const RealWorldRowActions: Story = {
+  tags: ['recreation'],
   render: () => <RowActionsExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1492,6 +1492,7 @@ function SettingsMenuExample() {
  * research/d-real-world-usage/menu/ranked.json #3).
  */
 export const RealWorldSettingsMenu: Story = {
+  tags: ['recreation'],
   render: () => <SettingsMenuExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1569,6 +1570,7 @@ function ShadowPortalExample() {
  * (MIT, code-ok, research/d-real-world-usage/menu/ranked.json #2).
  */
 export const RealWorldShadowDomPortal: Story = {
+  tags: ['recreation'],
   render: () => <ShadowPortalExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);

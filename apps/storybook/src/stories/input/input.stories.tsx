@@ -16,7 +16,6 @@ import styles from './input.module.css';
 const meta = {
   title: 'Form inputs/Input',
   component: Input,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Input>;
 
 export default meta;

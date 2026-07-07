@@ -1,0 +1,189 @@
+{/* Overview page. MDX-only — no stories.tsx (see AGENTS.md scope: introduction/orientation
+    content, not a component). Distilled from research/b-library-principles/principles.md,
+    research/a-documentation-standard/taxonomy.md, and research/e-storybook/coverage.md.
+    Structure inspired by GOV.UK's "Get started" shape and Polaris's top-level Foundations
+    section (anatomy only, no text reused — see research/a-documentation-standard/reference-notes/). */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Overview/Introduction" />
+
+# Introduction
+
+Welcome to the Base UI Storybook — a research-driven documentation layer that sits
+alongside [base-ui.com](https://base-ui.com), going deeper on the questions component
+pages don't always have room for: when should I reach for this instead of that, what
+exactly does the keyboard contract guarantee, and where did this API decision come from.
+
+## What Base UI is
+
+Base UI is an unstyled ("headless") React component library. It ships zero CSS and
+prescribes no styling solution — you keep complete control over your application's
+visual layer — while handling the hard, invisible parts: ARIA roles and attributes,
+pointer and keyboard interactions, and focus management. The library defines itself by
+exactly three features: **Headless**, **Accessible**, **Composable**.
+
+Base UI is built inside the MUI organization by the team behind
+[Radix](https://www.radix-ui.com/), [Floating UI](https://floating-ui.com/), and
+[Material UI](https://mui.com/material-ui/) — but it is a deliberate rethink, not
+"Material UI minus CSS." Floating UI's positioning engine is absorbed into the library
+rather than depended on. Base UI positions itself as a *foundation* layer: styled
+systems (shadcn/ui and others) build on top of it, and the team has been explicit that a
+themed/styled tier of its own is not on the roadmap
+([#2292](https://github.com/mui/base-ui/issues/2292),
+[#4008](https://github.com/mui/base-ui/issues/4008)).
+
+Every component is a namespace of parts — one part per rendered DOM node — composed
+through the `render` prop rather than a Radix-style `asChild`. The
+[Principles](?path=/docs/overview-principles--docs) page covers this API grammar in
+depth; this page is the map of the territory.
+
+## What this Storybook is
+
+The public docs at base-ui.com answer "what does this prop do." This Storybook exists to
+answer the next layer of questions — the ones that usually only get resolved by reading
+a GitHub issue thread. Every component page here follows the same research-backed shape:
+
+- **When-to-use boundaries** — not just a description, but the line where this
+  component stops being the right choice and a neighbor (Select vs. Combobox, Popover vs.
+  Dialog, Toggle vs. Switch) takes over.
+- **Keyboard and screen-reader contracts** — a table of what each key does and what the
+  library guarantees vs. what your application still has to provide.
+- **Styling hooks** — the exact `data-*` attributes and CSS variables each part exposes,
+  since that is the entire styling API for an unstyled library.
+- **Decision logs with upstream citations** — API changes dated and linked to the
+  `mui/base-ui` issue or PR that drove them, so a claim here can always be checked
+  against the source.
+- **Real-world examples** — usage patterns pulled from how the components are actually
+  composed, not just the minimal API-surface demo.
+
+Stories double as tests: every documented behavior is backed by a rendered, interactive
+example, and the whole set is verified with Vitest — **337 passing tests across 40
+files** as of this writing (see
+[research/e-storybook/coverage.md](https://github.com/yannbf/base-ui/tree/research/research/e-storybook/coverage.md)
+on the research branch). If a story is green, the behavior it documents actually works
+against the current library source.
+
+## How it's organized
+
+The sidebar groups components by what they *do*, not alphabetically — derived from Base
+UI's own API affordances rather than copied from any single reference system (see
+[research/a-documentation-standard/taxonomy.md](https://github.com/yannbf/base-ui/tree/research/research/a-documentation-standard/taxonomy.md)
+for the full derivation). Seven categories, plus this Overview section:
+
+| Category | Purpose | Components |
+|---|---|---|
+| **Form inputs** | Capture a value and participate in `<form>` via hidden inputs or native controls | 14 |
+| **Overlays** | Rendered in a Portal above the page: tooltips, popovers, dialogs, toasts | 9 |
+| **Navigation** | Persistent app chrome for moving through an app, not editing state | 3 |
+| **Disclosure & structure** | Show/hide and organize content in place, no portal | 4 |
+| **Actions** | Press-shaped controls that trigger behavior rather than hold form state | 4 |
+| **Status & display** | Read-only reflections of state | 3 |
+| **Utilities** | Library plumbing — hooks and providers, not rendered UI | 4 (+ 1 unstable) |
+
+That's 37 components and 4 documented utilities. A handful of components sit in more
+than one conceptual bucket — Menu is both an overlay (its part grammar) and an action
+list (its purpose); Tabs is disclosure-shaped but filed under Navigation because its ARIA
+pattern is about switching views, not hiding content. Where a component has close
+neighbors, its docs page and the [Choosing components](?path=/docs/overview-choosing-components--docs)
+page both link to the comparison.
+
+## How to read a component page
+
+Every component page follows the same skeleton, so once you've read one you know where
+to find anything in the others:
+
+1. **Identity strip** — import path, part count, stability status, the ARIA pattern it
+   implements (if any), and what source revision the page was verified against.
+2. **Hero example** — a live, interactive canvas of the default composition.
+3. **Features** — the two or three things this component gets you for free.
+4. **When to use / When not to use** — positive fit criteria, then named alternatives
+   for the cases where this component is the wrong tool.
+5. **Anatomy** — every part, what DOM element it renders, and whether it's optional —
+   the API map for the whole namespace.
+6. **How it works** — behavioral contract, usually broken into subsections
+   (uncontrolled vs. controlled, labeling, animation, form integration), each backed by
+   its own canvas.
+7. **Keyboard & screen reader** — a key-by-key table, plus the two-sided accessibility
+   split: what the library guarantees, what you must still provide.
+8. **Styling hooks** — every state data-attribute and CSS variable, per part.
+9. **Choosing the right props** — the props that change behavior meaningfully, with the
+   reasoning for when to reach for each.
+10. **Do / Don't** — concrete, checkable rules.
+11. **In the wild** — real composition patterns, where research turned any up.
+12. **Decision log** — dated API changes with issue/PR citations.
+13. **Related** — links to the components this one is most often confused with.
+14. **API reference** — the generated props table.
+
+Not every section applies to every component (a utility with no DOM output, like
+`CSPProvider`, skips the canvas and keyboard sections entirely) — but the order and the
+vocabulary are constant.
+
+## Quick start
+
+Install the package — it's a single, tree-shakable monopackage; every component is a
+subpath import:
+
+```bash
+npm install @base-ui/react
+```
+
+Compose parts, then style the result entirely through class names and data-attributes —
+there is no theme object, no prop for color:
+
+```tsx
+import { Switch } from '@base-ui/react/switch';
+import './switch.css';
+
+function Example() {
+  return (
+    <Switch.Root className="Switch">
+      <Switch.Thumb className="Thumb" />
+    </Switch.Root>
+  );
+}
+```
+
+```css
+.Switch {
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: gainsboro;
+}
+
+.Switch[data-checked] {
+  background-color: black;
+}
+
+.Thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background-color: white;
+  transition: translate 150ms ease;
+}
+
+.Thumb[data-checked] {
+  translate: 16px 0;
+}
+```
+
+Popup components (Popover, Dialog, Menu, and friends) additionally expect a `Portal` and
+benefit from an `isolation: isolate` root element in your app shell so stacking never
+turns into a z-index fight — see
+[Portal, Positioner, and the stacking model](?path=/docs/overview-principles--docs) on
+the Principles page for why.
+
+## Learn more
+
+- **[base-ui.com](https://base-ui.com)** — the canonical public documentation: full API
+  references, install guides, and the handbook this Storybook's Principles page
+  distills.
+- **[mui/base-ui](https://github.com/mui/base-ui)** — the source repository; every
+  citation on these pages resolves to an issue or PR there.
+- **The research branch** — the raw research this Storybook is built from: per-component
+  briefs, cluster comparison notes, and the library-wide principles synthesis, at
+  `research/` on the `research` branch of
+  [yannbf/base-ui](https://github.com/yannbf/base-ui/tree/research/research).

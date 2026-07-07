@@ -23,7 +23,6 @@ const meta = {
     'Tooltip.Popup': Tooltip.Popup,
     'Tooltip.Arrow': Tooltip.Arrow,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Tooltip.Root>;
 
 export default meta;

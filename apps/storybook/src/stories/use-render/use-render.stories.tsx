@@ -15,7 +15,6 @@ import styles from './use-render.module.css';
  */
 const meta = {
   title: 'Utilities/useRender',
-  tags: ['ai-generated'],
 } satisfies Meta;
 
 export default meta;

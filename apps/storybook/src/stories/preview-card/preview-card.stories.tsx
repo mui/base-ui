@@ -21,7 +21,6 @@ const meta = {
     'PreviewCard.Popup': PreviewCard.Popup,
     'PreviewCard.Arrow': PreviewCard.Arrow,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof PreviewCard.Root>;
 
 export default meta;

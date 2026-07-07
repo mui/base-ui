@@ -13,7 +13,6 @@ import styles from './button.module.css';
 const meta = {
   title: 'Actions/Button',
   component: Button,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Button>;
 
 export default meta;

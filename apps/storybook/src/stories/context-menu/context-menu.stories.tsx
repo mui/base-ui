@@ -33,7 +33,6 @@ const meta = {
     'ContextMenu.RadioGroup': ContextMenu.RadioGroup,
     'ContextMenu.RadioItem': ContextMenu.RadioItem,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof ContextMenu.Root>;
 
 export default meta;

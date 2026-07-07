@@ -15,7 +15,6 @@ const meta = {
     'Avatar.Image': Avatar.Image,
     'Avatar.Fallback': Avatar.Fallback,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Avatar.Root>;
 
 export default meta;

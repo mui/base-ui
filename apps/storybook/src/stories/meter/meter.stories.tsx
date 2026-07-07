@@ -18,7 +18,6 @@ const meta = {
     'Meter.Value': Meter.Value,
   },
   args: { value: 24 },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Meter.Root>;
 
 export default meta;

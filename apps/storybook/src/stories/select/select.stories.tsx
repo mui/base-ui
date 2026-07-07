@@ -36,7 +36,6 @@ const meta = {
     'Select.ScrollUpArrow': Select.ScrollUpArrow,
     'Select.ScrollDownArrow': Select.ScrollDownArrow,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Select.Root>;
 
 export default meta;
@@ -1300,6 +1299,7 @@ function DashboardFilterExample() {
  * research/d-real-world-usage/select/ranked.json #9).
  */
 export const RealWorldDashboardFilter: Story = {
+  tags: ['recreation'],
   render: () => <DashboardFilterExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1372,6 +1372,7 @@ function ThemePickerExample() {
  * research/d-real-world-usage/select/ranked.json #5).
  */
 export const RealWorldThemePicker: Story = {
+  tags: ['recreation'],
   render: () => <ThemePickerExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1458,6 +1459,7 @@ function RegistrySelect({
  * research/d-real-world-usage/select/ranked.json #1).
  */
 export const RealWorldWrappedRegistrySelect: Story = {
+  tags: ['recreation'],
   render: () => (
     <RegistrySelect
       label="Region"

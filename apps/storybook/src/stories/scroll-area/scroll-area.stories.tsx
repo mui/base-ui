@@ -22,7 +22,6 @@ const meta = {
     'ScrollArea.Thumb': ScrollArea.Thumb,
     'ScrollArea.Corner': ScrollArea.Corner,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof ScrollArea.Root>;
 
 export default meta;

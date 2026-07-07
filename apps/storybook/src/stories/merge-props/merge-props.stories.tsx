@@ -14,7 +14,6 @@ import styles from './merge-props.module.css';
  */
 const meta = {
   title: 'Utilities/mergeProps',
-  tags: ['ai-generated'],
 } satisfies Meta;
 
 export default meta;

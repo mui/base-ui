@@ -26,7 +26,6 @@ const meta = {
     'Popover.Description': Popover.Description,
     'Popover.Close': Popover.Close,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Popover.Root>;
 
 export default meta;
@@ -1219,6 +1218,7 @@ function QueuePopoverExample() {
  * code-ok, research/d-real-world-usage/popover/ranked.json #2).
  */
 export const RealWorldQueuePopover: Story = {
+  tags: ['recreation'],
   render: () => <QueuePopoverExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1293,6 +1293,7 @@ function LinkEditorToolbarExample() {
  * research/d-real-world-usage/popover/ranked.json #3).
  */
 export const RealWorldLinkEditorToolbar: Story = {
+  tags: ['recreation'],
   render: () => <LinkEditorToolbarExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1379,6 +1380,7 @@ function MentionAutocompleteExample() {
  * research/d-real-world-usage/popover/ranked.json #5).
  */
 export const RealWorldMentionAutocomplete: Story = {
+  tags: ['recreation'],
   render: () => <MentionAutocompleteExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);

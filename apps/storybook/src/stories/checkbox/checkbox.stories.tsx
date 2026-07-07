@@ -46,7 +46,6 @@ const meta = {
   title: 'Form inputs/Checkbox',
   component: Checkbox.Root,
   subcomponents: { 'Checkbox.Indicator': Checkbox.Indicator },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Checkbox.Root>;
 
 export default meta;

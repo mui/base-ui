@@ -109,7 +109,6 @@ const meta = {
   title: 'Actions/Toggle Group',
   component: ToggleGroup,
   subcomponents: { Toggle },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof ToggleGroup>;
 
 export default meta;

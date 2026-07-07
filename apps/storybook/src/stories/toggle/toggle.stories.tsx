@@ -49,7 +49,6 @@ function HeartOutlineIcon(props: React.ComponentProps<'svg'>) {
 const meta = {
   title: 'Actions/Toggle',
   component: Toggle,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Toggle>;
 
 export default meta;

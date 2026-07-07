@@ -27,7 +27,6 @@ const meta = {
     'Toast.Action': Toast.Action,
     'Toast.Close': Toast.Close,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Toast.Root>;
 
 export default meta;

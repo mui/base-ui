@@ -26,7 +26,6 @@ const meta = {
     'Toolbar.Separator': Toolbar.Separator,
     'Toolbar.Group': Toolbar.Group,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Toolbar.Root>;
 
 export default meta;

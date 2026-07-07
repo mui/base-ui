@@ -21,7 +21,6 @@ import styles from './menubar.module.css';
 const meta = {
   title: 'Navigation/Menubar',
   component: Menubar,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Menubar>;
 
 export default meta;

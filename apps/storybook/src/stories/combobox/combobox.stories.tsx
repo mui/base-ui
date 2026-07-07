@@ -44,7 +44,6 @@ const meta = {
     'Combobox.GroupLabel': Combobox.GroupLabel,
     'Combobox.Collection': Combobox.Collection,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Combobox.Root>;
 
 export default meta;

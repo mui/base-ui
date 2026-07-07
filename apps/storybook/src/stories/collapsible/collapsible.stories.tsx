@@ -22,7 +22,6 @@ const meta = {
     'Collapsible.Trigger': Collapsible.Trigger,
     'Collapsible.Panel': Collapsible.Panel,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Collapsible.Root>;
 
 export default meta;

@@ -14,7 +14,6 @@ const meta = {
   title: 'Form inputs/Switch',
   component: Switch.Root,
   subcomponents: { 'Switch.Thumb': Switch.Thumb },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Switch.Root>;
 
 export default meta;

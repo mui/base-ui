@@ -37,7 +37,6 @@ const meta = {
     'Autocomplete.Status': Autocomplete.Status,
     'Autocomplete.Empty': Autocomplete.Empty,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Autocomplete.Root>;
 
 export default meta;

@@ -21,7 +21,6 @@ const meta = {
     'NumberField.ScrubArea': NumberField.ScrubArea,
     'NumberField.ScrubAreaCursor': NumberField.ScrubAreaCursor,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof NumberField.Root>;
 
 export default meta;

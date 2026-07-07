@@ -16,7 +16,6 @@ import styles from './direction-provider.module.css';
 const meta = {
   title: 'Utilities/Direction Provider',
   component: DirectionProvider,
-  tags: ['ai-generated'],
 } satisfies Meta<typeof DirectionProvider>;
 
 export default meta;

@@ -24,7 +24,6 @@ const meta = {
     'Tabs.Indicator': Tabs.Indicator,
     'Tabs.Panel': Tabs.Panel,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Tabs.Root>;
 
 export default meta;

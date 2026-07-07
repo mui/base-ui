@@ -15,11 +15,12 @@ const OTP_LENGTH = 6;
 const meta = {
   title: 'Form inputs/OTP Field',
   component: OTPField.Root,
+  // Mirrors the docs-nav [New] status tag (DoD §20) — the only [New]-tagged component.
+  tags: ['new'],
   subcomponents: {
     'OTPField.Input': OTPField.Input,
     'OTPField.Separator': OTPField.Separator,
   },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof OTPField.Root>;
 
 export default meta;

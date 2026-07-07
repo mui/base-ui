@@ -18,7 +18,6 @@ const meta = {
   title: 'Form inputs/Fieldset',
   component: Fieldset.Root,
   subcomponents: { 'Fieldset.Legend': Fieldset.Legend },
-  tags: ['ai-generated'],
 } satisfies Meta<typeof Fieldset.Root>;
 
 export default meta;
