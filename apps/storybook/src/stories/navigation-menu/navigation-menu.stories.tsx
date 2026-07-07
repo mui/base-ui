@@ -1238,6 +1238,183 @@ export const TriggerAndLinkSplitPattern: Story = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/navigation-menu) */
+/* ------------------------------------------------------------------ */
+
+/** Same Portal → Positioner → Popup → Viewport chain as `Flyout`, plus the
+ * `Backdrop` part the hero demo omits. */
+function FlyoutWithBackdrop(props: NavigationMenu.Positioner.Props) {
+  return (
+    <NavigationMenu.Portal>
+      <NavigationMenu.Backdrop className={styles.Backdrop} data-testid="nav-backdrop" />
+      <NavigationMenu.Positioner
+        className={styles.Positioner}
+        sideOffset={10}
+        collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
+        collisionAvoidance={{ side: 'none' }}
+        {...props}
+      >
+        <NavigationMenu.Popup className={styles.Popup}>
+          <NavigationMenu.Arrow className={styles.Arrow} />
+          <NavigationMenu.Viewport className={styles.Viewport} />
+        </NavigationMenu.Popup>
+      </NavigationMenu.Positioner>
+    </NavigationMenu.Portal>
+  );
+}
+
+function AnatomyTourExample() {
+  return (
+    <NavigationMenu.Root className={styles.Root}>
+      <NavigationMenu.List className={styles.List}>
+        <NavigationMenu.Item>
+          <NavigationMenu.Trigger className={styles.Trigger}>
+            Products
+            <NavigationMenu.Icon className={styles.Icon}>
+              <CaretDownIcon />
+            </NavigationMenu.Icon>
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content className={styles.Content}>
+            <LinkCards links={overviewLinks} />
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <Link
+            className={styles.Trigger}
+            href="#pricing"
+            onClick={(event) => event.preventDefault()}
+          >
+            Pricing
+          </Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+      <FlyoutWithBackdrop />
+    </NavigationMenu.Root>
+  );
+}
+
+/**
+ * Recreation of the fullest-anatomy composition from patrick-xin/lumi-ui
+ * `navigation-menu.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/navigation-menu/ranked.json #4) — the only registry
+ * found combining `NavigationMenu.Backdrop` with `NavigationMenu.Arrow` alongside
+ * the full Portal/Positioner/Popup/Viewport stack. `Backdrop` is purely visual
+ * ([G] the component is never modal) — it dims the page while a panel is open.
+ */
+export const RealWorldAnatomyTourWithBackdrop: Story = {
+  tags: ['recreation'],
+  render: () => <AnatomyTourExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(body.queryByTestId('nav-backdrop')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Products' }));
+    const backdrop = await body.findByTestId('nav-backdrop');
+    await expect(backdrop).toHaveAttribute('role', 'presentation');
+    await waitFor(() => expect(body.getByRole('link', { name: /Quick Start/ })).toBeVisible());
+
+    // The plain "Pricing" link is a real link, not a Trigger — no panel to open.
+    await expect(canvas.getByRole('link', { name: 'Pricing' })).toBeVisible();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(body.queryByTestId('nav-backdrop')).not.toBeInTheDocument());
+  },
+};
+
+type CmsNavEntry =
+  | { type: 'link'; label: string; href: string }
+  | {
+      type: 'group';
+      label: string;
+      items: ReadonlyArray<{ href: string; title: string; description: string }>;
+    };
+
+const cmsNavEntries: readonly CmsNavEntry[] = [
+  {
+    type: 'group',
+    label: 'Products',
+    items: overviewLinks,
+  },
+  {
+    type: 'group',
+    label: 'Resources',
+    items: handbookLinks,
+  },
+  { type: 'link', label: 'Pricing', href: '#pricing' },
+  { type: 'link', label: 'Blog', href: '#blog' },
+];
+
+function CmsDrivenNavExample() {
+  return (
+    <NavigationMenu.Root className={styles.Root}>
+      <NavigationMenu.List className={styles.List}>
+        {cmsNavEntries.map((entry) =>
+          entry.type === 'link' ? (
+            <NavigationMenu.Item key={entry.href}>
+              <Link
+                className={styles.Trigger}
+                href={entry.href}
+                onClick={(event) => event.preventDefault()}
+              >
+                {entry.label}
+              </Link>
+            </NavigationMenu.Item>
+          ) : (
+            <NavigationMenu.Item key={entry.label}>
+              <NavigationMenu.Trigger className={styles.Trigger}>
+                {entry.label}
+                <NavigationMenu.Icon className={styles.Icon}>
+                  <CaretDownIcon />
+                </NavigationMenu.Icon>
+              </NavigationMenu.Trigger>
+              <NavigationMenu.Content className={styles.Content}>
+                <LinkCards links={entry.items} />
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          ),
+        )}
+      </NavigationMenu.List>
+      <Flyout />
+    </NavigationMenu.Root>
+  );
+}
+
+/**
+ * Recreation of the CMS-driven nav-structure pattern from
+ * robotostudio/turbo-start-sanity `navigation-menu.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/navigation-menu/ranked.json #9) — the only starter
+ * template found deriving its nav structure from CMS content: the whole
+ * `List`/`Item`/`Trigger`-vs-`Link` shape is mapped from one heterogeneous data
+ * array (mixing dropdown groups and plain links) instead of hand-authored JSX per
+ * item, the shape a page-builder CMS would hand you.
+ */
+export const RealWorldCmsDrivenNav: Story = {
+  tags: ['recreation'],
+  render: () => <CmsDrivenNavExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    // Plain data entries render as real links, not triggers.
+    await expect(canvas.getByRole('link', { name: 'Pricing' })).toBeVisible();
+    await expect(canvas.getByRole('link', { name: 'Blog' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Pricing' })).not.toBeInTheDocument();
+
+    // Group entries open a panel built from their own `items` array.
+    await userEvent.click(canvas.getByRole('button', { name: 'Products' }));
+    await waitFor(() => expect(body.getByRole('link', { name: /Quick Start/ })).toBeVisible());
+
+    // Switching groups morphs the panel to the other entry's items. A real
+    // second click lands directly on the new trigger without userEvent's
+    // synthetic hover pass first — see FlyoutViewportMorph above.
+    fireEvent.click(canvas.getByRole('button', { name: 'Resources' }));
+    await waitFor(() => expect(body.getByRole('link', { name: /Styling/ })).toBeVisible());
+    await waitFor(() =>
+      expect(body.queryByRole('link', { name: /Quick Start/ })).not.toBeInTheDocument(),
+    );
+  },
+};
+
+/* ------------------------------------------------------------------ */
 /* Icons (inlined — stories must not import docs assets)               */
 /* ------------------------------------------------------------------ */
 

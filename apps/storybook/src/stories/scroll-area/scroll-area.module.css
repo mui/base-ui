@@ -189,3 +189,164 @@
     }
   }
 }
+
+/* AlwaysVisibleScrollbars story: opacity:1 unconditionally, ignoring the
+   `[data-hovering]`/`[data-scrolling]` gates the hero recipe uses. There is
+   no built-in "always visible" prop — this is the plain-CSS technique. */
+.ScrollbarAlwaysVisible {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 12%);
+  margin: 1px;
+  opacity: 1;
+  pointer-events: auto;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(255 255 255 / 12%);
+  }
+
+  &[data-orientation='vertical'] {
+    width: 1rem;
+  }
+
+  &[data-orientation='horizontal'] {
+    height: 1rem;
+  }
+}
+
+/* OnScrollVisibility story: visible only while `[data-scrolling]` is set —
+   deliberately no `[data-hovering]` rule, unlike the hero recipe. */
+.ScrollbarOnScrollOnly {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 12%);
+  margin: 1px;
+  opacity: 0;
+  transition: opacity 150ms;
+  pointer-events: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(255 255 255 / 12%);
+  }
+
+  &[data-scrolling] {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: 0ms;
+  }
+
+  &[data-orientation='vertical'] {
+    width: 1rem;
+  }
+
+  &[data-orientation='horizontal'] {
+    height: 1rem;
+  }
+}
+
+.Legend2Up {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.LegendLabel {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* GradientScrollFade story: recreation of
+   docs/.../scroll-area/demos/scroll-fade/css-modules/index.module.css. */
+.ViewportFade {
+  --fade-size: 40px;
+  height: 100%;
+  background: white;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black min(var(--fade-size), var(--scroll-area-overflow-y-start, 0)),
+    black calc(100% - min(var(--fade-size), var(--scroll-area-overflow-y-end, var(--fade-size)))),
+    transparent 100%
+  );
+  mask-repeat: no-repeat;
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    background: oklch(14.5% 0 0deg);
+  }
+}
+
+/* InsideAPopup story: a Menu.Popup with a ScrollArea-wrapped list inside it,
+   recreating experiments/scroll-area/inside-menu.tsx. */
+.MenuButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.5rem 0 0.75rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.MenuPositioner {
+  outline: 0;
+}
+
+.MenuPopup {
+  box-sizing: border-box;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.MenuScrollArea {
+  box-sizing: border-box;
+  width: 12rem;
+  height: 12rem;
+}
+
+.MenuViewport {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.MenuItem {
+  box-sizing: border-box;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  outline: 0;
+  cursor: default;
+
+  &[data-highlighted] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+}

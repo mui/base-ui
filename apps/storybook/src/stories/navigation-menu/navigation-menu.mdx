@@ -271,6 +271,12 @@ Popup/Positioner **must** consume the size variables for morphing to work at all
   </WildCard>
 </WildCards>
 
+A full Phase D pass has since ranked 11 candidates (`research/d-real-world-usage/navigation-menu/ranked.json`), topped by wevm/vocs — a docs-site framework whose own top nav (rendering every Vocs-powered site, including its own) is built on `NavigationMenu`, close prior art for this project's own doc-site chrome (the `Hero` story above already recomposes that dropdown-plus-plain-link shape). Two further recreations live in this Storybook, picked from the code-ok top set — the fullest anatomy found in any registry, combining `Backdrop` with `Arrow` (patrick-xin/lumi-ui, MIT, code-ok, #4), and a CMS-driven nav structure mapped from one heterogeneous data array instead of hand-authored JSX (robotostudio/turbo-start-sanity, MIT, code-ok, #9):
+
+<Canvas of={NavigationMenuStories.RealWorldAnatomyTourWithBackdrop} />
+
+<Canvas of={NavigationMenuStories.RealWorldCmsDrivenNav} />
+
 ## Decision log
 
 - **2025-05 — [#1741](https://github.com/mui/base-ui/pull/1741)** — component ships (beta.0). Founding goals: nested menus and full interruptibility of transitions.

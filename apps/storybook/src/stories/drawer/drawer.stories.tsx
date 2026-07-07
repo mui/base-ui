@@ -1022,6 +1022,210 @@ export const MobileNavigation: Story = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/drawer)         */
+/* ------------------------------------------------------------------ */
+
+const handleDrawerHandle = Drawer.createHandle();
+
+function ProfileEditorExample() {
+  const [profileName, setProfileName] = React.useState('Ada Lovelace');
+  const [draftName, setDraftName] = React.useState(profileName);
+
+  return (
+    <div className={styles.Stack}>
+      <div className={styles.Row}>
+        <output className={styles.Output}>Name: {profileName}</output>
+        <Drawer.Trigger handle={handleDrawerHandle} className={styles.Button}>
+          Edit profile
+        </Drawer.Trigger>
+      </div>
+      <Drawer.Root
+        handle={handleDrawerHandle}
+        onOpenChange={(open) => {
+          if (open) {
+            // Reset the draft to the latest committed snapshot every time the
+            // drawer reopens, the same onOpenChange-driven reset Julchu/pricey
+            // wires its react-hook-form to.
+            setDraftName(profileName);
+          }
+        }}
+      >
+        <Drawer.Portal>
+          <Drawer.Backdrop className={styles.Backdrop} />
+          <Drawer.Viewport className={styles.HeroViewport}>
+            <Drawer.Popup className={styles.HeroPopup}>
+              <Drawer.Content className={styles.Content}>
+                <Drawer.Title className={styles.Title}>Edit profile</Drawer.Title>
+                <div className={styles.Field}>
+                  <label className={styles.Label} htmlFor="profile-draft-name">
+                    Name
+                  </label>
+                  <input
+                    id="profile-draft-name"
+                    className={styles.Input}
+                    value={draftName}
+                    onChange={(event) => setDraftName(event.target.value)}
+                  />
+                </div>
+                <div className={styles.Actions}>
+                  <Drawer.Close className={styles.Button}>Cancel</Drawer.Close>
+                  <button
+                    type="button"
+                    className={styles.Button}
+                    onClick={() => {
+                      setProfileName(draftName);
+                      handleDrawerHandle.close();
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </div>
+  );
+}
+
+/**
+ * Recreation of the `createHandle` + form-reset pattern from Julchu/pricey
+ * `pantry-drawer.tsx` (MIT, code-ok, research/d-real-world-usage/drawer/ranked.json #3)
+ * — `Drawer.createHandle()` decouples "who owns the open state" (a detached
+ * `Drawer.Trigger`) from "who renders the popup" (a `Drawer.Root` declared
+ * elsewhere), and `onOpenChange` resets the draft to the latest committed value
+ * every time the drawer reopens, so an abandoned edit never leaks into the next
+ * open.
+ */
+export const RealWorldHandleFormReset: Story = {
+  tags: ['recreation'],
+  render: () => <ProfileEditorExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Edit profile' }));
+    const drawer = await body.findByRole('dialog');
+    const nameInput = within(drawer).getByLabelText('Name');
+    await waitFor(() => expect(nameInput).toHaveValue('Ada Lovelace'));
+
+    // Edit without saving, then cancel.
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'Grace Hopper');
+    await userEvent.click(within(drawer).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(drawer).not.toBeInTheDocument());
+    await expect(canvas.getByText('Name: Ada Lovelace')).toBeVisible();
+
+    // Reopening resets the draft — the abandoned edit does not survive.
+    await userEvent.click(canvas.getByRole('button', { name: 'Edit profile' }));
+    const reopened = await body.findByRole('dialog');
+    await waitFor(() => expect(within(reopened).getByLabelText('Name')).toHaveValue('Ada Lovelace'));
+
+    // Edit again and save this time.
+    const reopenedInput = within(reopened).getByLabelText('Name');
+    await userEvent.clear(reopenedInput);
+    await userEvent.type(reopenedInput, 'Grace Hopper');
+    await userEvent.click(within(reopened).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(reopened).not.toBeInTheDocument());
+    await expect(await canvas.findByText('Name: Grace Hopper')).toBeVisible();
+  },
+};
+
+const POSITION_TO_SWIPE_DIRECTION: Record<'left' | 'right' | 'top' | 'bottom', SwipeSide> = {
+  left: 'left',
+  right: 'right',
+  top: 'up',
+  bottom: 'down',
+};
+
+/**
+ * A `position`-aware compound wrapper (ironbyte0x/buckethub's archetype): callers
+ * pick `position` without knowing about `swipeDirection` at all — the wrapper
+ * maps `position` to the matching `swipeDirection` and per-edge Viewport class in
+ * one place, the same recipe a design system reaches for when packaging Drawer as
+ * its own component.
+ */
+function PositionedDrawer({
+  position,
+  triggerLabel,
+  title,
+  children,
+}: {
+  position: 'left' | 'right' | 'top' | 'bottom';
+  triggerLabel: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  const side = POSITION_TO_SWIPE_DIRECTION[position];
+  return (
+    <Drawer.Root swipeDirection={side}>
+      <Drawer.Trigger className={styles.Button}>{triggerLabel}</Drawer.Trigger>
+      <Drawer.Portal>
+        <Drawer.Backdrop className={styles.Backdrop} />
+        <Drawer.Viewport className={`${styles.EdgeViewport} ${SIDE_VIEWPORT_CLASS[side]}`}>
+          <Drawer.Popup className={styles.EdgePopup}>
+            <Drawer.Content className={styles.Content}>
+              <Drawer.Title className={styles.Title}>{title}</Drawer.Title>
+              {children}
+              <div className={styles.Actions}>
+                <Drawer.Close className={styles.Button}>Close</Drawer.Close>
+              </div>
+            </Drawer.Content>
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
+function PositionAwareExample() {
+  return (
+    <div className={styles.Row}>
+      <PositionedDrawer position="left" triggerLabel="Open menu" title="Menu">
+        <Drawer.Description className={styles.Description}>
+          Navigation lives on the left edge — the wrapper resolved{' '}
+          <code>position=&quot;left&quot;</code> to <code>swipeDirection=&quot;left&quot;</code>.
+        </Drawer.Description>
+      </PositionedDrawer>
+      <PositionedDrawer position="bottom" triggerLabel="Open filters" title="Filters">
+        <Drawer.Description className={styles.Description}>
+          Filters live on the bottom edge — the same wrapper resolved{' '}
+          <code>position=&quot;bottom&quot;</code> to <code>swipeDirection=&quot;down&quot;</code>.
+        </Drawer.Description>
+      </PositionedDrawer>
+    </div>
+  );
+}
+
+/**
+ * Recreation of the position-aware compound Drawer wrapper from
+ * ironbyte0x/buckethub `drawer.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/drawer/ranked.json #4) — a peer project's own UI
+ * library (which notably ships its own `drawer.stories.tsx`) maps a single
+ * `position` prop (left/right/top/bottom) to the matching `swipeDirection`, so
+ * consumers never author `swipeDirection` themselves.
+ */
+export const RealWorldPositionAwareWrapper: Story = {
+  tags: ['recreation'],
+  render: () => <PositionAwareExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open menu' }));
+    const menuDrawer = await body.findByRole('dialog', { name: 'Menu' });
+    await waitFor(() => expect(menuDrawer).toHaveAttribute('data-swipe-direction', 'left'));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(menuDrawer).not.toBeInTheDocument());
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open filters' }));
+    const filtersDrawer = await body.findByRole('dialog', { name: 'Filters' });
+    await waitFor(() => expect(filtersDrawer).toHaveAttribute('data-swipe-direction', 'down'));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(filtersDrawer).not.toBeInTheDocument());
+  },
+};
+
+/* ------------------------------------------------------------------ */
 /* Icons (inlined — stories must not import docs assets)               */
 /* ------------------------------------------------------------------ */
 

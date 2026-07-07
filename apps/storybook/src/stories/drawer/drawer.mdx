@@ -293,6 +293,12 @@ The `MobileNavigation` story above recreates the documented mobile-navigation ar
 
 <Canvas of={DrawerStories.MobileNavigation} />
 
+A follow-up Phase D pass ranked 10 genuine Drawer usages (`research/d-real-world-usage/drawer/ranked.json`); two recreations live in this Storybook, picked from the code-ok top set — `createHandle` decoupling a detached trigger from the popup, with the draft reset on every reopen (Julchu/pricey `pantry-drawer.tsx`, MIT, code-ok, #3), and a `position`-aware compound wrapper mapping `left`/`right`/`top`/`bottom` to the matching `swipeDirection` (ironbyte0x/buckethub `drawer.tsx`, MIT, code-ok, #4 — a peer project that ships its own `drawer.stories.tsx`):
+
+<Canvas of={DrawerStories.RealWorldHandleFormReset} />
+
+<Canvas of={DrawerStories.RealWorldPositionAwareWrapper} />
+
 ## Decision log
 
 The vaul succession, in order:

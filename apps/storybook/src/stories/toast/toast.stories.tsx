@@ -1184,3 +1184,214 @@ export const TypeStyling: Story = {
     await expect(infoRoot).toHaveAttribute('data-type', 'info');
   },
 };
+
+/* ------------------------------------------------------------------ */
+/* Real-world recreations (research/d-real-world-usage/toast)          */
+/* ------------------------------------------------------------------ */
+
+function renderAnchoredActionToast(toast: Toast.Root.ToastObject) {
+  return (
+    <Toast.Positioner toast={toast} className={styles.AnchoredPositioner}>
+      <Toast.Root toast={toast} className={styles.AnchoredToast}>
+        <Toast.Arrow className={styles.Arrow} />
+        <Toast.Content>
+          <div className={styles.ActionText}>
+            <Toast.Description className={styles.AnchoredDescription} />
+            <Toast.Action className={styles.ActionButton} />
+          </div>
+        </Toast.Content>
+      </Toast.Root>
+    </Toast.Positioner>
+  );
+}
+
+function ArchiveFileRow() {
+  const toastManager = Toast.useToastManager();
+  const [archived, setArchived] = React.useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+
+  function handleArchive() {
+    setArchived(true);
+    toastManager.add({
+      description: 'roadmap.pdf archived',
+      timeout: 6000,
+      positionerProps: { anchor: buttonRef.current, sideOffset: 8 },
+      actionProps: {
+        children: 'Undo',
+        onClick() {
+          setArchived(false);
+        },
+      },
+    });
+  }
+
+  return (
+    <div className={styles.Row}>
+      <span className={styles.ArchivedLabel} data-archived={archived || undefined}>
+        roadmap.pdf
+      </span>
+      <button
+        type="button"
+        ref={buttonRef}
+        className={styles.Button}
+        onClick={handleArchive}
+        disabled={archived}
+      >
+        Archive
+      </button>
+    </div>
+  );
+}
+
+function AnchoredActionExample() {
+  return (
+    <ToastDemoShell viewportClassName={styles.AnchoredViewport} renderToast={renderAnchoredActionToast}>
+      <ArchiveFileRow />
+    </ToastDemoShell>
+  );
+}
+
+/**
+ * Recreation of the Arrow+Action anchored, actionable toast pattern from
+ * patrick-xin/lumi-ui `toast.tsx` (MIT, code-ok,
+ * research/d-real-world-usage/toast/ranked.json #6) — the fullest Toast anatomy
+ * found in any registry, combining `Toast.Arrow` (pointed, anchored) with
+ * `Toast.Action` (an actionable button) instead of the common corner-stack toast.
+ * Recomposed here as an "Archive, with Undo" row action.
+ */
+export const RealWorldAnchoredActionableToast: Story = {
+  tags: ['recreation'],
+  render: () => <AnchoredActionExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const archiveButton = canvas.getByRole('button', { name: 'Archive' });
+
+    await userEvent.click(archiveButton);
+    await waitFor(() => expect(archiveButton).toBeDisabled());
+
+    const toastText = await body.findByText('roadmap.pdf archived');
+    await waitFor(() => expect(toastText).toBeVisible());
+    // Arrow-anchored: the positioner resolves a side against the anchor button.
+    await expect(toastText.closest('[data-side]')).not.toBeNull();
+
+    const undo = await body.findByRole('button', { name: 'Undo' });
+    await userEvent.click(undo);
+    await waitFor(() => expect(archiveButton).not.toBeDisabled());
+  },
+};
+
+interface AlertToastData {
+  severity: 'info' | 'warning' | 'error';
+  message: string;
+}
+
+function isAlertToast(toast: Toast.Root.ToastObject): toast is Toast.Root.ToastObject<AlertToastData> {
+  return toast.data?.severity !== undefined;
+}
+
+/**
+ * "Toast as a bare positioning shell": Toast.Root wraps a fully custom `Alert`
+ * component instead of Toast.Title/Description/Action/Close. The Alert owns its
+ * own dismiss button, which calls the manager's `close(id)` directly rather than
+ * rendering `Toast.Close`.
+ */
+function Alert({
+  severity,
+  message,
+  toastId,
+}: {
+  severity: AlertToastData['severity'];
+  message: string;
+  toastId: string;
+}) {
+  const toastManager = Toast.useToastManager();
+  const [copied, setCopied] = React.useState(false);
+
+  return (
+    <div className={`${styles.Content} ${styles.Alert}`} data-severity={severity}>
+      <div className={styles.Text}>
+        <p className={styles.Description}>{message}</p>
+      </div>
+      <button
+        type="button"
+        className={styles.ActionButton}
+        onClick={() => setCopied(true)}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <button
+        type="button"
+        className={styles.AlertDismiss}
+        aria-label="Dismiss"
+        onClick={() => toastManager.close(toastId)}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+function renderAlertToast(toast: Toast.Root.ToastObject) {
+  if (!isAlertToast(toast) || !toast.data) {
+    return <Toast.Root toast={toast} className={styles.Toast} />;
+  }
+  return (
+    <Toast.Root toast={toast} className={styles.Toast}>
+      <Alert severity={toast.data.severity} message={toast.data.message} toastId={toast.id} />
+    </Toast.Root>
+  );
+}
+
+function AlertToastButtons() {
+  const toastManager = Toast.useToastManager();
+  return (
+    <div className={styles.Row}>
+      <button
+        type="button"
+        className={styles.Button}
+        onClick={() =>
+          toastManager.add({
+            timeout: 0,
+            data: { severity: 'error', message: 'Bridge transaction failed to confirm.' } satisfies AlertToastData,
+          })
+        }
+      >
+        Simulate bridge error
+      </button>
+    </div>
+  );
+}
+
+function AlertToastExample() {
+  return (
+    <ToastDemoShell renderToast={renderAlertToast}>
+      <AlertToastButtons />
+    </ToastDemoShell>
+  );
+}
+
+/**
+ * Recreation of the "Alert inside Toast.Content" idiom from rosen-bridge/ui
+ * `ToastProvider.tsx` (MIT, code-ok, research/d-real-world-usage/toast/ranked.json #8)
+ * — a full pre-existing `Alert` design (severity, dismiss, a copy action button)
+ * renders inside `Toast.Content` in place of Title/Description/Action, and the
+ * Alert's own dismiss button calls `close(id)` directly.
+ */
+export const RealWorldAlertInsideContent: Story = {
+  tags: ['recreation'],
+  render: () => <AlertToastExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole('button', { name: 'Simulate bridge error' }));
+
+    const message = await body.findByText('Bridge transaction failed to confirm.');
+    await waitFor(() => expect(message).toBeVisible());
+    await expect(message.closest('[data-severity]')).toHaveAttribute('data-severity', 'error');
+
+    await userEvent.click(body.getByRole('button', { name: 'Copy' }));
+    await expect(body.getByRole('button', { name: 'Copied' })).toBeVisible();
+
+    await userEvent.click(body.getByRole('button', { name: 'Dismiss' }));
+    await waitFor(() => expect(body.queryByText('Bridge transaction failed to confirm.')).not.toBeInTheDocument());
+  },
+};

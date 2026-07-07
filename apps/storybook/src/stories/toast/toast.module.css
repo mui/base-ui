@@ -564,6 +564,43 @@
   gap: 0.5rem;
 }
 
+/* Real-world recreations (research/d-real-world-usage/toast) */
+
+/* lumi-ui-style anchored + actionable toast: strikethrough label while archived. */
+.ArchivedLabel {
+  &[data-archived] {
+    text-decoration: line-through;
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+}
+
+/* rosen-bridge-style "Alert inside Toast.Content" idiom: a left border keyed on
+   the custom `severity` data, distinct from the Root's own [data-type] styling. */
+.Alert {
+  border-left: 4px solid oklch(55.6% 0 0deg);
+
+  &[data-severity='info'] {
+    border-left-color: oklch(48.8% 0.243 264.376deg);
+  }
+
+  &[data-severity='warning'] {
+    border-left-color: oklch(66.6% 0.179 58.318deg);
+  }
+
+  &[data-severity='error'] {
+    border-left-color: oklch(50.5% 0.213 27.518deg);
+  }
+}
+
+.AlertDismiss {
+  composes: Close;
+  padding: 0 0.5rem;
+}
+
 .Stack {
   display: flex;
   flex-direction: column;

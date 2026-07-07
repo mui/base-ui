@@ -137,3 +137,234 @@ export const HiddenUntilFound: Story = {
     await waitFor(() => expect(canvas.getByText('alien-bean-pasta')).toBeVisible());
   },
 };
+
+function ControlledCollapsibleDemo() {
+  const [open, setOpen] = React.useState(false);
+  const [lastReason, setLastReason] = React.useState<string | null>(null);
+
+  return (
+    <div>
+      <div className={styles.ExternalControls}>
+        <button type="button" className={styles.ExternalButton} onClick={() => setOpen((v) => !v)}>
+          Toggle externally
+        </button>
+      </div>
+      <Collapsible.Root
+        className={styles.Collapsible}
+        open={open}
+        onOpenChange={(nextOpen, eventDetails) => {
+          setOpen(nextOpen);
+          setLastReason(eventDetails.reason ?? null);
+        }}
+      >
+        <Collapsible.Trigger className={styles.Trigger}>
+          Recovery keys
+          <CaretRightIcon className={styles.Icon} />
+        </Collapsible.Trigger>
+        <Collapsible.Panel className={styles.Panel}>
+          <div className={styles.Content}>
+            <div>alien-bean-pasta</div>
+          </div>
+        </Collapsible.Panel>
+      </Collapsible.Root>
+      <div className={styles.Log} data-testid="reason-log">
+        last onOpenChange reason: {lastReason ?? 'none yet'}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * `open` can be driven from anywhere, not just the Trigger — here, an
+ * external button outside the Collapsible tree entirely. `onOpenChange`'s
+ * `eventDetails.reason` distinguishes how the change happened: pressing the
+ * Trigger reports `'trigger-press'`; the external button here calls
+ * `setOpen` directly and never goes through `onOpenChange` at all, since it
+ * isn't the Trigger driving the change.
+ */
+export const Controlled: Story = {
+  render: () => <ControlledCollapsibleDemo />,
+  play: async ({ canvas, userEvent }) => {
+    const externalButton = canvas.getByRole('button', { name: 'Toggle externally' });
+    const trigger = canvas.getByRole('button', { name: 'Recovery keys' });
+    const reasonLog = canvas.getByTestId('reason-log');
+
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(reasonLog).toHaveTextContent('last onOpenChange reason: none yet');
+
+    await userEvent.click(externalButton);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+    // The external button sets `open` directly — no `onOpenChange` reason.
+    await expect(reasonLog).toHaveTextContent('last onOpenChange reason: none yet');
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+    // Pressing the Trigger itself reports back through onOpenChange.
+    await waitFor(() =>
+      expect(reasonLog).toHaveTextContent('last onOpenChange reason: trigger-press'),
+    );
+  },
+};
+
+/**
+ * The Panel's height is driven by `--collapsible-panel-height`
+ * (`CollapsiblePanelCssVars`), written as an inline style on the Panel node
+ * itself. This asserts the mechanism directly — the rendered height grows
+ * from `0` while opening and returns to `0` while closing — rather than just
+ * asserting the CSS recipe is present in the stylesheet.
+ */
+export const AnimatedHeight: Story = {
+  render: () => (
+    <Collapsible.Root className={styles.Collapsible}>
+      <Collapsible.Trigger className={styles.Trigger}>
+        Recovery keys
+        <CaretRightIcon className={styles.Icon} />
+      </Collapsible.Trigger>
+      <Collapsible.Panel className={styles.Panel} data-testid="animated-panel" keepMounted>
+        <div className={styles.Content}>
+          <div>alien-bean-pasta</div>
+          <div>wild-irish-burrito</div>
+          <div>horse-battery-staple</div>
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
+  ),
+  play: async ({ canvasElement, canvas, userEvent }) => {
+    // `keepMounted` keeps the panel present (but hidden) at all times, so
+    // its height can be measured before the very first open.
+    const panel = canvasElement.querySelector('[data-testid="animated-panel"]') as HTMLElement;
+    const trigger = canvas.getByRole('button', { name: 'Recovery keys' });
+
+    await expect(panel.getBoundingClientRect().height).toBe(0);
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+    await waitFor(() => expect(panel.getBoundingClientRect().height).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(panel.style.getPropertyValue('--collapsible-panel-height')).not.toBe('0px'),
+    );
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+    await waitFor(() => expect(panel.getBoundingClientRect().height).toBe(0));
+  },
+};
+
+/**
+ * Root-level `disabled`: the Trigger never toggles the panel (click or
+ * keyboard) and `onOpenChange` never fires, but the Trigger stays focusable
+ * (`focusableWhenDisabled`) instead of being removed from the tab order.
+ */
+export const Disabled: Story = {
+  render: () => {
+    function DisabledDemo() {
+      const onOpenChange = () => {
+        throw new Error('onOpenChange must not be called while disabled');
+      };
+      return (
+        <Collapsible.Root className={styles.Collapsible} disabled onOpenChange={onOpenChange}>
+          <Collapsible.Trigger className={styles.Trigger}>
+            Recovery keys
+            <CaretRightIcon className={styles.Icon} />
+          </Collapsible.Trigger>
+          <Collapsible.Panel className={styles.Panel}>
+            <div className={styles.Content}>
+              <div>alien-bean-pasta</div>
+            </div>
+          </Collapsible.Panel>
+        </Collapsible.Root>
+      );
+    }
+    return <DisabledDemo />;
+  },
+  play: async ({ canvas, userEvent }) => {
+    const trigger = canvas.getByRole('button', { name: 'Recovery keys' });
+
+    trigger.focus();
+    await expect(trigger).toHaveFocus();
+    await expect(trigger).toHaveAttribute('data-disabled');
+
+    await userEvent.click(trigger);
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(canvas.queryByText('alien-bean-pasta')).not.toBeInTheDocument();
+
+    await userEvent.keyboard('{Enter}');
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  },
+};
+
+/**
+ * A `Collapsible.Panel` can contain an entirely independent, nested
+ * `Collapsible.Root`. Unlike Accordion, Collapsible does not coordinate with
+ * any siblings at all — the outer panel can be closed without first closing
+ * the inner one, and vice versa.
+ */
+export const Nested: Story = {
+  render: () => (
+    <Collapsible.Root className={styles.Collapsible}>
+      <Collapsible.Trigger className={styles.Trigger}>
+        Recovery keys
+        <CaretRightIcon className={styles.Icon} />
+      </Collapsible.Trigger>
+      <Collapsible.Panel className={styles.Panel}>
+        <div className={styles.Content}>
+          <div>alien-bean-pasta</div>
+          <Collapsible.Root className={`${styles.Collapsible} ${styles.NestedCollapsible}`}>
+            <Collapsible.Trigger className={styles.Trigger}>
+              Backup phrase
+              <CaretRightIcon className={styles.Icon} />
+            </Collapsible.Trigger>
+            <Collapsible.Panel className={styles.Panel}>
+              <div className={styles.Content}>
+                <div>horse-battery-staple</div>
+              </div>
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const outerTrigger = canvas.getByRole('button', { name: 'Recovery keys' });
+    await userEvent.click(outerTrigger);
+    await waitFor(() => expect(outerTrigger).toHaveAttribute('aria-expanded', 'true'));
+
+    const innerTrigger = canvas.getByRole('button', { name: 'Backup phrase' });
+    await userEvent.click(innerTrigger);
+    await waitFor(() => expect(innerTrigger).toHaveAttribute('aria-expanded', 'true'));
+    await waitFor(() => expect(canvas.getByText('horse-battery-staple')).toBeVisible());
+
+    // Closing the outer one does not require the inner one to close first —
+    // no forced coordination, unlike Accordion.
+    await userEvent.click(outerTrigger);
+    await waitFor(() => expect(outerTrigger).toHaveAttribute('aria-expanded', 'false'));
+  },
+};
+
+/** A single Collapsible composed inside a settings-card layout, showing it works normally embedded in ordinary surrounding markup rather than as a standalone widget. */
+export const WithinCard: Story = {
+  render: () => (
+    <div className={styles.Card}>
+      <div className={styles.CardHeader}>Security</div>
+      <div className={styles.CardBody}>
+        <Collapsible.Root className={styles.Collapsible}>
+          <Collapsible.Trigger className={styles.Trigger}>
+            Recovery keys
+            <CaretRightIcon className={styles.Icon} />
+          </Collapsible.Trigger>
+          <Collapsible.Panel className={styles.Panel}>
+            <div className={styles.Content}>
+              <div>alien-bean-pasta</div>
+            </div>
+          </Collapsible.Panel>
+        </Collapsible.Root>
+      </div>
+    </div>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const trigger = canvas.getByRole('button', { name: 'Recovery keys' });
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+    await waitFor(() => expect(canvas.getByText('alien-bean-pasta')).toBeVisible());
+  },
+};

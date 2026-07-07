@@ -1,7 +1,9 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, waitFor } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { Menu } from '@base-ui/react/menu';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import styles from './scroll-area.module.css';
 
 /**
@@ -187,7 +189,9 @@ function OverflowDataAttributeExample() {
 export const OverflowEdgeStyling: Story = {
   render: () => <OverflowDataAttributeExample />,
   play: async ({ canvasElement }) => {
-    const viewport = canvasElement.querySelector('[data-testid="edge-viewport"]') as HTMLElement | null;
+    const viewport = canvasElement.querySelector(
+      '[data-testid="edge-viewport"]',
+    ) as HTMLElement | null;
     await waitFor(() => expect(viewport).not.toBeNull());
     await waitFor(() => expect(viewport).toHaveAttribute('data-has-overflow-y'));
     // At rest, scrolled to the top: the start-edge attribute is absent.
@@ -203,5 +207,261 @@ export const OverflowEdgeStyling: Story = {
     viewport!.scrollTop = viewport!.scrollHeight;
     viewport!.dispatchEvent(new Event('scroll', { bubbles: true }));
     await waitFor(() => expect(viewport).not.toHaveAttribute('data-overflow-y-end'));
+  },
+};
+
+/**
+ * There is no built-in "always visible scrollbar" prop — the hero recipe's
+ * `[data-hovering]`/`[data-scrolling]`-gated opacity is a pure-CSS choice,
+ * not a Scroll Area default. This shows the gated recipe next to an
+ * always-visible variant (`opacity: 1` unconditionally) side by side.
+ */
+export const AlwaysVisibleScrollbars: Story = {
+  render: () => (
+    <div className={styles.Legend2Up}>
+      <div>
+        <ScrollArea.Root className={styles.ScrollArea}>
+          <ScrollArea.Viewport className={styles.Viewport}>
+            <ScrollArea.Content className={styles.Content}>
+              {paragraphs.map((text, index) => (
+                <p key={index} className={styles.Paragraph}>
+                  {text}
+                </p>
+              ))}
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar className={styles.Scrollbar} data-testid="gated-scrollbar">
+            <ScrollArea.Thumb className={styles.Thumb} />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+        <div className={styles.LegendLabel}>Default: hover/scroll-gated opacity</div>
+      </div>
+      <div>
+        <ScrollArea.Root className={styles.ScrollArea}>
+          <ScrollArea.Viewport className={styles.Viewport}>
+            <ScrollArea.Content className={styles.Content}>
+              {paragraphs.map((text, index) => (
+                <p key={index} className={styles.Paragraph}>
+                  {text}
+                </p>
+              ))}
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            className={styles.ScrollbarAlwaysVisible}
+            data-testid="always-visible-scrollbar"
+          >
+            <ScrollArea.Thumb className={styles.Thumb} />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+        <div className={styles.LegendLabel}>Always-visible (custom CSS)</div>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const gated = canvasElement.querySelector('[data-testid="gated-scrollbar"]') as HTMLElement;
+    const alwaysVisible = canvasElement.querySelector(
+      '[data-testid="always-visible-scrollbar"]',
+    ) as HTMLElement;
+
+    // At rest (no hover, no scroll), the gated scrollbar is transparent while
+    // the always-visible variant is opaque — a plain CSS opacity difference.
+    await waitFor(() => expect(getComputedStyle(gated).opacity).toBe('0'));
+    await expect(getComputedStyle(alwaysVisible).opacity).toBe('1');
+  },
+};
+
+/**
+ * The Scrollbar's `[data-scrolling]` state is tracked independently per axis
+ * (`scrollingX`/`scrollingY`) — scrolling only the vertical axis never sets
+ * `[data-scrolling]` on the horizontal Scrollbar.
+ */
+export const OnScrollVisibility: Story = {
+  render: () => (
+    <ScrollArea.Root className={styles.ScrollAreaSquare}>
+      <ScrollArea.Viewport className={styles.Viewport} data-testid="onscroll-viewport">
+        <ScrollArea.Content className={styles.ContentPadded}>
+          <ul className={styles.Grid}>
+            {Array.from({ length: 100 }, (_, index) => (
+              <li key={index} className={styles.Item}>
+                {index + 1}
+              </li>
+            ))}
+          </ul>
+        </ScrollArea.Content>
+      </ScrollArea.Viewport>
+      <ScrollArea.Scrollbar
+        className={styles.ScrollbarOnScrollOnly}
+        data-testid="vertical-onscroll"
+      >
+        <ScrollArea.Thumb className={styles.Thumb} />
+      </ScrollArea.Scrollbar>
+      <ScrollArea.Scrollbar
+        className={styles.ScrollbarOnScrollOnly}
+        orientation="horizontal"
+        data-testid="horizontal-onscroll"
+      >
+        <ScrollArea.Thumb className={styles.Thumb} />
+      </ScrollArea.Scrollbar>
+    </ScrollArea.Root>
+  ),
+  play: async ({ canvasElement, userEvent }) => {
+    const viewport = canvasElement.querySelector(
+      '[data-testid="onscroll-viewport"]',
+    ) as HTMLElement;
+    const verticalScrollbar = canvasElement.querySelector(
+      '[data-testid="vertical-onscroll"]',
+    ) as HTMLElement;
+    const horizontalScrollbar = canvasElement.querySelector(
+      '[data-testid="horizontal-onscroll"]',
+    ) as HTMLElement;
+
+    await expect(verticalScrollbar).not.toHaveAttribute('data-scrolling');
+
+    // A scroll only counts as "user-driven" (and thus flips `[data-scrolling]`)
+    // once a real user-interaction event — pointer/wheel/touch/key — has
+    // fired on the Viewport; a bare synthetic `scroll` event alone is treated
+    // as programmatic and skipped by this specific state.
+    await userEvent.hover(viewport);
+    viewport.scrollTop = 40;
+    viewport.dispatchEvent(new Event('scroll', { bubbles: true }));
+
+    await waitFor(() => expect(verticalScrollbar).toHaveAttribute('data-scrolling'));
+    // A vertical-only scroll never marks the horizontal scrollbar as scrolling.
+    await expect(horizontalScrollbar).not.toHaveAttribute('data-scrolling');
+  },
+};
+
+/** Recreation of the docs "scroll fade" demo: a `mask-image` gradient on the Viewport, sized from `--scroll-area-overflow-y-start`/`-end` (with the documented `, 40px` SSR fallback for the `-end` var, which is absent until the first measurement effect runs). */
+export const GradientScrollFade: Story = {
+  render: () => (
+    <ScrollArea.Root className={styles.ScrollArea}>
+      <ScrollArea.Viewport className={styles.ViewportFade} data-testid="fade-viewport">
+        <ScrollArea.Content className={styles.Content}>
+          {paragraphs.map((text, index) => (
+            <p key={index} className={styles.Paragraph}>
+              {text}
+            </p>
+          ))}
+        </ScrollArea.Content>
+      </ScrollArea.Viewport>
+      <ScrollArea.Scrollbar className={styles.Scrollbar}>
+        <ScrollArea.Thumb className={styles.Thumb} />
+      </ScrollArea.Scrollbar>
+    </ScrollArea.Root>
+  ),
+  play: async ({ canvasElement }) => {
+    const viewport = canvasElement.querySelector('[data-testid="fade-viewport"]') as HTMLElement;
+
+    await waitFor(() =>
+      expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-start')).toBe('0px'),
+    );
+
+    viewport.scrollTop = 40;
+    viewport.dispatchEvent(new Event('scroll', { bubbles: true }));
+
+    // Scrolling away from the top grows the start-edge CSS var, which the
+    // mask-image gradient reads directly to fade the top edge in.
+    await waitFor(() =>
+      expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-start')).not.toBe('0px'),
+    );
+  },
+};
+
+/**
+ * Recreation of `experiments/scroll-area/inside-menu.tsx`: `ScrollArea.*`
+ * wraps a long list of `Menu.Item`s inside a `Menu.Popup`, with `tabIndex={-1}`
+ * on the Viewport so the popup's own focus-trap/list-navigation stays in
+ * control instead of the Viewport competing for Tab order ([#4220](https://github.com/mui/base-ui/pull/4220)).
+ * `Select.ScrollUpArrow`/`ScrollDownArrow` are a structurally separate
+ * mechanism from `ScrollArea.*` — the two don't compose; pick one scroll
+ * mechanism per popup.
+ */
+export const InsideAPopup: Story = {
+  render: () => (
+    <Menu.Root>
+      <Menu.Trigger className={styles.MenuButton}>Choose an item</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner className={styles.MenuPositioner} sideOffset={8}>
+          <Menu.Popup className={styles.MenuPopup}>
+            <ScrollArea.Root className={styles.MenuScrollArea}>
+              <ScrollArea.Viewport className={styles.MenuViewport} tabIndex={-1}>
+                <ScrollArea.Content>
+                  {Array.from({ length: 100 }, (_, index) => (
+                    <Menu.Item className={styles.MenuItem} key={index}>
+                      Item {index + 1}
+                    </Menu.Item>
+                  ))}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                <ScrollArea.Thumb className={styles.Thumb} />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  ),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByRole('button', { name: 'Choose an item' });
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
+
+    const firstItem = body.getByRole('menuitem', { name: 'Item 1' });
+    await expect(firstItem).toBeVisible();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
+  },
+};
+
+/**
+ * `DirectionProvider direction="rtl"` (paired with an app-owned `dir="rtl"`
+ * container, per the library's two-part RTL setup) flips the horizontal
+ * scroll-ratio math and switches the logical track placement
+ * (`insetInlineStart`/`-End`) accordingly. Dragging the thumb is a pointer
+ * interaction not exercised here — verified directly in
+ * `ScrollAreaThumb.test.tsx`'s own RTL-parametrized drag tests.
+ */
+export const RTL: Story = {
+  render: () => (
+    <div dir="rtl">
+      <DirectionProvider direction="rtl">
+        <ScrollArea.Root className={styles.ScrollAreaSquare}>
+          <ScrollArea.Viewport className={styles.Viewport}>
+            <ScrollArea.Content className={styles.ContentPadded}>
+              <ul className={styles.Grid}>
+                {Array.from({ length: 100 }, (_, index) => (
+                  <li key={index} className={styles.Item}>
+                    {index + 1}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar className={styles.Scrollbar}>
+            <ScrollArea.Thumb className={styles.Thumb} />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar className={styles.Scrollbar} orientation="horizontal">
+            <ScrollArea.Thumb className={styles.Thumb} />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner className={styles.Corner} />
+        </ScrollArea.Root>
+      </DirectionProvider>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const horizontalScrollbar = canvasElement.querySelector(
+      '[data-orientation="horizontal"]',
+    ) as HTMLElement;
+    await waitFor(() => expect(horizontalScrollbar).not.toBeNull());
+    // Logical inline-start placement flips: in RTL the track still sits at
+    // the block-appropriate edge via `insetInlineStart`, resolved by the
+    // browser according to the ambient `dir="rtl"` rather than a literal
+    // `left`/`right` the component would otherwise need to flip manually.
+    await expect(horizontalScrollbar).toBeInTheDocument();
   },
 };

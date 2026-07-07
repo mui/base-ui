@@ -79,6 +79,30 @@ Root-level `disabled` cascades to every item; Item-level `disabled` disables jus
 
 <Canvas of={AccordionStories.DisabledItem} />
 
+### `multiple` combined with a disabled item
+
+A disabled item never joins the open set and is unaffected by its enabled siblings, even under `multiple`.
+
+<Canvas of={AccordionStories.MultipleWithDisabled} />
+
+### Animated panel height
+
+The Panel's height is driven by `--accordion-panel-height` (`AccordionPanelCssVars`), the same measurement engine Collapsible uses.
+
+<Canvas of={AccordionStories.AnimatedPanelHeight} />
+
+### Browser find-in-page support
+
+`hiddenUntilFound` uses `hidden="until-found"` instead of unmounting, so collapsed panels stay searchable via Ctrl/Cmd+F.
+
+<Canvas of={AccordionStories.HiddenUntilFound} />
+
+### Controlled
+
+External `value`/`onValueChange` state, driven by buttons outside the accordion entirely.
+
+<Canvas of={AccordionStories.ControlledValue} />
+
 ## Keyboard & screen reader
 
 | Key | Action |
@@ -87,6 +111,10 @@ Root-level `disabled` cascades to every item; Item-level `disabled` disables jus
 | `Enter` | Toggles the focused item's open state |
 | `Space` | Toggles the focused item's open state (fires on keyup, matching native button semantics) |
 | `ArrowUp` / `ArrowDown` / `Home` / `End` | **No accordion-specific behavior** — deliberate, current-APG-aligned design, not an omission |
+
+The following story asserts this contract directly: Tab/Shift+Tab moves focus between triggers, ArrowDown deliberately does nothing, and Space toggles the focused trigger.
+
+<Canvas of={AccordionStories.KeyboardTabFlow} />
 
 - **ARIA**: `Trigger` gets `aria-expanded` (always present) and `aria-controls` (present only while open); `Panel` gets `role="region"` and `aria-labelledby={triggerId}`. `Root` and `Item` carry no ARIA role or state.
 - **You must provide**: nothing extra — the Header→Trigger→Panel labeling chain is fully automatic as long as the canonical nesting is followed.
@@ -116,6 +144,12 @@ Root-level `disabled` cascades to every item; Item-level `disabled` disables jus
 **Don't**
 
 - Don't expect ArrowUp/ArrowDown to move focus between headers — that behavior was deliberately removed ([#4965](https://github.com/mui/base-ui/pull/4965)); use Tab/Shift+Tab instead.
+
+## Examples
+
+An `Accordion.Panel` can contain an entirely independent, nested `Accordion.Root` — each root owns its own value/context, so the two don't interfere.
+
+<Canvas of={AccordionStories.NestedAccordion} />
 
 ## In the wild
 

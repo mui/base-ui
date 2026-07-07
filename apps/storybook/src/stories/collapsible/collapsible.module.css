@@ -78,6 +78,7 @@
   &[data-disabled] {
     color: oklch(55.6% 0 0deg);
     border-color: oklch(55.6% 0 0deg);
+    cursor: not-allowed;
 
     @media (prefers-color-scheme: dark) {
       color: oklch(70.8% 0 0deg);
@@ -111,4 +112,73 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem 0.875rem;
+}
+
+/* Controlled story: an external button, outside the Collapsible tree,
+   toggling `open` directly. */
+.ExternalControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ExternalButton {
+  box-sizing: border-box;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.8125rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Log {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Nested story: an inner Collapsible.Root embedded in an outer panel. */
+.NestedCollapsible {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* WithinCard story: a settings-card composition around a single Collapsible. */
+.Card {
+  box-sizing: border-box;
+  width: 16rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    color: white;
+  }
+}
+
+.CardHeader {
+  box-sizing: border-box;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid oklch(85% 0 0deg);
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: oklch(43.9% 0 0deg);
+  }
+}
+
+.CardBody {
+  padding: 0.75rem 0.875rem;
 }

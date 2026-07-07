@@ -95,9 +95,35 @@ No keyboard event handling exists anywhere in `Scrollbar`/`Thumb` for arrow keys
 
 <Canvas of={ScrollAreaStories.OverflowEdgeStyling} />
 
+### Scrollbar visibility styling
+
+There is no built-in "always visible scrollbar" prop, and `[data-scrolling]` can be styled independently of `[data-hovering]` per axis — both are plain-CSS techniques layered on the same data attributes.
+
+<Canvas of={ScrollAreaStories.AlwaysVisibleScrollbars} />
+
+<Canvas of={ScrollAreaStories.OnScrollVisibility} />
+
+### RTL
+
+`DirectionProvider direction="rtl"`, paired with an app-owned `dir="rtl"` container, flips the horizontal scroll-ratio math and switches the logical track placement.
+
+<Canvas of={ScrollAreaStories.RTL} />
+
 ## Examples
 
 <Canvas of={ScrollAreaStories.Hero} />
+
+### Gradient scroll fade
+
+Recreation of the docs "scroll fade" demo: a `mask-image` gradient on the Viewport sized from the overflow-edge CSS vars.
+
+<Canvas of={ScrollAreaStories.GradientScrollFade} />
+
+### Inside a popup
+
+Recreation of `experiments/scroll-area/inside-menu.tsx`: `ScrollArea.*` wrapping a long list inside a `Menu.Popup`. `Select.ScrollUpArrow`/`ScrollDownArrow` are a structurally separate mechanism that does not compose with `ScrollArea.*` — pick one scroll mechanism per popup.
+
+<Canvas of={ScrollAreaStories.InsideAPopup} />
 
 ## Keyboard & screen reader
 

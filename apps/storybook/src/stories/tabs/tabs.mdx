@@ -85,6 +85,24 @@ Setting `activateOnFocus` on `Tabs.List` restores immediate focus-driven activat
 
 <Canvas of={TabsStories.VerticalOrientation} />
 
+### Animated indicator underline
+
+`Tabs.Indicator` writes the active tab's measured position/size as inline CSS custom properties (`--active-tab-left`/`-width`/etc.); the module CSS transitions on top of them to slide the underline between tabs.
+
+<Canvas of={TabsStories.AnimatedIndicatorUnderline} />
+
+### Disabled tabs
+
+A disabled tab is skipped by the automatic-fallback-to-first-enabled-tab logic and stays focusable but never activates, by click or keyboard.
+
+<Canvas of={TabsStories.DisabledTabs} />
+
+### Controlled
+
+External `value`/`onValueChange` state can drive the active tab from anywhere, including buttons that live entirely outside the tablist.
+
+<Canvas of={TabsStories.ControlledValue} />
+
 ## Keyboard & screen reader
 
 | Key | Context | `activateOnFocus=false` (default) | `activateOnFocus=true` |
@@ -126,6 +144,16 @@ An underline indicator typically uses `left`/`width` (horizontal) or `top`/`heig
 **Don't**
 
 - Don't expect Framer Motion/Radix-style exit animations "out of the box" — the animation docs' JS-library recipes target popup components; use CSS transitions on `data-starting-style`/`data-ending-style` instead ([#1494](https://github.com/mui/base-ui/issues/1494), closed not-planned).
+
+## Examples
+
+Icon + label composition, a scrollable tablist wider than its container, and an independent nested `Tabs.Root` inside a panel:
+
+<Canvas of={TabsStories.TabsWithIcons} />
+
+<Canvas of={TabsStories.ManyTabsOverflow} />
+
+<Canvas of={TabsStories.NestedContent} />
 
 ## In the wild
 

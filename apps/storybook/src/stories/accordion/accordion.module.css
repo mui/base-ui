@@ -105,3 +105,36 @@
 .Content {
   padding: 0.5rem 0.75rem;
 }
+
+/* ControlledValue story: external buttons that set `value` from outside. */
+.ExternalControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ExternalButton {
+  box-sizing: border-box;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.8125rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+/* NestedAccordion story: an inner Accordion.Root embedded in an outer panel. */
+.NestedAccordion {
+  margin-top: 0.5rem;
+  border-top: 1px solid oklch(85% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: oklch(43.9% 0 0deg);
+  }
+}

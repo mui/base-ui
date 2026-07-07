@@ -358,6 +358,12 @@ Hover and keyboard highlight are one unified `data-highlighted` state by design 
 
 The remaining 16 corpus hits (langgenius/dify at 147.9k★, reactive-resume, mastra-ai/mastra, gitbutler, woocommerce, cosscom/coss, typebot.io, and others) are recorded in candidates.json but not written up here; expected archetypes still to verify in a deeper pass: tag/label multi-selects with chips, async user/country pickers, and design-system wrapper components re-exporting the full part set.
 
+Two recreations live in this Storybook — a grouped, separated sync-target picker (electric-sql/electric, Apache-2.0, code-ok) and a multi-select model picker with chips grouped by provider, recomposing the same chip/grouping composition also seen independently in langgenius/dify and cosscom/coss (both link-only) from a code-ok source instead (latitude-dev/latitude-llm, MIT, code-ok):
+
+<Canvas of={ComboboxStories.RealWorldGroupedSyncTargetPicker} />
+
+<Canvas of={ComboboxStories.RealWorldMultiSelectModelPickerWithGroups} />
+
 ## Decision log
 
 - **2024** — [#222](https://github.com/mui/base-ui/issues/222) specs Combobox as the closer of 7 Base UI issues and heir to 6 Material UI Autocomplete lessons; performance named the top risk ("it took me 1,000 hr" — oliviertassinari).

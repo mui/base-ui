@@ -79,6 +79,24 @@ By default the panel unmounts from the DOM once closed and its exit transition c
 
 <Canvas of={CollapsibleStories.HiddenUntilFound} />
 
+### Animated height
+
+The Panel's height is driven by `--collapsible-panel-height` (`CollapsiblePanelCssVars`), written as an inline style on the Panel node itself.
+
+<Canvas of={CollapsibleStories.AnimatedHeight} />
+
+### Controlled
+
+`open` can be driven from anywhere, not just the Trigger. `onOpenChange`'s `eventDetails.reason` distinguishes a Trigger press (`'trigger-press'`) from an externally-driven change (no `onOpenChange` call at all).
+
+<Canvas of={CollapsibleStories.Controlled} />
+
+### Disabled
+
+Root-level `disabled`: the Trigger never toggles the panel and `onOpenChange` never fires, but the Trigger stays focusable.
+
+<Canvas of={CollapsibleStories.Disabled} />
+
 ## Keyboard & screen reader
 
 | Key | Action |
@@ -114,6 +132,14 @@ By default the panel unmounts from the DOM once closed and its exit transition c
 **Don't**
 
 - Don't expect a JS animation library's exit sequencing to work from `keepMounted` alone — Motion/framer-motion-style libraries need the *element*, not just non-unmounting, to drive their own exit timing.
+
+## Examples
+
+An independent, nested `Collapsible.Root` inside another's Panel, and a single Collapsible composed inside a settings-card layout:
+
+<Canvas of={CollapsibleStories.Nested} />
+
+<Canvas of={CollapsibleStories.WithinCard} />
 
 ## In the wild
 

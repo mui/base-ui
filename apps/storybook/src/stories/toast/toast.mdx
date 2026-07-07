@@ -272,7 +272,11 @@ Corpus-signal only — full ranked recreations were not run for Toast (`research
   </WildCard>
 </WildCards>
 
-[G] Deeper real-world recreations (a save-flow-with-undo composition, an anchored copy-feedback demo against a live repo) are pending a full Phase D pass for this component; the two candidates above are corpus signal only.
+A full Phase D pass has since ranked 12 candidates (`research/d-real-world-usage/toast/ranked.json`); two recreations live in this Storybook, picked from the code-ok top set — an anchored, actionable toast combining `Arrow` and `Action` (patrick-xin/lumi-ui, MIT, code-ok, #6 — the fullest Toast anatomy found in any registry) and the "Alert inside `Toast.Content`" idiom (rosen-bridge/ui, MIT, code-ok, #8), where a full pre-existing Alert component renders in place of Title/Description/Action:
+
+<Canvas of={ToastStories.RealWorldAnchoredActionableToast} />
+
+<Canvas of={ToastStories.RealWorldAlertInsideContent} />
 
 ## Decision log
 

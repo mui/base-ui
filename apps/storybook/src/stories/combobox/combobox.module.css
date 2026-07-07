@@ -470,6 +470,18 @@
   }
 }
 
+/* Group boundary marker (electric-sql/electric-style grouped + separated list) */
+.Separator {
+  height: 1px;
+  margin-block: 0.25rem;
+  margin-inline: 1rem;
+  background-color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+}
+
 /* Multiple selection with chips */
 
 .ChipsInputGroup {

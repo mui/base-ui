@@ -99,6 +99,54 @@ Click-and-drag anywhere in `ScrubArea` to change the value continuously (pointer
 
 The story applies `noValidate` on the surrounding `<form>` deliberately: the default `step={1}` triggers native step validation once an explicit `min` is present, and forms that skip `noValidate` can have submission silently blocked by a native browser popup the developer didn't expect (mui/base-ui#3552, a confirmed shadcn/RHF-forms pitfall). Base UI's own `Field`/`Form` validation is meant to be authoritative instead.
 
+### Press-and-hold stepping
+
+<Canvas of={NumberFieldStories.PressAndHoldStepping} />
+
+Holding `pointerdown` on a stepper button performs one immediate step, then (after `START_AUTO_CHANGE_DELAY`, 400ms) starts continuous auto-repeat every `CHANGE_VALUE_TICK_DELAY` (60ms). A single `onValueCommitted` fires on pointer release — never once per tick — and the auto-repeat halts on its own at the `max`/`min` boundary, well before release.
+
+### `onValueChange` vs `onValueCommitted`, made observable
+
+<Canvas of={NumberFieldStories.ValueChangeVsCommitted} />
+
+Two live counters make the two-callback split directly observable: typing digits fires `onValueChange` once per keystroke but `onValueCommitted` only once, on blur; a stepper click fires both exactly once, together.
+
+### `snapOnStep`
+
+<Canvas of={NumberFieldStories.SnapOnStep} />
+
+Snaps increment/decrement results to the nearest multiple of `step` — directional snapping toward the direction of travel — contrasted with the exact-step behavior when the prop is unset.
+
+### `allowOutOfRange`
+
+<Canvas of={NumberFieldStories.AllowOutOfRange} />
+
+By default, typed values are clamped to `min`/`max` immediately at the numeric-value level (visible on the hidden native input); the displayed text itself only resyncs to the clamped value on blur. With `allowOutOfRange`, direct text entry can exceed the bounds entirely so the native `rangeOverflow`/`rangeUnderflow` validity becomes reachable — stepper-button and keyboard stepping still clamp regardless of the prop.
+
+### Locale and currency formatting
+
+<Canvas of={NumberFieldStories.LocaleAndCurrencyFormat} />
+
+`format` (raw `Intl.NumberFormatOptions`) and `locale` drive the displayed text through the standard `Intl.NumberFormat` pipeline, while the value submitted to a form stays a plain number. Net-new Storybook coverage — evidenced from source and the currency/locale test blocks, not from an existing docs demo.
+
+### Wheel scrubbing
+
+<Canvas of={NumberFieldStories.WheelScrub} />
+
+With `allowWheelScrub`, each discrete wheel tick over the focused `Input` steps the value by one `step` and commits immediately — distinct from the accumulating drag gesture in `ScrubArea`. `ctrlKey` wheel events (pinch-zoom) are deliberately ignored.
+
+### `Field` integration
+
+<Canvas of={NumberFieldStories.FieldValidation} />
+
+Wrapping in `Field.Root` with a `validate` function demonstrates the duplicated-data-attribute doctrine: `data-valid`/`data-invalid`/`data-touched`/`data-dirty`/`data-filled`/`data-focused` appear on every part (Root, Group, Input, Increment, Decrement) simultaneously, since they all share one `state` object.
+
+### Disabled and read-only
+
+<Canvas of={NumberFieldStories.DisabledAndReadOnly} />
+
+`disabled` removes the field from interaction and native form submission entirely — the hidden input itself becomes `disabled`. `readOnly` keeps the `Input` focusable and copyable but blocks edits, and disables the stepper buttons via computed `disabled` rather than `aria-readonly` (invalid on `role="button"`).
+
 ## Keyboard & screen reader
 
 | Key                                                                                       | Context                        | Action                                                                              |
