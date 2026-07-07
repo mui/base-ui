@@ -4,6 +4,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleGroupStories from './toggle-group.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
 
 <Meta of={ToggleGroupStories} />
 
@@ -119,10 +121,10 @@ Each child Toggle carries its own independent `data-pressed`/`data-disabled` —
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a standalone ToggleGroup registry item, kept separate from plain Toggle as its own file.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     the same split, published as both a package export and an installable registry file.
   </WildCard>
   <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/dataviews/src/components/dataform-controls/toggle-group.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">

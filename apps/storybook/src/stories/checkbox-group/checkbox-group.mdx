@@ -4,6 +4,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxGroupStories from './checkbox-group.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
+import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
 
 <Meta of={CheckboxGroupStories} />
 
@@ -120,13 +123,13 @@ The group container itself carries only `data-disabled`, plus the full Field val
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/checkbox-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/checkbox-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a dedicated wrapper file separate from plain Checkbox, confirming CheckboxGroup is treated as its own registry item rather than folded into Checkbox.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/checkbox-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/checkbox-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     the same split — a standalone CheckboxGroup registry item alongside Checkbox — published as both a package export and an installable file.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox-group.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox-group.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
     Cal.com's registry keeps CheckboxGroup separate from Checkbox as well, corroborating the pattern across two independent registries.
   </WildCard>
 </WildCards>

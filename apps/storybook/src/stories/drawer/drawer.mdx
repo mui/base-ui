@@ -9,6 +9,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as DrawerStories from './drawer.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import baseuiCnComShot from '../../../../../research/d-real-world-usage/_captures/baseui-cn-com.png';
+import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
+import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
 
 <Meta of={DrawerStories} />
 
@@ -264,7 +267,7 @@ See "The swipe styling contract" above for the full CSS-variable table (the gest
 [G] Phase D's corpus-only pass returned three **lean, unverified** candidates for Drawer (`research/d-real-world-usage/drawer/candidates.json`) — none reached the subpath-verification tier that Dialog/Menu/Popover/Select have, so they are listed here honestly rather than written up as full case studies:
 
 <WildCards>
-  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok">
+  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok" image={baseuiCnComShot}>
     a shadcn-style registry whose description mentions fixing Drawer, Select, Toast, and overlay/focus issues; found by description match, not a direct subpath search.
   </WildCard>
   <WildCard repo="australia/mobtranslate.com" title="mobtranslate.com" href="https://github.com/australia/mobtranslate.com/blob/HEAD/packages/ui/src/components/drawer/drawer.tsx" license="license not found" reuse="link-only, do not copy">
@@ -278,10 +281,10 @@ See "The swipe styling contract" above for the full CSS-variable table (the gest
 A direct registry-tree mining pass (not a code search) confirms the same drawer/sheet dual-naming pattern independently:
 
 <WildCards>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/drawer.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/drawer.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
     ships both a `drawer.tsx` and a shadcn-convention `sheet.tsx` — two names for the same Base UI Dialog-based edge panel.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/drawer.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/drawer.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     the same dual-naming pattern, with a Radix-backed twin registry alongside it.
   </WildCard>
 </WildCards>

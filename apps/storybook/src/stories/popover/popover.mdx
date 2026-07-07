@@ -6,6 +6,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PopoverStories from './popover.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import wordpressOrgGutenbergOpenShot from '../../../../../research/d-real-world-usage/_captures/wordpress-org-gutenberg-open.png';
+import difyAiShot from '../../../../../research/d-real-world-usage/_captures/dify-ai.png';
 
 <Meta of={PopoverStories} />
 
@@ -305,7 +307,7 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
 ## In the wild
 
 <WildCards>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx" live="https://wordpress.org/gutenberg/" license="GPL dual-licensing / no SPDX detected" reuse="link-only, do not copy">
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx" live="https://wordpress.org/gutenberg/" license="GPL dual-licensing / no SPDX detected" reuse="link-only, do not copy" image={wordpressOrgGutenbergOpenShot}>
     the richest composition found anywhere: the new `@wordpress/ui` package wraps all ten parts one-file-per-part with slot-overridable Portal/Positioner for the iframed editor canvas, dev-time validation that a `Title` is present ("required for accessibility, can be visually hidden"), a Close-required-when-modal rule, and a `useDeprioritizedInitialFocus` hook that skips close buttons when resolving initial focus.
   </WildCard>
   <WildCard repo="martpie/museeks" title="museeks" href="https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx" live="https://museeks.io" license="MIT" reuse="code-ok">
@@ -314,7 +316,7 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
   <WildCard repo="opral/flashtype" title="Flashtype" href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx" live="https://flashtype.com" license="MIT" reuse="code-ok">
     the best cross-component composition example: the markdown editor's link editor is `Toolbar.Button render={<Popover.Trigger />}` inside a roving-tabindex toolbar, with `initialFocus` pointed at the URL input.
   </WildCard>
-  <WildCard repo="langgenius/dify" title="Dify" href="https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx" live="https://dify.ai" license="custom license" reuse="link-only">
+  <WildCard repo="langgenius/dify" title="Dify" href="https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx" live="https://dify.ai" license="custom license" reuse="link-only" image={difyAiShot}>
     the highest-star adopter (147.9k): `dify-ui` compresses Positioner geometry behind a single `placement` prop parsed into `side`/`align`, re-exports `createHandle`, and shows the canonical `data-starting-style`/`data-ending-style` transition with a motion-reduce fallback.
   </WildCard>
   <WildCard repo="egoist/takopi" title="takopi" href="https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx" live="https://github.com/egoist/takopi" license="Apache-2.0" reuse="code-ok">

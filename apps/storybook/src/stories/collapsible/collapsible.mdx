@@ -4,6 +4,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CollapsibleStories from './collapsible.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 
 <Meta of={CollapsibleStories} />
 
@@ -116,13 +118,13 @@ By default the panel unmounts from the DOM once closed and its exit transition c
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     one of Kumo's fully styled wrappers (versus the thin re-export `primitives/collapsible.ts` it also ships for design-tool parity).
   </WildCard>
   <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
     one file per part (root/panel/trigger) with its own test suite and Storybook story in the `@wordpress/ui` package.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a Tailwind-styled wrapper distributed as a copy-paste registry item, same pattern as the rest of the 9ui set.
   </WildCard>
 </WildCards>

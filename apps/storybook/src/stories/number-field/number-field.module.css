@@ -147,3 +147,55 @@
     color: oklch(70.8% 0 0deg);
   }
 }
+
+.Row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Log {
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid oklch(85% 0 0deg);
+  min-width: 12rem;
+  max-height: 6rem;
+  overflow: auto;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(35% 0 0deg);
+    color: oklch(70.8% 0 0deg);
+  }
+}

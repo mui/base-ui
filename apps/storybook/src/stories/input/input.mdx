@@ -6,6 +6,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as InputStories from './input.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 
 <Meta of={InputStories} />
 
@@ -93,13 +95,13 @@ Identical to `Field.Control`'s (brief §8) — no CSS variables of Input's own:
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/input/input.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/input/input.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     a fully styled wrapper plus a companion `input-area.tsx`, both composed into the separate `input-group` family for prefix/suffix addons.
   </WildCard>
   <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/input/input.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
     its own Input primitive inside the form-primitives package, distinct from the Autocomplete/Combobox input sub-components that live alongside it.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/input.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/input.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a Tailwind-styled Input registry item with a dedicated `input-with-button.tsx` composition example.
   </WildCard>
 </WildCards>

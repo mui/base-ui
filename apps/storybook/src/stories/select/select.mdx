@@ -5,6 +5,10 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SelectStories from './select.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import kumoUiComOpenShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com-open.png';
+import wordpressOrgGutenbergOpenShot from '../../../../../research/d-real-world-usage/_captures/wordpress-org-gutenberg-open.png';
+import mastraAiOpenShot from '../../../../../research/d-real-world-usage/_captures/mastra-ai-open.png';
+import graphqlOrgOpenShot from '../../../../../research/d-real-world-usage/_captures/graphql-org-open.png';
 
 <Meta of={SelectStories} />
 
@@ -309,19 +313,19 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="Cloudflare Kumo" href="https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="Cloudflare Kumo" href="https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComOpenShot}>
     the richest wrapper observed: typed `multiple` generic, `items` as object map or array with per-item `disabled` + `disabledReason`, a `renderValue` formatter, and JSDoc steering hidden labels to `aria-label`. The registry-select story below recomposes its ideas.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx" live="https://wordpress.org/gutenberg/" license="no SPDX license detected" reuse="link-only, do not copy">
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx" live="https://wordpress.org/gutenberg/" license="no SPDX license detected" reuse="link-only, do not copy" image={wordpressOrgGutenbergOpenShot}>
     one-file-per-part form primitives; the Root JSDoc independently documents the object-value pitfalls (`Object.is` equality, `isItemEqualToValue`, `itemToStringLabel`) and pins single-select via `Root<Value, false>`.
   </WildCard>
-  <WildCard repo="mastra-ai/mastra" title="Mastra" href="https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx" live="https://mastra.ai" license="no SPDX license detected" reuse="link-only">
+  <WildCard repo="mastra-ai/mastra" title="Mastra" href="https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx" live="https://mastra.ai" license="no SPDX license detected" reuse="link-only" image={mastraAiOpenShot}>
     a documented Radix→Base UI migration: `eventDetails` second argument, `alignItemWithTrigger={false}` to match Radix popper behavior, and an `items`-map shim so the closed trigger can resolve labels.
   </WildCard>
   <WildCard repo="opral/flashtype" title="Flashtype" href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx" live="https://flashtype.com" license="MIT" reuse="code-ok">
     block-type switcher in a markdown editor toolbar: `Toolbar.Button render={<Select.Trigger/>}` with `nativeButton={false}`, controlled open, `data-[starting-style]` animation.
   </WildCard>
-  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok">
+  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok" image={graphqlOrgOpenShot}>
     the site-wide theme switcher: icon trigger with `aria-label`, visually hidden `Select.Value`, `align="end"`, wired to next-themes.
   </WildCard>
 </WildCards>

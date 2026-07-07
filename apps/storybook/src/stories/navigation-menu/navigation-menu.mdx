@@ -6,6 +6,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as NavigationMenuStories from './navigation-menu.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 
 <Meta of={NavigationMenuStories} />
 
@@ -257,13 +260,13 @@ Popup/Positioner **must** consume the size variables for morphing to work at all
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/navigation-menu.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/navigation-menu.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a Tailwind-styled site-header wrapper, distributed as a copy-paste registry item alongside its sibling Menubar/DropdownMenu files.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/navigation-menu.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/navigation-menu.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     the same registry pattern, published as both a package export and an installable file.
   </WildCard>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/primitives/navigation-menu.ts" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/primitives/navigation-menu.ts" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     notably has **not** built a styled wrapper yet — it ships only the auto-generated `primitives/navigation-menu.ts` re-export (`export * from "@base-ui/react/navigation-menu"`), an honest 'not skinned yet' signal from Cloudflare's own design system.
   </WildCard>
 </WildCards>

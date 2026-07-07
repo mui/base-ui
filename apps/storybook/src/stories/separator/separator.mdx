@@ -4,6 +4,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SeparatorStories from './separator.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
 
 <Meta of={SeparatorStories} />
 
@@ -111,10 +113,10 @@ No `*CssVars.ts` file exists for Separator — a static divider has no dynamic n
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/separator.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/separator.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a standalone Separator registry item, styled to match the rest of the 9ui component set.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/separator.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/separator.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     the same wrapper pattern, published as both a package export and an installable registry file.
   </WildCard>
   <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/menu/separator.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">

@@ -4,6 +4,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleStories from './toggle.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
+import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
 
 <Meta of={ToggleStories} />
 
@@ -112,10 +114,10 @@ No CSS variables — no dynamic measurements to expose.
   <WildCard repo="aditya-vinodh/ui" title="aditya-vinodh/ui" href="https://github.com/aditya-vinodh/ui/blob/HEAD/src/components/mode-toggle.tsx" live="https://ui-chi-flame.vercel.app" license="no SPDX license detected" reuse="link-only, do not copy">
     a `mode-toggle.tsx` in a small design-system repo, also filename-inferred rather than subpath-verified.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships a Radix-backed twin of the same Toggle API alongside the Base UI version.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
     a `cva()`-based variant system (size/variant) wrapping `@base-ui/react/toggle`'s `data-pressed` state, part of Cal.com's near-complete registry.
   </WildCard>
 </WildCards>

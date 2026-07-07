@@ -4,6 +4,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SwitchStories from './switch.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import graphqlOrgShot from '../../../../../research/d-real-world-usage/_captures/graphql-org.png';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
+import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
 
 <Meta of={SwitchStories} />
 
@@ -124,13 +127,13 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 ## In the wild
 
 <WildCards>
-  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/HEAD/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok">
+  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/HEAD/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok" image={graphqlOrgShot}>
     the site-wide dark-mode toggle; found by filename match (`theme-switch.tsx`) on a Base UI select subpath search, not independently re-verified here.
   </WildCard>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings, composed with Field/Fieldset for form contexts.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships a Radix-backed twin of the same Switch API alongside the Base UI version.
   </WildCard>
 </WildCards>

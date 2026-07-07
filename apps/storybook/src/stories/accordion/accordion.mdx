@@ -4,6 +4,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AccordionStories from './accordion.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
+import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
 
 <Meta of={AccordionStories} />
 
@@ -117,13 +120,13 @@ Root-level `disabled` cascades to every item; Item-level `disabled` disables jus
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     a shadcn-style `data-slot="accordion"` wrapper over `@base-ui/react/accordion`, styled with Tailwind border-bottom dividers per item.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     the same one-file-per-registry-item pattern, published both as an installable registry item (`apps/www/registry/ui/accordion.tsx`) and inside the distributable `@lumi-ui` package.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships parallel Base UI and Radix implementations behind the same component API (`registry/bases/base/` vs `registry/bases/radix/`), letting consumers pick a primitive backend per project.
   </WildCard>
 </WildCards>

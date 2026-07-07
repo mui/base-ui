@@ -5,6 +5,7 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MenubarStories from './menubar.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
 
 <Meta of={MenubarStories} />
 
@@ -226,7 +227,7 @@ The corpus's 20 Menubar hits are overwhelmingly one shadcn-derived `components/u
   <WildCard repo="mathematic-inc/earl" title="earl" href="https://github.com/mathematic-inc/earl/blob/HEAD/web/src/components/ui/menubar.tsx" live="https://mathematic-inc.github.io/earl/" license="Apache-2.0" reuse="code-ok">
     an Apache-2.0 app repeating the identical wrapper structure — by this point a strong signal that almost every corpus hit for Menubar is one shared template, not diverse custom builds.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     confirms the same lineage independently: even a from-scratch registry (not a shadcn fork) converges on the same menu/item/trigger structure.
   </WildCard>
 </WildCards>

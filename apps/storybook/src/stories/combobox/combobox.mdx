@@ -5,6 +5,8 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ComboboxStories from './combobox.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import electricAxShot from '../../../../../research/d-real-world-usage/_captures/electric-ax.png';
+import latitudeSoShot from '../../../../../research/d-real-world-usage/_captures/latitude-so.jpg';
 
 <Meta of={ComboboxStories} />
 
@@ -346,10 +348,10 @@ Hover and keyboard highlight are one unified `data-highlighted` state by design 
   <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/combobox/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
     one file per part in the form-primitives package, including a dedicated `chips.tsx`/`chip-with-remove.tsx` pair for multi-select tag rendering (whose design-tools team also participates in Base UI's behavior debate, [#3181](https://github.com/mui/base-ui/issues/3181)).
   </WildCard>
-  <WildCard repo="electric-sql/electric" title="ElectricSQL" href="https://github.com/electric-sql/electric/blob/HEAD/packages/agents-server-ui/src/ui/Combobox.tsx" live="https://electric.ax" license="Apache-2.0" reuse="code-ok">
+  <WildCard repo="electric-sql/electric" title="ElectricSQL" href="https://github.com/electric-sql/electric/blob/HEAD/packages/agents-server-ui/src/ui/Combobox.tsx" live="https://electric.ax" license="Apache-2.0" reuse="code-ok" image={electricAxShot}>
     a dedicated Combobox component in an Apache-2.0 licensed, freely reusable agents admin UI.
   </WildCard>
-  <WildCard repo="latitude-dev/latitude-llm" title="Latitude" href="https://github.com/latitude-dev/latitude-llm/blob/HEAD/packages/ui/src/components/combobox/combobox.tsx" live="https://latitude.so" license="MIT" reuse="code-ok">
+  <WildCard repo="latitude-dev/latitude-llm" title="Latitude" href="https://github.com/latitude-dev/latitude-llm/blob/HEAD/packages/ui/src/components/combobox/combobox.tsx" live="https://latitude.so" license="MIT" reuse="code-ok" image={latitudeSoShot}>
     an MIT-licensed LLM-ops platform with its own `combobox/combobox.tsx`, distinct from its Select implementation.
   </WildCard>
 </WildCards>

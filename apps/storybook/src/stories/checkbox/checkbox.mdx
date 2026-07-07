@@ -4,6 +4,9 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxStories from './checkbox.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
+import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
+import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
 
 <Meta of={CheckboxStories} />
 
@@ -130,13 +133,13 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/checkbox/checkbox.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/checkbox/checkbox.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     a fully styled wrapper (not a bare re-export) with its own size/variant Tailwind mapping and Figma generator.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
     Cal.com's design system wraps Checkbox with `class-variance-authority` variants, part of a near-complete one-file-per-component Base UI registry.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/checkbox.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/checkbox.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships side-by-side with a Radix-backed twin of the same component, letting downstream apps swap primitive libraries without changing the public API.
   </WildCard>
 </WildCards>
