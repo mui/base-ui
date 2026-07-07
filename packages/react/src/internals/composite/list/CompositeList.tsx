@@ -12,7 +12,7 @@ import { type CompositeMetadata, CompositeListContext } from './CompositeListCon
  * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange } = props;
+  const { children, elementsRef, labelsRef, onMapChange, itemCount } = props;
 
   const nextIndexRef = React.useRef(0);
   // Whether item indexes are controlled (`index` props) or derived from DOM order. The mode is
@@ -75,6 +75,16 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         }
       }
     });
+
+    // Lists that render a subset of items (windowing) declare the total length so
+    // list navigation can reach indexes that have no rendered element yet.
+    if (itemCount != null) {
+      elementsRef.current.length = itemCount;
+      if (labelsRef) {
+        labelsRef.current.length = itemCount;
+      }
+    }
+
     nextIndexRef.current = elementsRef.current.length;
   });
 
@@ -95,6 +105,20 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       flush();
     }
   }, [mapTick, flush]);
+
+  // Apply `itemCount` changes that arrive without a registration change (for example,
+  // the filtered set shrinks while the rendered window stays the same).
+  useIsoLayoutEffect(() => {
+    if (itemCount == null) {
+      return;
+    }
+    if (elementsRef.current.length !== itemCount) {
+      elementsRef.current.length = itemCount;
+    }
+    if (labelsRef && labelsRef.current.length !== itemCount) {
+      labelsRef.current.length = itemCount;
+    }
+  }, [itemCount, elementsRef, labelsRef]);
 
   useIsoLayoutEffect(() => {
     const isControlled = controlledRef.current === true;
@@ -316,6 +340,12 @@ export interface CompositeListProps<Metadata> {
    */
   labelsRef?: React.RefObject<Array<string | null>> | undefined;
   onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
+  /**
+   * The total number of items in the list when only a subset is rendered (windowed or
+   * virtualized lists with controlled indexes). Sets the authoritative length of
+   * `elementsRef`/`labelsRef` so navigation can target indexes beyond the rendered window.
+   */
+  itemCount?: number | undefined;
 }
 
 export namespace CompositeList {

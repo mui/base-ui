@@ -838,7 +838,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      listRef.current.length = flatFilteredItems.length;
     }
   }, [items, flatFilteredItems]);
 

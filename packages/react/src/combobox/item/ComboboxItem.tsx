@@ -52,7 +52,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const didPointerDownRef = React.useRef(false);
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
-    index: indexProp,
+    // Virtualized items resolve their index from the filtered items (or the `index` prop) and
+    // register it as a controlled index; `CompositeList` owns `listRef` in both modes.
+    index: indexProp ?? (virtualized ? (indexFromFilter ?? -1) : undefined),
     textRef,
     indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
@@ -67,8 +69,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
-  const hasRegistered = listItem.index !== -1;
+  const index = listItem.index;
+  const hasRegistered = index !== -1;
 
   const rootId = useStore(store, selectors.id);
   const highlighted = useStore(store, selectors.isActive, index);
@@ -79,20 +81,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;
-
-  useIsoLayoutEffect(() => {
-    const shouldRun = hasRegistered && (virtualized || indexProp != null);
-    if (!shouldRun) {
-      return undefined;
-    }
-
-    const list = store.state.listRef.current;
-    list[index] = itemRef.current;
-
-    return () => {
-      delete list[index];
-    };
-  }, [hasRegistered, virtualized, index, indexProp, store]);
 
   useIsoLayoutEffect(() => {
     if (!hasRegistered || hasItems) {
