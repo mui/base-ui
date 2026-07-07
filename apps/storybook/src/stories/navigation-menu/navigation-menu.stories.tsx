@@ -197,7 +197,7 @@ export const Hero: Story = {
 
 function NestedPopupSubmenuExample() {
   return (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -245,7 +245,9 @@ function NestedPopupSubmenuExample() {
                       align="end"
                       side="right"
                     >
-                      <NavigationMenu.Popup className={styles.Popup}>
+                      {/* Distinguishes this nested flyout's <nav> landmark from the
+                          outer Flyout's (both render <nav> with no other differentiator). */}
+                      <NavigationMenu.Popup className={styles.Popup} aria-label="Handbook">
                         <NavigationMenu.Viewport className={styles.Viewport} />
                       </NavigationMenu.Popup>
                     </NavigationMenu.Positioner>
@@ -307,7 +309,7 @@ const audienceMenus = [
 
 function NestedInlineSubmenuExample() {
   return (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -396,7 +398,7 @@ export const NestedInlineSubmenu: Story = {
 
 function MorphExample() {
   return (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -599,7 +601,7 @@ function ClientRouterExample() {
   return (
     <RouterContext.Provider value={context}>
       <div className={styles.Stack}>
-        <NavigationMenu.Root className={styles.Root}>
+        <NavigationMenu.Root className={styles.Root} aria-label="Main">
           <NavigationMenu.List className={styles.List}>
             <NavigationMenu.Item>
               <NavigationMenu.Link
@@ -685,7 +687,7 @@ export const LinkWithRenderClientRouter: Story = {
 /** Positioner props are the standard anchored-positioning set: `side`/`align`/`sideOffset` plus collision config; the Popup and Arrow expose the resolved placement via `data-side`/`data-align`. The hero uses `collisionAvoidance={{ side: 'none' }}` so a header popup never flips above the bar mid-morph. */
 export const PositioningSideAlign: Story = {
   render: () => (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -803,7 +805,12 @@ function ControlledExample() {
           Close
         </button>
       </div>
-      <NavigationMenu.Root className={styles.Root} value={value} onValueChange={handleValueChange}>
+      <NavigationMenu.Root
+        className={styles.Root}
+        aria-label="Main"
+        value={value}
+        onValueChange={handleValueChange}
+      >
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item value="overview">
             <NavigationMenu.Trigger className={styles.Trigger}>
@@ -868,7 +875,7 @@ export const ControlledValueWithEventDetails: Story = {
 
 function CloseOnClickExample() {
   return (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -936,7 +943,7 @@ export const CloseOnClickLinks: Story = {
 
 function VerticalExample() {
   return (
-    <NavigationMenu.Root className={styles.Root} orientation="vertical">
+    <NavigationMenu.Root className={styles.Root} aria-label="Main" orientation="vertical">
       <NavigationMenu.List className={`${styles.List} ${styles.VerticalList}`}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -997,7 +1004,7 @@ export const VerticalOrientation: Story = {
 /** There is no click-only prop yet ([#2254](https://github.com/mui/base-ui/issues/2254), open) — the documented approximation is a very large `delay` so hover effectively never opens, while click and keyboard still work (`delay` only applies to hover events). */
 export const DelayTuningClickOnlyApprox: Story = {
   render: () => (
-    <NavigationMenu.Root className={styles.Root} delay={600000}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main" delay={600000}>
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -1031,7 +1038,7 @@ export const DelayTuningClickOnlyApprox: Story = {
 /** `Content keepMounted` server-renders the panel as hidden inline HTML so crawlers see it before any interaction ([#3794](https://github.com/mui/base-ui/pull/3794) — "the content is crawlable"); on first open it moves into the popup permanently. `Portal keepMounted` is NOT needed for SEO. */
 export const KeepMountedSEOContent: Story = {
   render: () => (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
@@ -1158,7 +1165,7 @@ function SplitPatternExample() {
   return (
     <RouterContext.Provider value={context}>
       <div className={styles.Stack}>
-        <NavigationMenu.Root className={styles.Root}>
+        <NavigationMenu.Root className={styles.Root} aria-label="Main">
           <NavigationMenu.List className={styles.List}>
             <NavigationMenu.Item>
               {/* Apple.com split pattern: the label is a plain Link that
@@ -1347,7 +1354,7 @@ const cmsNavEntries: readonly CmsNavEntry[] = [
 
 function CmsDrivenNavExample() {
   return (
-    <NavigationMenu.Root className={styles.Root}>
+    <NavigationMenu.Root className={styles.Root} aria-label="Main">
       <NavigationMenu.List className={styles.List}>
         {cmsNavEntries.map((entry) =>
           entry.type === 'link' ? (

@@ -984,7 +984,10 @@ export const NonModal: Story = {
         options={apples}
         root={{ modal: false }}
       />
-      <div className={styles.ScrollArea}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the WCAG-documented
+          fix for a scrollable-but-otherwise-static region (axe `scrollable-region-focusable`,
+          technique SCR29) is exactly `tabindex="0"` + `role="region"` on the region itself. */}
+      <div tabIndex={0} role="region" aria-label="Page content" className={styles.ScrollArea}>
         <p>This page content stays scrollable while the non-modal select is open.</p>
         <p>Scroll me.</p>
         <p>Keep scrolling.</p>

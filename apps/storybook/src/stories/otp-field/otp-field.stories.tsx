@@ -76,11 +76,15 @@ export const Hero: Story = {
 };
 
 function TypeToCompleteExample() {
+  const id = React.useId();
   const [complete, setComplete] = React.useState<string | null>(null);
   return (
     <div className={styles.Field}>
-      <label className={styles.Label}>Verification code</label>
+      <label htmlFor={id} className={styles.Label}>
+        Verification code
+      </label>
       <OTPField.Root
+        id={id}
         length={OTP_LENGTH}
         className={styles.Root}
         onValueComplete={(value) => setComplete(value)}
@@ -121,11 +125,15 @@ export const TypeToComplete: Story = {
 };
 
 function PasteCompletesCodeExample() {
+  const id = React.useId();
   const [complete, setComplete] = React.useState<string | null>(null);
   return (
     <div className={styles.Field}>
-      <label className={styles.Label}>Verification code</label>
+      <label htmlFor={id} className={styles.Label}>
+        Verification code
+      </label>
       <OTPField.Root
+        id={id}
         length={OTP_LENGTH}
         className={styles.Root}
         onValueComplete={(value) => setComplete(value)}
@@ -172,13 +180,17 @@ export const PasteCompletesCode: Story = {
  * own tested contract (`OTPFieldInput.test.tsx`, `defaultValue="1234"` + Delete on slot 1
  * → `['1','3','4','','','']`, focus unchanged).
  */
-export const BackspaceNavigation: Story = {
-  args: { length: OTP_LENGTH },
-  render: () => (
+function BackspaceNavigationExample() {
+  const cascadeId = React.useId();
+  const deleteId = React.useId();
+  return (
     <div className={styles.Field}>
       <div className={styles.Field}>
-        <span className={styles.Label}>Backspace cascades to the nearest filled slot</span>
+        <label htmlFor={cascadeId} className={styles.Label}>
+          Backspace cascades to the nearest filled slot
+        </label>
         <OTPField.Root
+          id={cascadeId}
           defaultValue="123"
           length={OTP_LENGTH}
           aria-label="Backspace demo code"
@@ -194,8 +206,11 @@ export const BackspaceNavigation: Story = {
         </OTPField.Root>
       </div>
       <div className={styles.Field}>
-        <span className={styles.Label}>Delete shifts later characters, focus stays put</span>
+        <label htmlFor={deleteId} className={styles.Label}>
+          Delete shifts later characters, focus stays put
+        </label>
         <OTPField.Root
+          id={deleteId}
           defaultValue="1234"
           length={OTP_LENGTH}
           aria-label="Delete demo code"
@@ -211,7 +226,12 @@ export const BackspaceNavigation: Story = {
         </OTPField.Root>
       </div>
     </div>
-  ),
+  );
+}
+
+export const BackspaceNavigation: Story = {
+  args: { length: OTP_LENGTH },
+  render: () => <BackspaceNavigationExample />,
   play: async ({ canvas, userEvent }) => {
     const [cascadeGroup, deleteGroup] = canvas.getAllByRole('group');
     const cascadeInputs = within(cascadeGroup).getAllByRole<HTMLInputElement>('textbox');
@@ -236,6 +256,7 @@ export const BackspaceNavigation: Story = {
 };
 
 function FormExample() {
+  const id = React.useId();
   const [submitted, setSubmitted] = React.useState<string | null>(null);
   return (
     <form
@@ -247,8 +268,10 @@ function FormExample() {
       }}
     >
       <div className={styles.Field}>
-        <label className={styles.Label}>Verification code</label>
-        <OTPField.Root name="otp" length={OTP_LENGTH} className={styles.Root}>
+        <label htmlFor={id} className={styles.Label}>
+          Verification code
+        </label>
+        <OTPField.Root id={id} name="otp" length={OTP_LENGTH} className={styles.Root}>
           {Array.from({ length: OTP_LENGTH }, (_, index) => (
             <OTPField.Input
               key={index}
@@ -302,24 +325,45 @@ function otpInputs(count: number, total: number = count, offset = 0) {
  * a real screen reader announces for a masked slot still needs independent verification; this
  * story only confirms the DOM/role-query behavior, not the AT experience.
  */
-export const MaskedVariant: Story = {
-  args: { length: OTP_LENGTH },
-  render: () => (
+function MaskedVariantExample() {
+  const maskedId = React.useId();
+  const unmaskedId = React.useId();
+  return (
     <div className={styles.Row}>
       <div className={styles.Field}>
-        <span className={styles.Label}>Masked</span>
-        <OTPField.Root length={OTP_LENGTH} mask aria-label="Masked code" className={styles.Root}>
+        <label htmlFor={maskedId} className={styles.Label}>
+          Masked
+        </label>
+        <OTPField.Root
+          id={maskedId}
+          length={OTP_LENGTH}
+          mask
+          aria-label="Masked code"
+          className={styles.Root}
+        >
           {otpInputs(OTP_LENGTH)}
         </OTPField.Root>
       </div>
       <div className={styles.Field}>
-        <span className={styles.Label}>Unmasked</span>
-        <OTPField.Root length={OTP_LENGTH} aria-label="Unmasked code" className={styles.Root}>
+        <label htmlFor={unmaskedId} className={styles.Label}>
+          Unmasked
+        </label>
+        <OTPField.Root
+          id={unmaskedId}
+          length={OTP_LENGTH}
+          aria-label="Unmasked code"
+          className={styles.Root}
+        >
           {otpInputs(OTP_LENGTH)}
         </OTPField.Root>
       </div>
     </div>
-  ),
+  );
+}
+
+export const MaskedVariant: Story = {
+  args: { length: OTP_LENGTH },
+  render: () => <MaskedVariantExample />,
   play: async ({ canvas, userEvent }) => {
     const [maskedGroup, unmaskedGroup] = canvas.getAllByRole('group');
     // A `type="password"` input has no implicit ARIA role — `getByRole('textbox')` cannot find
@@ -339,6 +383,7 @@ export const MaskedVariant: Story = {
 };
 
 function AutoSubmitExample() {
+  const id = React.useId();
   const [submitted, setSubmitted] = React.useState<string | null>(null);
   return (
     <form
@@ -350,8 +395,10 @@ function AutoSubmitExample() {
       }}
     >
       <div className={styles.Field}>
-        <label className={styles.Label}>Verification code</label>
-        <OTPField.Root autoSubmit name="otp" length={OTP_LENGTH} className={styles.Root}>
+        <label htmlFor={id} className={styles.Label}>
+          Verification code
+        </label>
+        <OTPField.Root id={id} autoSubmit name="otp" length={OTP_LENGTH} className={styles.Root}>
           {otpInputs(OTP_LENGTH)}
         </OTPField.Root>
       </div>
@@ -409,11 +456,15 @@ export const FormSubmitWithAutoSubmit: Story = {
 };
 
 function InvalidCharacterFeedbackExample() {
+  const id = React.useId();
   const [message, setMessage] = React.useState('');
   return (
     <div className={styles.Field}>
-      <label className={styles.Label}>Verification code (digits only)</label>
+      <label htmlFor={id} className={styles.Label}>
+        Verification code (digits only)
+      </label>
       <OTPField.Root
+        id={id}
         length={OTP_LENGTH}
         className={styles.Root}
         onValueChange={() => setMessage('')}
@@ -503,13 +554,17 @@ export const FieldValidation: Story = {
  * from changing the value — the same navigation-preserved-but-edits-blocked contract Number
  * Field and Slider use.
  */
-export const DisabledAndReadOnly: Story = {
-  args: { length: OTP_LENGTH },
-  render: () => (
+function DisabledAndReadOnlyExample() {
+  const disabledId = React.useId();
+  const readOnlyId = React.useId();
+  return (
     <div className={styles.Row}>
       <div className={styles.Field}>
-        <span className={styles.Label}>Disabled</span>
+        <label htmlFor={disabledId} className={styles.Label}>
+          Disabled
+        </label>
         <OTPField.Root
+          id={disabledId}
           defaultValue="12"
           length={OTP_LENGTH}
           disabled
@@ -520,8 +575,11 @@ export const DisabledAndReadOnly: Story = {
         </OTPField.Root>
       </div>
       <div className={styles.Field}>
-        <span className={styles.Label}>Read-only</span>
+        <label htmlFor={readOnlyId} className={styles.Label}>
+          Read-only
+        </label>
         <OTPField.Root
+          id={readOnlyId}
           defaultValue="12"
           length={OTP_LENGTH}
           readOnly
@@ -532,7 +590,12 @@ export const DisabledAndReadOnly: Story = {
         </OTPField.Root>
       </div>
     </div>
-  ),
+  );
+}
+
+export const DisabledAndReadOnly: Story = {
+  args: { length: OTP_LENGTH },
+  render: () => <DisabledAndReadOnlyExample />,
   play: async ({ canvas, userEvent }) => {
     const [disabledGroup, readOnlyGroup] = canvas.getAllByRole('group');
     const disabledInputs = within(disabledGroup).getAllByRole<HTMLInputElement>('textbox');
@@ -558,18 +621,25 @@ export const DisabledAndReadOnly: Story = {
  * sibling structure, so typing still auto-advances focus across the group boundary. Recreates
  * `demos/grouped`.
  */
-export const GroupedWithSeparator: Story = {
-  args: { length: OTP_LENGTH },
-  render: () => (
+function GroupedWithSeparatorExample() {
+  const id = React.useId();
+  return (
     <div className={styles.Field}>
-      <label className={styles.Label}>Verification code</label>
-      <OTPField.Root length={OTP_LENGTH} className={styles.Root}>
+      <label htmlFor={id} className={styles.Label}>
+        Verification code
+      </label>
+      <OTPField.Root id={id} length={OTP_LENGTH} className={styles.Root}>
         <div className={styles.Group}>{otpInputs(3, OTP_LENGTH)}</div>
         <OTPField.Separator className={styles.Separator} />
         <div className={styles.Group}>{otpInputs(3, OTP_LENGTH, 3)}</div>
       </OTPField.Root>
     </div>
-  ),
+  );
+}
+
+export const GroupedWithSeparator: Story = {
+  args: { length: OTP_LENGTH },
+  render: () => <GroupedWithSeparatorExample />,
   play: async ({ canvas, userEvent }) => {
     const inputs = canvas.getAllByRole<HTMLInputElement>('textbox');
     await expect(inputs).toHaveLength(OTP_LENGTH);
@@ -582,16 +652,28 @@ export const GroupedWithSeparator: Story = {
 };
 
 /** `validationType="alphanumeric"` accepts both letters and digits, unlike the `"numeric"` default. Recreates `demos/alphanumeric`. */
-export const Alphanumeric: Story = {
-  args: { length: OTP_LENGTH },
-  render: () => (
+function AlphanumericExample() {
+  const id = React.useId();
+  return (
     <div className={styles.Field}>
-      <label className={styles.Label}>Recovery code</label>
-      <OTPField.Root length={OTP_LENGTH} validationType="alphanumeric" className={styles.Root}>
+      <label htmlFor={id} className={styles.Label}>
+        Recovery code
+      </label>
+      <OTPField.Root
+        id={id}
+        length={OTP_LENGTH}
+        validationType="alphanumeric"
+        className={styles.Root}
+      >
         {otpInputs(OTP_LENGTH)}
       </OTPField.Root>
     </div>
-  ),
+  );
+}
+
+export const Alphanumeric: Story = {
+  args: { length: OTP_LENGTH },
+  render: () => <AlphanumericExample />,
   play: async ({ canvas, userEvent }) => {
     const inputs = canvas.getAllByRole<HTMLInputElement>('textbox');
     inputs[0].focus();
@@ -608,11 +690,14 @@ export const CustomLength: Story = {
   args: { length: 4 },
   render: () => {
     function FourDigitExample() {
+      const id = React.useId();
       const [complete, setComplete] = React.useState<string | null>(null);
       return (
         <div className={styles.Field}>
-          <label className={styles.Label}>PIN</label>
-          <OTPField.Root length={4} className={styles.Root} onValueComplete={setComplete}>
+          <label htmlFor={id} className={styles.Label}>
+            PIN
+          </label>
+          <OTPField.Root id={id} length={4} className={styles.Root} onValueComplete={setComplete}>
             {otpInputs(4)}
           </OTPField.Root>
           <output className={styles.Output}>

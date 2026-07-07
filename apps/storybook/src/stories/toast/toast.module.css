@@ -456,6 +456,20 @@
   margin: 0;
 }
 
+/* Visually hidden but still announced — gives the anchored toast's dialog role an
+   accessible name without duplicating text in the compact single-line layout. */
+.SrOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .Arrow {
   display: block;
   position: relative;

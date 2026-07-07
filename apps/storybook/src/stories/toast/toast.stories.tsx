@@ -1196,6 +1196,9 @@ function renderAnchoredActionToast(toast: Toast.Root.ToastObject) {
         <Toast.Arrow className={styles.Arrow} />
         <Toast.Content>
           <div className={styles.ActionText}>
+            {/* Visually hidden: the visible text lives in Description alone, but the
+                dialog role still needs an accessible name (aria-dialog-name). */}
+            <Toast.Title className={styles.SrOnly} />
             <Toast.Description className={styles.AnchoredDescription} />
             <Toast.Action className={styles.ActionButton} />
           </div>
@@ -1213,6 +1216,7 @@ function ArchiveFileRow() {
   function handleArchive() {
     setArchived(true);
     toastManager.add({
+      title: 'File archived',
       description: 'roadmap.pdf archived',
       timeout: 6000,
       positionerProps: { anchor: buttonRef.current, sideOffset: 8 },

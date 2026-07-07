@@ -82,7 +82,20 @@ export function MultiControlQuoteFormExample() {
       <button type="submit" className={styles.Button}>
         Request quote
       </button>
-      {payload ? <pre className={styles.Pre}>{payload}</pre> : null}
+      {payload ? (
+        // The WCAG-documented fix for a scrollable-but-otherwise-static region (axe
+        // `scrollable-region-focusable`, technique SCR29) is exactly `tabindex="0"` +
+        // `role="region"` on the region itself.
+        <pre
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+          tabIndex={0}
+          role="region"
+          aria-label="Submitted quote request"
+          className={styles.Pre}
+        >
+          {payload}
+        </pre>
+      ) : null}
     </Form>
   );
 }

@@ -27,7 +27,7 @@ export function RowActionsExample() {
             <th>Instance</th>
             <th>DRAM</th>
             <th>Status</th>
-            <th aria-label="Actions" />
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

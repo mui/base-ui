@@ -820,7 +820,7 @@ export const TableRowSharedPopover: Story = {
           <tr>
             <th>Order</th>
             <th>Customer</th>
-            <th aria-label="Actions" />
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -932,6 +932,7 @@ export const PositionerPlayground: StoryObj<typeof Popover.Positioner> = {
         <Popover.Positioner {...args}>
           <Popover.Popup className={styles.Popup}>
             <Popover.Arrow className={styles.Arrow} />
+            <Popover.Title className={styles.Title}>Anchor</Popover.Title>
             <Popover.Description className={styles.Description}>
               Positioned with side, align, and offsets.
             </Popover.Description>
@@ -1174,6 +1175,7 @@ export const ArrowSides: Story = {
             <Popover.Positioner side={side} sideOffset={8}>
               <Popover.Popup className={styles.Popup}>
                 <Popover.Arrow className={styles.Arrow} />
+                <Popover.Title className={styles.Title}>Arrow demo</Popover.Title>
                 <Popover.Description className={styles.Description}>
                   {`side="${side}"`}
                 </Popover.Description>

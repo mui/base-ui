@@ -44,10 +44,17 @@ export function MultiSkinAutocompleteExample() {
             <Autocomplete.Positioner className={styles.Positioner} sideOffset={8}>
               <Autocomplete.Popup className={rw.SkinPopup} data-skin={skin}>
                 <Autocomplete.Arrow className={rw.SkinArrow} data-skin={skin} />
-                <Autocomplete.Empty className={styles.Empty}>No matches.</Autocomplete.Empty>
+                <Autocomplete.Empty className={styles.Empty} data-skin={skin}>
+                  No matches.
+                </Autocomplete.Empty>
                 <Autocomplete.List className={styles.List}>
                   {(item: string) => (
-                    <Autocomplete.Item key={item} value={item} className={rw.SkinItem} data-skin={skin}>
+                    <Autocomplete.Item
+                      key={item}
+                      value={item}
+                      className={rw.SkinItem}
+                      data-skin={skin}
+                    >
                       {item}
                     </Autocomplete.Item>
                   )}

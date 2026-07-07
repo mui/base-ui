@@ -67,8 +67,10 @@ function MinusIcon(props: React.ComponentProps<'svg'>) {
 export const Hero: Story = {
   render: () => {
     return (
-      <NumberField.Root defaultValue={100} className={styles.Field}>
-        <label className={styles.Label}>Amount</label>
+      <NumberField.Root id="number-field-hero" defaultValue={100} className={styles.Field}>
+        <label htmlFor="number-field-hero" className={styles.Label}>
+          Amount
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -93,8 +95,16 @@ export const Hero: Story = {
 /** Arrow keys step the focused Input directly — no need to reach for the stepper buttons. Home/End jump straight to `min`/`max` (only when those props are set); PageUp/PageDown are deliberately native, per the brief's honest read of the source (no ARIA spinbutton pattern is implemented here). */
 export const KeyboardStepping: Story = {
   render: () => (
-    <NumberField.Root defaultValue={5} min={0} max={10} className={styles.Field}>
-      <label className={styles.Label}>Quantity</label>
+    <NumberField.Root
+      id="number-field-keyboard-stepping"
+      defaultValue={5}
+      min={0}
+      max={10}
+      className={styles.Field}
+    >
+      <label htmlFor="number-field-keyboard-stepping" className={styles.Label}>
+        Quantity
+      </label>
       <NumberField.Group className={styles.Group}>
         <NumberField.Decrement className={styles.Decrement}>
           <MinusIcon />
@@ -139,9 +149,11 @@ export const KeyboardStepping: Story = {
  */
 export const ScrubArea: Story = {
   render: () => (
-    <NumberField.Root defaultValue={100} className={styles.Field}>
+    <NumberField.Root id="number-field-scrub-area" defaultValue={100} className={styles.Field}>
       <NumberField.ScrubArea className={styles.ScrubArea}>
-        <span className={styles.Label}>Amount (drag to scrub)</span>
+        <label htmlFor="number-field-scrub-area" className={styles.Label}>
+          Amount (drag to scrub)
+        </label>
         <NumberField.ScrubAreaCursor className={styles.ScrubAreaCursor} />
       </NumberField.ScrubArea>
       <NumberField.Group className={styles.Group}>
@@ -182,8 +194,17 @@ export const ScrubArea: Story = {
 /** `min`/`max`/`step` bound the value: typed out-of-range input clamps on blur, and the stepper buttons disable at the boundary. */
 export const MinMaxStep: Story = {
   render: () => (
-    <NumberField.Root defaultValue={95} min={0} max={100} step={5} className={styles.Field}>
-      <label className={styles.Label}>Percent</label>
+    <NumberField.Root
+      id="number-field-min-max-step"
+      defaultValue={95}
+      min={0}
+      max={100}
+      step={5}
+      className={styles.Field}
+    >
+      <label htmlFor="number-field-min-max-step" className={styles.Label}>
+        Percent
+      </label>
       <NumberField.Group className={styles.Group}>
         <NumberField.Decrement className={styles.Decrement}>
           <MinusIcon />
@@ -217,8 +238,16 @@ function FormExample() {
         setSubmitted(String(data.get('quantity')));
       }}
     >
-      <NumberField.Root name="quantity" defaultValue={1} min={1} className={styles.Field}>
-        <label className={styles.Label}>Quantity</label>
+      <NumberField.Root
+        id="number-field-form-integration"
+        name="quantity"
+        defaultValue={1}
+        min={1}
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-form-integration" className={styles.Label}>
+          Quantity
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -259,13 +288,16 @@ function PressAndHoldExample() {
   return (
     <div className={styles.Stack}>
       <NumberField.Root
+        id="number-field-press-and-hold"
         defaultValue={97}
         min={0}
         max={100}
         className={styles.Field}
         onValueCommitted={() => setCommittedCount((count) => count + 1)}
       >
-        <label className={styles.Label}>Percent (holds to 100 quickly)</label>
+        <label htmlFor="number-field-press-and-hold" className={styles.Label}>
+          Percent (holds to 100 quickly)
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -316,8 +348,15 @@ export const PressAndHoldStepping: Story = {
 export const SnapOnStep: Story = {
   render: () => (
     <div className={styles.Row}>
-      <NumberField.Root defaultValue={1.3} snapOnStep className={styles.Field}>
-        <label className={styles.Label}>With snapOnStep</label>
+      <NumberField.Root
+        id="number-field-snap-on-step-with"
+        defaultValue={1.3}
+        snapOnStep
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-snap-on-step-with" className={styles.Label}>
+          With snapOnStep
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -328,8 +367,14 @@ export const SnapOnStep: Story = {
           </NumberField.Increment>
         </NumberField.Group>
       </NumberField.Root>
-      <NumberField.Root defaultValue={1.3} className={styles.Field}>
-        <label className={styles.Label}>Without (exact step)</label>
+      <NumberField.Root
+        id="number-field-snap-on-step-without"
+        defaultValue={1.3}
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-snap-on-step-without" className={styles.Label}>
+          Without (exact step)
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -366,14 +411,24 @@ export const SnapOnStep: Story = {
 export const AllowOutOfRange: Story = {
   render: () => (
     <div className={styles.Row}>
-      <NumberField.Root name="clamped" max={100} className={styles.Field}>
-        <label className={styles.Label}>Clamps by default</label>
+      <NumberField.Root id="number-field-clamped" name="clamped" max={100} className={styles.Field}>
+        <label htmlFor="number-field-clamped" className={styles.Label}>
+          Clamps by default
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Input className={styles.Input} />
         </NumberField.Group>
       </NumberField.Root>
-      <NumberField.Root name="outOfRange" max={100} allowOutOfRange className={styles.Field}>
-        <label className={styles.Label}>allowOutOfRange</label>
+      <NumberField.Root
+        id="number-field-out-of-range"
+        name="outOfRange"
+        max={100}
+        allowOutOfRange
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-out-of-range" className={styles.Label}>
+          allowOutOfRange
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Input className={styles.Input} />
         </NumberField.Group>
@@ -420,23 +475,29 @@ export const LocaleAndCurrencyFormat: Story = {
   render: () => (
     <div className={styles.Row}>
       <NumberField.Root
+        id="number-field-usd"
         defaultValue={1234.5}
         format={usdFormat}
         locale="en-US"
         className={styles.Field}
       >
-        <label className={styles.Label}>USD (en-US)</label>
+        <label htmlFor="number-field-usd" className={styles.Label}>
+          USD (en-US)
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Input className={styles.Input} />
         </NumberField.Group>
       </NumberField.Root>
       <NumberField.Root
+        id="number-field-eur"
         defaultValue={1234.5}
         format={eurDeFormat}
         locale="de-DE"
         className={styles.Field}
       >
-        <label className={styles.Label}>EUR (de-DE)</label>
+        <label htmlFor="number-field-eur" className={styles.Label}>
+          EUR (de-DE)
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Input className={styles.Input} />
         </NumberField.Group>
@@ -458,8 +519,15 @@ export const LocaleAndCurrencyFormat: Story = {
  */
 export const WheelScrub: Story = {
   render: () => (
-    <NumberField.Root defaultValue={10} allowWheelScrub className={styles.Field}>
-      <label className={styles.Label}>Scroll while focused</label>
+    <NumberField.Root
+      id="number-field-wheel-scrub"
+      defaultValue={10}
+      allowWheelScrub
+      className={styles.Field}
+    >
+      <label htmlFor="number-field-wheel-scrub" className={styles.Label}>
+        Scroll while focused
+      </label>
       <NumberField.Group className={styles.Group}>
         <NumberField.Decrement className={styles.Decrement}>
           <MinusIcon />
@@ -490,11 +558,14 @@ function ValueChangeVsCommittedExample() {
   return (
     <div className={styles.Stack}>
       <NumberField.Root
+        id="number-field-value-change-vs-committed"
         className={styles.Field}
         onValueChange={() => setChangeCount((count) => count + 1)}
         onValueCommitted={() => setCommittedCount((count) => count + 1)}
       >
-        <label className={styles.Label}>Type digits, then blur or click the buttons</label>
+        <label htmlFor="number-field-value-change-vs-committed" className={styles.Label}>
+          Type digits, then blur or click the buttons
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -597,8 +668,15 @@ export const FieldValidation: Story = {
 export const DisabledAndReadOnly: Story = {
   render: () => (
     <div className={styles.Row}>
-      <NumberField.Root defaultValue={42} disabled className={styles.Field}>
-        <label className={styles.Label}>Disabled</label>
+      <NumberField.Root
+        id="number-field-disabled"
+        defaultValue={42}
+        disabled
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-disabled" className={styles.Label}>
+          Disabled
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />
@@ -609,8 +687,15 @@ export const DisabledAndReadOnly: Story = {
           </NumberField.Increment>
         </NumberField.Group>
       </NumberField.Root>
-      <NumberField.Root defaultValue={42} readOnly className={styles.Field}>
-        <label className={styles.Label}>Read-only</label>
+      <NumberField.Root
+        id="number-field-readonly"
+        defaultValue={42}
+        readOnly
+        className={styles.Field}
+      >
+        <label htmlFor="number-field-readonly" className={styles.Label}>
+          Read-only
+        </label>
         <NumberField.Group className={styles.Group}>
           <NumberField.Decrement className={styles.Decrement}>
             <MinusIcon />

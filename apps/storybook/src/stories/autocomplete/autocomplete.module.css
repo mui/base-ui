@@ -255,6 +255,13 @@
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);
   }
+
+  /* The "nova" skin (MultiSkinAutocompleteExample) always renders a dark navy
+     popup background regardless of system color scheme, so the default (light-mode)
+     muted gray above fails color-contrast against it — override explicitly. */
+  &[data-skin='nova'] {
+    color: oklch(80% 0.02 264deg);
+  }
 }
 
 .Status {

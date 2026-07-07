@@ -124,7 +124,12 @@ function SubmitGateExample() {
     >
       <Field.Root name="email" className={styles.Field}>
         <Field.Label className={styles.Label}>Email</Field.Label>
-        <Field.Control type="email" required placeholder="e.g. alice@example.com" className={styles.Input} />
+        <Field.Control
+          type="email"
+          required
+          placeholder="e.g. alice@example.com"
+          className={styles.Input}
+        />
         <Field.Error className={styles.Error} match="valueMissing">
           Please enter your email.
         </Field.Error>
@@ -252,7 +257,10 @@ interface ActionState {
 }
 
 // Mark this as a Server Function with 'use server' in a supporting framework like Next.js
-async function submitUsernameAction(_previousState: ActionState, formData: FormData): Promise<ActionState> {
+async function submitUsernameAction(
+  _previousState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   // Mimic a server response (docs form-action demo, made deterministic for tests)
   await new Promise((resolve) => {
     setTimeout(resolve, 300);
@@ -315,7 +323,9 @@ export const ServerFunctionAction: Story = {
     // Typing clears the server error optimistically.
     await userEvent.type(input, 'x');
     await waitFor(async () => {
-      await expect(canvas.queryByText("'admin' is reserved for system use")).not.toBeInTheDocument();
+      await expect(
+        canvas.queryByText("'admin' is reserved for system use"),
+      ).not.toBeInTheDocument();
     });
   },
 };
@@ -428,7 +438,15 @@ function PayloadExample() {
       <button type="submit" className={styles.Button}>
         Create order
       </button>
-      {payload ? <pre className={styles.Pre}>{payload}</pre> : null}
+      {payload ? (
+        // The WCAG-documented fix for a scrollable-but-otherwise-static region (axe
+        // `scrollable-region-focusable`, technique SCR29) is exactly `tabindex="0"` +
+        // `role="region"` on the region itself.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        <pre tabIndex={0} role="region" aria-label="Submitted payload" className={styles.Pre}>
+          {payload}
+        </pre>
+      ) : null}
     </Form>
   );
 }
@@ -464,14 +482,22 @@ function ValidationModeExample() {
     <Form className={styles.Form} validationMode="onChange">
       <Field.Root name="nickname" className={styles.Field}>
         <Field.Label className={styles.Label}>Nickname</Field.Label>
-        <Field.Control required placeholder="Validates on change (inherited)" className={styles.Input} />
+        <Field.Control
+          required
+          placeholder="Validates on change (inherited)"
+          className={styles.Input}
+        />
         <Field.Error className={styles.Error} match="valueMissing">
           Nickname is required.
         </Field.Error>
       </Field.Root>
       <Field.Root name="city" validationMode="onBlur" className={styles.Field}>
         <Field.Label className={styles.Label}>City</Field.Label>
-        <Field.Control required placeholder="Validates on blur (own mode)" className={styles.Input} />
+        <Field.Control
+          required
+          placeholder="Validates on blur (own mode)"
+          className={styles.Input}
+        />
         <Field.Error className={styles.Error} match="valueMissing">
           City is required.
         </Field.Error>
@@ -520,7 +546,12 @@ function ImperativeValidationExample() {
     <Form className={styles.Form} actionsRef={actionsRef}>
       <Field.Root name="email" className={styles.Field}>
         <Field.Label className={styles.Label}>Email</Field.Label>
-        <Field.Control type="email" required placeholder="e.g. alice@example.com" className={styles.Input} />
+        <Field.Control
+          type="email"
+          required
+          placeholder="e.g. alice@example.com"
+          className={styles.Input}
+        />
         <Field.Error className={styles.Error} match="valueMissing">
           Email is required.
         </Field.Error>
@@ -540,7 +571,11 @@ function ImperativeValidationExample() {
         >
           Validate email
         </button>
-        <button type="button" className={styles.Button} onClick={() => actionsRef.current?.validate()}>
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => actionsRef.current?.validate()}
+        >
           Validate all
         </button>
       </div>
@@ -580,7 +615,12 @@ export const NoValidateBoundary: Story = {
       <Form aria-label="Base UI form" className={styles.Form}>
         <Field.Root name="email" className={styles.Field}>
           <Field.Label className={styles.Label}>Email (Base UI Form)</Field.Label>
-          <Field.Control type="email" required placeholder="Field.Error renders the message" className={styles.Input} />
+          <Field.Control
+            type="email"
+            required
+            placeholder="Field.Error renders the message"
+            className={styles.Input}
+          />
           <Field.Error className={styles.Error} match="valueMissing">
             Email is required.
           </Field.Error>

@@ -339,7 +339,9 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
+  /* Darker than the usual 55.6% muted gray: this text sits over the item's
+     highlighted/hovered background (a light gray), where 55.6% fails AA contrast. */
+  color: oklch(38% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);
@@ -502,7 +504,9 @@
 .SubmenuHint {
   font-size: 0.75rem;
   line-height: 1rem;
-  color: oklch(55.6% 0 0deg);
+  /* Darker than the usual 55.6% muted gray: this text sits over the trigger's
+     pressed/highlighted background (a light gray), where 55.6% fails AA contrast. */
+  color: oklch(38% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);

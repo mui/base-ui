@@ -172,7 +172,8 @@
   padding: 0.125rem 0.5rem;
   border: 1px solid oklch(14.5% 0 0deg);
   font-size: 0.75rem;
-  color: oklch(70.8% 0 0deg);
+  /* Was 70.8% (fails AA color-contrast against the white page background). */
+  color: oklch(50% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
