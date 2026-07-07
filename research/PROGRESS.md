@@ -49,7 +49,7 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 | alert-dialog | 2 | - (batch killed) | - | - | - | - | - |
 | context-menu | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
 | menubar | 2 | partial (_mining-salvage.md — rich source/tests/history evidence; brief unwritten) | - | - | - | - | - |
-| number-field | 2 | - (batch killed) | - | - | - | - | - |
+| number-field | 2 | ok (orphan sub-agent completed post-pause; spinbutton-absence verified [E]) | ok (14 stories) | - | - | - | - |
 | otp-field | 2 | - (batch killed) | - | - | - | - | - |
 | slider | 2 | - (batch killed) | - | - | - | - | - |
 | tabs | 2 | - | - | - | - | - | - |
