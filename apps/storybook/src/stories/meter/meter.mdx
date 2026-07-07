@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MeterStories from './meter.stories';
+import { Meter } from '@base-ui/react/meter';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
@@ -71,11 +72,19 @@ Meter is **always controlled** — `value: number` is required with no default a
 
 <Canvas of={MeterStories.BoundedRange} />
 
+Out-of-range values normalize instead of erroring — above `max`, below `min`, and even `NaN` all clamp to a valid `aria-valuenow`/indicator width:
+
+<Canvas of={MeterStories.ClampedOutOfRangeValues} />
+
 ### Formatting and screen-reader text
 
 Without `format`, the displayed/spoken value is the percent-of-range. With `format`, the **raw value** is formatted (units, currency, decimals). `getAriaValueText` layers on top and only affects `aria-valuetext`:
 
 <Canvas of={MeterStories.FormattedValue} />
+
+The same value/format formats differently per `locale` — pass an explicit `locale` in SSR apps to avoid the [#4616](https://github.com/mui/base-ui/issues/4616) hydration mismatch:
+
+<Canvas of={MeterStories.LocaleVariants} />
 
 ### Styling by value tier — the gap
 
@@ -154,9 +163,25 @@ Native `<meter>`'s high/low/optimum "segments" were implemented in the original 
 
 ### Meter.Root
 
-<ArgTypes of={MeterStories.Hero} />
+<ArgTypes of={Meter.Root} />
 
-*Per-part tables (`Meter.Label`, `Meter.Track`, `Meter.Indicator`, `Meter.Value`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/meter](https://base-ui.com/react/components/meter#api-reference).*
+### Meter.Label
+
+<ArgTypes of={Meter.Label} />
+
+### Meter.Track
+
+<ArgTypes of={Meter.Track} />
+
+### Meter.Indicator
+
+<ArgTypes of={Meter.Indicator} />
+
+### Meter.Value
+
+<ArgTypes of={Meter.Value} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/meter](https://base-ui.com/react/components/meter#api-reference).*
 
 ---
 

@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ScrollAreaStories from './scroll-area.stories';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev.png';
@@ -202,9 +203,29 @@ Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollb
 
 ### ScrollArea.Root
 
-<ArgTypes of={ScrollAreaStories.Hero} />
+<ArgTypes of={ScrollArea.Root} />
 
-*Per-part tables (`ScrollArea.Viewport`, `ScrollArea.Scrollbar`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/scroll-area](https://base-ui.com/react/components/scroll-area#api-reference).*
+### ScrollArea.Viewport
+
+<ArgTypes of={ScrollArea.Viewport} />
+
+### ScrollArea.Content
+
+<ArgTypes of={ScrollArea.Content} />
+
+### ScrollArea.Scrollbar
+
+<ArgTypes of={ScrollArea.Scrollbar} />
+
+### ScrollArea.Thumb
+
+<ArgTypes of={ScrollArea.Thumb} />
+
+### ScrollArea.Corner
+
+<ArgTypes of={ScrollArea.Corner} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/scroll-area](https://base-ui.com/react/components/scroll-area#api-reference).*
 
 ---
 

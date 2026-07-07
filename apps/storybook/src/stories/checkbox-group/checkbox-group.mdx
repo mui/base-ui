@@ -1,5 +1,7 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxGroupStories from './checkbox-group.stories';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -168,7 +170,11 @@ The group container itself carries only `data-disabled`, plus the full Field val
 
 ### CheckboxGroup
 
-<ArgTypes of={CheckboxGroupStories.Basic} />
+<ArgTypes of={CheckboxGroup} />
+
+### Checkbox.Root
+
+<ArgTypes of={Checkbox.Root} />
 
 *Full JSDoc-driven reference: [base-ui.com/react/components/checkbox-group](https://base-ui.com/react/components/checkbox-group#api-reference).*
 

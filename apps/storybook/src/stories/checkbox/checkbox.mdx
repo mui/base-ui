@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxStories from './checkbox.stories';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
@@ -178,7 +179,11 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 ### Checkbox.Root
 
-<ArgTypes of={CheckboxStories.Basic} />
+<ArgTypes of={Checkbox.Root} />
+
+### Checkbox.Indicator
+
+<ArgTypes of={Checkbox.Indicator} />
 
 *Full JSDoc-driven reference: [base-ui.com/react/components/checkbox](https://base-ui.com/react/components/checkbox#api-reference).*
 

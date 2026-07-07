@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FieldStories from './field.stories';
+import { Field } from '@base-ui/react/field';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import { MiniPlayground } from '../shared/MiniPlayground';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
@@ -278,9 +279,33 @@ Two recreations live in this Storybook — a flat-prop wrapper (Kumo) and a grid
 
 ### Field.Root
 
-<ArgTypes of={FieldStories.Hero} />
+<ArgTypes of={Field.Root} />
 
-*Per-part tables (`Field.Label`, `Field.Control`, `Field.Description`, `Field.Error`, `Field.Item`, `Field.Validity`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/field](https://base-ui.com/react/components/field#api-reference).*
+### Field.Label
+
+<ArgTypes of={Field.Label} />
+
+### Field.Control
+
+<ArgTypes of={Field.Control} />
+
+### Field.Description
+
+<ArgTypes of={Field.Description} />
+
+### Field.Error
+
+<ArgTypes of={Field.Error} />
+
+### Field.Item
+
+<ArgTypes of={Field.Item} />
+
+### Field.Validity
+
+<ArgTypes of={Field.Validity} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/field](https://base-ui.com/react/components/field#api-reference).*
 
 ---
 

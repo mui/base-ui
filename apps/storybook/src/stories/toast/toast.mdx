@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToastStories from './toast.stories';
+import { Toast } from '@base-ui/react/toast';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import baseuiCnComShot from '../../../../../research/d-real-world-usage/_captures/baseui-cn-com.png';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
@@ -301,11 +302,51 @@ A follow-up ranking pass surfaced 12 genuine Toast usages in the wild; two recre
 
 ## API reference
 
+### Toast.Provider
+
+<ArgTypes of={Toast.Provider} />
+
+### Toast.Portal
+
+<ArgTypes of={Toast.Portal} />
+
+### Toast.Viewport
+
+<ArgTypes of={Toast.Viewport} />
+
 ### Toast.Root
 
-<ArgTypes of={ToastStories.Hero} />
+<ArgTypes of={Toast.Root} />
 
-*Per-part tables (`Toast.Provider`, `Toast.Viewport`, `Toast.Title`, `Toast.Description`, `Toast.Action`, `Toast.Close`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/toast](https://base-ui.com/react/components/toast#api-reference).*
+### Toast.Content
+
+<ArgTypes of={Toast.Content} />
+
+### Toast.Title
+
+<ArgTypes of={Toast.Title} />
+
+### Toast.Description
+
+<ArgTypes of={Toast.Description} />
+
+### Toast.Action
+
+<ArgTypes of={Toast.Action} />
+
+### Toast.Close
+
+<ArgTypes of={Toast.Close} />
+
+### Toast.Positioner
+
+<ArgTypes of={Toast.Positioner} />
+
+### Toast.Arrow
+
+<ArgTypes of={Toast.Arrow} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/toast](https://base-ui.com/react/components/toast#api-reference).*
 
 ## Testing your composition
 

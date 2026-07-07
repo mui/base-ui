@@ -1,5 +1,7 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleGroupStories from './toggle-group.stories';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toggle } from '@base-ui/react/toggle';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -65,6 +67,10 @@ In `multiple` mode, pressing an item toggles it independently of its siblings. I
 
 <Canvas of={ToggleGroupStories.Multiple} />
 
+Single mode's clearable behavior in isolation: clicking the pressed item again empties the selection.
+
+<Canvas of={ToggleGroupStories.SingleSelectClearable} />
+
 ### Composite keyboard navigation
 
 A standalone `ToggleGroup` wraps its own `CompositeRoot`: the group is a single Tab stop, arrow keys move roving focus among items (wrapping at the ends when `loopFocus`, the default), and Home/End jump to the first/last item.
@@ -72,6 +78,16 @@ A standalone `ToggleGroup` wraps its own `CompositeRoot`: the group is a single 
 **Toolbar-hosted asymmetry:** when a `ToggleGroup` is nested inside a `Toolbar.Root`, it renders a plain `role="group"` div and defers its roving-focus behavior entirely to the *Toolbar's* own `CompositeRoot` — which never enables Home/End. This means Home/End work standalone (as shown below) but **not** when the same group is hosted inside a Toolbar ([#3971](https://github.com/mui/base-ui/pull/3971) added Home/End to ToggleGroup's own composite root; it could not retrofit Toolbar's separate one). See the [Toolbar](?path=/docs/actions-toolbar--docs) stories for the hosted case.
 
 <Canvas of={ToggleGroupStories.CompositeKeyboardNavigation} />
+
+The Toolbar-hosted case, shown side by side with the standalone one above: arrow keys still rove focus, but Home/End are no-ops.
+
+<Canvas of={ToggleGroupStories.InsideToolbar} />
+
+### Disabled cascade
+
+`disabled` on the Root cascades to every child Toggle; an individually `disabled` Toggle is additionally skipped by roving focus while its enabled siblings remain reachable.
+
+<Canvas of={ToggleGroupStories.DisabledGroupAndItem} />
 
 ## Keyboard & screen reader
 
@@ -146,7 +162,13 @@ Each child Toggle carries its own independent `data-pressed`/`data-disabled` —
 
 ### ToggleGroup
 
-<ArgTypes of={ToggleGroupStories.Hero} />
+<ArgTypes of={ToggleGroup} />
+
+### Toggle
+
+<ArgTypes of={Toggle} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/toggle-group](https://base-ui.com/react/components/toggle-group#api-reference).*
 
 ---
 

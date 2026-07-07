@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToolbarStories from './toolbar.stories';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
@@ -71,6 +72,22 @@ import { Toolbar } from '@base-ui/react/toolbar';
 `Toolbar.Root` wraps a `CompositeRoot`: the toolbar is a single Tab stop, and arrow keys move roving focus across *all* item types (Button, Link, grouped Buttons, Input) in document order, wrapping at the ends if `loopFocus` (default `true`). Home/End are **not** wired — `enableHomeAndEndKeys` is never passed to Toolbar's `CompositeRoot`, unlike a standalone [Toggle Group](?path=/docs/actions-togglegroup--docs)'s own composite root.
 
 <Canvas of={ToolbarStories.Hero} />
+
+The full item-type coverage, with Home/End explicitly asserted as no-ops:
+
+<Canvas of={ToolbarStories.CompositeKeyboardNavigation} />
+
+### Disabled cascade, except links
+
+`disabled` on `Toolbar.Root` cascades to every Button/Input/Group but never to `Toolbar.Link` — links can't be disabled.
+
+<Canvas of={ToolbarStories.DisabledCascadeExceptLinks} />
+
+### Composing a NumberField input
+
+`Toolbar.Input render={<NumberField.Input />}` between Decrement/Increment buttons — ArrowUp/ArrowDown are captured by NumberField to step the value while focus is inside the input, rather than roving toolbar focus away.
+
+<Canvas of={ToolbarStories.UsingWithNumberFieldInput} />
 
 ### Composing a popup trigger
 
@@ -157,9 +174,29 @@ No CSS variables — no dynamic measurements to expose.
 
 ### Toolbar.Root
 
-<ArgTypes of={ToolbarStories.Hero} />
+<ArgTypes of={Toolbar.Root} />
 
-*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/toolbar](https://base-ui.com/react/components/toolbar#api-reference).*
+### Toolbar.Button
+
+<ArgTypes of={Toolbar.Button} />
+
+### Toolbar.Link
+
+<ArgTypes of={Toolbar.Link} />
+
+### Toolbar.Input
+
+<ArgTypes of={Toolbar.Input} />
+
+### Toolbar.Group
+
+<ArgTypes of={Toolbar.Group} />
+
+### Toolbar.Separator
+
+<ArgTypes of={Toolbar.Separator} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/toolbar](https://base-ui.com/react/components/toolbar#api-reference).*
 
 ---
 

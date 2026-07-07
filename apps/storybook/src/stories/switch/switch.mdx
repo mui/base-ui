@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SwitchStories from './switch.stories';
+import { Switch } from '@base-ui/react/switch';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
@@ -147,9 +148,13 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 
 ### Switch.Root
 
-<ArgTypes of={SwitchStories.Hero} />
+<ArgTypes of={Switch.Root} />
 
-*Per-part tables (`Switch.Thumb`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/switch](https://base-ui.com/react/components/switch#api-reference).*
+### Switch.Thumb
+
+<ArgTypes of={Switch.Thumb} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/switch](https://base-ui.com/react/components/switch#api-reference).*
 
 ---
 

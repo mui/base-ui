@@ -1,5 +1,7 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MenubarStories from './menubar.stories';
+import { Menubar } from '@base-ui/react/menubar';
+import { Menu } from '@base-ui/react/menu';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
 
@@ -307,10 +309,17 @@ The corpus's 20 Menubar hits are overwhelmingly one shadcn-derived `components/u
 
 ### Menubar
 
-<ArgTypes of={MenubarStories.Hero} />
+<ArgTypes of={Menubar} />
 
-_Full JSDoc-driven reference:
-[base-ui.com/react/components/menubar](https://base-ui.com/react/components/menubar#api-reference)._
+### Menu.Root
+
+<ArgTypes of={Menu.Root} />
+
+### Menu.Trigger
+
+<ArgTypes of={Menu.Trigger} />
+
+_Full JSDoc-driven reference: [base-ui.com/react/components/menubar](https://base-ui.com/react/components/menubar#api-reference)._
 
 ---
 

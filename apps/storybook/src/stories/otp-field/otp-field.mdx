@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as OTPFieldStories from './otp-field.stories';
+import { OTPField } from '@base-ui/react/otp-field';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -219,7 +220,15 @@ Slots can be nested in arbitrary DOM structure — here two plain `<div>` groups
 
 ### OTPField.Root
 
-<ArgTypes of={OTPFieldStories.Hero} />
+<ArgTypes of={OTPField.Root} />
+
+### OTPField.Input
+
+<ArgTypes of={OTPField.Input} />
+
+### OTPField.Separator
+
+<ArgTypes of={OTPField.Separator} />
 
 _Full JSDoc-driven reference: [base-ui.com/react/components/otp-field](https://base-ui.com/react/components/otp-field#api-reference)._
 

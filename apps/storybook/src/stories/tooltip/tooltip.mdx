@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TooltipStories from './tooltip.stories';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
@@ -207,11 +208,39 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 
 ## API reference
 
+### Tooltip.Provider
+
+<ArgTypes of={Tooltip.Provider} />
+
 ### Tooltip.Root
 
-<ArgTypes of={TooltipStories.Hero} />
+<ArgTypes of={Tooltip.Root} />
 
-*Per-part tables (`Tooltip.Trigger`, `Tooltip.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/tooltip](https://base-ui.com/react/components/tooltip#api-reference).*
+### Tooltip.Trigger
+
+<ArgTypes of={Tooltip.Trigger} />
+
+### Tooltip.Portal
+
+<ArgTypes of={Tooltip.Portal} />
+
+### Tooltip.Positioner
+
+<ArgTypes of={Tooltip.Positioner} />
+
+### Tooltip.Popup
+
+<ArgTypes of={Tooltip.Popup} />
+
+### Tooltip.Arrow
+
+<ArgTypes of={Tooltip.Arrow} />
+
+### Tooltip.Viewport
+
+<ArgTypes of={Tooltip.Viewport} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/tooltip](https://base-ui.com/react/components/tooltip#api-reference).*
 
 ---
 

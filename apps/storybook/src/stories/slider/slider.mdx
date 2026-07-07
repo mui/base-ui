@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SliderStories from './slider.stories';
+import { Slider } from '@base-ui/react/slider';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -209,7 +210,31 @@ Recreates the `DelayUntilRepeat` pattern from `experiments/slider/slider.tsx`: p
 
 ### Slider.Root
 
-<ArgTypes of={SliderStories.Hero} />
+<ArgTypes of={Slider.Root} />
+
+### Slider.Label
+
+<ArgTypes of={Slider.Label} />
+
+### Slider.Value
+
+<ArgTypes of={Slider.Value} />
+
+### Slider.Control
+
+<ArgTypes of={Slider.Control} />
+
+### Slider.Track
+
+<ArgTypes of={Slider.Track} />
+
+### Slider.Indicator
+
+<ArgTypes of={Slider.Indicator} />
+
+### Slider.Thumb
+
+<ArgTypes of={Slider.Thumb} />
 
 _Full JSDoc-driven reference: [base-ui.com/react/components/slider](https://base-ui.com/react/components/slider#api-reference)._
 

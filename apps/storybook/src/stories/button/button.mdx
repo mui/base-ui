@@ -54,7 +54,11 @@ import { Button } from '@base-ui/react/button';
 
 ### `disabled` vs `focusableWhenDisabled`
 
-On a real `<button>`, `disabled` sets the native `disabled` attribute: the element is fully removed from the tab order and every interaction handler no-ops. Passing `focusableWhenDisabled` alongside `disabled` instead applies `aria-disabled="true"` while keeping `tabindex="0"` — the element stays Tab-reachable and hoverable, but activation is still suppressed. This is the exact mechanism behind the "loading state" recipe Button was built to solve.
+On a real `<button>`, `disabled` sets the native `disabled` attribute: the element is fully removed from the tab order and every interaction handler no-ops.
+
+<Canvas of={ButtonStories.Disabled} />
+
+Passing `focusableWhenDisabled` alongside `disabled` instead applies `aria-disabled="true"` while keeping `tabindex="0"` — the element stays Tab-reachable and hoverable, but activation is still suppressed. This is the exact mechanism behind the "loading state" recipe Button was built to solve.
 
 <Canvas of={ButtonStories.FocusableWhenDisabled} />
 
@@ -63,6 +67,18 @@ On a real `<button>`, `disabled` sets the native `disabled` attribute: the eleme
 The default element is a `<button>`. Passing both `render` and `nativeButton={false}` swaps the rendered tag (e.g. to a `<div>`) while Base UI synthesizes Enter/Space -> click activation, which a non-native element doesn't get from the browser for free.
 
 <Canvas of={ButtonStories.RenderComposition} />
+
+### Dev-time correctness guard
+
+A mismatched `nativeButton` vs actual rendered tag throws a console `Base UI:` error explaining the risk, in both directions — here `render={<span />}` is used while `nativeButton` is left at its default `true`.
+
+<Canvas of={ButtonStories.NativeButtonMismatchWarning} />
+
+### Never for links
+
+Button enforces `role="button"` and button keyboard interaction. Style a link-styled-as-button directly with CSS instead of `<Button render={<a />}>`, which silently breaks native anchor semantics despite looking identical.
+
+<Canvas of={ButtonStories.NotALink} />
 
 ## Keyboard & screen reader
 

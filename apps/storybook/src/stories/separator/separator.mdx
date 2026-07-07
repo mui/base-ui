@@ -70,7 +70,15 @@ Six components re-export the standalone `Separator` unchanged (identical props/s
 | ContextMenu | `packages/react/src/context-menu/index.parts.ts` — same pattern |
 | OTPField | `packages/react/src/otp-field/index.parts.ts` — same pattern |
 
+Between two `Menu.Group`s, the plain re-export in action:
+
+<Canvas of={SeparatorStories.InMenu} />
+
 **One component wraps rather than re-exports plainly: Toolbar.** `packages/react/src/toolbar/index.parts.ts` — `export { ToolbarSeparator as Separator } from './separator/ToolbarSeparator';`. `ToolbarSeparator` renders the standalone `Separator` internally but **auto-inverts orientation** relative to the toolbar's own orientation (`{ vertical: 'horizontal', horizontal: 'vertical' }[context.orientation]`) — a horizontal toolbar gets vertical dividers by default, and vice versa. This is genuine composition (AGENTS.md's "share logic through context" principle), not a divergent reimplementation, and is confirmed intentional: a reporter assumed the inversion was a bug affecting screen reader behavior, but maintainers closed [#4647](https://github.com/mui/base-ui/issues/4647) ("ToolbarSeparator data-orientation appears to be inverted") labeled `type: expected behavior` — a horizontal toolbar's vertical dividing lines are visually and semantically correct.
+
+Flipping the toolbar's own orientation live shows the inversion is dynamic, not a one-time default:
+
+<Canvas of={SeparatorStories.InToolbar} />
 
 ## Keyboard & screen reader
 

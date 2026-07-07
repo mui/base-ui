@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PopoverStories from './popover.stories';
+import { Popover } from '@base-ui/react/popover';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import { MiniPlayground } from '../shared/MiniPlayground';
 import { QueuePopoverExample } from './recreations/QueuePopoverExample';
@@ -408,9 +409,49 @@ Three recreations live in this Storybook — the museeks queue popover, the Flas
 
 ### Popover.Root
 
-<ArgTypes of={PopoverStories.Hero} />
+<ArgTypes of={Popover.Root} />
 
-*Per-part tables (`Popover.Trigger`, `Popover.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/popover](https://base-ui.com/react/components/popover#api-reference).*
+### Popover.Trigger
+
+<ArgTypes of={Popover.Trigger} />
+
+### Popover.Portal
+
+<ArgTypes of={Popover.Portal} />
+
+### Popover.Backdrop
+
+<ArgTypes of={Popover.Backdrop} />
+
+### Popover.Positioner
+
+<ArgTypes of={Popover.Positioner} />
+
+### Popover.Popup
+
+<ArgTypes of={Popover.Popup} />
+
+### Popover.Arrow
+
+<ArgTypes of={Popover.Arrow} />
+
+### Popover.Title
+
+<ArgTypes of={Popover.Title} />
+
+### Popover.Description
+
+<ArgTypes of={Popover.Description} />
+
+### Popover.Close
+
+<ArgTypes of={Popover.Close} />
+
+### Popover.Viewport
+
+<ArgTypes of={Popover.Viewport} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/popover](https://base-ui.com/react/components/popover#api-reference).*
 
 ---
 

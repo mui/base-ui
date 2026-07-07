@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from 'storybook/test';
+import { expect, waitFor } from 'storybook/test';
 import { Progress } from '@base-ui/react/progress';
 import styles from './progress.module.css';
 
@@ -109,6 +109,85 @@ export const CustomFormat: Story = {
     await expect(canvas.getByText('$30.00')).toBeVisible();
     const progressbar = canvas.getByRole('progressbar', { name: 'Budget used' });
     await expect(progressbar).toHaveAttribute('aria-valuetext', '$30.00');
+  },
+};
+
+function LiveValueUpdatesExample() {
+  const [value, setValue] = React.useState(0);
+  return (
+    <div className={styles.Progress}>
+      <Progress.Root className={styles.Progress} value={value}>
+        <Progress.Label className={styles.Label}>Uploading files</Progress.Label>
+        <Progress.Value className={styles.Value} />
+        <Progress.Track className={styles.Track}>
+          <Progress.Indicator className={styles.Indicator} />
+        </Progress.Track>
+      </Progress.Root>
+      <button
+        type="button"
+        onClick={() => setValue((current) => Math.min(100, current + 25))}
+        style={{ gridColumn: '1 / 3', width: 'fit-content' }}
+      >
+        Advance 25%
+      </button>
+    </div>
+  );
+}
+
+/**
+ * The mandatory live-value-update story (story plan #3): since Progress has
+ * no uncontrolled mode, the consumer always drives `value` directly. Each
+ * click bumps `value` by 25 and the play function asserts `aria-valuenow`
+ * updates at every single step (one assertion per `waitFor`, per AGENTS.md).
+ */
+export const LiveValueUpdates: Story = {
+  render: () => <LiveValueUpdatesExample />,
+  play: async ({ canvas, userEvent }) => {
+    const progressbar = canvas.getByRole('progressbar', { name: 'Uploading files' });
+    const advance = canvas.getByRole('button', { name: 'Advance 25%' });
+
+    await expect(progressbar).toHaveAttribute('aria-valuenow', '0');
+
+    await userEvent.click(advance);
+    await waitFor(() => expect(progressbar).toHaveAttribute('aria-valuenow', '25'));
+
+    await userEvent.click(advance);
+    await waitFor(() => expect(progressbar).toHaveAttribute('aria-valuenow', '50'));
+
+    await userEvent.click(advance);
+    await waitFor(() => expect(progressbar).toHaveAttribute('aria-valuenow', '75'));
+
+    await userEvent.click(advance);
+    await waitFor(() => expect(progressbar).toHaveAttribute('aria-valuenow', '100'));
+    await waitFor(() => expect(progressbar).toHaveAttribute('data-complete'));
+  },
+};
+
+/**
+ * `getAriaValueText` layers an enriched screen-reader string on top of the
+ * default percent text without touching the visible `Progress.Value` —
+ * distinct from `CustomFormat` above, which changes both the visible text
+ * and the spoken text together via `format`.
+ */
+export const WithLabelAndCustomAriaValueText: Story = {
+  render: () => (
+    <Progress.Root
+      className={styles.Progress}
+      value={40}
+      locale="en-US"
+      getAriaValueText={(formattedValue) => `${formattedValue} of the export complete`}
+    >
+      <Progress.Label className={styles.Label}>Exporting data</Progress.Label>
+      <Progress.Value className={styles.Value} />
+      <Progress.Track className={styles.Track}>
+        <Progress.Indicator className={styles.Indicator} />
+      </Progress.Track>
+    </Progress.Root>
+  ),
+  play: async ({ canvas }) => {
+    const progressbar = canvas.getByRole('progressbar', { name: 'Exporting data' });
+    await expect(canvas.getByText('40%')).toBeVisible();
+    await expect(progressbar).toHaveAttribute('aria-valuetext', '40% of the export complete');
   },
 };
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
 import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
 import styles from './toggle.module.css';
 
 function HeartFilledIcon(props: React.ComponentProps<'svg'>) {
@@ -97,5 +98,170 @@ export const UncontrolledPressed: Story = {
 
     await userEvent.click(toggle);
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  },
+};
+
+function ControlledPressedExample() {
+  const [pressed, setPressed] = React.useState(false);
+  return (
+    <div className={styles.Row}>
+      <label>
+        <input
+          type="checkbox"
+          checked={pressed}
+          onChange={() => setPressed((current) => !current)}
+        />{' '}
+        Bold externally
+      </label>
+      <Toggle aria-label="Bold" pressed={pressed} className={styles.Button}>
+        B
+      </Toggle>
+    </div>
+  );
+}
+
+/**
+ * Controlled: `pressed` is driven entirely by external state (here a plain
+ * checkbox), with the Toggle following in lockstep — recreates the exact
+ * pattern in `Toggle.test.tsx` "controlled" (checkbox click flips the
+ * Toggle's `aria-pressed`, not the other way around, since no
+ * `onPressedChange` is wired here).
+ */
+export const ControlledPressed: Story = {
+  render: () => <ControlledPressedExample />,
+  play: async ({ canvas, userEvent }) => {
+    const checkbox = canvas.getByRole('checkbox');
+    const toggle = canvas.getByRole('button', { name: 'Bold' });
+
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await userEvent.click(checkbox);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(checkbox);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  },
+};
+
+/**
+ * `disabled` prevents all interaction: `aria-pressed` stays fixed and
+ * `onPressedChange` never fires, matching `Toggle.test.tsx` "prop: disabled".
+ */
+export const Disabled: Story = {
+  render: () => {
+    function DisabledExample() {
+      const [pressedCount, setPressedCount] = React.useState(0);
+      return (
+        <div className={styles.Row}>
+          <Toggle
+            aria-label="Bold"
+            disabled
+            className={styles.Button}
+            onPressedChange={() => setPressedCount((count) => count + 1)}
+          >
+            B
+          </Toggle>
+          <span className={styles.Output}>Changes: {pressedCount}</span>
+        </div>
+      );
+    }
+    return <DisabledExample />;
+  },
+  play: async ({ canvas, userEvent }) => {
+    const toggle = canvas.getByRole('button', { name: 'Bold' });
+    await expect(toggle).toHaveAttribute('disabled');
+    await expect(toggle).toHaveAttribute('data-disabled');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    await userEvent.click(toggle);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(canvas.getByText('Changes: 0')).toBeVisible();
+  },
+};
+
+function CancelPressChangeExample() {
+  return (
+    <Toggle
+      aria-label="Locked toggle"
+      defaultPressed={false}
+      className={styles.Button}
+      onPressedChange={(_pressed, eventDetails) => {
+        eventDetails.cancel();
+      }}
+    >
+      B
+    </Toggle>
+  );
+}
+
+/**
+ * `onPressedChange`'s `eventDetails.cancel()` vetoes the press entirely:
+ * `aria-pressed` never flips despite the click firing, matching
+ * `Toggle.test.tsx` "does not change the pressed state when the event is
+ * canceled".
+ */
+export const CancelPressChange: Story = {
+  render: () => <CancelPressChangeExample />,
+  play: async ({ canvas, userEvent }) => {
+    const toggle = canvas.getByRole('button', { name: 'Locked toggle' });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await userEvent.click(toggle);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  },
+};
+
+function InsideToggleGroupExample() {
+  const [changeCount, setChangeCount] = React.useState(0);
+  return (
+    <div className={styles.Row}>
+      <ToggleGroup
+        multiple
+        aria-label="Formatting"
+        className={styles.Row}
+        onValueChange={() => setChangeCount((count) => count + 1)}
+      >
+        <Toggle
+          aria-label="Bold (vetoes the group)"
+          value="bold"
+          className={styles.Button}
+          onPressedChange={(_pressed, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        >
+          B
+        </Toggle>
+        <Toggle aria-label="Italic" value="italic" className={styles.Button}>
+          I
+        </Toggle>
+      </ToggleGroup>
+      <span className={styles.Output}>Group changes: {changeCount}</span>
+    </div>
+  );
+}
+
+/**
+ * A Toggle nested inside `ToggleGroup` shares its `eventDetails` with the
+ * group: canceling a grouped Toggle's `onPressedChange` also prevents the
+ * group's own `onValueChange` from firing — matching `Toggle.test.tsx`
+ * "canceling in a grouped Toggle prevents the group value from changing".
+ * The sibling "Italic" toggle is unaffected and still fires the group's
+ * `onValueChange` normally.
+ *
+ * (`RichTextFormattingToggle`, a static standalone bold/italic/underline
+ * composition from the story plan, is intentionally not added — it would
+ * duplicate the `toggle-group` stories' `Multiple` story, which already
+ * covers the same visual archetype with a play function.)
+ */
+export const InsideToggleGroup: Story = {
+  render: () => <InsideToggleGroupExample />,
+  play: async ({ canvas, userEvent }) => {
+    const bold = canvas.getByRole('button', { name: 'Bold (vetoes the group)' });
+    const italic = canvas.getByRole('button', { name: 'Italic' });
+
+    await userEvent.click(bold);
+    await expect(bold).toHaveAttribute('aria-pressed', 'false');
+    await expect(canvas.getByText('Group changes: 0')).toBeVisible();
+
+    await userEvent.click(italic);
+    await expect(italic).toHaveAttribute('aria-pressed', 'true');
+    await expect(canvas.getByText('Group changes: 1')).toBeVisible();
   },
 };

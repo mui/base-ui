@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AlertDialogStories from './alert-dialog.stories';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -306,11 +307,41 @@ delete buttons:
 
 ### AlertDialog.Root
 
-<ArgTypes of={AlertDialogStories.Hero} />
+<ArgTypes of={AlertDialog.Root} />
 
-_Per-part tables (`AlertDialog.Trigger`, `AlertDialog.Popup`, …) render via
-subcomponents in the story meta; full JSDoc-driven reference:
-[base-ui.com/react/components/alert-dialog](https://base-ui.com/react/components/alert-dialog#api-reference)._
+### AlertDialog.Trigger
+
+<ArgTypes of={AlertDialog.Trigger} />
+
+### AlertDialog.Portal
+
+<ArgTypes of={AlertDialog.Portal} />
+
+### AlertDialog.Backdrop
+
+<ArgTypes of={AlertDialog.Backdrop} />
+
+### AlertDialog.Viewport
+
+<ArgTypes of={AlertDialog.Viewport} />
+
+### AlertDialog.Popup
+
+<ArgTypes of={AlertDialog.Popup} />
+
+### AlertDialog.Title
+
+<ArgTypes of={AlertDialog.Title} />
+
+### AlertDialog.Description
+
+<ArgTypes of={AlertDialog.Description} />
+
+### AlertDialog.Close
+
+<ArgTypes of={AlertDialog.Close} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/alert-dialog](https://base-ui.com/react/components/alert-dialog#api-reference).*
 
 ---
 

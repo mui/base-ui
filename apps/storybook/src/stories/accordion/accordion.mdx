@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AccordionStories from './accordion.stories';
+import { Accordion } from '@base-ui/react/accordion';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -184,9 +185,25 @@ This is a genuinely deliberate removal, not a regression: current W3C APG guidan
 
 ### Accordion.Root
 
-<ArgTypes of={AccordionStories.Hero} />
+<ArgTypes of={Accordion.Root} />
 
-*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/accordion](https://base-ui.com/react/components/accordion#api-reference).*
+### Accordion.Item
+
+<ArgTypes of={Accordion.Item} />
+
+### Accordion.Header
+
+<ArgTypes of={Accordion.Header} />
+
+### Accordion.Trigger
+
+<ArgTypes of={Accordion.Trigger} />
+
+### Accordion.Panel
+
+<ArgTypes of={Accordion.Panel} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/accordion](https://base-ui.com/react/components/accordion#api-reference).*
 
 ---
 

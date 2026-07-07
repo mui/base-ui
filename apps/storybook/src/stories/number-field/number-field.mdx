@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as NumberFieldStories from './number-field.stories';
+import { NumberField } from '@base-ui/react/number-field';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -214,7 +215,31 @@ State attributes present on **every** part (`data-scrubbing` included, per the l
 
 ### NumberField.Root
 
-<ArgTypes of={NumberFieldStories.Hero} />
+<ArgTypes of={NumberField.Root} />
+
+### NumberField.Group
+
+<ArgTypes of={NumberField.Group} />
+
+### NumberField.Input
+
+<ArgTypes of={NumberField.Input} />
+
+### NumberField.Increment
+
+<ArgTypes of={NumberField.Increment} />
+
+### NumberField.Decrement
+
+<ArgTypes of={NumberField.Decrement} />
+
+### NumberField.ScrubArea
+
+<ArgTypes of={NumberField.ScrubArea} />
+
+### NumberField.ScrubAreaCursor
+
+<ArgTypes of={NumberField.ScrubAreaCursor} />
 
 _Full JSDoc-driven reference: [base-ui.com/react/components/number-field](https://base-ui.com/react/components/number-field#api-reference)._
 

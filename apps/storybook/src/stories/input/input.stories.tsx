@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor } from 'storybook/test';
 import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
 import styles from './input.module.css';
@@ -104,3 +105,63 @@ export const FormIntegration: Story = {
     await expect(await canvas.findByText('saved: Ada Lovelace')).toBeVisible();
   },
 };
+
+/**
+ * The actual hero-demo pattern (brief §5, §6): a plain `<label>` wrapping
+ * `Input`, with no `Field.Root` anywhere in the tree. Proves the other half
+ * of Input's duality claim — it never throws or misbehaves outside a Field
+ * tree, and `data-disabled` is the only state attribute that still means
+ * anything (no `data-touched`/`data-valid`/`data-dirty`, since there is no
+ * Field validity state machine to drive them).
+ */
+export const StandaloneNoField: Story = {
+  render: () => (
+    <label className={styles.Field}>
+      <span className={styles.Label}>Search</span>
+      <Input placeholder="Type to search…" className={styles.Input} />
+    </label>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const input = canvas.getByLabelText('Search');
+    await userEvent.type(input, 'base-ui');
+    await userEvent.tab();
+
+    await expect(input).not.toHaveAttribute('data-touched');
+    await expect(input).not.toHaveAttribute('data-valid');
+    await expect(input).not.toHaveAttribute('data-dirty');
+  },
+};
+
+/**
+ * `Fieldset.Root disabled` cascades the native `disabled` attribute down to
+ * every nested control, including an `Input` nested two levels down inside a
+ * `Field.Root` — `Input` never receives `disabled` directly, it inherits the
+ * native HTML fieldset-disables-descendants behavior unchanged, exactly as
+ * `FieldsetRoot.test.tsx` "keeps nested fieldsets disabled..." pins for
+ * `Field.Control` (brief §6, cross-references the fieldset stories'
+ * `DisabledCascade` story).
+ */
+export const DisabledFromFieldset: Story = {
+  render: () => (
+    <Fieldset.Root disabled className={styles.Field}>
+      <Fieldset.Legend className={styles.Label}>Account details</Fieldset.Legend>
+      <Field.Root className={styles.Field}>
+        <Field.Label className={styles.Label}>Display name</Field.Label>
+        <Input placeholder="e.g. Ada Lovelace" className={styles.Input} />
+      </Field.Root>
+    </Fieldset.Root>
+  ),
+  play: async ({ canvas }) => {
+    const input = canvas.getByLabelText('Display name');
+    await expect(input).toHaveAttribute('disabled');
+    await expect(input).toHaveAttribute('data-disabled');
+  },
+};
+
+// `StandaloneAriaLabel` and `ControlledWithClear` from the story plan are
+// intentionally skipped: the plan itself flags `ControlledWithClear` as
+// "written from first principles... tagged needs-work until cross-checked
+// against #4643's actual resolution" (story-plan.md #6) -- not evidenced
+// enough for this small-gap-closing pass. `StandaloneAriaLabel` would only
+// re-assert the well-established "aria-label sets the accessible name" rule
+// already implicitly covered by every `getByLabelText` query above.

@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CollapsibleStories from './collapsible.stories';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
@@ -167,9 +168,17 @@ An independent, nested `Collapsible.Root` inside another's Panel, and a single C
 
 ### Collapsible.Root
 
-<ArgTypes of={CollapsibleStories.Hero} />
+<ArgTypes of={Collapsible.Root} />
 
-*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/collapsible](https://base-ui.com/react/components/collapsible#api-reference).*
+### Collapsible.Trigger
+
+<ArgTypes of={Collapsible.Trigger} />
+
+### Collapsible.Panel
+
+<ArgTypes of={Collapsible.Panel} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/collapsible](https://base-ui.com/react/components/collapsible#api-reference).*
 
 ---
 

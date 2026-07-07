@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as DialogStories from './dialog.stories';
+import { Dialog } from '@base-ui/react/dialog';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import { MiniPlayground } from '../shared/MiniPlayground';
 import { SidePanelExample } from './recreations/SidePanelExample';
@@ -343,9 +344,41 @@ Two recreations live in this Storybook — an edge-docked side panel (Oxide) and
 
 ### Dialog.Root
 
-<ArgTypes of={DialogStories.Hero} />
+<ArgTypes of={Dialog.Root} />
 
-*Per-part tables (`Dialog.Trigger`, `Dialog.Popup`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/dialog](https://base-ui.com/react/components/dialog#api-reference).*
+### Dialog.Trigger
+
+<ArgTypes of={Dialog.Trigger} />
+
+### Dialog.Portal
+
+<ArgTypes of={Dialog.Portal} />
+
+### Dialog.Backdrop
+
+<ArgTypes of={Dialog.Backdrop} />
+
+### Dialog.Viewport
+
+<ArgTypes of={Dialog.Viewport} />
+
+### Dialog.Popup
+
+<ArgTypes of={Dialog.Popup} />
+
+### Dialog.Title
+
+<ArgTypes of={Dialog.Title} />
+
+### Dialog.Description
+
+<ArgTypes of={Dialog.Description} />
+
+### Dialog.Close
+
+<ArgTypes of={Dialog.Close} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/dialog](https://base-ui.com/react/components/dialog#api-reference).*
 
 ---
 

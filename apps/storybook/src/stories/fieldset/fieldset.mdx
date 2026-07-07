@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FieldsetStories from './fieldset.stories';
+import { Fieldset } from '@base-ui/react/fieldset';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import lumiuiDevShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev.png';
 import cossComUiShot from '../../../../../research/d-real-world-usage/_captures/coss-com-ui.png';
@@ -33,6 +34,8 @@ A native fieldset element with an easily stylable legend.
 - **Ancestor-disabled always wins** — an outer `disabled` Fieldset forces every nested Fieldset disabled regardless of its own `disabled` prop.
 - **Composes over other Base UI roots via `render`** — `<Fieldset.Root render={<RadioGroup />}>` makes `Fieldset.Root` _become_ the literal element the composed-over Root renders as, rather than adding an extra wrapping node (standard Base UI `render` grammar). For RadioGroup that's its own `<div role="radiogroup">`, not a native `<fieldset>` — the composed-over component's element type wins, and Fieldset's `aria-labelledby`/`disabled` still land on it. Tested against `RadioGroup`, `CheckboxGroup`, and `Slider.Root`.
 - **No state machine of its own** — `FieldsetRootState`/`FieldsetLegendState` contain exactly one field, `disabled: boolean`. All validity/interaction state belongs to `Field.Root`.
+
+<Canvas of={FieldsetStories.DisabledCascade} />
 
 ## When to use
 
@@ -105,9 +108,13 @@ No `Fieldset*CssVars.ts` and no dedicated data-attribute file beyond the one boo
 
 ### Fieldset.Root
 
-<ArgTypes of={FieldsetStories.Hero} />
+<ArgTypes of={Fieldset.Root} />
 
-_Per-part table (`Fieldset.Legend`) renders via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/fieldset](https://base-ui.com/react/components/fieldset#api-reference)._
+### Fieldset.Legend
+
+<ArgTypes of={Fieldset.Legend} />
+
+_Full JSDoc-driven reference: [base-ui.com/react/components/fieldset](https://base-ui.com/react/components/fieldset#api-reference)._
 
 ---
 

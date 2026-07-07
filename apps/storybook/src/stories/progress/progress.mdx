@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ProgressStories from './progress.stories';
+import { Progress } from '@base-ui/react/progress';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -72,6 +73,10 @@ Progress is **controlled only** — `value` is required with no internal state, 
 
 <Canvas of={ProgressStories.CustomRange} />
 
+Since Progress has no uncontrolled mode, live updates are the consumer bumping `value` directly — `aria-valuenow` tracks every step:
+
+<Canvas of={ProgressStories.LiveValueUpdates} />
+
 ### Indeterminate mode
 
 `value={null}` (or any non-finite number) switches status to `indeterminate`: `aria-valuenow` is omitted entirely (the WAI-ARIA-sanctioned signal), `aria-valuetext` defaults to `"indeterminate progress"`, and the Indicator receives **no inline style** — any sweep animation is entirely consumer CSS keyed off `data-indeterminate`:
@@ -83,6 +88,10 @@ Progress is **controlled only** — `value` is required with no internal state, 
 Default text is the percentage of the range via `Intl.NumberFormat(locale, { style: 'percent' })`. With `format`, the **raw value** is formatted instead (currency, bytes, units). `getAriaValueText` can fully replace the spoken text independently of the visible `Value`:
 
 <Canvas of={ProgressStories.CustomFormat} />
+
+`getAriaValueText` can enrich the spoken text on its own, independent of `format`, without touching the visible `Value`:
+
+<Canvas of={ProgressStories.WithLabelAndCustomAriaValueText} />
 
 ## Keyboard & screen reader
 
@@ -162,9 +171,25 @@ State attributes are identical on **every** part (shared `progressStateAttribute
 
 ### Progress.Root
 
-<ArgTypes of={ProgressStories.Hero} />
+<ArgTypes of={Progress.Root} />
 
-*Per-part tables (`Progress.Label`, `Progress.Track`, `Progress.Indicator`, `Progress.Value`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/progress](https://base-ui.com/react/components/progress#api-reference).*
+### Progress.Label
+
+<ArgTypes of={Progress.Label} />
+
+### Progress.Track
+
+<ArgTypes of={Progress.Track} />
+
+### Progress.Indicator
+
+<ArgTypes of={Progress.Indicator} />
+
+### Progress.Value
+
+<ArgTypes of={Progress.Value} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/progress](https://base-ui.com/react/components/progress#api-reference).*
 
 ---
 

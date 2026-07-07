@@ -115,3 +115,102 @@ export const ValueTierStyling: Story = {
     </div>
   ),
 };
+
+/**
+ * Out-of-range values normalize rather than error, mirroring
+ * `MeterRoot.test.tsx`'s parametrized "normalizes aria attributes" suite:
+ * a value above `max` clamps `aria-valuenow`/text/indicator width to 100%,
+ * a value below `min` clamps to 0%, and a non-finite `NaN` value clamps to
+ * the same 0% as below-min rather than propagating `NaN` into the DOM.
+ */
+export const ClampedOutOfRangeValues: Story = {
+  render: () => (
+    <div className={styles.Stack}>
+      <Meter.Root className={styles.Meter} value={150} locale="en-US">
+        <Meter.Label className={styles.Label}>Above max (value=150)</Meter.Label>
+        <Meter.Value className={styles.Value} />
+        <Meter.Track className={styles.Track}>
+          <Meter.Indicator className={styles.Indicator} data-testid="indicator-above" />
+        </Meter.Track>
+      </Meter.Root>
+      <Meter.Root className={styles.Meter} value={-10} locale="en-US">
+        <Meter.Label className={styles.Label}>Below min (value=-10)</Meter.Label>
+        <Meter.Value className={styles.Value} />
+        <Meter.Track className={styles.Track}>
+          <Meter.Indicator className={styles.Indicator} data-testid="indicator-below" />
+        </Meter.Track>
+      </Meter.Root>
+      <Meter.Root className={styles.Meter} value={Number.NaN} locale="en-US">
+        <Meter.Label className={styles.Label}>NaN value</Meter.Label>
+        <Meter.Value className={styles.Value} />
+        <Meter.Track className={styles.Track}>
+          <Meter.Indicator className={styles.Indicator} data-testid="indicator-nan" />
+        </Meter.Track>
+      </Meter.Root>
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const above = canvas.getByRole('meter', { name: 'Above max (value=150)' });
+    await expect(above).toHaveAttribute('aria-valuenow', '100');
+    await expect(canvas.getByTestId('indicator-above')).toHaveAttribute(
+      'style',
+      expect.stringContaining('width: 100%'),
+    );
+
+    const below = canvas.getByRole('meter', { name: 'Below min (value=-10)' });
+    await expect(below).toHaveAttribute('aria-valuenow', '0');
+    await expect(canvas.getByTestId('indicator-below')).toHaveAttribute(
+      'style',
+      expect.stringContaining('width: 0%'),
+    );
+
+    const nan = canvas.getByRole('meter', { name: 'NaN value' });
+    await expect(nan).toHaveAttribute('aria-valuenow', '0');
+    await expect(canvas.getByTestId('indicator-nan')).toHaveAttribute(
+      'style',
+      expect.stringContaining('width: 0%'),
+    );
+  },
+};
+
+/**
+ * The same value/format formats differently per `locale` — a regression
+ * guard in spirit for the open SSR/locale issue #4616 cited across this
+ * batch's Progress brief (an explicit `locale` keeps `Intl.NumberFormat`
+ * output stable and hydration-safe rather than relying on the runtime's
+ * ambient locale).
+ */
+export const LocaleVariants: Story = {
+  render: () => (
+    <div className={styles.Stack}>
+      <Meter.Root
+        className={styles.Meter}
+        value={30}
+        format={{ style: 'currency', currency: 'EUR' }}
+        locale="en-US"
+      >
+        <Meter.Label className={styles.Label}>Budget (en-US)</Meter.Label>
+        <Meter.Value className={styles.Value} />
+        <Meter.Track className={styles.Track}>
+          <Meter.Indicator className={styles.Indicator} />
+        </Meter.Track>
+      </Meter.Root>
+      <Meter.Root
+        className={styles.Meter}
+        value={30}
+        format={{ style: 'currency', currency: 'EUR' }}
+        locale="de-DE"
+      >
+        <Meter.Label className={styles.Label}>Budget (de-DE)</Meter.Label>
+        <Meter.Value className={styles.Value} />
+        <Meter.Track className={styles.Track}>
+          <Meter.Indicator className={styles.Indicator} />
+        </Meter.Track>
+      </Meter.Root>
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('€30.00')).toBeVisible();
+    await expect(canvas.getByText('30,00 €')).toBeVisible();
+  },
+};

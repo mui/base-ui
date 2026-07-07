@@ -1,5 +1,7 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as RadioStories from './radio.stories';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
@@ -185,9 +187,17 @@ State attributes present on **both** `Root` and `Indicator`:
 
 ## API reference
 
+### RadioGroup
+
+<ArgTypes of={RadioGroup} />
+
 ### Radio.Root
 
-<ArgTypes of={RadioStories.Basic} />
+<ArgTypes of={Radio.Root} />
+
+### Radio.Indicator
+
+<ArgTypes of={Radio.Indicator} />
 
 *Full JSDoc-driven reference: [base-ui.com/react/components/radio](https://base-ui.com/react/components/radio#api-reference).*
 

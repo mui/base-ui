@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TabsStories from './tabs.stories';
+import { Tabs } from '@base-ui/react/tabs';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
@@ -181,9 +182,25 @@ Icon + label composition, a scrollable tablist wider than its container, and an 
 
 ### Tabs.Root
 
-<ArgTypes of={TabsStories.Hero} />
+<ArgTypes of={Tabs.Root} />
 
-*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/tabs](https://base-ui.com/react/components/tabs#api-reference).*
+### Tabs.List
+
+<ArgTypes of={Tabs.List} />
+
+### Tabs.Tab
+
+<ArgTypes of={Tabs.Tab} />
+
+### Tabs.Indicator
+
+<ArgTypes of={Tabs.Indicator} />
+
+### Tabs.Panel
+
+<ArgTypes of={Tabs.Panel} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/tabs](https://base-ui.com/react/components/tabs#api-reference).*
 
 ---
 

@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PreviewCardStories from './preview-card.stories';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -201,9 +202,37 @@ Pattern: **none** — there is no W3C APG pattern for a link-hover preview (unli
 
 ### PreviewCard.Root
 
-<ArgTypes of={PreviewCardStories.Hero} />
+<ArgTypes of={PreviewCard.Root} />
 
-*Per-part tables (`PreviewCard.Trigger`, `PreviewCard.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/preview-card](https://base-ui.com/react/components/preview-card#api-reference).*
+### PreviewCard.Trigger
+
+<ArgTypes of={PreviewCard.Trigger} />
+
+### PreviewCard.Portal
+
+<ArgTypes of={PreviewCard.Portal} />
+
+### PreviewCard.Backdrop
+
+<ArgTypes of={PreviewCard.Backdrop} />
+
+### PreviewCard.Positioner
+
+<ArgTypes of={PreviewCard.Positioner} />
+
+### PreviewCard.Popup
+
+<ArgTypes of={PreviewCard.Popup} />
+
+### PreviewCard.Arrow
+
+<ArgTypes of={PreviewCard.Arrow} />
+
+### PreviewCard.Viewport
+
+<ArgTypes of={PreviewCard.Viewport} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/preview-card](https://base-ui.com/react/components/preview-card#api-reference).*
 
 ---
 

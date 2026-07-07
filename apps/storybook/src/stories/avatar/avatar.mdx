@@ -1,5 +1,6 @@
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AvatarStories from './avatar.stories';
+import { Avatar } from '@base-ui/react/avatar';
 import { WildCards, WildCard } from '../shared/InTheWild';
 import nineUiDevShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev.png';
 import lumiuiDevOpenShot from '../../../../../research/d-real-world-usage/_captures/lumiui-dev-open.png';
@@ -63,6 +64,20 @@ import { Avatar } from '@base-ui/react/avatar';
 `ImageLoadingStatus` is `'idle' | 'loading' | 'loaded' | 'error'`, owned by `useImageLoadingStatus` inside `Avatar.Image`. No `src`/`srcSet` means immediate `error`; otherwise a detached probe resolves `loaded`/`error` asynchronously (or synchronously via the cached-image fast path). `Avatar.Fallback` renders whenever status is not `loaded` (respecting `delay`):
 
 <Canvas of={AvatarStories.BrokenImageFallback} />
+
+`onLoadingStatusChange` fires on every non-idle transition, independent of whether `Fallback` is even present:
+
+<Canvas of={AvatarStories.OnLoadingStatusChangeCallback} />
+
+### Anti-flash `delay`
+
+With no `delay`, the fallback for a broken image appears the instant loading resolves to `error`. With `delay={600}` (the hero demo's value), the fallback is deliberately withheld for 600ms, so a fast-resolving load never flashes fallback content first.
+
+<Canvas of={AvatarStories.DefaultDelay} />
+
+### `alt` text: informative vs. decorative
+
+<Canvas of={AvatarStories.AltTextVariations} />
 
 ### SSR — a real, partially-open gotcha
 
@@ -138,9 +153,17 @@ Because layout effects don't run during SSR, server-rendered HTML always contain
 
 ### Avatar.Root
 
-<ArgTypes of={AvatarStories.Hero} />
+<ArgTypes of={Avatar.Root} />
 
-*Per-part tables (`Avatar.Image`, `Avatar.Fallback`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/avatar](https://base-ui.com/react/components/avatar#api-reference).*
+### Avatar.Image
+
+<ArgTypes of={Avatar.Image} />
+
+### Avatar.Fallback
+
+<ArgTypes of={Avatar.Fallback} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/avatar](https://base-ui.com/react/components/avatar#api-reference).*
 
 ---
 

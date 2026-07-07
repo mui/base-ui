@@ -55,9 +55,16 @@ A single node, no children slots — the simplest anatomy in the library, alongs
 
 Input's own docs page states exactly one usage guideline, verbatim: **"Form controls must have an accessible name: It can be created using a `<label>` element or the `Field` component."** Input supplies zero labeling machinery of its own — a bare `<Input />` with no wrapping `<label>`, no `aria-label`, and no ambient `Field.Label` has **no accessible name**. This is the consumer half of the library's two-sided a11y contract: Base UI guarantees the ARIA/keyboard/focus wiring once you _do_ label it, but naming the control is squarely on you.
 
-- **Standalone labeling** — wrap in a plain `<label>` (the docs hero pattern), no extra props.
+- **Standalone labeling** — wrap in a plain `<label>` (the docs hero pattern), no extra props. Outside any `Field`/`Form` tree, `data-disabled` is the only state attribute that still means anything — no `data-touched`/`data-valid`/`data-dirty`, since there is no Field validity state machine to drive them.
+
+  <Canvas of={InputStories.StandaloneNoField} />
+
 - **Field-integrated labeling** — `aria-labelledby`/`htmlFor` auto-wired from `Field.Label`'s id, inherited unmodified from `Field.Control`.
-- **Known issue** — [#4643](https://github.com/mui/base-ui/issues/4643) ("How to clear the input value on a button click?") is open; the docs show no dedicated recipe. The standard controlled `value`/`onValueChange` triplet, reset externally, is the expected pattern, but the issue's own resolution was not read for this pass.
+- **Disabled cascade from an ancestor `Fieldset.Root`** — the native `disabled` attribute reaches an `Input` nested inside a `Field.Root` two levels down, without `Input` ever receiving `disabled` directly:
+
+  <Canvas of={InputStories.DisabledFromFieldset} />
+
+- **Known issue** — [#4643](https://github.com/mui/base-ui/issues/4643) ("How to clear the input value on a button click?") is open; the docs show no dedicated recipe. The standard controlled `value`/`onValueChange` triplet, reset externally, is the expected pattern, but the issue's own resolution was not read for this pass — a dedicated `ControlledWithClear` story is deliberately not added until that's verified.
 
 ## Styling hooks
 

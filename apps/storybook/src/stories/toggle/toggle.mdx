@@ -60,6 +60,23 @@ import { Toggle } from '@base-ui/react/toggle';
 
 <Canvas of={ToggleStories.UncontrolledPressed} />
 
+Controlled: external state (e.g. a checkbox) drives `pressed` directly.
+
+<Canvas of={ToggleStories.ControlledPressed} />
+
+### Disabled
+
+`disabled` prevents all interaction — `aria-pressed` stays fixed and `onPressedChange` never fires.
+
+<Canvas of={ToggleStories.Disabled} />
+
+### Canceling a press
+
+`onPressedChange`'s `eventDetails.cancel()` vetoes the press. For a Toggle nested inside a `ToggleGroup`, canceling also vetoes the group's own `onValueChange`, since both share the same `eventDetails` object.
+
+<Canvas of={ToggleStories.CancelPressChange} />
+<Canvas of={ToggleStories.InsideToggleGroup} />
+
 ### No native form participation
 
 `Toggle.tsx` destructures `form` and `type` from its props purely to *discard* them, with inline comments: `form, // never participates in form validation` and `type, // cannot change button type`. Toggle deliberately does not integrate with the Constraint Validation API or submit a value with a `<form>` the way Checkbox/Switch do — it is a UI-state control (e.g. bold/italic in a toolbar), not a form field. If a value must reach a form submission, reach for Switch or Checkbox instead.

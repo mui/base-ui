@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
 import styles from './toggle-group.module.css';
 
 function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
@@ -222,3 +223,151 @@ export const CompositeKeyboardNavigation: Story = {
     await expect(one).toHaveFocus();
   },
 };
+
+/**
+ * Single mode (`multiple={false}`, the default) is deselectable to empty:
+ * clicking the pressed item again clears the selection entirely, unlike
+ * RadioGroup which always keeps exactly one option selected
+ * (`_clusters/binary-controls.md`, brief §4).
+ */
+export const SingleSelectClearable: Story = {
+  render: () => (
+    <ToggleGroup aria-label="View mode" defaultValue={['grid']} className={styles.Panel}>
+      <Toggle aria-label="Grid view" value="grid" className={styles.Button}>
+        Grid
+      </Toggle>
+      <Toggle aria-label="List view" value="list" className={styles.Button}>
+        List
+      </Toggle>
+    </ToggleGroup>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const grid = canvas.getByRole('button', { name: 'Grid view' });
+    const list = canvas.getByRole('button', { name: 'List view' });
+
+    await expect(grid).toHaveAttribute('aria-pressed', 'true');
+
+    // Clicking the already-pressed item clears the selection to nothing.
+    await userEvent.click(grid);
+    await expect(grid).toHaveAttribute('aria-pressed', 'false');
+    await expect(list).toHaveAttribute('aria-pressed', 'false');
+
+    await userEvent.click(list);
+    await expect(grid).toHaveAttribute('aria-pressed', 'false');
+    await expect(list).toHaveAttribute('aria-pressed', 'true');
+  },
+};
+
+/**
+ * `disabled` on the Root cascades to every child Toggle; an individually
+ * `disabled` Toggle is additionally excluded from the roving-focus tab
+ * sequence while its enabled siblings remain reachable (brief §6, §7 —
+ * cross-references Toggle's own hardcoded non-focusable-when-disabled
+ * behavior, since Toggle has no `focusableWhenDisabled` prop of its own).
+ */
+export const DisabledGroupAndItem: Story = {
+  render: () => (
+    <div className={styles.Row}>
+      <ToggleGroup aria-label="Alignment (group disabled)" disabled className={styles.Panel}>
+        <Toggle aria-label="Align left" value="left" className={styles.Button}>
+          Left
+        </Toggle>
+        <Toggle aria-label="Align right" value="right" className={styles.Button}>
+          Right
+        </Toggle>
+      </ToggleGroup>
+      <ToggleGroup aria-label="Alignment (one item disabled)" className={styles.Panel}>
+        <Toggle aria-label="Align top" value="top" className={styles.Button}>
+          Top
+        </Toggle>
+        <Toggle aria-label="Align middle (disabled)" value="middle" disabled className={styles.Button}>
+          Mid
+        </Toggle>
+        <Toggle aria-label="Align bottom" value="bottom" className={styles.Button}>
+          Bottom
+        </Toggle>
+      </ToggleGroup>
+    </div>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    const left = canvas.getByRole('button', { name: 'Align left' });
+    const right = canvas.getByRole('button', { name: 'Align right' });
+    await expect(left).toHaveAttribute('aria-disabled', 'true');
+    await expect(left).toHaveAttribute('data-disabled');
+    await expect(right).toHaveAttribute('aria-disabled', 'true');
+
+    const top = canvas.getByRole('button', { name: 'Align top' });
+    const middle = canvas.getByRole('button', { name: 'Align middle (disabled)' });
+    const bottom = canvas.getByRole('button', { name: 'Align bottom' });
+    await expect(middle).toHaveAttribute('aria-disabled', 'true');
+    await expect(top).toHaveAttribute('aria-disabled', 'false');
+
+    // Roving focus skips the disabled item entirely.
+    top.focus();
+    await expect(top).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(bottom).toHaveFocus();
+  },
+};
+
+function ToolbarHostedToggleGroupExample() {
+  return (
+    <Toolbar.Root aria-label="Alignment toolbar" className={styles.Panel}>
+      <ToggleGroup aria-label="Alignment" defaultValue={['left']}>
+        <Toolbar.Button render={<Toggle />} value="left" className={styles.Button}>
+          Left
+        </Toolbar.Button>
+        <Toolbar.Button render={<Toggle />} value="center" className={styles.Button}>
+          Center
+        </Toolbar.Button>
+        <Toolbar.Button render={<Toggle />} value="right" className={styles.Button}>
+          Right
+        </Toolbar.Button>
+      </ToggleGroup>
+    </Toolbar.Root>
+  );
+}
+
+/**
+ * The single most citable, source-verified nuance in the brief (§5/§6/§9,
+ * PR #3971): a standalone ToggleGroup wires its own `CompositeRoot` with
+ * `enableHomeAndEndKeys`, so Home/End jump to the first/last item (see
+ * `CompositeKeyboardNavigation` above). Nested inside a `Toolbar.Root`,
+ * ToggleGroup instead defers entirely to the *Toolbar's* `CompositeRoot`,
+ * which never passes `enableHomeAndEndKeys` (confirmed by its absence in
+ * `packages/react/src/toolbar/root/ToolbarRoot.tsx`'s `useCompositeRoot`
+ * call and by the lack of any Home/End case in `ToolbarRoot.test.tsx`'s
+ * keyboard-navigation suite) — so Home/End are no-ops here, unlike standalone.
+ */
+export const InsideToolbar: Story = {
+  render: () => <ToolbarHostedToggleGroupExample />,
+  play: async ({ canvas, userEvent }) => {
+    const left = canvas.getByRole('button', { name: 'Left' });
+    const center = canvas.getByRole('button', { name: 'Center' });
+    const right = canvas.getByRole('button', { name: 'Right' });
+
+    await userEvent.tab();
+    await expect(left).toHaveFocus();
+
+    // Arrow keys still rove focus normally (Toolbar's own composite root).
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(center).toHaveFocus();
+
+    // Home/End do NOT move focus when Toolbar-hosted (asymmetry vs standalone).
+    await userEvent.keyboard('{End}');
+    await expect(center).toHaveFocus();
+    await userEvent.keyboard('{Home}');
+    await expect(center).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    await expect(right).toHaveFocus();
+  },
+};
+
+// `RTLKeyboardNavigation` and `SegmentedControlViewSwitcher` from the story
+// plan are intentionally skipped in this pass (out of the small-gap-closing
+// scope for this batch): RTL arrow-direction flipping is a real, brief-cited
+// behavior (`DirectionProvider` + the shared `CompositeRoot`), but is not yet
+// exercised by any story in this file; a static segmented-control
+// illustration would duplicate this file's `Hero`/`SingleSelectClearable`
+// visuals without adding a new assertion or doc section.
