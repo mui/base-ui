@@ -5,6 +5,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToastStories from './toast.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={ToastStories} />
 
@@ -253,10 +254,20 @@ There is no arrow-key navigation between toasts — tab-based only, no roving fo
 
 Corpus-signal only — full ranked recreations were not run for Toast (`research/d-real-world-usage/toast/candidates.json`, description-inferred, code not fetched/verified against source):
 
-- **[baseui-cn](https://www.baseui-cn.com)** ([source](https://github.com/baseui-cn/baseui-cn), MIT, code-ok) — a shadcn-style registry of Base UI components that explicitly lists fixes to Toast among its overlay/focus work; useful as a second reference implementation of the manager pattern, not independently verified here.
-- **[popser](https://popser.vcui.dev)** ([source](https://github.com/vcode-sh/popser), MIT, code-ok) — a dedicated "Sonner-compatible API" toast library built on Base UI's Toast primitive; instructive as a from-scratch wrapper, but its internals were not fetched for this page — treat as a lead, not a verified example.
-- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toast/toast.tsx), MIT, code-ok) — a fully styled Toast wrapper (not a bare re-export), with a matching Figma-generator script for design-tool parity; verified directly against the file tree, unlike the two description-inferred candidates above.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toast.tsx), MIT, code-ok) — a Tailwind-styled registry item, published as both a package export and an installable file.
+<WildCards>
+  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok">
+    a shadcn-style registry of Base UI components that explicitly lists fixes to Toast among its overlay/focus work; useful as a second reference implementation of the manager pattern, not independently verified here.
+  </WildCard>
+  <WildCard repo="vcode-sh/popser" title="popser" href="https://github.com/vcode-sh/popser" live="https://popser.vcui.dev" license="MIT" reuse="code-ok">
+    a dedicated "Sonner-compatible API" toast library built on Base UI's Toast primitive; instructive as a from-scratch wrapper, but its internals were not fetched for this page — treat as a lead, not a verified example.
+  </WildCard>
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toast/toast.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    a fully styled Toast wrapper (not a bare re-export), with a matching Figma-generator script for design-tool parity; verified directly against the file tree, unlike the two description-inferred candidates above.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toast.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    a Tailwind-styled registry item, published as both a package export and an installable file.
+  </WildCard>
+</WildCards>
 
 [G] Deeper real-world recreations (a save-flow-with-undo composition, an anchored copy-feedback demo against a live repo) are pending a full Phase D pass for this component; the two candidates above are corpus signal only.
 

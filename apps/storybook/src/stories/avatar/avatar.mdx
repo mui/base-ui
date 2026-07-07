@@ -3,6 +3,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AvatarStories from './avatar.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={AvatarStories} />
 
@@ -102,9 +103,17 @@ Because layout effects don't run during SSR, server-rendered HTML always contain
 
 ## In the wild
 
-- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/avatar.tsx), MIT, code-ok) — a Tailwind wrapper with dedicated `avatar-group-demo` and `avatar-with-fallback-demo` examples showing the fallback slot in use.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/avatar.tsx), MIT, code-ok) — the same registry-item pattern, published as both a package export and a standalone installable file.
-- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/avatar.tsx), MIT, code-ok) — one of the components reui ships with interchangeable Base UI and Radix backends behind an identical public API.
+<WildCards>
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/avatar.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+    a Tailwind wrapper with dedicated `avatar-group-demo` and `avatar-with-fallback-demo` examples showing the fallback slot in use.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/avatar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    the same registry-item pattern, published as both a package export and a standalone installable file.
+  </WildCard>
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/avatar.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+    one of the components reui ships with interchangeable Base UI and Radix backends behind an identical public API.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

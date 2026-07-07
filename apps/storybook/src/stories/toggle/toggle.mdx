@@ -3,6 +3,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleStories from './toggle.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={ToggleStories} />
 
@@ -104,10 +105,20 @@ No CSS variables — no dynamic measurements to expose.
 
 ## In the wild
 
-- **[tmux-reference](https://tmuxreference.com)** ([source](https://github.com/joshuawootonn/tmux-reference/blob/HEAD/src/components/theme-toggle.tsx), no SPDX license detected, link-only, do not copy) — a `theme-toggle.tsx` found by filename on a Base UI menu/popover subpath search, not independently re-verified here.
-- **[aditya-vinodh/ui](https://ui-chi-flame.vercel.app)** ([source](https://github.com/aditya-vinodh/ui/blob/HEAD/src/components/mode-toggle.tsx), no SPDX license detected, link-only, do not copy) — a `mode-toggle.tsx` in a small design-system repo, also filename-inferred rather than subpath-verified.
-- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx), MIT, code-ok) — ships a Radix-backed twin of the same Toggle API alongside the Base UI version.
-- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx), AGPL-3.0, link-only, do not copy) — a `cva()`-based variant system (size/variant) wrapping `@base-ui/react/toggle`'s `data-pressed` state, part of Cal.com's near-complete registry.
+<WildCards>
+  <WildCard repo="joshuawootonn/tmux-reference" title="tmux-reference" href="https://github.com/joshuawootonn/tmux-reference/blob/HEAD/src/components/theme-toggle.tsx" live="https://tmuxreference.com" license="no SPDX license detected" reuse="link-only, do not copy">
+    a `theme-toggle.tsx` found by filename on a Base UI menu/popover subpath search, not independently re-verified here.
+  </WildCard>
+  <WildCard repo="aditya-vinodh/ui" title="aditya-vinodh/ui" href="https://github.com/aditya-vinodh/ui/blob/HEAD/src/components/mode-toggle.tsx" live="https://ui-chi-flame.vercel.app" license="no SPDX license detected" reuse="link-only, do not copy">
+    a `mode-toggle.tsx` in a small design-system repo, also filename-inferred rather than subpath-verified.
+  </WildCard>
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+    ships a Radix-backed twin of the same Toggle API alongside the Base UI version.
+  </WildCard>
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+    a `cva()`-based variant system (size/variant) wrapping `@base-ui/react/toggle`'s `data-pressed` state, part of Cal.com's near-complete registry.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

@@ -3,6 +3,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleGroupStories from './toggle-group.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={ToggleGroupStories} />
 
@@ -117,9 +118,17 @@ Each child Toggle carries its own independent `data-pressed`/`data-disabled` —
 
 ## In the wild
 
-- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx), MIT, code-ok) — a standalone ToggleGroup registry item, kept separate from plain Toggle as its own file.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx), MIT, code-ok) — the same split, published as both a package export and an installable registry file.
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/dataviews/src/components/dataform-controls/toggle-group.tsx), no SPDX license detected, link-only, do not copy) — uses it as a dataview filter control rather than a generic UI primitive — a concrete non-registry production usage.
+<WildCards>
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+    a standalone ToggleGroup registry item, kept separate from plain Toggle as its own file.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    the same split, published as both a package export and an installable registry file.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/dataviews/src/components/dataform-controls/toggle-group.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    uses it as a dataview filter control rather than a generic UI primitive — a concrete non-registry production usage.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

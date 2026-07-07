@@ -5,6 +5,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PopoverStories from './popover.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={PopoverStories} />
 
@@ -303,11 +304,23 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
 
 ## In the wild
 
-- **[WordPress Gutenberg](https://wordpress.org/gutenberg/)** ([source](https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx), GPL dual-licensing / no SPDX detected — link-only, do not copy) — the richest composition found anywhere: the new `@wordpress/ui` package wraps all ten parts one-file-per-part with slot-overridable Portal/Positioner for the iframed editor canvas, dev-time validation that a `Title` is present ("required for accessibility, can be visually hidden"), a Close-required-when-modal rule, and a `useDeprioritizedInitialFocus` hook that skips close buttons when resolving initial focus.
-- **[museeks](https://museeks.io)** ([source](https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx), MIT, code-ok) — real app-level usage in a Tauri music player: the play-queue popover composes the Trigger over a custom icon button via `render` and anchors to a wrapper div with `anchor={queueAnchorRef}`, decoupled from the trigger.
-- **[Flashtype](https://flashtype.com)** ([source](https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx), MIT, code-ok) — the best cross-component composition example: the markdown editor's link editor is `Toolbar.Button render={<Popover.Trigger />}` inside a roving-tabindex toolbar, with `initialFocus` pointed at the URL input.
-- **[Dify](https://dify.ai)** ([source](https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx), custom license — link-only) — the highest-star adopter (147.9k): `dify-ui` compresses Positioner geometry behind a single `placement` prop parsed into `side`/`align`, re-exports `createHandle`, and shows the canonical `data-starting-style`/`data-ending-style` transition with a motion-reduce fallback.
-- **[takopi](https://github.com/egoist/takopi)** ([source](https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx), Apache-2.0, code-ok) — the cleanest triggerless popover: an @-mention file autocomplete fully controlled and anchored to a chat textarea, with `initialFocus={false}`/`finalFocus={false}` so keyboard focus never leaves the textarea.
+<WildCards>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx" live="https://wordpress.org/gutenberg/" license="GPL dual-licensing / no SPDX detected" reuse="link-only, do not copy">
+    the richest composition found anywhere: the new `@wordpress/ui` package wraps all ten parts one-file-per-part with slot-overridable Portal/Positioner for the iframed editor canvas, dev-time validation that a `Title` is present ("required for accessibility, can be visually hidden"), a Close-required-when-modal rule, and a `useDeprioritizedInitialFocus` hook that skips close buttons when resolving initial focus.
+  </WildCard>
+  <WildCard repo="martpie/museeks" title="museeks" href="https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx" live="https://museeks.io" license="MIT" reuse="code-ok">
+    real app-level usage in a Tauri music player: the play-queue popover composes the Trigger over a custom icon button via `render` and anchors to a wrapper div with `anchor={queueAnchorRef}`, decoupled from the trigger.
+  </WildCard>
+  <WildCard repo="opral/flashtype" title="Flashtype" href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx" live="https://flashtype.com" license="MIT" reuse="code-ok">
+    the best cross-component composition example: the markdown editor's link editor is `Toolbar.Button render={<Popover.Trigger />}` inside a roving-tabindex toolbar, with `initialFocus` pointed at the URL input.
+  </WildCard>
+  <WildCard repo="langgenius/dify" title="Dify" href="https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx" live="https://dify.ai" license="custom license" reuse="link-only">
+    the highest-star adopter (147.9k): `dify-ui` compresses Positioner geometry behind a single `placement` prop parsed into `side`/`align`, re-exports `createHandle`, and shows the canonical `data-starting-style`/`data-ending-style` transition with a motion-reduce fallback.
+  </WildCard>
+  <WildCard repo="egoist/takopi" title="takopi" href="https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx" live="https://github.com/egoist/takopi" license="Apache-2.0" reuse="code-ok">
+    the cleanest triggerless popover: an @-mention file autocomplete fully controlled and anchored to a chat textarea, with `initialFocus={false}`/`finalFocus={false}` so keyboard focus never leaves the textarea.
+  </WildCard>
+</WildCards>
 
 Ecosystem note: the cal.com team's [coss ui](https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/popover.tsx) registry (AGPL — link-only) is the origin of the dominant wrapper lineage (createHandle re-export + Viewport part + tooltip-style variant), copied nearly line-for-line into downstream MIT apps such as [Green-Wall](https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/popover.tsx).
 

@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AutocompleteStories from './autocomplete.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={AutocompleteStories} />
 
@@ -301,9 +302,17 @@ There is **no `data-selected`** on Item (removed from the public contract in [#4
 
 ## In the wild
 
-- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx), MIT, code-ok) — a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive, unlike several other Kumo components), with its own Figma-generator script kept in sync with the code.
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui` form primitives package, sharing structure with its sibling Combobox implementation — the 15-file family the corpus code search surfaced.
-- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx), MIT, code-ok) — the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.
+<WildCards>
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive, unlike several other Kumo components), with its own Figma-generator script kept in sync with the code.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui` form primitives package, sharing structure with its sibling Combobox implementation — the 15-file family the corpus code search surfaced.
+  </WildCard>
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+    the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.
+  </WildCard>
+</WildCards>
 
 [G] Beyond the three verified registries above, the cached code search (2026-07-06, 750 TSX hits for `"@base-ui/react/autocomplete"`) also flagged PostHog (app-wide search + TaxonomicFilter), typebot.io (wrapper component), and gitbutler (`PickerDialog.tsx`) as candidate adopters — none of these three were fetched or subpath-verified, so they are named here only as leads for a future full Phase D pass, not cited as examples.
 

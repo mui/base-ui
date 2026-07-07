@@ -5,6 +5,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TooltipStories from './tooltip.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={TooltipStories} />
 
@@ -154,9 +155,17 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 
 ## In the wild
 
-- **[Lay3rLabs/TrustGraph](https://trust-graph-demo.vercel.app)** ([source](https://github.com/Lay3rLabs/TrustGraph/blob/HEAD/frontend/components/Tooltip.tsx), MIT, code-ok) — a governance-tooling app with a standalone `Tooltip.tsx`; found via a Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI), not independently re-verified here.
-- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tooltip/tooltip.tsx), MIT, code-ok) — a fully styled wrapper, with a matching Figma-generator script for design-tool parity.
-- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/tooltip.tsx), MIT, code-ok) — ships a Radix-backed twin of the same Tooltip API alongside the Base UI version.
+<WildCards>
+  <WildCard repo="Lay3rLabs/TrustGraph" title="Lay3rLabs/TrustGraph" href="https://github.com/Lay3rLabs/TrustGraph/blob/HEAD/frontend/components/Tooltip.tsx" live="https://trust-graph-demo.vercel.app" license="MIT" reuse="code-ok">
+    a governance-tooling app with a standalone `Tooltip.tsx`; found via a Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI), not independently re-verified here.
+  </WildCard>
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tooltip/tooltip.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    a fully styled wrapper, with a matching Figma-generator script for design-tool parity.
+  </WildCard>
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/tooltip.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+    ships a Radix-backed twin of the same Tooltip API alongside the Base UI version.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

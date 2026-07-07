@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as DialogStories from './dialog.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={DialogStories} />
 
@@ -254,11 +255,23 @@ CSS transitions hook onto `[data-starting-style]`/`[data-ending-style]` on Popup
 
 ## In the wild
 
-- **[shadcn/ui](https://ui.shadcn.com)** ([source](https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/dialog.tsx), MIT, code-ok) — the single most-copied Base UI dialog wrapper: the v4 base registry's Dialog and Sheet fan out into eight style variants plus RTL, distributed into thousands of apps. The canonical `Portal > Backdrop > Popup` recipe with Radix-compatible renames (Popup→Content, Backdrop→Overlay); the settings-modal recreation below recomposes it.
-- **[Raystack Frontier](https://raystack-frontier.vercel.app/)** ([source](https://github.com/raystack/frontier/blob/7384a11d417fe16f6dc52c19d3b5905b4d7cfd41/web/sdk/client/views/members/members-view.tsx), Apache-2.0, code-ok) — the richest `createHandle` deployment found: ~25 admin dialogs (invite member, verify domain, confirm plan change) opened imperatively from module-level handles, several with typed payloads, mixing Dialog + AlertDialog + Menu handles in one view.
-- **[WordPress Gutenberg](https://wordpress.org/gutenberg/)** ([source](https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/dialog/root.tsx), dual-licensed — link-only, do not copy) — one file per Base UI part, with house rules written into the Root JSDoc: every dialog must have a Title, always show a visible close affordance, and omit the X icon in destructive-choice dialogs so "X vs Cancel" is never ambiguous.
-- **[Oxide Console](https://console-preview.oxide.computer)** ([source](https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/SideModal.tsx), MPL-2.0, code-ok) — two contrasting compositions: a fully controlled centered Modal with no Trigger (routes open it) and a SideModal drawer on the same primitive, with Motion animations and an explicit z-index policy for modal-over-side-modal.
-- **[t3.codes](https://t3.codes)** ([source](https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/command.tsx), MIT, code-ok) — a ⌘K command palette hosted in a Dialog: dedicated `Backdrop + Viewport + Popup` stack with `createHandle` re-exported so the palette opens from anywhere.
+<WildCards>
+  <WildCard repo="shadcn-ui/ui" title="shadcn/ui" href="https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/dialog.tsx" live="https://ui.shadcn.com" license="MIT" reuse="code-ok">
+    the single most-copied Base UI dialog wrapper: the v4 base registry's Dialog and Sheet fan out into eight style variants plus RTL, distributed into thousands of apps. The canonical `Portal > Backdrop > Popup` recipe with Radix-compatible renames (Popup→Content, Backdrop→Overlay); the settings-modal recreation below recomposes it.
+  </WildCard>
+  <WildCard repo="raystack/frontier" title="Raystack Frontier" href="https://github.com/raystack/frontier/blob/7384a11d417fe16f6dc52c19d3b5905b4d7cfd41/web/sdk/client/views/members/members-view.tsx" live="https://raystack-frontier.vercel.app/" license="Apache-2.0" reuse="code-ok">
+    the richest `createHandle` deployment found: ~25 admin dialogs (invite member, verify domain, confirm plan change) opened imperatively from module-level handles, several with typed payloads, mixing Dialog + AlertDialog + Menu handles in one view.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/dialog/root.tsx" live="https://wordpress.org/gutenberg/" license="dual-licensed" reuse="link-only, do not copy">
+    one file per Base UI part, with house rules written into the Root JSDoc: every dialog must have a Title, always show a visible close affordance, and omit the X icon in destructive-choice dialogs so "X vs Cancel" is never ambiguous.
+  </WildCard>
+  <WildCard repo="oxidecomputer/console" title="Oxide Console" href="https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/SideModal.tsx" live="https://console-preview.oxide.computer" license="MPL-2.0" reuse="code-ok">
+    two contrasting compositions: a fully controlled centered Modal with no Trigger (routes open it) and a SideModal drawer on the same primitive, with Motion animations and an explicit z-index policy for modal-over-side-modal.
+  </WildCard>
+  <WildCard repo="pingdotgg/t3code" title="t3.codes" href="https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/command.tsx" live="https://t3.codes" license="MIT" reuse="code-ok">
+    a ⌘K command palette hosted in a Dialog: dedicated `Backdrop + Viewport + Popup` stack with `createHandle` re-exported so the palette opens from anywhere.
+  </WildCard>
+</WildCards>
 
 Two recreations live in this Storybook — an edge-docked side panel (Oxide) and a wrapper-based settings modal (shadcn/ui):
 

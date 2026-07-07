@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ComboboxStories from './combobox.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={ComboboxStories} />
 
@@ -338,10 +339,20 @@ Hover and keyboard highlight are one unified `data-highlighted` state by design 
 
 `research/d-real-world-usage/combobox/candidates.json` collects 20 repos importing the `@base-ui/react/combobox` subpath (corpus-signal tier — files identified by path, not individually fetched and read); the four most illustrative:
 
-- **[PostHog](https://posthog.com)** ([source](https://github.com/PostHog/posthog/blob/HEAD/frontend/src/lib/components/Account/OrgSwitcher.tsx), no SPDX license detected, link-only, do not copy) — the richest direct product usage found: org/project switchers and an AI-chat model picker, all built on the combobox subpath.
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/combobox/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part in the form-primitives package, including a dedicated `chips.tsx`/`chip-with-remove.tsx` pair for multi-select tag rendering (whose design-tools team also participates in Base UI's behavior debate, [#3181](https://github.com/mui/base-ui/issues/3181)).
-- **[ElectricSQL](https://electric.ax)** ([source](https://github.com/electric-sql/electric/blob/HEAD/packages/agents-server-ui/src/ui/Combobox.tsx), Apache-2.0, code-ok) — a dedicated Combobox component in an Apache-2.0 licensed, freely reusable agents admin UI.
-- **[Latitude](https://latitude.so)** ([source](https://github.com/latitude-dev/latitude-llm/blob/HEAD/packages/ui/src/components/combobox/combobox.tsx), MIT, code-ok) — an MIT-licensed LLM-ops platform with its own `combobox/combobox.tsx`, distinct from its Select implementation.
+<WildCards>
+  <WildCard repo="PostHog/posthog" title="PostHog" href="https://github.com/PostHog/posthog/blob/HEAD/frontend/src/lib/components/Account/OrgSwitcher.tsx" live="https://posthog.com" license="no SPDX license detected" reuse="link-only, do not copy">
+    the richest direct product usage found: org/project switchers and an AI-chat model picker, all built on the combobox subpath.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/combobox/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    one file per part in the form-primitives package, including a dedicated `chips.tsx`/`chip-with-remove.tsx` pair for multi-select tag rendering (whose design-tools team also participates in Base UI's behavior debate, [#3181](https://github.com/mui/base-ui/issues/3181)).
+  </WildCard>
+  <WildCard repo="electric-sql/electric" title="ElectricSQL" href="https://github.com/electric-sql/electric/blob/HEAD/packages/agents-server-ui/src/ui/Combobox.tsx" live="https://electric.ax" license="Apache-2.0" reuse="code-ok">
+    a dedicated Combobox component in an Apache-2.0 licensed, freely reusable agents admin UI.
+  </WildCard>
+  <WildCard repo="latitude-dev/latitude-llm" title="Latitude" href="https://github.com/latitude-dev/latitude-llm/blob/HEAD/packages/ui/src/components/combobox/combobox.tsx" live="https://latitude.so" license="MIT" reuse="code-ok">
+    an MIT-licensed LLM-ops platform with its own `combobox/combobox.tsx`, distinct from its Select implementation.
+  </WildCard>
+</WildCards>
 
 The remaining 16 corpus hits (langgenius/dify at 147.9k★, reactive-resume, mastra-ai/mastra, gitbutler, woocommerce, cosscom/coss, typebot.io, and others) are recorded in candidates.json but not written up here; expected archetypes still to verify in a deeper pass: tag/label multi-selects with chips, async user/country pickers, and design-system wrapper components re-exporting the full part set.
 

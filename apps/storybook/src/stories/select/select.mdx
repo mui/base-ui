@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SelectStories from './select.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={SelectStories} />
 
@@ -307,11 +308,23 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 
 ## In the wild
 
-- **[Cloudflare Kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx), MIT, code-ok) — the richest wrapper observed: typed `multiple` generic, `items` as object map or array with per-item `disabled` + `disabledReason`, a `renderValue` formatter, and JSDoc steering hidden labels to `aria-label`. The registry-select story below recomposes its ideas.
-- **[WordPress Gutenberg](https://wordpress.org/gutenberg/)** ([source](https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx), no SPDX license detected — link-only, do not copy) — one-file-per-part form primitives; the Root JSDoc independently documents the object-value pitfalls (`Object.is` equality, `isItemEqualToValue`, `itemToStringLabel`) and pins single-select via `Root<Value, false>`.
-- **[Mastra](https://mastra.ai)** ([source](https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx), no SPDX license detected — link-only) — a documented Radix→Base UI migration: `eventDetails` second argument, `alignItemWithTrigger={false}` to match Radix popper behavior, and an `items`-map shim so the closed trigger can resolve labels.
-- **[Flashtype](https://flashtype.com)** ([source](https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx), MIT, code-ok) — block-type switcher in a markdown editor toolbar: `Toolbar.Button render={<Select.Trigger/>}` with `nativeButton={false}`, controlled open, `data-[starting-style]` animation.
-- **[graphql.org](https://graphql.org)** ([source](https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx), MIT, code-ok) — the site-wide theme switcher: icon trigger with `aria-label`, visually hidden `Select.Value`, `align="end"`, wired to next-themes.
+<WildCards>
+  <WildCard repo="cloudflare/kumo" title="Cloudflare Kumo" href="https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    the richest wrapper observed: typed `multiple` generic, `items` as object map or array with per-item `disabled` + `disabledReason`, a `renderValue` formatter, and JSDoc steering hidden labels to `aria-label`. The registry-select story below recomposes its ideas.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/form/primitives/select/root.tsx" live="https://wordpress.org/gutenberg/" license="no SPDX license detected" reuse="link-only, do not copy">
+    one-file-per-part form primitives; the Root JSDoc independently documents the object-value pitfalls (`Object.is` equality, `isItemEqualToValue`, `itemToStringLabel`) and pins single-select via `Root<Value, false>`.
+  </WildCard>
+  <WildCard repo="mastra-ai/mastra" title="Mastra" href="https://github.com/mastra-ai/mastra/blob/e900f25dfe2c9237f15b26cb109ac55aa9de3000/packages/playground-ui/src/ds/components/Select/select.tsx" live="https://mastra.ai" license="no SPDX license detected" reuse="link-only">
+    a documented Radix→Base UI migration: `eventDetails` second argument, `alignItemWithTrigger={false}` to match Radix popper behavior, and an `items`-map shim so the closed trigger can resolve labels.
+  </WildCard>
+  <WildCard repo="opral/flashtype" title="Flashtype" href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx" live="https://flashtype.com" license="MIT" reuse="code-ok">
+    block-type switcher in a markdown editor toolbar: `Toolbar.Button render={<Select.Trigger/>}` with `nativeButton={false}`, controlled open, `data-[starting-style]` animation.
+  </WildCard>
+  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok">
+    the site-wide theme switcher: icon trigger with `aria-label`, visually hidden `Select.Value`, `align="end"`, wired to next-themes.
+  </WildCard>
+</WildCards>
 
 Ecosystem note: shadcn/ui's Base UI registry ([source](https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/select.tsx), MIT) is the template behind thousands of downstream `components/ui/select.tsx` files.
 

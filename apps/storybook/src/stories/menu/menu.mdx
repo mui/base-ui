@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MenuStories from './menu.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={MenuStories} />
 
@@ -315,11 +316,23 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 
 ## In the wild
 
-- **[PostHog](https://posthog.com)** ([source](https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Account/NewAccountMenu.tsx), custom license — link-only, do not copy) — the richest direct product usage found: the account/org/project switcher is a controlled Menu with the corpus's only `Menu.Backdrop` sighting, two nested `SubmenuRoot`s ("All projects", "All organizations"), `render`-prop triggers into their ButtonPrimitive, and a popup height-capped by `--available-height` behind scroll shadows.
-- **[Next.js DevTools](https://nextjs.org)** ([source](https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx), MIT, code-ok) — the dev-overlay segment explorer runs `modal={false}` with `Menu.Portal container={shadowRoot}`: the canonical citation for portalling into a shadow root and keeping the host page interactive.
-- **[Playroom (SEEK)](https://github.com/seek-oss/playroom)** ([source](https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx), MIT, code-ok) — the best `closeOnClick` teacher in the corpus: one shared MenuItem abstraction sets `closeOnClick={false}` for checkbox/radio settings and submenu triggers, with `onOpenChangeComplete` resetting submenu state only after the exit animation.
-- **[Oxide Console](https://console-preview.oxide.computer)** ([source](https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx), MPL-2.0, code-ok) — wraps `Menu.Root` with `modal={false}` as the house default and a comment explaining why (prevent scroll locking), plus a semantic `anchor="bottom end"` string parsed into `side`/`align`; backs the console's table row-action menus.
-- **[Cloudflare Kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/dropdown/dropdown.tsx), MIT, code-ok) — the design system documents an API migration in its own JSDoc: `href`-on-Item is deprecated in favor of `Menu.LinkItem` for navigation, alongside danger-styled items and a container-aware Portal.
+<WildCards>
+  <WildCard repo="PostHog/posthog" title="PostHog" href="https://github.com/PostHog/posthog/blob/c8311b5a9520c9bf105ea4e3b8474f63dffa9c9b/frontend/src/lib/components/Account/NewAccountMenu.tsx" live="https://posthog.com" license="custom license" reuse="link-only, do not copy">
+    the richest direct product usage found: the account/org/project switcher is a controlled Menu with the corpus's only `Menu.Backdrop` sighting, two nested `SubmenuRoot`s ("All projects", "All organizations"), `render`-prop triggers into their ButtonPrimitive, and a popup height-capped by `--available-height` behind scroll shadows.
+  </WildCard>
+  <WildCard repo="vercel/next.js" title="Next.js DevTools" href="https://github.com/vercel/next.js/blob/b1eba13dc082d89e62d064fd8351d64463994d22/packages/next/src/next-devtools/dev-overlay/components/overview/segment-boundary-trigger.tsx" live="https://nextjs.org" license="MIT" reuse="code-ok">
+    the dev-overlay segment explorer runs `modal={false}` with `Menu.Portal container={shadowRoot}`: the canonical citation for portalling into a shadow root and keeping the host page interactive.
+  </WildCard>
+  <WildCard repo="seek-oss/playroom" title="Playroom (SEEK)" href="https://github.com/seek-oss/playroom/blob/aa778ceb26c20436eb32878a9beba14535b80993/src/components/Menu/Menu.tsx" live="https://github.com/seek-oss/playroom" license="MIT" reuse="code-ok">
+    the best `closeOnClick` teacher in the corpus: one shared MenuItem abstraction sets `closeOnClick={false}` for checkbox/radio settings and submenu triggers, with `onOpenChangeComplete` resetting submenu state only after the exit animation.
+  </WildCard>
+  <WildCard repo="oxidecomputer/console" title="Oxide Console" href="https://github.com/oxidecomputer/console/blob/975bba9f3f2ce5fc0fa0d03ea4d71e04d9e4d6c5/app/ui/lib/DropdownMenu.tsx" live="https://console-preview.oxide.computer" license="MPL-2.0" reuse="code-ok">
+    wraps `Menu.Root` with `modal={false}` as the house default and a comment explaining why (prevent scroll locking), plus a semantic `anchor="bottom end"` string parsed into `side`/`align`; backs the console's table row-action menus.
+  </WildCard>
+  <WildCard repo="cloudflare/kumo" title="Cloudflare Kumo" href="https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/dropdown/dropdown.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    the design system documents an API migration in its own JSDoc: `href`-on-Item is deprecated in favor of `Menu.LinkItem` for navigation, alongside danger-styled items and a container-aware Portal.
+  </WildCard>
+</WildCards>
 
 Three recreations live in this Storybook — table row actions (Oxide), a settings menu that stays open (Playroom), and a shadow-DOM-portalled overlay menu (Next.js DevTools):
 

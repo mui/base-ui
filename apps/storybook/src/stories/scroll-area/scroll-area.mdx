@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ScrollAreaStories from './scroll-area.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={ScrollAreaStories} />
 
@@ -143,9 +144,17 @@ Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollb
 
 ## In the wild
 
-- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/scroll-area.tsx), MIT, code-ok) — a Tailwind-styled ScrollArea wrapper, copy-paste distributed like the rest of the 9ui set.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/scroll-area.tsx), MIT, code-ok) — the same wrapper pattern, published as both a package export and an installable registry file.
-- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/scroll-area.tsx), MIT, code-ok) — ships a Radix-backed twin of the same ScrollArea API alongside the Base UI version, for projects that want to switch primitive libraries later.
+<WildCards>
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/scroll-area.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+    a Tailwind-styled ScrollArea wrapper, copy-paste distributed like the rest of the 9ui set.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/scroll-area.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    the same wrapper pattern, published as both a package export and an installable registry file.
+  </WildCard>
+  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/scroll-area.tsx" live="https://reui.io" license="MIT" reuse="code-ok">
+    ships a Radix-backed twin of the same ScrollArea API alongside the Base UI version, for projects that want to switch primitive libraries later.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

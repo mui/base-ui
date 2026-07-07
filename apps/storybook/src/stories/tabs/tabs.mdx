@@ -3,6 +3,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TabsStories from './tabs.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={TabsStories} />
 
@@ -126,9 +127,17 @@ An underline indicator typically uses `left`/`width` (horizontal) or `top`/`heig
 
 ## In the wild
 
-- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tabs/tabs.tsx), MIT, code-ok) — one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool parity.
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/tabs/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/list/tab/panel/context) in the `@wordpress/ui` package, with its own "best practices" MDX story alongside the implementation.
-- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/tabs.tsx), MIT, code-ok) — a Tailwind-styled Tabs registry item, copy-paste distributed like the rest of the 9ui set.
+<WildCards>
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tabs/tabs.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool parity.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/tabs/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    one file per part (root/list/tab/panel/context) in the `@wordpress/ui` package, with its own "best practices" MDX story alongside the implementation.
+  </WildCard>
+  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/tabs.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok">
+    a Tailwind-styled Tabs registry item, copy-paste distributed like the rest of the 9ui set.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 

@@ -5,6 +5,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FieldsetStories from './fieldset.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={FieldsetStories} />
 
@@ -87,9 +88,17 @@ No `Fieldset*CssVars.ts` and no dedicated data-attribute file beyond the one boo
 
 ## In the wild
 
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/legend/description/details/context) in the form-primitives package — the richest Fieldset breakdown found in the corpus.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/fieldset.tsx), MIT, code-ok) — a Tailwind wrapper distributed both as an installable registry item and a package export.
-- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/fieldset.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system also treats Fieldset as its own registry file rather than folding it into Field.
+<WildCards>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    one file per part (root/legend/description/details/context) in the form-primitives package — the richest Fieldset breakdown found in the corpus.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/fieldset.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    a Tailwind wrapper distributed both as an installable registry item and a package export.
+  </WildCard>
+  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/fieldset.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy">
+    Cal.com's design system also treats Fieldset as its own registry file rather than folding it into Field.
+  </WildCard>
+</WildCards>
 
 ## Related
 

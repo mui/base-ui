@@ -4,6 +4,7 @@
 
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FieldStories from './field.stories';
+import { WildCards, WildCard } from '../shared/InTheWild';
 
 <Meta of={FieldStories} />
 
@@ -207,9 +208,17 @@ Field itself adds only one keyboard binding — everything else belongs to whate
 
 ## In the wild
 
-- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx), MIT, code-ok) — a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to compose label/description/error slots consistently.
-- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/label/control/description/details/item) inside the new form-primitives package that also backs its Combobox and Autocomplete.
-- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx), MIT, code-ok) — a Tailwind wrapper published both as an installable registry item and inside the distributable package.
+<WildCards>
+  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok">
+    a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to compose label/description/error slots consistently.
+  </WildCard>
+  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
+    one file per part (root/label/control/description/details/item) inside the new form-primitives package that also backs its Combobox and Autocomplete.
+  </WildCard>
+  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok">
+    a Tailwind wrapper published both as an installable registry item and inside the distributable package.
+  </WildCard>
+</WildCards>
 
 ## Decision log
 
