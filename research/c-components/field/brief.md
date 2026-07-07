@@ -151,15 +151,16 @@ Field is labeling machinery; it has no ARIA APG widget pattern of its own. The r
 ## 9. Decision log
 
 - **2024-08-20** — Field created (with Fieldset in the same PR) — c51fb490a, [#477](https://github.com/mui/base-ui/pull/477).
-- **2024-10** — `Control` restricted to `<input>`-only types by default ([#935](https://github.com/mui/base-ui/pull/935)).
+- **2024-12** — `Control` restricted to `<input>`-only types by default ([#935](https://github.com/mui/base-ui/pull/935)).
 - **2025-05** — Error-noise doctrine lands: `valueMissing` alone doesn't invalidate a pristine field ([#1810](https://github.com/mui/base-ui/pull/1810)); on-change revalidation limited to `required` recovery ([#1840](https://github.com/mui/base-ui/pull/1840)).
 - **2025-05 (beta.0)** — `Field.Error` `forceShow` folded into `match: boolean | keyof ValidityState` ([#1919](https://github.com/mui/base-ui/pull/1919), closes #1200); `validate` ordered strictly after native validation ([#1926](https://github.com/mui/base-ui/pull/1926), closes #1904).
 - **2025-06** — `validate` receives `formValues` for cross-field rules ([#1941](https://github.com/mui/base-ui/pull/1941)).
-- **2025-07** — Implicit `Field.Label` wrapping for Switch/Checkbox/Radio ([#2036](https://github.com/mui/base-ui/pull/2036)).
+- **2025-06** — Implicit `Field.Label` wrapping for Switch/Checkbox/Radio ([#2036](https://github.com/mui/base-ui/pull/2036)).
 - **2025-10** — `dirty`/`touched` controlled props for RHF/TanStack parity ([#2950](https://github.com/mui/base-ui/pull/2950)); `Field.Item` part + `LabelableProvider` architecture ([#2810](https://github.com/mui/base-ui/pull/2810), closes #2172/#2773).
 - **2025-10-29 (beta.5, breaking)** — default `validationMode` becomes `'onSubmit'` (was `onBlur`), configurable on `<Form>`; "matches native form submission behavior and the defaults of RA, Ariakit and react-hook-form" ([#3013](https://github.com/mui/base-ui/pull/3013), closes #2142).
 - **2026-01** — `nativeLabel` prop on Label for button-shaped controls ([#3723](https://github.com/mui/base-ui/pull/3723)).
-- **2026-02** — uncontrolled `Field.Control` re-render elimination ([#3820](https://github.com/mui/base-ui/pull/3820), closes #3819); registration centralized in Field.Root ([#4481](https://github.com/mui/base-ui/pull/4481)).
+- **2026-01** — uncontrolled `Field.Control` re-render elimination ([#3820](https://github.com/mui/base-ui/pull/3820), closes #3819).
+- **2026-04** — registration centralized in Field.Root ([#4481](https://github.com/mui/base-ui/pull/4481)).
 - **2026-06 (v1.6.0 regression → fix)** — #4890 excluded disabled controls from validation, dropping app-set `data-invalid`; [#5116](https://github.com/mui/base-ui/pull/5116) restored it: app-set invalid persists while disabled, computed validity stays suppressed, RHF-aligned (closes #5100).
 
 ## 10. Pitfalls & FAQ

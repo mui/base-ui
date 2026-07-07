@@ -109,13 +109,13 @@ Form's a11y value is mostly *delegated*: it makes Field's labeling/`aria-invalid
 ## 9. Decision log
 
 - **2024-09-11** — Form created — 7c198fb45, [#589](https://github.com/mui/base-ui/pull/589), closing #219 ("API TBD" — the API was designed in the PR).
-- **2025-06** — Base UI component integration hardened ([#1755](https://github.com/mui/base-ui/pull/1755)); checkbox group submits as one field ([#1948](https://github.com/mui/base-ui/pull/1948)); NumberField submits unformatted value ([#1957](https://github.com/mui/base-ui/pull/1957)).
-- **2025-08** — fields deregister on unmount ([#2231](https://github.com/mui/base-ui/pull/2231)).
+- **2025-05** — Base UI component integration hardened ([#1755](https://github.com/mui/base-ui/pull/1755)); checkbox group submits as one field ([#1948](https://github.com/mui/base-ui/pull/1948)); NumberField submits unformatted value ([#1957](https://github.com/mui/base-ui/pull/1957)).
+- **2025-07** — fields deregister on unmount ([#2231](https://github.com/mui/base-ui/pull/2231)).
 - **2025-10-29 (beta.5, breaking)** — `'onSubmit'` validation mode added and made the default, settable fleet-wide on Form ([#3013](https://github.com/mui/base-ui/pull/3013), closes #2142).
 - **2025-11-06** — `onFormSubmit` added for JS-object payloads ([#3131](https://github.com/mui/base-ui/pull/3131)).
 - **2025-11-07 (breaking)** — `onClearErrors` dropped; `errors` entries auto-clear on change; enables `useActionState` without extra state/effects ([#3136](https://github.com/mui/base-ui/pull/3136), closes #2758).
 - **2025-11-13** — forms handbook page ships (RHF/TanStack/Server Functions guidance) — 422a4deb8, [#2989](https://github.com/mui/base-ui/pull/2989).
-- **2025-12** — `actionsRef` with `validate(fieldName?)` ([#3395](https://github.com/mui/base-ui/pull/3395), motivated by #3323).
+- **2026-01** — `actionsRef` with `validate(fieldName?)` ([#3395](https://github.com/mui/base-ui/pull/3395), motivated by #3323).
 - **2026** — validation-robustness wave: avoid `flushSync` ([#4685](https://github.com/mui/base-ui/pull/4685)); Form-error/validation interplay fixes ([#4112](https://github.com/mui/base-ui/pull/4112), [#4494](https://github.com/mui/base-ui/pull/4494), [#4873](https://github.com/mui/base-ui/pull/4873), [#4894](https://github.com/mui/base-ui/pull/4894)).
 
 ## 10. Pitfalls & FAQ
