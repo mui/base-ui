@@ -1,0 +1,302 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, tests, experiments/toast.tsx, git history, upstream
+    issues/PRs — research/c-components/toast/brief.md); real-world data from
+    research/d-real-world-usage/toast/candidates.json (2 corpus-signal candidates, code not fetched). */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ToastStories from './toast.stories';
+
+<Meta of={ToastStories} />
+
+# Toast
+
+A self-managing stack of transient, non-interrupting status notifications — the only Base UI overlay with no `Trigger` part and no `open` prop, because its state is an app-managed queue fed imperatively from anywhere.
+
+- **Import:** `import { Toast } from '@base-ui/react/toast';`
+- **Parts:** 10 element parts (`Provider`, `Portal`, `Viewport`, `Root`, `Content`, `Title`, `Description`, `Action`, `Close`, `Positioner`, `Arrow`) — plus two non-element APIs that are part of the anatomy: `Toast.useToastManager()` and `Toast.createToastManager()`. See Anatomy.
+- **Status:** Stable since v1.0.0-alpha.8 ([#1467](https://github.com/mui/base-ui/pull/1467), merged 2025-04-08).
+- **ARIA pattern:** no dedicated W3C APG "toast" pattern exists; maintainers anchor behavior to the [Alert pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alert/), quoted verbatim in [#4533](https://github.com/mui/base-ui/pull/4533) and [#4253](https://github.com/mui/base-ui/issues/4253).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={ToastStories.Hero} />
+
+## Features
+
+- **Imperative manager, not a trigger** — `useToastManager()` returns `{ toasts, add, update, close, promise }`; `createToastManager()` gives the same surface outside React (websocket handlers, route loaders). This is deliberate and toast-specific: when [#2802](https://github.com/mui/base-ui/issues/2802) asked for the same pattern for dialogs, the maintainers declined — "toasts are usually always simple with a basic render structure, where the hook to pass the data payload works well."
+- **Sonner-benchmarked stacking** — newest toast at index 0, older toasts peek behind at reduced scale, and hovering/focusing the viewport fans the stack out via `--toast-offset-y` ([#1955](https://github.com/mui/base-ui/issues/1955) cites Emil Kowalski's CSS-transforms article as the model). All layout is your CSS on the exposed hooks.
+- **Announcement architecture rebuilt for correctness** — `Toast.Viewport` is itself the polite `aria-live` container; high-priority toasts additionally render into a separate visually hidden `role="alert"` container so they announce assertively without double-announcing ([#2246](https://github.com/mui/base-ui/pull/2246)).
+- **Toasts never steal focus** — a `focus` option on `add()` was proposed and rejected: "moving the focus to a toast is not desired... In scenarios when users' input is required, AlertDialog is better suited" ([#4533](https://github.com/mui/base-ui/pull/4533)).
+- **Timers pause under interaction** — hovering the viewport, focus-visible focus, or window blur all pause auto-dismiss timers and resume with the remaining time, a WCAG 2.2.1 (Timing Adjustable) mitigation ([#4438](https://github.com/mui/base-ui/pull/4438)).
+- **`limit` keeps overflow recoverable** — toasts beyond the visible cap are not removed, only marked `data-limited` + `inert`, and return into view when newer ones close ([#1953](https://github.com/mui/base-ui/pull/1953)).
+- **Dedup/upsert by id** — `add({ id })` with an existing id updates in place, refreshes the timer, and increments `updateKey` so you can replay an animation pulse ([#4440](https://github.com/mui/base-ui/pull/4440)).
+- **Anchored toasts for contextual feedback** — `Toast.Positioner` + `Toast.Arrow` attach a toast to a triggering element (e.g. a copy button); the docs recommend this over a tooltip because toasts are announced to screen readers, tooltips are not ([#3096](https://github.com/mui/base-ui/pull/3096)).
+
+## When to use
+
+- Transient confirmations and status messages that must not interrupt work — "Toasts are used to notify users without interrupting their workflow" ([#4533](https://github.com/mui/base-ui/pull/4533)).
+- Async operation progress: `toastManager.promise()` models loading → success/error as one updating toast.
+- Undoable actions: `actionProps` renders an action button inside the toast (Undo pattern).
+- Contextual "Copied"-style feedback anchored to the triggering element — preferred over a tooltip because it is announced to screen readers ([#3096](https://github.com/mui/base-ui/pull/3096)).
+- Notifying from outside React — API clients, websocket handlers, route loaders — via `createToastManager()` + `<Toast.Provider toastManager>`.
+- Deduplicated repeat events: `add({ id })` upserts instead of stacking duplicates.
+
+## When not to use
+
+Cluster-level overlay comparison: `research/c-components/_clusters/overlays.md` (Toast boundary appended there). Toast-specific reasoning:
+
+- If the user **must** respond or the message blocks progress, use Alert Dialog — focus never moves to a toast ([#4533](https://github.com/mui/base-ui/pull/4533)), so a required decision inside one is unreachable-by-default for keyboard/screen-reader users ([#4253](https://github.com/mui/base-ui/issues/4253)).
+- For a hover hint about a control, use [Popover](?path=/docs/overlays-popover--docs)/Tooltip instead — a toast is feedback about an *event*, not a hint about a control.
+- For validation and form errors, keep the message next to the field ([Field](?path=/docs/form-inputs-field--docs)/Form pattern) — a toast disappears and is not tied to the control; GitHub Primer discourages toasts entirely for this content ([#4229](https://github.com/mui/base-ui/issues/4229)).
+- Don't build imperative confirm-dialog abstractions on top of Toast's manager pattern — a `dialogManager` was explicitly declined for Dialog ([#2802](https://github.com/mui/base-ui/issues/2802)); Dialog uses `createHandle()` instead.
+- For persistent or critical information, auto-dismissing UI is a WCAG 2.2.1 risk ([#4253](https://github.com/mui/base-ui/issues/4253)) — use `timeout: 0` plus a visible `Toast.Close` at minimum, or a different UI entirely.
+- Render anchored and stacked toasts from **separate** `Toast.Provider`s — providers are isolated stores, and mixing styles in one stack fights the stacking geometry (docs anchored section).
+
+## Anatomy
+
+```tsx
+import { Toast } from '@base-ui/react/toast';
+
+<Toast.Provider timeout={5000} limit={3}>
+  {/* app — anywhere below, useToastManager() can add toasts */}
+  <Toast.Portal>
+    <Toast.Viewport>
+      {toasts.map((toast) => (
+        <Toast.Root key={toast.id} toast={toast}>
+          <Toast.Content>
+            <Toast.Title />
+            <Toast.Description />
+            <Toast.Action />
+            <Toast.Close />
+          </Toast.Content>
+        </Toast.Root>
+      ))}
+    </Toast.Viewport>
+  </Toast.Portal>
+</Toast.Provider>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Toast.Provider` | no element | Owns the `ToastStore` — timers, stack order, hover/focus state; accepts `timeout`, `limit`, `toastManager` | required |
+| `Toast.Portal` | `<div>` | Moves the viewport to `<body>` (or `container`) | required for the viewport ([#1962](https://github.com/mui/base-ui/pull/1962)) |
+| `Toast.Viewport` | `<div>` | `role="region"`, `aria-label="Notifications"`, and the polite `aria-live` container itself; the F6 focus target | required |
+| `Toast.Root` | `<div>` | Groups one toast; `role="dialog"` (or `"alertdialog"` for `priority: 'high'`); hosts the swipe engine; requires the `toast` prop | required, one per rendered toast |
+| `Toast.Content` | `<div>` | Measures natural height (Resize/MutationObserver); carries `data-behind`/`data-expanded` for variable-height stacking ([#2742](https://github.com/mui/base-ui/pull/2742)) | optional for non-stacked/always-expanded designs |
+| `Toast.Title` | `<h2>` | Labels the toast; defaults children to `toast.title`; renders nothing without content | yes |
+| `Toast.Description` | `<p>` | Describes the toast; defaults to `toast.description`; renders nothing without content | yes |
+| `Toast.Action` | `<button>` | Performs an action; children/props default from `toast.actionProps`; renders nothing without content | yes |
+| `Toast.Close` | `<button>` | Closes this toast; `aria-hidden` while the viewport is neither expanded nor focused | yes — required in practice so users can dismiss persistent toasts |
+| `Toast.Positioner` | `<div>` | Anchored positioning (side/align/offsets/collision) for one toast, via own props or `toast.positionerProps` | anchored toasts only ([#3096](https://github.com/mui/base-ui/pull/3096)) |
+| `Toast.Arrow` | `<div>` | Points toward the anchor | anchored toasts only |
+| `Toast.useToastManager()` | hook — no element | Returns `{ toasts, add, update, close, promise }` from inside a `Provider` | required to create toasts from a component |
+| `Toast.createToastManager()` | factory — no element | Same surface, callable from outside React; pass the instance to `<Toast.Provider toastManager>` | for module-scope/non-React callers |
+
+The render loop over `toasts` is entirely yours — there is no automatic renderer; every story below wraps its content in a shared `ToastDemoShell` that composes `Provider > Portal > Viewport` and maps `useToastManager().toasts`.
+
+## How it works
+
+### Imperative manager pattern
+
+State is an array of `ToastObject`s owned by the Provider's store — not a boolean `open`. `add()` returns the generated (or passed) id. This is the only Base UI component whose canonical API is a method call, not a trigger.
+
+<Canvas of={ToastStories.Hero} />
+
+### Stacking and expansion
+
+The newest toast is DOM index 0 (front); older toasts peek behind at reduced scale via `--toast-index`. Hovering or focusing the viewport sets `data-expanded` on the viewport and each root, fanning the stack out along `--toast-offset-y` — all layout is user CSS on these hooks.
+
+<Canvas of={ToastStories.StackingAndExpand} />
+
+`Toast.Content` measures each toast's natural height so collapsed toasts can clamp to `--toast-frontmost-height` and hide overflow behind the front toast until expanded ([#2742](https://github.com/mui/base-ui/pull/2742)):
+
+<Canvas of={ToastStories.VaryingHeights} />
+
+### Limits
+
+`limit` (default 3) caps the visible stack. Overflowing older toasts are not removed — they get `data-limited` + HTML `inert`, and return into view when newer ones close ("Limited toasts were previously removed from the DOM and 'lost to the ether'", [#1953](https://github.com/mui/base-ui/pull/1953)).
+
+<Canvas of={ToastStories.LimitOverflow} />
+
+### Timers
+
+Default `timeout` is 5000ms from the Provider; per-toast `timeout` in `add()` overrides it; `0` disables auto-dismiss.
+
+<Canvas of={ToastStories.CustomDuration} />
+
+<Canvas of={ToastStories.PersistentToast} />
+
+Timers **pause** while hovering the viewport, while the viewport/toast has focus-visible focus, or while the window is blurred, and resume with the remaining time afterward ([#4438](https://github.com/mui/base-ui/pull/4438) fixed resume-after-refocus).
+
+<Canvas of={ToastStories.HoverPausesTimers} />
+
+### Dismissal gestures and placement
+
+Drag a toast past the 40px threshold in an allowed `swipeDirection` (default `['down', 'right']`) to dismiss it by gesture; `user-select: none` (+ `-webkit-` prefix) on the toast is load-bearing — swipe feels sticky without it ([#1467](https://github.com/mui/base-ui/pull/1467) review). This is gesture-only behavior — try it by hand in the canvas below; there is no simulated-pointer play.
+
+<Canvas of={ToastStories.SwipeToDismiss} />
+
+Placement is pure CSS on the viewport; match `swipeDirection` to the corner (a top stack swipes `"up"`):
+
+<Canvas of={ToastStories.CustomPosition} />
+
+Anchored toasts wrap `Toast.Root` in `Toast.Positioner` + `Toast.Arrow` and read `positionerProps` from `add()` — preferred over a tooltip for "Copied"-style feedback because toasts are announced to screen readers. Keep anchored timeouts short, and render anchored toasts from a separate provider than stacked ones. Swiping is disabled for anchored toasts.
+
+<Canvas of={ToastStories.AnchoredToast} />
+
+### Manager API
+
+`createToastManager()` at module scope plus `<Toast.Provider toastManager>` drives toasts from outside React — from a plain function, not a hook. Caveat: toasts fired before the provider mounts are dropped ([#4986](https://github.com/mui/base-ui/issues/4986), open).
+
+<Canvas of={ToastStories.GlobalManager} />
+
+`add()` returns the id; `update(id, options)` edits a toast in place, and updating `timeout` (or upserting) reschedules its timer ([#3564](https://github.com/mui/base-ui/pull/3564)).
+
+<Canvas of={ToastStories.UpdateToast} />
+
+`close(id)` closes one toast; `close()` with no id closes all — the same single-`dismiss` shape Sonner and Chakra expose ([#3979](https://github.com/mui/base-ui/pull/3979)).
+
+<Canvas of={ToastStories.CloseAllToasts} />
+
+`add({ id })` with an existing id upserts instead of stacking a duplicate, refreshes the timer, and increments `toast.updateKey` — alternate animation classes on its parity to replay a pulse ([#4440](https://github.com/mui/base-ui/pull/4440)).
+
+<Canvas of={ToastStories.DeduplicateToast} />
+
+`data` carries an arbitrary typed payload to your renderer; narrow per-toast with a type guard, or type the whole manager with `useToastManager<Data>()` ([#3882](https://github.com/mui/base-ui/pull/3882)).
+
+<Canvas of={ToastStories.CustomDataToast} />
+
+### Async flows and actions
+
+`promise(promise, { loading, success, error })` creates a `type: 'loading'` toast (never auto-dismisses) and updates it to `success`/`error` in place when the promise settles. It returns the chained promise, **not** an id — pass your own `id` in the `loading` options if you need to address the toast later ([#2833](https://github.com/mui/base-ui/issues/2833)).
+
+<Canvas of={ToastStories.PromiseToast} />
+
+`actionProps` (full button props including `children`) renders through `Toast.Action`. Pair actions with long timeouts — the docs undo demo was raised to 10s after a11y review ([#4975](https://github.com/mui/base-ui/pull/4975); [#4253](https://github.com/mui/base-ui/issues/4253) tracks the reachability gap).
+
+<Canvas of={ToastStories.UndoAction} />
+
+`onClose` fires when closing starts; `onRemove` fires only after exit animations complete and the toast leaves the array — react at close-start (analytics) vs. after-exit (releasing resources).
+
+<Canvas of={ToastStories.OnCloseVsOnRemove} />
+
+## Keyboard & screen reader
+
+| Key | Context | Result |
+|---|---|---|
+| `F6` | anywhere in the window | Focus the viewport (records the previously focused element, pauses timers, expands the stack) |
+| `Tab` | viewport focused | Focus the first non-ending, non-limited toast |
+| `Tab` | inside a toast | Next focusable inside the toast/stack |
+| `Shift+Tab` | viewport or first toast | Return focus to the previously focused element; resume timers |
+| `Escape` | focus inside a toast | Close that toast; focus moves to the next/previous toast, else back to the previously focused element |
+| `Enter` / `Space` | on `Toast.Action`/`Toast.Close` | Activate (standard buttons) |
+
+There is no arrow-key navigation between toasts — tab-based only, no roving focus.
+
+<Canvas of={ToastStories.KeyboardNavigation} />
+
+- **ARIA**: Viewport — `role="region"`, `aria-label="Notifications"` (static — dynamic labels were double-announced by Safari/Firefox, [#2246](https://github.com/mui/base-ui/pull/2246)), `aria-live="polite"`. Root — `role="dialog"` (default, `priority: 'low'`) or `role="alertdialog"` (`priority: 'high'`), `aria-modal={false}`.
+- **Screen reader**: low-priority toasts announce politely through the Viewport live region. High-priority toasts render `title`/`description` strings into a separate visually hidden `role="alert"` container, and the Root itself is `aria-hidden` while unfocused to avoid double announcement — screen readers do not announce extra content rendered inside `Toast.Root` for high-priority toasts unless the user intentionally navigates to the viewport.
+
+<Canvas of={ToastStories.PriorityAnnouncements} />
+
+- **You must provide**: `:focus-visible` styles on toasts and actions, sufficient contrast, and — for any toast carrying an action — a timeout long enough for keyboard/screen-reader users to reach it (or `timeout: 0`).
+- **Known issues**: [#4253](https://github.com/mui/base-ui/issues/4253) (open) — keyboard/screen-reader users can't reach an Undo action before dismissal; the maintainer position is that focus-move is the wrong fix, pair important actions with long/infinite timeouts instead. [#4229](https://github.com/mui/base-ui/issues/4229) (open) — "Add a11y guide": the component has no usage-level a11y documentation yet; Primer's guidance (which discourages toasts) is the referenced model.
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Root | `data-expanded` | the stack is hovered or focus-visibly focused |
+| Root | `data-limited` | this toast is over the `limit` cap (still mounted, `inert`) |
+| Root | `data-type` | mirrors `toast.type` (`'success'`, `'error'`, `'info'`, `'loading'`, or any custom string) |
+| Root | `data-swiping` / `data-swipe-direction` | mid-swipe / after a swipe-dismiss release |
+| Root | `data-starting-style` / `data-ending-style` | the enter / exit transition frame |
+| Root | `--toast-index`, `--toast-offset-y`, `--toast-height` | stack position, cumulative fan-out offset, measured height |
+| Root | `--toast-swipe-movement-x` / `-y` | live pointer offset while swiping; frozen at release so exit animation continues from that point |
+| Viewport | `data-expanded` | the stack is hovered or focus-visibly focused |
+| Viewport | `--toast-frontmost-height` | measured height of the front toast |
+| Content | `data-expanded`, `data-behind` | stack expanded / this toast is hidden behind a taller front toast |
+| Title / Description / Action / Close | `data-type` | mirrors `toast.type`, same values as Root |
+| Positioner / Arrow | `data-side`, `data-align`, `data-anchor-hidden` / `data-uncentered` | anchored toasts only |
+
+<Canvas of={ToastStories.TypeStyling} />
+
+## Choosing the right props
+
+- **`Provider.timeout`** (default 5000) — global auto-dismiss. Set `0` to make all toasts persistent by default; per-toast `timeout` in `add()` overrides it. Use ≥10s (or `0`) when a toast carries an action the user must reach ([#4975](https://github.com/mui/base-ui/pull/4975), [#4253](https://github.com/mui/base-ui/issues/4253)).
+- **`Provider.limit`** (default 3) — visible-stack cap. Style the overflow with `[data-limited]` (e.g. `opacity: 0`) — limited toasts are `inert` but still mounted and will return ([#1953](https://github.com/mui/base-ui/pull/1953)).
+- **`Provider.toastManager`** — pass a `createToastManager()` instance to drive toasts from outside React. Known gap: toasts added before the Provider mounts are dropped ([#4986](https://github.com/mui/base-ui/issues/4986), open) — relevant for islands architectures.
+- **`Root.swipeDirection`** (default `['down', 'right']`) — match your viewport corner (bottom-right stack → down/right; top-center → `['up']`). Ignored for anchored toasts.
+- **`add()` `type`** — free-form styling/behavior discriminator surfaced as `data-type`; `'loading'` is special (no auto-dismiss). Literal-union typing was declined in favor of a future typed manager ([#3952](https://github.com/mui/base-ui/issues/3952)).
+- **`add()` `priority`** (default `'low'`) — `'high'` gets assertive `role="alert"` announcement plus `alertdialog` role; reserve it for urgent, actionable failures.
+- **`add()` `id`** — pass to dedupe/upsert ([#4440](https://github.com/mui/base-ui/pull/4440)); also the workaround for `promise()` not returning an id ([#2833](https://github.com/mui/base-ui/issues/2833)).
+- **`add()` `positionerProps: { anchor, sideOffset, … }`** — makes the toast anchored; use a separate provider, and keep anchored timeouts short ([#3096](https://github.com/mui/base-ui/pull/3096)).
+
+## Do / Don't
+
+**Do**
+
+- Always compose the full `Provider > Portal > Viewport` tree and map `useToastManager().toasts` yourself — there is no automatic renderer.
+- Set `user-select: none` (+ `-webkit-user-select: none`) on the toast root — swipe feels sticky without it ([#1467](https://github.com/mui/base-ui/pull/1467) review).
+- Give any toast with an action a long timeout (≥10s) or `timeout: 0` — keyboard and screen-reader users need time to reach it ([#4975](https://github.com/mui/base-ui/pull/4975)).
+- Render anchored and stacked toasts from separate `Toast.Provider`s (docs anchored section).
+
+**Don't**
+
+- Don't expect an initially open, "critical" flow to survive on a toast alone — auto-dismiss is a WCAG 2.2.1 risk; use `timeout: 0` + `Toast.Close` at minimum, or a different UI ([#4253](https://github.com/mui/base-ui/issues/4253)).
+- Don't route third-party toast libraries (sonner, react-toastify) inside the app's `isolation: isolate` root — they lose the z-index war against Base UI overlays; mount them outside it instead ([#2938](https://github.com/mui/base-ui/issues/2938), [#1935](https://github.com/mui/base-ui/issues/1935)).
+- Don't rely on `promise()`'s return value as a toast id — it returns the chained promise; pass your own `id` ([#2833](https://github.com/mui/base-ui/issues/2833)).
+- Don't recreate toast objects on every render if you need stable stacking — the store keys metadata by id, but object-identity churn caused regressions historically ([#3922](https://github.com/mui/base-ui/pull/3922)).
+- Don't add a `focus` option or otherwise move focus to a newly opened toast — rejected by design; use AlertDialog when the user must respond ([#4533](https://github.com/mui/base-ui/pull/4533)).
+
+## In the wild
+
+Corpus-signal only — full ranked recreations were not run for Toast (`research/d-real-world-usage/toast/candidates.json`, description-inferred, code not fetched/verified against source):
+
+- **[baseui-cn](https://www.baseui-cn.com)** ([source](https://github.com/baseui-cn/baseui-cn), MIT, code-ok) — a shadcn-style registry of Base UI components that explicitly lists fixes to Toast among its overlay/focus work; useful as a second reference implementation of the manager pattern, not independently verified here.
+- **[popser](https://popser.vcui.dev)** ([source](https://github.com/vcode-sh/popser), MIT, code-ok) — a dedicated "Sonner-compatible API" toast library built on Base UI's Toast primitive; instructive as a from-scratch wrapper, but its internals were not fetched for this page — treat as a lead, not a verified example.
+
+[G] Deeper real-world recreations (a save-flow-with-undo composition, an anchored copy-feedback demo against a live repo) are pending a full Phase D pass for this component; the two candidates above are corpus signal only.
+
+## Decision log
+
+- **2025-04-08** — Component introduced, [#1467](https://github.com/mui/base-ui/pull/1467), closing [#220](https://github.com/mui/base-ui/issues/220). Goals in the PR body: swipe, stack, global queue. `useToast` renamed `useToastManager` in review to match the global API. Shipped in v1.0.0-alpha.8.
+- **2025-05** — `Portal` part added ([#1962](https://github.com/mui/base-ui/pull/1962)); limited toasts stay in the DOM with `inert` instead of being removed ([#1953](https://github.com/mui/base-ui/pull/1953)).
+- **2025-07** — Viewport becomes the announce container ([#2246](https://github.com/mui/base-ui/pull/2246)): removes the per-toast hidden announcer, adds the separate hidden `role="alert"` container for high priority, makes `Toast.Close` `aria-hidden` when not expanded.
+- **2025-09** — Variable-height stacking + new `Toast.Content` part ([#2742](https://github.com/mui/base-ui/pull/2742), closing [#1955](https://github.com/mui/base-ui/issues/1955)); `title`/`description` widen to `ReactNode` ([#2929](https://github.com/mui/base-ui/pull/2929)).
+- **2025-10/11** — Anchored toasts: Positioner + Arrow parts, `positionerProps` on `add()` ([#3096](https://github.com/mui/base-ui/pull/3096), closing [#3026](https://github.com/mui/base-ui/issues/3026)).
+- **2026-01→03** — Manager API maturation: generics `useToastManager<Data>`/`createToastManager<Data>` ([#3882](https://github.com/mui/base-ui/pull/3882)); `close()` with no id closes all ([#3979](https://github.com/mui/base-ui/pull/3979), Sonner/Chakra `dismiss` precedent); timer rescheduling on update fixed ([#3564](https://github.com/mui/base-ui/pull/3564)).
+- **2026-03→05** — Dedup/upsert via `add({ id })` + `updateKey` counter ([#4440](https://github.com/mui/base-ui/pull/4440), from [#4228](https://github.com/mui/base-ui/issues/4228)); timers resume after window refocus ([#4438](https://github.com/mui/base-ui/pull/4438)).
+- **2026-06** — `focus` option rejected ([#4533](https://github.com/mui/base-ui/pull/4533)): toasts must not move focus; AlertDialog is the alternative. Companion docs fix: undo demo timeout raised to 10s ([#4975](https://github.com/mui/base-ui/pull/4975)). Open counterparts: [#4253](https://github.com/mui/base-ui/issues/4253) (a11y timing), [#4229](https://github.com/mui/base-ui/issues/4229) (a11y guide).
+
+## Known issues & open questions
+
+- [#4253](https://github.com/mui/base-ui/issues/4253) (open) — keyboard/screen-reader users can't reach an Undo action before dismissal; no built-in fix planned, docs mitigation is long timeouts.
+- [#4229](https://github.com/mui/base-ui/issues/4229) (open) — no usage-level a11y guide yet; Primer's guidance (which discourages toasts) is the referenced model.
+- [#4986](https://github.com/mui/base-ui/issues/4986) (open) — toasts queued via a global manager before the Provider mounts are silently dropped (islands/late-mounting shells).
+- [#3952](https://github.com/mui/base-ui/issues/3952) — `type` is a free string, not a literal union; a typed-manager generic is the stated future direction, not yet built.
+- [#4234](https://github.com/mui/base-ui/issues/4234) (open) — every component calling `useToastManager()` re-renders on any toast change; an unmerged `useToastActions` split ([#4233](https://github.com/mui/base-ui/pull/4233)) was proposed but not merged.
+- [#4402](https://github.com/mui/base-ui/issues/4402) (open) — logical (`inline-start`/`inline-end`) `swipeDirection` values for RTL are an open discussion, not implemented.
+
+## Related
+
+- To force a response the user must act on before proceeding, use Dialog/Alert Dialog instead — no Storybook page yet [G].
+- For a hover hint about a control (not an event), use [Popover](?path=/docs/overlays-popover--docs).
+- For validation and form errors tied to a specific field, use [Field](?path=/docs/form-inputs-field--docs) and [Form](?path=/docs/form-inputs-form--docs).
+
+## API reference
+
+### Toast.Root
+
+<ArgTypes of={ToastStories.Hero} />
+
+*Per-part tables (`Toast.Provider`, `Toast.Viewport`, `Toast.Title`, `Toast.Description`, `Toast.Action`, `Toast.Close`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/toast](https://base-ui.com/react/components/toast#api-reference).*
+
+## Testing your composition
+
+- Query the portaled stack via `within(canvasElement.ownerDocument.body)`, then `getByRole('region', { name: 'Notifications' })` for the viewport and `getByRole('dialog')` / `getByRole('alertdialog')` for individual toasts — the play functions in the stories above are living examples.
+- Prefer `waitFor`/`findBy*` over fixed sleeps for timer-dependent assertions (auto-dismiss, hover-pause) — timers run on real elapsed time, not mocked clocks, in these stories.
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toast) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toast).*
