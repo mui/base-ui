@@ -1,0 +1,83 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 utils floor (source + docs + a quick issue search —
+    research/c-components/direction-provider/brief.md). */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as DirectionProviderStories from './direction-provider.stories';
+
+<Meta of={DirectionProviderStories} />
+
+# Direction Provider
+
+Enables RTL behavior for Base UI components.
+
+- **Import:** `import { DirectionProvider, useDirection } from '@base-ui/react/direction-provider';`
+- **Shape:** a context provider (no DOM of its own) plus a public hook, `useDirection()`.
+- **Status:** Stable, founding-era ([#931](https://github.com/mui/base-ui/pull/931)); `useDirection` made public later ([#3082](https://github.com/mui/base-ui/pull/3082)).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={DirectionProviderStories.Hero} />
+
+## The signature fact: behavior only, never visuals
+
+**`<DirectionProvider>` does not set `dir` or any CSS.** This was a deliberate, explicit design decision, recorded verbatim in issue [#831](https://github.com/mui/base-ui/issues/831): _"We have decided that RTL setup should be: 1. Use a `DirectionProvider` to configure RTL component behavior for an app (or part of an app), and 2. Set `dir="rtl"` accordingly in the html to affect styling, ideally in the `<html>` tag... We do not set the `dir` attribute on components by default, but users are free to do so if they wish."_
+
+This is a genuine separation of concerns: `DirectionProvider` is the single source of truth for **logical** direction — keyboard semantics (which arrow key moves "forward" in a composite widget), positioning sides, and similar interaction details — while **visual** direction (HTML/CSS) is entirely your application's responsibility. Setting only one half desynchronizes the other:
+
+- `DirectionProvider` alone, no `dir`/CSS → components behave RTL-correctly but your layout still reads LTR.
+- `dir="rtl"` alone, no `DirectionProvider` → your layout flips, but arrow keys and slider dragging keep LTR semantics, because every Base UI component reads only the context, never the DOM attribute.
+
+Always pair both, as the docs themselves demonstrate:
+
+```tsx title="Anatomy"
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+
+// prettier-ignore
+<div dir="rtl">
+  <DirectionProvider direction="rtl">
+    {/* Your app or a group of components */}
+  </DirectionProvider>
+</div>
+```
+
+## Why `useDirection()` exists
+
+Portaled popups (Tooltip, Menu, Select, etc.) render outside the `dir`-scoped region of the DOM, so they never inherit your `dir="rtl"` attribute — and the provider deliberately won't set it for you either. `useDirection()` was made public specifically to close this gap ([#3082](https://github.com/mui/base-ui/pull/3082), resolving [#3041](https://github.com/mui/base-ui/issues/3041)): _"Since we intentionally do not set the `dir` attribute, providing this hook seems the best way to handle the issue with portalled components and makes building custom wrapping components easier."_ Read it to apply `dir` on a portaled popup yourself, or when building your own direction-aware wrapper components.
+
+## Behavioral flip, demonstrated
+
+`useCompositeRoot` (the shared roving-focus engine behind ToggleGroup, RadioGroup, Tabs, and other composite widgets) swaps which arrow key moves focus "forward" based on direction — `ArrowLeft` in RTL, `ArrowRight` in LTR:
+
+<Canvas of={DirectionProviderStories.FlipCompositeRTL} />
+
+## When to use
+
+- Any app or subtree rendered in an RTL language — wrap it so arrow-key navigation and positioning sides flip to match.
+- Per-section mixing — the provider configures "an app (or part of an app)" (#831); wrap only the RTL region.
+- `useDirection()` whenever you need the current direction outside the styled tree, most commonly for portaled popups.
+
+## When not to use
+
+- **As a layout tool** — it is not one; to flip visuals, set `dir="rtl"` (or `direction: rtl` in CSS) yourself.
+- **LTR-only apps** — unnecessary; every consumer defaults to `'ltr'` when no provider is present.
+
+## Pitfalls
+
+- **Expecting layout to flip** — the provider alone changes behavior only; visuals stay LTR until you set `dir`/CSS yourself.
+- **Portaled popups don't inherit your `dir` attribute** — a popup portaled to `<body>` escapes the `dir`-scoped region; read `useDirection()` and set `dir` on the popup yourself. Maintainers themselves note it's "a bit annoying to have to manually set this on every nested positioner level" (#3041).
+- **`dir="rtl"` without the provider** — layout flips, but arrow keys/dragging keep LTR semantics, since components read only the context.
+- **Assuming every component honors it** — coverage was patched in per component over time (e.g. ScrollArea didn't originally read it, [#1189](https://github.com/mui/base-ui/issues/1189)); logical-value gaps remain open (e.g. [#4402](https://github.com/mui/base-ui/issues/4402) for `swipeDirection`).
+
+## Decision log
+
+- **2024** — [#831](https://github.com/mui/base-ui/issues/831): the two-part RTL setup decided; shipped in [#931](https://github.com/mui/base-ui/pull/931).
+- **2024–2025** — per-component RTL adoption fixes: [#59](https://github.com/mui/base-ui/issues/59) (tabs keyboard), [#1189](https://github.com/mui/base-ui/issues/1189) (scroll area), [#951](https://github.com/mui/base-ui/issues/951) (logical `side` values).
+- **2025** — [#3041](https://github.com/mui/base-ui/issues/3041) ("Should DirectionProvider set `dir` on portalled elements?") answered no; `useDirection` exported publicly instead ([#3082](https://github.com/mui/base-ui/pull/3082)).
+
+## API reference
+
+<ArgTypes of={DirectionProviderStories.Hero} />
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+direction) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/direction-provider)._

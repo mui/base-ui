@@ -1,0 +1,102 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 (lean brief: source + docs + forms handbook + two
+    targeted gh issue lookups — research/c-components/fieldset/brief.md).
+    Builds on the field brief (Tier 1) for Field.Root/Field.Item. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as FieldsetStories from './fieldset.stories';
+
+<Meta of={FieldsetStories} />
+
+# Fieldset
+
+A native fieldset element with an easily stylable legend.
+
+- **Import:** `import { Fieldset } from '@base-ui/react/fieldset';`
+- **Parts:** 2 — `Fieldset.Root`, `Fieldset.Legend`.
+- **Status:** Stable, founding-era — created in the same PR as Field (`c51fb490a`, 2024-08-20, [#477](https://github.com/mui/base-ui/pull/477)).
+- **ARIA pattern:** none of its own — Fieldset is grouping/labeling machinery for the platform's native `<fieldset>` element, not a widget.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={FieldsetStories.Hero} />
+
+## Does it render native `<fieldset>`/`<legend>`? — verified directly
+
+| Part              | Native element?                    | Verified by                                                                                                            |
+| ----------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Fieldset.Root`   | **Yes** — a real `<fieldset>`      | `describeConformance` `inheritComponent: 'fieldset'`; the native `disabled` attribute cascades to descendants for free |
+| `Fieldset.Legend` | **No** — a `<div>`, not `<legend>` | `describeConformance` `refInstanceof: HTMLDivElement`; linked via `aria-labelledby` instead                            |
+
+**This is a deliberate, cited design decision, not an oversight.** Asked directly in closed issue [#3044](https://github.com/mui/base-ui/issues/3044) ("Why does `Fieldset.Legend` render a `div` instead of a `legend` by default?"), maintainer atomiks answered: _"`<legend>` elements are hard to style/position and don't act like regular [flow] elements. The description mentions 'easily stylable legend' for this reason."_ A follow-up asked whether `aria-labelledby` on the `<fieldset>` is equally accessible to a native `<legend>`; mj12albert replied: _"There are some trade-offs between `<legend>`, `aria-label` and `aria-labelledby`... None of them are perfect but it seems using `div` + `aria-labelledby` avoids the [styling issues] and minimizes the a11y issues,"_ citing [adrianroselli.com's research on `<legend>` bugs](https://adrianroselli.com/2022/07/use-legend-and-fieldset.html#Bugs) directly. Native `<legend>` fails Base UI's own scope test for building a primitive at all: an HTML element that can't be styled.
+
+## Features
+
+- **Native `<fieldset>` disabled cascade, for free** — `disabled` sets the real DOM `disabled` attribute; descendant native controls are disabled by the _browser_, independent of any React wiring (pinned by `FieldsetRoot.test.tsx`: an inner `<input>` is disabled with zero Base UI wiring at all).
+- **Ancestor-disabled always wins** — an outer `disabled` Fieldset forces every nested Fieldset disabled regardless of its own `disabled` prop.
+- **Composes over other Base UI roots via `render`** — `<Fieldset.Root render={<RadioGroup />}>` makes `Fieldset.Root` _become_ the literal element the composed-over Root renders as, rather than adding an extra wrapping node (standard Base UI `render` grammar). For RadioGroup that's its own `<div role="radiogroup">`, not a native `<fieldset>` — the composed-over component's element type wins, and Fieldset's `aria-labelledby`/`disabled` still land on it. Tested against `RadioGroup`, `CheckboxGroup`, and `Slider.Root`.
+- **No state machine of its own** — `FieldsetRootState`/`FieldsetLegendState` contain exactly one field, `disabled: boolean`. All validity/interaction state belongs to `Field.Root`.
+
+## When to use
+
+- **One label, several controls** — "Compose `Fieldset` when a single label applies to multiple controls, such as a range slider with multiple thumbs or a section that combines several inputs" (forms handbook).
+- **Checkbox/radio groups** — keep the group label in `Fieldset.Legend`, and wrap each option in `Field.Item` so it gets its own label/description.
+
+<Canvas of={FieldsetStories.GroupedRadio} />
+
+## When not to use
+
+- **A single control needing a label** — use `Field.Label` (or a plain `<label>`), not Fieldset; wrapping one control in a `Fieldset.Root` for no grouping benefit gains nothing.
+- **A group of non-identical controls needing shared validation** — the boundary is genuinely unsettled today (see Known issues below); don't assume a definitive answer exists yet.
+
+## Anatomy
+
+```tsx
+import { Fieldset } from '@base-ui/react/fieldset';
+
+<Fieldset.Root>
+  <Fieldset.Legend />
+</Fieldset.Root>;
+```
+
+| Part              | Renders      | Purpose                                                  |
+| ----------------- | ------------ | -------------------------------------------------------- |
+| `Fieldset.Root`   | `<fieldset>` | The native grouping boundary; carries `disabled` cascade |
+| `Fieldset.Legend` | `<div>`      | The stylable label, auto-linked via `aria-labelledby`    |
+
+## Styling hooks
+
+No `Fieldset*CssVars.ts` and no dedicated data-attribute file beyond the one boolean state — the only styling hook either part exposes is `data-disabled`, derived from `state.disabled`.
+
+## Known issues & open questions
+
+- **[#3930](https://github.com/mui/base-ui/issues/3930)** ("Investigate `Fieldset`s as validation boundaries", open) — today, a group of _non-identical_ controls gets its validation boundary from an outer `Field.Root` wrapping the whole `Fieldset.Root` (`<Field.Root><Fieldset.Root>...</Fieldset.Root></Field.Root>`), while _identical_ repeated controls (radio/checkbox groups) each get their own `Field.Item` inside the Fieldset. A maintainer flagged this as an asymmetry worth reconsidering — possibly making `Fieldset.Root` itself the validation boundary directly, with one `Field.Root` per repeated control nested _inside_ it instead. **Treat this as unresolved, not settled behavior.**
+- **[#3260](https://github.com/mui/base-ui/issues/3260)** (open) — `Fieldset.Description`/`Fieldset.Error` parts requested; Fieldset ships with exactly 2 parts today. Group-level description/error text has no dedicated part — author it manually or rely on per-item `Field.Description`/`Field.Error`.
+- **[#3262](https://github.com/mui/base-ui/issues/3262)** (open) — `useFieldsetRootContext` is not publicly exported; consumers can't read Fieldset's `disabled` state the sanctioned way. `data-disabled` is the escape hatch today.
+
+## Do / Don't
+
+**Do**
+
+- Keep `Fieldset.Root` a real `<fieldset>` in your mental model — its native `disabled` cascade and grouping semantics are the whole point of not reinventing it.
+- Compose `Fieldset.Root` via `render` over a Base UI group root (RadioGroup, CheckboxGroup, Slider.Root) instead of wrapping it in an extra element.
+
+**Don't**
+
+- Don't expect `Fieldset.Legend` to be a native `<legend>` — it's a `<div>`, by deliberate design (#3044).
+- Don't assume a single right answer for validation boundaries around heterogeneous grouped controls — #3930 is open and unresolved.
+
+## Related
+
+- [Field](?path=/docs/form-inputs-field--docs) — the single-control labeling/validation counterpart; `Field.Item` labels each option inside a Fieldset-grouped control.
+
+## API reference
+
+### Fieldset.Root
+
+<ArgTypes of={FieldsetStories.Hero} />
+
+_Per-part table (`Fieldset.Legend`) renders via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/fieldset](https://base-ui.com/react/components/fieldset#api-reference)._
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+fieldset) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/fieldset)._

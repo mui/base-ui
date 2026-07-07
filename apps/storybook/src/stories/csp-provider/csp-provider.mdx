@@ -1,0 +1,126 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 utils floor (source + docs + a quick issue search —
+    research/c-components/csp-provider/brief.md).
+
+    MDX-only, no stories.tsx: per the utils-tier rule ("a story only where
+    rendering one makes sense"), CSPProvider renders no DOM, and its effects —
+    a `nonce` attribute on injected `<style>`/`<script>` tags, or those tags'
+    absence — are invisible in a Storybook canvas and unenforceable there
+    (Storybook serves no CSP header, so nothing visibly breaks or unbreaks).
+    Its own live docs page has zero demos, matching this judgment
+    (story-plan.md). */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Utilities/CSP Provider" />
+
+# CSP Provider
+
+Configures CSP-related behavior for inline tags rendered by Base UI components.
+
+- **Import:** `import { CSPProvider } from '@base-ui/react/csp-provider';`
+- **Shape:** a single component, no parts, no DOM of its own — a bare context provider (`CSPContext.Provider`).
+- **Status:** Stable, a recent (post-v1.0) addition — [#3553](https://github.com/mui/base-ui/pull/3553).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+## Why it exists
+
+Some Base UI components render inline `<style>` or `<script>` tags for functionality such as removing scrollbars or pre-hydration behavior. Under a strict Content Security Policy (CSP), these tags may be blocked unless they include a matching `nonce` attribute. The concrete offenders: `<ScrollArea.Viewport>` and `<Select.Popup>`/`<Select.List>` (when `alignItemWithTrigger` is enabled) inject a scrollbar-hiding `<style>`; a pre-hydration `<script>` exists for opt-in behaviors elsewhere in the library.
+
+It was added directly in response to a bug report: issue [#3550](https://github.com/mui/base-ui/issues/3550), _"Incompatibility with strict CSPs"_ — _"Scroll Area does not work with strict CSPs as there's inline styles."_ `CSPProvider` lets you configure this behavior **globally for all Base UI components within its tree**, instead of threading a `nonce` prop through every individual part.
+
+```jsx title="Anatomy"
+import { CSPProvider } from '@base-ui/react/csp-provider';
+
+// prettier-ignore
+<CSPProvider nonce="...">
+  {/* Your app or a group of components */}
+</CSPProvider>
+```
+
+## Supplying a nonce
+
+If your CSP blocks inline tags by default:
+
+1. Generate a random nonce per request.
+2. Include it in your CSP header (via `style-src-elem`/`script-src`).
+3. Pass the _same_ nonce into `CSPProvider` during rendering.
+
+```ts title="Server: building the header"
+const nonce = crypto.randomUUID();
+
+const csp = [
+  `default-src 'self'`,
+  `script-src 'self' 'nonce-${nonce}'`,
+  `style-src-elem 'self' 'nonce-${nonce}'`,
+].join('; ');
+```
+
+```jsx title="Rendering: providing the same nonce"
+import { CSPProvider } from '@base-ui/react/csp-provider';
+
+function App({ nonce }) {
+  return <CSPProvider nonce={nonce}>{/* ... */}</CSPProvider>;
+}
+```
+
+Every Base UI-rendered inline `<style>`/`<script>` then carries the nonce attribute, so the browser admits it under your header policy.
+
+## Disabling inline style elements
+
+If you'd rather ship no injected style tags at all, skip nonce plumbing entirely with `disableStyleElements` — the affected components (`ScrollArea.Viewport`, `Select.Popup`/`Select.List` with `alignItemWithTrigger`) then stop rendering their scrollbar-hiding `<style>`, and you own the replacement CSS yourself:
+
+```css title="Replacement CSS you must add"
+.base-ui-disable-scrollbar {
+  scrollbar-width: none;
+}
+.base-ui-disable-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+```
+
+```jsx
+<CSPProvider disableStyleElements>{/* ... */}</CSPProvider>
+```
+
+`<script>` tags are unaffected by this flag — there is no equivalent "disable" for scripts. A `nonce` is required if any component in the tree uses an inline script.
+
+## Scope boundary: style elements vs. style attributes
+
+`CSPProvider` covers inline `<style>` and `<script>` **tags** — it does **not** cover inline `style=""` **attributes** (e.g. `<div style="...">`). CSP's `style-src` directive governs both; use `style-src-elem` specifically if you only want to control `<style>` elements. If your CSP also blocks inline style _attributes_ (`style-src-attr`), you have three options, none of them `CSPProvider`'s job:
+
+1. Relax `style-src-attr` (or use only `style-src-elem` instead of `style-src`) — style attributes are a less severe risk than style elements, but this may not suit high-security environments.
+2. Render the affected components client-only, so no inline styles land in the initial HTML.
+3. Manually unset inline styles per part and specify them in your own CSS instead (e.g. `<ScrollArea.Viewport style={{ overflow: undefined }}>`) — note you'll need to vet future upgrades for any new inline styles Base UI adds.
+
+## Prop guidance
+
+- **`nonce`** — the value applied to every inline `<style>`/`<script>` tag Base UI renders. Must be random per request and mirrored in your CSP header.
+- **`disableStyleElements`** (default `false`) — skips rendering ScrollArea/Select's injected style tags entirely; you then own the `.base-ui-disable-scrollbar` rules yourself. Has no effect on `<script>` tags.
+
+## Pitfalls
+
+- **Nonce mismatch** — the header nonce and the rendered nonce must be the _same_ per-request value, or tags stay blocked.
+- **Expecting it to fix `style=""` attribute violations** — it doesn't cover inline style attributes; that's `style-src-attr` territory (see above).
+- **`disableStyleElements` without replacement CSS** — ScrollArea/Select fall back to native scrollbars until you add the documented rules yourself.
+- **Assuming `disableStyleElements` also silences scripts** — it doesn't; scripts have no disable flag, and a `nonce` is still required if any inline script is used.
+- **Placing the provider below the components that inject tags** — those subtrees fall back to the no-nonce default; wrap at the root.
+
+## When to use
+
+- Your app enforces a CSP whose `style-src`/`style-src-elem` or `script-src` lacks `'unsafe-inline'`.
+- You'd rather ship no injected style tags at all — pair `disableStyleElements` with the documented replacement CSS.
+
+## When not to use
+
+- No strict CSP — unnecessary; components render their inline tags by default without a provider present.
+- Your CSP also blocks style _attributes_ — `CSPProvider` can't help there; see the scope-boundary options above.
+
+## Decision log
+
+- **2025/2026** — [#3550](https://github.com/mui/base-ui/issues/3550) reported ScrollArea broken under strict CSP → [#3553](https://github.com/mui/base-ui/pull/3553) added `CSPProvider` (`nonce` + `disableStyleElements`).
+- **Precedent** — [#1110](https://github.com/mui/base-ui/issues/1110): keep only minimal functional inline styles, and allow per-prop unsetting — the philosophy the "Inline style attributes" workaround operationalizes.
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+csp) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/csp-provider)._

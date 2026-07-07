@@ -1,0 +1,77 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 utils floor (source + docs + a quick issue search —
+    research/c-components/use-render/brief.md). */}
+
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as UseRenderStories from './use-render.stories';
+
+<Meta of={UseRenderStories} />
+
+# useRender
+
+Hook for enabling a render prop in custom components.
+
+- **Import:** `import { useRender } from '@base-ui/react/use-render';`
+- **Shape:** a hook, not a component — the only rendering primitive among Base UI's utils. `useRenderElement(defaultTagName, params, params)` under the hood, the exact machinery every Base UI part uses.
+- **Status:** Stable, public since [#1418](https://github.com/mui/base-ui/pull/1418).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+## The blessed Slot alternative
+
+Issue [#1315](https://github.com/mui/base-ui/issues/1315) asked for a Radix-`<Slot/>`-style helper so consumers could build their own render-prop-capable components. The team deliberately chose a **hook instead of a component**: _"We discussed this among the team and decided that a hook may be a better abstraction than `<Slot/>`"_ (mj12albert). It shipped as `useRender` in [#1418](https://github.com/mui/base-ui/pull/1418), kept fully-featured with `state` support ("let's make the render prop fully featured," michaldudak), while `mergeProps` was split out as its own standalone primitive rather than bundled in.
+
+The `render` prop itself is Base UI's permanent composition primitive — a later `asChild` request ([#3983](https://github.com/mui/base-ui/issues/3983)) was rebuffed: _"unlikely we'll change this API"_ (michaldudak), for explicitness and to avoid `cloneElement`. `useRender` is the sanctioned way to extend that same convention into your own components, and the docs frame it directly as the Radix `Slot` migration target.
+
+## Building a custom render-prop component
+
+<Canvas of={UseRenderStories.CustomComponent} />
+
+```tsx title="The Text component above"
+interface TextProps extends useRender.ComponentProps<'p'> {}
+
+function Text(props: TextProps) {
+  const { render, ...otherProps } = props;
+
+  const element = useRender({
+    defaultTagName: 'p',
+    render,
+    props: mergeProps<'p'>({ className: styles.Text }, otherProps),
+  });
+
+  return element;
+}
+```
+
+## State → data attributes
+
+Passing `state` as a hook parameter makes it available as the second argument to a function-form `render` callback, **and** auto-converts it to `data-*` attributes on the rendered element:
+
+<Canvas of={UseRenderStories.StateToDataAttributes} />
+
+## Rules of render — the footguns (#4039)
+
+- **`render={<Component />}` — yes.** The element form is auto-merged and is what you want by default.
+- **`render={Component}` — never.** Passing the bare component reference (not an element, not a callback) makes React treat each call as a new function identity; any hooks inside crash during reconciliation. This shipped a dev warning after [#4039](https://github.com/mui/base-ui/issues/4039): _"can break the Rules of Hooks during reconciliation."_
+- **No hooks inside render functions.** The function form (`render={(props, state) => ...}`) is called as a plain function on every render, not mounted as a component — calling a hook inside it violates the Rules of Hooks for the same reason as the bullet above.
+- **Forgetting to spread props** in the function form silently drops handlers/refs — the custom-component contract is "forward the `ref`, and spread all the received props."
+- **Polymorphism without a signal** — switching the rendered tag can leave invalid defaults (e.g. `type="button"` on an `<a>`). Base UI's own `Button` solves this with a `nativeButton` prop; mirror that pattern rather than guessing.
+
+## When to use
+
+- Building your own design-system primitives that must accept `render` exactly like Base UI parts do.
+- Migrating a Radix `Slot`-based component — the docs give a line-for-line equivalence.
+- Merging an internal ref with the consumer's: the `ref` option accepts an array so both parties reach the underlying DOM element.
+
+## When not to use
+
+- **Consuming** a Base UI component — use its built-in `render` prop; `useRender` is only for authoring new render-prop hosts.
+- **Merging props inside a render callback** — that's `mergeProps` alone, no hook needed.
+- **Reading Base UI part state from outside** — use the `render`/`className` callback's `state` argument or controlled props; public context hooks for this were rejected ([#4329](https://github.com/mui/base-ui/issues/4329)).
+
+## Related
+
+- [mergeProps](?path=/docs/utilities-mergeprops--docs) — the merge function this hook's `props` parameter is built with (`mergeProps(defaultProps, otherProps)`).
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+useRender) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/use-render)._

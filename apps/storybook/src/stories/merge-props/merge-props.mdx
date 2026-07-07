@@ -1,0 +1,70 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 utils floor (source + docs + a quick issue search —
+    research/c-components/merge-props/brief.md). */}
+
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as MergePropsStories from './merge-props.stories';
+
+<Meta of={MergePropsStories} />
+
+# mergeProps
+
+A utility to merge multiple sets of React props.
+
+- **Import:** `import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';`
+- **Shape:** pure functions, no React rendering, no hook rules. `mergeProps` accepts up to 5 prop sets; `mergePropsN` accepts an array for more.
+- **Status:** Stable, public since [#1535](https://github.com/mui/base-ui/pull/1535) — split out as a standalone primitive from `useRender`'s hook API "at atomiks' insistence."
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+## Why it exists
+
+The function form of any Base UI part's `render` prop hands you raw props and merges nothing: _"When using the function form of the `render` prop, props are not merged automatically. You can use `mergeProps` to combine Base UI's props with your own."_ It's the exact same merger Base UI's own parts use internally (`useRenderElement`), exposed so userland merging behaves identically — predictability over configurability, "like `Object.assign` (rightmost wins) with a few special cases."
+
+## Handler order — and cancellation, live
+
+<Canvas of={MergePropsStories.HandlerOrderAndCancellation} />
+
+## The merge contract
+
+- **Ordinary keys** — rightmost wins: `mergeProps({ id: 'a' }, { id: 'b' })` → `{ id: 'b' }`.
+- **`ref` is never merged** — only the rightmost ref survives. Use `useRender`'s `ref` array (an array of refs to merge) for that need instead.
+- **`className`** — concatenated right-to-left: `mergeProps({ className: 'a' }, { className: 'b' })` → `'b a'`.
+- **`style`** — merged per-key, rightmost overwrites.
+- **Event handlers** — chained and executed right-to-left (rightmost first). Put Base UI/internal props **left**, your overrides **right**: rightmost wins conflicts, runs first, and can cancel.
+- **`preventBaseUIHandler()`** — available only on React synthetic events (detected via `'nativeEvent' in event`). Calling it stops earlier (left-positioned) handlers in the chain from running — it does **not** call `preventDefault()`/`stopPropagation()`. For non-synthetic events (custom events with primitive/object values), this mechanism isn't available and all handlers always run.
+- **Function arguments (props getters)** — a function receives the props merged so far (left→right); its return value **replaces** the accumulated props. If you want to chain a previous handler, you must call it manually — getter-returned handlers are also not auto-prevented; they must check `event.baseUIHandlerPrevented` themselves.
+- **`mergePropsN`** — same semantics, slightly less efficient; only reach for it past 5 prop sets.
+
+## When to use
+
+- Inside the function form of any Base UI part's `render` prop, to combine Base UI's `props` with your own.
+- Authoring custom components with `useRender`: `props: mergeProps(defaultProps, userProps)`, so internal defaults yield to consumer overrides (defaults leftmost, so they lose conflicts).
+- To cancel a Base UI internal handler via `event.preventBaseUIHandler()` — an escape hatch for cases with no dedicated prop yet.
+
+## When not to use
+
+- **Element-form `render`** (`render={<button />}`) — merging is automatic; calling `mergeProps` yourself is redundant.
+- **Merging refs** — never this utility; use `useRender`'s `ref` array.
+- **Vetoing change events** (`onOpenChange`, etc.) — prefer `eventDetails.cancel()`; `preventBaseUIHandler` is for raw DOM handlers without a dedicated cancellation prop yet.
+
+## Pitfalls
+
+- **Expecting refs to merge** — only the rightmost survives; the other one goes silently dead.
+- **Wrong mental order** — "executed right-to-left" surprises twice: the rightmost handler runs _first_, and the rightmost className appears _first_ in the string (`'b a'`).
+- **Assuming the getter form auto-chains** — a function argument _replaces_ accumulated props; call `props.onClick?.(event)` yourself if you need the previous handler.
+- **`preventBaseUIHandler()` on non-synthetic/native paths does nothing** — native events and custom value-events aren't covered.
+- **Tailwind class conflicts** — plain concatenation doesn't resolve `p-2` vs `p-4`; a custom-merger hook is an open request ([#2674](https://github.com/mui/base-ui/issues/2674)).
+
+## Decision log
+
+- **2025** — extracted to a public top-level import ([#1535](https://github.com/mui/base-ui/pull/1535)), following the decision to ship it separately from `useRender`.
+- **2025-08** — [#2382](https://github.com/mui/base-ui/pull/2382) introduced `eventDetails.cancel()` for change events; `preventBaseUIHandler` remains the raw-DOM-handler escape hatch.
+- **2026** — [#4598](https://github.com/mui/base-ui/pull/4598) fixed multi-argument handler forwarding (merged handlers previously received `undefined` extra args, [#4597](https://github.com/mui/base-ui/issues/4597)).
+
+## Related
+
+- [useRender](?path=/docs/utilities-userender--docs) — the hook this utility was split out from; pass `mergeProps(defaultProps, props)` as its `props` parameter.
+
+---
+
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+mergeProps) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/merge-props)._
