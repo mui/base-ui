@@ -91,7 +91,14 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/9ui-dev.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "open-state interaction failed: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for getByText('Accordion').first()\n",
+        "saved base screenshot: 263897 bytes"
+      ]
     }
   }
 ]

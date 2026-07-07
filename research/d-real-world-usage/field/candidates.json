@@ -13,16 +13,22 @@
     "files": [
       {
         "path": "packages/kumo/src/components/field/field.tsx",
-        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx",
-        "pinned": false
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/field/field.tsx"
       }
     ],
     "liveUrl": "https://kumo-ui.com",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to compose label/description/error slots consistently.",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Error",
+      "Description"
+    ],
+    "contextSummary": "Cloudflare's official component library. Field takes a single flat prop set (label, required, labelTooltip, error, description, controlFirst, hideLabel) instead of exposing Field.Label/Error/Description as separate JSX children, and documents a `hideLabel` escape hatch for controls (like Select) that provide their own accessible label so the native `<label>` doesn't add hover/focus coupling.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "corporate-design-system",
+      "flat-prop-api",
+      "hideLabel-escape-hatch"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -43,36 +49,40 @@
     "files": [
       {
         "path": "packages/ui/src/form/primitives/field/root.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx",
-        "pinned": false
-      },
-      {
-        "path": "packages/ui/src/form/primitives/field/label.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/label.tsx",
-        "pinned": false
+        "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/field/root.tsx"
       },
       {
         "path": "packages/ui/src/form/primitives/field/control.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/control.tsx",
-        "pinned": false
+        "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/field/control.tsx"
+      },
+      {
+        "path": "packages/ui/src/form/primitives/field/label.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/field/label.tsx"
       },
       {
         "path": "packages/ui/src/form/primitives/field/description.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/description.tsx",
-        "pinned": false
+        "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/field/description.tsx"
       },
       {
         "path": "packages/ui/src/form/primitives/field/details.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/details.tsx",
-        "pinned": false
+        "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/field/details.tsx"
       }
     ],
     "liveUrl": null,
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one file per part (root/label/control/description/details/item) inside the new form-primitives package that also backs its Combobox and Autocomplete.",
+    "partsUsed": [
+      "Root",
+      "Control",
+      "Label",
+      "Description",
+      "Item"
+    ],
+    "contextSummary": "WordPress' new @wordpress/ui form-primitives package wraps Field one file per part, each a thin forwardRef pass-through with a CSS-reset class merged in; Root's JSDoc explicitly says 'To label a group of multiple form control elements, use the Fieldset component instead' and warns that wrapping alone doesn't guarantee accessible labeling.",
     "diversityTags": [
       "production-app",
-      "registry-tree-mined-2026-07"
+      "framework-primitives",
+      "per-part-files",
+      "cms",
+      "a11y-docs"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -93,16 +103,312 @@
     "files": [
       {
         "path": "packages/ui/src/components/ui/field.tsx",
-        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx",
-        "pinned": false
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/packages/ui/src/components/ui/field.tsx"
       }
     ],
     "liveUrl": "https://www.lumiui.dev",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind wrapper published both as an installable registry item and inside the distributable package.",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Control",
+      "Description",
+      "Item",
+      "Error",
+      "Validity"
+    ],
+    "contextSummary": "lumi-ui's Field.Control forwards cva `inputVariants` (size/variant) so a bare `<FieldControl>` renders as a styled input, and FieldLabel auto-appends a `*` via `group-has-required:after:content-['*']` and `aria-required:after:content-['*']` instead of manual required-indicator markup.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "cva-integration",
+      "css-required-asterisk"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/lumiui-dev.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 280994 bytes",
+        "saved open-state screenshot: 158987 bytes"
+      ],
+      "pathOpen": "../_captures/lumiui-dev-open.png"
+    }
+  },
+  {
+    "id": "field-004",
+    "component": "field",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/field",
+    "files": [
+      {
+        "path": "apps/ui/registry/default/ui/field.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/registry/default/ui/field.tsx"
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Item",
+      "Description",
+      "Error",
+      "Control",
+      "Validity"
+    ],
+    "contextSummary": "Cal.com's public design-system registry (built on Base UI). Thin data-slot passthrough for every Field part including Control and Validity, used alongside its own Fieldset/Form files.",
+    "diversityTags": [
+      "oss-design-system",
+      "data-slot-contract",
+      "cal-com"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
+    }
+  },
+  {
+    "id": "field-005",
+    "component": "field",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/field",
+    "files": [
+      {
+        "path": "components/selia/field.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/field.tsx"
+      },
+      {
+        "path": "components/examples/field/basic.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/field/basic.tsx"
+      }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": [
+      "Root",
+      "Item",
+      "Label",
+      "Description",
+      "Error",
+      "Control",
+      "Validity"
+    ],
+    "contextSummary": "Selia's FieldItem uses a `grid-cols-[auto_1fr]` layout with `[&_[data-slot=field-description]]:col-start-2` so the description/error text aligns under the control rather than the label, a distinct layout convention from the vertical-stack default most other wrappers use.",
+    "diversityTags": [
+      "oss-design-system",
+      "grid-layout",
+      "live-site"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "field-006",
+    "component": "field",
+    "repo": "baptisteArno/typebot.io",
+    "repoUrl": "https://github.com/baptisteArno/typebot.io",
+    "stars": 10123,
+    "license": "custom (non-OSI, verify before reuse)",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/field",
+    "files": [
+      {
+        "path": "packages/ui/src/components/Field.tsx",
+        "permalink": "https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Field.tsx"
+      }
+    ],
+    "liveUrl": "https://typebot.io",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Description",
+      "Control",
+      "Error"
+    ],
+    "contextSummary": "Typebot exposes Field as a namespace object (`Field.Root/Label/Error/Description/Container/Control`) with a `Container` sub-part (bordered card grouping) not seen elsewhere, and an error-deduplication helper that collapses repeated messages into a single line or a bulleted list when there are several.",
+    "diversityTags": [
+      "form-builder-product",
+      "namespace-export-style",
+      "error-dedup-pattern"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/typebot-io.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 78355 bytes"
+      ]
+    }
+  },
+  {
+    "id": "field-007",
+    "component": "field",
+    "repo": "usekaneo/kaneo",
+    "repoUrl": "https://github.com/usekaneo/kaneo",
+    "stars": 3802,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/field",
+    "files": [
+      {
+        "path": "apps/site/components/ui/field.tsx",
+        "permalink": "https://github.com/usekaneo/kaneo/blob/3605cfc7db3b54f6c45d85d995e91857cf86e3a3/apps/site/components/ui/field.tsx"
+      }
+    ],
+    "liveUrl": "https://kaneo.app",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Item",
+      "Description",
+      "Error",
+      "Control",
+      "Validity"
+    ],
+    "contextSummary": "Kaneo, an open-source project-management tool. A standard thin data-slot Field wrapper used in its marketing/docs site's UI kit \u2014 plain, unremarkable production evidence that the shadcn-for-Base-UI Field pattern has propagated well beyond design-system registries into ordinary app codebases.",
+    "diversityTags": [
+      "production-app",
+      "project-management-tool",
+      "data-slot-contract"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/kaneo-app.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 121885 bytes"
+      ]
+    }
+  },
+  {
+    "id": "field-008",
+    "component": "field",
+    "repo": "Codennnn/Green-Wall",
+    "repoUrl": "https://github.com/Codennnn/Green-Wall",
+    "stars": 806,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-17",
+    "importSpecifier": "@base-ui-components/react/field",
+    "files": [
+      {
+        "path": "src/components/ui/field.tsx",
+        "permalink": "https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/field.tsx"
+      }
+    ],
+    "liveUrl": "https://greenwall.vercel.app",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Description",
+      "Error",
+      "Control",
+      "Validity"
+    ],
+    "contextSummary": "Green-Wall (a GitHub contribution-wall image generator) still imports from the pre-1.0 `@base-ui-components/react/field` specifier rather than `@base-ui/react/field` \u2014 direct evidence that some active, recently-updated apps have not migrated past the package rename.",
+    "diversityTags": [
+      "production-app",
+      "legacy-package-name",
+      "migration-lag"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "field-009",
+    "component": "field",
+    "repo": "InseeFr/Pogues",
+    "repoUrl": "https://github.com/InseeFr/Pogues",
+    "stars": 23,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui-components/react/field",
+    "files": [
+      {
+        "path": "next/src/components/ui/form/Field.tsx",
+        "permalink": "https://github.com/InseeFr/Pogues/blob/3086a1fdb5227a49b5d3294d4bebb92ca961ca94/next/src/components/ui/form/Field.tsx"
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Description",
+      "Error"
+    ],
+    "contextSummary": "France's national statistics institute questionnaire designer. Its Field wrapper forwards `dirty`/`touched`/`invalid`/`name` straight through from a react-hook-form `FieldError` object into Field.Root/Field.Error's `match` prop, a concrete first-party example of bridging Base UI Field state with an external form library's validation state.",
+    "diversityTags": [
+      "public-sector",
+      "react-hook-form-bridge",
+      "typed-props"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "field-010",
+    "component": "field",
+    "repo": "raystack/apsara",
+    "repoUrl": "https://github.com/raystack/apsara",
+    "stars": 69,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/field",
+    "files": [
+      {
+        "path": "packages/raystack/components/field/field-root.tsx",
+        "permalink": "https://github.com/raystack/apsara/blob/75c5cc153152af9dbd7abcf30b2135ef03d2d5af/packages/raystack/components/field/field-root.tsx"
+      }
+    ],
+    "liveUrl": "https://apsara.raystack.org",
+    "partsUsed": [
+      "Root",
+      "Label",
+      "Error",
+      "Description"
+    ],
+    "contextSummary": "Apsara, Raystack/Gojek's design system. Styled with CSS Modules rather than Tailwind (a minority approach in this corpus), and shares invalid/disabled/required state across sibling parts via a React context provider (FieldContext) rather than relying solely on Base UI's own data-attribute cascade.",
+    "diversityTags": [
+      "oss-design-system",
+      "css-modules",
+      "context-state-sharing",
+      "gojek"
     ],
     "instructiveMisuse": false,
     "screenshot": {

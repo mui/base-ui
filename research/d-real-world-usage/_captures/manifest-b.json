@@ -31,10 +31,11 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
+      "banner-dismissal applied",
       "open-state interaction failed: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for getByText('Accordion').first()\n",
-      "saved base screenshot: 264234 bytes"
+      "saved base screenshot: 263897 bytes"
     ],
-    "bytes": 264234,
+    "bytes": 263897,
     "bytesOpen": null
   },
   {
@@ -56,6 +57,7 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
+      "banner-dismissal applied",
       "saved base screenshot: 101915 bytes",
       "saved open-state screenshot: 100659 bytes"
     ],
@@ -91,10 +93,11 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 285020 bytes",
+      "banner-dismissal applied",
+      "saved base screenshot: 280994 bytes",
       "saved open-state screenshot: 158987 bytes"
     ],
-    "bytes": 285020,
+    "bytes": 280994,
     "bytesOpen": 158987
   },
   {
@@ -120,6 +123,7 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
+      "banner-dismissal applied",
       "saved base screenshot: 88956 bytes"
     ],
     "bytes": 88956,
@@ -137,6 +141,7 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
+      "banner-dismissal applied",
       "saved base screenshot: 87233 bytes"
     ],
     "bytes": 87233,
@@ -153,9 +158,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 128605 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 126572 bytes"
     ],
-    "bytes": 128605,
+    "bytes": 126572,
     "bytesOpen": null
   },
   {
@@ -169,9 +175,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 46391 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 78355 bytes"
     ],
-    "bytes": 46391,
+    "bytes": 78355,
     "bytesOpen": null
   },
   {
@@ -185,9 +192,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 246829 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 247074 bytes"
     ],
-    "bytes": 246829,
+    "bytes": 247074,
     "bytesOpen": null
   },
   {
@@ -201,9 +209,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 173283 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 153322 bytes"
     ],
-    "bytes": 173283,
+    "bytes": 153322,
     "bytesOpen": null
   },
   {
@@ -217,13 +226,16 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "viewport 1440x900 produced 582085 bytes (>400KB), retrying smaller",
+      "banner-dismissal applied",
+      "viewport 1440x900 produced 574627 bytes (>400KB), retrying smaller",
       "viewport 1200x750, waitUntil=networkidle: ok",
-      "viewport 1200x750 produced 422754 bytes (>400KB), retrying smaller",
+      "banner-dismissal applied",
+      "viewport 1200x750 produced 412931 bytes (>400KB), retrying smaller",
       "viewport 1000x650, waitUntil=networkidle: ok",
-      "saved base screenshot: 307111 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 295289 bytes"
     ],
-    "bytes": 307111,
+    "bytes": 295289,
     "bytesOpen": null
   },
   {
@@ -237,9 +249,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 195191 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 196138 bytes"
     ],
-    "bytes": 195191,
+    "bytes": 196138,
     "bytesOpen": null
   },
   {
@@ -253,13 +266,17 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=load (networkidle timed out): ok",
+      "banner-dismissal applied",
       "viewport 1440x900 produced 719877 bytes (>400KB), retrying smaller",
       "viewport 1200x750, waitUntil=load (networkidle timed out): ok",
+      "banner-dismissal applied",
       "viewport 1200x750 produced 619878 bytes (>400KB), retrying smaller",
       "viewport 1000x650, waitUntil=load (networkidle timed out): ok",
+      "banner-dismissal applied",
       "viewport 1000x650 produced 462702 bytes (>400KB), retrying smaller",
       "viewport 900x600, waitUntil=load (networkidle timed out): ok",
-      "900x600 PNG still 453803 bytes (>400KB); final fallback: re-captured 1440x900 as JPEG quality=60: 82189 bytes"
+      "banner-dismissal applied",
+      "900x600 PNG still 453803 bytes (>400KB); final fallback: re-captured 1440x900 as JPEG quality=60 with banner-dismissal applied: 82189 bytes"
     ],
     "bytes": 82189,
     "bytesOpen": null
@@ -275,9 +292,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 121882 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 121885 bytes"
     ],
-    "bytes": 121882,
+    "bytes": 121885,
     "bytesOpen": null
   },
   {
@@ -291,6 +309,7 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
+      "banner-dismissal applied",
       "saved base screenshot: 131348 bytes"
     ],
     "bytes": 131348,
@@ -307,9 +326,10 @@
     "status": "captured",
     "attempts": [
       "viewport 1440x900, waitUntil=networkidle: ok",
-      "saved base screenshot: 77800 bytes"
+      "banner-dismissal applied",
+      "saved base screenshot: 63145 bytes"
     ],
-    "bytes": 77800,
+    "bytes": 63145,
     "bytesOpen": null
   }
 ]

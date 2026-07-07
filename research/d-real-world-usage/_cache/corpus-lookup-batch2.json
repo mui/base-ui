@@ -1,0 +1,209 @@
+{
+  "langgenius/dify": {
+    "stars": 147917,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://dify.ai",
+    "reuse": "link-only",
+    "description": "Production-ready platform for agentic workflow development."
+  },
+  "cloudflare/kumo": {
+    "stars": 2782,
+    "license": "MIT",
+    "lastActivity": "2026-07-06",
+    "category": "oss-design-system",
+    "liveUrl": "https://kumo-ui.com",
+    "reuse": "code-ok",
+    "description": "Cloudflare's component library for building modern web applications."
+  },
+  "patrick-xin/lumi-ui": {
+    "stars": 25,
+    "license": "MIT",
+    "lastActivity": "2026-07-06",
+    "category": "oss-design-system",
+    "liveUrl": "https://www.lumiui.dev",
+    "reuse": "code-ok",
+    "description": "Composable React components powered by Base UI and Tailwind CSS"
+  },
+  "cosscom/coss": {
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "lastActivity": "2026-07-06",
+    "category": "oss-design-system",
+    "liveUrl": "https://coss.com/ui",
+    "reuse": "link-only",
+    "description": "coss.com/ui is the official design system of Cal.com"
+  },
+  "keenthemes/reui": {
+    "stars": 3045,
+    "license": "MIT",
+    "lastActivity": "2026-03-30",
+    "category": "oss-design-system",
+    "liveUrl": "https://reui.io",
+    "reuse": "code-ok",
+    "description": "Design-forward shadcn kit for interfaces that stand out. 1000+ free patterns!"
+  },
+  "australia/mobtranslate.com": {
+    "stars": 4,
+    "license": "none-found",
+    "lastActivity": "2026-07-02",
+    "category": "production-app",
+    "liveUrl": "https://mobtranslate.com",
+    "reuse": "link-only",
+    "description": null
+  },
+  "xuerzong/redis-dash": {
+    "stars": 4,
+    "license": "MIT",
+    "lastActivity": "2026-05-02",
+    "category": "production-app",
+    "liveUrl": "https://redis-dash.xuco.me/",
+    "reuse": "code-ok",
+    "description": "\ud83d\ude80 A lightweight, cross-platform Redis GUI Client."
+  },
+  "borabaloglu/9ui": {
+    "stars": 665,
+    "license": "MIT",
+    "lastActivity": "2026-02-06",
+    "category": "oss-design-system",
+    "liveUrl": "https://www.9ui.dev",
+    "reuse": "code-ok",
+    "description": "Beautiful, customizable components built with Base UI and Tailwind CSS."
+  },
+  "wevm/vocs": {
+    "stars": 1507,
+    "license": "MIT",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://vocs.dev",
+    "reuse": "code-ok",
+    "description": "Minimal Docs for Agents & Humans."
+  },
+  "argos-ci/argos-ci.com": {
+    "stars": 25,
+    "license": "MIT",
+    "lastActivity": "2026-07-05",
+    "category": "production-app",
+    "liveUrl": "https://argos-ci.com",
+    "reuse": "code-ok",
+    "description": "Official website of Argos."
+  },
+  "PostHog/posthog": {
+    "stars": 35353,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://posthog.com",
+    "reuse": "link-only",
+    "description": "\ud83e\udd94 PostHog is an all-in-one developer platform for building successful products. We offer product analytics, web analytics, session replay, error tracking, feature flags, experimentation, surveys, data warehouse, a CDP, and an AI product assistant to help debug your code, ship features faster, and keep all your usage and customer data in one stack."
+  },
+  "gitbutlerapp/gitbutler": {
+    "stars": 21256,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://gitbutler.com",
+    "reuse": "link-only",
+    "description": "The GitButler version control client, backed by Git, powered by Tauri/Rust/Svelte"
+  },
+  "electric-sql/electric": {
+    "stars": 10257,
+    "license": "Apache-2.0",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://electric.ax",
+    "reuse": "code-ok",
+    "description": "The agent platform built on sync."
+  },
+  "WordPress/gutenberg": {
+    "stars": 11718,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "reuse": "link-only",
+    "description": "The Block Editor project for WordPress and beyond. Plugin is available from the official repository."
+  },
+  "amruthpillai/reactive-resume": {
+    "stars": 39392,
+    "license": "MIT",
+    "lastActivity": "2026-07-05",
+    "category": "production-app",
+    "liveUrl": "https://rxresu.me",
+    "reuse": "code-ok",
+    "description": "A one-of-a-kind resume builder that keeps your privacy in mind. Completely secure, customizable, portable, open-source and free forever. Try it out today!"
+  },
+  "latitude-dev/latitude-llm": {
+    "stars": 4387,
+    "license": "MIT",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://latitude.so",
+    "reuse": "code-ok",
+    "description": "Latitude is the open-source ai monitoring platform."
+  },
+  "bytebase/dbhub": {
+    "stars": 3108,
+    "license": "MIT",
+    "lastActivity": "2026-06-30",
+    "category": "production-app",
+    "liveUrl": "https://dbhub.ai",
+    "reuse": "code-ok",
+    "description": "Zero-dependency, token-efficient database MCP server for Postgres, MySQL, SQL Server, MariaDB, SQLite."
+  },
+  "mastra-ai/mastra": {
+    "stars": 25871,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://mastra.ai",
+    "reuse": "link-only",
+    "description": "Mastra is the modern TypeScript framework for AI-powered applications and agents."
+  },
+  "woocommerce/woocommerce": {
+    "stars": 10387,
+    "license": "none-found",
+    "lastActivity": "2026-07-06",
+    "category": "production-app",
+    "liveUrl": "https://woocommerce.com",
+    "reuse": "link-only",
+    "description": "A customizable, open-source ecommerce platform built on WordPress. Build any commerce solution you can imagine."
+  },
+  "baptisteArno/typebot.io": {
+    "stars": 10120,
+    "license": "none-found",
+    "lastActivity": "2026-07-04",
+    "category": "production-app",
+    "liveUrl": "https://typebot.io",
+    "reuse": "link-only",
+    "description": "\ud83d\udcac Typebot is a powerful chatbot builder that you can self-host."
+  },
+  "vcode-sh/popser": {
+    "stars": 1,
+    "license": "MIT",
+    "lastActivity": "2026-03-03",
+    "category": "production-app",
+    "liveUrl": "https://popser.vcui.dev",
+    "reuse": "code-ok",
+    "description": "Toast notifications for React. Built on Base UI \u2014 the headless primitives era starts now. Sonner-compatible API. 7.4 KB gzipped. No !important. No memory leaks."
+  },
+  "baseui-cn/baseui-cn": {
+    "stars": 10,
+    "license": "MIT",
+    "lastActivity": "2026-04-23",
+    "category": "oss-design-system",
+    "liveUrl": "https://www.baseui-cn.com",
+    "reuse": "code-ok",
+    "description": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues."
+  },
+  "nauvalazhar/selia": {
+    "stars": 380,
+    "license": "MIT",
+    "lastActivity": "2026-04-12",
+    "category": "oss-design-system",
+    "liveUrl": "https://selia.earth",
+    "reuse": "code-ok",
+    "description": "Interfaces That Feel Right, Out of the Box (For React)"
+  }
+}

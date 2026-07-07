@@ -1,0 +1,164 @@
+{
+  "bytebase/bytebase": {
+    "stars": 14233,
+    "license": "NOASSERTION",
+    "pushedAt": "2026-07-07T10:43:38Z",
+    "description": "World's most advanced database DevSecOps solution for Developer, Security, DBA and Platform Engineering teams. The GitHub/GitLab for database DevSecOps.",
+    "homepage": "https://www.bytebase.com",
+    "fork": false,
+    "archived": false
+  },
+  "martpie/museeks": {
+    "stars": 2123,
+    "license": "MIT",
+    "pushedAt": "2026-07-03T11:38:11Z",
+    "description": "\ud83c\udfb5 A simple, clean and cross-platform music player",
+    "homepage": "https://museeks.io",
+    "fork": false,
+    "archived": false
+  },
+  "lobehub/lobe-ui": {
+    "stars": 2081,
+    "license": "MIT",
+    "pushedAt": "2026-07-07T16:52:16Z",
+    "description": "\ud83c\udf6d  Lobe UI - an open-source UI component library for building AIGC web apps",
+    "homepage": "https://ui.lobehub.com",
+    "fork": false,
+    "archived": false
+  },
+  "NASA-AMMOS/MMGIS": {
+    "stars": 211,
+    "license": "Apache-2.0",
+    "pushedAt": "2026-07-07T21:40:28Z",
+    "description": "Multi-Mission Geographic Information System - A Web-based Mapping and Spatial Data Infrastructure for Earth, Lunar and Planetary Visualization, Research, Science, Planning and Operations.",
+    "homepage": "https://nasa-ammos.github.io/MMGIS/",
+    "fork": false,
+    "archived": false
+  },
+  "complexdatacollective/network-canvas-monorepo": {
+    "stars": 2,
+    "license": "GPL-3.0",
+    "pushedAt": "2026-07-07T20:41:00Z",
+    "description": null,
+    "homepage": "",
+    "fork": false,
+    "archived": false
+  },
+  "rosen-bridge/ui": {
+    "stars": 6,
+    "license": "MIT",
+    "pushedAt": "2026-07-07T12:20:26Z",
+    "description": null,
+    "homepage": "https://ui-rosen.vercel.app",
+    "fork": false,
+    "archived": false
+  },
+  "otomatty/m3-baseui": {
+    "stars": 0,
+    "license": null,
+    "pushedAt": "2026-07-07T00:03:14Z",
+    "description": null,
+    "homepage": null,
+    "fork": false,
+    "archived": false
+  },
+  "devef-com/card-game-no-mercy-engine": {
+    "stars": 0,
+    "license": "MIT",
+    "pushedAt": "2026-01-01T23:19:00Z",
+    "description": null,
+    "homepage": null,
+    "fork": false,
+    "archived": false
+  },
+  "makeplane/propel": {
+    "stars": 0,
+    "license": "AGPL-3.0",
+    "pushedAt": "2026-07-07T15:03:58Z",
+    "description": null,
+    "homepage": "https://storybook.propel.plane.so",
+    "fork": false,
+    "archived": false
+  },
+  "edouardmisset/unified-climbing-projects": {
+    "stars": 2,
+    "license": null,
+    "pushedAt": "2026-07-06T21:25:14Z",
+    "description": "This is my pet project \ud83d\udc15 climbing \ud83e\uddd7 app \ud83d\udcf1",
+    "homepage": "https://unified-climbing-projects.vercel.app",
+    "fork": false,
+    "archived": false
+  },
+  "Julchu/pricey": {
+    "stars": 0,
+    "license": "MIT",
+    "pushedAt": "2026-07-02T05:02:07Z",
+    "description": null,
+    "homepage": null,
+    "fork": false,
+    "archived": false
+  },
+  "ironbyte0x/buckethub": {
+    "stars": 1,
+    "license": "MIT",
+    "pushedAt": "2026-04-02T15:39:38Z",
+    "description": "Unified S3 bucket management platform. Connect, explore, and manage your cloud storage with ease.",
+    "homepage": null,
+    "fork": false,
+    "archived": false
+  },
+  "chakra-ui/ark": {
+    "stars": 5273,
+    "license": "MIT",
+    "pushedAt": "2026-07-07T18:41:30Z",
+    "description": "Unstyled, accessible UI components for your design System. Works in React, Vue, Solid, and Svelte.",
+    "homepage": "https://ark-ui.com",
+    "fork": false,
+    "archived": false
+  },
+  "twentyhq/twenty": {
+    "stars": 52380,
+    "license": "NOASSERTION",
+    "pushedAt": "2026-07-07T21:43:14Z",
+    "description": "The open alternative to Salesforce, designed for AI.",
+    "homepage": "https://twenty.com",
+    "fork": false,
+    "archived": false
+  },
+  "robotostudio/turbo-start-sanity": {
+    "stars": 169,
+    "license": "MIT",
+    "pushedAt": "2026-07-05T12:04:32Z",
+    "description": "Sanity + Next.js page-builder template",
+    "homepage": "https://sanity.robotostudio.com",
+    "fork": false,
+    "archived": false
+  },
+  "raphaelsalaja/userinterface-wiki": {
+    "stars": 832,
+    "license": "MIT",
+    "pushedAt": "2026-03-17T17:35:34Z",
+    "description": "A Living Manual for Better Interfaces",
+    "homepage": "https://www.userinterface.wiki/",
+    "fork": false,
+    "archived": false
+  },
+  "strait-dev/ui": {
+    "stars": 0,
+    "license": "MIT",
+    "pushedAt": "2026-07-06T19:13:19Z",
+    "description": null,
+    "homepage": null,
+    "fork": false,
+    "archived": false
+  },
+  "QuantumNous/new-api": {
+    "stars": 41426,
+    "license": "AGPL-3.0",
+    "pushedAt": "2026-07-07T13:42:59Z",
+    "description": "A unified AI model hub for aggregation & distribution. It supports cross-converting various LLMs into OpenAI-compatible, Claude-compatible, or Gemini-compatible formats. A centralized gateway for personal and enterprise model management. \ud83c\udf65",
+    "homepage": "https://www.newapi.ai",
+    "fork": false,
+    "archived": false
+  }
+}

@@ -91,7 +91,15 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/reui-io.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 101915 bytes",
+        "saved open-state screenshot: 100659 bytes"
+      ],
+      "pathOpen": "../_captures/reui-io-open.png"
     }
   },
   {
@@ -121,7 +129,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
     }
   }
 ]

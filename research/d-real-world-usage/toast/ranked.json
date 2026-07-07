@@ -1,0 +1,595 @@
+[
+  {
+    "id": "toast-005",
+    "component": "toast",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/toast/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/abd720146d09e71bf8f153b4fddbf1c78d1af038/packages/dify-ui/src/toast/index.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Description",
+      "Action",
+      "Close",
+      "createToastManager",
+      "useToastManager"
+    ],
+    "contextSummary": "Dify's in-house design-system Toast (dify-ui), consumed across its agentic-workflow-builder product. Implements four typed tones (success/error/warning/info), a `promise()` helper mirroring sonner's API, and a CSS-custom-property-driven stack animation (`--toast-index`, `--toast-scale`, `--toast-swipe-movement-x/y`) for peek/expand/swipe-dismiss.",
+    "diversityTags": [
+      "production-app",
+      "design-system-embedded",
+      "promise-api",
+      "typed-tones",
+      "css-var-stack-animation",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The richest Toast composition in the corpus: typed tones, a sonner-style promise() helper, and a full CSS-variable stack-animation grammar (--toast-index/--toast-scale/--toast-swipe-*). Feeds the Behavior (stacking/swipe) and API-composition sections; a story could recreate the peek-stack-and-expand interaction directly from its custom properties."
+  },
+  {
+    "id": "toast-008",
+    "component": "toast",
+    "repo": "complexdatacollective/network-canvas-monorepo",
+    "repoUrl": "https://github.com/complexdatacollective/network-canvas-monorepo",
+    "stars": 2,
+    "license": "GPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/interview/src/toast/InterviewToast.tsx",
+        "permalink": "https://github.com/complexdatacollective/network-canvas-monorepo/blob/7711c9b0e412beb65fc41dc20298c2a048dcf209/packages/interview/src/toast/InterviewToast.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Positioner",
+      "Content",
+      "Description",
+      "Close",
+      "Portal",
+      "Viewport",
+      "useToastManager"
+    ],
+    "contextSummary": "Network Canvas (a social-network research interview tool, academic OSS) is the only usage found that anchors each toast to a specific screen element with `Toast.Positioner` (`sideOffset`, `collisionPadding`) instead of a fixed corner stack, and focuses the toast itself on mount/blur to auto-dismiss \u2014 a rare 'contextual, per-toast-positioned' pattern rather than the common global corner Viewport.",
+    "diversityTags": [
+      "production-app",
+      "academic-research-software",
+      "per-toast-positioner",
+      "focus-driven-dismiss",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 2,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 4,
+      "diversityContribution": 5,
+      "liveSite": 0,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Only usage found that anchors a toast to a specific on-screen control via Toast.Positioner (sideOffset/collisionPadding) instead of a global corner Viewport, and auto-dismisses on blur after auto-focus. A distinct 'contextual toast' archetype worth its own story and a citation in the Anatomy section for Positioner's optional role."
+  },
+  {
+    "id": "toast-006",
+    "component": "toast",
+    "repo": "bytebase/bytebase",
+    "repoUrl": "https://github.com/bytebase/bytebase",
+    "stars": 14233,
+    "license": "NOASSERTION",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "frontend/src/react/components/ui/toaster.tsx",
+        "permalink": "https://github.com/bytebase/bytebase/blob/70623e6179f4e8b5d83862457b6afd38371771be/frontend/src/react/components/ui/toaster.tsx",
+        "pinned": true
+      },
+      {
+        "path": "frontend/src/react/lib/toast.ts",
+        "permalink": "https://github.com/bytebase/bytebase/blob/70623e6179f4e8b5d83862457b6afd38371771be/frontend/src/react/lib/toast.ts",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://www.bytebase.com",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Title",
+      "Description",
+      "Action",
+      "Close",
+      "useToastManager"
+    ],
+    "contextSummary": "Bytebase's Toaster (a DB DevSecOps platform) portals its Viewport into a shared 'layer root' so toasts inherit the same aria-hidden/inert overlay stacking as the rest of the app \u2014 e.g. a 'session expired' critical-layer overlay correctly obscures toasts underneath it. Also i18n'd via react-i18next.",
+    "diversityTags": [
+      "production-app",
+      "devtool",
+      "layered-z-index-architecture",
+      "i18n",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 3,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Demonstrates portaling the Viewport into an app's own layered z-index root so Toast correctly participates in existing aria-hidden/inert overlay stacking (e.g. hidden behind a session-expired critical layer) \u2014 first-party evidence for a 'Toast + other overlays' composition note, plus i18n."
+  },
+  {
+    "id": "toast-007",
+    "component": "toast",
+    "repo": "bitfocus/companion",
+    "repoUrl": "https://github.com/bitfocus/companion",
+    "stars": 2215,
+    "license": "NOASSERTION",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "webui/src/Components/Notifications.tsx",
+        "permalink": "https://github.com/bitfocus/companion/blob/aa1b1fbb424fae0a5dbfb1a9b7567f30a0ae44d3/webui/src/Components/Notifications.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://companion.free/",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Close",
+      "useToastManager",
+      "createToastManager"
+    ],
+    "contextSummary": "Companion (Elgato Stream Deck / broadcast-switcher control software) wraps the toast manager behind an imperative `forwardRef` API (`show(title, message, duration, stickyId)` / `close(id)`) so the rest of a large Electron-style app can trigger notifications without touching React context \u2014 a common integration shape for retrofitting Toast into pre-existing imperative code.",
+    "diversityTags": [
+      "production-app",
+      "broadcast-tooling",
+      "imperative-ref-api",
+      "sticky-toasts",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 4,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Shows the common 'retrofit into imperative code' integration shape: a forwardRef wrapper (`show()`/`close()`) around createToastManager so a large pre-existing app can trigger toasts without React context plumbing. Useful for a 'framework-agnostic imperative API' composition note."
+  },
+  {
+    "id": "toast-003",
+    "component": "toast",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/toast/toast.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toast/toast.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Description",
+      "Close",
+      "createToastManager",
+      "useToastManager",
+      "transitionStatus"
+    ],
+    "contextSummary": "Cloudflare's official design system Toast. Notably has no user-facing variants but ships a documented `KUMO_TOAST_VARIANTS` style table specifically for a Figma-plugin generator to stay in visual sync with code \u2014 a design-tooling pattern worth citing.",
+    "diversityTags": [
+      "oss-design-system",
+      "corporate-design-system",
+      "figma-parity-generator",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 5,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Corporate design system with no visual variants by design, but ships a parallel style-constants table consumed by a Figma-plugin generator to keep design tool and code in sync \u2014 an unusual design-tooling pattern worth a callout."
+  },
+  {
+    "id": "toast-004",
+    "component": "toast",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/ui/src/components/ui/toast.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toast.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Positioner",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Description",
+      "Action",
+      "Arrow",
+      "Close",
+      "createToastManager",
+      "useToastManager"
+    ],
+    "contextSummary": "The fullest Toast anatomy found in any registry: the only wrapper observed using both `Toast.Action` and `Toast.Arrow` together, i.e. an anchored/pointered toast with an actionable button \u2014 a distinct visual archetype from the more common corner-stack toast.",
+    "diversityTags": [
+      "oss-design-system",
+      "full-anatomy",
+      "arrow-anchored",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 6,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 3,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The only wrapper combining Toast.Action and Toast.Arrow \u2014 an anchored, pointered, actionable toast rather than the common corner stack. Feeds the Anatomy section's Arrow/Action documentation with a concrete visual archetype."
+  },
+  {
+    "id": "toast-010",
+    "component": "toast",
+    "repo": "otomatty/m3-baseui",
+    "repoUrl": "https://github.com/otomatty/m3-baseui",
+    "stars": 0,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/core/src/components/snackbar/create.tsx",
+        "permalink": "https://github.com/otomatty/m3-baseui/blob/8f5ef1a038b52b48b55c4727119a5c9dc45057cc/packages/core/src/components/snackbar/create.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Description",
+      "Action",
+      "Close",
+      "useToastManager"
+    ],
+    "contextSummary": "An unofficial Material Design 3 port that renames Base UI's Toast to 'Snackbar' (`useSnackbar` = `useToastManager`) and maps every part through a shared `createSlot` styling helper. Its own code comment flags a real Base UI typing gotcha: `Toast.Portal`'s inferred prop type references a non-portable internal module, so it hand-writes a portable `PortalProps` type instead \u2014 first-party evidence for a docs caveat on Portal's public type surface.",
+    "diversityTags": [
+      "oss-design-system",
+      "material-design-3-bridge",
+      "typing-gotcha",
+      "createSlot-idiom",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 7,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 2,
+      "diversityContribution": 4,
+      "liveSite": 0,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Renames the whole namespace to 'Snackbar' for a Material Design 3 port and documents, in its own code comments, a real Base UI typing rough edge (Toast.Portal's inferred prop type references a non-portable internal module) \u2014 first-party evidence for a typing/portability caveat in the props-guidance section."
+  },
+  {
+    "id": "toast-009",
+    "component": "toast",
+    "repo": "rosen-bridge/ui",
+    "repoUrl": "https://github.com/rosen-bridge/ui",
+    "stars": 6,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "packages/ui-kit/src/Providers/ToastProvider.tsx",
+        "permalink": "https://github.com/rosen-bridge/ui/blob/7eb2e7a43349a5529c24eee2c2709982b179c0bc/packages/ui-kit/src/Providers/ToastProvider.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://ui-rosen.vercel.app",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "useToastManager"
+    ],
+    "contextSummary": "Rosen Bridge (a cross-chain crypto bridge project) renders a full MUI-style `Alert` component (severity, dismiss, a copy-to-clipboard action button) *inside* `Toast.Content` instead of Base UI's own Title/Description/Action parts \u2014 a 'Toast as a bare positioning shell around our own alert design' composition idiom.",
+    "diversityTags": [
+      "oss-design-system",
+      "web3",
+      "alert-inside-content",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 8,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 3,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Renders a full pre-existing Alert component (severity, dismiss, copy action) inside Toast.Content rather than using Title/Description/Action \u2014 'Toast as a bare positioning shell' composition idiom, useful for the composition-with-existing-design-system note."
+  },
+  {
+    "id": "toast-012",
+    "component": "toast",
+    "repo": "NASA-AMMOS/MMGIS",
+    "repoUrl": "https://github.com/NASA-AMMOS/MMGIS",
+    "stars": 211,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "src/design-system/components/Toast/ToastRenderer.jsx",
+        "permalink": "https://github.com/NASA-AMMOS/MMGIS/blob/57ed71b5b8252388f34444aa4d1f3222cc51777e/src/design-system/components/Toast/ToastRenderer.jsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://nasa-ammos.github.io/MMGIS/",
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "useToastManager"
+    ],
+    "contextSummary": "NASA-AMMOS's Multi-Mission Geographic Information System (a real NASA/JPL mapping tool) uses Toast for map-status notifications, with `data-starting-style`/`data-ending-style` driving a translateY+opacity slide and per-type left-border colors. A credibility anchor: government/scientific software, not just startups.",
+    "diversityTags": [
+      "production-app",
+      "government-science",
+      "gis-mapping",
+      "data-state-transitions",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 9,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A real NASA/JPL mapping tool (MMGIS) using Toast for map-status messages \u2014 a credibility anchor for the real-world section (government/scientific software, not just startups), with a clean data-starting/ending-style slide transition."
+  },
+  {
+    "id": "toast-011",
+    "component": "toast",
+    "repo": "devef-com/card-game-no-mercy-engine",
+    "repoUrl": "https://github.com/devef-com/card-game-no-mercy-engine",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-01-01",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [
+      {
+        "path": "src/components/base-ui/toast/index.tsx",
+        "permalink": "https://github.com/devef-com/card-game-no-mercy-engine/blob/5e58fbb69f75f2915aca9f3dbb1a1c0fd2a8578f/src/components/base-ui/toast/index.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Provider",
+      "Portal",
+      "Viewport",
+      "Root",
+      "Content",
+      "Title",
+      "Description",
+      "Close",
+      "useToastManager"
+    ],
+    "contextSummary": "A card-game engine's Toaster: the cleanest, smallest possible faithful wrapper found (CSS Modules, one class per part, no extra abstraction) \u2014 good as a minimal 'first Toast' reference distinct from every other heavily-styled/Tailwind entry in this set.",
+    "diversityTags": [
+      "demo-or-sandbox",
+      "game-engine",
+      "css-modules",
+      "minimal-reference",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 10,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 2,
+      "diversityContribution": 2,
+      "liveSite": 0,
+      "licenseBonus": 1
+    },
+    "rankRationale": "The smallest, plainest faithful Toast wrapper in the set (CSS Modules, one class per part) \u2014 a good 'minimal reference' counterweight to the heavily-styled Tailwind entries, useful as a from-scratch starting point in the docs."
+  },
+  {
+    "id": "toast-002",
+    "component": "toast",
+    "repo": "vcode-sh/popser",
+    "repoUrl": "https://github.com/vcode-sh/popser",
+    "stars": 1,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-03-03",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [],
+    "liveUrl": "https://popser.vcui.dev",
+    "partsUsed": [],
+    "contextSummary": "A standalone, sonner-compatible toast library ('the headless primitives era starts now') built entirely on top of Base UI's Toast \u2014 a downstream *library* rather than an app consumer. 7.4 KB gzipped, no !important. Description-based signal only; source file not inspected.",
+    "diversityTags": [
+      "production-app",
+      "dedicated-library",
+      "description-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 11,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 3,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "A dedicated downstream library (not an app) built entirely on Base UI's Toast with a sonner-compatible API \u2014 evidence that Toast is solid enough to re-platform an existing popular API on top of. Description-based only (source file not inspected in this pass); verify before citing API specifics."
+  },
+  {
+    "id": "toast-001",
+    "component": "toast",
+    "repo": "baseui-cn/baseui-cn",
+    "repoUrl": "https://github.com/baseui-cn/baseui-cn",
+    "stars": 10,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-23",
+    "importSpecifier": "@base-ui/react/toast",
+    "files": [],
+    "liveUrl": "https://www.baseui-cn.com",
+    "partsUsed": [],
+    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. Description-based signal only; no cached subpath search or file inspection has verified an actual Toast file in this repo.",
+    "diversityTags": [
+      "oss-design-system",
+      "description-inferred-not-subpath-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 12,
+    "scores": {
+      "illustrative": 2,
+      "realWorld": 2,
+      "diversityContribution": 1,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Weakest-evidence entry: included for completeness from an earlier description-based pass, but no cached code search or file inspection has actually confirmed a Toast file in this repo. Keep at the bottom and re-verify before use in a doc citation."
+  }
+]

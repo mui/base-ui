@@ -26,7 +26,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/mui-treasury-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 63145 bytes"
+      ]
     }
   },
   {
@@ -386,7 +392,15 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/lumiui-dev.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 280994 bytes",
+        "saved open-state screenshot: 158987 bytes"
+      ],
+      "pathOpen": "../_captures/lumiui-dev-open.png"
     }
   },
   {

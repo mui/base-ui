@@ -156,7 +156,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/gitbutler-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 247074 bytes"
+      ]
     }
   },
   {
@@ -263,7 +269,19 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/woocommerce-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "viewport 1440x900 produced 574627 bytes (>400KB), retrying smaller",
+        "viewport 1200x750, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "viewport 1200x750 produced 412931 bytes (>400KB), retrying smaller",
+        "viewport 1000x650, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 295289 bytes"
+      ]
     }
   },
   {
@@ -292,7 +310,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/electric-ax.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 196138 bytes"
+      ]
     }
   },
   {
@@ -331,7 +355,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
     }
   },
   {
@@ -360,7 +390,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/typebot-io.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 78355 bytes"
+      ]
     }
   },
   {
@@ -554,7 +590,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/developers-cloudflare-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 126572 bytes"
+      ]
     }
   },
   {
@@ -583,7 +625,22 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/latitude-so.jpg",
+      "attempts": [
+        "viewport 1440x900, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1440x900 produced 719877 bytes (>400KB), retrying smaller",
+        "viewport 1200x750, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1200x750 produced 619878 bytes (>400KB), retrying smaller",
+        "viewport 1000x650, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1000x650 produced 462702 bytes (>400KB), retrying smaller",
+        "viewport 900x600, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "900x600 PNG still 453803 bytes (>400KB); final fallback: re-captured 1440x900 as JPEG quality=60 with banner-dismissal applied: 82189 bytes"
+      ]
     }
   },
   {
@@ -617,7 +674,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/kaneo-app.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 121885 bytes"
+      ]
     }
   },
   {
@@ -646,7 +709,13 @@
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/dbhub-ai.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 131348 bytes"
+      ]
     }
   }
 ]

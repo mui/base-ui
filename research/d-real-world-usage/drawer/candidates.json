@@ -13,14 +13,20 @@
     "files": [],
     "liveUrl": "https://www.baseui-cn.com",
     "partsUsed": [],
-    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. [Signal note (description-based, not a direct cached subpath search): Description explicitly lists Drawer among the Base UI components this shadcn-style registry fixes/wraps.]",
+    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. Description-based signal only; no cached subpath search or file inspection has verified an actual Drawer file in this repo.",
     "diversityTags": [
       "oss-design-system",
       "description-inferred-not-subpath-verified"
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/baseui-cn-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 87233 bytes"
+      ]
     }
   },
   {
@@ -33,7 +39,7 @@
     "reuse": "link-only",
     "category": "production-app",
     "lastActivity": "2026-07-02",
-    "importSpecifier": "@base-ui/react/dialog",
+    "importSpecifier": "@base-ui-components/react/dialog",
     "files": [
       {
         "path": "packages/ui/src/components/drawer/drawer.tsx",
@@ -43,10 +49,11 @@
     ],
     "liveUrl": "https://mobtranslate.com",
     "partsUsed": [],
-    "contextSummary": "No description available. [Signal note (filename-based, not a direct cached subpath search): File literally named drawer.tsx in a component-registry path; repo found via Base UI dialog/menu/popover/select subpath searches.]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `drawer.tsx` is actually built on `Dialog` (`import { Dialog as BaseDialog } from '@base-ui-components/react/dialog'`), not Base UI's Drawer component at all \u2014 a hand-rolled drawer-like sheet on top of the generic Dialog primitive (the historical package name suggests this predates Drawer's addition to Base UI). Kept here for honesty but excluded from ranked.json as not an actual Drawer usage.",
     "diversityTags": [
       "production-app",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "dialog-based-drawer-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -63,7 +70,7 @@
     "reuse": "code-ok",
     "category": "production-app",
     "lastActivity": "2026-05-02",
-    "importSpecifier": "@base-ui/react/dialog",
+    "importSpecifier": "@base-ui-components/react/dialog",
     "files": [
       {
         "path": "app/src/client/components/ui/Drawer/index.tsx",
@@ -73,10 +80,11 @@
     ],
     "liveUrl": "https://redis-dash.xuco.me/",
     "partsUsed": [],
-    "contextSummary": "\ud83d\ude80 A lightweight, cross-platform Redis GUI Client. [Signal note (filename-based, not a direct cached subpath search): File literally named Drawer/index.tsx in a shadcn-style ui/ directory; repo found via Base UI dialog subpath search.]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `Drawer/index.tsx` imports `Dialog` from `@base-ui-components/react/dialog`, not Base UI's Drawer \u2014 same 'drawer built on Dialog' pattern as mobtranslate.com. Kept here for honesty but excluded from ranked.json as not an actual Drawer usage.",
     "diversityTags": [
       "production-app",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "dialog-based-drawer-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -104,18 +112,31 @@
         "path": "packages/ui/src/components/sheet.tsx",
         "permalink": "https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/sheet.tsx",
         "pinned": false
+      },
+      {
+        "path": "apps/examples/calcom/components/settings/settings-drawer.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/HEAD/apps/examples/calcom/components/settings/settings-drawer.tsx",
+        "pinned": false
       }
     ],
     "liveUrl": "https://coss.com/ui",
     "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. ships both a `drawer.tsx` and a shadcn-convention `sheet.tsx` \u2014 two names for the same Base UI Dialog-based edge panel.",
+    "contextSummary": "Ships both a `drawer.tsx` and a shadcn-convention `sheet.tsx` \u2014 two names for the same Base UI Dialog-based edge panel. This pass additionally found a real *consumer* of the pattern inside coss's own examples app: a Cal.com-style settings drawer, i.e. one repo showing both the registry component and an example of it wired into a real feature.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "registry-tree-mined-2026-07",
+      "dual-naming",
+      "has-consumer-example"
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "not-attempted"
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
     }
   },
   {
@@ -143,10 +164,322 @@
     ],
     "liveUrl": "https://reui.io",
     "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same dual-naming pattern, with a Radix-backed twin registry alongside it.",
+    "contextSummary": "The same drawer/sheet dual-naming pattern as coss, with a parallel Radix-backed 'radix-*' style registry shipped alongside the Base UI 'base-*' one in the same repo \u2014 a rare same-repo Base-UI-vs-Radix side-by-side comparison point.",
     "diversityTags": [
       "oss-design-system",
+      "registry-tree-mined-2026-07",
+      "dual-naming",
+      "radix-vs-base-ui-twin"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/reui-io.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 101915 bytes",
+        "saved open-state screenshot: 100659 bytes"
+      ],
+      "pathOpen": "../_captures/reui-io-open.png"
+    }
+  },
+  {
+    "id": "drawer-006",
+    "component": "drawer",
+    "repo": "makeplane/propel",
+    "repoUrl": "https://github.com/makeplane/propel",
+    "stars": 0,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "packages/propel/src/components/drawer/drawer.tsx",
+        "permalink": "https://github.com/makeplane/propel/blob/4dc5b9530282eab6573cde3686259b904efbce61/packages/propel/src/components/drawer/drawer.tsx",
+        "pinned": true
+      },
+      {
+        "path": "packages/propel/src/components/drawer/drawer-swipe-area.tsx",
+        "permalink": "https://github.com/makeplane/propel/blob/4dc5b9530282eab6573cde3686259b904efbce61/packages/propel/src/components/drawer/drawer-swipe-area.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://storybook.propel.plane.so",
+    "partsUsed": [
+      "Root",
+      "SwipeArea"
+    ],
+    "contextSummary": "Propel is Plane's (a real, well-known open-source Linear/Asana alternative project-management tool) own component library, and it has a *published Storybook* at the homepage URL \u2014 directly relevant prior art for this project's own Storybook effort. Its Drawer wrapper is a minimal 1:1 behavior-only re-export with an explicit architecture comment: 'behavior-only role that renders no element of its own... lives in components; the styled parts live in elements/drawer'.",
+    "diversityTags": [
+      "oss-design-system",
+      "production-app-component-library",
+      "has-published-storybook",
+      "behavior-vs-styled-split",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-007",
+    "component": "drawer",
+    "repo": "edouardmisset/unified-climbing-projects",
+    "repoUrl": "https://github.com/edouardmisset/unified-climbing-projects",
+    "stars": 2,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "src/app/_components/navigation/navigation.tsx",
+        "permalink": "https://github.com/edouardmisset/unified-climbing-projects/blob/0d238c2fb56a75d896dc2f596ac2e1898c09ff6b/src/app/_components/navigation/navigation.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://unified-climbing-projects.vercel.app",
+    "partsUsed": [
+      "Root",
+      "SwipeArea",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Close"
+    ],
+    "contextSummary": "A real production site's mobile navigation drawer: `swipeDirection='left'`, an edge `SwipeArea` sibling to the trigger, `Backdrop`, and a `Popup` holding a full nav list plus a theme toggle \u2014 the canonical 'off-canvas mobile nav' use case for Drawer, distinct from every settings/registry example in this set.",
+    "diversityTags": [
+      "production-app",
+      "mobile-navigation",
+      "swipe-to-open",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-008",
+    "component": "drawer",
+    "repo": "Julchu/pricey",
+    "repoUrl": "https://github.com/Julchu/pricey",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-02",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "src/components/pantry/pantry-drawer.tsx",
+        "permalink": "https://github.com/Julchu/pricey/blob/769f03d3567bd754f97fe7949c88e77435e63a58/src/components/pantry/pantry-drawer.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "createHandle",
+      "Root",
+      "SwipeArea",
+      "Portal",
+      "Backdrop",
+      "Viewport",
+      "Popup"
+    ],
+    "contextSummary": "A grocery/pantry-tracking app's 'pantry drawer': uses `Drawer.createHandle()` (multi-instance drawer coordination), `swipeDirection='right'`, and wires `onOpenChange` to reset a `react-hook-form` form to the latest store state whenever the drawer reopens \u2014 a genuine real-feature example combining Drawer with external form/state libraries.",
+    "diversityTags": [
+      "production-app",
+      "form-integration",
+      "createHandle",
+      "css-var-swipe-progress",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-009",
+    "component": "drawer",
+    "repo": "ironbyte0x/buckethub",
+    "repoUrl": "https://github.com/ironbyte0x/buckethub",
+    "stars": 1,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-02",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "libs/ui/src/components/drawer/drawer.tsx",
+        "permalink": "https://github.com/ironbyte0x/buckethub/blob/a90b27240202621eb2cbde419dd742e5a1417472/libs/ui/src/components/drawer/drawer.tsx",
+        "pinned": true
+      },
+      {
+        "path": "libs/ui/src/components/drawer/drawer.stories.tsx",
+        "permalink": "https://github.com/ironbyte0x/buckethub/blob/a90b27240202621eb2cbde419dd742e5a1417472/libs/ui/src/components/drawer/drawer.stories.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Portal",
+      "Backdrop",
+      "Viewport",
+      "Popup",
+      "Header",
+      "Title",
+      "Description",
+      "Close",
+      "SwipeArea",
+      "createHandle"
+    ],
+    "contextSummary": "An S3-bucket-management platform's UI library wraps Drawer into a `position`-aware compound component (left/right/top/bottom, each mapped to the matching `swipeDirection`) with iOS-Safari floating-bar height compensation \u2014 and ships its **own `drawer.stories.tsx`**, i.e. a peer project already doing exactly the kind of Storybook authoring this project is doing for Base UI's Drawer.",
+    "diversityTags": [
+      "oss-design-system",
+      "position-aware-wrapper",
+      "has-own-storybook-stories",
+      "ios-safari-handling",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-010",
+    "component": "drawer",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "components/selia/drawer.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/HEAD/components/selia/drawer.tsx",
+        "pinned": false
+      },
+      {
+        "path": "components/examples/drawer/swipe-area.tsx",
+        "permalink": "https://github.com/nauvalazhar/selia/blob/HEAD/components/examples/drawer/swipe-area.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": [
+      "Provider",
+      "Root",
+      "Trigger",
+      "SwipeArea",
+      "Portal",
+      "Backdrop",
+      "Popup",
+      "Title",
+      "Description",
+      "Close",
+      "Indent",
+      "IndentBackground"
+    ],
+    "contextSummary": "The broadest single-repo example set found for Drawer: nine separate demo files (basic, top/left/bottom, nested, non-modal, scrolling, settings, swipe-area) documenting nearly every Drawer configuration axis in one place, including the rarely-used `Indent`/`IndentBackground` parts for nested-drawer depth cues.",
+    "diversityTags": [
+      "oss-design-system",
+      "broadest-example-breadth",
+      "nested-drawers",
       "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-011",
+    "component": "drawer",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "packages/kumo/src/primitives/drawer.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/primitives/drawer.ts",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Notably has **not** built a styled Drawer wrapper yet \u2014 it ships only the auto-generated `primitives/drawer.ts` re-export (`export * from \"@base-ui/react/drawer\"`), the same honest 'not skinned yet' signal already observed for Cloudflare's own navigation-menu primitive.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07",
+      "unskinned-primitive-signal"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-012",
+    "component": "drawer",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/drawer/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/abd720146d09e71bf8f153b4fddbf1c78d1af038/packages/dify-ui/src/drawer/index.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Provider",
+      "Indent",
+      "IndentBackground",
+      "Trigger",
+      "SwipeArea",
+      "Portal",
+      "Title",
+      "Description",
+      "Close",
+      "Backdrop",
+      "Viewport",
+      "Popup",
+      "Content",
+      "createHandle"
+    ],
+    "contextSummary": "Dify's design-system Drawer is the only wrapper in this set using `Drawer.Indent`/`Drawer.IndentBackground` \u2014 the parts that visually recede an already-open drawer when a second, nested drawer opens on top of it \u2014 with per-`swipeDirection` Tailwind transform classes for all four edges.",
+    "diversityTags": [
+      "production-app",
+      "design-system-embedded",
+      "nested-drawers",
+      "four-direction-support",
+      "code-search-verified"
     ],
     "instructiveMisuse": false,
     "screenshot": {
