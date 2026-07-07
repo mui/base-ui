@@ -1,0 +1,160 @@
+{/* Implements research/a-documentation-standard/component-doc-template.mdx from
+    research/c-components/progress/brief.md (Tier 3 lean). [G] marks known gaps. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ProgressStories from './progress.stories';
+
+<Meta of={ProgressStories} />
+
+# Progress
+
+Displays the status of a task that takes a long time.
+
+- **Import:** `import { Progress } from '@base-ui/react/progress';`
+- **Parts:** 5 — `Progress.Root`, `Progress.Label`, `Progress.Track`, `Progress.Indicator`, `Progress.Value`.
+- **Status:** Stable. Shipped 2024-07 ([#470](https://github.com/mui/base-ui/pull/470)).
+- **ARIA pattern:** none exists — the W3C APG has no Progressbar pattern page (verified 2026-07); role semantics live in the core [WAI-ARIA spec](https://www.w3.org/TR/wai-aria-1.2/#progressbar).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={ProgressStories.Hero} />
+
+## Features
+
+- **One value drives everything** — a single `value: number | null` keeps completion status, `aria-valuenow`, the formatted text, and the indicator width in sync for any `min`/`max` (source comment in `ProgressRoot.tsx`).
+- **Accessible indeterminate mode** — `value={null}` still renders `role="progressbar"` with `aria-valuetext="indeterminate progress"`, a stronger contract than a decorative spinner (Base UI ships no Spinner component).
+- **`Intl.NumberFormat` formatting** — percentage-of-range by default; currency, units, or any `Intl` format of the raw value via `format` + `locale`.
+- **Clamping guarantees** — out-of-range and degenerate values (`value > max`, `min === max`) clamp safely instead of overflowing (pinned by `ProgressRoot.test.tsx`).
+- **Screen-reader label workaround built in** — Root injects a hidden span so NVDA announces the label ([#4184](https://github.com/mui/base-ui/issues/4184) / [#4200](https://github.com/mui/base-ui/pull/4200)).
+
+## When to use
+
+- Long-running async tasks where completion is knowable or trackable — uploads, downloads, exports, multi-step processing (the docs hero simulates "Export data").
+- A numeric position within an arbitrary range that must drive ARIA, fill, and text consistently — e.g. "$30 of $100 budget" via `format`.
+- "Work is happening, duration unknown" — indeterminate mode is Base UI's answer to "just show busy" accessibly.
+
+## When not to use
+
+- For a **bounded measurement with no notion of "done"** (disk usage, battery level), use [Meter](?path=/docs/status-display-meter--docs), because the APG meter pattern explicitly excludes "progress, such as loading or percent completion of a task" — full boundary in the status cluster note (`research/c-components/_clusters/status.md`).
+- If your team wants **zero custom ARIA** and accepts native quirks, native `<progress>` remains a documented (maintainer-declined) alternative — the ask was closed citing cross-browser/screen-reader inconsistencies and "parity with Radix and React Aria" ([#4558](https://github.com/mui/base-ui/issues/4558)).
+
+## Anatomy
+
+```tsx
+import { Progress } from '@base-ui/react/progress';
+
+<Progress.Root>
+  <Progress.Label />
+  <Progress.Value />
+  <Progress.Track>
+    <Progress.Indicator />
+  </Progress.Track>
+</Progress.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Progress.Root` | `<div role="progressbar">` | Owns all `aria-value*` attributes and context | required |
+| `Progress.Label` | `<span role="presentation">` | Visible label, auto-wired to Root's `aria-labelledby` | yes |
+| `Progress.Track` | `<div>` | Positioning/overflow context for the indicator | yes |
+| `Progress.Indicator` | `<div>` | The fill; the only part receiving inline style (`width: N%`) | yes |
+| `Progress.Value` | `<span aria-hidden>` | Visual mirror of the formatted value | yes |
+
+Root also renders a visually hidden `<span role="presentation">` sibling — the NVDA workaround ([#4200](https://github.com/mui/base-ui/pull/4200)), not a stylable part.
+
+## How it works
+
+### Determinate values, clamping, and status
+
+Progress is **controlled only** — `value` is required with no internal state, a deliberate departure from the library's uncontrolled-by-default norm because Progress has no lifecycle of its own. The value is clamped to `[min, max]` for `aria-valuenow`, percentage, and indicator width, and `status` becomes `'complete'` once the clamped value reaches `max`:
+
+<Canvas of={ProgressStories.Determinate} />
+
+<Canvas of={ProgressStories.CustomRange} />
+
+### Indeterminate mode
+
+`value={null}` (or any non-finite number) switches status to `indeterminate`: `aria-valuenow` is omitted entirely (the WAI-ARIA-sanctioned signal), `aria-valuetext` defaults to `"indeterminate progress"`, and the Indicator receives **no inline style** — any sweep animation is entirely consumer CSS keyed off `data-indeterminate`:
+
+<Canvas of={ProgressStories.Indeterminate} />
+
+### Formatting and locale
+
+Default text is the percentage of the range via `Intl.NumberFormat(locale, { style: 'percent' })`. With `format`, the **raw value** is formatted instead (currency, bytes, units). `getAriaValueText` can fully replace the spoken text independently of the visible `Value`:
+
+<Canvas of={ProgressStories.CustomFormat} />
+
+## Keyboard & screen reader
+
+**Keyboard:** none — Progress is not interactive or focusable by design (no key handlers or `tabIndex` anywhere in source).
+
+- **ARIA**: `role="progressbar"`; `aria-valuemin`/`aria-valuemax` always set; `aria-valuenow` = clamped value (omitted when indeterminate); `aria-valuetext` = formatted value or `"indeterminate progress"`, overridable via `getAriaValueText`; `aria-labelledby` auto-wired from `Progress.Label`.
+- **You must provide**: a label (`Progress.Label` or `aria-label`), and sufficient track/indicator contrast.
+- **Known issues**: [#4184](https://github.com/mui/base-ui/issues/4184) — NVDA/JAWS ignored the programmatic label; partially fixed by [#4200](https://github.com/mui/base-ui/pull/4200) (hidden-span workaround), JAWS behavior remains outside Base UI's control. [#4616](https://github.com/mui/base-ui/issues/4616) — SSR `aria-valuetext` hydration mismatch (see below).
+
+## Styling hooks
+
+State attributes are identical on **every** part (shared `progressStateAttributesMapping`):
+
+| Attribute | Present when |
+|---|---|
+| `data-progressing` | value is between `min` and `max` |
+| `data-complete` | clamped value has reached `max` |
+| `data-indeterminate` | `value` is `null` or non-finite |
+
+**No CSS variables.** The fill percentage is applied as plain inline `style.width` on the Indicator — a verified exception to the library's usual "CSS variables carry dynamic numeric values" principle (B-P14). You cannot key `calc()`/`transform` styling off a `--progress-percentage` variable; accept the width-based fill or replace `style`/`className` entirely.
+
+## Choosing the right props
+
+- **`value`** — the only state-driving prop; `null` means indeterminate. There is no `defaultValue`/`onValueChange` — you always own the state.
+- **`min` / `max`** — use for non-0–100 scales (byte counts, item counts); percentage and clamping stay correct.
+- **`format`** — use when the raw value is what users should read (currency, sizes); without it, text mirrors the fill percentage.
+- **`locale`** — pass explicitly in SSR apps: `Intl.NumberFormat(undefined, …)` resolves the runtime locale on each side, which can hydration-mismatch `aria-valuetext` (open [#4616](https://github.com/mui/base-ui/issues/4616)).
+- **`getAriaValueText`** — use for enriched spoken text ("3 of 10 files uploaded") without changing the visible `Value`.
+
+## Do / Don't
+
+**Do**
+
+- Label every progress bar via `Progress.Label` (or `aria-label`) — Root wires `aria-labelledby` and ships the NVDA workaround for exactly this path.
+- Pass an explicit `locale` (or a locale-independent `format`) in SSR apps ([#4616](https://github.com/mui/base-ui/issues/4616)).
+
+**Don't**
+
+- Don't rely on `Progress.Value` for accessible text — it is always `aria-hidden`; the accessible path is exclusively `aria-valuetext`/`aria-labelledby` on Root.
+
+## In the wild
+
+[G] pending Phase D dataset for progress (`research/d-real-world-usage/progress/` does not exist as of 2026-07).
+
+## Decision log
+
+- **2024-07** — Progress ships with Root/Track/Indicator only ([#470](https://github.com/mui/base-ui/pull/470)).
+- **~2024-12** — zero-width bug fixed: Indicator now explicitly sets `width: 0%` at `value === 0` ([#1204](https://github.com/mui/base-ui/pull/1204), closing [#1201](https://github.com/mui/base-ui/issues/1201)).
+- **2025-02** — `format` prop and `Progress.Value` part added ([#1355](https://github.com/mui/base-ui/pull/1355)).
+- **2025-04** — `Progress.Label` and `locale` added; `getAriaLabel` removed in favor of the Label part ([#1666](https://github.com/mui/base-ui/pull/1666)).
+- **2026-01** — formatting logic de-duplicated with Meter ([#3805](https://github.com/mui/base-ui/pull/3805)).
+- **2026-02** — NVDA label-announcement workaround lands ([#4200](https://github.com/mui/base-ui/pull/4200)).
+- **2026-04** — native-`<progress>` request declined, design question left open ([#4558](https://github.com/mui/base-ui/issues/4558)).
+
+## Known issues & open questions
+
+- [#4184](https://github.com/mui/base-ui/issues/4184) — open: NVDA/JAWS label announcement, partially mitigated by the hidden-span workaround; verify with your target AT combination.
+- [#4616](https://github.com/mui/base-ui/issues/4616) — open: SSR hydration mismatch on `aria-valuetext`; workaround: explicit `locale`.
+- [#4558](https://github.com/mui/base-ui/issues/4558) — closed, but the "why not native `<progress>` in 2026?" question was left explicitly unresolved by the maintainer reply.
+
+## Related
+
+- To display a **bounded measurement** that is not a task, use [Meter](?path=/docs/status-display-meter--docs) — full comparison in `research/c-components/_clusters/status.md`.
+- To show identity/image state (same taxonomy category, different job), see [Avatar](?path=/docs/status-display-avatar--docs).
+
+## API reference
+
+### Progress.Root
+
+<ArgTypes of={ProgressStories.Hero} />
+
+*Per-part tables (`Progress.Label`, `Progress.Track`, `Progress.Indicator`, `Progress.Value`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/progress](https://base-ui.com/react/components/progress#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+progress) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/progress).*

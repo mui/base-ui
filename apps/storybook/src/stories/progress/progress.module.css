@@ -1,0 +1,69 @@
+/* Adapted from docs/src/app/(docs)/react/components/progress/demos/hero/css-modules/index.module.css */
+
+.Progress {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 0.5rem;
+  width: 15rem;
+  max-width: 100%;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Value {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  text-align: right;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Track {
+  grid-column: 1 / 3;
+  overflow: hidden;
+  height: 0.25rem;
+  background-color: oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.Indicator {
+  background-color: oklch(14.5% 0 0deg);
+  transition: width 500ms;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  /* Indeterminate mode receives no inline width from the library — any sweep
+     animation is entirely consumer CSS, keyed off `data-indeterminate`. */
+  &[data-indeterminate] {
+    width: 25%;
+    height: 100%;
+    animation: progress-sweep 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes progress-sweep {
+  0% {
+    translate: -100% 0;
+  }
+
+  100% {
+    translate: 400% 0;
+  }
+}

@@ -1,0 +1,77 @@
+/* Adapted from docs/src/app/(docs)/react/components/meter/demos/hero/css-modules/index.module.css */
+
+.Meter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 0.5rem;
+  width: 15rem;
+  max-width: 100%;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Value {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  text-align: right;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Track {
+  grid-column: 1 / 3;
+  overflow: hidden;
+  height: 0.75rem;
+  background-color: oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.Indicator {
+  background-color: oklch(14.5% 0 0deg);
+  transition: width 500ms;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+}
+
+/* Meter ships no data attributes for value tiers (see brief §8 / issue #1434):
+   these classes are computed by the consumer from value/min/max. */
+.IndicatorLow {
+  composes: Indicator;
+  background-color: oklch(52.7% 0.154 150.069deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(79.2% 0.209 151.711deg);
+  }
+}
+
+.IndicatorHigh {
+  composes: Indicator;
+  background-color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

@@ -1,0 +1,220 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, forms handbook, tests, experiments, git history,
+    upstream issues/PRs — research/c-components/form/brief.md); [E]/[I]/[G] tags kept. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as FormStories from './form.stories';
+
+<Meta of={FormStories} />
+
+# Form
+
+A native form element with consolidated error handling.
+
+- **Import:** `import { Form } from '@base-ui/react/form';`
+- **Parts:** 1 — `Form` is one of Base UI's few single-part components; it is composed with [Field](?path=/docs/form-inputs-field--docs) parts as children.
+- **Status:** Stable. Created 2024-09 ([#589](https://github.com/mui/base-ui/pull/589), closing [#219](https://github.com/mui/base-ui/issues/219) — "API TBD"; the API was designed in the PR).
+- **ARIA pattern:** none — forms are a [WAI tutorial topic](https://www.w3.org/WAI/tutorials/forms/), not an APG widget pattern.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={FormStories.Hero} />
+
+## Features
+
+- **Aggregate validity gating** — on submit, every registered Field is validated synchronously; if any is invalid, submission is blocked and the first invalid control is focused (and its text selected).
+- **External error distribution** — the `errors` prop, keyed by Field `name`, marks matching fields invalid and renders through each field's `Field.Error`; entries auto-clear the moment the user edits the field ([#3136](https://github.com/mui/base-ui/pull/3136)).
+- **Typed JS-object payloads** — `onFormSubmit(formValues, eventDetails)` assembles registered field values by name for JSON/GraphQL/RPC backends, auto-calling `preventDefault()` ([#3131](https://github.com/mui/base-ui/pull/3131)).
+- **Fleet-wide validation timing** — `validationMode` set once on Form cascades to every Field; the `'onSubmit'` default matches native forms, React Aria, Ariakit, and react-hook-form ([#3013](https://github.com/mui/base-ui/pull/3013)).
+- **Native `<form>` preserved** — FormData, `action`, and submit semantics all still work; Base UI only adds the coordination layer HTML can't provide (field registry, gating, focus-on-error, error distribution).
+- **Imperative validation** — `actionsRef.current.validate(fieldName?)` validates all fields or one, outside the submit event ([#3395](https://github.com/mui/base-ui/pull/3395)).
+
+## When to use
+
+- Client-validated forms built from Fields — native constraints (`required`, `type`, `pattern`) plus `Field.Error` messages (the hero above).
+- Displaying server-side validation results: pass post-submission errors to the `errors` prop; they clear per-field as the user edits (forms handbook).
+- React Server Functions / `useActionState`: `<Form action={formAction} errors={state.errors}>` is a documented first-class flow (docs `form-action` demo).
+- Schema validation (Zod et al.) at submit time: `schema.safeParse()` output maps straight into `errors` because both are keyed by field name (docs "Using with Zod").
+- Submitting JS objects to APIs via `onFormSubmit` instead of hand-converting FormData ([#3131](https://github.com/mui/base-ui/pull/3131)).
+- With react-hook-form: keep `<Form onSubmit={handleSubmit(submitForm)}>` as the element while the library owns state (forms handbook).
+
+## When not to use
+
+- **With TanStack Form** — "The Base UI `<Form>` component is not needed when using TanStack Form" (forms handbook): TanStack owns submission and validation, so drive Fields from its render props inside a plain `<form>`.
+- **vs plain `<form>`** [I] — if you use no Base UI Fields, or your form library already provides validity gating, focus-on-error, and error state, Form only adds `noValidate` and its registry; a plain `<form>` suffices. Use Base UI `<Form>` exactly when Fields should drive gating, first-invalid focus, `errors` distribution, `onFormSubmit` assembly, or fleet-wide `validationMode`. ([G] — no explicit maintainer statement of this boundary found; the nearest is the TanStack line above.)
+- **Form-level schema validation** — not supported natively; Standard Schema support is an open request ([#4737](https://github.com/mui/base-ui/issues/4737)). Use per-field `validate` (which receives `formValues` for cross-field checks) or schema-at-submit mapped into `errors`.
+- **Resetting to initial values** — there is no `reset()` API yet ([#1346](https://github.com/mui/base-ui/issues/1346), open); remount via `key` or control values as a workaround. [I]
+- For grouping related controls *within* a form with a shared legend, use [Fieldset](?path=/docs/form-inputs-fieldset--docs) — it handles labeling, not submission.
+
+## Anatomy
+
+Form renders a single `<form novalidate>` element and provides context that every descendant [Field](?path=/docs/form-inputs-field--docs) consumes:
+
+```tsx
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
+
+<Form>
+  <Field.Root name="…">
+    <Field.Label />
+    <Field.Control />
+    <Field.Error />
+  </Field.Root>
+  <button type="submit" />
+</Form>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Form` | `<form>` (with `noValidate` by default) | Field registry, aggregate validity gating, focus-on-error, `errors` distribution, value assembly | — |
+
+- **The Field children contract**: each `Field.Root` registers `{ name, validate, getValue, controlRef, validityData }` into Form's fields Map and deregisters on unmount ([#2231](https://github.com/mui/base-ui/pull/2231)). The `name` on `Field.Root` is the key for both `errors` distribution and `onFormSubmit` value assembly.
+- Value assembly special cases pinned by tests: a checkbox group submits one field value ([#1948](https://github.com/mui/base-ui/pull/1948)); NumberField submits the raw number, not the formatted string ([#1957](https://github.com/mui/base-ui/pull/1957)); disabled fields are excluded.
+- No Portal/Positioner grammar — Form is plain document flow.
+
+## How it works
+
+### The submission gate and focus-first-invalid
+
+On submit, Form (1) marks the submit as attempted — which flips `onSubmit`-mode fields into revalidate-on-change; (2) synchronously validates every registered field; (3) if any is invalid, calls `preventDefault()` and focuses the first invalid control, selecting its text if it's an input; (4) otherwise runs your `onSubmit`/`onFormSubmit`. Unnamed-but-registered invalid controls also block submission, and an app-set `invalid` on a Field blocks it even when its validators pass (both tested).
+
+<Canvas of={FormStories.SubmitFlowWithErrors} />
+
+### Server errors: the `errors` prop lifecycle
+
+`errors` is an object keyed by Field `name` (values `string | string[]`), typically held in `useState` or `useActionState`. A matching entry marks the field invalid and renders through its `Field.Error`. The entry is deleted the moment the field's value changes — optimistic clearing with no callback needed ([#3136](https://github.com/mui/base-ui/pull/3136) removed `onClearErrors`). The first change after a Form error also re-runs field validation so stale server errors are replaced coherently.
+
+<Canvas of={FormStories.ServerErrorsProp} />
+
+### Server Functions and `useActionState`
+
+Pass the action to `action` and the returned errors to `errors`. After a submitted form receives new errors, Form focuses the first invalid field (guarded so focus only moves after a submit, never mid-typing — tested). This flow is precisely what the `onClearErrors` removal enabled: "Makes `useActionState` viable" ([#3136](https://github.com/mui/base-ui/pull/3136)).
+
+<Canvas of={FormStories.ServerFunctionAction} />
+
+### Submitting values as a JavaScript object
+
+`onFormSubmit` exists because "A lot of modern apps submit forms to backends like REST APIs, GraphQL, RPC that typically receive JS/JSON payloads instead of FormData" ([#3131](https://github.com/mui/base-ui/pull/3131)). It reduces registered fields by `name` → `getValue()` into a typed object (`Form.Props<FormValues>` generic) and auto-`preventDefault()`s. It does not run when the form is invalid.
+
+<Canvas of={FormStories.OnFormSubmitPayload} />
+
+### Schema validation at submit time
+
+The sanctioned Zod flow: `schema.safeParse()` in your submit handler, then map `z.flattenError(result.error).fieldErrors` into `errors` — both are keyed by field name so the shapes line up (docs "Using with Zod"). The story below hand-rolls the parser to keep Storybook dependency-free; the shape is identical.
+
+<Canvas of={FormStories.ZodSchemaMapping} />
+
+### Validation timing: the `validationMode` cascade
+
+Set `validationMode` once on Form (`'onSubmit'` default — native-like and the least noisy, per the Adam Silver argument in [#2142](https://github.com/mui/base-ui/issues/2142)); every Field inherits it. "The `validationMode` prop on `<Field.Root>` takes precedence over this" (JSDoc), so individual fields can opt into `onBlur` or `onChange`.
+
+<Canvas of={FormStories.ValidationModeCascade} />
+
+### Imperative validation
+
+`actionsRef.current.validate(fieldName?)` validates all fields or a single named one — added for initial validation and wizard steps ([#3395](https://github.com/mui/base-ui/pull/3395), motivated by [#3323](https://github.com/mui/base-ui/issues/3323)).
+
+<Canvas of={FormStories.ImperativeValidation} />
+
+### The `noValidate` boundary
+
+Form ships `noValidate` by default: browser validation *bubbles* are suppressed while the constraint-validation *data* still drives `Field.Error`. Pass `noValidate={false}` to restore native bubbles (tested both ways). The inversion trap: a plain `<form>` around Base UI controls shows native bubbles unless you add `noValidate` yourself ([#3552](https://github.com/mui/base-ui/issues/3552) — a shadcn/react-hook-form user hit a `stepMismatch` bubble from NumberField).
+
+<Canvas of={FormStories.NoValidateBoundary} />
+
+### Third-party form libraries
+
+With react-hook-form, the library owns state and validation while Base UI `<Form>` stays the rendered element: `<Form onSubmit={handleSubmit(submitForm)}>`, `Controller` state mapped onto `Field.Root` (`invalid`/`touched`/`dirty`/`name`), control wiring via `ref`/`value`/`onValueChange`/`onBlur`, and `Field.Error match={!!fieldState.error}` delegating message visibility (forms handbook react-hook-form section and demo). For RHF to focus invalid fields, wrapping components must forward the `ref` to the underlying Base UI control (handbook). The story re-creates the contract without the dependency:
+
+<Canvas of={FormStories.ReactHookFormIntegration} />
+
+## Keyboard & screen reader
+
+Form adds no widget semantics of its own — it is a native `<form>`, so native keyboard behavior is preserved.
+
+| Key | Action |
+|---|---|
+| `Enter` (in a text control) | Implicit form submission — triggers the same validation gate as clicking submit |
+| `Tab` | Native focus order through the fields; Form never traps focus |
+
+- **ARIA**: no role or `aria-*` attributes are added by Base UI. Error announcement happens at Field level: `Field.Error` joins the control's `aria-describedby` and the control gets `aria-invalid` when invalid — Form's contribution is *timing* (errors appear and focus moves on submit, matching the native mental model).
+- **Focus management**: on a failed submit — including one that returns server errors — the first invalid control is focused and its text selected, so keyboard and screen-reader users land directly on the problem.
+- **You must provide**: an accessible name for the form landmark itself (`aria-label`/`aria-labelledby` on Form) if the page has multiple forms — Base UI leaves this to you ([G] — no guidance found in docs); plus the usual Field-level labels via `Field.Label`.
+- **Known issues**: [G] none found against Form itself in an upstream search (2026-07); the closest is OTP-field autosubmit focus ([#5088](https://github.com/mui/base-ui/issues/5088)), owned by otp-field.
+
+## Styling hooks
+
+Form exposes **no data attributes** of its own — its state interface is empty by design, and the form-level validity aggregate exists only inside the submit gate. Style form state through Field parts instead:
+
+| Part | Attribute | Present when |
+|---|---|---|
+| `Form` | — (none) | style via Field parts below |
+| Field parts | `data-invalid` / `data-valid` | field validity (including entries from Form's `errors`) |
+| Field parts | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | interaction state |
+
+See the [Field styling contract](?path=/docs/form-inputs-field--docs) for the full table.
+
+## Choosing the right props
+
+- **`errors`** — the server/external error channel. Keys must equal `Field.Root name`; values are `string | string[]`. Hold it in state; entries self-clear on user edit — do **not** re-set the same object to "keep" an error the user is fixing ([#3136](https://github.com/mui/base-ui/pull/3136)). With Zod, `z.flattenError(...).fieldErrors` is shape-compatible.
+- **`onSubmit`** — the native handler; runs only when all fields are valid. Use for FormData and full-page flows (the hero uses it with `new FormData(event.currentTarget)`).
+- **`onFormSubmit`** — use instead of `onSubmit` for values as a typed JS object; it auto-`preventDefault()`s. Type it via the generic: `Form.Props<MyValues>` ([#3131](https://github.com/mui/base-ui/pull/3131)).
+- **`validationMode`** — prefer the default `'onSubmit'` (native-like, least noisy — [#3013](https://github.com/mui/base-ui/pull/3013)); override per-Field for special inputs.
+- **`actionsRef`** — imperative `validate()` / `validate('email')` for initial validation or wizard steps ([#3395](https://github.com/mui/base-ui/pull/3395)).
+- **`noValidate`** — leave the default `true`; set `false` only to deliberately restore browser bubbles instead of `Field.Error`.
+
+## Do / Don't
+
+**Do**
+
+- Key `errors` by the exact `Field.Root name` — that mapping is the entire distribution mechanism (JSDoc).
+- Re-validate on the next submit rather than re-asserting a cleared server error — optimistic clearing is by design since beta.5 ([#3136](https://github.com/mui/base-ui/pull/3136)).
+- Forward refs to the underlying Base UI control when integrating react-hook-form, or focus-on-error can't work (forms handbook).
+
+**Don't**
+
+- Don't rely on an async `validate` to block submission — gating is synchronous by design; async validators can only paint errors after the fact. Validate server-side and return the result through `errors` (source comment; tested: "submits when a valid async validator is pending").
+- Don't wrap Base UI controls in a plain `<form>` and expect Base UI error UI — without `noValidate` you get native browser bubbles ([#3552](https://github.com/mui/base-ui/issues/3552) — real-world shadcn/RHF failure).
+- Don't look for `onClearErrors` — removed in beta.5; clearing is automatic, and migrating code can delete the handler entirely ([#3136](https://github.com/mui/base-ui/pull/3136); the old prop's vagueness was itself a docs complaint, [#2758](https://github.com/mui/base-ui/issues/2758)).
+
+## In the wild
+
+[G] pending Phase D usage mining for form (`research/d-real-world-usage/`) — expected archetypes to verify: login/signup forms with server-side uniqueness errors, RHF-owned forms keeping Base UI `<Form>` as the element, and Server-Function forms in Next.js apps.
+
+## Decision log
+
+- **2024-09** — Form created: a native `<form>` plus consolidated error handling ([#589](https://github.com/mui/base-ui/pull/589), closing [#219](https://github.com/mui/base-ui/issues/219)).
+- **2025-05** — value-assembly hardening: checkbox groups submit one field ([#1948](https://github.com/mui/base-ui/pull/1948)); NumberField submits the unformatted value ([#1957](https://github.com/mui/base-ui/pull/1957)).
+- **2025-07** — fields deregister from Form on unmount ([#2231](https://github.com/mui/base-ui/pull/2231)).
+- **2025-10 (beta.5, breaking)** — `validationMode` added with `'onSubmit'` as the new default, settable fleet-wide on Form; matches native forms, React Aria, Ariakit, and react-hook-form ([#3013](https://github.com/mui/base-ui/pull/3013), closes [#2142](https://github.com/mui/base-ui/issues/2142)).
+- **2025-11** — `onFormSubmit` added for JS-object payloads ([#3131](https://github.com/mui/base-ui/pull/3131)).
+- **2025-11 (breaking)** — `onClearErrors` removed; `errors` entries auto-clear on change, making `useActionState` viable without extra state ([#3136](https://github.com/mui/base-ui/pull/3136), closes [#2758](https://github.com/mui/base-ui/issues/2758)).
+- **2025-11** — forms handbook ships with react-hook-form / TanStack / Server Functions guidance ([#2989](https://github.com/mui/base-ui/pull/2989)).
+- **2026-01** — `actionsRef` with `validate(fieldName?)` ([#3395](https://github.com/mui/base-ui/pull/3395), motivated by [#3323](https://github.com/mui/base-ui/issues/3323)).
+- **2026** — validation-robustness wave: avoid `flushSync` ([#4685](https://github.com/mui/base-ui/pull/4685)); Form-error/validation interplay fixes ([#4112](https://github.com/mui/base-ui/pull/4112), [#4494](https://github.com/mui/base-ui/pull/4494), [#4873](https://github.com/mui/base-ui/pull/4873), [#4894](https://github.com/mui/base-ui/pull/4894)).
+
+## Known issues & open questions
+
+- [#4737](https://github.com/mui/base-ui/issues/4737) — Standard Schema support (Zod/Valibot/ArkType as a Form-level prop): open feature request; today's shapes are per-field `validate` or schema-at-submit → `errors`.
+- [#1346](https://github.com/mui/base-ui/issues/1346) — no Field-aware `reset()` API yet; native `form.reset()` resets DOM values but not Field state uniformly. Workaround: remount via `key` or control values.
+- [#3552](https://github.com/mui/base-ui/issues/3552) — recurring confusion at the plain-`<form>` boundary: add `noValidate` to your own `<form>` when not using Base UI Form.
+
+## Related
+
+- To wire labels, descriptions, errors, and per-field validation, use [Field](?path=/docs/form-inputs-field--docs) — Form is inert without registered Fields.
+- To group related controls under a shared legend, use [Fieldset](?path=/docs/form-inputs-fieldset--docs).
+- Any Base UI form control (Checkbox, Select, NumberField, Switch…) participates in the gate once inside a named `Field.Root` — see [Select's form stories](?path=/docs/form-inputs-select--docs) for a compound-control example.
+
+## API reference
+
+<ArgTypes of={FormStories.Hero} />
+
+*Full JSDoc-driven reference: [base-ui.com/react/components/form](https://base-ui.com/react/components/form#api-reference).*
+
+## Testing your composition
+
+- Drive the real gate: click submit and assert `Field.Error` text appears, focus lands on the first invalid control, and your success output stays absent — the `SubmitFlowWithErrors` play function is a living example.
+- Note that simulated typing does not set the browser's dirty-value flag, so `minLength`/`maxLength` (`tooShort`/`tooLong`) never trip under test drivers — prefer `pattern` or a custom `validate` for length rules you want covered by tests (this page's stories do exactly that).
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+form) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/form).*

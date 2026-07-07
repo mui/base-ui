@@ -1,0 +1,956 @@
+/*
+ * Core drawer story styles.
+ * Adapted from docs/src/app/(docs)/react/components/drawer/demos/
+ * hero/, position/, snap-points/, nested/, indent-provider/, and swipe-area/
+ * css-modules/index.module.css (raw oklch values per AGENTS.md).
+ *
+ * The signature pieces of the drawer styling contract are kept intact:
+ *   --drawer-swipe-progress      → backdrop/indent fades track the drag
+ *   --drawer-swipe-movement-x/y  → the popup follows the pointer
+ *   --drawer-snap-point-offset   → composed into the transform for detents
+ *   --drawer-swipe-strength      → scales the release transition duration
+ *   [data-swiping]               → gates transitions off so the sheet tracks the finger
+ *   [data-swipe-dismiss]         → distinct exit when dismissed by swiping
+ */
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Backdrops — opacity bound to the swipe progress variable            */
+/* ------------------------------------------------------------------ */
+
+.Backdrop {
+  --backdrop-opacity: 0.2;
+  position: fixed;
+  min-height: 100dvh;
+  inset: 0;
+  background-color: black;
+  /* THE gesture-linked styling hook: fades out as the user drags. */
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
+  transition-duration: 450ms;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-color-scheme: dark) {
+    --backdrop-opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  /* While the finger is down, the CSS var drives opacity frame by frame. */
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+/* A heavier backdrop for the styling-contract story so the fade is unmissable. */
+.ProgressBackdrop {
+  --backdrop-opacity: 0.55;
+  position: fixed;
+  min-height: 100dvh;
+  inset: 0;
+  background-color: black;
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
+  transition-duration: 450ms;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-color-scheme: dark) {
+    --backdrop-opacity: 0.8;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero: right-side drawer with overshoot bleed (docs hero demo)       */
+/* ------------------------------------------------------------------ */
+
+.HeroViewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.HeroPopup {
+  --bleed: 3rem;
+  box-sizing: border-box;
+  width: calc(20rem + var(--bleed));
+  max-width: calc(100vw - 3rem + var(--bleed));
+  height: 100%;
+  padding: 1.5rem;
+  padding-right: calc(1.5rem + var(--bleed));
+  margin-right: calc(-1 * var(--bleed));
+  border-left: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+  transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  /* The popup follows the pointer during a drag. */
+  transform: translateX(var(--drawer-swipe-movement-x));
+
+  @media (prefers-color-scheme: dark) {
+    border-left: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateX(calc(100% - var(--bleed) + 2px));
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.Content {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.Title {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+}
+
+.Description {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Bottom sheet (docs position demo) — the workhorse layout            */
+/* ------------------------------------------------------------------ */
+
+.SheetViewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Same layout plus the virtual-keyboard inset. The var exists only while the
+   keyboard is aligned, so the 0px fallback is required. */
+.KeyboardViewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: var(--drawer-keyboard-inset, 0px);
+}
+
+.SheetPopup {
+  --bleed: 3rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: calc(80vh + var(--bleed));
+  margin-bottom: calc(-1 * var(--bleed));
+  padding: 1rem 1.5rem 1.5rem;
+  padding-bottom: calc(1.5rem + var(--bleed));
+  border-top: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  transform: translateY(var(--drawer-swipe-movement-y));
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateY(calc(100% - var(--bleed) + 2px));
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+
+  /* Distinct exit when dismissed BY SWIPING: the release keeps the gesture's
+     momentum, so ease out fast instead of the stately default. */
+  &[data-swipe-dismiss] {
+    transition-timing-function: ease-in;
+  }
+}
+
+.Grabber {
+  width: 3rem;
+  height: 0.25rem;
+  margin: 0 auto 1rem;
+  background-color: oklch(87% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(37.1% 0 0deg);
+  }
+}
+
+.SheetTitle {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.SheetDescription {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+  text-align: center;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.SheetActions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Four-sides matrix — placement is CSS keyed off [data-swipe-direction] */
+/* ------------------------------------------------------------------ */
+
+.EdgeViewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+}
+
+.EdgeViewportUp {
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.EdgeViewportDown {
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.EdgeViewportLeft {
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.EdgeViewportRight {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.EdgePopup {
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+
+  /* Vertical sheets: full width, gesture on the Y axis. */
+  &[data-swipe-direction='up'],
+  &[data-swipe-direction='down'] {
+    width: 100%;
+    max-height: 60vh;
+    transform: translateY(var(--drawer-swipe-movement-y));
+  }
+
+  /* Horizontal drawers: full height, gesture on the X axis. */
+  &[data-swipe-direction='left'],
+  &[data-swipe-direction='right'] {
+    width: min(20rem, calc(100vw - 3rem));
+    transform: translateX(var(--drawer-swipe-movement-x));
+  }
+
+  &[data-swipe-direction='up'] {
+    border-bottom: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-bottom-color: white;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(calc(-100% - 2px));
+    }
+  }
+
+  &[data-swipe-direction='down'] {
+    border-top: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-top-color: white;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(calc(100% + 2px));
+    }
+  }
+
+  &[data-swipe-direction='left'] {
+    border-right: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-right-color: white;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateX(calc(-100% - 2px));
+    }
+  }
+
+  &[data-swipe-direction='right'] {
+    border-left: 1px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-left-color: white;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateX(calc(100% + 2px));
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Snap points (docs snap-points demo)                                 */
+/* ------------------------------------------------------------------ */
+
+.SnapPopup {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100dvh - 4rem);
+  /* Keep painted content below the fold while resting at a detent. */
+  padding-bottom: max(0px, calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
+  border-top: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  overflow: visible;
+  touch-action: none;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  /* Compose the detent offset with the live drag movement (docs formula). */
+  transform: translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateY(calc(100% + 2px));
+    padding-bottom: 0;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.DragArea {
+  flex-shrink: 0;
+  padding: 0.875rem 1.5rem 1rem;
+  border-bottom: 1px solid oklch(87% 0 0deg);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom: 1px solid oklch(37.1% 0 0deg);
+  }
+}
+
+.SnapScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.Cards {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+}
+
+.Card {
+  height: 3rem;
+  background-color: oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(37.1% 0 0deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Swipe area — tinted for demonstration (invisible in real apps)      */
+/* ------------------------------------------------------------------ */
+
+.SwipeAreaStrip {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  border-left: 1px dashed oklch(55.6% 0 0deg);
+  background-color: oklch(92.2% 0 0deg / 60%);
+
+  @media (prefers-color-scheme: dark) {
+    border-left: 1px dashed oklch(70.8% 0 0deg);
+    background-color: oklch(37.1% 0 0deg / 60%);
+  }
+}
+
+.SwipeAreaLabel {
+  font-size: 0.75rem;
+  color: oklch(43.9% 0 0deg);
+  writing-mode: vertical-rl;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Indent provider (docs indent-provider demo, contained in a shell)   */
+/* ------------------------------------------------------------------ */
+
+.IndentRoot {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.IndentBackground {
+  position: absolute;
+  inset: 0;
+  background-color: black;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(87% 0 0deg);
+  }
+}
+
+.Indent {
+  --indent-radius: calc(1rem * (1 - var(--drawer-swipe-progress)));
+  --indent-transition: calc(1 - clamp(0, calc(var(--drawer-swipe-progress) * 100000), 1));
+  position: relative;
+  min-height: 20rem;
+  transition:
+    transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    border-radius 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  transform-origin: center top;
+  will-change: transform;
+  border: 1px solid oklch(14.5% 0 0deg);
+  contain: layout;
+  padding: 1rem;
+  color: oklch(14.5% 0 0deg);
+  background-color: white;
+  transition-duration:
+    calc(400ms * var(--indent-transition)), calc(250ms * var(--indent-transition));
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    color: white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  /* Present while any drawer inside the nearest Provider is open; the scale
+     eases back toward 1 as the drag progresses toward dismissal. */
+  &[data-active] {
+    transform: scale(calc(0.98 + (0.02 * var(--drawer-swipe-progress))))
+      translateY(calc(0.5rem * (1 - var(--drawer-swipe-progress))));
+    border-top-left-radius: var(--indent-radius);
+    border-top-right-radius: var(--indent-radius);
+  }
+}
+
+.IndentCenter {
+  min-height: 20rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Backdrop/Viewport variants for portaling into the shell container. */
+.ContainedBackdrop {
+  --backdrop-opacity: 0.2;
+  position: absolute;
+  inset: 0;
+  background-color: black;
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
+  transition-duration: 450ms;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-color-scheme: dark) {
+    --backdrop-opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.ContainedViewport {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Nested drawer stack (docs nested demo)                              */
+/* ------------------------------------------------------------------ */
+
+.StackPopup {
+  --bleed: 3rem;
+  --peek: 1rem;
+  --stack-progress: clamp(0, var(--drawer-swipe-progress), 1);
+  --stack-step: 0.05;
+  --stack-peek-offset: max(
+    0px,
+    calc((var(--nested-drawers) - var(--stack-progress)) * var(--peek))
+  );
+  --stack-scale-base: max(0, calc(1 - (var(--nested-drawers) * var(--stack-step))));
+  --stack-scale: calc(var(--stack-scale-base) + (var(--stack-step) * var(--stack-progress)));
+  --stack-shrink: calc(1 - var(--stack-scale));
+  --stack-height: max(
+    0px,
+    calc(var(--drawer-frontmost-height, var(--drawer-height)) - var(--bleed))
+  );
+  --translate-y: calc(
+    var(--drawer-swipe-movement-y) - var(--stack-peek-offset) -
+      (var(--stack-shrink) * var(--stack-height))
+  );
+
+  box-sizing: border-box;
+  position: relative;
+  width: calc(100% + 2px);
+  margin-left: -1px;
+  margin-right: -1px;
+  max-height: calc(80vh + var(--bleed));
+  height: var(--drawer-height, auto);
+  margin-bottom: calc(-1 * var(--bleed));
+  padding: 1rem 1.5rem 1.5rem;
+  padding-bottom: calc(1.5rem + var(--bleed));
+  border-width: 1px 1px 0;
+  border-style: solid;
+  border-color: oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform-origin: 50% calc(100% - var(--bleed));
+  transition:
+    transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
+    height 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  /* Parent sheets shrink and peek out behind the frontmost drawer. */
+  transform: translateY(var(--translate-y)) scale(var(--stack-scale));
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-swiping],
+  &[data-nested-drawer-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-nested-drawer-open] {
+    height: calc(var(--stack-height) + var(--bleed));
+    overflow: hidden;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateY(calc(100% - var(--bleed) + 2px));
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.StackContent {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+  transition: opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
+
+  [data-nested-drawer-open] & {
+    opacity: 0;
+  }
+
+  [data-nested-drawer-open][data-nested-drawer-swiping] & {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Dialog inside drawer                                                */
+/* ------------------------------------------------------------------ */
+
+.DialogBackdrop {
+  position: fixed;
+  min-height: 100dvh;
+  inset: 0;
+  background-color: black;
+  opacity: 0.2;
+  transition: opacity 150ms;
+
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.5;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+.DialogPopup {
+  box-sizing: border-box;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 24rem;
+  max-width: calc(100vw - 3rem);
+  padding: 1.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  outline: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 150ms;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms, navigation, and story scaffolding                            */
+/* ------------------------------------------------------------------ */
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Input {
+  box-sizing: border-box;
+  height: 2rem;
+  padding: 0 0.5rem;
+  margin: 0;
+  border: 1px solid oklch(55.6% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid oklch(70.8% 0 0deg);
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 5rem;
+  padding: 0.5rem;
+  margin: 0 0 1rem;
+  border: 1px solid oklch(55.6% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: oklch(14.5% 0 0deg);
+  resize: vertical;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid oklch(70.8% 0 0deg);
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.NavList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.NavLink {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: left;
+  color: oklch(14.5% 0 0deg);
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(92.2% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &[aria-current='page'] {
+    font-weight: 700;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.Output {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}

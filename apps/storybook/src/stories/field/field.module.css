@@ -1,0 +1,584 @@
+/* Adapted from docs/src/app/(docs)/react/components/field/demos/hero/css-modules/index.module.css
+   (plus the checkbox/radio/select hero demos for the control-swap stories). */
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Input {
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  width: 100%;
+  height: 2rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-invalid] {
+    border-color: oklch(50.5% 0.213 27.518deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: oklch(70.4% 0.191 22.216deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+    cursor: not-allowed;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
+  }
+}
+
+.Textarea {
+  composes: Input;
+  height: auto;
+  min-height: 4rem;
+  padding: 0.375rem 0.5rem;
+  resize: vertical;
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+/* Fades in on entry and out on exit via the transition-status attributes. */
+.ErrorAnimated {
+  composes: Error;
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 150ms ease,
+    translate 150ms ease;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    translate: 0 -0.25rem;
+  }
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Checkbox (adapted from the checkbox hero demo) */
+
+.CheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Checkbox {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: white;
+  padding: 0;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
+  }
+
+  &[data-checked] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-invalid] {
+    border-color: oklch(50.5% 0.213 27.518deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: oklch(70.4% 0.191 22.216deg);
+    }
+  }
+}
+
+.CheckboxIndicator {
+  display: flex;
+
+  &[data-unchecked] {
+    display: none;
+  }
+}
+
+/* Radio group inside a fieldset (for the Field.Item story) */
+
+.Fieldset {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.Legend {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.FieldItem {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  column-gap: 0.5rem;
+  row-gap: 0.125rem;
+  align-items: center;
+}
+
+.Radio {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 50%;
+  background-color: white;
+  padding: 0;
+  margin: 0;
+  grid-column: 1;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.RadioIndicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  &[data-unchecked] {
+    display: none;
+  }
+}
+
+.ItemLabel {
+  grid-column: 2;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.ItemDescription {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Select subset (adapted from the select hero demo, for the control-swap story) */
+
+.Select {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.25rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+  min-width: 10rem;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-popup-open] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &[data-invalid] {
+    border-color: oklch(50.5% 0.213 27.518deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: oklch(70.4% 0.191 22.216deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.SelectValue[data-placeholder] {
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.SelectIcon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.Positioner {
+  outline: none;
+  z-index: 10;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Popup {
+  box-sizing: border-box;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  background-clip: padding-box;
+  color: oklch(14.5% 0 0deg);
+  min-width: var(--anchor-width);
+  transform-origin: var(--transform-origin);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-side='none'] {
+    transform: translateY(1px);
+    min-width: calc(var(--anchor-width) + 1.75rem);
+  }
+}
+
+.List {
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  max-height: var(--available-height);
+}
+
+.SelectItem {
+  box-sizing: border-box;
+  outline: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding-block: 0.375rem;
+  padding-left: 0.625rem;
+  padding-right: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 1rem 1fr;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+}
+
+.SelectItemIndicator {
+  grid-column-start: 1;
+}
+
+.SelectItemText {
+  grid-column-start: 2;
+}
+
+/* State-machine story: every interaction state gets a visible hook.
+   The badges light up purely via the data attributes on Field.Root. */
+
+.StateField {
+  composes: Field;
+}
+
+.StateInput {
+  composes: Input;
+
+  &[data-filled] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &[data-touched] {
+    border-style: dashed;
+  }
+
+  &[data-valid] {
+    border-color: oklch(52.7% 0.154 150.069deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: oklch(72.3% 0.219 149.579deg);
+    }
+  }
+}
+
+.BadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.Badge {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 0 0.375rem;
+  border: 1px dashed oklch(70.8% 0 0deg);
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(43.9% 0 0deg);
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.StateField[data-focused] .BadgeFocused,
+.StateField[data-dirty] .BadgeDirty,
+.StateField[data-filled] .BadgeFilled,
+.StateField[data-touched] .BadgeTouched {
+  border-style: solid;
+  border-color: oklch(14.5% 0 0deg);
+  background-color: oklch(92.2% 0 0deg);
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(26.9% 0 0deg);
+    color: white;
+  }
+}
+
+.StateField[data-valid] .BadgeValid {
+  border-style: solid;
+  border-color: oklch(52.7% 0.154 150.069deg);
+  color: oklch(52.7% 0.154 150.069deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(72.3% 0.219 149.579deg);
+    color: oklch(72.3% 0.219 149.579deg);
+  }
+}
+
+.StateField[data-invalid] .BadgeInvalid {
+  border-style: solid;
+  border-color: oklch(50.5% 0.213 27.518deg);
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(70.4% 0.191 22.216deg);
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+/* Shared story scaffolding (matches the switch/select pilots) */
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
