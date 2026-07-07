@@ -1,0 +1,109 @@
+# Input — component research brief
+
+Tier 3 (lean brief: source + JSDoc + data attributes, docs page, a quick issue search). Mined 2026-07-07 from source (`packages/react/src/input/`), the part it wraps (`packages/react/src/field/control/FieldControl.tsx`), docs (`docs/src/app/(docs)/react/components/input/page.mdx` + `types.md`), the sole test file (`Input.test.tsx`, conformance-only), git history (`git log --grep='^\[[Ii]nput\]'`), and one targeted `gh` issue search (`gh search issues "fieldset"` surfaced #4643, cached — no dedicated `gh` call spent on Input itself). Builds directly on [`../field/brief.md`](../field/brief.md) (Tier 1) — read that first; this brief only covers what Input adds/removes relative to `Field.Control`. Evidence tags: [E] direct evidence, [I] inference, [G] gap.
+
+## 1. Identity
+
+- **Name / subpath**: Input — `@base-ui/react/input`. **Single-part** component (no namespace of parts; `Input` is exported directly, not `Input.Root`). [E] (`index.ts`: `export { Input } from './Input'`).
+- **Status**: stable, no `[New]`/`[Preview]` tag. No dedicated introducing PR of its own — it is a rename of the pre-existing `TextInput`: `288bbdda [Input] Rename TextInput to Input (#932)`, and before the Base UI repo existed at all, the lineage traces to `@mui/base`'s `Input`/`InputBase` (`ca474d47d [Input][base-ui] Update and port additional tests from material-ui`, `6b99071f0 [Input][material-next] Add InputBase component`). [E] So Input predates Base UI's own component-per-DOM-node rewrite wave — it is one of the library's oldest surviving names, but its *implementation* was fully replaced when it was rebuilt as a `Field.Control` wrapper (see §2).
+- **Taxonomy** (Phase A): selection & input → form infrastructure sub-cluster, alongside field/fieldset/form. Purpose: the plain, single-part `<input>` companion to `Field` — for consumers who want Field's data-attribute/labeling contract without assembling `Field.Root > Field.Control` by hand. IA: it is not a compound component at all; it is a convenience export.
+- **What it literally is**: `Input.tsx` is 17 lines. It renders `<Field.Control ref={forwardedRef} {...props} />` and nothing else [E] (`packages/react/src/input/Input.tsx:12-17`). `InputState extends FieldControlState` (which itself `extends FieldRootState`) [E]. There is no `InputCssVars.ts` file — no styling contract beyond what Field already defines. [E] (verified: `find packages/react/src/input -name "*CssVars*"` returns nothing).
+- **Data attributes**: `InputDataAttributes.ts` enumerates `data-disabled`, `data-valid`, `data-invalid`, `data-touched`, `data-dirty`, `data-filled`, `data-focused` [E] — this is a **verbatim restatement** of Field's validity/interaction-state contract (`fieldValidityMapping`, see field brief §6/§8), each annotated "(when wrapped in Field.Root)". Outside a `Field.Root`, none of the Field-derived attributes populate (`fieldState` defaults from `useFieldRootContext` when there is no ambient provider) — only `data-disabled` remains meaningful, driven directly by the `disabled` prop. [I], from reading `FieldControl.tsx`'s `useFieldRootContext()` call and the field brief's documented default state shape.
+
+## 2. Intention
+
+- [E] **Named accessibility-first in its own subtitle**: "A native input element that automatically works with [Field]" (`page.mdx` Subtitle) — the entire reason Input exists is spelled out in one sentence: it is `Field.Control` without a fieldset to name. The JSDoc repeats this: "A native input element that automatically works with Field. Renders an `<input>` element." [E] (`Input.tsx:6-11`).
+- [E] **Thin-wrapper-by-design, not accidental duplication**: Input adds no props, no behavior, no state of its own — every capability (validation lifecycle, controlled/uncontrolled triplets, `onValueChange`/`eventDetails`, the state-attribute contract) is `Field.Control`'s, inherited by delegation rather than reimplemented. `InputProps` narrows only `value`'s type to the native `React.ComponentProps<'input'>['value']` and re-declares `onValueChange`/`defaultValue` for its own doc-comment surface — the underlying wiring is identical [E] (`Input.tsx:19-32` vs `FieldControl.tsx:159-167`).
+- [E] **Why it's a separate export rather than telling everyone to import `Field.Control` directly**: the docs' own "Usage guidelines" for Field itself says other Base UI input components — "Input, Checkbox, or Select, among others, will work with Field out of the box" — are meant to be the *first-class, named* things a consumer reaches for; `Field.Control` is presented as the fallback ("You can omit this part and use any Base UI input component instead") [E] (`FieldControl.tsx:25-27` JSDoc). [I] Input therefore exists so a plain text field has a component with an intention-revealing name (`Input`, not the more internal-sounding `Field.Control`), matching how `Checkbox`/`Select`/`NumberField` are all separately named form controls that plug into the same Field machinery. No maintainer statement makes this design goal explicit in so many words — [G] searched `git log --grep` and cached issue JSON for an "Input vs Field.Control" naming rationale; found none.
+- [I] **The heart of the intention**: give consumers a native `<input>` that is simultaneously (a) a completely ordinary form element usable standalone with a plain `<label>` (see the hero demo, §5) and (b) automatically wired into Field's touched/dirty/filled/focused/valid state machine and ARIA plumbing the moment it's nested inside `<Field.Root>` — with zero extra props to opt in. This "just works when nested, works fine when not" duality is the value proposition; it is never phrased this way in any single citation but is the direct, provable consequence of delegating 100% of its implementation to `Field.Control`.
+
+## 3. When to use
+
+- [E] Any plain single-line text/native-input-type form field, labeled either by a native `<label>` (hero demo, §5) or by `<Field.Label>` when validation/description/error display is also needed (the general Field pattern — see field brief §3).
+- [E] Docs' own accessibility rule for it: "Form controls must have an accessible name: It can be created using a `<label>` element or the `Field` component" (Input's "Usage guidelines", the only bullet on the page) [E] (`page.mdx:13-15`).
+- [I] As the default choice for text-shaped values (`text`, `email`, `search`, `tel`, `url`, `password`, `number`-as-text) in a form built with Field/Fieldset/Form, when no richer Base UI control (NumberField, OTP Field, Combobox, Autocomplete) better matches the data shape.
+- [E] Standalone, outside any Field/Form tree: fully supported — it degrades to a plain native `<input>` plus `onValueChange`, with only `data-disabled` remaining a meaningful attribute (see §1). [I] from source; no maintainer statement frames this as a recommended pattern, but nothing in the implementation prevents or discourages it.
+
+## 4. When not to use + alternatives
+
+- **Grouped/multi-thumb or non-text values → other Base UI form controls, not Input**: NumberField (numeric formatting/stepping), OTP Field (segmented codes), Combobox/Autocomplete/Select (predefined-value pickers), Checkbox/Radio/Switch (booleans/choices), Slider (ranges) — all extend `Field`-compatible contracts of their own rather than wrapping `Field.Control` directly; Input specifically claims the plain-text niche. [I] from the taxonomy (§1) and API surface; no direct "don't use Input for X" maintainer quote was found — [G] searched cached issue/PR JSON for "Input vs NumberField"/"Input vs Combobox", found nothing.
+- **You need `Field.Control`'s full prop surface with no narrowing** (e.g. you want `render` to swap in a `<textarea>`): use `Field.Control` directly rather than `Input` — Input's `Props` interface is a strict subset re-declaring only `value`'s type; nothing is gained by wrapping through `Input` if you already need `Field.Control render={<textarea />}` (the sanctioned custom-control path per field brief §8). [I] — Input has no `render`-swap precedent of its own in tests or docs.
+- **A visible error/description/validation UI is required** → wrap in `<Field.Root>` (see field brief); Input alone has no `Field.Error`/`Field.Description` counterpart — it is only the control slot.
+- **One label needs to describe several controls at once (e.g. a labeled group of related inputs)** → compose `<Fieldset.Root>` around multiple `<Field.Root>` (or `<Input>`s each in their own Field) instead of trying to make one `Input` serve two purposes — see [`../fieldset/brief.md`](../fieldset/brief.md) §4.
+
+## 5. Anatomy & composition
+
+```jsx
+import { Input } from '@base-ui/react/input';
+
+<Input />;
+```
+
+- **Single node, no children slots, no compound structure** [E] (docs Anatomy section, `page.mdx:19-25`) — this is the simplest anatomy in the library alongside Button/Toggle/Separator.
+- **Standalone composition** (hero demo, `docs/.../input/demos/hero/css-modules/index.tsx`): a plain native `<label>` wraps the `Input`, with no `Field` involved at all —
+  ```jsx
+  <label className={styles.Label}>
+    Name
+    <Input placeholder="e.g. Colm Tuite" className={styles.Input} />
+  </label>
+  ```
+  [E] This is a deliberate minimal example: implicit `<label>`-wraps-`<input>` association, the same native pattern the forms handbook documents for Checkbox/Radio/Switch enclosure (field brief §5) — here applied to a plain text input needing no Field machinery at all.
+- **Field-integrated composition** (not shown in Input's own docs page, but the mechanism the whole component exists for — see field brief §5): `<Field.Root><Field.Label>…</Field.Label><Input />…</Field.Root>`. Because `Field.Root` wraps children in a `LabelableProvider` and any control registers itself via `useRegisterFieldControl` regardless of which named component renders the actual `<input>`, `Input` "just works" inside Field with no wiring prop — identical to how `Field.Control` itself works, since `Input` *is* `Field.Control` under a different name. [E] confirmed by reading `FieldControl.tsx`'s registration call, which `Input` inherits unconditionally.
+- **Visual anatomy diagram spec** (trivial, single node): a single labeled box; callouts: (1) the `<input>` element itself, (2) an optional wrapping `<label>` or adjacent `<Field.Label>`, (3) the seven possible data attributes listed as a side legend, present only when nested in `Field.Root`.
+- **Composition rule inherited, not novel**: none of Base UI's Portal/Positioner/Popup layering grammar applies — Input is not a popup component.
+
+## 6. Behavior ("How it works")
+
+Every behavior described in the field brief's §6 (interaction-state machine, validation lifecycle, controlled/uncontrolled triplet, disabled semantics, SSR notes) applies to Input **verbatim**, because Input renders `Field.Control` with no additional logic layered on top. Nothing below is Input-specific; it is restated narrowly to flag the two places Input's typing differs from `Field.Control`'s:
+
+- [E] **`value` typing is narrower**: `Input.Props['value']` is typed as `React.ComponentProps<'input'>['value']` (the native input value type) rather than `Field.Control.Props`'s value type — a cosmetic TS-ergonomics difference, not a runtime behavior difference (`Input.tsx:29-31`).
+- [E] **`defaultValue` typing is expressed via `Field.Control.Props['defaultValue']`** — Input re-exports rather than redefines it (`Input.tsx:26-27`), confirming the two components share one validation/default-value pipeline.
+- [E] **No independent `onValueChange` semantics**: `Input.ChangeEventReason`/`Input.ChangeEventDetails` are direct type aliases of `Field.Control.ChangeEventReason`/`Field.Control.ChangeEventDetails` (`Input.tsx:36-37`) — the reason vocabulary is exactly `Field.Control`'s single reason, `REASONS.none` (field brief's `FieldControlChangeEventReason = typeof REASONS.none`). There is no Input-specific reason string.
+- [I] **Standalone behavior** (outside `Field.Root`): `useFieldRootContext()` inside `FieldControl.tsx` still resolves (Field's context hook has a default/ambient fallback path elsewhere in the codebase for controls used without a provider — this is the same mechanism every other Field-compatible control relies on when used bare) — so `<Input />` with no ambient Field never throws; it simply behaves as an uncontrolled-by-default native input with `onValueChange` and no data-attribute contract beyond `data-disabled`. [G] — did not locate an explicit test exercising `<Input />` fully outside any Field context to confirm this null-state behavior directly (the only test file, `Input.test.tsx`, is `describeConformance` only); inferred from `FieldControl.tsx` reading context values that are documented as always-available, never throwing, unlike `useFieldsetRootContext`'s hard-required variant (contrast with fieldset brief §1, whose context throws when absent).
+
+## 7. Accessibility contract
+
+Input has no ARIA pattern of its own to manage — it is a native `<input>`, and every accessibility guarantee is either (a) what the browser gives any native input for free, or (b) what `Field.Control` (and, in turn, `Field.Root`/`Field.Label`) supply when Input is nested inside a Field tree. See field brief §7 for the full mechanism table (Label→control `htmlFor`, Description/Error→`aria-describedby`, `aria-invalid` on invalid, etc.) — all of it applies unmodified.
+
+**What Input itself states, verbatim:**
+
+- [E] "Form controls must have an accessible name: It can be created using a `<label>` element or the `Field` component" (Input's Usage guidelines, its only prose beyond the JSDoc) [E] (`page.mdx:13-15`) — this is the consumer-owns-accessible-name rule the research task specifically flags. Input supplies zero labeling machinery on its own; a bare `<Input />` with no wrapping `<label>`, no `aria-label`, and no ambient `<Field.Label>` has **no accessible name** and fails this rule. The obligation is squarely on the consumer, exactly mirroring the library's two-sided a11y contract (principles B-P27: "library guarantees ARIA/keyboard/focus; consumer owes accessible names").
+- [E] **Standalone labeling**: plain `<label>` wrapping (hero demo) — implicit native association, zero extra props.
+- [E] **Field-integrated labeling**: `aria-labelledby` auto-wired from `Field.Label`'s id via `LabelableContext` (`FieldControl.tsx:71,114`) — inherited, not reimplemented.
+- **Keyboard interaction**: none beyond native `<input>` behavior, plus the one Field-inherited binding — Enter commits validation before native submit proceeds (field brief §7) — which only matters when Input sits inside a `<Field.Root>`/`<Form>`.
+- **Known issues / honesty**: [E] one open, Input-specific support issue found via cached search: **#4643 "[Input] How to clear the input value on a button click?"** (open, `support: question`, 4 comments) [E] (cached in `research/b-library-principles/_mining/_cache/targeted-theme-searches-issues.json`) — title only was retrieved (no `gh` call spent reading its body, to conserve the 3-lookup budget for fieldset's more load-bearing issues); flagged here as a documented gap: Input's docs show no "clear on button click" recipe, and the pattern (presumably a controlled `value`/`onValueChange` pair reset from an external handler) is not spelled out anywhere on the Input or Field pages. [G] the resolution/answer text is unread; a future pass should open #4643 to confirm the maintainer-recommended pattern before writing docs prose from it.
+
+## 8. Prop-level guidance
+
+Input's entire prop surface **is** `Field.Control`'s (see field brief §8's "`Field.Control`" subsection for `onValueChange`/`render` guidance verbatim) minus one narrowing. The only Input-specific guidance:
+
+- **`value` / `defaultValue`** — use the value/defaultValue/onValueChange controlled triplet exactly as documented for any Base UI form control (principles B-P15); Input's typings are native-input-shaped, so no object-value or item-lookup machinery (contrast Select) applies — `value` is always a plain string.
+- **No `render` prop guidance specific to Input was found in docs/tests** — [G] searched `page.mdx` and `Input.test.tsx`; neither demonstrates a `render`-based element swap for Input (e.g. rendering a `<textarea>` through `Input`). `Field.Control render={<textarea />}` is the documented path for that need (field brief §8) — a consumer wanting a non-`<input>` element should reach for `Field.Control` directly rather than `Input`, since `Input`'s whole naming point is "this is an `<input>`."
+- **Data attributes** — identical table to Field.Control's (field brief §8's closing paragraph): `data-disabled`, `data-touched`, `data-dirty`, `data-filled`, `data-focused`, tri-state `data-valid`/`data-invalid` (absent while `valid === null`). No CSS variables — Input introduces none, and none of Field's variables surface here since Field itself defines none either (field brief has no CSS-vars entry for Field parts; the animation-bearing CSS vars in this batch belong to Collapsible, not Field/Input).
+
+## 9. Decision log
+
+- **2023–2024 (pre-Base UI)** — `Input`/`InputBase` lineage inherited from `@mui/base` (`6b99071f0`, `ca474d47d`), predating the component-per-DOM-node rewrite. [E]
+- **2024-12 (`288bbdda`, #932)** — `TextInput` renamed to `Input`: the name settles on the short, intention-revealing form still in use today. [E]
+- **2025-05 (`369f8ccf0`, #1341)** — `filled`/`focused` style hooks added to Field (and therefore to Input, by inheritance) — extends the interaction-state machine Input's data attributes expose. [E]
+- **2025-XX (`4d98c7595`, #1954)** — `Input` extends `Field.Control.State` explicitly in the type layer, formalizing the delegation relationship already true at runtime. [E]
+- **2025-XX (`8073c4bce`, #1915)** — `Input.Props` type fix — narrow-type bugs in the wrapper surfaced and were corrected, consistent with Input being a thin pass-through whose main risk surface is TypeScript fidelity, not runtime behavior. [E]
+- **2025-XX (`7ca58b9f3`, #3866)** — ref type updated to `HTMLElement` (broadened from a more specific element type), part of a library-wide ref-typing pass. [E]
+- **2026-0x (`e029356a6`, #4130)** — `value` property documented — a docs-only addition, reflecting that Input's prop surface changes are almost entirely typing/documentation refinements rather than new behavior. [E]
+- **Library-wide arcs that reached Input by inheritance, not by direct authorship**: the `data-valid`/`data-invalid` split from `data-field` (#738, field brief cites this against Field, and Input inherits the resulting attribute enum unchanged); the eventDetails unification (#2382/#2698/#2796); `useRenderElement` migration (implicit — `Field.Control` itself uses it).
+
+## 10. Pitfalls & FAQ
+
+1. **"Input has no accessible name / screen readers announce nothing"** → Input renders zero labeling machinery of its own; wrap in a native `<label>` or `<Field.Label>`, or set `aria-label` directly — the docs' one Usage-guidelines bullet exists precisely to warn about this [E] (`page.mdx:13-15`).
+2. **"I want to clear the value from a button click"** → not documented on Input's own page; likely resolved via the standard controlled `value`/`onValueChange` triplet reset externally, but the exact recommended pattern is unverified here — see open issue #4643 [E] (title-only citation; body unread, flagged in §7 as a follow-up).
+3. **"Why don't I just use `Field.Control` everywhere instead of `Input`?"** → you can; they are behaviorally identical. `Input` exists for a shorter, more intention-revealing name when you don't need `Field.Control`'s narrower doc-comment framing as "the fallback when no named component exists." No functional reason favors one over the other for a plain text field. [I]
+4. **"Data attributes (`data-touched`/`data-dirty`/etc.) aren't appearing on my `<Input />`"** → they only populate when Input is nested inside `<Field.Root>`; every entry in `InputDataAttributes.ts` is annotated "(when wrapped in Field.Root)" for exactly this reason [E] (`InputDataAttributes.ts`).
+5. **"Can I swap the rendered tag to `<textarea>` via Input's `render` prop?"** → no precedent found for this on Input specifically; use `Field.Control render={<textarea />}` instead (field brief §8, Pitfall 2) since that is the maintainer-confirmed custom-control path. [I]
+
+## 11. Real-world patterns observed
+
+[G] pending Phase D. No per-component candidates.json/ranked.json exists yet for `input` at time of writing (Tier-3 cap: ≤20 candidates, top ~5, no screenshots, per PROMPT.md §12 — mining not yet run). Expected archetypes to verify once run: design-system `TextField`/`Input` wrapper components layering focus rings and validation styling over the bare `Input`+`Field` pair; RHF-registered inputs (`Field.Control` mapped from `<Controller>`, per field brief §3); the plain-`<label>`-only pattern shown in Input's own hero demo, likely common in simple/marketing forms that skip Field entirely.
+
+## 12. Story plan
+
+See [story-plan.md](./story-plan.md) — 7 stories: basic labeled input (Field.Label pattern, not just the bare-label hero pattern, since Field integration is Input's whole point), standalone-no-Field variant (documents the "still works" duality from §2), validation states styling (data-invalid/touched/dirty via play-driven blur+type), disabled state (data-disabled, cascading from a disabling ancestor Fieldset per the fieldset brief), format-on-blur — **[G] no format-on-blur evidence found for Input itself** (that pattern belongs to NumberField's `format` prop, not Input; Input has no formatting prop of any kind — story omitted, noted here per the brief's "if evidenced" instruction), form submit (Input inside `<Form>`, exercising the hidden-input/native-submission contract Input inherits from Field.Control).
