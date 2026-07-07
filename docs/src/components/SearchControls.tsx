@@ -76,11 +76,11 @@ export function SearchControls({
 
   const preloadTarget = React.useCallback((target: OpenTarget) => {
     if (target === 'desktop') {
-      void loadSearchDialog();
+      void loadSearchDialog().catch(() => undefined);
       return;
     }
 
-    void loadMobileNavDrawer();
+    void loadMobileNavDrawer().catch(() => undefined);
   }, []);
 
   const requestTarget = React.useCallback(
