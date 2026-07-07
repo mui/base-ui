@@ -26,7 +26,7 @@ const meta = {
     'Popover.Description': Popover.Description,
     'Popover.Close': Popover.Close,
   },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Popover.Root>;
 
 export default meta;
@@ -267,7 +267,8 @@ export const OpenCloseInteraction: Story = {
     // Open: the popup portals to <body> and the trigger reflects the state.
     await userEvent.click(trigger);
     const popup = await body.findByRole('dialog');
-    await expect(popup).toBeVisible();
+    // The popup fades in via [data-starting-style], so wait out the transition.
+    await waitFor(() => expect(popup).toBeVisible());
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect(trigger).toHaveAttribute('data-popup-open');
 
@@ -477,8 +478,10 @@ export const TrapFocusMode: Story = {
     await userEvent.tab();
     await waitFor(() => expect(first).toHaveFocus());
 
-    // An outside press still closes it.
-    await userEvent.click(canvas.getByRole('button', { name: 'Outside button' }));
+    // While focus is trapped, outside content is aria-hidden for assistive
+    // tech (so role queries no longer see it), but pointers stay unlocked —
+    // an outside press still closes the popover.
+    await userEvent.click(canvas.getByText('Outside button'));
     await waitFor(() => expect(body.queryByRole('dialog')).not.toBeInTheDocument());
   },
 };
@@ -524,7 +527,8 @@ export const DetachedHandleImperative: Story = {
     const trigger = canvas.getByRole('button', { name: 'Saved searches' });
 
     await userEvent.click(canvas.getByRole('button', { name: 'Open via handle.open()' }));
-    await expect(await body.findByRole('dialog')).toBeVisible();
+    const popup = await body.findByRole('dialog');
+    await waitFor(() => expect(popup).toBeVisible());
     // The popup is associated with (and anchored to) the registered trigger.
     await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
 
@@ -583,7 +587,7 @@ export const MultipleTriggersPayload: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'Pro' }));
     const popup = await body.findByRole('dialog');
-    await expect(within(popup).getByText(/\$16 per month/)).toBeVisible();
+    await waitFor(() => expect(within(popup).getByText(/\$16 per month/)).toBeVisible());
 
     // Switching triggers swaps the payload in the same popup node.
     await userEvent.click(canvas.getByRole('button', { name: 'Enterprise' }));
@@ -602,10 +606,12 @@ function DismissalControlExample() {
         <Popover.Root
           open={open}
           onOpenChange={(nextOpen, eventDetails) => {
-            // Veto outside-press dismissal; every other reason goes through.
-            if (eventDetails.reason === 'outside-press') {
+            // Veto outside interactions. An outside click arrives as `focus-out`
+            // (focus leaves the popup) followed by `outside-press` — both must be
+            // filtered, or the first one still closes the popover.
+            if (eventDetails.reason === 'outside-press' || eventDetails.reason === 'focus-out') {
               eventDetails.cancel();
-              setLog((entries) => [...entries, 'outside-press (canceled)']);
+              setLog((entries) => [...entries, `${eventDetails.reason} (canceled)`]);
               return;
             }
             setOpen(nextOpen);
@@ -634,7 +640,7 @@ function DismissalControlExample() {
   );
 }
 
-/** The dismissal-control recipe: there is no `disablePointerDismissal` on Popover — filter `eventDetails.reason` and call `eventDetails.cancel()` instead (#2314, #3716, #4466). Outside presses are vetoed; the Close button (`close-press`) still works. */
+/** The dismissal-control recipe: there is no `disablePointerDismissal` on Popover — filter `eventDetails.reason` and call `eventDetails.cancel()` instead (#2314, #3716, #4466). An outside click arrives as `focus-out` then `outside-press`, so both are vetoed; the Close button (`close-press`) still works. */
 export const CancelCloseOnOutsidePress: Story = {
   render: () => <DismissalControlExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
@@ -644,10 +650,10 @@ export const CancelCloseOnOutsidePress: Story = {
     const popup = await body.findByRole('dialog');
     await expect(canvas.getByText(/trigger-press/)).toBeVisible();
 
-    // The outside press is canceled, so the popover stays open.
+    // Both dismissal reasons are canceled, so the popover stays open.
     await userEvent.click(canvas.getByRole('button', { name: 'Outside area' }));
-    await expect(canvas.getByText(/outside-press \(canceled\)/)).toBeVisible();
-    await expect(popup).toBeVisible();
+    await expect(await canvas.findByText(/outside-press \(canceled\)/)).toBeVisible();
+    await waitFor(() => expect(popup).toBeVisible());
 
     // Explicit close actions still go through.
     await userEvent.click(within(popup).getByRole('button', { name: 'Done' }));
@@ -681,7 +687,8 @@ export const HoverStickOnClick: Story = {
 
     // Click works even though the trigger also opens on hover.
     await userEvent.click(trigger);
-    await expect(await body.findByRole('dialog')).toBeVisible();
+    const popup = await body.findByRole('dialog');
+    await waitFor(() => expect(popup).toBeVisible());
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
     // A second click closes the stuck-open popover.
@@ -1220,7 +1227,7 @@ export const RealWorldQueuePopover: Story = {
 
     await userEvent.click(trigger);
     const popup = await body.findByRole('dialog');
-    await expect(within(popup).getByText('Glass Harbor — Undertow')).toBeVisible();
+    await waitFor(() => expect(within(popup).getByText('Glass Harbor — Undertow')).toBeVisible());
 
     // The popup is end-aligned to the header wrapper, not to the icon button.
     await waitFor(() =>
