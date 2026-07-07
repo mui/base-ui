@@ -1,0 +1,225 @@
+{/* Overview page. MDX-only — no stories.tsx. Distilled from
+    research/b-library-principles/principles.md (the "B-Pn" citations below refer to that
+    file's numbered principles) and research/b-library-principles/glossary.md. Every claim
+    traces to an [E]vidence citation in that source; this page keeps the issue/PR links but
+    drops the [E]/[I]/[G] evidence-tier markers themselves, which are a research-process
+    artifact rather than reader-facing content. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Overview/Principles" />
+
+# Principles
+
+Base UI's component APIs are not 37 independent designs — they're one grammar applied
+37 times. Once you know the grammar, a new component page holds very few surprises. This
+page is that grammar: the parts model, the render prop, the styling contract, the event
+shape, and the versioning rules every other page assumes you already know.
+
+## Parts & namespaces
+
+Every component is a namespace of parts, and each part renders exactly one DOM node —
+`Menu.Trigger`, `Switch.Thumb`, `Dialog.Popup`. A stateful **Root** part owns
+controlled/uncontrolled state and shares it with descendant parts through private
+context, replacing the old `slots`/`slotProps` customization model from `@mui/base`. Every
+part exposes matching `Props` and `State` TypeScript interfaces (`Tooltip.Root.Props`,
+`Tooltip.Root.State`), so the type system mirrors the anatomy.
+
+The origin RFC for this model proposed exactly "component-per-DOM-node + a `render` prop
+for element replacement"
+([discussion #157](https://github.com/mui/base-ui/discussions/157)); Switch was the
+first component rewritten to it in 2024. See it in action: any component's **Anatomy**
+section, e.g. [Switch](?path=/docs/form-inputs-switch--docs#anatomy).
+
+## The render prop (and why not `asChild`)
+
+Composition happens through `render` — either element form (`render={<a href="/" />}`,
+props merged automatically) or function form
+(`render={(props, state) => <a {...props} />}`, you own the spreading). It is
+deliberately not Radix's `asChild`: a maintainer closed the direct proposal with "it is
+unlikely we'll change this API"
+([#3983](https://github.com/mui/base-ui/issues/3983)). The recorded reasoning: `render`
+is explicit about which element's props are being replaced; the function form avoids
+`cloneElement`; and `asChild` silently changes how children are interpreted, which is an
+easy way to end up with a button nested inside a button.
+
+Two footguns worth knowing up front. First, the function passed to `render` is not a
+React component — it cannot contain hooks, and doing so crashes during reconciliation
+in a way TypeScript can't catch
+([#4039](https://github.com/mui/base-ui/issues/4039)). Second, because the rendered
+element's identity can't be known before hydration, swapping tags needs an explicit
+signal — this is why Button offers a `nativeButton` prop rather than inferring the tag
+from `render`. See it in action:
+[Switch's native-button rendering](?path=/docs/form-inputs-switch--docs).
+
+## `useRender` and `mergeProps`
+
+If you're building your own component that should offer a `render` prop, `useRender` is
+the sanctioned way — chosen over a Radix-style `Slot` component after internal
+discussion ([#1315](https://github.com/mui/base-ui/issues/1315)). Pair it with
+`mergeProps`, which defines precise merge semantics rather than ad hoc spreading: the
+rightmost value wins for most props, `className` strings concatenate, `style` objects
+merge key-by-key, `ref` is *not* merged (only the rightmost is kept), and event handlers
+all run — rightmost (yours) first, which is what makes `event.preventBaseUIHandler()`
+able to stop Base UI's internal logic before it executes. See it in action:
+[useRender](?path=/docs/utilities-userender--docs),
+[mergeProps](?path=/docs/utilities-mergeprops--docs).
+
+## Data-attribute styling doctrine
+
+State is exposed as boolean data attributes — `data-open`, `data-checked`,
+`data-highlighted` — never a Radix-style stringly-typed `data-state="..."`. That split
+happened deliberately "for naming consistency, better Tailwind support, and easier Radix
+migration" ([#717](https://github.com/mui/base-ui/issues/717)). Just as important: every
+state attribute is duplicated onto **every part it's relevant to**, not just the Root,
+because relying on descendant selectors for state was explicitly rejected — "it's
+generally a bad idea to have your styles rely on DOM structure... we want to enable
+devs, not restrict them"
+([#625](https://github.com/mui/base-ui/issues/625)). A Tooltip and a Menu attached to
+the same button stay independently styleable because their "something is open" state
+uses deliberately separate attributes (`data-popup-open` vs. `data-pressed`,
+[#3036](https://github.com/mui/base-ui/issues/3036)). Every component page's **Styling
+hooks** section is the per-part attribute table this doctrine produces.
+
+## CSS variables
+
+Where a data attribute carries a boolean, a CSS variable carries a number. Dynamic
+measurements — available space, anchor size, transform origin — are delivered as
+per-part custom properties: Popover's Popup exposes `--available-height` and
+`--anchor-width`, and the canonical popup-animation recipe keys off
+`--transform-origin`. These are the numeric complement to the data-attribute doctrine
+above, and both are documented together on each component's styling section.
+
+## `eventDetails`: reason, event, cancel
+
+Every change callback across the library takes the same shape:
+`onXChange(value, eventDetails)`. `eventDetails` carries `.reason` (a typed string union
+narrowing *why* the change happened — `trigger-press`, `trigger-hover`,
+`escape-key`, and so on), `.event` (the underlying native or synthetic event), and
+`.cancel()` — a way to veto the state change while staying uncontrolled, instead of being
+forced into fully controlled mode just to intercept one case. This unified shape landed
+in [#2382](https://github.com/mui/base-ui/issues/2382), replacing an earlier
+`(value, event, reason)` signature. It is also the library's least-discovered
+high-value API: support threads repeatedly rediscover `cancel()` for cases like "keep a
+tooltip open after a click"
+([#1311](https://github.com/mui/base-ui/issues/1311)). See it in action: any
+`onOpenChange`/`onValueChange` prop's JSDoc, e.g.
+[Dialog](?path=/docs/overlays-dialog--docs).
+
+## `createHandle` and payload
+
+For triggers that live outside their Root's subtree — or several triggers sharing one
+popup — `createHandle()` is the modern answer, superseding an earlier proposal to expose
+raw `{ open, setOpen }` state from Root (rejected: "it's better to restrict this to one
+unified API," [#2069](https://github.com/mui/base-ui/issues/2069)). A handle carries a
+typed per-trigger `payload` and imperative `open` / `openWithPayload` / `close` methods.
+Popover, Menu, Dialog, and Alert Dialog all shipped handles across
+2025 ([#2336](https://github.com/mui/base-ui/issues/2336),
+[#3170](https://github.com/mui/base-ui/issues/3170),
+[#2974](https://github.com/mui/base-ui/issues/2974)) — a maintainer noted this "should
+make the controlled mode almost unnecessary." Think of it as three tiers: uncontrolled
+parts, then controlled props, then handles for the detached/imperative/payload cases.
+
+## Portal → Positioner → Popup, and the stacking model
+
+Every popup follows the same anatomy: `Root → Trigger → Portal → Positioner → Popup`.
+`Portal` is mandatory — a missing one throws at render time, deliberately, so an invalid
+tree is obvious rather than silently broken. `keepMounted` lives on `Portal`. Positioning
+configuration, and any `z-index` you truly can't avoid, belongs on `Positioner` — never
+on `Popup`: "don't set z-index at all... if you must, it belongs on Positioner (the
+positioned element), never Popup"
+([#2450](https://github.com/mui/base-ui/issues/2450)). `container` is set only on the
+root `Portal`, since nested portals automatically append inside their parent's tree
+([#1930](https://github.com/mui/base-ui/issues/1930)).
+
+This is also the single biggest support-issue magnet in the library's history: fights
+with `z-index`, third-party overlays landing above or below Base UI's layers, and
+confusion about the recommended app-shell setup. The fix is a `.root` element with
+`isolation: isolate` — "popups always appear above the page contents, and any `z-index`
+property in your styles won't interfere"
+([#2293](https://github.com/mui/base-ui/issues/2293)). Keep third-party overlay
+libraries (toast stacks, etc.) *outside* that isolated root, where their own z-index
+still wins.
+
+## Animation model
+
+CSS transitions are recommended over keyframe animations, because a transition can be
+smoothly cancelled mid-flight — closing a popup before its open transition finishes just
+reverses direction instead of jumping. The transition-lifecycle hooks are
+`[data-starting-style]` and `[data-ending-style]`; the keyframe-lifecycle hooks are
+`[data-open]` and `[data-closed]`. Popups unmount from the DOM when closed by default, so
+an exit animation needs either CSS ending styles, or — for JS animation libraries —
+`keepMounted` on `Portal` plus a controlled `open`, with `actionsRef.current.unmount()`
+as the manual escape hatch once the animation finishes. One easy-to-miss detail:
+`data-starting-style` exists for essentially one frame (the transition's source state),
+not a phase that persists through the animation — a wording the maintainers have
+conceded is easy to misread
+([#4915](https://github.com/mui/base-ui/issues/4915)). See it in action: any popup's
+**Animation** subsection, e.g.
+[Popover](?path=/docs/overlays-popover--docs).
+
+## Forms philosophy
+
+Form components extend the native constraint-validation API rather than replacing it —
+`required`, `minLength`/`maxLength`, `pattern`, and `step` all work as they would on a
+plain input. Participation in a real `<form>` submission happens through a hidden
+`<input>`; giving the component a `name` and wrapping it in a relatively positioned
+container ensures the native validation bubble anchors in the right place. The default
+validation mode is `onSubmit` (revalidating on change afterward) — a deliberate flip from
+an earlier `onBlur` default ([#3013](https://github.com/mui/base-ui/issues/3013)). See it
+in action: [Field](?path=/docs/form-inputs-field--docs),
+[Form](?path=/docs/form-inputs-form--docs).
+
+## The two-sided accessibility contract
+
+Base UI's own accessibility page states its scope directly: the library handles ARIA
+attributes, roles, pointer interactions, keyboard navigation, and focus management. What
+it explicitly does not do for you: visible `:focus-visible` styling, color contrast (the
+docs recommend APCA), and — for `DirectionProvider` — actually setting `dir="rtl"` or CSS
+`direction`, since that provider only coordinates RTL *behavior*, not layout. Every
+component page's **Keyboard & screen reader** section states both halves of this split
+explicitly, because it's the library's own framing, not an inference.
+
+## Versioning semantics
+
+Pre-stable components ship under a `Preview` suffix (`DrawerPreview`, `OTPFieldPreview`)
+and are tagged `[Preview]` in the docs; "unmarking" one — dropping the suffix once it
+stabilizes — is itself logged as a breaking change, as it was for Drawer
+([#4293](https://github.com/mui/base-ui/issues/4293)). Recently stabilized components
+additionally carry a `[New]` tag. Since v1.0.0 (December 2025), breaking changes are
+scoped to preview-tier components only; stable releases ship monthly minors. If you find
+`@base-ui-components/react` or `@base_ui/react` in a tutorial online, it predates the
+v1.0.0 rename to `@base-ui/react` — treat it as historical, not current.
+
+## Mini-glossary
+
+The full vocabulary lives in
+[glossary.md](https://github.com/yannbf/base-ui/tree/research/research/b-library-principles/glossary.md)
+on the research branch; these are the terms every other page assumes.
+
+| Term | Meaning |
+|---|---|
+| **part** | One named subcomponent of a multi-part component (`Menu.Trigger`); renders exactly one DOM node. |
+| **root** | The stateful coordinating part; owns controlled/uncontrolled state and the private context descendants read. |
+| **trigger** | The interactive part that opens or controls a popup; can be detached from its Root via a handle. |
+| **positioner** | Computes and applies a popup's position; the only place a stray `z-index` should ever go. |
+| **portal** | Renders the popup subtree elsewhere in the DOM; mandatory for every popup component. |
+| **render prop** | The composition primitive — element or function form — replacing `asChild`. |
+| **state** | The per-part state object passed to `className`/`style`/`render` functions, typed as `Part.State`. |
+| **handle** | An object from `createHandle()` connecting detached triggers to a Root rendered elsewhere. |
+| **eventDetails** | The second argument to every change handler: `reason`, `event`, `cancel()`, `allowPropagation()`. |
+| **data-attribute state** | Boolean per-state attributes, duplicated on every relevant part — never a `data-state` string. |
+| **starting-style / ending-style** | The one-frame transition hooks marking a popup's source/target style. |
+| **keepMounted** | A `Portal`-level prop keeping a closed popup in the DOM — prerequisite for JS-library exit animations. |
+| **hidden input** | The `<input>` form components render to participate in native form submission and validation. |
+| **Preview (suffix)** | The pre-stable maturity tier; unmarking it is logged as a breaking change. |
+| **unstable-** | An experimental *subpath* export convention (never an `unstable_` prop prefix). |
+
+## Learn more
+
+The [handbook on base-ui.com](https://base-ui.com/react/handbook) covers each of these
+topics as reference documentation; this page is the distilled, cited version. For the
+full evidence trail behind every claim here — including inference markers and
+acknowledged gaps — see
+[principles.md](https://github.com/yannbf/base-ui/tree/research/research/b-library-principles/principles.md)
+on the research branch.

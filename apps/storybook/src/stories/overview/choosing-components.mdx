@@ -1,0 +1,206 @@
+{/* Overview page. MDX-only — no stories.tsx. Distilled from the six cluster notes in
+    research/c-components/_clusters/*.md. [E]/[I] markers below mirror those source files:
+    [E] = direct maintainer/docs evidence with a citation, [I] = inference from API shape
+    with its basis stated. Decision tables are compressed from the fuller tables in each
+    cluster note, linked at the end of each section. */}
+
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Overview/Choosing components" />
+
+# Choosing components
+
+Base UI has several families of components that look similar from a distance — three
+binary controls, three pickers, four menu-shaped widgets — but differ in ARIA semantics,
+form participation, or touch behavior in ways that matter once you dig in. This page is
+the decision layer: one section per family, each with a compact table and links to the
+components involved. When a component page and this page disagree on a boundary, this
+page's cluster-note source is the more detailed one — follow its link.
+
+## Overlays
+
+The master heuristic, from the maintainer who drew this line: "a popover's trigger's
+purpose is to open the popover itself..., while a tooltip's trigger's purpose is
+unrelated to the tooltip (and touch platforms are excluded)"
+([#3530](https://github.com/mui/base-ui/issues/3530)). Everything else in this family
+follows from that one distinction plus how essential the content is and whether the
+surface needs to interrupt the user for a decision.
+
+| | Tooltip | Popover | Preview Card | Dialog | Alert Dialog | Drawer |
+|---|---|---|---|---|---|---|
+| Content | visual hint | essential/interactive | link preview | anything | decision prompt | anything |
+| Opens on | hover/focus | click (+ optional hover) | link hover | click/imperative | click/imperative | click/imperative/swipe |
+| Placement | anchored | anchored | anchored | centered | centered | screen edge |
+| Outside-press closes it | n/a | yes (cancelable) | n/a | yes (`disablePointerDismissal` to stop) | **no** | yes + swipe |
+| Shown on touch | **never** | yes | never | yes | yes | yes (gesture-native) |
+
+[Tooltip](?path=/docs/overlays-tooltip--docs) never appears on touch by design — "iOS
+has no OS-level tooltips; long-press conflicts with native context menus"
+([#3530](https://github.com/mui/base-ui/issues/3530)) — so its content must never be
+essential; if a touch user would lose something, use
+[Popover](?path=/docs/overlays-popover--docs) instead, even for an info-icon-triggered
+popup. [Preview Card](?path=/docs/overlays-preview-card--docs) is Tooltip's link-hover
+sibling: the content it previews must also exist at the link's destination, since
+touch/keyboard users never see the preview at all.
+
+[Dialog](?path=/docs/overlays-dialog--docs) centers over the whole page and defaults
+modal; [Alert Dialog](?path=/docs/overlays-alert-dialog--docs) is a Dialog specialization
+for interruptions that require a decision — `role="alertdialog"`, always modal, and
+deliberately missing `disablePointerDismissal`/`modal` from its props entirely, so it
+can never be dismissed by an outside click
+([#2146](https://github.com/mui/base-ui/issues/2146)).
+[Drawer](?path=/docs/overlays-drawer--docs) extends Dialog with gesture support, snap
+points, and edge placement — both docs pages state the boundary symmetrically: "if you
+don't need these, use Dialog instead." [Toast](?path=/docs/overlays-toast--docs) is the
+odd one out architecturally: every component above opens because the user acted on a
+trigger, but Toast has no Trigger part at all — the app opens it imperatively via
+`useToastManager().add()`, and it closes itself (timeout, limit, swipe). Use Alert
+Dialog, not a toast, whenever the user's response is actually required — moving focus
+into a toast for that purpose is explicitly discouraged
+([#4533](https://github.com/mui/base-ui/issues/4533)).
+
+Full comparison, including the Dialog-vs-Drawer and Popover-vs-Menu boundaries:
+[research/c-components/_clusters/overlays.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/overlays.md).
+
+## Pickers: Select, Combobox, Autocomplete
+
+One decision path covers all three, derived from the docs' own boundary statements
+([combobox usage guidelines](https://base-ui.com/react/components/combobox)):
+
+| Question | Select | Combobox | Autocomplete |
+|---|---|---|---|
+| Renders a text input? | never | yes | yes — it *is* the control |
+| Filterable by typing? | no (typeahead only) | yes — its reason to exist | yes |
+| Free-form text allowed? | no | no | yes |
+| Selection state remembered? | yes | yes | no committed selection |
+| Built-in Clear button? | no | yes (`Combobox.Clear`) | yes (`Autocomplete.Clear`) |
+
+1. Does the user type text that is itself the answer (a search box, tags with novel
+   values)? → **[Autocomplete](?path=/docs/form-inputs-autocomplete--docs)**.
+2. Is there a visible text input filtering a fixed set of predefined values? →
+   **[Combobox](?path=/docs/form-inputs-combobox--docs)**: "Combobox is a filterable
+   Select... prefer Combobox over Select when the number of items is sufficiently large
+   to warrant filtering" (docs usage guidelines).
+3. Neither — a button plus a list of predefined values, form-friendly, where typeahead
+   is enough? → **[Select](?path=/docs/form-inputs-select--docs)**: "Use Select instead
+   of Combobox if no input is being rendered" (docs usage guidelines) — the presence of
+   a visible input is the deciding signal, not list length alone.
+4. If the popup performs *actions* rather than picking a persisted value, none of these
+   apply — see [Menu](?path=/docs/overlays-menu--docs) below.
+
+Full comparison, including the shared virtual-focus model and ARIA role differences:
+[research/c-components/_clusters/pickers.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/pickers.md).
+
+## Menus & navigation
+
+Four "menu-shaped" components share the same popup engine but answer different
+questions: what gesture opens it, and does activating an item *do* something or *go*
+somewhere.
+
+| You need | Use | Why |
+|---|---|---|
+| Actions behind a button ("⋯" menu) | [Menu](?path=/docs/overlays-menu--docs) | menu-button pattern, `role="menu"`, typeahead |
+| Right-click / long-press actions on a surface | [Context Menu](?path=/docs/overlays-context-menu--docs) | pointer-anchored; every other part is a direct re-export of Menu's |
+| App-chrome File/Edit/View bar | [Menubar](?path=/docs/navigation-menubar--docs) | `role="menubar"` container of `Menu.Root`s with roving focus |
+| Site header with link panels/mega-menu | [Navigation Menu](?path=/docs/navigation-navigation-menu--docs) | semantic `<nav>` + links, deliberately *not* `role="menu"` |
+| Choose a form value | [Select](?path=/docs/form-inputs-select--docs) / [Combobox](?path=/docs/form-inputs-combobox--docs) | not this cluster at all — see Pickers above |
+
+Menu and Context Menu are close to interchangeable: "all the context menu parts are
+direct reexports of regular menu parts so they are interchangeable"
+([#3365](https://github.com/mui/base-ui/issues/3365)) — only the trigger gesture and
+anchor point differ, and a context menu must never be the only way to reach an action
+(docs usage guidelines). Menubar is not a different menu, it's a composite *container*
+that turns `Menu.Trigger` into a roving `menuitem` and coordinates hover-switching
+between open sibling menus — reach for it only when several menus form one persistent
+bar. Navigation Menu is the odd one out: it renders zero menu roles at all
+([#2526](https://github.com/mui/base-ui/issues/2526)), because its entries are
+navigation destinations, not commands — using `role="menu"` for a site nav would mislead
+screen-reader users into expecting an application menu.
+
+Full comparison, including per-pair boundary statements:
+[research/c-components/_clusters/menus.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/menus.md).
+
+## Binary controls: Checkbox, Switch, Toggle
+
+The sharpest, most source-verifiable line in this cluster: **only Switch and Checkbox
+can submit with a `<form>`.** Toggle and Toggle Group have no hidden-input machinery in
+their source at all — the capability doesn't exist, it isn't just discouraged.
+
+| You need | Use | Why |
+|---|---|---|
+| A UI-state toggle with no form submission (bold/italic, view mode) | [Toggle](?path=/docs/actions-toggle--docs) | `aria-pressed`, deselectable, zero form machinery |
+| A row of related toggle buttons sharing pressed state | [Toggle Group](?path=/docs/actions-toggle-group--docs) | coordinates an array of Toggle values; single or multiple via one `multiple` prop |
+| A single on/off setting, physical-switch metaphor, submits with a form | [Switch](?path=/docs/form-inputs-switch--docs) | `role="switch"`, hidden `<input type="checkbox">` + `uncheckedValue` |
+| A single agree/select checkbox, or one item in a form-submitted multi-select set | [Checkbox](?path=/docs/form-inputs-checkbox--docs) (+ Checkbox Group) | `role="checkbox"`, same hidden-input mechanism as Switch, plus an `indeterminate` state Switch has no equivalent of |
+| An exclusive choice that must always resolve to exactly one, and can never be cleared | Radio Group (documented on [Radio](?path=/docs/form-inputs-radio--docs)) | not this cluster — see below |
+
+Toggle Group's single-select mode is deliberately still clearable — clicking the
+selected item again can deselect it. That is the exact property a maintainer used to
+draw the line against Radio Group: "a single-select-you-can't-clear widget *is* a radio
+group; making a toggle announce as a radio is semantically wrong"
+([#3525](https://github.com/mui/base-ui/issues/3525)). If clicking the current selection
+again should be a no-op, the widget's correct identity is Radio Group, not single-mode
+Toggle Group, regardless of how it's styled.
+
+Full comparison, including the Switch-vs-Checkbox metaphor distinction (inferred from
+ARIA convention, not a direct maintainer statement):
+[research/c-components/_clusters/binary-controls.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/binary-controls.md).
+
+## Disclosure: Accordion, Collapsible, Tabs
+
+Tabs is filed under Navigation in the sidebar, not Disclosure — its ARIA pattern is
+about switching between peer views, not merely hiding content — but it shares enough
+show/hide mechanics with Accordion and Collapsible that the three are easiest to compare
+together.
+
+| | Collapsible | Accordion (default) | Accordion (`multiple`) | Tabs |
+|---|---|---|---|---|
+| Number of regions | 1 | N (Items) | N (Items) | N (peer panels) |
+| Open states possible | open / closed | exactly one Item open (or none) | any subset (0..N) open | exactly one panel selected |
+| Content framing | one freestanding region | a headed list of regions | a headed list of regions | peer views of one subject |
+| Roving single-tab-stop composite | no | no — each Trigger is its own Tab stop | no | yes |
+
+A single expandable region with nothing to coordinate against is
+[Collapsible](?path=/docs/disclosure-structure-collapsible--docs). The moment there are
+several such regions that should behave as a set — only one open by default, or an
+explicit toggle for "several at once" via the `multiple` prop — reach for
+[Accordion](?path=/docs/disclosure-structure-accordion--docs) instead of hand-rolling
+multiple independent Collapsibles. With `multiple={false}` (the default), Accordion and
+[Tabs](?path=/docs/navigation-tabs--docs) both resolve to "exactly one region visible
+among peers" — the distinguishing question is the interaction contract, not the
+visibility math: Tabs is a roving-tabindex `tablist` built for fast switching between a
+compact, always-visible row of triggers, while each Accordion Item keeps its own
+persistent heading and, per current APG guidance the library deliberately adopted, is
+its own ordinary Tab stop rather than a member of one composite
+([#4965](https://github.com/mui/base-ui/issues/4965)).
+
+Full comparison, including the ARIA-shape and keyboard-model evidence:
+[research/c-components/_clusters/disclosure.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/disclosure.md).
+
+## Status: Progress, Meter
+
+The W3C ARIA APG draws this line explicitly, and Base UI's founding issue for Meter
+scoped the component against exactly that language
+([#662](https://github.com/mui/base-ui/issues/662)): a meter is "a graphical display of
+a numeric value that varies within a defined range" and should not be used to "indicate
+progress, such as loading or percent completion of a task."
+
+| Question | Progress | Meter |
+|---|---|---|
+| ARIA role | `role="progressbar"` | `role="meter"` |
+| Can be indeterminate? | yes — `value={null}` | no — `value` is required and always numeric |
+| Represents | a task moving toward completion, duration possibly unknown | a bounded quantity read at this moment |
+
+Ask whether the number represents a task moving toward completion, possibly with an
+unknown finish line — that's [Progress](?path=/docs/status-display-progress--docs),
+which alone supports an indeterminate state — or a bounded quantity being measured right
+now with no notion of "done," which is
+[Meter](?path=/docs/status-display-meter--docs). If duration is genuinely unknown but you
+still need to signal that something is happening, Progress in indeterminate mode is
+correct; Meter has no equivalent.
+[Avatar](?path=/docs/status-display-avatar--docs) sits in the same taxonomy category but
+outside this comparison — it displays image/identity state, not a numeric measurement.
+
+Full comparison, including the shared and dropped native-`<meter>`/`<progress>` design
+history:
+[research/c-components/_clusters/status.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/status.md).

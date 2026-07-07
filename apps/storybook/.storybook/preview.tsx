@@ -18,6 +18,22 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: 'todo',
     },
+
+    options: {
+      storySort: {
+        order: [
+          'Overview',
+          ['Introduction', 'Principles', 'Choosing components'],
+          'Form inputs',
+          'Overlays',
+          'Navigation',
+          'Disclosure & structure',
+          'Actions',
+          'Status & display',
+          'Utilities',
+        ],
+      },
+    },
   },
 };
 
