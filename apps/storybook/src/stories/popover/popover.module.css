@@ -1,0 +1,666 @@
+/* Adapted from docs/src/app/(docs)/react/components/popover/demos/_index.module.css
+   and demos/detached-triggers-full/css-modules/index.module.css (Viewport/morph styles).
+   Raw oklch values per AGENTS.md. */
+
+.Positioner {
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+}
+
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  outline: none;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  max-width: 500px;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* Pronounced enter/exit transition for the animation story: scales from the
+   side the popup opened from via --transform-origin. */
+.TransitionPopup {
+  transition:
+    transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 250ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.8) translateY(-0.5rem);
+  }
+
+  &[data-instant] {
+    transition: none;
+  }
+}
+
+.Arrow {
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
+
+  &[data-side='top'] {
+    bottom: -6px;
+    rotate: 180deg;
+  }
+
+  &[data-side='bottom'] {
+    top: -6px;
+    rotate: 0deg;
+  }
+
+  &[data-side='left'] {
+    right: -9px;
+    rotate: 90deg;
+  }
+
+  &[data-side='right'] {
+    left: -9px;
+    rotate: -90deg;
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    background-color: white;
+    border: 1px solid oklch(14.5% 0 0deg);
+    transform: translate(-50%, 50%) rotate(45deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+      border: 1px solid white;
+    }
+  }
+}
+
+.Title {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled], :disabled) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled], :disabled) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-popup-open]:not([data-disabled], :disabled) {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.IconButton {
+  composes: Button;
+  width: 2rem;
+  padding: 0;
+  font-style: italic;
+  font-family: serif;
+  font-weight: 700;
+}
+
+/* Layout helpers */
+
+.Container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.Row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ArrowGrid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 8rem 10rem;
+  padding: 6rem;
+}
+
+.Hint {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Output {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Form bits (filter panel, link editor, focus stories) */
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Input {
+  box-sizing: border-box;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Checkbox {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: white;
+  padding: 0;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
+  }
+
+  &[data-checked] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.CheckboxIndicator {
+  display: flex;
+
+  &[data-unchecked] {
+    display: none;
+  }
+}
+
+/* Visually hidden but focusable — for the modal escape-hatch Close (#4084). */
+.SrOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Backdrop story */
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 32%);
+  transition: opacity 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(0 0 0 / 60%);
+  }
+}
+
+/* Custom anchor story */
+
+.AnchorTarget {
+  padding: 0.125rem 0.375rem;
+  border: 1px dashed oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}
+
+/* Sticky-header story */
+
+.ScrollArea {
+  box-sizing: border-box;
+  width: 20rem;
+  height: 14rem;
+  overflow-y: auto;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}
+
+.StickyHeader {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: oklch(97% 0 0deg);
+  border-bottom: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(26.9% 0 0deg);
+    border-bottom-color: white;
+  }
+}
+
+.Filler {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Table-row shared popover story */
+
+.Table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  th,
+  td {
+    border: 1px solid oklch(14.5% 0 0deg);
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: white;
+    }
+  }
+}
+
+/* Detached-triggers-full / Viewport morphing (from demos/detached-triggers-full) */
+
+.AnimatedPositioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+
+  /* Disable transitions for the initial positioning of the popup */
+  &[data-instant] {
+    transition: none;
+  }
+}
+
+.AnimatedPopup {
+  position: relative;
+  outline: none;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: var(--transform-origin);
+
+  /* Required to make the size animations work */
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  max-width: 31.25rem;
+  transition-property: width, height, opacity, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    border: 1px solid white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  &[data-instant] {
+    transition: none;
+  }
+}
+
+.Viewport {
+  --viewport-inline-padding: 0.75rem;
+
+  box-sizing: border-box;
+  /* Required to clip the overflowing content during the slide in/out animations */
+  position: relative;
+  overflow: clip;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem var(--viewport-inline-padding);
+
+  [data-previous],
+  [data-current] {
+    /* Freeze the width of the content while transitioning. */
+    width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
+    transform: translateX(0);
+    opacity: 1;
+    transition:
+      transform var(--animation-duration) var(--easing),
+      opacity calc(var(--animation-duration) / 2) var(--easing);
+  }
+
+  &[data-activation-direction~='right'] [data-previous][data-ending-style] {
+    transform: translateX(-50%);
+    opacity: 0;
+  }
+
+  &[data-activation-direction~='right'] [data-current][data-starting-style] {
+    transform: translateX(50%);
+    opacity: 0;
+  }
+
+  &[data-activation-direction~='left'] [data-previous][data-ending-style] {
+    transform: translateX(50%);
+    opacity: 0;
+  }
+
+  &[data-activation-direction~='left'] [data-current][data-starting-style] {
+    transform: translateX(-50%);
+    opacity: 0;
+  }
+}
+
+.ProfilePanel {
+  display: grid;
+  grid-template-columns: auto auto;
+  width: max-content;
+  column-gap: 0.5rem;
+
+  .Title {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .Plan {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(43.9% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  .Avatar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    user-select: none;
+    font-weight: 700;
+    color: oklch(14.5% 0 0deg);
+    background-color: oklch(92.2% 0 0deg);
+    font-size: 0.875rem;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 3rem;
+    width: 3rem;
+
+    @media (prefers-color-scheme: dark) {
+      color: white;
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  .ProfileActions {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+
+    a {
+      color: oklch(14.5% 0 0deg);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.16em;
+
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
+    }
+  }
+}
+
+/* Recreation stories */
+
+.QueueHeader {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 22rem;
+  padding: 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}
+
+.QueueList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  li {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-bottom-color: oklch(26.9% 0 0deg);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.Toolbar {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}

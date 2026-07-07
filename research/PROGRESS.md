@@ -98,7 +98,11 @@ radio includes radio-group (shared dir `radio/`). field+form researched together
 
 ## Obstacles log
 
-- (none yet)
+- 2026-07-07 ~00:10 CEST: **Claude session usage limit hit** mid-run; all 11 in-flight agents killed (E: select/dialog/menu/popover; C: combobox/autocomplete/toast/navigation-menu/field+form/drawer/utils). Limit reset 03:40; session idle until 09:16. Salvage: combobox/autocomplete/navigation-menu briefs complete but **story-plans missing**; all 4 util briefs written (direction-provider story-plan missing); E:select left select.stories.tsx (60KB, unverified, no MDX) + CSS; E:dialog and E:popover left only CSS modules; **toast, field, form, drawer briefs + E:menu produced nothing**. Mitigation: relaunched with moderated concurrency (≤6 agents) and cheaper models for mechanical tasks.
+- 2026-07-06: Storybook initializer (NxProjectDetectedError → `--type react` fallback) wrote broken root vitest/eslint config edits — reverted, relocated into the app (see e-storybook/decisions.md).
+- 2026-07-06: addon-vitest "runner not found" was a knock-on of missing source aliases in vitest.config.mts (vitest doesn't merge vite.config.ts); fixed by mirroring aliases + dropping the redundant setup file.
+- 2026-07-06: `.claude/launch.json` `$PORT` interpolation mismatched the preview panel's static port — pinned to 6006.
+- 2026-07-06: Storybook MDX lacked GFM table support — remark-gfm wired into addon-docs options.
 
 ## Resume instructions for a future session
 

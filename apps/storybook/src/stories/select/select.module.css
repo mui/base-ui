@@ -1,0 +1,510 @@
+/* Adapted from docs/src/app/(docs)/react/components/select/demos/{hero,grouped,object-values}/css-modules/index.module.css */
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Value[data-placeholder] {
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Select {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.25rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+  min-width: 10rem;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &[data-popup-open] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+    cursor: not-allowed;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &[data-invalid] {
+    border-color: oklch(50.5% 0.213 27.518deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: oklch(70.4% 0.191 22.216deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.Positioner {
+  outline: none;
+  z-index: 10;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Popup {
+  box-sizing: border-box;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  background-clip: padding-box;
+  color: oklch(14.5% 0 0deg);
+  min-width: var(--anchor-width);
+  transform-origin: var(--transform-origin);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  &[data-side='none'] {
+    transition: none;
+    transform: translateY(1px);
+    opacity: 1;
+    min-width: calc(var(--anchor-width) + 1.75rem);
+  }
+}
+
+/* Longer, more visible enter/exit transition for the animation story
+   (used with alignItemWithTrigger={false}, so data-side is never "none"). */
+.PopupAnimated {
+  composes: Popup;
+  transition:
+    transform 150ms ease-out,
+    opacity 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.List {
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  max-height: var(--available-height);
+  scroll-padding-block: 1.5rem;
+}
+
+.Item {
+  box-sizing: border-box;
+  outline: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding-block: 0.375rem;
+  padding-left: 0.625rem;
+  padding-right: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 1rem 1fr;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(70.8% 0 0deg);
+
+    &[data-highlighted] {
+      background-color: oklch(92.2% 0 0deg);
+      color: oklch(55.6% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+        color: oklch(70.8% 0 0deg);
+      }
+    }
+  }
+}
+
+/* Differentiates plain pointer hover (dashed outline) from the keyboard/active
+   highlight (solid fill) — pair with highlightItemOnHover={false}. */
+.ItemHoverDemo {
+  composes: Item;
+
+  @media (hover: hover) {
+    &:hover {
+      outline: 1px dashed oklch(55.6% 0 0deg);
+      outline-offset: -1px;
+
+      @media (prefers-color-scheme: dark) {
+        outline-color: oklch(70.8% 0 0deg);
+      }
+    }
+  }
+}
+
+.ItemIndicator {
+  grid-column-start: 1;
+}
+
+.ItemText {
+  grid-column-start: 2;
+}
+
+.ItemLabel {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.ItemDescription {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  .Item[data-highlighted] & {
+    color: oklch(70.8% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(43.9% 0 0deg);
+    }
+  }
+}
+
+.ValueText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.ValuePrimary {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.ValueSecondary {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Group {
+  display: block;
+  padding-bottom: 0.125rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.GroupLabel {
+  box-sizing: border-box;
+  padding-block: 0.375rem;
+  padding-left: calc(0.625rem + 1rem + 0.5rem);
+  padding-right: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Separator {
+  height: 1px;
+  margin-block: 0.25rem;
+  margin-inline: 1rem;
+  background-color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+}
+
+.ScrollArrow {
+  width: 100%;
+  background-color: white;
+  z-index: 2;
+  text-align: center;
+  cursor: default;
+  height: 1rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+  }
+
+  &[data-direction='up'] {
+    top: 0;
+
+    &[data-side='none'] {
+      &::before {
+        top: -100%;
+      }
+    }
+  }
+
+  &[data-direction='down'] {
+    bottom: 0;
+
+    &[data-side='none'] {
+      &::before {
+        bottom: -100%;
+      }
+    }
+  }
+}
+
+/* Shared story scaffolding (matches the switch pilot) */
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Description {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Error {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(50.5% 0.213 27.518deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.4% 0.191 22.216deg);
+  }
+}
+
+/* Scrollable page content next to the non-modal select */
+.ScrollArea {
+  box-sizing: border-box;
+  width: 16rem;
+  max-height: 8rem;
+  overflow-y: auto;
+  border: 1px dashed oklch(70.8% 0 0deg);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* Minimal dialog chrome for the interop story — deliberately no z-index anywhere */
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 20%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(0 0 0 / 60%);
+  }
+}
+
+.DialogPopup {
+  box-sizing: border-box;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 20rem;
+  max-width: calc(100vw - 3rem);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+}
+
+.DialogTitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+}
+
+.Rtl {
+  direction: rtl;
+}

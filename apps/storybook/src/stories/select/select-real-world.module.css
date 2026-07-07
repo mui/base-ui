@@ -1,0 +1,114 @@
+/* Extra styles for the real-world recreation stories (theme picker, dashboard
+   filter bar, registry-style wrapper). Popup/item chrome comes from select.module.css. */
+
+/* graphql.org-style icon-only theme switcher */
+.IconTrigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-popup-open] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.SrOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ThemeCard {
+  box-sizing: border-box;
+  width: 14rem;
+  padding: 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+
+  &[data-theme='dark'] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-theme='system'] {
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+    }
+  }
+}
+
+/* Filter-bar table (climatepolicyradar-style prediction QA list) */
+.FilterTable {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  & th {
+    text-align: left;
+    font-weight: 700;
+  }
+
+  & th,
+  & td {
+    border: 1px solid oklch(70.8% 0 0deg);
+    padding: 0.25rem 0.625rem;
+  }
+}
+
+/* Kumo-style wrapper: secondary line explaining why an option is disabled */
+.DisabledReason {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(70.8% 0 0deg);
+}
