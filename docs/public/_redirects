@@ -29,13 +29,9 @@
 
 # React docs URL migration
 /react/overview /react/quick-start 301!
-/react/overview.md /react/quick-start.md 301!
 /react/handbook /react/styling 301!
-/react/handbook.md /react/styling.md 301!
-/react/components /react 301!
-/react/components.md /index.md 301!
-/react/utils /react 301!
-/react/utils.md /index.md 301!
+/react/components /react/accordion 301!
+/react/utils /react/csp-provider 301!
 /react/components/accordion /react/accordion 301!
 /react/components/accordion.md /react/accordion.md 301!
 /react/components/alert-dialog /react/alert-dialog 301!
