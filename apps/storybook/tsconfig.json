@@ -1,29 +1,28 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@base-ui/react": ["../../packages/react/src"],
-      "@base-ui/react/*": ["../../packages/react/src/*"],
-      "@base-ui/utils": ["../../packages/utils/src"],
-      "@base-ui/utils/*": ["../../packages/utils/src/*"]
-    }
-  },
+  "extends": "../../tsconfig.base.json",
   "include": [
     "src",
     ".storybook",
     "vite.config.ts",
     "vitest.config.mts",
     "../../packages/react/src/global.d.ts"
-  ]
+  ],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "types": ["react", "node"],
+    "paths": {
+      "@base-ui/react": ["../../packages/react/src"],
+      "@base-ui/react/*": ["../../packages/react/src/*"],
+      "@base-ui/utils": ["../../packages/utils/build"],
+      "@base-ui/utils/*": ["../../packages/utils/build/*"]
+    }
+  }
 }
