@@ -1,0 +1,1 @@
+{"author":"atomiks","body":"Closes #1200, based on https://github.com/mui/base-ui/issues/1200#issuecomment-2636790851\r\n\r\n`match` now has `boolean` type, consolidating the always-show behavior into it rather than the separate `forceShow` prop","mergedAt":"2025-05-21T23:55:14Z","number":1919,"title":"[field] Consolidate `Field.Error` `forceShow` into `match` prop"}

@@ -1,0 +1,1 @@
+{"author":"marcospgp","body":"\u003e Event handler called when the errors object is cleared.\n\nit doesn't say when the errors object is cleared or why. thanks!\n\nhttps://base-ui.com/react/components/form\n","number":2758,"state":"CLOSED","title":"[form] Documentation on the `onClearErrors` prop for the form component is insufficient"}
