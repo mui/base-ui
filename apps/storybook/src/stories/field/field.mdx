@@ -1,0 +1,245 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, forms handbook, tests, experiments, git history, upstream
+    issues/PRs — research/c-components/field/brief.md); researched together with Form. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as FieldStories from './field.stories';
+
+<Meta of={FieldStories} />
+
+# Field
+
+A component that provides labeling and validation for form controls.
+
+- **Import:** `import { Field } from '@base-ui/react/field';`
+- **Parts:** 7 — `Field.Root`, `Field.Label`, `Field.Control`, `Field.Description`, `Field.Error`, `Field.Item`, `Field.Validity`.
+- **Status:** Stable since v1.0.0. One of the founding-era components — created together with Fieldset in the same PR (2024-08-20, [#477](https://github.com/mui/base-ui/pull/477)).
+- **ARIA pattern:** none of its own — Field is labeling machinery, not a widget. See the [WAI Forms Tutorial](https://www.w3.org/WAI/tutorials/forms/) for labels/instructions, plus the ARIA pattern of whatever control it wraps.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={FieldStories.Hero} />
+
+## Features
+
+- **Labeling for free** — `Field.Label` auto-associates with the control via `htmlFor`/`id`, or by implicitly enclosing span-based controls (Checkbox/Radio/Switch) via `aria-labelledby`.
+- **`aria-describedby` wired for you** — `Field.Description` always joins it; `Field.Error` joins it only while actually rendered, so screen readers only hear active errors.
+- **Extends the native Constraint Validation API** — `Field.Root` mirrors the full `ValidityState` and custom `validate` results are written back via `element.setCustomValidity()`, so the platform's own validation machinery stays in sync.
+- **A single, uniform interaction-state machine** — `touched`/`dirty`/`filled`/`focused`/tri-state `valid` are exposed as data attributes on every part, identically, for pure-CSS styling.
+- **Works with any Base UI control, or none** — Input, Checkbox, Select, and friends register with the surrounding field automatically; swap in a `<textarea>` via `Field.Control render={<textarea />}` for fully custom controls.
+- **A first-class adapter for external form libraries** — controlled `invalid`/`dirty`/`touched` props mirror React Hook Form / TanStack Form state for `<Controller>`/`<form.Field>`-style integrations.
+
+## When to use
+
+- Any labeled form control — the forms handbook prescribes `Field.Label` (or a native `<label>`) for Input, NumberField, OTPField, Autocomplete, Combobox, Checkbox, Radio, and Switch.
+- Whenever you need validation display — native constraints (`required`/`pattern`/`type`) plus a custom `validate` function, rendered by `Field.Error`.
+- Inside a [Form](?path=/docs/form-inputs-form--docs) for submit-gated validation and server-error display — pass `name` on `Field.Root` to include the control's value in the form submission.
+- With React Hook Form / TanStack Form — map `<Controller>`/`<form.Field>` render props onto `Field.Root`'s `invalid`/`touched`/`dirty`/`name` and `Field.Control`'s `ref`/`value`/`onBlur`/`onValueChange`.
+- Labeling options inside checkbox/radio groups — `Field.Item` should enclose each option so every control gets its own label and description.
+- Custom controls — `Field.Control render={<textarea />}` (or any element) participates fully in Field state and validation.
+
+## When not to use
+
+- When one label applies to **multiple** controls (a range slider with several thumbs, or a section combining several inputs), use [Fieldset](?path=/docs/form-inputs-fieldset--docs) instead — compose it over another root via `render` (`<Fieldset.Root render={<RadioGroup />}>`), and keep the group label in `Fieldset.Legend` while each option still gets its own `Field.Item`.
+- Don't wrap two independent controls in one `Field.Root` — one Field is one logical value; wrapping, say, a Select and a Checkbox together caused an update loop ([#3928](https://github.com/mui/base-ui/issues/3928)).
+- Field has no schema-validation prop — there's no built-in Zod/Standard Schema hookup ([#4737](https://github.com/mui/base-ui/issues/4737), open). Run schema validation at submit time and feed the results to `<Form errors>`, or validate per-field with `validate`.
+- If a form library already owns your validation state, don't also pass `validate` — drive the field with `invalid`/`dirty`/`touched` and `Field.Error match={boolean}` instead, so you're not double-validating.
+
+## Anatomy
+
+```tsx
+import { Field } from '@base-ui/react/field';
+
+<Field.Root>
+  <Field.Label />
+  <Field.Control />
+  <Field.Description />
+  <Field.Error />
+  <Field.Validity>{(state) => null}</Field.Validity>
+</Field.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Field.Root` | `<div>` | Groups all parts; owns the state machine, validation, and `name` | required |
+| `Field.Label` | `<label>` | Accessible label, auto-associated with the control | yes — or a native `<label>`/`aria-label` |
+| `Field.Control` | `<input>` | The form control to label and validate | yes — any Base UI control (Input, Checkbox, Select…) works in its place, or use `render` for a custom element |
+| `Field.Description` | `<p>` | Additional information, always joined into `aria-describedby` | yes |
+| `Field.Error` | `<div>` | The error message, joined into `aria-describedby` only while rendered; animatable | yes |
+| `Field.Item` | `<div>` | Groups one option inside a checkbox/radio group with its own label and description | yes — only meaningful inside a group |
+| `Field.Validity` | no element | Render-prop window into the field's combined validity state | yes — the escape hatch for fully custom validity UI |
+
+The control slot is polymorphic **by registration, not by prop**: `Field.Root` wraps its children in a `LabelableProvider`, and any control registers its id/ref/value with the shared context. That's why Input, Checkbox, or Select work with Field "out of the box" — there's no wiring prop to set.
+
+<Canvas of={FieldStories.AnatomyAllParts} />
+
+## How it works
+
+### Labeling strategies
+
+An explicit `Field.Label` precedes the control for most inputs; for span-based controls (Checkbox/Radio/Switch) the label can instead **enclose** the control, matching native implicit-label association ([#2036](https://github.com/mui/base-ui/pull/2036)); when no visible label exists, fall back to `aria-label` directly on the control.
+
+<Canvas of={FieldStories.HandbookLabeling} />
+
+### Grouping with Field.Item
+
+Inside a checkbox or radio group, keep the group's own label in `Fieldset.Legend` and wrap each option in `Field.Item` so it gets a per-option label and description ([#2810](https://github.com/mui/base-ui/pull/2810)). `Field.Item` opens a nested label scope: item-level descriptions attach to the item's control, while root-level ones still attach to the group.
+
+<Canvas of={FieldStories.GroupWithFieldItem} />
+
+### The interaction-state machine
+
+Every state is a data attribute, identical across Root/Control/Label/Description/Error/Item:
+
+| Attribute | Set when | Cleared when |
+|---|---|---|
+| `data-touched` | the control blurs (also on `Enter` inside an `<input>`) | never (per mount) |
+| `data-dirty` | the value differs from its initial value | the value returns to its initial value |
+| `data-filled` | the value is non-empty (tracks external/controlled changes too) | the value is emptied |
+| `data-focused` | the control has focus (including `autoFocus`, even in SSR) | the control blurs |
+| `data-valid` / `data-invalid` | validation runs and passes/fails | re-validation; **neither** attribute is present while `valid` is `null` (pristine, or disabled) |
+
+The tri-state `valid` — not simply a boolean — is what makes "don't show errors before interaction" possible to style: a pristine field is neither valid nor invalid.
+
+<Canvas of={FieldStories.StateAttributesStyling} />
+
+### Validation lifecycle
+
+Native constraint validation runs first — the control's `ValidityState` is snapshotted every commit. Only **after** native validation passes does the custom `validate(value, formValues)` function run ([#1926](https://github.com/mui/base-ui/pull/1926)); it returns `string | string[] | null` (or a `Promise` of those), and a non-null result is written back via `element.setCustomValidity()` so native validity stays in sync. The second argument, `formValues`, carries every named field's current value, enabling cross-field rules like confirm-password ([#1941](https://github.com/mui/base-ui/pull/1941)):
+
+<Canvas of={FieldStories.CustomValidateFunction} />
+
+<Canvas of={FieldStories.CrossFieldValidation} />
+
+Async `validate` is supported, with stale in-flight results discarded — but async results **cannot block form submission**; gate on the server for that instead. Pair it with `validationDebounceTime` so a burst of keystrokes coalesces into one check:
+
+<Canvas of={FieldStories.AsyncValidationDebounced} />
+
+### Validation modes — the `onSubmit` default doctrine
+
+`validationMode` (inherited from a surrounding `Form`, overridable per-field) controls **when** validation commits:
+
+- **`onSubmit` (the default)** — nothing is flagged while the user types, clears, or blurs. Errors only appear after the first submit attempt; after that, the field re-validates live on every change. This "matches native form submission behavior and the defaults of RA, Ariakit and react-hook-form" ([#3013](https://github.com/mui/base-ui/pull/3013), which made this the default in beta.5, replacing the previous `onBlur` default), following the argument that submit-gated validation is "even less noisy than `onBlur` validation and closer to a native form submission" ([#2142](https://github.com/mui/base-ui/issues/2142)).
+- **`onBlur`** — commits validation when the control blurs; the middle ground, and works standalone (no `Form` required).
+- **`onChange`** — validates on every change; pair with `validationDebounceTime` for async checks.
+
+<Canvas of={FieldStories.ValidationModeOnSubmit} />
+
+<Canvas of={FieldStories.ValidationModeOnBlur} />
+
+<Canvas of={FieldStories.ValidationModeOnChange} />
+
+**Don't get caught by this**: with the default `onSubmit` mode, a **standalone** `Field.Root` (no surrounding `Form`) never fires a submit event, so `validate` never runs — nothing you do (typing, blurring, even calling it directly) triggers it, because there's no submit to gate on. If you need validation without a `Form`, either set `validationMode="onBlur"`/`"onChange"`, or call `actionsRef.current.validate()` imperatively. This is the single most common point of confusion reported against Field.
+
+### Wrapping other controls
+
+Any Base UI form control registers with the surrounding field with zero wiring: `Input` extends `Field.Control` directly; Select, Checkbox, and others register through the same internal mechanism. For a fully custom control, use `Field.Control render={<textarea />}` — the sanctioned custom-control path ([#1996](https://github.com/mui/base-ui/issues/1996)); the state machine still runs (typing sets `data-dirty`/`data-filled`, blurring sets `data-touched`) even though, with the default `onSubmit` mode and no `Form`, validity itself stays pristine.
+
+<Canvas of={FieldStories.WrapsInput} />
+
+<Canvas of={FieldStories.WrapsSelect} />
+
+<Canvas of={FieldStories.WrapsCheckbox} />
+
+<Canvas of={FieldStories.WrapsCustomTextarea} />
+
+### Server errors
+
+An entry in `<Form errors>` keyed by the field's `name` makes that field invalid and feeds a children-less `Field.Error`; it auto-clears as soon as the user edits the field again — `onClearErrors` was removed once this became automatic ([#3136](https://github.com/mui/base-ui/pull/3136)).
+
+<Canvas of={FieldStories.ServerErrorDisplay} />
+
+### External-library adapters and disabled semantics
+
+`invalid`, `dirty`, and `touched` switch those states to controlled props — built because "both react-hook-form and Tanstack form provide these two states in their API" ([#2950](https://github.com/mui/base-ui/pull/2950)), letting an external library drive Field entirely. Disabled fields keep app-set invalidity: only **computed** validity (native constraints and `validate`) is suppressed while disabled, matching `:disabled` not participating in constraint validation, but `aria-invalid` is still never added to a disabled control ([#5116](https://github.com/mui/base-ui/pull/5116), a regression fix restoring behavior lost in [#4890](https://github.com/mui/base-ui/pull/4890)).
+
+<Canvas of={FieldStories.ExternalLibraryControlled} />
+
+### Animation
+
+`Field.Error` supports the standard transition-status attributes (`data-starting-style`/`data-ending-style`, [#3939](https://github.com/mui/base-ui/pull/3939)) and keeps its last rendered message during the exit transition, so text doesn't vanish mid-fade.
+
+<Canvas of={FieldStories.ErrorTransitionAnimation} />
+
+## Keyboard & screen reader
+
+Field itself adds only one keyboard binding — everything else belongs to whatever control it wraps.
+
+| Key | Action |
+|---|---|
+| `Enter` (inside an `<input>`) | Commits validation (marks touched) before the native submit proceeds |
+
+- **ARIA managed for you**: `Field.Label` → `htmlFor`/`id` (or `aria-labelledby` for span-based controls); `Field.Description`/`Field.Error` → merged, deduplicated into the control's `aria-describedby`; `aria-invalid` added when `valid === false` and the control isn't disabled.
+- **You must provide**: for a form library's own inputs, forward the `ref` to the underlying Base UI control so tools like React Hook Form can focus invalid fields on submit.
+- **Known issues**: error-message customization for multiple simultaneous rules is acknowledged awkward ([#1923](https://github.com/mui/base-ui/issues/1923), open — `Field.Validity` is the escape hatch); the `invalid` prop cannot be "reset" to resume internal computed validity ([#3777](https://github.com/mui/base-ui/issues/3777), open).
+
+## Styling hooks
+
+| Part | Attribute | Present when |
+|---|---|---|
+| Root / Control / Label / Description / Error / Item | `data-disabled` | disabled (own prop, or cascaded from Root/Fieldset) |
+| Root / Control / Label / Description / Error / Item | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | see the state-machine table above |
+| Root / Control / Label / Description / Error / Item | `data-valid` / `data-invalid` | tri-state validity — neither present while pristine or disabled-computed |
+| Field.Error | `data-starting-style` / `data-ending-style` | during the enter/exit transition |
+
+## Choosing the right props
+
+- **`name` (Root)** — identifies the field on form submission and is what `<Form errors>` keys match; it takes precedence over a `name` set directly on `Field.Control`.
+- **`validate` (Root)** — custom rules after native ones; return message(s) or `null`; use the `formValues` second argument for cross-field rules. Don't use it when an external form library already validates — use `invalid` + `Field.Error match` instead.
+- **`validationMode` (Root)** — keep the `onSubmit` default for typical form-shaped UIs; use `onChange` (with `validationDebounceTime`) for instant-feedback inputs like username availability; `onBlur` as the middle ground, and the only mode besides `onChange` that works fully standalone.
+- **`invalid` / `dirty` / `touched` (Root)** — the external-library adapters; once passed, the corresponding internal setters become no-ops.
+- **`disabled` (Root)** — cascades to the control and suppresses computed validation while keeping app-set invalidity; takes precedence over `disabled` on `Field.Control`.
+- **`match` (Field.Error)** — `true` always shows (lets external libraries control visibility); a `ValidityState` key (e.g. `"valueMissing"`) shows only for that native failure; omitted shows whenever the field is invalid or a matching `<Form errors>` entry exists.
+- **`render` (Field.Control)** — swap in a `<textarea>` or any custom element; the sanctioned custom-control path.
+
+## Do / Don't
+
+**Do**
+
+- Wrap `Field.Root` in a `Form` (or set an explicit `validationMode`) whenever you rely on `validate` — the default `onSubmit` mode needs a submit event to fire it.
+- Forward refs from custom controls to the underlying Base UI input so external form libraries can focus invalid fields.
+- Use `Field.Item` (not a second `Field.Root`) for per-option labels inside a checkbox/radio group.
+
+**Don't**
+
+- Don't expect `validate` to run on a standalone `Field.Root` with no `Form` and the default `onSubmit` mode — nothing triggers it ([source-documented as by-design](https://github.com/mui/base-ui/blob/master/packages/react/src/field/root/FieldRoot.test.tsx)).
+- Don't wrap two independent controls (e.g. a Select and a Checkbox) in one `Field.Root` — one Field is one logical value ([#3928](https://github.com/mui/base-ui/issues/3928)).
+- Don't rely on `invalid={false}` to "reset" a field to resume computed validity — that's an open request, not current behavior ([#3777](https://github.com/mui/base-ui/issues/3777)).
+
+## In the wild
+
+[G] Phase D usage mining for field/form was not run at the time of writing (corpus queries planned but not executed) — see `research/c-components/field/brief.md` §11.
+
+## Decision log
+
+- **2024-08-20** — Field created, together with Fieldset, in the same PR ([#477](https://github.com/mui/base-ui/pull/477)).
+- **2025-06** — Implicit `Field.Label` wrapping for Switch/Checkbox/Radio ([#2036](https://github.com/mui/base-ui/pull/2036)).
+- **2025-10** — `dirty`/`touched` controlled props added for React Hook Form / TanStack Form parity ([#2950](https://github.com/mui/base-ui/pull/2950)); `Field.Item` part and the `LabelableProvider` architecture land ([#2810](https://github.com/mui/base-ui/pull/2810)).
+- **2025-10-29 (beta.5, breaking)** — default `validationMode` changes from `onBlur` to `onSubmit`, matching native form submission and the defaults of RA/Ariakit/react-hook-form ([#3013](https://github.com/mui/base-ui/pull/3013), closing [#2142](https://github.com/mui/base-ui/issues/2142)).
+- **2026-01** — `nativeLabel` prop on `Field.Label`, for button-shaped controls like Select's trigger ([#3723](https://github.com/mui/base-ui/pull/3723)).
+- **2026** — Server-error entries auto-clear on edit; `onClearErrors` removed as no-longer-needed ([#3136](https://github.com/mui/base-ui/pull/3136)).
+- **2026-06 (v1.6.0 regression → fix)** — a prior change ([#4890](https://github.com/mui/base-ui/pull/4890)) had excluded disabled controls from validation and dropped app-set `data-invalid`; [#5116](https://github.com/mui/base-ui/pull/5116) restored it, aligning with React Hook Form's disabled-field semantics.
+
+## Known issues & open questions
+
+- [#4737](https://github.com/mui/base-ui/issues/4737) — Standard Schema (Zod, etc.) support requested, open; today, validate per-field or run schema validation at submit time into `<Form errors>`.
+- [#1923](https://github.com/mui/base-ui/issues/1923) — customizing the message for multiple simultaneous validity failures is acknowledged rough (open).
+- [#3777](https://github.com/mui/base-ui/issues/3777) — no way to "reset" a controlled `invalid` prop back to computed validity (open).
+- [#3928](https://github.com/mui/base-ui/issues/3928) — two controls sharing one `Field.Root` caused an update loop; fixed so the last registration wins, but the shape itself remains unsupported.
+
+## Related
+
+- To label a group of **multiple** controls under one label, use [Fieldset](?path=/docs/form-inputs-fieldset--docs).
+- To aggregate several fields and manage submission, use [Form](?path=/docs/form-inputs-form--docs).
+- Field itself wraps any Base UI control — [Input](?path=/docs/form-inputs-input--docs), [Checkbox](?path=/docs/form-inputs-checkbox--docs), [Select](?path=/docs/form-inputs-select--docs), and others all register with it automatically.
+
+## API reference
+
+### Field.Root
+
+<ArgTypes of={FieldStories.Hero} />
+
+*Per-part tables (`Field.Label`, `Field.Control`, `Field.Description`, `Field.Error`, `Field.Item`, `Field.Validity`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/field](https://base-ui.com/react/components/field#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+field) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/field).*

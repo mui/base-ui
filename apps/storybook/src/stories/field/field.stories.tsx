@@ -28,7 +28,7 @@ const meta = {
     'Field.Item': Field.Item,
     'Field.Validity': Field.Validity,
   },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Field.Root>;
 
 export default meta;
@@ -276,10 +276,18 @@ export const ValidationModeOnBlur: Story = {
   },
 };
 
-/** `validationMode="onChange"`: every keystroke validates against native constraints (`minLength` here) — errors appear and disappear mid-typing. Reserve it for instant-feedback inputs; the maintainers argue submit-gated validation is the less noisy default (#2142). */
+/** `validationMode="onChange"`: every keystroke validates — here a custom `validate` enforces a minimum length (mirroring the native `minLength` constraint, which also carries a `tooShort` key for `Field.Error match`) — errors appear and disappear mid-typing. Reserve it for instant-feedback inputs; the maintainers argue submit-gated validation is the less noisy default (#2142). */
 export const ValidationModeOnChange: Story = {
   render: () => (
-    <Field.Root validationMode="onChange" className={styles.Field}>
+    <Field.Root
+      validationMode="onChange"
+      validate={(value) =>
+        typeof value === 'string' && value.length > 0 && value.length < 6
+          ? 'Use at least 6 characters.'
+          : null
+      }
+      className={styles.Field}
+    >
       <Field.Label className={styles.Label}>Passphrase</Field.Label>
       <Field.Control
         type="password"
@@ -288,26 +296,13 @@ export const ValidationModeOnChange: Story = {
         placeholder="At least 6 characters"
         className={styles.Input}
       />
-      <Field.Error className={styles.Error} match="tooShort">
-        Use at least 6 characters.
-      </Field.Error>
+      <Field.Error className={styles.Error} />
     </Field.Root>
   ),
   play: async ({ canvas, userEvent }) => {
     const input = canvas.getByLabelText('Passphrase');
 
     await userEvent.type(input, 'abc');
-    // eslint-disable-next-line no-console
-    console.log('DEBUG', JSON.stringify({
-      value: (input as HTMLInputElement).value,
-      minLength: (input as HTMLInputElement).minLength,
-      type: (input as HTMLInputElement).type,
-      tooShort: (input as HTMLInputElement).validity.tooShort,
-      valid: (input as HTMLInputElement).validity.valid,
-      validationMessage: (input as HTMLInputElement).validationMessage,
-      dataValid: input.getAttribute('data-valid'),
-      dataInvalid: input.getAttribute('data-invalid'),
-    }));
     await expect(await canvas.findByText('Use at least 6 characters.')).toBeVisible();
 
     await userEvent.type(input, 'def');
@@ -648,9 +643,9 @@ export const WrapsCustomTextarea: Story = {
 /** Every interaction state is a data-attribute on every part — the badges below light up purely via CSS on `Field.Root`'s attributes. The play function drives the whole machine: pristine (neither `data-valid` nor `data-invalid`), focused, dirty + filled, invalid after clearing, valid after retyping, touched after blur. */
 export const StateAttributesStyling: Story = {
   render: () => (
-    <Field.Root name="displayName" required validationMode="onChange" className={styles.StateField}>
+    <Field.Root name="displayName" validationMode="onChange" className={styles.StateField}>
       <Field.Label className={styles.Label}>Display name</Field.Label>
-      <Field.Control placeholder="Type, clear, and blur…" className={styles.StateInput} />
+      <Field.Control required placeholder="Type, clear, and blur…" className={styles.StateInput} />
       <div className={styles.BadgeRow} aria-hidden="true">
         <span className={`${styles.Badge} ${styles.BadgeFocused}`}>data-focused</span>
         <span className={`${styles.Badge} ${styles.BadgeDirty}`}>data-dirty</span>
@@ -801,9 +796,9 @@ export const ExternalLibraryControlled: Story = {
 /** `Field.Error` supports the standard transition-status attributes (`data-starting-style`/`data-ending-style`, #3939) and keeps the last rendered message during the exit transition, so text doesn't vanish mid-fade. */
 export const ErrorTransitionAnimation: Story = {
   render: () => (
-    <Field.Root required validationMode="onChange" className={styles.Field}>
+    <Field.Root validationMode="onChange" className={styles.Field}>
       <Field.Label className={styles.Label}>Project name</Field.Label>
-      <Field.Control placeholder="Required" className={styles.Input} />
+      <Field.Control required placeholder="Required" className={styles.Input} />
       <Field.Error className={styles.ErrorAnimated} match="valueMissing">
         This field is required.
       </Field.Error>
@@ -814,7 +809,9 @@ export const ErrorTransitionAnimation: Story = {
 
     await userEvent.type(input, 'x');
     await userEvent.clear(input);
-    await expect(await canvas.findByText('This field is required.')).toBeVisible();
+    await canvas.findByText('This field is required.');
+    // The entry transition fades opacity 0 -> 1 over 150ms; wait for it to settle.
+    await waitFor(() => expect(canvas.getByText('This field is required.')).toBeVisible());
 
     await userEvent.type(input, 'Base UI');
     await waitFor(() =>
