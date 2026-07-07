@@ -64,6 +64,20 @@ describe('<Checkbox.Root />', () => {
       expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
     });
 
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root nativeButton render={<button />} data-testid="checkbox" />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
       const handleParentClick = vi.fn();
       await render(

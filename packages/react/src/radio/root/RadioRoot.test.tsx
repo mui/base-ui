@@ -156,6 +156,22 @@ describe('<Radio.Root />', () => {
       expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
     });
 
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <RadioGroup>
+          <div onClick={handleParentClick}>
+            <Radio.Root value="a" nativeButton render={<button />} data-testid="radio" />
+          </div>
+        </RadioGroup>,
+      );
+
+      fireEvent.click(screen.getByTestId('radio'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
       const handleParentClick = vi.fn();
       await render(

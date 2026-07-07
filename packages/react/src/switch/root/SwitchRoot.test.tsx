@@ -253,6 +253,20 @@ describe('<Switch.Root />', () => {
       expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
     });
 
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Switch.Root nativeButton render={<button />} />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByRole('switch'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
       const handleParentClick = vi.fn();
       await render(
