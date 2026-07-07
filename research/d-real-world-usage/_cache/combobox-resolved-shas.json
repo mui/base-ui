@@ -1,0 +1,11 @@
+{
+  "PostHog/posthog": "c5ef29f46847a85518c1f76df80951423367a32f",
+  "gitbutlerapp/gitbutler": "0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd",
+  "electric-sql/electric": "2ab02bb19c2fc94ae43ccff8dfe9a4f279ecae17",
+  "cosscom/coss": "996b077952a733e7866e4a2c19a4df002cb58608",
+  "bytebase/dbhub": "08e522ced0503a8d234472f07b0b318e386dbb94",
+  "WordPress/gutenberg": "35812c333352ede1c4d4fe1f182f28bdc93fef70",
+  "amruthpillai/reactive-resume": "73daf22b2f8df55f0041c48c2e119fa215064cc0",
+  "latitude-dev/latitude-llm": "14099a66781cc46df79552fa7293b27209e7e6a8",
+  "mastra-ai/mastra": "e0c13c7562a2f588b833cb5929d25309b2d98b8d"
+}

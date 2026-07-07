@@ -1,0 +1,595 @@
+[
+  {
+    "id": "combobox-001",
+    "component": "combobox",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 147917,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/dify-ui/src/combobox/index.tsx",
+        "permalink": "https://github.com/langgenius/dify/blob/abd720146d09e71bf8f153b4fddbf1c78d1af038/packages/dify-ui/src/combobox/index.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "InputGroup",
+      "Input",
+      "Clear",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Collection",
+      "Item",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator",
+      "Chips",
+      "Chip",
+      "ChipRemove",
+      "Row",
+      "Empty",
+      "Status",
+      "Label",
+      "useFilter",
+      "useFilteredItems"
+    ],
+    "contextSummary": "Dify's design-system Combobox \u2014 the richest single Combobox composition found in this corpus: multi-select rendered as removable Chips wrapped across Combobox.Row lines, grouped/separated items, and both `useFilter`/`useFilteredItems` filtering hooks exposed for custom search logic.",
+    "diversityTags": [
+      "production-app",
+      "design-system-embedded",
+      "multi-select-chips",
+      "custom-filtering",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 1,
+    "scores": {
+      "illustrative": 5,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "The richest single Combobox composition found anywhere in the corpus: multi-select rendered as removable Chips wrapped across Row lines, grouped/separated items, and both useFilter/useFilteredItems hooks exposed. Feeds the multi-select and custom-filtering sections; a story could recreate the chip-wrapping-across-rows layout directly."
+  },
+  {
+    "id": "combobox-003",
+    "component": "combobox",
+    "repo": "PostHog/posthog",
+    "repoUrl": "https://github.com/PostHog/posthog",
+    "stars": 35353,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "frontend/src/lib/components/Account/OrgSwitcher.tsx",
+        "permalink": "https://github.com/PostHog/posthog/blob/c5ef29f46847a85518c1f76df80951423367a32f/frontend/src/lib/components/Account/OrgSwitcher.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://posthog.com",
+    "partsUsed": [
+      "Root",
+      "Clear",
+      "Collection",
+      "Group",
+      "Icon",
+      "Input",
+      "Item",
+      "List"
+    ],
+    "contextSummary": "PostHog's (a 35k-star product analytics platform) organization switcher \u2014 a real account/workspace-switching feature built on Combobox, with a clear (X) affordance and grouped items. A strong 'organization switcher' archetype distinct from every form-field example in this set.",
+    "diversityTags": [
+      "production-app",
+      "famous-saas",
+      "org-switcher",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 2,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 5,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "PostHog's organization switcher is a genuine account/workspace-switching feature (not a form field) built on Combobox, in a 35k-star production SaaS product \u2014 a distinct 'switcher' archetype and a strong real-world credibility anchor."
+  },
+  {
+    "id": "combobox-005",
+    "component": "combobox",
+    "repo": "gitbutlerapp/gitbutler",
+    "repoUrl": "https://github.com/gitbutlerapp/gitbutler",
+    "stars": 21256,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "apps/lite/ui/src/routes/project/$id/workspace/CommitForm.tsx",
+        "permalink": "https://github.com/gitbutlerapp/gitbutler/blob/0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd/apps/lite/ui/src/routes/project/$id/workspace/CommitForm.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://gitbutler.com",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Input",
+      "Empty",
+      "List",
+      "Item",
+      "Portal",
+      "Positioner",
+      "Popup"
+    ],
+    "contextSummary": "GitButler (a real, well-known Git client with a novel branch-management UX) uses Combobox inside its commit-authoring form \u2014 a genuine developer-tool feature (not a settings/demo page), showing Combobox composed with `Button`/`Tooltip` from the shared `@base-ui/react` barrel import.",
+    "diversityTags": [
+      "production-app",
+      "dev-tooling",
+      "real-feature-form",
+      "barrel-import",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/gitbutler-com.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 247074 bytes"
+      ]
+    },
+    "rank": 3,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "GitButler uses Combobox inside a real commit-authoring form in a well-known Git client, composed with Button/Tooltip from the shared @base-ui/react barrel import \u2014 a genuine developer-tool feature rather than a settings/demo page."
+  },
+  {
+    "id": "combobox-009",
+    "component": "combobox",
+    "repo": "electric-sql/electric",
+    "repoUrl": "https://github.com/electric-sql/electric",
+    "stars": 10257,
+    "license": "Apache-2.0",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/agents-server-ui/src/ui/Combobox.tsx",
+        "permalink": "https://github.com/electric-sql/electric/blob/2ab02bb19c2fc94ae43ccff8dfe9a4f279ecae17/packages/agents-server-ui/src/ui/Combobox.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://electric.ax",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Input",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Item",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator",
+      "Empty",
+      "Content"
+    ],
+    "contextSummary": "ElectricSQL (a well-known local-first sync engine) built a full-anatomy Combobox for its agents-server admin UI \u2014 grouping, separators, and an explicit CSS-module-scoped styling approach (imports its own `Combobox.module.css`), giving a clean CSS-Modules composition reference distinct from the Tailwind-heavy majority of this set.",
+    "diversityTags": [
+      "production-app",
+      "local-first-sync-engine",
+      "css-modules",
+      "full-anatomy",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/electric-ax.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 196138 bytes"
+      ]
+    },
+    "rank": 4,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "ElectricSQL (a well-known local-first sync engine) built a full-anatomy, CSS-Modules-styled Combobox for its agents-server admin UI \u2014 a clean non-Tailwind styling reference, distinct from the Tailwind-heavy majority of this set."
+  },
+  {
+    "id": "combobox-010",
+    "component": "combobox",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/ui/src/components/combobox.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/combobox.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Icon",
+      "InputGroup",
+      "Input",
+      "Clear",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Collection",
+      "Item",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator",
+      "Chips",
+      "Chip",
+      "ChipRemove",
+      "Row",
+      "Empty",
+      "Status",
+      "useFilter"
+    ],
+    "contextSummary": "coss's registry Combobox mirrors Dify's near-identical full API surface (multi-select Chips + Row wrapping, filtering hook, grouping) \u2014 a striking convergent-design data point: two independent teams arrived at the same rich composition, suggesting it is close to the component's natural 'complete' shape.",
+    "diversityTags": [
+      "oss-design-system",
+      "convergent-design",
+      "multi-select-chips",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
+    },
+    "rank": 5,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "coss's registry Combobox converges on nearly the same rich API as Dify's (multi-select chips, Row wrapping, filtering hook) \u2014 two independent teams arriving at the same composition independently, suggesting it is close to the component's natural 'complete' shape. Worth a convergent-design citation."
+  },
+  {
+    "id": "combobox-002",
+    "component": "combobox",
+    "repo": "amruthpillai/reactive-resume",
+    "repoUrl": "https://github.com/amruthpillai/reactive-resume",
+    "stars": 39392,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "apps/web/src/components/ui/combobox.tsx",
+        "permalink": "https://github.com/amruthpillai/reactive-resume/blob/73daf22b2f8df55f0041c48c2e119fa215064cc0/apps/web/src/components/ui/combobox.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://rxresu.me",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Clear",
+      "Collection",
+      "Group",
+      "Input",
+      "Item",
+      "List",
+      "Label",
+      "useFilter"
+    ],
+    "contextSummary": "Reactive Resume (a 39k-star resume builder) wraps a shared internal package's already-Base-UI-backed Combobox primitives into a typed single/multi-select API (`SingleComboboxProps`/`MultipleComboboxProps`), with an explicit `textValue` escape hatch documented for when the `label` is a ReactNode (avoiding the trigger falling back to `String(value)`).",
+    "diversityTags": [
+      "production-app",
+      "famous-product",
+      "typed-single-multi-api",
+      "monorepo-internal-package",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 6,
+    "scores": {
+      "illustrative": 4,
+      "realWorld": 5,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Reactive Resume (39k stars, a household-name resume builder) wraps a shared internal package's Combobox into a typed single/multi API with an explicit textValue escape hatch for ReactNode labels \u2014 good prop-guidance citation for the label/textValue gotcha."
+  },
+  {
+    "id": "combobox-018",
+    "component": "combobox",
+    "repo": "latitude-dev/latitude-llm",
+    "repoUrl": "https://github.com/latitude-dev/latitude-llm",
+    "stars": 4387,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/ui/src/components/combobox/combobox.tsx",
+        "permalink": "https://github.com/latitude-dev/latitude-llm/blob/14099a66781cc46df79552fa7293b27209e7e6a8/packages/ui/src/components/combobox/combobox.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://latitude.so",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Input",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Collection",
+      "Item",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator",
+      "Chips",
+      "Chip",
+      "ChipRemove",
+      "Empty"
+    ],
+    "contextSummary": "Latitude (an open-source LLM prompt-engineering platform) ships a near-full-anatomy Combobox (multi-select chips, grouping, separators) inside its shared UI package \u2014 another real production AI-tooling adopter alongside Dify and Mastra.",
+    "diversityTags": [
+      "production-app",
+      "ai-tooling",
+      "multi-select-chips",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/latitude-so.jpg",
+      "attempts": [
+        "viewport 1440x900, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1440x900 produced 719877 bytes (>400KB), retrying smaller",
+        "viewport 1200x750, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1200x750 produced 619878 bytes (>400KB), retrying smaller",
+        "viewport 1000x650, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "viewport 1000x650 produced 462702 bytes (>400KB), retrying smaller",
+        "viewport 900x600, waitUntil=load (networkidle timed out): ok",
+        "banner-dismissal applied",
+        "900x600 PNG still 453803 bytes (>400KB); final fallback: re-captured 1440x900 as JPEG quality=60 with banner-dismissal applied: 82189 bytes"
+      ]
+    },
+    "rank": 7,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 3,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "Latitude (an open-source LLM prompt-engineering platform) ships a near-full-anatomy multi-select Combobox \u2014 another real production AI-tooling adopter alongside Dify and Mastra, reinforcing the AI-tooling-loves-Combobox pattern worth noting in the real-world section."
+  },
+  {
+    "id": "combobox-007",
+    "component": "combobox",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/ui/src/form/primitives/combobox/list.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/35812c333352ede1c4d4fe1f182f28bdc93fef70/packages/ui/src/form/primitives/combobox/list.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://wordpress.org/gutenberg/",
+    "partsUsed": [
+      "List"
+    ],
+    "contextSummary": "WordPress Gutenberg's new `packages/ui` decomposes Combobox one-file-per-part (mirroring the same pattern already documented for their Select) \u2014 this file is just the `List` slice; siblings (root/trigger/item/popup) exist alongside it but were not individually re-fetched this pass.",
+    "diversityTags": [
+      "production-app",
+      "mega-project",
+      "one-file-per-part-decomposition",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 8,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 4,
+      "diversityContribution": 4,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "WordPress Gutenberg decomposes Combobox one-file-per-part, mirroring the same anatomical-decomposition pattern already documented for their Select \u2014 useful as a repeated citation of a mega-project's preferred composition style."
+  },
+  {
+    "id": "combobox-020",
+    "component": "combobox",
+    "repo": "bytebase/dbhub",
+    "repoUrl": "https://github.com/bytebase/dbhub",
+    "stars": 3108,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-06-30",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "frontend/src/components/ui/combobox.tsx",
+        "permalink": "https://github.com/bytebase/dbhub/blob/08e522ced0503a8d234472f07b0b318e386dbb94/frontend/src/components/ui/combobox.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://dbhub.ai",
+    "partsUsed": [
+      "Root",
+      "Trigger",
+      "Value",
+      "Input",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "List",
+      "Collection",
+      "Item",
+      "ItemIndicator",
+      "Group",
+      "GroupLabel",
+      "Separator",
+      "Chips",
+      "Chip",
+      "ChipRemove",
+      "Empty",
+      "Status"
+    ],
+    "contextSummary": "DBHub (Bytebase's MCP server product for databases, distinct from the main Bytebase app already seen under Toast) ships the same shadcn-registry-derived full Combobox API \u2014 aliased `ComboboxPrimitive` \u2014 reused verbatim across yet another real product in the Bytebase family.",
+    "diversityTags": [
+      "production-app",
+      "devtool",
+      "aliased-import",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/dbhub-ai.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 131348 bytes"
+      ]
+    },
+    "rank": 9,
+    "scores": {
+      "illustrative": 3,
+      "realWorld": 3,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 1
+    },
+    "rankRationale": "DBHub (Bytebase's MCP server product, distinct from the main app already seen under Toast) reuses the same shadcn-registry-derived full Combobox API verbatim \u2014 evidence of one team standardizing the same wrapper across multiple products in a family."
+  },
+  {
+    "id": "combobox-004",
+    "component": "combobox",
+    "repo": "mastra-ai/mastra",
+    "repoUrl": "https://github.com/mastra-ai/mastra",
+    "stars": 25871,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/combobox",
+    "files": [
+      {
+        "path": "packages/playground-ui/src/ds/components/Combobox/index.ts",
+        "permalink": "https://github.com/mastra-ai/mastra/blob/e0c13c7562a2f588b833cb5929d25309b2d98b8d/packages/playground-ui/src/ds/components/Combobox/index.ts",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://mastra.ai",
+    "partsUsed": [],
+    "contextSummary": "Mastra (a 25.9k-star AI agent framework, already featured in Select's ranked set as a documented Radix\u2192Base UI migration) re-exports Combobox as a bare `ComboboxPrimitive` alias with no styling applied in this file \u2014 thin evidence on its own, but corroborates Mastra as a genuine multi-component Base UI adopter.",
+    "diversityTags": [
+      "production-app",
+      "bare-re-export",
+      "cross-component-adopter",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    },
+    "rank": 10,
+    "scores": {
+      "illustrative": 2,
+      "realWorld": 3,
+      "diversityContribution": 2,
+      "liveSite": 1,
+      "licenseBonus": 0
+    },
+    "rankRationale": "Mastra (25.9k stars, already documented in Select's ranked set as a Radix-to-Base-UI migration) re-exports Combobox as a bare alias with no styling in this file \u2014 thin on its own, but corroborates Mastra as a genuine multi-component adopter worth a passing mention."
+  }
+]

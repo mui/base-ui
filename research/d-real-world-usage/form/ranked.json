@@ -1,0 +1,168 @@
+[
+  {
+    "id": "form-002",
+    "component": "form",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "packages/ui/src/components/ui/form.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/packages/ui/src/components/ui/form.tsx" },
+      { "path": "apps/www/components/examples/ui/form/form-rhf.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/components/examples/ui/form/form-rhf.tsx" },
+      { "path": "apps/www/components/examples/ui/form/form-zod.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/components/examples/ui/form/form-zod.tsx" },
+      { "path": "apps/www/components/examples/ui/form/form-native-submit.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/components/examples/ui/form/form-native-submit.tsx" }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": ["Form"],
+    "contextSummary": "The richest Form demo set found. form-rhf.tsx wraps Base UI's actual <Form> around a react-hook-form-controlled tree via onSubmit={methods.handleSubmit(submitForm)}, mixing in Autocomplete/Combobox/Select/Slider/NumberField/Radio/Checkbox/Switch/Fieldset. form-zod.tsx uses Form's own errors/onFormSubmit props with zod safeParse. form-native-submit.tsx shows plain FormData extraction.",
+    "diversityTags": ["rhf-bridge", "zod-validation", "native-formdata", "kitchen-sink-form"],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/lumiui-dev.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 280994 bytes",
+        "saved open-state screenshot: 158987 bytes"
+      ],
+      "pathOpen": "../_captures/lumiui-dev-open.png"
+    },
+    "rank": 1,
+    "scores": { "illustrative": 5, "realWorld": 4, "diversityContribution": 5, "liveSite": 1, "licenseBonus": 1 },
+    "rankRationale": "By far the most valuable Form evidence found, precisely because Form itself is a nearly bare component and the interesting behavior lives in how it's combined with things. form-rhf.tsx is a large real-world 'request a project quote' form that nests Base UI's own <Form> inside react-hook-form's <FormProvider> and overrides onSubmit to `methods.handleSubmit(submitForm)` instead of using Form's native onFormSubmit — direct, working proof that Base UI Form and react-hook-form are NOT mutually exclusive (contrary to what 9ui's and reui's abandoned-Form pattern might suggest). form-zod.tsx shows the alternative path: Form's own `errors`/`onFormSubmit` props with a zod `safeParse`, no RHF at all. form-native-submit.tsx shows the simplest path: native `FormData` extraction. Three complete, contrasting validation strategies from one repo. Feeds: the react-hook-form integration FAQ, the zod-validation demo, and the native-FormData baseline example — likely the majority of the Form doc page's 'Examples' section."
+  },
+  {
+    "id": "form-004",
+    "component": "form",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 148079,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "packages/dify-ui/src/form/index.tsx", "permalink": "https://github.com/langgenius/dify/blob/abd720146d09e71bf8f153b4fddbf1c78d1af038/packages/dify-ui/src/form/index.tsx" }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": ["Form"],
+    "contextSummary": "Dify, the highest-starred repo in the corpus using Base UI (148k stars). Re-exports Form verbatim plus its TypeScript types (FormActions, FormValidationMode, FormSubmitEventDetails) individually.",
+    "diversityTags": ["ai-tooling", "platform-ui-kit", "typed-namespace-reexport"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" },
+    "rank": 2,
+    "scores": { "illustrative": 3, "realWorld": 5, "diversityContribution": 3, "liveSite": 1, "licenseBonus": 0 },
+    "rankRationale": "The highest-profile adopter of Form in the corpus (148k stars): even though the wrapper itself is a bare re-export, dify-ui deliberately re-exports Form's TypeScript surface (`FormActions`, `FormValidationMode`, `FormSubmitEventDetails`) as individual named types rather than making consumers reach into the `Form` namespace — real evidence for which typed exports matter enough to a production consumer to warrant their own re-export. Feeds: the TypeScript-usage reference and the real-world-examples credibility anchor."
+  },
+  {
+    "id": "form-005",
+    "component": "form",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "components/selia/form.tsx", "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/form.tsx" },
+      { "path": "components/examples/form/basic.tsx", "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/form/basic.tsx" }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": ["Form"],
+    "contextSummary": "Selia's basic.tsx demo pairs Form with Fieldset/Field/Input using pure native HTML5 constraint validation: <Input required> plus <FieldError match=\"valueMissing\">This is required</FieldError>, zero JS validation logic.",
+    "diversityTags": ["native-html5-validation", "fieldset-composition", "zero-js-validation", "live-site"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" },
+    "rank": 3,
+    "scores": { "illustrative": 5, "realWorld": 3, "diversityContribution": 5, "liveSite": 1, "licenseBonus": 1 },
+    "rankRationale": "The cleanest demonstration of Form/Field's built-in browser-native validation story with zero application validation code: `required` on the input plus `<FieldError match=\"valueMissing\">` is enough to show a 'this is required' message on submit, wrapped in a Fieldset with a legend for the group. This is the opposite end of the spectrum from lumi-ui's RHF kitchen-sink form and belongs in the docs specifically to show that Form does not require an external validation library. Feeds: the 'zero-dependency validation' quick-start example and the Fieldset+Form composition pattern."
+  },
+  {
+    "id": "form-003",
+    "component": "form",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "apps/ui/registry/default/ui/form.tsx", "permalink": "https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/apps/ui/registry/default/ui/form.tsx" }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": ["Form"],
+    "contextSummary": "Cal.com's public design-system registry. A minimal, genuine @base-ui/react/form re-export with a data-slot class merge.",
+    "diversityTags": ["oss-design-system", "cal-com", "thin-wrapper"],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "captured",
+      "path": "../_captures/coss-com-ui.png",
+      "attempts": [
+        "viewport 1440x900, waitUntil=networkidle: ok",
+        "banner-dismissal applied",
+        "saved base screenshot: 88956 bytes"
+      ]
+    },
+    "rank": 4,
+    "scores": { "illustrative": 2, "realWorld": 4, "diversityContribution": 2, "liveSite": 1, "licenseBonus": 0 },
+    "rankRationale": "A representative 'minimal genuine wrapper' baseline from a recognizable brand (Cal.com's public design system) — confirms that even design systems investing heavily elsewhere (its Field is comparatively rich) treat Form as pure plumbing needing only a data-slot class merge. Feeds: the real-world-examples credibility list; does not add new technical ground beyond form-002/004/006."
+  },
+  {
+    "id": "form-006",
+    "component": "form",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "packages/kumo/src/primitives/form.ts", "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/primitives/form.ts" }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": ["Form"],
+    "contextSummary": "Unlike Kumo's richly-propped Select/Field/Autocomplete components, Form gets only a bare `export * from \"@base-ui/react/form\"` auto-generated primitive re-export with no visual wrapper at all.",
+    "diversityTags": ["corporate-design-system", "bare-primitive-reexport", "contrast-with-other-kumo-wrappers"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" },
+    "rank": 5,
+    "scores": { "illustrative": 3, "realWorld": 4, "diversityContribution": 2, "liveSite": 1, "licenseBonus": 1 },
+    "rankRationale": "The most telling negative-space evidence in this ranking: the same corporate design system that gives Select and Autocomplete rich, JSDoc'd, Field-integrated wrappers (see the autocomplete/select rankings) auto-generates Form as a bare `export * from \"@base-ui/react/form\"` primitive re-export with zero visual wrapper — Kumo's own build tooling apparently classifies components as 'wrap with styling' vs 'pass through as primitive,' and Form fell into the latter bucket. Feeds: the 'Form has no visual chrome to theme' framing early in the doc page, contrasted directly against Kumo's Select/Autocomplete entries."
+  },
+  {
+    "id": "form-007",
+    "component": "form",
+    "repo": "usekaneo/kaneo",
+    "repoUrl": "https://github.com/usekaneo/kaneo",
+    "stars": 3802,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/form",
+    "files": [
+      { "path": "apps/site/components/ui/form.tsx", "permalink": "https://github.com/usekaneo/kaneo/blob/3605cfc7db3b54f6c45d85d995e91857cf86e3a3/apps/site/components/ui/form.tsx" }
+    ],
+    "liveUrl": "https://kaneo.app",
+    "partsUsed": ["Form"],
+    "contextSummary": "Near byte-for-byte duplicate of coss's and shipfree's Form wrapper (thin data-slot re-export), from an ordinary open-source project-management app rather than a design-system registry.",
+    "diversityTags": ["production-app", "duplicate-archetype", "thin-wrapper"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" },
+    "rank": 6,
+    "scores": { "illustrative": 2, "realWorld": 3, "diversityContribution": 2, "liveSite": 1, "licenseBonus": 1 },
+    "rankRationale": "Included mainly to document the pattern's reach: this exact thin data-slot Form wrapper (character-for-character near-identical) also appears in bytebase/dbhub (frontend/src/components/ui/form.tsx) and revokslab/ShipFree (src/components/ui/form.tsx) — three independent, unrelated production apps converged on the same minimal implementation, which is itself the finding (there is essentially one way to 'wrap' a component with no visual surface). Feeds: the real-world-examples list as a 'this pattern is everywhere' footnote; not independently instructive beyond that."
+  }
+]

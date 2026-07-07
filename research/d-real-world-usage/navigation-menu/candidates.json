@@ -8,7 +8,7 @@
     "license": "MIT",
     "reuse": "code-ok",
     "category": "oss-design-system",
-    "lastActivity": "2026-07-06",
+    "lastActivity": "2026-02-06",
     "importSpecifier": "@base-ui/react/navigation-menu",
     "files": [
       {
@@ -18,22 +18,27 @@
       }
     ],
     "liveUrl": "https://www.9ui.dev",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind-styled site-header wrapper, distributed as a copy-paste registry item alongside its sibling Menubar/DropdownMenu files.",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport"
+    ],
+    "contextSummary": "Verified this pass (`import { NavigationMenu as BaseNavigationMenu } from \"@base-ui/react/navigation-menu\"`): a Tailwind-styled site-header wrapper, distributed as a copy-paste registry item alongside its sibling Menubar/DropdownMenu files, with its own demo page.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "code-search-verified"
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "captured",
-      "path": "../_captures/9ui-dev.png",
-      "attempts": [
-        "viewport 1440x900, waitUntil=networkidle: ok",
-        "banner-dismissal applied",
-        "open-state interaction failed: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for getByText('Accordion').first()\n",
-        "saved base screenshot: 263897 bytes"
-      ]
+      "status": "not-attempted"
     }
   },
   {
@@ -55,23 +60,30 @@
       }
     ],
     "liveUrl": "https://www.lumiui.dev",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same registry pattern, published as both a package export and an installable file.",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Backdrop",
+      "Positioner",
+      "Popup",
+      "Viewport",
+      "Arrow"
+    ],
+    "contextSummary": "Verified this pass: the fullest NavigationMenu anatomy found in any registry \u2014 the only wrapper using both `Backdrop` and `Arrow` together alongside the full Portal/Positioner/Popup/Viewport stack.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "full-anatomy",
+      "code-search-verified"
     ],
     "instructiveMisuse": false,
     "screenshot": {
-      "status": "captured",
-      "path": "../_captures/lumiui-dev.png",
-      "attempts": [
-        "viewport 1440x900, waitUntil=networkidle: ok",
-        "banner-dismissal applied",
-        "saved base screenshot: 280994 bytes",
-        "saved open-state screenshot: 158987 bytes"
-      ],
-      "pathOpen": "../_captures/lumiui-dev-open.png"
+      "status": "not-attempted"
     }
   },
   {
@@ -94,10 +106,348 @@
     ],
     "liveUrl": "https://kumo-ui.com",
     "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. notably has **not** built a styled wrapper yet \u2014 it ships only the auto-generated `primitives/navigation-menu.ts` re-export (`export * from \"@base-ui/react/navigation-menu\"`), an honest 'not skinned yet' signal from Cloudflare's own design system.",
+    "contextSummary": "Notably has **not** built a styled wrapper yet \u2014 it ships only the auto-generated `primitives/navigation-menu.ts` re-export (`export * from \"@base-ui/react/navigation-menu\"`), an honest 'not skinned yet' signal from Cloudflare's own design system.",
     "diversityTags": [
       "oss-design-system",
-      "registry-tree-mined-2026-07"
+      "registry-tree-mined-2026-07",
+      "unskinned-primitive-signal"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-004",
+    "component": "navigation-menu",
+    "repo": "wevm/vocs",
+    "repoUrl": "https://github.com/wevm/vocs",
+    "stars": 1507,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "src/react/internal/TopNav.tsx",
+        "permalink": "https://github.com/wevm/vocs/blob/861a096100f07cd04ada43797048c1e28ff44e69/src/react/internal/TopNav.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://vocs.dev",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport",
+      "Arrow"
+    ],
+    "contextSummary": "Vocs is a well-known static-docs-site framework by wevm (creators of viem/wagmi); its own top navigation bar (used to render every Vocs-powered docs site, including its own) is built on NavigationMenu, including the Arrow part for a pointed dropdown panel. Directly relevant prior art since this project is also building doc-site navigation.",
+    "diversityTags": [
+      "production-app",
+      "docs-framework",
+      "meta-relevant",
+      "arrow-anchored",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-005",
+    "component": "navigation-menu",
+    "repo": "twentyhq/twenty",
+    "repoUrl": "https://github.com/twentyhq/twenty",
+    "stars": 52380,
+    "license": "NOASSERTION",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "packages/twenty-website/src/sections/menu/components/MenuNav.tsx",
+        "permalink": "https://github.com/twentyhq/twenty/blob/8a4bcd14453eaf2ca25329ea3d9abb11b02aa06b/packages/twenty-website/src/sections/menu/components/MenuNav.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://twenty.com",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport"
+    ],
+    "contextSummary": "Twenty (the open-source Salesforce/CRM alternative, 52k+ stars \u2014 the single largest repo found across the four Tier-1 components in this pass) uses NavigationMenu for its own marketing website header, with i18n via `@lingui`. A strong real-world credibility anchor.",
+    "diversityTags": [
+      "production-app",
+      "marketing-site",
+      "i18n",
+      "high-profile-project",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-006",
+    "component": "navigation-menu",
+    "repo": "strait-dev/ui",
+    "repoUrl": "https://github.com/strait-dev/ui",
+    "stars": 0,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/navigation-menu.stories.tsx",
+        "permalink": "https://github.com/strait-dev/ui/blob/6a06489172d84167f12c341a201ef280df89617d/packages/ui/src/components/navigation-menu.stories.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link"
+    ],
+    "contextSummary": "A peer project's own Storybook CSF stories for a NavigationMenu built on Base UI \u2014 complete with `autodocs`, an `align` argType control, and a docs description that already explains the part anatomy in prose ('NavigationMenu wrapper already includes NavigationMenuPositioner... do not add it manually'). Directly relevant prior art for this project's own story-plan and MDX docs.",
+    "diversityTags": [
+      "oss-design-system",
+      "has-own-storybook-stories",
+      "mega-menu-pattern",
+      "meta-relevant",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-007",
+    "component": "navigation-menu",
+    "repo": "argos-ci/argos-ci.com",
+    "repoUrl": "https://github.com/argos-ci/argos-ci.com",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "app/navbar.tsx",
+        "permalink": "https://github.com/argos-ci/argos-ci.com/blob/ad2df3a46bf872ec6c9dd9c15bf20a060dd86707/app/navbar.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://argos-ci.com",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport"
+    ],
+    "contextSummary": "Argos (a visual-regression-testing tool many frontend developers already know) uses NavigationMenu for its own live marketing navbar \u2014 a recognizable-name production site, and thematically adjacent to this project's own visual/Storybook-testing focus.",
+    "diversityTags": [
+      "production-app",
+      "marketing-site",
+      "dev-tooling-adjacent",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-008",
+    "component": "navigation-menu",
+    "repo": "robotostudio/turbo-start-sanity",
+    "repoUrl": "https://github.com/robotostudio/turbo-start-sanity",
+    "stars": 169,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "starter-template",
+    "lastActivity": "2026-07-05",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/navigation-menu.tsx",
+        "permalink": "https://github.com/robotostudio/turbo-start-sanity/blob/7c30ab1be52c31d787801bda4440629ff769460c/packages/ui/src/components/navigation-menu.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://sanity.robotostudio.com",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport"
+    ],
+    "contextSummary": "A Sanity CMS + Next.js page-builder starter template (aliases the import as `NavMenuPrimitive`) \u2014 the only starter-template representative in this component's set, showing how a CMS-driven site derives its nav structure from CMS content into NavigationMenu.List/Item.",
+    "diversityTags": [
+      "starter-template",
+      "cms-driven-content",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-009",
+    "component": "navigation-menu",
+    "repo": "QuantumNous/new-api",
+    "repoUrl": "https://github.com/QuantumNous/new-api",
+    "stars": 41426,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "web/default/src/components/ui/navigation-menu.tsx",
+        "permalink": "https://github.com/QuantumNous/new-api/blob/c9943d37ad93477dd937fc4901cc3c4e0fd8aaab/web/default/src/components/ui/navigation-menu.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://www.newapi.ai",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Trigger",
+      "Content",
+      "Link",
+      "Icon",
+      "Portal",
+      "Positioner",
+      "Popup",
+      "Viewport"
+    ],
+    "contextSummary": "A large (41k+ star) AI-model-gateway platform's admin console navigation \u2014 a high-profile production app, aliasing the import as `NavigationMenuPrimitive` in the same shadcn-registry-derived style seen across the ecosystem.",
+    "diversityTags": [
+      "production-app",
+      "admin-console",
+      "high-profile-project",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-010",
+    "component": "navigation-menu",
+    "repo": "martpie/museeks",
+    "repoUrl": "https://github.com/martpie/museeks",
+    "stars": 2123,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "production-app",
+    "lastActivity": "2026-07-03",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "src/elements/SettingsNav.tsx",
+        "permalink": "https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/elements/SettingsNav.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://museeks.io",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Link"
+    ],
+    "contextSummary": "Museeks (a cross-platform desktop music player, Tauri-based) uses only the minimal Root/List/Item/Link subset \u2014 no dropdown Trigger/Content at all \u2014 for a vertical settings sidebar nav. A useful minimal counter-example showing NavigationMenu works fine as a plain link list, not just mega-menus.",
+    "diversityTags": [
+      "production-app",
+      "desktop-app",
+      "minimal-usage-no-dropdowns",
+      "settings-sidebar",
+      "code-search-verified"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-011",
+    "component": "navigation-menu",
+    "repo": "raphaelsalaja/userinterface-wiki",
+    "repoUrl": "https://github.com/raphaelsalaja/userinterface-wiki",
+    "stars": 832,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "demo-or-sandbox",
+    "lastActivity": "2026-03-17",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "components/navigation/index.tsx",
+        "permalink": "https://github.com/raphaelsalaja/userinterface-wiki/blob/256a954080c8bcf1b1ceb1e2a4079d1f24cf593a/components/navigation/index.tsx",
+        "pinned": true
+      }
+    ],
+    "liveUrl": "https://www.userinterface.wiki/",
+    "partsUsed": [
+      "Root",
+      "List",
+      "Item",
+      "Link"
+    ],
+    "contextSummary": "'A Living Manual for Better Interfaces' \u2014 a personal UI-pattern reference site pairs its own minimal NavigationMenu.Root/List/Item/Link with a custom `sounds` library for interaction audio feedback, alongside a theme switcher. A quirky, creative diversity pick distinct from every corporate/registry example.",
+    "diversityTags": [
+      "demo-or-sandbox",
+      "personal-site",
+      "sound-feedback",
+      "minimal-usage",
+      "code-search-verified"
     ],
     "instructiveMisuse": false,
     "screenshot": {

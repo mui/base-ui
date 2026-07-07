@@ -13,21 +13,15 @@
     "files": [
       {
         "path": "packages/kumo/src/components/autocomplete/autocomplete.tsx",
-        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx",
-        "pinned": false
+        "permalink": "https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/autocomplete/autocomplete.tsx"
       }
     ],
     "liveUrl": "https://kumo-ui.com",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive, unlike several other Kumo components), with its own Figma-generator script kept in sync with the code.",
-    "diversityTags": [
-      "oss-design-system",
-      "registry-tree-mined-2026-07"
-    ],
+    "partsUsed": ["Root", "Input", "Portal", "Positioner", "Popup", "List", "Item", "GroupLabel", "Group", "Separator", "Empty", "Collection", "useFilter"],
+    "contextSummary": "Cloudflare's official component library. Its Autocomplete accepts a top-level `label`/`required`/`description`/`error` prop set and auto-wraps itself in the same Field component used by every other Kumo form control, with JSDoc explicitly distinguishing it from Combobox ('the input value is not constrained to the suggestion list items').",
+    "diversityTags": ["oss-design-system", "corporate-design-system", "field-integration", "select-vs-combobox-docs"],
     "instructiveMisuse": false,
-    "screenshot": {
-      "status": "not-attempted"
-    }
+    "screenshot": { "status": "not-attempted" }
   },
   {
     "id": "autocomplete-002",
@@ -41,43 +35,18 @@
     "lastActivity": "2026-07-06",
     "importSpecifier": "@base-ui/react/autocomplete",
     "files": [
-      {
-        "path": "packages/ui/src/form/primitives/autocomplete/root.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx",
-        "pinned": false
-      },
-      {
-        "path": "packages/ui/src/form/primitives/autocomplete/input.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/input.tsx",
-        "pinned": false
-      },
-      {
-        "path": "packages/ui/src/form/primitives/autocomplete/list.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/list.tsx",
-        "pinned": false
-      },
-      {
-        "path": "packages/ui/src/form/primitives/autocomplete/popup.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/popup.tsx",
-        "pinned": false
-      },
-      {
-        "path": "packages/ui/src/form/primitives/autocomplete/group.tsx",
-        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/group.tsx",
-        "pinned": false
-      }
+      { "path": "packages/ui/src/form/primitives/autocomplete/root.tsx", "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/autocomplete/root.tsx" },
+      { "path": "packages/ui/src/form/primitives/autocomplete/input.tsx", "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/autocomplete/input.tsx" },
+      { "path": "packages/ui/src/form/primitives/autocomplete/list.tsx", "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/autocomplete/list.tsx" },
+      { "path": "packages/ui/src/form/primitives/autocomplete/popup.tsx", "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/autocomplete/popup.tsx" },
+      { "path": "packages/ui/src/form/primitives/autocomplete/group.tsx", "permalink": "https://github.com/WordPress/gutenberg/blob/6b1e130af2477723e66f5a319d07b98e82abf56f/packages/ui/src/form/primitives/autocomplete/group.tsx" }
     ],
     "liveUrl": null,
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui` form primitives package, sharing structure with its sibling Combobox implementation.",
-    "diversityTags": [
-      "production-app",
-      "registry-tree-mined-2026-07"
-    ],
+    "partsUsed": ["Root", "Input", "List", "Popup", "Group", "Portal", "Positioner", "Clear", "Empty", "Collection", "GroupLabel", "Value", "Item"],
+    "contextSummary": "WordPress' new @wordpress/ui form-primitives package wraps Autocomplete one file per part, sharing structure and CSS reset utilities with its sibling Combobox and Select primitives inside the Block Editor monorepo.",
+    "diversityTags": ["production-app", "framework-primitives", "per-part-files", "cms"],
     "instructiveMisuse": false,
-    "screenshot": {
-      "status": "not-attempted"
-    }
+    "screenshot": { "status": "not-attempted" }
   },
   {
     "id": "autocomplete-003",
@@ -91,29 +60,15 @@
     "lastActivity": "2026-07-06",
     "importSpecifier": "@base-ui/react/autocomplete",
     "files": [
-      {
-        "path": "apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx",
-        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx",
-        "pinned": false
-      },
-      {
-        "path": "apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx",
-        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx",
-        "pinned": false
-      },
-      {
-        "path": "apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx",
-        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx",
-        "pinned": false
-      }
+      { "path": "apps/www/src/components/ui/autocomplete.tsx", "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/ui/autocomplete.tsx" },
+      { "path": "apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx", "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx" },
+      { "path": "apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx", "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx" },
+      { "path": "apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx", "permalink": "https://github.com/borabaloglu/9ui/blob/3ec1af7cb6b7a3e402fb7955ea6c1142bb700abb/apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx" }
     ],
     "liveUrl": "https://www.9ui.dev",
-    "partsUsed": [],
-    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.",
-    "diversityTags": [
-      "oss-design-system",
-      "registry-tree-mined-2026-07"
-    ],
+    "partsUsed": ["Root", "Input", "Trigger", "Clear", "Icon", "Portal", "Positioner", "Popup", "List", "Item", "Separator", "Group", "GroupLabel", "Empty", "Status", "Row", "Collection", "useFilter"],
+    "contextSummary": "9ui's registry demos cover the widest spread of Autocomplete use cases found anywhere: async-loaded items, a virtualized long list, grouped items, a custom fuzzy-matcher, an inline (non-popup) mode, and a limited-results variant, all built on the same wrapper.",
+    "diversityTags": ["oss-design-system", "async-loading", "virtualization", "fuzzy-matching"],
     "instructiveMisuse": false,
     "screenshot": {
       "status": "captured",
@@ -125,5 +80,175 @@
         "saved base screenshot: 263897 bytes"
       ]
     }
+  },
+  {
+    "id": "autocomplete-004",
+    "component": "autocomplete",
+    "repo": "langgenius/dify",
+    "repoUrl": "https://github.com/langgenius/dify",
+    "stars": 148079,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "packages/dify-ui/src/autocomplete/index.tsx", "permalink": "https://github.com/langgenius/dify/blob/abd720146d09e71bf8f153b4fddbf1c78d1af038/packages/dify-ui/src/autocomplete/index.tsx" }
+    ],
+    "liveUrl": "https://dify.ai",
+    "partsUsed": ["Root", "Value", "InputGroup", "Input", "Trigger", "Clear", "Icon", "Portal", "Positioner", "Popup", "List", "Item", "GroupLabel", "Separator", "Empty", "Status", "Group", "Collection", "Row", "useFilter", "useFilteredItems"],
+    "contextSummary": "Dify, the highest-starred repo in the corpus using Base UI (148k stars). Its dify-ui package wraps essentially every Autocomplete part plus both filtering hooks (useFilter, useFilteredItems), with cva size variants and typed grouped/flat item overloads, for the platform's agentic-workflow builder UI.",
+    "diversityTags": ["ai-tooling", "platform-ui-kit", "richest-api-surface", "cva-variants"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-005",
+    "component": "autocomplete",
+    "repo": "PostHog/posthog",
+    "repoUrl": "https://github.com/PostHog/posthog",
+    "stars": 35368,
+    "license": "custom (non-OSI, verify before reuse)",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "packages/quill/packages/primitives/src/autocomplete.tsx", "permalink": "https://github.com/PostHog/posthog/blob/c030bc35b420a6d8ec7930f46a82f4680f6bd42d/packages/quill/packages/primitives/src/autocomplete.tsx" }
+    ],
+    "liveUrl": "https://posthog.com",
+    "partsUsed": ["Root", "Value", "Trigger", "Clear", "Input", "Portal", "Positioner", "Popup", "List", "Item", "Group", "GroupLabel", "Collection", "Empty", "Separator", "Status", "useFilteredItems"],
+    "contextSummary": "PostHog's in-house 'Quill' design system primitive. Reuses MenuEmpty/MenuLabel from the Menu component inside Autocomplete's Empty/GroupLabel, and implements a live 'N results' Status announcer by walking useFilteredItems() output across both flat and grouped item shapes.",
+    "diversityTags": ["production-app", "cross-component-reuse", "live-region-status", "large-scale-saas"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-006",
+    "component": "autocomplete",
+    "repo": "baptisteArno/typebot.io",
+    "repoUrl": "https://github.com/baptisteArno/typebot.io",
+    "stars": 10123,
+    "license": "custom (non-OSI, verify before reuse)",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-04",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "packages/ui/src/components/Autocomplete.tsx", "permalink": "https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Autocomplete.tsx" }
+    ],
+    "liveUrl": "https://typebot.io",
+    "partsUsed": ["Root", "Input", "List", "Item", "Popup"],
+    "contextSummary": "Typebot, an open-source chatbot/form builder. Exposes Autocomplete as a single namespace object (`Autocomplete.Root/Input/List/Item/Popup`) rather than named exports — a distinct, minimal API-surface style from the rest of the corpus, inside a product whose entire purpose is building forms.",
+    "diversityTags": ["form-builder-product", "namespace-export-style", "minimal-wrapper"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-007",
+    "component": "autocomplete",
+    "repo": "gitbutlerapp/gitbutler",
+    "repoUrl": "https://github.com/gitbutlerapp/gitbutler",
+    "stars": 21265,
+    "license": "custom (non-OSI, verify before reuse)",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "apps/lite/ui/src/components/PickerDialog.tsx", "permalink": "https://github.com/gitbutlerapp/gitbutler/blob/0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd/apps/lite/ui/src/components/PickerDialog.tsx" }
+    ],
+    "liveUrl": "https://gitbutler.com",
+    "partsUsed": ["Root", "Input", "Status", "Empty", "List", "Group", "GroupLabel", "Collection", "Item"],
+    "contextSummary": "GitButler's lite web UI implements a command-palette / quick-picker dialog by composing Base UI's Autocomplete inside a Dialog, with ScrollArea for the list; the file header literally cites 'Based on https://base-ui.com/react/components/autocomplete#command-palette', i.e. Base UI's own documented recipe adopted verbatim in a well-known Git client.",
+    "diversityTags": ["command-palette", "multi-component-composition", "dialog-integration", "well-known-dev-tool"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-008",
+    "component": "autocomplete",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-03-30",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "registry-reui/bases/base/reui/autocomplete.tsx", "permalink": "https://github.com/keenthemes/reui/blob/0946f9667f4bea44873cf9391b3b801c16660c01/registry-reui/bases/base/reui/autocomplete.tsx" }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": ["Root", "Value", "Input", "Status", "Portal", "Backdrop", "Positioner", "List", "Collection", "Row", "Item", "Group", "GroupLabel", "Empty", "Clear", "Trigger", "Arrow", "Separator"],
+    "contextSummary": "reui ships parallel 'base' (Base UI) and 'radix' registry variants of every component side by side; its Base UI Autocomplete is the fullest anatomy found (the only one alongside Select's Selia entry to use both Backdrop and Arrow), and every class list is compound-styled for five simultaneous visual skins (style-vega/maia/nova/lyra/mira) selected by an ancestor class.",
+    "diversityTags": ["multi-base-library-registry", "full-anatomy", "multi-skin-theming"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-009",
+    "component": "autocomplete",
+    "repo": "nauvalazhar/selia",
+    "repoUrl": "https://github.com/nauvalazhar/selia",
+    "stars": 380,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-04-12",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "components/selia/autocomplete.tsx", "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/selia/autocomplete.tsx" },
+      { "path": "components/examples/autocomplete/basic.tsx", "permalink": "https://github.com/nauvalazhar/selia/blob/55ba90ba64a090653217a2b3afd60537c7b12444/components/examples/autocomplete/basic.tsx" }
+    ],
+    "liveUrl": "https://selia.earth",
+    "partsUsed": ["Root", "Input", "Popup", "Item"],
+    "contextSummary": "Selia component library. A compact cva-driven Autocomplete wrapper (three input visual variants: default/subtle/plain) with a live docs site and example page.",
+    "diversityTags": ["oss-design-system", "cva-variants", "live-site"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-010",
+    "component": "autocomplete",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "packages/ui/src/components/ui/autocomplete.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/packages/ui/src/components/ui/autocomplete.tsx" },
+      { "path": "apps/www/components/examples/ui/autocomplete/autocomplete-form.tsx", "permalink": "https://github.com/patrick-xin/lumi-ui/blob/fcacb7da77aab99f863104764dd995fd8ba5fb45/apps/www/components/examples/ui/autocomplete/autocomplete-form.tsx" }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": ["Root", "InputGroupContent", "Content", "Empty", "List", "Item"],
+    "contextSummary": "lumi-ui's autocomplete-form.tsx demo composes Autocomplete inside Field inside Form in a single real submission flow (Form onFormSubmit -> toast, Field name+FieldError, Autocomplete required) — a rare file that exercises all three of this session's Tier-1 targets (autocomplete, field, form) together.",
+    "diversityTags": ["cross-component-composition", "form-integration", "installable-registry"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
+  },
+  {
+    "id": "autocomplete-011",
+    "component": "autocomplete",
+    "repo": "different-ai/openwork",
+    "repoUrl": "https://github.com/different-ai/openwork",
+    "stars": 16693,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-07",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      { "path": "apps/app/src/components/ui/autocomplete.tsx", "permalink": "https://github.com/different-ai/openwork/blob/c8417ad3d197c9e14dd04c2cabfe2e5bb3fb3c2b/apps/app/src/components/ui/autocomplete.tsx" }
+    ],
+    "liveUrl": null,
+    "partsUsed": ["Root", "InputGroup", "Input", "Trigger", "Clear", "Icon", "Portal", "Positioner", "Popup", "List", "Item", "Separator", "Group", "GroupLabel", "Empty", "Row", "Value", "Status", "Collection", "useFilter"],
+    "contextSummary": "Near-identical twin of pingdotgg/t3code's and cosscom/coss's autocomplete.tsx: the same shadcn-registry-derived Base UI wrapper (ScrollArea-wrapped list, trigger/clear addon slots inside an InputGroup) has propagated across at least three independent production repos, evidence of a de facto community-standard pattern. Not separately ranked; see also pingdotgg/t3code (apps/web/src/components/ui/autocomplete.tsx) and cosscom/coss (apps/ui/registry/default/ui/autocomplete.tsx) for byte-for-byte-similar copies.",
+    "diversityTags": ["community-standard-pattern", "duplicate-archetype"],
+    "instructiveMisuse": false,
+    "screenshot": { "status": "not-attempted" }
   }
 ]
