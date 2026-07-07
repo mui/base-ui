@@ -297,6 +297,17 @@ export const ValidationModeOnChange: Story = {
     const input = canvas.getByLabelText('Passphrase');
 
     await userEvent.type(input, 'abc');
+    // eslint-disable-next-line no-console
+    console.log('DEBUG', JSON.stringify({
+      value: (input as HTMLInputElement).value,
+      minLength: (input as HTMLInputElement).minLength,
+      type: (input as HTMLInputElement).type,
+      tooShort: (input as HTMLInputElement).validity.tooShort,
+      valid: (input as HTMLInputElement).validity.valid,
+      validationMessage: (input as HTMLInputElement).validationMessage,
+      dataValid: input.getAttribute('data-valid'),
+      dataInvalid: input.getAttribute('data-invalid'),
+    }));
     await expect(await canvas.findByText('Use at least 6 characters.')).toBeVisible();
 
     await userEvent.type(input, 'def');

@@ -45,7 +45,7 @@ const meta = {
     'Drawer.IndentBackground': Drawer.IndentBackground,
     'Drawer.VirtualKeyboardProvider': Drawer.VirtualKeyboardProvider,
   },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Drawer.Root>;
 
 export default meta;
@@ -431,9 +431,11 @@ export const SwipeAreaOpen: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
     const swipeArea = body.getByTestId('swipe-area');
-    // The strip renders while closed, reflecting state + gesture axis.
+    // The strip renders while closed, reflecting state + gesture axis. SwipeArea's
+    // own swipeDirection prop is unset, so it resolves to the OPPOSITE of Root's
+    // dismiss direction ('right') — i.e. 'left' opens a drawer that dismisses right.
     await expect(swipeArea).toHaveAttribute('data-closed');
-    await expect(swipeArea).toHaveAttribute('data-swipe-direction', 'right');
+    await expect(swipeArea).toHaveAttribute('data-swipe-direction', 'left');
 
     await userEvent.click(canvas.getByRole('button', { name: 'Open library' }));
     const drawer = await body.findByRole('dialog');

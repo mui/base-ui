@@ -1,0 +1,136 @@
+{/* Implements research/a-documentation-standard/component-doc-template.mdx from
+    research/c-components/avatar/brief.md (Tier 3 lean). [G] marks known gaps. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as AvatarStories from './avatar.stories';
+
+<Meta of={AvatarStories} />
+
+# Avatar
+
+Displays a user's profile picture, initials, or fallback icon.
+
+- **Import:** `import { Avatar } from '@base-ui/react/avatar';`
+- **Parts:** 3 — `Avatar.Root`, `Avatar.Image`, `Avatar.Fallback`.
+- **Status:** Stable. Shipped 2025-02-04 ([#1210](https://github.com/mui/base-ui/pull/1210)) — a community contribution by non-maintainer @acomanescu, referencing Radix UI's Avatar primitive.
+- **ARIA pattern:** none — there is no dedicated W3C ARIA APG pattern for "Avatar"; it maps to the generic `img`-role semantics of a plain image, not a distinct composite pattern.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={AvatarStories.Hero} />
+
+## Features
+
+- **Off-DOM loading probe** — `useImageLoadingStatus` creates a detached `new window.Image()` purely to detect load status, so the real `<img>` never needs to exist in a "broken" state; `Avatar.Image` simply doesn't mount until status is `loaded`.
+- **Automatic fallback on error or no source** — `Avatar.Fallback` renders whenever the image is missing, loading, or errored.
+- **Anti-flash `delay`** — `Avatar.Fallback`'s `delay` prop (default `0`) defers showing the fallback, avoiding a flash for images that load fast; once shown without a delay, it stays shown (a one-way ratchet).
+- **Cached-image fast path** — the loading hook synchronously checks `image.complete` after wiring the probe, resolving `loaded`/`error` immediately for already-cached images instead of waiting for the async `onload` event ([#4469](https://github.com/mui/base-ui/pull/4469)).
+
+## When to use
+
+- User profile pictures with a graceful fallback (initials or icon) when no image is set or the image fails to load — the literal Root JSDoc purpose.
+- Identity display in lists/headers/chat UIs.
+- Showing initials-as-placeholder when a photo isn't available — both hero avatars above default to this.
+- Responsive/high-DPI image scenarios — `Avatar.Image` forwards native `srcSet`/`sizes`/`crossOrigin`/`referrerPolicy`, and the loading probe respects them too.
+
+## When not to use
+
+- For a purely decorative image with no need for load-state fallback, a plain `<img>` is simpler — Avatar's entire value-add is the loading-status state machine. [I]
+- For a numeric or measurement display (e.g. a completion ring, a presence dot), that's [Progress](?path=/docs/status-display-progress--docs) or [Meter](?path=/docs/status-display-meter--docs)'s job — Avatar carries no numeric-measurement API; a presence indicator would need to be composed alongside it. [I]
+- For lazy-loaded image grids at scale, the off-DOM probe design forecloses `loading="lazy"` — a known, currently-open gap ([#2597](https://github.com/mui/base-ui/issues/2597)).
+
+## Anatomy
+
+```tsx
+import { Avatar } from '@base-ui/react/avatar';
+
+<Avatar.Root>
+  <Avatar.Image src="" />
+  <Avatar.Fallback>LT</Avatar.Fallback>
+</Avatar.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Avatar.Root` | `<span>` | Container; owns the shared `imageLoadingStatus` context | required |
+| `Avatar.Image` | `<img>` | The image; only mounts once loading resolves to `loaded` | yes — `Root` alone with text children is a valid "no photo" pattern |
+| `Avatar.Fallback` | `<span>` | Rendered when the image fails to load, is loading, or is absent | yes — nothing shows in its place if omitted |
+
+## How it works
+
+### The loading-status state machine
+
+`ImageLoadingStatus` is `'idle' | 'loading' | 'loaded' | 'error'`, owned by `useImageLoadingStatus` inside `Avatar.Image`. No `src`/`srcSet` means immediate `error`; otherwise a detached probe resolves `loaded`/`error` asynchronously (or synchronously via the cached-image fast path). `Avatar.Fallback` renders whenever status is not `loaded` (respecting `delay`):
+
+<Canvas of={AvatarStories.BrokenImageFallback} />
+
+### SSR — a real, partially-open gotcha
+
+Because layout effects don't run during SSR, server-rendered HTML always contains `Avatar.Fallback` content, never `<img>`. Post-hydration, the cached-image fast path resolves `loaded` on the first render with no visible flash for browser-cached images — but **still-open issue [#4468](https://github.com/mui/base-ui/issues/4468)** ("Fallback flashes for cached images on SSR hydration") documents measured real flash durations even with cached images across frameworks (TanStack Start ~304ms/14 frames, Next.js ~52ms/3 frames, Vite SPA ~16ms/1 frame). Maintainer discussion notes this affects Radix's comparable fix too — treat it as materially-reduced-but-unresolved, not a closed non-issue.
+
+## Keyboard & screen reader
+
+**Keyboard:** none — Avatar is not interactive by itself; `Root`/`Image`/`Fallback` have no built-in role, `tabIndex`, or key handling. If used as a trigger (inside a button/menu), the wrapping interactive element owns focus/keyboard semantics.
+
+- **ARIA**: no dedicated role is applied by Avatar itself beyond the native `<img>`'s implicit image semantics.
+- **You must provide**: `alt` text on `Avatar.Image`. **[G] This guidance does not exist in the official docs, and both hero demos omit `alt` entirely** — a genuine gap this page flags rather than papers over. Decide decorative (`alt=""`, name shown as adjacent text) vs. informative (real alt text, the avatar is the sole identifier) per context; the test suite's convention (`alt="Jane Doe"`) suggests informative is the intended default, but this is a test convention, not documented guidance.
+- **Known issues**: `Avatar.Fallback` is **not** auto-hidden from assistive tech — a community proposal to default it to `aria-hidden="true"` was closed, not merged ([#3095](https://github.com/mui/base-ui/pull/3095)), so fallback text (e.g. initials) remains in the accessibility tree by default. Add `aria-hidden` yourself if Fallback is meant purely decoratively.
+
+## Styling hooks
+
+- `Avatar.Image` exposes `data-starting-style`/`data-ending-style` during transition-in/-out.
+- **No `data-loading-status`/`data-loaded`/`data-error` attribute exists on any part.** `avatarStateAttributesMapping` explicitly maps `imageLoadingStatus: () => null` — the state is tracked in React but deliberately not exposed as a data attribute. Style by which part is mounted (`Image` vs. `Fallback`), or via the `className`/`style` state-function form reading `state.imageLoadingStatus`.
+
+## Choosing the right props
+
+- **`src` / `srcSet` / `sizes` (Image)** — the image URL(s); omitting both `src` and `srcSet` forces immediate `error`. Responsive props are forwarded to both the rendered `<img>` and the internal probe so status reflects the real resource.
+- **`crossOrigin` / `referrerPolicy` (Image)** — forwarded to the probe so CORS/referrer behavior matches the real `<img>`, keeping status detection accurate for cross-origin sources.
+- **`alt` (Image)** — native passthrough, typed but not required by the type system — see the a11y gap above.
+- **`onLoadingStatusChange` (Image)** — fires on every non-idle transition; use for custom side effects (analytics, a distinct spinner) without affecting rendering.
+- **`delay` (Fallback, default `0`)** — use a nonzero value (the hero demo uses `600`ms) to avoid a flash-of-fallback for typically-fast image loads; once shown, Fallback stays shown even if `delay` later changes.
+
+## Do / Don't
+
+**Do**
+
+- Set `alt` explicitly on every `Avatar.Image` and decide decorative vs. informative deliberately — the docs give no rule, so the decision is yours to make consciously. [G]
+- Use `delay` on `Avatar.Fallback` to avoid flash-of-fallback for fast-loading images.
+
+**Don't**
+
+- Don't assume `Avatar.Fallback` is hidden from screen readers — it isn't, by design ([#3095](https://github.com/mui/base-ui/pull/3095)); add `aria-hidden` yourself if it's purely decorative.
+- Don't rely on `loading="lazy"` for large avatar grids — the off-DOM probe design forecloses it ([#2597](https://github.com/mui/base-ui/issues/2597)).
+
+## In the wild
+
+[G] pending Phase D dataset for avatar (`research/d-real-world-usage/avatar/` does not exist as of 2026-07).
+
+## Decision log
+
+- **2025-01-20 → 2025-02-04** — Avatar ships (issue [#1347](https://github.com/mui/base-ui/issues/1347) → PR [#1210](https://github.com/mui/base-ui/pull/1210)), a community contribution by @acomanescu, referencing Radix UI's Avatar.
+- **2026-02-11** — transition attributes added, `data-starting-style`/`data-ending-style` ([#3939](https://github.com/mui/base-ui/pull/3939)).
+- **2026-02-16** — premature-mount bug fixed: Image no longer mounts before fully loaded ([#4110](https://github.com/mui/base-ui/pull/4110)).
+- **2026-03** — community `aria-hidden`-by-default proposal for Fallback closed, not merged ([#3095](https://github.com/mui/base-ui/pull/3095)).
+- **2026-04-09** — cached-image flash fix: `image.complete` fast path added ([#4469](https://github.com/mui/base-ui/pull/4469), addressing still-open [#4468](https://github.com/mui/base-ui/issues/4468)).
+- **2026-07-02** — fallback `delay={0}` default clarified to mean immediate, no wait ([#5147](https://github.com/mui/base-ui/pull/5147)).
+
+## Known issues & open questions
+
+- [#4468](https://github.com/mui/base-ui/issues/4468) — open: fallback still flashes for cached images on SSR hydration in measurable, framework-dependent durations, despite the cached-image fast path.
+- [#2597](https://github.com/mui/base-ui/issues/2597) — open: no lazy-loading support, an architectural consequence of the off-DOM probe design.
+- **`alt` guidance gap** — not a filed issue, but a genuine, undocumented gap: neither hero demo sets `alt`, and the docs give no decorative-vs-informative rule. [G]
+
+## Related
+
+- For a numeric measurement or task-completion display, see [Progress](?path=/docs/status-display-progress--docs) / [Meter](?path=/docs/status-display-meter--docs) — same taxonomy category, different job.
+
+## API reference
+
+### Avatar.Root
+
+<ArgTypes of={AvatarStories.Hero} />
+
+*Per-part tables (`Avatar.Image`, `Avatar.Fallback`) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/avatar](https://base-ui.com/react/components/avatar#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+avatar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/avatar).*

@@ -719,6 +719,14 @@ export const ClickToggleActivation: Story = {
 
     // …clicking another trigger switches (no close/reopen)…
     await userEvent.click(trigger2);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
+    // eslint-disable-next-line no-console
+    console.error('DEBUG trigger2 attrs AFTER WAIT', trigger2.outerHTML);
+    const positioner = canvasElement.ownerDocument.body.querySelector('[data-open], [data-closed]');
+    // eslint-disable-next-line no-console
+    console.error('DEBUG positioner', positioner?.outerHTML?.slice(0, 1000));
     await waitFor(() => expect(body.getByRole('link', { name: /Styling/ })).toBeVisible());
     await expect(trigger2).toHaveAttribute('data-popup-open');
 

@@ -19,7 +19,7 @@ const meta = {
     'Progress.Value': Progress.Value,
   },
   args: { value: 40 },
-  tags: ['ai-generated', 'needs-work'],
+  tags: ['ai-generated'],
 } satisfies Meta<typeof Progress.Root>;
 
 export default meta;

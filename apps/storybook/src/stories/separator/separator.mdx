@@ -1,0 +1,141 @@
+{/* Implements research/a-documentation-standard/component-doc-template.mdx from
+    research/c-components/separator/brief.md (Tier 3 lean). [G] marks known gaps. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as SeparatorStories from './separator.stories';
+
+<Meta of={SeparatorStories} />
+
+# Separator
+
+A separator element accessible to screen readers.
+
+- **Import:** `import { Separator } from '@base-ui/react/separator';`
+- **Parts:** single-part — no Root/parts namespace; used directly as `<Separator />`.
+- **Status:** Stable. Shipped 2024-09-27 ([#535](https://github.com/mui/base-ui/pull/535)), originally generalized out of Menu's own grouping needs.
+- **ARIA pattern:** none — there is no standalone "Separator" pattern in the W3C ARIA APG (the plausible URL 404s); guidance instead lives in the core [WAI-ARIA 1.2 role spec](https://www.w3.org/TR/wai-aria-1.2/#separator), which draws the widget-vs-document-structure distinction Base UI's Separator sits on the document-structure side of.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={SeparatorStories.Hero} />
+
+## Features
+
+- **Accessibility-first purpose** — the JSDoc's stated purpose is "a separator element accessible to screen readers," not "a divider line": `role="separator"` and `aria-orientation` are applied unconditionally.
+- **Orientation drives both ARIA and styling** — `orientation` sets `aria-orientation` directly and `data-orientation` automatically (via the generic state→data-attribute engine), so a single prop covers both concerns.
+- **Reused across the library, not reimplemented** — six compound components re-export the exact same `Separator` unchanged; one (`Toolbar`) wraps it with one added behavior (see below).
+- **Minimal, stable surface** — only four props exist (`orientation`, `render`, `className`, `style`); fully stateless, no effects, no refs beyond the forwarded one.
+
+## When to use
+
+- Dividing groups of items in menus/select/combobox/autocomplete/context-menu listboxes — the dominant use case; 6 of 7 known consuming components are list/menu-shaped selection surfaces that re-export `Separator` directly between `Group`s.
+- Dividing toolbar sections via `Toolbar.Separator`, between logical button/control clusters.
+- Chunking a single field's inputs visually — `OTPField.Separator`, e.g. presenting a code as `123-456`.
+- General standalone content/nav dividers — the hero demo above shows a vertical separator between two clusters of navigation links.
+
+## When not to use
+
+- For a purely decorative visual line with no semantic grouping meaning, Base UI's `Separator` renders `role="separator"` **unconditionally** — there is no built-in "presentational" escape hatch. For a zero-behavior ornamental line, a plain styled `<div>`/border avoids pulling in a component for no behavioral gain. [I]
+- Native `<hr>` is a reasonable alternative for simple horizontal-only, non-orientable dividers outside a Base UI compound component — it already carries correct implicit ARIA separator semantics. Base UI's `Separator` earns its keep specifically for vertical orientation, the `render` polymorphic escape hatch, and compound-component re-export convenience. [I]
+
+## Anatomy
+
+```tsx
+import { Separator } from '@base-ui/react/separator';
+
+<Separator />;
+```
+
+Renders a single `<div>` with no sub-parts and no required children — the consumer sizes/styles it (width/height via CSS) to read visually as a line.
+
+## How it works
+
+### Orientation — the only prop that matters
+
+`orientation` (`'horizontal' | 'vertical'`, default `'horizontal'`) drives `aria-orientation` (hand-written) and `data-orientation` (auto-derived) simultaneously:
+
+<Canvas of={SeparatorStories.Horizontal} />
+
+<Canvas of={SeparatorStories.Vertical} />
+
+### Re-export map — verified directly against source
+
+Six components re-export the standalone `Separator` unchanged (identical props/state shape):
+
+| Component | Source |
+|---|---|
+| Menu | `packages/react/src/menu/index.parts.ts` — `export { Separator } from '../separator/Separator';` |
+| Select | `packages/react/src/select/index.parts.ts` — same pattern |
+| Combobox | `packages/react/src/combobox/index.parts.ts` — same pattern |
+| Autocomplete | `packages/react/src/autocomplete/index.parts.ts` — same pattern |
+| ContextMenu | `packages/react/src/context-menu/index.parts.ts` — same pattern |
+| OTPField | `packages/react/src/otp-field/index.parts.ts` — same pattern |
+
+**One component wraps rather than re-exports plainly: Toolbar.** `packages/react/src/toolbar/index.parts.ts` — `export { ToolbarSeparator as Separator } from './separator/ToolbarSeparator';`. `ToolbarSeparator` renders the standalone `Separator` internally but **auto-inverts orientation** relative to the toolbar's own orientation (`{ vertical: 'horizontal', horizontal: 'vertical' }[context.orientation]`) — a horizontal toolbar gets vertical dividers by default, and vice versa. This is genuine composition (AGENTS.md's "share logic through context" principle), not a divergent reimplementation, and is confirmed intentional: a reporter assumed the inversion was a bug affecting screen reader behavior, but maintainers closed [#4647](https://github.com/mui/base-ui/issues/4647) ("ToolbarSeparator data-orientation appears to be inverted") labeled `type: expected behavior` — a horizontal toolbar's vertical dividing lines are visually and semantically correct.
+
+## Keyboard & screen reader
+
+**Keyboard:** none — Separator is not focusable by design; no `tabIndex` anywhere in source, consistent with the **structural** (non-interactive) separator role rather than the interactive/widget "range" variant the WAI-ARIA spec also permits.
+
+- **ARIA**: `role="separator"` unconditional; `aria-orientation` always set, even for the default horizontal case.
+- **You must provide**: nothing extra — the role and orientation are fully managed; ensure sufficient visual contrast for the divider itself.
+- **Known issues**: [#4647](https://github.com/mui/base-ui/issues/4647) — closed as expected behavior; Toolbar's orientation-flip is intentional, not a bug.
+
+## Styling hooks
+
+| Attribute | Present when |
+|---|---|
+| `data-orientation` | always — reflects the `orientation` prop (`'horizontal'` or `'vertical'`), auto-derived from state rather than hand-set |
+
+This attribute existed in code well before it was documented — [#4480](https://github.com/mui/base-ui/pull/4480) ("Add data attributes documentation") closed a real docs-lag gap in 2026-03, a reminder that the generated API tables can lag behind working source.
+
+No `*CssVars.ts` file exists for Separator — a static divider has no dynamic numeric value to expose, so this absence is expected (unlike Progress/Meter, where the same absence is a genuine B-P14 finding).
+
+## Choosing the right props
+
+- **`orientation`** — use `'vertical'` when dividing horizontally-arranged content (inline nav links, horizontal toolbar groups); default `'horizontal'` for stacked content. Added after initial release ([#1303](https://github.com/mui/base-ui/issues/1303) / [#1304](https://github.com/mui/base-ui/pull/1304)) with an explicit competitive-parity rationale citing Radix UI, React Spectrum, Ariakit, Tamagui, and MUI's Divider.
+- **`render`** — standard polymorphic-element escape hatch; swap the rendered `<div>` for another tag/component (e.g. `<hr />`).
+- **`className` / `style`** — standard state-aware hooks; `state` here is just `{ orientation }`.
+
+## Do / Don't
+
+**Do**
+
+- Style by `[data-orientation]` rather than duplicating the `orientation` prop value in your own class logic — the attribute is already synced.
+- Remember Toolbar auto-inverts orientation — a horizontal toolbar's separators render vertical by design ([#4647](https://github.com/mui/base-ui/issues/4647)).
+
+**Don't**
+
+- Don't expect a built-in decorative/presentational mode — `role="separator"` is unconditional; override `role` yourself if you truly need a non-semantic line.
+
+## In the wild
+
+[G] pending Phase D dataset for separator (`research/d-real-world-usage/separator/` does not exist as of 2026-07).
+
+## Decision log
+
+- **2024-09-27** — Separator ships ([#535](https://github.com/mui/base-ui/pull/535)), born inside "[Menu] Group and Separator components," initially modeled as `SeparatorRoot`.
+- **~2024-12** — flattened to the current plain `Separator` API ([#997](https://github.com/mui/base-ui/pull/997)), part of a library-wide "export single part components without Root" sweep.
+- **2025-01-08** — vertical orientation added ([#1303](https://github.com/mui/base-ui/issues/1303) → [#1304](https://github.com/mui/base-ui/pull/1304)), with explicit competitive-parity rationale.
+- **2026-03-30** — data-attribute docs gap closed ([#4480](https://github.com/mui/base-ui/pull/4480)).
+- **2026-04-22** — orientation-inversion confusion resolved as expected behavior ([#4647](https://github.com/mui/base-ui/issues/4647)).
+
+## Known issues & open questions
+
+- [#4647](https://github.com/mui/base-ui/issues/4647) — closed, expected behavior: Toolbar's orientation auto-invert is intentional, not a bug; document it clearly for consumers who notice the flip.
+- No open bugs found beyond this; the component's minimal, fully-stateless surface leaves little room for edge cases.
+
+## Related
+
+- Used inside [Menu](?path=/docs/overlays-popups-menu--docs), Select, Combobox, Autocomplete, and ContextMenu as a plain re-export, and wrapped (with orientation auto-invert) as `Toolbar.Separator` and `OTPField.Separator`.
+
+## API reference
+
+### Separator
+
+<ArgTypes of={SeparatorStories.Hero} />
+
+Full JSDoc-driven reference: [base-ui.com/react/components/separator](https://base-ui.com/react/components/separator#api-reference).
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+separator) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/separator).*
