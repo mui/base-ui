@@ -1,0 +1,136 @@
+{/* Floor page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 3 (lean brief: source + tests + docs + experiments). */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as CollapsibleStories from './collapsible.stories';
+
+<Meta of={CollapsibleStories} />
+
+# Collapsible
+
+A collapsible panel controlled by a button.
+
+- **Import:** `import { Collapsible } from '@base-ui/react/collapsible';`
+- **Parts:** 3 — `Collapsible.Root`, `Collapsible.Trigger`, `Collapsible.Panel`.
+- **Status:** Stable. Introduced 2024-08-28 ([#481](https://github.com/mui/base-ui/pull/481)); one of the most actively-revised Tier-3 components in the library, with churn concentrated entirely in the Panel's animation-measurement engine, not the API surface.
+- **ARIA pattern:** [Disclosure (Show/Hide)](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) — Collapsible's shape (one button toggling the visibility of associated content) matches this APG pattern, though the component's own docs make no direct citation of it today.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={CollapsibleStories.Hero} />
+
+## Features
+
+- **The primitive Accordion is built on** — `Accordion.Item` calls `useCollapsibleRoot` directly, and `Accordion.Panel` calls `useCollapsiblePanel` directly, the exact same hooks this component's own parts use. Collapsible is "**a** collapsible panel controlled by a button" (singular); Accordion is "**a set of** collapsible panels with headings" (plural, coordinated) — the same open/close/measurement engine, reused rather than duplicated.
+- **Animated open/close for free** — `--collapsible-panel-height`/`--collapsible-panel-width` CSS vars, auto-detecting whether the panel uses a CSS transition or a CSS keyframe animation.
+- **Browser find-in-page support** — `hiddenUntilFound` uses `hidden="until-found"` (mirroring `<details>`'s own semantics) so collapsed content stays searchable via Ctrl/Cmd+F.
+- **`keepMounted`** — keep the panel's DOM node alive while closed, for JS animation libraries, scroll/focus/form-state preservation, or SEO.
+
+## When to use
+
+- A single, independently-toggleable panel — settings sections, "show more" content, expandable detail panels — controlled by exactly one trigger button. Unlike `Accordion.Item`, Collapsible has no `value`/identity prop of any kind, since there's nothing to coordinate with.
+- When the panel's content needs to participate in the browser's built-in find-in-page search even while collapsed.
+- When you need the panel to stay in the DOM while closed (animation libraries, preserving scroll position/focus/form state, or SEO/crawlability).
+
+## When not to use
+
+- For a coordinated set of same-purpose panels (where opening one may need to close another, or where "how many are open" is itself meaningful), use [Accordion](?path=/docs/disclosure-structure-accordion--docs) instead of wiring up multiple independent Collapsibles — Accordion adds exactly the single/multiple-open coordination Collapsible deliberately omits, while reusing Collapsible's own engine underneath.
+- For a tabbed, single-visible-panel-at-a-time UI where all panel labels stay visible together, use [Tabs](?path=/docs/navigation-tabs--docs).
+- See the full three-way comparison in `research/c-components/_clusters/disclosure.md`.
+
+## Anatomy
+
+```tsx
+import { Collapsible } from '@base-ui/react/collapsible';
+
+<Collapsible.Root>
+  <Collapsible.Trigger />
+  <Collapsible.Panel />
+</Collapsible.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Collapsible.Root` | `<div>` | Groups all parts; owns open/closed state | required |
+| `Collapsible.Trigger` | `<button>` | Opens and closes the panel | required |
+| `Collapsible.Panel` | `<div>` | The collapsible contents; owns height/width measurement | required |
+
+No Portal/Positioner layering — Collapsible renders inline in normal document flow, unlike popup components.
+
+## How it works
+
+### Open/close
+
+`open`/`onOpenChange`/`defaultOpen` (default `false`) is the standard controlled/uncontrolled triplet. `Trigger` sets `aria-expanded={open}` (always present) and `aria-controls` (present only while open).
+
+<Canvas of={CollapsibleStories.Hero} />
+
+### Keeping the panel mounted
+
+By default the panel unmounts from the DOM once closed and its exit transition completes. `keepMounted` keeps it present (hidden, not removed) instead.
+
+<Canvas of={CollapsibleStories.KeepMounted} />
+
+### Browser find-in-page support
+
+`hiddenUntilFound` sets `hidden="until-found"` rather than a plain boolean `hidden` or unmounting, so Ctrl/Cmd+F can find and reveal the panel's content. This structurally requires the DOM node to stay mounted — it silently overrides an explicit `keepMounted={false}`, with a dev-mode warning. The browser fires a `beforematch` event on the element right before revealing it; Collapsible listens for this and opens the panel in response, skipping its authored transition duration for that one reveal so find-in-page doesn't wait.
+
+<Canvas of={CollapsibleStories.HiddenUntilFound} />
+
+## Keyboard & screen reader
+
+| Key | Action |
+|---|---|
+| `Enter` / `Space` | Toggles the panel (native `<button>` activation) |
+| `Tab` | Ordinary single-tab-stop button focus — no composite/roving-tabindex behavior, since there is only one interactive element |
+
+- **ARIA**: `aria-expanded` (always present) and `aria-controls` (present only while open) on `Trigger`; `Panel` gets the native `hidden` attribute (boolean, or the string `"until-found"`).
+- **You must provide**: an accessible trigger label (text content is enough — no `aria-label`/`Field.Label` wiring is required or provided).
+- **Known issues**: [#4915](https://github.com/mui/base-ui/issues/4915) (open) — `data-starting-style` exists for exactly one frame, not the animation's whole duration; maintainers acknowledged the general docs wording on this point is imprecise. [#1608](https://github.com/mui/base-ui/issues/1608) (open, has workaround) — Tailwind v4's `[hidden]{display:none!important}` reset can defeat JS animation libraries' inline styles; workaround is `hidden={undefined}` on the Panel.
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| `Root`, `Panel` | `data-open` / `data-closed` | reflects open state |
+| `Trigger` | `data-panel-open` (not `data-open`) | the associated panel is open — deliberately named differently, since it describes the panel's state, not the trigger's own |
+| `Root`, `Panel` | `data-starting-style` / `data-ending-style` | one-frame/transition-duration animation boundary markers |
+| `Panel` | `--collapsible-panel-height`, `--collapsible-panel-width` | always, drives the height/width transition |
+
+## Choosing the right props
+
+- **`hiddenUntilFound`** — use for FAQ-style or documentation content that should be discoverable via native find-in-page even while collapsed; it is the single most distinctive capability Collapsible offers over a hand-rolled show/hide `div`.
+- **`keepMounted`** — use when driving the panel with a JS animation library (`AnimatePresence`-style patterns), or to preserve scroll/focus/uncontrolled form state inside the panel across closes.
+- **`nativeButton`** — set `false` only when `render`-swapping `Trigger` to a non-`<button>` element, so ARIA/keyboard adapt correctly.
+
+## Do / Don't
+
+**Do**
+
+- Reuse Collapsible's animation recipe verbatim in custom panels: `height: var(--collapsible-panel-height); overflow: hidden; transition: height 150ms ease-out;` with `[data-starting-style], [data-ending-style] { height: 0; }`.
+
+**Don't**
+
+- Don't expect a JS animation library's exit sequencing to work from `keepMounted` alone — Motion/framer-motion-style libraries need the *element*, not just non-unmounting, to drive their own exit timing.
+
+## Decision log
+
+- **2024-08-28** — Collapsible introduced ([#481](https://github.com/mui/base-ui/pull/481)).
+- **2025** — `[Accordion][Collapsible] Modernize implementation` ([#889](https://github.com/mui/base-ui/pull/889)) and `[Accordion][Collapsible] Rework animations and transitions` ([#1601](https://github.com/mui/base-ui/pull/1601)) — the shared-primitive architecture with Accordion (see Features above) was present from early on, not a later refactor.
+- **2026** — `[collapsible] Refactor panel logic` ([#4565](https://github.com/mui/base-ui/pull/4565)) and `[collapsible] Fix trigger and panel state bugs` ([#4848](https://github.com/mui/base-ui/pull/4848)) — the most recent structural reworks of the measurement engine.
+
+## Related
+
+- For a coordinated set of collapsible panels, use [Accordion](?path=/docs/disclosure-structure-accordion--docs) — it is built directly from this component's own hooks.
+- For switching between mutually exclusive peer views, use [Tabs](?path=/docs/navigation-tabs--docs).
+
+## API reference
+
+### Collapsible.Root
+
+<ArgTypes of={CollapsibleStories.Hero} />
+
+*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/collapsible](https://base-ui.com/react/components/collapsible#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+collapsible) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/collapsible).*

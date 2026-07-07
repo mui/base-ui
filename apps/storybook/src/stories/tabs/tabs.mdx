@@ -1,0 +1,148 @@
+{/* Floor page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (full brief). Sections beyond the floor scope carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as TabsStories from './tabs.stories';
+
+<Meta of={TabsStories} />
+
+# Tabs
+
+A component for toggling between related panels on the same page.
+
+- **Import:** `import { Tabs } from '@base-ui/react/tabs';`
+- **Parts:** 5 — `Tabs.Root`, `Tabs.List`, `Tabs.Tab`, `Tabs.Indicator`, `Tabs.Panel`.
+- **Status:** Stable. One of the library's oldest lineages: a Material-UI-era `TabsUnstyled` → [#245](https://github.com/mui/base-ui/pull/245) "Overhaul Tabs API" (2024-04-29) → [#751](https://github.com/mui/base-ui/pull/751) "Modernize implementation" (2024-11-25).
+- **ARIA pattern:** [Tabs](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={TabsStories.Hero} />
+
+## Features
+
+- **Roving-tabindex composite widget** — shares the same `Composite` internals as Menu/Toolbar/RadioGroup, giving one Tab stop for the whole tablist and arrow-key navigation among tabs.
+- **Click activates; focus alone does not (by default)** — the WCAG 2.5.2-conformant default, opt out via `activateOnFocus`.
+- **Animated active-indicator for free** — `Tabs.Indicator` tracks the selected tab's position/size via CSS custom properties, including through SSR with `renderBeforeHydration`.
+- **Renders as links** — `render` + `nativeButton={false}` on `Tab` supports routed views via a framework `<Link>`.
+- **No form participation** — no `name`/hidden input, unlike Select/RadioGroup; the selection is ephemeral/session-scoped, not a persisted form value.
+
+## When to use
+
+- Toggling between related panels that live on the same page/screen without navigating away.
+- Cases needing an animated active-indicator (underline/pill) that tracks the selected tab's position, including through SSR.
+- Vertical or vertical+RTL tab layouts with correct arrow-key semantics.
+
+## When not to use
+
+- For a single, independent show/hide region, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs) — Tabs' Root-level activation-direction/roving-tabindex machinery buys nothing for a lone panel.
+- For a coordinated set of independently-openable regions (zero, one, or many open), use [Accordion](?path=/docs/disclosure-structure-accordion--docs) — Tabs enforces exactly one active peer at all times, with no "all open"/"all closed" steady state.
+- See the full three-way comparison in `research/c-components/_clusters/disclosure.md` — Tabs is formally categorized under Navigation because its APG pattern and usage archetype are navigational ("switch views"), even though its show/hide mechanics are disclosure-adjacent.
+
+## Anatomy
+
+```tsx
+import { Tabs } from '@base-ui/react/tabs';
+
+<Tabs.Root>
+  <Tabs.List>
+    <Tabs.Tab />
+    <Tabs.Indicator />
+  </Tabs.List>
+  <Tabs.Panel />
+</Tabs.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Tabs.Root` | `<div>` | Groups the tabs and the corresponding panels | required |
+| `Tabs.List` | `<div>` | Groups the individual tab buttons; `role="tablist"` | required |
+| `Tabs.Tab` | `<button>` | An individual tab that toggles the corresponding panel | required, repeated |
+| `Tabs.Indicator` | `<span>` | A visual indicator that tracks the active tab's position | optional |
+| `Tabs.Panel` | `<div>` | Displayed when the corresponding tab is active | required, repeated |
+
+Panels are **not** children of `List` — they are siblings of `List` under `Root`, matched to tabs purely by `value`, not DOM position. No Portal/Positioner/Popup — Tabs renders in normal document flow.
+
+## How it works
+
+### Click activates; focus does not (by default)
+
+Clicking a tab always activates it, independent of `activateOnFocus`. With the default `activateOnFocus={false}` on `Tabs.List`, arrow-keying through the tablist (or a programmatic `.focus()`) moves the roving-tabindex highlight without changing which panel is visible — only an explicit click (or Enter/Space once focused) commits the change. This is the deliberate outcome of [#3176](https://github.com/mui/base-ui/pull/3176) "Change `activateOnFocus` to false", decided on WCAG 2.5.2 pointer-cancellation grounds over a "feels more responsive" alternative.
+
+<Canvas of={TabsStories.KeyboardFocusDoesNotActivate} />
+
+### Opting into focus-follows-selection
+
+Setting `activateOnFocus` on `Tabs.List` restores immediate focus-driven activation: arrow-keying to a tab activates it right away, and a main-button mouse press that focuses an unactive tab activates it too (gated to the main button specifically, so a right-click-to-focus does not activate).
+
+<Canvas of={TabsStories.ActivateOnFocus} />
+
+### Orientation
+
+`orientation` (default `'horizontal'`) flips the arrow-key axis to ArrowUp/ArrowDown and emits `aria-orientation="vertical"` on `List` — useful for sidebar-style stacked tabs.
+
+<Canvas of={TabsStories.VerticalOrientation} />
+
+## Keyboard & screen reader
+
+| Key | Context | `activateOnFocus=false` (default) | `activateOnFocus=true` |
+|---|---|---|---|
+| Click | any tab | Activates the clicked tab | Same |
+| Enter / Space | focused tab | Activates via native button semantics | Same |
+| ArrowRight/Left (horizontal) or ArrowDown/Up (vertical) | focus inside List | Moves roving focus only | Moves focus **and** activates |
+| Home / End | focus inside List | Moves focus to first/last tab, no activation | Moves focus and activates |
+| Tab / Shift+Tab | — | Leaves the tablist as a single stop (roving tabindex) | Same |
+
+- **ARIA**: `List` gets `role="tablist"`; `Tab` gets `role="tab"`, `aria-selected`, `aria-controls`; `Panel` gets `role="tabpanel"`, `aria-labelledby`, `inert` when not active.
+- **You must provide**: nothing extra for the core contract — the id-linking chain is automatic.
+- **Known issues**: no open a11y-specific bug reports distinct from the resolved #3176 activation-timing story. [G] a narrower search than a Tier-1 pass would run (`research/c-components/tabs/brief.md` §7).
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| `Tab` | `data-active`, `data-disabled` | reflects tab state |
+| `Panel` | `data-hidden`, `data-starting-style`, `data-ending-style`, `data-index` | transition-status contract |
+| every part | `data-orientation`, `data-activation-direction` | layout/animation hooks |
+| `Indicator` | `--active-tab-left`, `--active-tab-right`, `--active-tab-top`, `--active-tab-bottom`, `--active-tab-width`, `--active-tab-height` | present only while a tab is selected |
+
+An underline indicator typically uses `left`/`width` (horizontal) or `top`/`height` (vertical) with a CSS `transition`; a full-bleed "pill" background can use all four inset variables with `position: absolute; inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom) var(--active-tab-left)`.
+
+## Choosing the right props
+
+- **`activateOnFocus`** (List, default `false`) — leave at the default for WCAG 2.5.2-conformant behavior; set `true` for classic "focus follows selection" when switching panels is cheap/instant.
+- **`orientation`** (Root, default `'horizontal'`) — set `'vertical'` for sidebar-style stacked tabs.
+- **`keepMounted`** (Panel, default `false`) — keep an inactive panel's DOM subtree alive instead of unmounting after its exit transition.
+- **`renderBeforeHydration`** (Indicator, default `false`) — eliminates the "indicator invisible for one paint after SSR" gap via an inline prehydration script.
+
+## Do / Don't
+
+**Do**
+
+- Set `defaultValue`/`value` to an already-enabled tab's value when the first tab may be disabled — the auto-fallback-to-first-enabled-tab logic only runs client-side, not during SSR pre-rendering.
+
+**Don't**
+
+- Don't expect Framer Motion/Radix-style exit animations "out of the box" — the animation docs' JS-library recipes target popup components; use CSS transitions on `data-starting-style`/`data-ending-style` instead ([#1494](https://github.com/mui/base-ui/issues/1494), closed not-planned).
+
+## Decision log
+
+- **2024-04-29 — Tabs API overhaul** ([#245](https://github.com/mui/base-ui/pull/245)): replaced the Material-UI-era slots API with the render prop; renamed `selectionFollowsFocus` to `activateOnFocus` and moved it from Root to List; added `loop` and `keepMounted`. This PR is also where the activation-direction CSS attribute contract (`data-activation-direction`, normalized `up|down|right|left`) was argued into its current shape during review.
+- **2024-11-25 — Modernize implementation** ([#751](https://github.com/mui/base-ui/pull/751)): rewired Tabs onto the shared `Composite` internals also used by Menu/Toolbar/RadioGroup.
+- **[#3176](https://github.com/mui/base-ui/pull/3176) — "Change `activateOnFocus` to false"**: the central accessibility-policy decision for this component. Default activation timing flips from "focus/mousedown activates" to "click activates, focus alone does not," per the WCAG 2.5.2 pointer-cancellation argument beating a "feels more responsive" alternative. Opting into `activateOnFocus={true}` restores immediate focus-driven activation, with a main-button gate for mouse-originated focus.
+
+## Related
+
+- For a single, independent show/hide region, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs).
+- For a coordinated set of independently-openable regions, use [Accordion](?path=/docs/disclosure-structure-accordion--docs).
+
+## API reference
+
+### Tabs.Root
+
+<ArgTypes of={TabsStories.Hero} />
+
+*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/tabs](https://base-ui.com/react/components/tabs#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+tabs) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/tabs).*

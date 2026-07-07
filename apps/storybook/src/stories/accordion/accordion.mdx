@@ -1,0 +1,144 @@
+{/* Floor page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 2 (full brief). Sections beyond the floor scope carry [G]. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as AccordionStories from './accordion.stories';
+
+<Meta of={AccordionStories} />
+
+# Accordion
+
+A set of collapsible panels with headings.
+
+- **Import:** `import { Accordion } from '@base-ui/react/accordion';`
+- **Parts:** 5 — `Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`.
+- **Status:** Stable. Introduced 2024-10-30 ([#577](https://github.com/mui/base-ui/pull/577)); built directly on Collapsible's primitives rather than a parallel reimplementation — see [Collapsible](?path=/docs/disclosure-structure-collapsible--docs).
+- **ARIA pattern:** [Accordion](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/) — the **current** revision, which no longer recommends roving-tabindex arrow-key navigation between headers.
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={AccordionStories.Hero} />
+
+## Features
+
+- **A coordination layer over Collapsible, not a separate widget** — each `Accordion.Item` is, internally, one `Collapsible` whose open/close is redirected into the shared `Accordion.Root` value array.
+- **Single or multiple open at once** — `multiple` (default `false`) controls whether opening one item closes the others or lets any subset stay open.
+- **Animated panel height for free** — `--accordion-panel-height`/`--accordion-panel-width` CSS vars, driven by the same measurement engine Collapsible uses.
+- **Disabled items stay discoverable** — a disabled trigger remains focusable via Tab; it just never toggles.
+- **Browser find-in-page support** — `hiddenUntilFound` uses `hidden="until-found"` so collapsed panels stay searchable via Ctrl/Cmd+F.
+
+## When to use
+
+- FAQ-style content, settings panels, or any "set of collapsible panels with headings" where readers scan headings and expand only what they need.
+- When exactly one section should typically be open at a time, keeping the page compact — the default (`multiple: false`).
+- When multiple sections may reasonably be open simultaneously (e.g. comparing two FAQ answers side by side) — via `multiple`.
+
+## When not to use
+
+- For a single show/hide region with no siblings to coordinate, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs) directly — Accordion's Root/value/`multiple` machinery buys nothing for a lone panel.
+- For switching between mutually exclusive, persistent peer views (not stacked disclosure), use [Tabs](?path=/docs/navigation-tabs--docs) — an accordion's panels are all part of one continuous document (any subset can be open); tabs present exactly one panel at a time in a fixed viewport region.
+- See the full three-way comparison in `research/c-components/_clusters/disclosure.md` (Accordion vs Collapsible vs Tabs).
+
+## Anatomy
+
+```tsx
+import { Accordion } from '@base-ui/react/accordion';
+
+<Accordion.Root>
+  <Accordion.Item>
+    <Accordion.Header>
+      <Accordion.Trigger />
+    </Accordion.Header>
+    <Accordion.Panel />
+  </Accordion.Item>
+</Accordion.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Accordion.Root` | `<div>` | Groups all parts of the accordion | required |
+| `Accordion.Item` | `<div>` | Groups a header with its corresponding panel | required, repeated |
+| `Accordion.Header` | `<h3>` | A heading that labels the corresponding panel | required |
+| `Accordion.Trigger` | `<button>` | Opens and closes the corresponding panel | required |
+| `Accordion.Panel` | `<div>` | The collapsible panel contents | required |
+
+## How it works
+
+### Single vs `multiple`
+
+Uncontrolled via `defaultValue` (an array, default `[]`); controlled via `value`/`onValueChange`. With `multiple={false}` (the default), opening item X always replaces the whole value array with `[X]`; with `multiple={true}`, opening pushes X onto the array and closing filters it out — any subset, including all or none, can be open.
+
+<Canvas of={AccordionStories.OpenMultiple} />
+
+### Disabled items
+
+Root-level `disabled` cascades to every item; Item-level `disabled` disables just one panel. Disabled triggers stay focusable (`focusableWhenDisabled`) but never toggle.
+
+<Canvas of={AccordionStories.DisabledItem} />
+
+## Keyboard & screen reader
+
+| Key | Action |
+|---|---|
+| `Tab` / `Shift+Tab` | Moves focus to the next/previous focusable element in native DOM tab order — including between headers, since each Trigger is an ordinary tab stop, not a roving-tabindex composite member |
+| `Enter` | Toggles the focused item's open state |
+| `Space` | Toggles the focused item's open state (fires on keyup, matching native button semantics) |
+| `ArrowUp` / `ArrowDown` / `Home` / `End` | **No accordion-specific behavior** — deliberate, current-APG-aligned design, not an omission |
+
+- **ARIA**: `Trigger` gets `aria-expanded` (always present) and `aria-controls` (present only while open); `Panel` gets `role="region"` and `aria-labelledby={triggerId}`. `Root` and `Item` carry no ARIA role or state.
+- **You must provide**: nothing extra — the Header→Trigger→Panel labeling chain is fully automatic as long as the canonical nesting is followed.
+- **Known issues**: none open beyond the resolved APG-alignment PRs below. [G] a deeper issue sweep is pending a Tier-1-depth pass (`research/c-components/accordion/brief.md` §7).
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| `Item` / `Header` | `data-open`, `data-disabled`, `data-index` | reflects item state |
+| `Trigger` | `data-panel-open` (not `data-open`), `data-disabled` | trigger's associated panel is open / trigger disabled |
+| `Panel` | `data-open`, `data-disabled`, `data-starting-style`, `data-ending-style`, `data-orientation` | animation boundaries and state |
+| `Panel` | `--accordion-panel-height`, `--accordion-panel-width` | always, drives the height/width transition |
+
+## Choosing the right props
+
+- **`multiple`** — set `true` to allow more than one panel open at once; defaults to `false` since a deliberate breaking change ([#3141](https://github.com/mui/base-ui/pull/3141)).
+- **`hiddenUntilFound`** — use when collapsed content should still be discoverable via the browser's native find-in-page search; it structurally forces the panel to stay mounted, overriding an explicit `keepMounted={false}` with a dev warning.
+- **`orientation` / `loopFocus`** — both `@deprecated`; no longer affect keyboard focus behavior following the APG update. `orientation` still drives the `data-orientation` styling hook (e.g. chevron rotation) but carries no behavioral guarantee.
+
+## Do / Don't
+
+**Do**
+
+- Use `value`/`multiple` to decide steady-state behavior up front — switching `multiple` later is a breaking change for controlled consumers relying on a single-value array shape.
+
+**Don't**
+
+- Don't expect ArrowUp/ArrowDown to move focus between headers — that behavior was deliberately removed ([#4965](https://github.com/mui/base-ui/pull/4965)); use Tab/Shift+Tab instead.
+
+## Decision log — the APG-alignment removal
+
+Two related PRs, merged the same day (2026-06-08), that removed behavior which had shipped since Accordion's 2024-10-30 launch ([#577](https://github.com/mui/base-ui/pull/577)):
+
+- **[#4965](https://github.com/mui/base-ui/pull/4965) — "Align Accordion keyboard navigation with APG"**: "The Accordion APG pattern no longer recommends roving focus, as documented in [w3c/aria-practices#3434](https://github.com/w3c/aria-practices/pull/3434). This PR proposes removing roving focus from Accordion to align with the latest APG guidance." Base UI's Accordion never used a `Composite`/roving-tabindex implementation to begin with in later revisions of this brief's research window — this PR formalizes the absence as *deliberate*, not a missing feature, and marks `orientation`/`loopFocus` as `@deprecated` for keyboard purposes.
+- **[#4961](https://github.com/mui/base-ui/pull/4961) — "Remove region role from `Accordion.Root`"**: "Based on the WAI-ARIA accordion pattern, region is typically applied to accordion panels rather than the root container. Since `Accordion.Root` serves as a structural wrapper and does not have an accessible label of its own, removing the region role seems more aligned with the APG guidance." `role="region"` already lived correctly on `Accordion.Panel`, so no functional gap resulted — only removal of a redundant/misplaced role on Root.
+
+This is a genuinely deliberate removal, not a regression: current W3C APG guidance dropped roving-focus arrow-key navigation from the Accordion pattern entirely, and Base UI tracks that guidance rather than an older, more elaborate version some other libraries still implement. See the full three-way disclosure comparison for how this affects the Accordion-vs-Tabs boundary: `research/c-components/_clusters/disclosure.md`.
+
+- **2024-10-30** — Accordion ships ([#577](https://github.com/mui/base-ui/pull/577)), built from day one atop shared Collapsible hooks.
+- **2025-beta.5** — `multiple` defaults to `false` ([#3141](https://github.com/mui/base-ui/pull/3141)), a deliberate breaking change.
+- **2026-06-08** — APG alignment pair: [#4965](https://github.com/mui/base-ui/pull/4965) (roving-focus removal), [#4961](https://github.com/mui/base-ui/pull/4961) (`role="region"` removal from Root).
+
+## Related
+
+- For a single, independent show/hide region, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs).
+- For switching between mutually exclusive peer views, use [Tabs](?path=/docs/navigation-tabs--docs).
+
+## API reference
+
+### Accordion.Root
+
+<ArgTypes of={AccordionStories.Hero} />
+
+*Per-part tables render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/accordion](https://base-ui.com/react/components/accordion#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+accordion) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/accordion).*
