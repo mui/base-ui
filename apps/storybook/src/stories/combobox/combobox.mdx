@@ -1,0 +1,379 @@
+{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
+    Evidence tier: Tier 1 (source, docs, tests, experiments, 89 scoped commits, upstream
+    issues/PRs — research/c-components/combobox/brief.md); real-world dataset pending Phase D. */}
+
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ComboboxStories from './combobox.stories';
+
+<Meta of={ComboboxStories} />
+
+# Combobox
+
+An input combined with a list of predefined items to select — in the docs' own framing, "Combobox is a filterable Select": the text filters, but the committed value is always one of the predefined items.
+
+- **Import:** `import { Combobox } from '@base-ui/react/combobox';`
+- **Parts:** 26 — the largest part set in Base UI (see Anatomy), plus the `Combobox.useFilter` and `Combobox.useFilteredItems` hooks.
+- **Status:** Stable; shipped pre-1.0 in v1.0.0-beta.3 ([#2105](https://github.com/mui/base-ui/pull/2105), Sep 2025) as the designed answer to a decade of Material UI Autocomplete history ([#222](https://github.com/mui/base-ui/issues/222) lists 13 issues it was built to close or learn from).
+- **ARIA pattern:** [Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/), editable variant with list autocomplete; the input-inside-popup composition switches to a combobox-with-dialog shape ([#2973](https://github.com/mui/base-ui/pull/2973), [#3213](https://github.com/mui/base-ui/pull/3213)).
+- **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
+
+<Canvas of={ComboboxStories.Hero} />
+
+## Features
+
+- **One engine, three contracts** — `Combobox.Root` wraps the same internal engine as Autocomplete (`selectionMode="none"`); Combobox is the variant that *remembers a selection* separately from the text (`AriaCombobox`, [#2105](https://github.com/mui/base-ui/pull/2105)).
+- **Virtual focus** — DOM focus never leaves the input; the highlighted item is marked `data-highlighted` and referenced by `aria-activedescendant`, so typing and navigating never fight ([#2731](https://github.com/mui/base-ui/issues/2731)).
+- **Locale-aware filtering built in** — items are matched with an `Intl.Collator` (`usage: "search"`, `sensitivity: "base"`): case-, diacritic- and punctuation-insensitive, with `filter`, `filteredItems`, `limit`, and `Combobox.useFilter` as override points ([#3068](https://github.com/mui/base-ui/pull/3068)).
+- **Multiple selection with chips** — `multiple` switches to array values and the `Chips`/`Chip`/`ChipRemove` anatomy renders tokenized selections with a full keyboard contract ([#3647](https://github.com/mui/base-ui/pull/3647)).
+- **Async-search ready** — `Status`/`Empty` live-region parts, external filtering, and value retention when items change ([#3824](https://github.com/mui/base-ui/pull/3824)) make paginated remote search a supported pattern, not a hack.
+- **Form participation for free** — a visually-hidden input (one per value in `multiple` mode) carries `name`/value into native submission, constraint validation, and browser autofill, which even force-mounts the list to resolve labels ([#4972](https://github.com/mui/base-ui/pull/4972)).
+- **Perf as a design pole** — items are `React.memo`-wrapped, per-keystroke re-renders were eliminated library-side ([#4964](https://github.com/mui/base-ui/pull/4964)), and `virtualized` + `useFilteredItems` cover the 1,000+ item range ([#222](https://github.com/mui/base-ui/issues/222) set the perf bar before a line was written).
+
+## When to use
+
+- Choosing predefined value(s) when the item count is "sufficiently large to warrant filtering" (docs usage guidelines; mirrored on the select page).
+- Multiple selection with tokenized display — the `Chips` sub-anatomy exists precisely for this (docs "Multiple select").
+- Async/remote item search with selection state — `Status`/`Empty` live regions plus the maintainer-recommended `items`/`filteredItems` split ([#2677](https://github.com/mui/base-ui/issues/2677), [#3818](https://github.com/mui/base-ui/issues/3818)).
+- A searchable select popup (input *inside* the popup, trigger as the form control) — roles re-arrange automatically ([#2973](https://github.com/mui/base-ui/pull/2973), [#3213](https://github.com/mui/base-ui/pull/3213)).
+- Filterable pickers embedded in a Dialog or rendered in-flow via `inline` ([#5069](https://github.com/mui/base-ui/pull/5069)).
+- Grid layouts (emoji-picker-style) via `grid` + `Row` ([#2683](https://github.com/mui/base-ui/pull/2683)); creatable entries via a filter-miss dialog (docs "Creatable"); 1,000+ items via `virtualized`.
+
+## When not to use
+
+Decision guidance for the three listbox-driven pickers lives in `research/c-components/_clusters/pickers.md`; the short version: *free-form text → Autocomplete; visible filter input over a fixed set → Combobox; button + predefined values → Select; popup that performs actions → Menu.*
+
+- For free-form text (search boxes, novel tags), use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs), because "Combobox does not allow free-form text input" (docs usage guidelines) — users fighting the input resetting to the selected value on close are in the wrong component ([#2677](https://github.com/mui/base-ui/issues/2677)).
+- When no text input is rendered, use [Select](?path=/docs/form-inputs-select--docs), because an input-less Combobox is explicitly unsupported and loses listbox accessibility such as typeahead ([#4086](https://github.com/mui/base-ui/issues/4086)). The one sanctioned exception: composing `Trigger`+`Value`+`Clear` without an input as a "clearable select" recipe ([#2734](https://github.com/mui/base-ui/issues/2734), acknowledged gray area).
+- For a popup of *actions* rather than a persisted value, use Menu — a filterable menu was deferred from [#2105](https://github.com/mui/base-ui/pull/2105) and remains open demand ([#4157](https://github.com/mui/base-ui/issues/4157)).
+- For hierarchical/tree selection or select-all rows, use something else: "trees are out of combobox scope" ([#2695](https://github.com/mui/base-ui/issues/2695), [#4489](https://github.com/mui/base-ui/issues/4489)) and a listbox may only contain options ([#4927](https://github.com/mui/base-ui/issues/4927)).
+- For very small, static option sets, prefer [Select](?path=/docs/form-inputs-select--docs) or a radio group — filtering overhead buys nothing. [I] inverse of the "sufficiently large" guideline; [G] no maintainer statement on a numeric threshold.
+
+## Anatomy
+
+```tsx
+import { Combobox } from '@base-ui/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Label />
+  <Combobox.InputGroup>
+    <Combobox.Input />
+    <Combobox.Trigger>
+      <Combobox.Icon />
+    </Combobox.Trigger>
+    <Combobox.Clear />
+    <Combobox.Value>
+      <Combobox.Chips>
+        <Combobox.Chip>
+          <Combobox.ChipRemove />
+        </Combobox.Chip>
+      </Combobox.Chips>
+    </Combobox.Value>
+  </Combobox.InputGroup>
+  <Combobox.Portal>
+    <Combobox.Backdrop />
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Arrow />
+        <Combobox.Status />
+        <Combobox.Empty />
+        <Combobox.List>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
+          <Combobox.Separator />
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+            <Combobox.Collection />
+          </Combobox.Group>
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+| Part | Renders | Purpose | Optional? |
+|---|---|---|---|
+| `Combobox.Root` | no element | Groups all parts; owns `value`/`inputValue`/`open` state and the hidden form input(s) | required |
+| `Combobox.Label` | `<div>` | Accessible label auto-associated with the combobox trigger — for the input-inside-popup pattern | yes — use `<label>`/`Field.Label` when the input is outside |
+| `Combobox.Value` | no element | The current value; function child renders selected value(s) (used for chips) | yes |
+| `Combobox.Input` | `<input>` | The text input that filters the list — the ARIA combobox | required somewhere ([#4086](https://github.com/mui/base-ui/issues/4086)) |
+| `Combobox.InputGroup` | `<div>` | One styleable container for input + controls across selection modes; becomes the default positioning anchor ([#3745](https://github.com/mui/base-ui/pull/3745)) | yes |
+| `Combobox.Trigger` | `<button>` | A button that opens the popup | yes |
+| `Combobox.Icon` | `<span>` | Icon indicating the trigger opens a popup | yes |
+| `Combobox.Clear` | `<button>` | Clears the value; mounts only while a value exists; deliberately not tabbable ([#3630](https://github.com/mui/base-ui/issues/3630)) | yes |
+| `Combobox.Chips` / `Chip` / `ChipRemove` | `<div>`/`<div>`/`<button>` | Tokenized display of multiple selections; `Chips` takes `role="toolbar"` while chips exist ([#3647](https://github.com/mui/base-ui/pull/3647)) | yes — `multiple` only |
+| `Combobox.Portal` | `<div>` | Moves the popup subtree to `<body>` (or `container`) | required for popups ([#1222](https://github.com/mui/base-ui/pull/1222)); omit in `inline` mode |
+| `Combobox.Backdrop` | `<div>` | Overlay beneath the popup | yes |
+| `Combobox.Positioner` | `<div>` | Positions the popup against the trigger/InputGroup | required for popups |
+| `Combobox.Popup` | `<div>` | Container for the list; `role="presentation"`, or `role="dialog"` when the input is inside ([#3213](https://github.com/mui/base-ui/pull/3213)) | required for popups |
+| `Combobox.Arrow` | `<div>` | Pointer element positioned against the anchor | yes |
+| `Combobox.Status` | `<div>` | Polite live region for async list status — must stay mounted; conditionally render its *children* | yes |
+| `Combobox.Empty` | `<div>` | Renders children only when the filtered list is empty; polite live region; requires `items` | yes |
+| `Combobox.List` | `<div>` | The `role="listbox"` container; function child renders each filtered item | required |
+| `Combobox.Row` | `<div>` | A single row of items in `grid` mode | `grid` only |
+| `Combobox.Item` | `<div>` | `role="option"`; `React.memo`-wrapped for filtering performance | required |
+| `Combobox.ItemIndicator` | `<span>` | Indicates whether the item is selected | yes |
+| `Combobox.Group` / `GroupLabel` | `<div>` | Groups related items with an auto-associated label | yes |
+| `Combobox.Collection` | no element | Renders filtered items when a wrapper sits between `List` and the items (pass a function child to `List` for flat lists) | yes |
+| `Combobox.Separator` | `<div>` | Re-exports the standalone `Separator` | yes |
+
+Non-element exports: `Combobox.useFilter` (collator matching: `contains`/`startsWith`/`endsWith`) and `Combobox.useFilteredItems` (reads the internally filtered items inside `Root`). Invisible machinery to know about: a visually-hidden `<input>` carries the serialized value (one per value in `multiple` mode — it can confound DOM-position-dependent CSS and drag-and-drop libs, [#3019](https://github.com/mui/base-ui/issues/3019)); while open + `modal`, hidden "Dismiss" buttons render around the popup as an AT escape hatch ([#4084](https://github.com/mui/base-ui/pull/4084)); with the input outside the popup, the rest of the page — including the Trigger — is made inert while open.
+
+## How it works
+
+### The full interaction
+
+Click the input to open (`input-press`), type to filter, ArrowDown to highlight, Enter to commit. DOM focus never leaves the input — the highlighted item is referenced via `aria-activedescendant` — and `onValueChange` receives `(value, eventDetails)`. The popup portals to `document.body`.
+
+<Canvas of={ComboboxStories.OpenFilterSelectClose} />
+
+### Three controllable state axes
+
+`value`/`defaultValue`/`onValueChange` (the committed selection), `inputValue`/`defaultInputValue`/`onInputValueChange` (the text), and `open`/`defaultOpen`/`onOpenChange` (the popup) are controlled independently. On first mount the input text is derived from the value's label ([#2680](https://github.com/mui/base-ui/pull/2680)); on close without selection it resets to the selected value's label — free text that must survive is Autocomplete's contract ([#2677](https://github.com/mui/base-ui/issues/2677)). Clear with `null`.
+
+<Canvas of={ComboboxStories.ControlledValueAndInput} />
+
+### Open state and event details
+
+Every open/close request carries a typed `reason` (`input-press | trigger-press | item-press | outside-press | escape-key | focus-out | input-change | …` — input clicks are distinguishable from trigger clicks since [#4015](https://github.com/mui/base-ui/pull/4015)), and `eventDetails.cancel()` vetoes the change:
+
+<Canvas of={ComboboxStories.ControlledOpenWithEventDetails} />
+
+### Filtering
+
+By default items are matched against the query with an `Intl.Collator` `contains` filter (locale-aware via `locale`); single-select shows *all* items when the query equals the selected label. Override points: `filter` (predicate), `filteredItems` (fully external filtering, [#3068](https://github.com/mui/base-ui/pull/3068)), `limit`, and `Combobox.useFilter()` for building external filters with identical semantics:
+
+<Canvas of={ComboboxStories.ExternalFilterWithUseFilter} />
+
+The inverse direction — reading the *internal* filter's output — is `Combobox.useFilteredItems()`, the hook virtualizers use for their row count ([#3732](https://github.com/mui/base-ui/pull/3732)):
+
+<Canvas of={ComboboxStories.UseFilteredItemsForVirtualizer} />
+
+`Combobox.Empty` (requires `items`) renders children only when nothing matches, announced through a polite live region:
+
+<Canvas of={ComboboxStories.EmptyState} />
+
+`autoHighlight` keeps the first match highlighted while filtering so Enter selects it immediately; the default follows the APG's no-surprise-selection stance ([#2668](https://github.com/mui/base-ui/pull/2668)). Note the runtime also supports `'always'`, but typings/docs lag ([#4188](https://github.com/mui/base-ui/issues/4188)):
+
+<Canvas of={ComboboxStories.AutoHighlightModes} />
+
+### Multiple selection and chips
+
+`multiple` turns the value into an array; selected values render as chips through the `Combobox.Value` render prop. Item selection keeps the popup open — *except* when the list is filtered, where it closes to avoid the layout shift of the filter resetting (intentional but debated, [#3181](https://github.com/mui/base-ui/issues/3181)). In forms, one hidden input per selected value is submitted.
+
+<Canvas of={ComboboxStories.MultipleSelectionChips} />
+
+Chips take **real DOM focus** (unlike list items): ArrowLeft at the start of the input moves focus onto the chips (RTL-aware), Backspace/Delete removes the focused chip, and Backspace in an empty input removes the last chip. The chips container becomes `role="toolbar"` so NVDA's browse mode passes arrow keys through ([#3629](https://github.com/mui/base-ui/issues/3629) → [#3647](https://github.com/mui/base-ui/pull/3647)):
+
+<Canvas of={ComboboxStories.ChipsKeyboardFlow} />
+
+### Object values
+
+Non-referential value objects (server data, form-library rehydration) need `isItemEqualToValue` — the default is `Object.is` ([#2754](https://github.com/mui/base-ui/issues/2754)). `itemToStringLabel` controls display text and `itemToStringValue` the form payload; `{ value, label }` shapes work automatically:
+
+<Canvas of={ComboboxStories.IsItemEqualToValueObjects} />
+
+<Canvas of={ComboboxStories.ObjectValuesStringification} />
+
+### Clearing
+
+`Combobox.Clear` mounts only while a value is selected, exposes `data-visible` for animation ([#4664](https://github.com/mui/base-ui/pull/4664)), and is deliberately not tabbable — "one tab stop per field"; the keyboard path is Escape (while closed) or Delete ([#3630](https://github.com/mui/base-ui/issues/3630), closed not-planned). Beware: Escape with the popup closed clears both input *and* value; cancel via `eventDetails.cancel()` if that is wrong for your form.
+
+<Canvas of={ComboboxStories.ClearableSelection} />
+
+### Groups
+
+A grouped `items` array (`[{ value: 'Fruits', items: […] }]`) feeds `Group` + auto-associated `GroupLabel`; `Collection` renders the filtered items because a wrapper sits between `List` and the items. Grouped lists respect `limit` since [#5086](https://github.com/mui/base-ui/pull/5086):
+
+<Canvas of={ComboboxStories.GroupedItems} />
+
+### Grid layout
+
+`grid` + `Row` switch navigation to two dimensions with `row`/`gridcell` semantics; columns are inferred from the rendered rows rather than a magic number ([#2683](https://github.com/mui/base-ui/pull/2683) renamed `cols` → `grid`). Wrapping across row edges is intended grid behavior:
+
+<Canvas of={ComboboxStories.GridLayout} />
+
+### Input inside the popup (searchable select)
+
+The second legal home for `Input` is inside `Popup`: the *trigger* becomes the form control with `role="combobox"` ([#2973](https://github.com/mui/base-ui/pull/2973)), the popup becomes `role="dialog"` ([#3213](https://github.com/mui/base-ui/pull/3213)), and labeling moves to `Combobox.Label` (a native `<label>` cannot label a button). Multiple-selection in this pattern keeps the popup open and preserves the query ([#3306](https://github.com/mui/base-ui/issues/3306), [#4715](https://github.com/mui/base-ui/pull/4715)).
+
+<Canvas of={ComboboxStories.InputInsidePopup} />
+
+### Inline (no popup)
+
+`inline` renders the list in normal document flow with no Portal/Positioner/Popup; `open` must be passed unconditionally (`<Combobox.Root inline open>`, documented via [#5069](https://github.com/mui/base-ui/pull/5069) after [#3966](https://github.com/mui/base-ui/issues/3966) asked). Escape bubbles to parent popups in this mode.
+
+<Canvas of={ComboboxStories.InlineNoPopup} />
+
+Inside a Dialog, bind the combobox's `open` to the dialog's so transient state (query, highlight, input value) resets on close:
+
+<Canvas of={ComboboxStories.InlineInsideDialog} />
+
+### Async search
+
+The supported pattern ([#2677](https://github.com/mui/base-ui/issues/2677), [#3818](https://github.com/mui/base-ui/issues/3818)): disable internal filtering (`filter={null}` or the `filteredItems` prop), keep selected values inside `items` so they are never orphaned, and narrate the request lifecycle through `Combobox.Status` — a polite live region that must stay mounted (conditionally render its children, never the part). Since [#3824](https://github.com/mui/base-ui/pull/3824) the selected value also survives disappearing from `items`, matching native `<select>` value retention — this is what makes paginated async selection viable.
+
+<Canvas of={ComboboxStories.AsyncSearchSingle} />
+
+<Canvas of={ComboboxStories.AsyncSearchMultiple} />
+
+### Creatable entries
+
+Filter misses append a synthetic `Create "…"` item; picking it opens a confirmation Dialog instead of committing, and confirming appends to `items` and selects the new entry (docs "Creatable"; experiment `creatable-tags.tsx`):
+
+<Canvas of={ComboboxStories.CreatableEntries} />
+
+### Virtualization
+
+Memoize items up to ~1,000; beyond that virtualize, because *mount cost dominates opening* (docs "Memoizing items"). `virtualized` disables internal index assumptions — pair it with `useFilteredItems`/`filteredItems`, per-item `index`, and `aria-setsize`/`aria-posinset`. The docs demo uses `@tanstack/react-virtual`; this story hand-rolls fixed-height windowing to stay dependency-free:
+
+<Canvas of={ComboboxStories.Virtualized} />
+
+### Disabled and read-only
+
+`disabled` disables the whole control; `readOnly` blocks opening and value changes while keeping the value visible and submittable — prefer it for temporarily locked form state:
+
+<Canvas of={ComboboxStories.DisabledAndReadOnly} />
+
+### Forms
+
+The hidden input provides full native-form citizenship: `name`, `form`, `required` (releases once ≥1 value is selected in `multiple` mode, [#2404](https://github.com/mui/base-ui/pull/2404)), constraint validation with `Field`/`Form`, and browser autofill that matches text against serialized values *and* labels ([#4972](https://github.com/mui/base-ui/pull/4972), [#3924](https://github.com/mui/base-ui/pull/3924)). Field state lands on Input and Trigger as `data-valid`/`data-invalid`/`data-touched`/`data-dirty`/`data-filled`/`data-focused`.
+
+<Canvas of={ComboboxStories.InFieldWithValidation} />
+
+### Animation
+
+Standard popup hooks: `data-open`/`data-closed`/`data-starting-style`/`data-ending-style` on Popup/Positioner, `--transform-origin`/`--available-height` CSS variables, and `actionsRef.unmount()` + `onOpenChangeComplete` for JS animation libraries (a transition/status edge case is open at [#3811](https://github.com/mui/base-ui/issues/3811)):
+
+<Canvas of={ComboboxStories.AnimatedPopup} />
+
+### TypeScript
+
+Type inference flows from `value`/`defaultValue`; for reuse, write the documented typed wrapper over `Combobox.Root.Props<Value, Multiple>` — generics cannot cross React context in compound components ([#3951](https://github.com/mui/base-ui/issues/3951)):
+
+<Canvas of={ComboboxStories.TypedWrapperComponent} />
+
+## Keyboard & screen reader
+
+Pattern: [APG Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/), editable variant with list autocomplete. The input is always included in the focus loop (Root `loopFocus` JSDoc cites the APG directly).
+
+| Key | Context | Action |
+|---|---|---|
+| Printable characters | any | Filter the list (opens on `input-change`); typing clears the highlight so virtual focus returns to the input |
+| `ArrowDown` / `ArrowUp` | closed | Open the popup and highlight the first/last item |
+| `ArrowDown` / `ArrowUp` | open | Move the virtual highlight; with `loopFocus` (default) it loops through the input at list edges |
+| `Enter` | open, item highlighted | Select the item (single: close; multiple: stay open unless filtered) |
+| `Enter` | open, no highlight | Close the popup and allow native form submission |
+| `Escape` | open | Close (`escape-key`); propagation stopped — but it bubbles to parent popups if `Empty` is absent and the list hidden ([#2935](https://github.com/mui/base-ui/issues/2935)) |
+| `Escape` | closed | **Clear the input and the selected value**; stops propagation only if something was cleared |
+| `Home` / `End` | any | Move the input caret to start/end (the input owns Home/End — not list navigation, [#2928](https://github.com/mui/base-ui/issues/2928)) |
+| `ArrowLeft` / `ArrowRight` | multiple, caret at text start | Move real DOM focus across chips (RTL-aware); in `grid` mode they move the highlight across columns |
+| `Backspace` / `Delete` | chip focused | Remove that chip, focus the neighbor |
+| `Backspace` | input empty, no chip focused | Remove the last chip |
+| `Delete` (or `Escape`) | — | Keyboard path for clearing, since `Clear` is not tabbable ([#3630](https://github.com/mui/base-ui/issues/3630)) |
+| `Tab` / focus out | open | Close (`focus-out`) |
+
+- **ARIA managed for you**: Input — `role="combobox"`, `aria-expanded`, `aria-autocomplete="list"`, `aria-haspopup="listbox"`, `aria-controls`, `aria-activedescendant` → highlighted option (virtual focus), auto `aria-labelledby`. List — `role="listbox"` (+ `aria-multiselectable` in multiple mode). Popup — `role="presentation"`, or `role="dialog"` with the trigger as `role="combobox"` in the input-inside-popup pattern. Item — `role="option"`, `aria-selected`; grid mode emits `row`/`gridcell`. Chips — container `role="toolbar"` while chips exist; chips take real DOM focus. Hidden form input — `aria-hidden`, focus forwarded.
+- **Screen reader hardening on record**: initial live-region announcements ([#4286](https://github.com/mui/base-ui/pull/4286)), TalkBack option-wrapper structure ([#4607](https://github.com/mui/base-ui/pull/4607)), iOS VoiceOver double-tap close ([#3859](https://github.com/mui/base-ui/issues/3859)), NVDA chips navigation ([#3647](https://github.com/mui/base-ui/pull/3647)), hidden Dismiss buttons in modal flows ([#4084](https://github.com/mui/base-ui/pull/4084)).
+- **You must provide**: an accessible name — a `<label>`/`Field.Label` on the Input (input outside) or `Combobox.Label` on the Trigger (input inside popup) — plus visible `:focus-visible` styling and contrast. Keep `Status`/`Empty` mounted and conditionally render their children.
+- **Known issues**: [#4657](https://github.com/mui/base-ui/issues/4657) (open) — passing `index` to Item breaks hover highlight; [#3227](https://github.com/mui/base-ui/issues/3227) (open) — `--available-height` misbehaves when the iOS keyboard opens; [#2991](https://github.com/mui/base-ui/issues/2991) (open) — mobile popup-as-aside layout bug; [#4938](https://github.com/mui/base-ui/issues/4938) (open, has workaround) — clearing the value in the input-inside-popup pattern. [G] No open screen-reader-specific bug found beyond these (searched upstream 2026-07).
+
+## Styling hooks
+
+| Part | Attribute / variable | Present when |
+|---|---|---|
+| Input / Trigger | `data-popup-open`, `data-pressed`, `data-popup-side`, `data-list-empty` | popup/interaction state |
+| Input / Trigger | `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-filled` / `data-focused` | Field validation/interaction state |
+| Trigger | `data-placeholder` | no value selected (input-inside-popup pattern) |
+| Item | `data-selected` / `data-highlighted` / `data-disabled` | selection, virtual-focus highlight (unified with hover by default), disabled |
+| Popup / Positioner | `data-open` / `data-closed` / `data-starting-style` / `data-ending-style` | open/close transition lifecycle |
+| Popup / Positioner | `data-side` / `data-align` / `data-empty`; Popup also `data-instant` | anchored positioning; empty list; no-transition opens |
+| Clear | `data-visible` | a value is set — animatable via starting/ending styles ([#4664](https://github.com/mui/base-ui/pull/4664)) |
+| List | `data-empty` | the filtered list is empty |
+| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin` | while positioned |
+
+Hover and keyboard highlight are one unified `data-highlighted` state by design (items never receive DOM focus, [#2731](https://github.com/mui/base-ui/issues/2731)); set `highlightItemOnHover={false}` to split them, and `keepHighlight` to preserve the highlight on pointer leave.
+
+## Choosing the right props
+
+- **`items` (Root)** — supply whenever possible: it enables internal filtering + `Empty`, label lookup for value→text derivation, and autofill label matching. Grouped shape: `[{ value: 'Fruits', items: […] }]`.
+- **`filter` / `filteredItems` / `limit`** — predicate override, fully external filtering (kills double-filtering in async/virtualized cases, [#3068](https://github.com/mui/base-ui/pull/3068)), and a render cap. Pair `filter` with `Combobox.useFilter({ multiple, value, locale })` for collator-correct external filters.
+- **`isItemEqualToValue`** — required whenever value objects aren't referentially identical to items (async data, RHF rehydration); the flash-of-empty userland fix in [#3818](https://github.com/mui/base-ui/issues/3818) was exactly this prop.
+- **`itemToStringLabel` / `itemToStringValue`** — display text vs form serialization for object values; raw-primitive values render as-is even when `items` has labels — use object values or `itemToStringLabel` ([#4735](https://github.com/mui/base-ui/issues/4735)).
+- **`multiple`** — array values, chips anatomy, one hidden input per value; `required` releases once one value is selected ([#2404](https://github.com/mui/base-ui/pull/2404)).
+- **`autoComplete` (string)** — the browser-autofill hint for the hidden input; do not confuse it with the APG behavior dial, which Combobox fixes to list-style filtering (it's Autocomplete's `mode` prop).
+- **`autoHighlight`** — first-match highlight while typing, so Enter commits immediately; leave off for APG-default behavior — and note Enter with *no* highlight closes the popup to let forms submit.
+- **`openOnInputClick={false}`** — type-to-open only.
+- **`inline` + `open`** — in-flow list without popup parts; always pass `open` ([#5069](https://github.com/mui/base-ui/pull/5069)); bind to Dialog state in dialog compositions.
+- **`grid` + `Row`** — 2D keyboard navigation; uneven rows and RTL supported.
+- **`virtualized`** — disables internal index assumptions; pair with `useFilteredItems`/`filteredItems` and per-item `index` (but see [#4657](https://github.com/mui/base-ui/issues/4657)).
+- **`modal` (default `false`)** — unlike Select's `true`; set `true` only for immersive pickers — it adds the focus-trap machinery and hidden Dismiss buttons ([#4084](https://github.com/mui/base-ui/pull/4084)).
+- **`loopFocus` (default `true`)** — disable to stop arrow keys wrapping through the input ([#3592](https://github.com/mui/base-ui/pull/3592)).
+- **`name` / `form` / `required` / `readOnly` / `disabled`** — full native-form citizenship via the hidden input; `readOnly` blocks opening while keeping the value submittable.
+
+## Do / Don't
+
+**Do**
+
+- Keep selected items inside `items` and pass search results via `filteredItems` for async search — values also survive item removal since [#3824](https://github.com/mui/base-ui/pull/3824) ([#3818](https://github.com/mui/base-ui/issues/3818), [#2677](https://github.com/mui/base-ui/issues/2677)).
+- Set `isItemEqualToValue` for object values from a server, or you'll see flash-of-null and duplicate selections ([#3818](https://github.com/mui/base-ui/issues/3818), [#2754](https://github.com/mui/base-ui/issues/2754)).
+- Use object values (`{ value, label }`) or `itemToStringLabel` so the input shows the label, not the raw value ([#4735](https://github.com/mui/base-ui/issues/4735)).
+- Memoize items (`React.memo` + item-as-prop) up to ~1,000 items; virtualize beyond that because mount cost dominates opening (docs "Memoizing items", [#4964](https://github.com/mui/base-ui/pull/4964)).
+- Portal into the dialog's container when the combobox lives inside a third-party dialog that sets `pointer-events: none` on `<body>` ([#2854](https://github.com/mui/base-ui/issues/2854)); z-index — never on Popup, on Positioner if at all ([#2450](https://github.com/mui/base-ui/issues/2450) pattern).
+
+**Don't**
+
+- Don't remove the `Input` and expect a working picker — unsupported composition; use Select ([#4086](https://github.com/mui/base-ui/issues/4086)).
+- Don't expect free text to survive close — the input resets to the selected value's label; that's Autocomplete's contract ([#2677](https://github.com/mui/base-ui/issues/2677)).
+- Don't fight the popup closing after each pick in filtered `multiple` mode — intentional to avoid layout shift; the input-inside-popup variant keeps it open, or track [#3181](https://github.com/mui/base-ui/issues/3181).
+- Don't try to make `Clear` tab-reachable — by design one tab stop per field; Esc/Delete clear via keyboard ([#3630](https://github.com/mui/base-ui/issues/3630)).
+- Don't style hover separately from keyboard highlight without `highlightItemOnHover={false}` — items never receive DOM focus and share one `data-highlighted` ([#2731](https://github.com/mui/base-ui/issues/2731)).
+- Don't write DOM-position-dependent CSS (`:nth-child`) or drag-and-drop logic around Root's children — visually-hidden inputs live there ([#3019](https://github.com/mui/base-ui/issues/3019)).
+- Don't be surprised by Enter needing a highlight: with `autoHighlight` an item is always highlighted, so Enter selects instead of submitting the form — decide which contract you want ([#2686](https://github.com/mui/base-ui/issues/2686)).
+
+## In the wild
+
+[G] Per-component Phase-D dataset pending (`research/d-real-world-usage/combobox/` not yet produced). Corpus signal (brief §11): 28 repos import the combobox subpath, topped by langgenius/dify (147.9k★), reactive-resume, PostHog, mastra-ai/mastra, gitbutler, **WordPress/gutenberg** (whose design-tools team also participates in behavior debate, [#3181](https://github.com/mui/base-ui/issues/3181)), woocommerce, electric-sql, coss, and typebot.io. Expected archetypes to verify: tag/label multi-selects with chips, async user/country pickers, and design-system wrapper components re-exporting the full part set.
+
+## Decision log
+
+- **2024** — [#222](https://github.com/mui/base-ui/issues/222) specs Combobox as the closer of 7 Base UI issues and heir to 6 Material UI Autocomplete lessons; performance named the top risk ("it took me 1,000 hr" — oliviertassinari).
+- **2025-09 (beta.3)** — [#2105](https://github.com/mui/base-ui/pull/2105) ships Combobox + Autocomplete on one internal engine with two public contracts; FilterableMenu previewed and deferred; grid/creatable/virtualized demos from day one.
+- **2025-09** — `autoHighlight` opt-in ([#2668](https://github.com/mui/base-ui/pull/2668)); input value derived from `value`/`defaultValue` on first mount ([#2680](https://github.com/mui/base-ui/pull/2680)); **beta.4, breaking**: `cols` → `grid`, columns inferred from rendered `Row`s ([#2683](https://github.com/mui/base-ui/pull/2683)).
+- **2025-10 / 2025-11** — the searchable-select pattern gets its own ARIA shape: Trigger `role="combobox"` ([#2973](https://github.com/mui/base-ui/pull/2973)), popup `role="dialog"` ([#3213](https://github.com/mui/base-ui/pull/3213)); `filteredItems` makes external filtering first-class ([#3068](https://github.com/mui/base-ui/pull/3068)); drag-to-select parity ([#3167](https://github.com/mui/base-ui/pull/3167)).
+- **2025-12 / 2026-01** — `loopFocus` ([#3592](https://github.com/mui/base-ui/pull/3592)); `role="toolbar"` on Chips for NVDA ([#3647](https://github.com/mui/base-ui/pull/3647)); `useFilteredItems` hook ([#3732](https://github.com/mui/base-ui/pull/3732)); **value survives `items` changes**, matching native `<select>` retention and unblocking paginated async ([#3824](https://github.com/mui/base-ui/pull/3824)).
+- **2026-02 / 2026-03** — `input-press` open reason ([#4015](https://github.com/mui/base-ui/pull/4015)); `InputGroup` part as the one styleable field container and default anchor ([#3745](https://github.com/mui/base-ui/pull/3745)); hidden Dismiss buttons + modal focus-trap rework ([#4084](https://github.com/mui/base-ui/pull/4084)).
+- **2026-04 → 2026-06** — initial live-region announcement fix ([#4286](https://github.com/mui/base-ui/pull/4286)); iOS viewport settling delay ([#4351](https://github.com/mui/base-ui/pull/4351)); per-keystroke re-render elimination ([#4964](https://github.com/mui/base-ui/pull/4964)); grouped `limit` fix ([#5086](https://github.com/mui/base-ui/pull/5086)); `inline`+`open` requirement documented ([#5069](https://github.com/mui/base-ui/pull/5069)).
+- **Standing decisions** — Clear stays non-tabbable ([#3630](https://github.com/mui/base-ui/issues/3630), not-planned); multiple+filtered close stays for now ([#3181](https://github.com/mui/base-ui/issues/3181), open); no input-less combobox ([#4086](https://github.com/mui/base-ui/issues/4086)); no trees ([#2695](https://github.com/mui/base-ui/issues/2695), [#4489](https://github.com/mui/base-ui/issues/4489)).
+
+## Known issues & open questions
+
+- [#4657](https://github.com/mui/base-ui/issues/4657) — passing `index` to Item breaks hover highlight (open; affects virtualized compositions).
+- [#3181](https://github.com/mui/base-ui/issues/3181) — multiple+filtered close-on-select behavior debated (open; maintainer "open to changing the behavior").
+- [#3227](https://github.com/mui/base-ui/issues/3227) — `--available-height` vs the iOS virtual keyboard (open).
+- [#4938](https://github.com/mui/base-ui/issues/4938) — clearing the value in the input-inside-popup pattern (open, has workaround).
+- [#4188](https://github.com/mui/base-ui/issues/4188) — `autoHighlight: 'always'` typing/docs gap (open).
+- [#3559](https://github.com/mui/base-ui/issues/3559) — Suspense-first async support (open, unplanned).
+- Docs feedback on record: inline examples ([#3966](https://github.com/mui/base-ui/issues/3966)), custom-value rendering ([#2759](https://github.com/mui/base-ui/issues/2759)), Tab-to-select question ([#2894](https://github.com/mui/base-ui/issues/2894)), async pagination guidance ([#3719](https://github.com/mui/base-ui/issues/3719)) — all open.
+
+## Related
+
+- For a dropdown of predefined values **without typing**, use [Select](?path=/docs/form-inputs-select--docs) — "Combobox is a filterable Select".
+- For **free-form text** with suggestions, use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs) — same engine, the text *is* the value.
+- For a popup of **actions**, use Menu; a filterable menu remains open demand ([#4157](https://github.com/mui/base-ui/issues/4157)).
+- To add labels, descriptions, and validation, wrap in [Field](?path=/docs/form-inputs-field--docs) inside a [Form](?path=/docs/form-inputs-form--docs).
+
+## API reference
+
+### Combobox.Root
+
+<ArgTypes of={ComboboxStories.Hero} />
+
+*Per-part tables (`Combobox.Input`, `Combobox.Positioner`, …) render via subcomponents in the story meta; full JSDoc-driven reference: [base-ui.com/react/components/combobox](https://base-ui.com/react/components/combobox#api-reference).*
+
+---
+
+*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+combobox) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/combobox).*
