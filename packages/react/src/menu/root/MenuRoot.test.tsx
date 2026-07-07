@@ -817,6 +817,50 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
+        'calls onOpenChange with false exactly once per menu when a submenu item is clicked',
+        async () => {
+          const rootOnOpenChange = vi.fn();
+          const submenuOnOpenChange = vi.fn();
+
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ onOpenChange: rootOnOpenChange }}
+              submenuProps={{ onOpenChange: submenuOnOpenChange }}
+              submenuTriggerProps={{ delay: 0 }}
+            />,
+          );
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          await screen.findByTestId('menu');
+
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await user.hover(submenuTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).not.toBe(null);
+          });
+
+          // Click the item directly. Moving the pointer to it teleports it out of the
+          // submenu trigger, closing the submenu before the click could land.
+          fireEvent.click(screen.getByTestId('item-4_1'));
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          // Wait out pending hover close timers; they must not refire a close.
+          await wait(100);
+
+          const rootCloseCalls = rootOnOpenChange.mock.calls.filter((args) => args[0] === false);
+          const submenuCloseCalls = submenuOnOpenChange.mock.calls.filter(
+            (args) => args[0] === false,
+          );
+          expect(rootCloseCalls.length).toBe(1);
+          expect(submenuCloseCalls.length).toBe(1);
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'returns focus to submenu triggers when closing nested menus',
         async () => {
           const { user } = await render(<TestMenu />);
