@@ -1,6 +1,3 @@
-{/* Floor page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (full brief). Sections beyond the floor scope carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TabsStories from './tabs.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -39,7 +36,7 @@ A component for toggling between related panels on the same page.
 
 - For a single, independent show/hide region, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs) — Tabs' Root-level activation-direction/roving-tabindex machinery buys nothing for a lone panel.
 - For a coordinated set of independently-openable regions (zero, one, or many open), use [Accordion](?path=/docs/disclosure-structure-accordion--docs) — Tabs enforces exactly one active peer at all times, with no "all open"/"all closed" steady state.
-- See the full three-way comparison in `research/c-components/_clusters/disclosure.md` — Tabs is formally categorized under Navigation because its APG pattern and usage archetype are navigational ("switch views"), even though its show/hide mechanics are disclosure-adjacent.
+- See the full three-way comparison in [Disclosure](?path=/docs/research-c-component-briefs-clusters-disclosure--docs) — Tabs is formally categorized under Navigation because its APG pattern and usage archetype are navigational ("switch views"), even though its show/hide mechanics are disclosure-adjacent.
 
 ## Anatomy
 
@@ -115,7 +112,7 @@ External `value`/`onValueChange` state can drive the active tab from anywhere, i
 
 - **ARIA**: `List` gets `role="tablist"`; `Tab` gets `role="tab"`, `aria-selected`, `aria-controls`; `Panel` gets `role="tabpanel"`, `aria-labelledby`, `inert` when not active.
 - **You must provide**: nothing extra for the core contract — the id-linking chain is automatic.
-- **Known issues**: no open a11y-specific bug reports distinct from the resolved [#3176](https://github.com/mui/base-ui/issues/3176) activation-timing story. [G] a narrower search than a Tier-1 pass would run (`research/c-components/tabs/brief.md` §7).
+- **Known issues**: no open a11y-specific bug reports distinct from the resolved [#3176](https://github.com/mui/base-ui/issues/3176) activation-timing story — a lighter search than the deepest components on this site received, so treat it as a search result, not an exhaustive audit.
 
 ## Styling hooks
 

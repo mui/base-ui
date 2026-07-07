@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, tests, git history, upstream issues/PRs
-    — research/c-components/autocomplete/brief.md); real-world data pending Phase D. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AutocompleteStories from './autocomplete.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -43,13 +39,13 @@ An input that suggests options as you type — the typed string **is** the commi
 
 ## When not to use
 
-The pickers boundary in one line: *free-form text → Autocomplete; visible filter input over a fixed set → [Combobox](?path=/docs/form-inputs-combobox--docs); button + predefined values → [Select](?path=/docs/form-inputs-select--docs); popup that performs actions without filtering → Menu* (full decision table with maintainer quotes: `research/c-components/_clusters/pickers.md`).
+The pickers boundary in one line: *free-form text → Autocomplete; visible filter input over a fixed set → [Combobox](?path=/docs/form-inputs-combobox--docs); button + predefined values → [Select](?path=/docs/form-inputs-select--docs); popup that performs actions without filtering → Menu* (full decision table with maintainer quotes: [Pickers](?path=/docs/research-c-component-briefs-clusters-pickers--docs)).
 
 - **Selection must be remembered or restricted to the list → [Combobox](?path=/docs/form-inputs-combobox--docs)**: "Use Combobox instead of Autocomplete if the selection should be remembered and the input value cannot be custom" (docs usage guidelines — the page's own boundary statement). Autocomplete has no selection state at all; it is the shared `AriaCombobox` engine fixed to `selectionMode="none"`.
-- **No text input rendered → [Select](?path=/docs/form-inputs-select--docs)**: "Use Select instead of Combobox if no input is being rendered" (combobox docs guidelines) — applies transitively; Autocomplete without its Input is meaningless since the input *is* the control. [I]
+- **No text input rendered → [Select](?path=/docs/form-inputs-select--docs)**: "Use Select instead of Combobox if no input is being rendered" (combobox docs guidelines) — applies transitively; Autocomplete without its Input is meaningless since the input *is* the control.
 - **Dropdown of actions without filtering → Menu**; a searchable menu *with submenus* fits no component yet — "it's more like Autocomplete needs `SubmenuRoot` parts… A separate component with different roles and behavior is probably 'cleanest'" (atomiks, [#4157](https://github.com/mui/base-ui/issues/4157), open). Filterable flat command lists belong here — that is the same issue's ruling and the command-palette recipe below.
-- **Multi-value tokenized entry → Combobox `multiple` + Chips** — Autocomplete's value is one string; it has no `multiple`. [I from API]
-- **Plain text field without suggestions → Input/Field** — the popup machinery is pure overhead then. [I — no maintainer statement found [G]]
+- **Multi-value tokenized entry → Combobox `multiple` + Chips** — Autocomplete's value is one string; it has no `multiple`.
+- **Plain text field without suggestions → Input/Field** — the popup machinery is pure overhead then; no maintainer statement makes this comparison directly, but it follows from the component's stated purpose.
 
 ## Anatomy
 
@@ -314,9 +310,16 @@ There is **no `data-selected`** on Item (removed from the public contract in [#4
   <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
     the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.
   </WildCard>
+  <WildCard repo="PostHog/posthog" title="PostHog (Quill)" href="https://github.com/PostHog/posthog/blob/c030bc35b420a6d8ec7930f46a82f4680f6bd42d/packages/quill/packages/primitives/src/autocomplete.tsx" live="https://posthog.com" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
+    PostHog's in-house "Quill" design-system primitive reuses `MenuEmpty`/`MenuLabel` from its Menu component inside Autocomplete's `Empty`/`GroupLabel`, and implements a live "N results" `Status` announcer by walking `useFilteredItems()` output.
+  </WildCard>
+  <WildCard repo="baptisteArno/typebot.io" title="Typebot" href="https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Autocomplete.tsx" live="https://typebot.io" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
+    an open-source chatbot/form builder that exposes Autocomplete as a single namespace object (`Autocomplete.Root/Input/List/Item/Popup`) inside a product whose entire purpose is building forms.
+  </WildCard>
+  <WildCard repo="gitbutlerapp/gitbutler" title="GitButler" href="https://github.com/gitbutlerapp/gitbutler/blob/0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd/apps/lite/ui/src/components/PickerDialog.tsx" live="https://gitbutler.com" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
+    a command-palette / quick-picker dialog composing Autocomplete inside a Dialog with ScrollArea for the list — the file header cites Base UI's own documented command-palette recipe, adopted in a well-known Git client.
+  </WildCard>
 </WildCards>
-
-[G] Beyond the three verified registries above, the cached code search (2026-07-06, 750 TSX hits for `"@base-ui/react/autocomplete"`) also flagged PostHog (app-wide search + TaxonomicFilter), typebot.io (wrapper component), and gitbutler (`PickerDialog.tsx`) as candidate adopters — none of these three were fetched or subpath-verified, so they are named here only as leads for a future full Phase D pass, not cited as examples.
 
 ## Decision log
 

@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToolbarStories from './toolbar.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -93,7 +90,7 @@ The non-inverted composition direction: `<Toolbar.Button render={<Menu.Trigger /
 
 - **ARIA**: `role="toolbar"` and `aria-orientation={orientation}` on Root; each hosted item supplies its own semantics.
 - **You must provide**: an accessible name per icon-only Button (`aria-label`); a `Toolbar.Group`'s own accessible name via `aria-label` on the Group itself.
-- **Known issues**: [G] the disabled-forwarding-for-composed-`render`-buttons behavior has an open, in-source-acknowledged follow-up ([#1976](https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663)) — flagged honestly as unsettled rather than presented as finished design.
+- **Known issues**: the disabled-forwarding-for-composed-`render`-buttons behavior has an open, in-source-acknowledged follow-up ([#1976](https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663)) — flagged honestly as unsettled rather than presented as finished design.
 
 ## Styling hooks
 
@@ -141,14 +138,14 @@ No CSS variables — no dynamic measurements to expose.
 ## Decision log
 
 - **Introduced — [#1349](https://github.com/mui/base-ui/pull/1349)** "[Toolbar] Add Toolbar components" (closing [#661](https://github.com/mui/base-ui/issues/661)): shipped with Root/Button/Input/Link/Group/Separator, `focusableWhenDisabled`, `orientation`, roving focus with `loop`, and a `cols` grid-layout prop; explicitly deferred a `hotkey` prop to [#1454](https://github.com/mui/base-ui/issues/1454).
-- **`#3133`** — Drop `cols` prop — a rare shipped-then-retracted API surface for this component. [G] rationale not fetched; logged from commit subject only.
+- **`#3133`** — Drop `cols` prop — a rare shipped-then-retracted API surface for this component (rationale not available beyond the commit subject).
 - **`#2176`** — Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}`.
 - **`#4967`/`#4968`** — Do not forward `disabled` to the default toolbar button / fix disabled state and roving focus bugs — the two most recent Toolbar-scoped commits, explaining the asymmetric disabled-forwarding behavior above.
 
 ## Known issues & open questions
 
 - [#1976](https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663) — disabled forwarding for `render`-composed buttons is an acknowledged, still-evolving area.
-- [G] No other Toolbar-specific accessibility bug beyond this was found in the mined discussions/issues corpus in this pass.
+- No other Toolbar-specific accessibility bug beyond this was found in a search of the project's discussions/issues.
 
 ## Related
 

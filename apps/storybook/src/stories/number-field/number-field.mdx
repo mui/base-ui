@@ -31,12 +31,12 @@ A numeric input element with increment and decrement buttons, and a scrub area.
 - Any numeric value that benefits from formatted display (currency, percent, units) alongside typed entry and click-to-step controls — the entire `parse.ts`/`validate.ts`/`formatNumber` pipeline exists specifically for this.
 - Forms needing native constraint validation (`min`/`max`/`step`/`required`) on a numeric field, where the formatted display must never pollute the submitted value.
 - A bounded, steppable range where increment/decrement affordances and/or drag-to-scrub add value beyond free-text entry.
-- [G] Fuller evidenced real-world archetypes (checkout quantity fields, currency settings panels) are plausible but not yet corpus-verified — Phase D real-world usage mining has not run for this component.
+- Likely real-world archetypes (checkout quantity fields, currency settings panels) are plausible, though we haven't verified public examples of them yet beyond what's in "In the wild" below.
 
 ## When not to use
 
-- For continuous/glanceable range selection where exact typed precision matters less than position-relative-to-bounds, prefer [Slider](?path=/docs/form-inputs-slider--docs) — its primary interaction is the drag gesture itself, with no typed-entry path at all. [I] — inferred from the two components' divergent design poles, not a direct maintainer quote comparing them.
-- For plain unformatted numeric entry with no locale/formatting/stepping need, a bare `Input` (or native `<input type="number">`) is lower overhead. [G] — no maintainer quote found making this comparison directly; this follows from Number Field's stated purpose.
+- For continuous/glanceable range selection where exact typed precision matters less than position-relative-to-bounds, prefer [Slider](?path=/docs/form-inputs-slider--docs) — its primary interaction is the drag gesture itself, with no typed-entry path at all (inferred from the two components' divergent design poles, not a direct maintainer quote comparing them).
+- For plain unformatted numeric entry with no locale/formatting/stepping need, a bare `Input` (or native `<input type="number">`) is lower overhead — no maintainer quote makes this comparison directly; it follows from Number Field's stated purpose.
 - Not for math-expression evaluation (`"5+20"`) — maintainers explicitly declined this direction and suggested a separate component (mui/base-ui#2152).
 
 ## Anatomy
@@ -157,8 +157,8 @@ Wrapping in `Field.Root` with a `validate` function demonstrates the duplicated-
 | Click-drag on ScrubArea                                                                   | Pointer down                   | Continuous stepping proportional to movement; pointer-only                          |
 
 - **ARIA — verified absence, not an assumption**: the Input does **not** use `role="spinbutton"`. Reading `NumberFieldInput.tsx` and grepping the entire `number-field/` source tree directly confirms there is no `role="spinbutton"`, no `aria-valuenow`/`aria-valuemin`/`aria-valuemax`/`aria-valuetext` anywhere. The Input is a plain implicit `role="textbox"` (confirmed by tests: `screen.getByRole('textbox')` is used pervasively across `NumberFieldRoot.test.tsx`). It additionally carries `aria-roledescription="Number field"` — a role _description_, not an accessible name; use `Field.Label`/`aria-label` for that.
-- This was a considered decision: the founding PR [#186](https://github.com/mui/base-ui/issues/186)'s checklist included "Research if spinbutton ARIA props become necessary for iOS" as an open TODO — the shipped component never added them, and no later PR reversed that. [I] The likely rationale (not a maintainer quote — [G]): a spinbutton's `aria-valuenow`/`aria-valuetext` model fits a value that's _set_, whereas this component's primary interaction is free-form formatted text editing where the visible text should simply be read like any other text input.
-- **Known issues**: [G] no dedicated open a11y issue sweep beyond source verification was performed for this Tier-2 brief.
+- This was a considered decision: the founding PR [#186](https://github.com/mui/base-ui/issues/186)'s checklist included "Research if spinbutton ARIA props become necessary for iOS" as an open TODO — the shipped component never added them, and no later PR reversed that. The likely rationale (not a maintainer quote): a spinbutton's `aria-valuenow`/`aria-valuetext` model fits a value that's _set_, whereas this component's primary interaction is free-form formatted text editing where the visible text should simply be read like any other text input.
+- **Known issues**: no dedicated open accessibility-issue sweep beyond source verification has been performed for this page.
 
 ## Styling hooks
 

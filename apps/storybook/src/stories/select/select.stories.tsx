@@ -7,7 +7,10 @@ import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import styles from './select.module.css';
-import rw from './select-real-world.module.css';
+import { DemoSelect, CaretUpDownIcon, CaretUpIcon, CaretDownIcon, CheckIcon } from './DemoSelect';
+import { DashboardFilterExample } from './recreations/DashboardFilterExample';
+import { ThemePickerExample } from './recreations/ThemePickerExample';
+import { RegistrySelectExample } from './recreations/RegistrySelectExample';
 
 /**
  * Stories follow research/c-components/select (Tier 1): the four kept docs demos,
@@ -77,75 +80,6 @@ const languages = {
   rust: 'Rust',
   go: 'Go',
 };
-
-interface DemoOption {
-  value: string | null;
-  label: string;
-  disabled?: boolean;
-}
-
-/**
- * Standard hero-styled anatomy shared by the behavior stories. Anatomy-focused
- * stories (Basic, GroupedItems, ObjectValues…) spell out the full part tree inline.
- */
-function DemoSelect({
-  label,
-  placeholder,
-  options,
-  itemClassName = styles.Item,
-  popupClassName = styles.Popup,
-  root,
-  positioner,
-}: {
-  label?: string;
-  placeholder?: string;
-  options: readonly DemoOption[];
-  itemClassName?: string;
-  popupClassName?: string;
-  root?: Partial<Select.Root.Props<string | null, false>>;
-  positioner?: Partial<React.ComponentProps<typeof Select.Positioner>>;
-}) {
-  return (
-    <div className={styles.Field}>
-      <Select.Root items={options as Array<{ value: string | null; label: string }>} {...root}>
-        {label ? <Select.Label className={styles.Label}>{label}</Select.Label> : null}
-        <Select.Trigger className={styles.Select}>
-          <Select.Value className={styles.Value} placeholder={placeholder} />
-          <Select.Icon className={styles.Icon}>
-            <CaretUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={4} {...positioner}>
-            <Select.Popup className={popupClassName}>
-              <Select.ScrollUpArrow className={styles.ScrollArrow}>
-                <CaretUpIcon />
-              </Select.ScrollUpArrow>
-              <Select.List className={styles.List}>
-                {options.map((option) => (
-                  <Select.Item
-                    key={String(option.value)}
-                    value={option.value}
-                    disabled={option.disabled}
-                    className={itemClassName}
-                  >
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon />
-                    </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>{option.label}</Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.List>
-              <Select.ScrollDownArrow className={styles.ScrollArrow}>
-                <CaretDownIcon />
-              </Select.ScrollDownArrow>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    </div>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /* Kept docs demos + core behavior                                     */
@@ -793,9 +727,7 @@ export const RTLItemAlignment: Story = {
 
 /** Like native `<select>`, typing on the closed trigger commits a matching value without opening the popup (single mode only; disabled items are skipped, #5025). */
 export const TypeaheadKeyboard: Story = {
-  render: () => (
-    <DemoSelect label="Country" placeholder="Select country" options={countries} />
-  ),
+  render: () => <DemoSelect label="Country" placeholder="Select country" options={countries} />,
   play: async ({ canvas, userEvent }) => {
     const trigger = canvas.getByRole('combobox');
     trigger.focus();
@@ -862,11 +794,7 @@ export const DisabledOptions: Story = {
 /** `readOnly` exposes the value but blocks opening by pointer and keyboard (#2717) — use it for temporarily locked form state instead of `disabled` when the value must stay readable and submittable. */
 export const ReadOnly: Story = {
   render: () => (
-    <DemoSelect
-      label="Apple"
-      options={apples}
-      root={{ defaultValue: 'fuji', readOnly: true }}
-    />
+    <DemoSelect label="Apple" options={apples} root={{ defaultValue: 'fuji', readOnly: true }} />
   ),
   play: async ({ canvas, userEvent }) => {
     const trigger = canvas.getByRole('combobox');
@@ -1201,7 +1129,12 @@ export const TypedWrapper: Story = {
   render: () => (
     <div className={styles.Row}>
       <MySelect label="Font" items={fontOptions} defaultValue="serif" />
-      <MySelect label="Fallback fonts" items={fontOptions} multiple defaultValue={['serif', 'mono']} />
+      <MySelect
+        label="Fallback fonts"
+        items={fontOptions}
+        multiple
+        defaultValue={['serif', 'mono']}
+      />
     </div>
   ),
 };
@@ -1209,88 +1142,6 @@ export const TypedWrapper: Story = {
 /* ------------------------------------------------------------------ */
 /* Real-world recreations (research/d-real-world-usage/select)         */
 /* ------------------------------------------------------------------ */
-
-const predictions = [
-  { id: 1, concept: 'Flood risk', model: 'alpha', status: 'correct' },
-  { id: 2, concept: 'Heatwave', model: 'beta', status: 'incorrect' },
-  { id: 3, concept: 'Drought', model: 'alpha', status: 'correct' },
-  { id: 4, concept: 'Wildfire', model: 'gamma', status: 'uncertain' },
-  { id: 5, concept: 'Sea level rise', model: 'beta', status: 'correct' },
-  { id: 6, concept: 'Air quality', model: 'alpha', status: 'incorrect' },
-];
-
-const modelFilterItems = [
-  { value: '', label: 'All models' },
-  { value: 'alpha', label: 'Alpha' },
-  { value: 'beta', label: 'Beta' },
-  { value: 'gamma', label: 'Gamma' },
-];
-
-const statusFilterItems = [
-  { value: '', label: 'All statuses' },
-  { value: 'correct', label: 'Correct' },
-  { value: 'incorrect', label: 'Incorrect' },
-  { value: 'uncertain', label: 'Uncertain' },
-];
-
-function DashboardFilterExample() {
-  const [model, setModel] = React.useState('');
-  const [status, setStatus] = React.useState('');
-  const rows = predictions.filter(
-    (prediction) =>
-      (model === '' || prediction.model === model) &&
-      (status === '' || prediction.status === status),
-  );
-  return (
-    <div className={styles.Stack}>
-      <div className={styles.Row}>
-        <DemoSelect
-          label="Model"
-          options={modelFilterItems}
-          root={{ value: model, onValueChange: (value) => setModel(value ?? '') }}
-          positioner={{ alignItemWithTrigger: false }}
-        />
-        <DemoSelect
-          label="Status"
-          options={statusFilterItems}
-          root={{ value: status, onValueChange: (value) => setStatus(value ?? '') }}
-          positioner={{ alignItemWithTrigger: false }}
-        />
-        <button
-          type="button"
-          className={styles.Button}
-          onClick={() => {
-            setModel('');
-            setStatus('');
-          }}
-        >
-          Reset
-        </button>
-      </div>
-      <table className={rw.FilterTable}>
-        <thead>
-          <tr>
-            <th>Concept</th>
-            <th>Model</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((prediction) => (
-            <tr key={prediction.id}>
-              <td>{prediction.concept}</td>
-              <td>{prediction.model}</td>
-              <td>{prediction.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <output className={styles.Output}>
-        {rows.length} of {predictions.length} predictions
-      </output>
-    </div>
-  );
-}
 
 /**
  * Recreation of a data-QA filter bar: several controlled selects with `items` and
@@ -1315,56 +1166,6 @@ export const RealWorldDashboardFilter: Story = {
   },
 };
 
-const pickerThemes = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
-];
-
-function ThemePickerExample() {
-  const [theme, setTheme] = React.useState('system');
-  return (
-    <div className={styles.Stack}>
-      <Select.Root
-        items={pickerThemes}
-        value={theme}
-        // Single-mode onValueChange receives (value | null, eventDetails); there is
-        // no null item here, so guard like graphql.org's type-guarded handler.
-        onValueChange={(value) => setTheme(value ?? 'system')}
-      >
-        <Select.Trigger className={rw.IconTrigger} aria-label="Theme">
-          <Select.Value className={rw.SrOnly} />
-          {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <MonitorIcon />}
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner
-            className={styles.Positioner}
-            align="end"
-            sideOffset={8}
-            alignItemWithTrigger={false}
-          >
-            <Select.Popup className={styles.Popup}>
-              <Select.List className={styles.List}>
-                {pickerThemes.map(({ value, label }) => (
-                  <Select.Item key={value} value={value} className={styles.Item}>
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon />
-                    </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.List>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-      <div className={rw.ThemeCard} data-theme={theme}>
-        Resolved theme: {theme}
-      </div>
-    </div>
-  );
-}
-
 /**
  * Recreation of the graphql.org header theme switcher: an icon-only trigger labeled
  * with `aria-label`, a visually hidden `Select.Value`, and `align="end"` positioning.
@@ -1385,73 +1186,6 @@ export const RealWorldThemePicker: Story = {
   },
 };
 
-type RegistryOptionDescriptor = string | { label: string; disabled?: boolean; disabledReason?: string };
-
-/**
- * Registry-style wrapper: `items` given as an object map whose descriptors carry
- * per-item `disabled` + `disabledReason`, resolved into Base UI parts internally.
- */
-function RegistrySelect({
-  label,
-  placeholder,
-  items,
-}: {
-  label: string;
-  placeholder?: string;
-  items: Record<string, RegistryOptionDescriptor>;
-}) {
-  const entries = Object.entries(items).map(([value, descriptor]) =>
-    typeof descriptor === 'string'
-      ? { value, label: descriptor, disabled: false, disabledReason: undefined }
-      : {
-          value,
-          label: descriptor.label,
-          disabled: descriptor.disabled ?? false,
-          disabledReason: descriptor.disabledReason,
-        },
-  );
-  const labelMap = Object.fromEntries(entries.map((entry) => [entry.value, entry.label]));
-  return (
-    <div className={styles.Field}>
-      <Select.Root items={labelMap}>
-        <Select.Label className={styles.Label}>{label}</Select.Label>
-        <Select.Trigger className={styles.Select}>
-          <Select.Value className={styles.Value} placeholder={placeholder} />
-          <Select.Icon className={styles.Icon}>
-            <CaretUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={4}>
-            <Select.Popup className={styles.Popup}>
-              <Select.List className={styles.List}>
-                {entries.map((entry) => (
-                  <Select.Item
-                    key={entry.value}
-                    value={entry.value}
-                    disabled={entry.disabled}
-                    className={styles.Item}
-                  >
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon />
-                    </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      {entry.label}
-                      {entry.disabledReason ? (
-                        <span className={rw.DisabledReason}>{entry.disabledReason}</span>
-                      ) : null}
-                    </Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.List>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    </div>
-  );
-}
-
 /**
  * Recreation of a design-system wrapper: an object-map `items` API with per-item
  * disabled reasons rendered as secondary text. Recomposed from the ideas in
@@ -1460,21 +1194,7 @@ function RegistrySelect({
  */
 export const RealWorldWrappedRegistrySelect: Story = {
   tags: ['recreation'],
-  render: () => (
-    <RegistrySelect
-      label="Region"
-      placeholder="Select region"
-      items={{
-        'eu-west': 'Frankfurt',
-        'us-east': 'Ashburn',
-        'ap-southeast': {
-          label: 'Singapore',
-          disabled: true,
-          disabledReason: 'Not available on the free plan',
-        },
-      }}
-    />
-  ),
+  render: () => <RegistrySelectExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('combobox');
@@ -1488,121 +1208,3 @@ export const RealWorldWrappedRegistrySelect: Story = {
     await waitFor(() => expect(trigger).toHaveTextContent('Frankfurt'));
   },
 };
-
-/* ------------------------------------------------------------------ */
-/* Icons (inlined — stories must not import docs assets)               */
-/* ------------------------------------------------------------------ */
-
-function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
-    </svg>
-  );
-}
-
-function CheckIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="m2.5 8.5 4 4 7-9" />
-    </svg>
-  );
-}
-
-function CaretUpIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 10H4l4-4.5z" />
-    </svg>
-  );
-}
-
-function CaretDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 6H4l4 4.5z" />
-    </svg>
-  );
-}
-
-function SunIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <circle cx="8" cy="8" r="3" />
-      <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4" />
-    </svg>
-  );
-}
-
-function MoonIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M13.5 9.5A6 6 0 1 1 6.5 2.5a5 5 0 0 0 7 7z" />
-    </svg>
-  );
-}
-
-function MonitorIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <rect x="1.5" y="2.5" width="13" height="9" />
-      <path d="M5.5 14h5M8 11.5V14" />
-    </svg>
-  );
-}

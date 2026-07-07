@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, forms handbook, tests, experiments, git history,
-    upstream issues/PRs — research/c-components/form/brief.md); [E]/[I]/[G] tags kept. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as FormStories from './form.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -44,9 +40,9 @@ A native form element with consolidated error handling.
 ## When not to use
 
 - **With TanStack Form** — "The Base UI `<Form>` component is not needed when using TanStack Form" (forms handbook): TanStack owns submission and validation, so drive Fields from its render props inside a plain `<form>`.
-- **vs plain `<form>`** [I] — if you use no Base UI Fields, or your form library already provides validity gating, focus-on-error, and error state, Form only adds `noValidate` and its registry; a plain `<form>` suffices. Use Base UI `<Form>` exactly when Fields should drive gating, first-invalid focus, `errors` distribution, `onFormSubmit` assembly, or fleet-wide `validationMode`. ([G] — no explicit maintainer statement of this boundary found; the nearest is the TanStack line above.)
+- **vs plain `<form>`** — if you use no Base UI Fields, or your form library already provides validity gating, focus-on-error, and error state, Form only adds `noValidate` and its registry; a plain `<form>` suffices. Use Base UI `<Form>` exactly when Fields should drive gating, first-invalid focus, `errors` distribution, `onFormSubmit` assembly, or fleet-wide `validationMode`. (No explicit maintainer statement draws this exact boundary; the nearest is the TanStack line above.)
 - **Form-level schema validation** — not supported natively; Standard Schema support is an open request ([#4737](https://github.com/mui/base-ui/issues/4737)). Use per-field `validate` (which receives `formValues` for cross-field checks) or schema-at-submit mapped into `errors`.
-- **Resetting to initial values** — there is no `reset()` API yet ([#1346](https://github.com/mui/base-ui/issues/1346), open); remount via `key` or control values as a workaround. [I]
+- **Resetting to initial values** — there is no `reset()` API yet ([#1346](https://github.com/mui/base-ui/issues/1346), open); remount via `key` or control values as a workaround.
 - For grouping related controls *within* a form with a shared legend, use [Fieldset](?path=/docs/form-inputs-fieldset--docs) — it handles labeling, not submission.
 
 ## Anatomy
@@ -142,8 +138,8 @@ Form adds no widget semantics of its own — it is a native `<form>`, so native 
 
 - **ARIA**: no role or `aria-*` attributes are added by Base UI. Error announcement happens at Field level: `Field.Error` joins the control's `aria-describedby` and the control gets `aria-invalid` when invalid — Form's contribution is *timing* (errors appear and focus moves on submit, matching the native mental model).
 - **Focus management**: on a failed submit — including one that returns server errors — the first invalid control is focused and its text selected, so keyboard and screen-reader users land directly on the problem.
-- **You must provide**: an accessible name for the form landmark itself (`aria-label`/`aria-labelledby` on Form) if the page has multiple forms — Base UI leaves this to you ([G] — no guidance found in docs); plus the usual Field-level labels via `Field.Label`.
-- **Known issues**: [G] none found against Form itself in an upstream search (2026-07); the closest is OTP-field autosubmit focus ([#5088](https://github.com/mui/base-ui/issues/5088)), owned by otp-field.
+- **You must provide**: an accessible name for the form landmark itself (`aria-label`/`aria-labelledby` on Form) if the page has multiple forms — Base UI leaves this to you (no guidance found in the docs); plus the usual Field-level labels via `Field.Label`.
+- **Known issues**: none found against Form itself in an upstream search (2026-07); the closest is OTP-field autosubmit focus ([#5088](https://github.com/mui/base-ui/issues/5088)), owned by otp-field.
 
 ## Styling hooks
 

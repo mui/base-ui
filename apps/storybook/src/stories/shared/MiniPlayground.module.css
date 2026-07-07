@@ -1,0 +1,272 @@
+/* Tab styling adapted from stories/tabs/tabs.module.css (hero look), not imported
+   across directories per repo convention — each story tree owns its own CSS module. */
+
+.Root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 40rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}
+
+.Header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: white;
+  }
+}
+
+.Title {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+  text-decoration: none;
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(87% 0 0deg);
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.License {
+  box-sizing: border-box;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid oklch(70.8% 0 0deg);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(43.9% 0 0deg);
+  }
+}
+
+.TabsRoot {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.List {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  gap: 0.25rem;
+  padding-inline: 0.5rem;
+  margin-bottom: -1px;
+}
+
+.Tab {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  margin: 0;
+  outline: 0;
+  background: none;
+  color: oklch(43.9% 0 0deg);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  -webkit-user-select: none;
+  user-select: none;
+  white-space: nowrap;
+  padding-inline: 0.625rem;
+  padding-block: 0;
+  height: calc(2rem + 1px);
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(87% 0 0deg);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
+    }
+  }
+
+  &[data-active] {
+    color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Indicator {
+  box-sizing: border-box;
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  translate: var(--active-tab-left);
+  width: var(--active-tab-width);
+  height: 100%;
+  transition-property: translate, width;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
+  border-top: 1px solid oklch(14.5% 0 0deg);
+  border-inline: 1px solid oklch(14.5% 0 0deg);
+  background-color: oklch(97% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid white;
+    border-inline: 1px solid white;
+    background-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.PanelViewport {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  border-top: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: white;
+  }
+}
+
+.Panel {
+  box-sizing: border-box;
+  grid-area: 1 / 1;
+  width: 100%;
+  min-height: 6rem;
+  outline: 0;
+  color: oklch(14.5% 0 0deg);
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
+    z-index: 1;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.Stage {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 6rem;
+  padding: 1.5rem;
+}
+
+.CodeToolbar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid oklch(89.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.Note {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+}
+
+.ToolbarButton {
+  box-sizing: border-box;
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Pre {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.75rem;
+  max-height: 20rem;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.375rem;
+  white-space: pre;
+  tab-size: 2;
+}

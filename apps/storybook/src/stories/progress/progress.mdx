@@ -1,6 +1,3 @@
-{/* Implements research/a-documentation-standard/component-doc-template.mdx from
-    research/c-components/progress/brief.md (Tier 3 lean). [G] marks known gaps. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ProgressStories from './progress.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -38,7 +35,7 @@ Displays the status of a task that takes a long time.
 
 ## When not to use
 
-- For a **bounded measurement with no notion of "done"** (disk usage, battery level), use [Meter](?path=/docs/status-display-meter--docs), because the APG meter pattern explicitly excludes "progress, such as loading or percent completion of a task" — full boundary in the status cluster note (`research/c-components/_clusters/status.md`).
+- For a **bounded measurement with no notion of "done"** (disk usage, battery level), use [Meter](?path=/docs/status-display-meter--docs), because the APG meter pattern explicitly excludes "progress, such as loading or percent completion of a task" — full boundary on the [Status](?path=/docs/research-c-component-briefs-clusters-status--docs) research page.
 - If your team wants **zero custom ARIA** and accepts native quirks, native `<progress>` remains a documented (maintainer-declined) alternative — the ask was closed citing cross-browser/screen-reader inconsistencies and "parity with Radix and React Aria" ([#4558](https://github.com/mui/base-ui/issues/4558)).
 
 ## Anatomy
@@ -158,7 +155,7 @@ State attributes are identical on **every** part (shared `progressStateAttribute
 
 ## Related
 
-- To display a **bounded measurement** that is not a task, use [Meter](?path=/docs/status-display-meter--docs) — full comparison in `research/c-components/_clusters/status.md`.
+- To display a **bounded measurement** that is not a task, use [Meter](?path=/docs/status-display-meter--docs) — full comparison in [Status](?path=/docs/research-c-component-briefs-clusters-status--docs).
 - To show identity/image state (same taxonomy category, different job), see [Avatar](?path=/docs/status-display-avatar--docs).
 
 ## API reference

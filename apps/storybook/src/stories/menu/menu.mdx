@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
-    — research/c-components/menu/brief.md); real-world data from research/d-real-world-usage/menu. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MenuStories from './menu.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -39,13 +35,13 @@ A list of actions in a dropdown, enhanced with keyboard navigation — a button 
 - Toggleable settings and exclusive option sets *inside* the dropdown — `CheckboxItem` for view options, `RadioGroup`/`RadioItem` for sort order — plus grouped sections, nested command trees, links, and hover-opened menus (docs Examples).
 - One shared menu for many launch points — "a card list that controls a menu rendered near the document root" with `payload` deciding content per trigger; table/list row-action menus are the canonical case (docs "Detached triggers").
 - Reusing one styled menu across modalities: "all the context menu parts are direct reexports of regular menu parts so they are interchangeable" — build it once, drive it from a button (Menu), right-click ([Context Menu](?path=/docs/overlays-context-menu--docs)), or a bar ([Menubar](?path=/docs/navigation-menubar--docs)) ([#3365](https://github.com/mui/base-ui/issues/3365)).
-- Desktop-app-like interactions — press-drag-release, typeahead, submenus: Menu is the closest Base UI gets to native OS menus. [I] from [#63](https://github.com/mui/base-ui/issues/63) and the test suite.
+- Desktop-app-like interactions — press-drag-release, typeahead, submenus: Menu is the closest Base UI gets to native OS menus (following from [#63](https://github.com/mui/base-ui/issues/63) and the test suite).
 
 ## When not to use
 
-Comparative guidance for the four menu-shaped components lives in the cluster note (`research/c-components/_clusters/menus.md`); the short version: *button-anchored actions → Menu; right-click/long-press → Context Menu; persistent app-chrome bar → Menubar; site navigation links → Navigation Menu.*
+Comparative guidance for the four menu-shaped components lives on the [Menus](?path=/docs/research-c-component-briefs-clusters-menus--docs) research page; the short version: *button-anchored actions → Menu; right-click/long-press → Context Menu; persistent app-chrome bar → Menubar; site navigation links → Navigation Menu.*
 
-- **Choosing a value for a form** → [Select](?path=/docs/form-inputs-select--docs). Menu items fire actions and the widget forgets; Select holds a `value`, renders it in the trigger, and participates in forms. Menu has no `value`, `name`, or form integration at Root level — `Menu.RadioGroup` exists for exclusive *settings* (view density, sort order), not form data. [I] derived from API affordances; no maintainer statement found [G].
+- **Choosing a value for a form** → [Select](?path=/docs/form-inputs-select--docs). Menu items fire actions and the widget forgets; Select holds a `value`, renders it in the trigger, and participates in forms. Menu has no `value`, `name`, or form integration at Root level — `Menu.RadioGroup` exists for exclusive *settings* (view density, sort order), not form data, based on the components' API design rather than a direct maintainer statement.
 - **Filterable command palette / searchable list** → [Autocomplete](?path=/docs/form-inputs-autocomplete--docs): "Autocomplete can be used as a filterable menu, but it has no support for nested submenus" ([#4157](https://github.com/mui/base-ui/issues/4157), maintainer-recommended, open).
 - **Right-click / long-press target** → [Context Menu](?path=/docs/overlays-context-menu--docs) — same parts, different Root/Trigger, positioned at the pointer.
 - **A persistent horizontal bar of menus** (File/Edit/View app chrome) → [Menubar](?path=/docs/navigation-menubar--docs) wrapping `Menu.Root`s.
@@ -240,7 +236,7 @@ For multi-trigger menus, freeze the Positioner to `var(--positioner-width/height
 
 ### Server rendering
 
-[G] No menu-specific SSR caveats found — trigger ARIA renders server-side (searched release notes and upstream issues, 2026-07).
+No menu-specific SSR caveats were found — trigger ARIA renders server-side (searched release notes and upstream issues, 2026-07).
 
 ## Keyboard & screen reader
 

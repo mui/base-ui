@@ -1,8 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
-    — research/c-components/popover/brief.md); real-world data from research/d-real-world-usage/popover.
-    Overlay decision guidance from research/c-components/_clusters/overlays.md. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PopoverStories from './popover.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -41,11 +36,11 @@ An accessible popup anchored to a button — an anchored mini-dialog for interac
 - **Interactive anchored panels** — notification inboxes (the hero above), filter and settings panels, link editors; the docs' own SEO keywords map the query space: "Anchored Popup", "Floating Panel", "Info Box", "Callout".
 - **One shared popup for many triggers** — e.g. dozens of table rows each opening the same panel with per-row context; the detached-triggers + payload pattern exists precisely for this ([#3577](https://github.com/mui/base-ui/issues/3577)).
 - **A popover that must behave like a small modal** — block outside interaction while open via the `modal` prop, added on request ([#1459](https://github.com/mui/base-ui/pull/1459) closing [#623](https://github.com/mui/base-ui/issues/623)).
-- **Hosting third-party widgets** — date pickers and similar commit-on-close panels are a recurring production pattern (`research/d-real-world-usage/popover/ranked.json` [#10](https://github.com/mui/base-ui/issues/10)).
+- **Hosting third-party widgets** — date pickers and similar commit-on-close panels are a recurring production pattern (see the [Popover examples](?path=/docs/research-d-real-world-usage-popover-examples--docs) research page, [#10](https://github.com/mui/base-ui/issues/10)).
 
 ## When not to use
 
-Full comparative guidance for the overlay cluster lives in `research/c-components/_clusters/overlays.md`. The master heuristic, from the maintainers ([#3530](https://github.com/mui/base-ui/issues/3530)):
+Full comparative guidance for the overlay cluster lives in [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs). The master heuristic, from the maintainers ([#3530](https://github.com/mui/base-ui/issues/3530)):
 
 > "A popover's trigger's purpose is to open the popover itself (and every platform is supported), while a tooltip's trigger's purpose is unrelated to the tooltip (and touch platforms are excluded)."
 
@@ -62,10 +57,10 @@ Two questions decide it: **what is the trigger for**, and **may a touch user los
 
 - To show a **visual hint labeling a control that does something else**, use [Tooltip](?path=/docs/overlays-tooltip--docs), because tooltips are optional, sighted-only supplements ([#3530](https://github.com/mui/base-ui/issues/3530)).
 - To preview a **link's destination on hover**, use [Preview Card](?path=/docs/overlays-preview-card--docs), because its trigger renders an `<a>` and the content must also exist at the destination.
-- For **page-blocking flows or centered prompts**, use [Dialog](?path=/docs/overlays-dialog--docs), because it opens "on top of the entire page", defaults to modal, and its handles support trigger-less `open()` — Popover's handle deliberately requires a `triggerId` because it needs an anchor ([#3065](https://github.com/mui/base-ui/pull/3065)). [I] Rule of thumb: if it must stay attached to what opened it → Popover; if it should command the whole page → Dialog.
+- For **page-blocking flows or centered prompts**, use [Dialog](?path=/docs/overlays-dialog--docs), because it opens "on top of the entire page", defaults to modal, and its handles support trigger-less `open()` — Popover's handle deliberately requires a `triggerId` because it needs an anchor ([#3065](https://github.com/mui/base-ui/pull/3065)). Rule of thumb: if it must stay attached to what opened it → Popover; if it should command the whole page → Dialog.
 - For an interruption **requiring a decision**, use [Alert Dialog](?path=/docs/overlays-alert-dialog--docs), because `role="alertdialog"` is always modal and refuses light dismiss ([#2146](https://github.com/mui/base-ui/issues/2146)).
-- For an anchored **list of actions**, use [Menu](?path=/docs/overlays-menu--docs), because it provides `role="menu"`, roving highlight, and typeahead — a popover popup is a `dialog` with no item semantics. [I] Users searching "Popover Menu"/"Dropdown" land here via the docs' SEO keywords.
-- For **edge-anchored, gesture-dismissed panels**, use [Drawer](?path=/docs/overlays-drawer--docs). [G] No direct maintainer statement on popover-vs-drawer found; [I] from the cluster dimensions: Drawer is edge-attached, swipe-dismissed, and page-scoped, while Popover stays anchored to its trigger — on small screens a desktop popover often becomes a drawer.
+- For an anchored **list of actions**, use [Menu](?path=/docs/overlays-menu--docs), because it provides `role="menu"`, roving highlight, and typeahead — a popover popup is a `dialog` with no item semantics. (Users searching "Popover Menu"/"Dropdown" land here via the docs' own SEO keywords.)
+- For **edge-anchored, gesture-dismissed panels**, use [Drawer](?path=/docs/overlays-drawer--docs). No direct maintainer statement compares the two; the distinction follows from each component's own anatomy: Drawer is edge-attached, swipe-dismissed, and page-scoped, while Popover stays anchored to its trigger — on small screens a desktop popover often becomes a drawer.
 - For **pure hover reveal** of non-essential content, use Tooltip or Preview Card — a hover-only interactive popover was explicitly declined: "'Hover-based UIs' are not accessible … That is why the `openOnHover` prop is hybrid" ([#2623](https://github.com/mui/base-ui/issues/2623)).
 
 ## Anatomy
@@ -254,7 +249,7 @@ Pattern: no dedicated APG pattern exists for popovers. The [Dialog (Modal)](http
 - **ARIA managed for you**: Trigger — `aria-haspopup="dialog"`, `aria-expanded` (true only on the trigger that opened it), `aria-controls`. Popup — `role="dialog"`, `aria-labelledby` from `Popover.Title`, `aria-describedby` from `Popover.Description`. Arrow — `aria-hidden` ([#1196](https://github.com/mui/base-ui/pull/1196)). Hidden focus-guard `<span>`s render around triggers and the popup — required touch screen-reader escape machinery ([#3693](https://github.com/mui/base-ui/issues/3693)).
 - **Screen reader**: focus enters the dialog on open so SR users "can navigate and read its text/content" — the deliberate contrast with Tooltip, which is `aria-describedby`-only ([#3530](https://github.com/mui/base-ui/issues/3530)).
 - **You must provide**: an accessible name — a `Popover.Title`, or `aria-label` on icon-only triggers and untitled popups — plus visible `:focus-visible` styling and sufficient contrast. Render a `Popover.Close` (visually hidden is fine) inside every `modal` popover.
-- **Known issues**: [#4084](https://github.com/mui/base-ui/pull/4084) (merged 2026-03) fixed the modal escape-hatch gap, closing [#2722](https://github.com/mui/base-ui/issues/2722)/[#3693](https://github.com/mui/base-ui/issues/3693)/[#4096](https://github.com/mui/base-ui/issues/4096). Open: [#3199](https://github.com/mui/base-ui/issues/3199) — focus not set to an interactive element rendered in another component; [#3104](https://github.com/mui/base-ui/issues/3104) — `onOpenChange` touch-event propagation. [G] No open issue labeled both `component: popover` and accessibility as of 2026-07-06.
+- **Known issues**: [#4084](https://github.com/mui/base-ui/pull/4084) (merged 2026-03) fixed the modal escape-hatch gap, closing [#2722](https://github.com/mui/base-ui/issues/2722)/[#3693](https://github.com/mui/base-ui/issues/3693)/[#4096](https://github.com/mui/base-ui/issues/4096). Open: [#3199](https://github.com/mui/base-ui/issues/3199) — focus not set to an interactive element rendered in another component; [#3104](https://github.com/mui/base-ui/issues/3104) — `onOpenChange` touch-event propagation. No open issue labeled both `component: popover` and accessibility as of 2026-07-06.
 
 ## Styling hooks
 
@@ -366,7 +361,7 @@ Three recreations live in this Storybook — the museeks queue popover, the Flas
 - To command the **whole page**, use [Dialog](?path=/docs/overlays-dialog--docs); for interruptions requiring a decision, [Alert Dialog](?path=/docs/overlays-alert-dialog--docs).
 - To show an anchored list of **actions**, use [Menu](?path=/docs/overlays-menu--docs).
 - For **edge-anchored, gesture-dismissed** panels, use [Drawer](?path=/docs/overlays-drawer--docs).
-- Cluster-wide decision guidance: `research/c-components/_clusters/overlays.md`.
+- Cluster-wide decision guidance: [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs).
 
 ## API reference
 

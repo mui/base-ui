@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (full brief, capped mining) —
-    research/c-components/context-menu/brief.md. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ContextMenuStories from './context-menu.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -96,7 +92,7 @@ Usage Guidelines).
 
 ## When not to use
 
-Full cluster comparison: `research/c-components/_clusters/menus.md`.
+Full cluster comparison: [Menus](?path=/docs/research-c-component-briefs-clusters-menus--docs).
 
 - **Never as the only path to an action** — see the Usage guideline above; this is
   the load-bearing "when not to use" fact for the whole component.
@@ -213,8 +209,8 @@ identical rule Menu documents for itself:
 ## In the wild
 
 <WildCards>
-  <WildCard repo="zweien/docx-template-system" title="zweien/docx-template-system" href="https://github.com/zweien/docx-template-system/blob/HEAD/src/components/ui/context-menu.tsx" live="https://zweien.github.io/docx-template-system/" license="no SPDX license detected" reuse="link-only, do not copy">
-    a small (6-star) shadcn-style registry with a file literally named `context-menu.tsx`; found by filename match on a Base UI menu subpath search, not independently verified against `@base-ui/react/context-menu` imports.
+  <WildCard repo="zweien/docx-template-system" title="zweien/docx-template-system" href="https://github.com/zweien/docx-template-system/blob/adb2c74c12000835c4c95c0a09598da6013ec1d4/src/components/ui/context-menu.tsx" live="https://zweien.github.io/docx-template-system/" license="no SPDX license detected" reuse="link-only, do not copy">
+    a small (6-star) shadcn-style registry whose `context-menu.tsx` imports `ContextMenu` from `@base-ui/react/context-menu` directly, confirmed by reading the file.
   </WildCard>
   <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/context-menu.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships a Radix-backed twin of the same ContextMenu API alongside the Base UI version.
@@ -250,7 +246,7 @@ identical rule Menu documents for itself:
   opening, use [Menu](?path=/docs/overlays-menu--docs) instead.
 - For a bar of always-visible application menus, use
   [Menubar](?path=/docs/navigation-menubar--docs) — a different mechanism entirely.
-- Cluster-level decision guidance for all menu components: `research/c-components/_clusters/menus.md`.
+- Cluster-level decision guidance for all menu components: [Menus](?path=/docs/research-c-component-briefs-clusters-menus--docs).
 
 ## API reference
 

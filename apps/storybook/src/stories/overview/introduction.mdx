@@ -1,9 +1,3 @@
-{/* Overview page. MDX-only — no stories.tsx (see AGENTS.md scope: introduction/orientation
-    content, not a component). Distilled from research/b-library-principles/principles.md,
-    research/a-documentation-standard/taxonomy.md, and research/e-storybook/coverage.md.
-    Structure inspired by GOV.UK's "Get started" shape and Polaris's top-level Foundations
-    section (anatomy only, no text reused — see research/a-documentation-standard/reference-notes/). */}
-
 import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Overview/Introduction" />
@@ -59,16 +53,16 @@ a GitHub issue thread. Every component page here follows the same research-backe
 
 Stories double as tests: every documented behavior is backed by a rendered, interactive
 example, and the whole set is verified with Vitest — **337 passing tests across 40
-files** as of this writing (see
-[research/e-storybook/coverage.md](https://github.com/yannbf/base-ui/tree/research/research/e-storybook/coverage.md)
-on the research branch). If a story is green, the behavior it documents actually works
-against the current library source.
+files** as of this writing (see the
+[coverage table](?path=/docs/research-e-storybook-build-coverage--docs) research page).
+If a story is green, the behavior it documents actually works against the current
+library source.
 
 ## How it's organized
 
 The sidebar groups components by what they *do*, not alphabetically — derived from Base
-UI's own API affordances rather than copied from any single reference system (see
-[research/a-documentation-standard/taxonomy.md](https://github.com/yannbf/base-ui/tree/research/research/a-documentation-standard/taxonomy.md)
+UI's own API affordances rather than copied from any single reference system (see the
+[taxonomy](?path=/docs/research-a-documentation-standard-taxonomy--docs) research page
 for the full derivation). Seven categories, plus this Overview section:
 
 | Category | Purpose | Components |

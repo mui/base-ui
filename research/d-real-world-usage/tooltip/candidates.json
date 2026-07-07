@@ -9,7 +9,7 @@
     "reuse": "code-ok",
     "category": "production-app",
     "lastActivity": "2026-03-11",
-    "importSpecifier": "@base-ui/react/tooltip",
+    "importSpecifier": "@base-ui-components/react/popover",
     "files": [
       {
         "path": "frontend/components/Tooltip.tsx",
@@ -19,10 +19,11 @@
     ],
     "liveUrl": "https://trust-graph-demo.vercel.app",
     "partsUsed": [],
-    "contextSummary": "TrustGraph is governance tool that turns social trust into a measurable signal for collective decision-making. [Signal note (filename-based, not a direct cached subpath search): Standalone Tooltip.tsx file; repo found via Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI).]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `Tooltip.tsx` actually imports `Popover` from `@base-ui-components/react/popover` (old package name), not Base UI's Tooltip \u2014 a hand-rolled tooltip-like component built on the Popover primitive. Kept here for honesty but not a genuine Tooltip usage; removed from the Storybook MDX page's \"In the wild\" section.",
     "diversityTags": [
       "production-app",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "popover-based-tooltip-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {

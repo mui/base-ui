@@ -1,6 +1,3 @@
-{/* Implements research/a-documentation-standard/component-doc-template.mdx from
-    research/c-components/separator/brief.md (Tier 3 lean). [G] marks known gaps. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SeparatorStories from './separator.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -37,8 +34,8 @@ A separator element accessible to screen readers.
 
 ## When not to use
 
-- For a purely decorative visual line with no semantic grouping meaning, Base UI's `Separator` renders `role="separator"` **unconditionally** — there is no built-in "presentational" escape hatch. For a zero-behavior ornamental line, a plain styled `<div>`/border avoids pulling in a component for no behavioral gain. [I]
-- Native `<hr>` is a reasonable alternative for simple horizontal-only, non-orientable dividers outside a Base UI compound component — it already carries correct implicit ARIA separator semantics. Base UI's `Separator` earns its keep specifically for vertical orientation, the `render` polymorphic escape hatch, and compound-component re-export convenience. [I]
+- For a purely decorative visual line with no semantic grouping meaning, Base UI's `Separator` renders `role="separator"` **unconditionally** — there is no built-in "presentational" escape hatch. For a zero-behavior ornamental line, a plain styled `<div>`/border avoids pulling in a component for no behavioral gain.
+- Native `<hr>` is a reasonable alternative for simple horizontal-only, non-orientable dividers outside a Base UI compound component — it already carries correct implicit ARIA separator semantics. Base UI's `Separator` earns its keep specifically for vertical orientation, the `render` polymorphic escape hatch, and compound-component re-export convenience.
 
 ## Anatomy
 

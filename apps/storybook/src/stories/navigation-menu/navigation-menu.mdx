@@ -40,11 +40,11 @@ A collection of links and menus for website navigation — a `<nav>` bar whose d
 
 ## When not to use
 
-Comparative guidance for the four menu-shaped components lives in the cluster note (`research/c-components/_clusters/menus.md`); the short version: _button-anchored actions → Menu; right-click/long-press → Context Menu; persistent app-chrome bar → Menubar; site navigation links → Navigation Menu._
+Comparative guidance for the four menu-shaped components lives on the [Menus](?path=/docs/research-c-component-briefs-clusters-menus--docs) research page; the short version: _button-anchored actions → Menu; right-click/long-press → Context Menu; persistent app-chrome bar → Menubar; site navigation links → Navigation Menu._
 
 - **Action lists that do things, then forget** (commands, not destinations) → [Menu](?path=/docs/overlays-menu--docs). Navigation Menu content is links and free markup, not `menuitem` actions.
 - **App-chrome command bars (File/Edit/View)** → [Menubar](?path=/docs/navigation-menubar--docs) — "menubar = application commands (desktop-app mental model); navigation menu = website destinations. If the entries are links, it's a navigation menu regardless of looking like a bar."
-- **Mobile hamburger navigation** → [Drawer](?path=/docs/overlays-drawer--docs), which ships a dedicated "Mobile navigation" demo (a full-screen sheet with flick-to-dismiss). Navigation Menu has no small-screen presentation mode; on touch it degrades to tap-to-open only. [G] no maintainer statement comparing the two directly was found.
+- **Mobile hamburger navigation** → [Drawer](?path=/docs/overlays-drawer--docs), which ships a dedicated "Mobile navigation" demo (a full-screen sheet with flick-to-dismiss). Navigation Menu has no small-screen presentation mode; on touch it degrades to tap-to-open only. No maintainer statement compares the two directly.
 - **Switching between in-page views** → Tabs (`role="tablist"`, selected state) — Navigation Menu links navigate documents, they don't toggle panels-as-state.
 - **A single dropdown of arbitrary interactive content** (one trigger, no cross-trigger morphing) → [Popover](?path=/docs/overlays-popover--docs). Navigation Menu's extra machinery (shared viewport, composite list, morph sizing) only pays off with ≥2 panels.
 - **A simple row of links with no panels** → plain `<nav><ul><li><a>` — HTML already does this.
@@ -195,7 +195,7 @@ Pattern: [APG Disclosure Navigation](https://www.w3.org/WAI/ARIA/apg/patterns/di
 | `Escape`                               | menu open                    | Close; focus returns to the trigger                                                                                      |
 | Arrow keys                             | inside nested inline lists   | Reach nested submenu triggers through the parent composite (3+ levels supported)                                         |
 
-[G] Home/End inside the List: no navigation-menu test pins this behavior; not claimed.
+Home/End inside the List: no Navigation Menu test pins this behavior, so it isn't claimed here.
 
 - **ARIA managed for you**: Root — `<nav>` at top level. List — `<ul>`, no `aria-orientation`. Trigger — `<button aria-expanded aria-controls={popupId}>` + `data-popup-open`. Popup — `<nav id>`. A visually-hidden `<span aria-owns={viewportId}>` after the active trigger keeps the portalled panel adjacent in the accessibility tree. Link — `aria-current="page"` when `active`. Icon — `aria-hidden="true"`. Backdrop — `role="presentation"`.
 - **Screen reader**: browse-mode users read `nav > ul > li` structure with plain links; panel content is reachable adjacent to its trigger via `aria-owns`. No open-on-focus — tabbing across the bar never pops panels open (WCAG 3.2.1 "On Focus").
@@ -266,7 +266,7 @@ Popup/Positioner **must** consume the size variables for morphing to work at all
   </WildCard>
 </WildCards>
 
-A full Phase D pass has since ranked 11 candidates (`research/d-real-world-usage/navigation-menu/ranked.json`), topped by wevm/vocs — a docs-site framework whose own top nav (rendering every Vocs-powered site, including its own) is built on `NavigationMenu`, close prior art for this project's own doc-site chrome (the `Hero` story above already recomposes that dropdown-plus-plain-link shape). Two further recreations live in this Storybook, picked from the code-ok top set — the fullest anatomy found in any registry, combining `Backdrop` with `Arrow` (patrick-xin/lumi-ui, MIT, code-ok, #4), and a CMS-driven nav structure mapped from one heterogeneous data array instead of hand-authored JSX (robotostudio/turbo-start-sanity, MIT, code-ok, #9):
+A follow-up ranking pass surfaced 11 genuine candidates, topped by wevm/vocs — a docs-site framework whose own top nav (rendering every Vocs-powered site, including its own) is built on `NavigationMenu`, close prior art for this project's own doc-site chrome (the `Hero` story above already recomposes that dropdown-plus-plain-link shape). Two further recreations live in this Storybook, picked from the code-ok top set — the fullest anatomy found in any registry, combining `Backdrop` with `Arrow` (patrick-xin/lumi-ui, MIT, code-ok, #4), and a CMS-driven nav structure mapped from one heterogeneous data array instead of hand-authored JSX (robotostudio/turbo-start-sanity, MIT, code-ok, #9):
 
 <Canvas of={NavigationMenuStories.RealWorldAnatomyTourWithBackdrop} />
 

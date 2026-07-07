@@ -189,3 +189,19 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}

@@ -1,6 +1,3 @@
-{/* Implements research/a-documentation-standard/component-doc-template.mdx from
-    research/c-components/meter/brief.md (Tier 3 lean). [G] marks known gaps. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as MeterStories from './meter.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -38,7 +35,7 @@ A graphical display of a numeric value within a range.
 
 ## When not to use
 
-- For a **task moving toward completion**, use [Progress](?path=/docs/status-display-progress--docs), because the APG meter pattern explicitly says meters should not "indicate progress, such as loading or percent completion of a task" — full boundary in the status cluster note (`research/c-components/_clusters/status.md`).
+- For a **task moving toward completion**, use [Progress](?path=/docs/status-display-progress--docs), because the APG meter pattern explicitly says meters should not "indicate progress, such as loading or percent completion of a task" — full boundary on the [Status](?path=/docs/research-c-component-briefs-clusters-status--docs) research page.
 - When the amount is **unknown** — Meter is never indeterminate, by design: `value` is a required, always-numeric prop with no `null` mode anywhere in source, tests, or docs (a verified true negative). "Unknown duration, still working" is Progress's indeterminate mode.
 - For an **interactive** value the user can change, use Slider — Meter has no focusability or key handling anywhere in source; it is read-only by construction.
 
@@ -98,7 +95,7 @@ Native `<meter>`'s high/low/optimum "segments" were implemented in the original 
 
 **No data attributes exist on any Meter part** — a stark, deliberate contrast with Progress's `data-progressing`/`data-complete`/`data-indeterminate`. Every part's `State` interface is empty, so even the `className`/`style` state-function form has nothing to branch on. This traces directly to the designed-then-dropped segment feature ([#743](https://github.com/mui/base-ui/pull/743) → open [#1434](https://github.com/mui/base-ui/issues/1434)).
 
-**No CSS variables either.** The fill is plain inline `style.width` on the Indicator — the same verified B-P14 exception as Progress (`research/c-components/_clusters/status.md`). Style meters by class, or compute conditional classes from the props you already control.
+**No CSS variables either.** The fill is plain inline `style.width` on the Indicator — the same verified B-P14 exception as Progress ([Status](?path=/docs/research-c-component-briefs-clusters-status--docs)). Style meters by class, or compute conditional classes from the props you already control.
 
 ## Choosing the right props
 
@@ -150,7 +147,7 @@ Native `<meter>`'s high/low/optimum "segments" were implemented in the original 
 
 ## Related
 
-- To display **task completion** (including unknown-duration work), use [Progress](?path=/docs/status-display-progress--docs) — full comparison in `research/c-components/_clusters/status.md`.
+- To display **task completion** (including unknown-duration work), use [Progress](?path=/docs/status-display-progress--docs) — full comparison in [Status](?path=/docs/research-c-component-briefs-clusters-status--docs).
 - To let users **set** a value in a range, use Slider (interactive, keyboard-operable — everything Meter deliberately is not).
 
 ## API reference

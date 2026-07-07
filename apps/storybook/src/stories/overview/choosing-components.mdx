@@ -1,8 +1,6 @@
-{/* Overview page. MDX-only — no stories.tsx. Distilled from the six cluster notes in
-    research/c-components/_clusters/*.md. [E]/[I] markers below mirror those source files:
-    [E] = direct maintainer/docs evidence with a citation, [I] = inference from API shape
-    with its basis stated. Decision tables are compressed from the fuller tables in each
-    cluster note, linked at the end of each section. */}
+{/* Overview page. MDX-only — no stories.tsx. Decision tables are compressed from the
+    fuller comparison on each family's Research cluster page, linked at the end of each
+    section. */}
 
 import { Meta } from '@storybook/addon-docs/blocks';
 
@@ -59,8 +57,8 @@ Dialog, not a toast, whenever the user's response is actually required — movin
 into a toast for that purpose is explicitly discouraged
 ([#4533](https://github.com/mui/base-ui/issues/4533)).
 
-Full comparison, including the Dialog-vs-Drawer and Popover-vs-Menu boundaries:
-[research/c-components/_clusters/overlays.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/overlays.md).
+Full comparison, including the Dialog-vs-Drawer and Popover-vs-Menu boundaries, on the
+[Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs) research page.
 
 ## Pickers: Select, Combobox, Autocomplete
 
@@ -88,8 +86,8 @@ One decision path covers all three, derived from the docs' own boundary statemen
 4. If the popup performs *actions* rather than picking a persisted value, none of these
    apply — see [Menu](?path=/docs/overlays-menu--docs) below.
 
-Full comparison, including the shared virtual-focus model and ARIA role differences:
-[research/c-components/_clusters/pickers.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/pickers.md).
+Full comparison, including the shared virtual-focus model and ARIA role differences, on
+the [Pickers](?path=/docs/research-c-component-briefs-clusters-pickers--docs) research page.
 
 ## Menus & navigation
 
@@ -117,8 +115,8 @@ bar. Navigation Menu is the odd one out: it renders zero menu roles at all
 navigation destinations, not commands — using `role="menu"` for a site nav would mislead
 screen-reader users into expecting an application menu.
 
-Full comparison, including per-pair boundary statements:
-[research/c-components/_clusters/menus.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/menus.md).
+Full comparison, including per-pair boundary statements, on the
+[Menus](?path=/docs/research-c-component-briefs-clusters-menus--docs) research page.
 
 ## Binary controls: Checkbox, Switch, Toggle
 
@@ -143,8 +141,9 @@ again should be a no-op, the widget's correct identity is Radio Group, not singl
 Toggle Group, regardless of how it's styled.
 
 Full comparison, including the Switch-vs-Checkbox metaphor distinction (inferred from
-ARIA convention, not a direct maintainer statement):
-[research/c-components/_clusters/binary-controls.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/binary-controls.md).
+ARIA convention, not a direct maintainer statement), on the
+[Binary controls](?path=/docs/research-c-component-briefs-clusters-binary-controls--docs)
+research page.
 
 ## Disclosure: Accordion, Collapsible, Tabs
 
@@ -174,8 +173,8 @@ persistent heading and, per current APG guidance the library deliberately adopte
 its own ordinary Tab stop rather than a member of one composite
 ([#4965](https://github.com/mui/base-ui/issues/4965)).
 
-Full comparison, including the ARIA-shape and keyboard-model evidence:
-[research/c-components/_clusters/disclosure.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/disclosure.md).
+Full comparison, including the ARIA-shape and keyboard-model evidence, on the
+[Disclosure](?path=/docs/research-c-component-briefs-clusters-disclosure--docs) research page.
 
 ## Status: Progress, Meter
 
@@ -202,5 +201,5 @@ correct; Meter has no equivalent.
 outside this comparison — it displays image/identity state, not a numeric measurement.
 
 Full comparison, including the shared and dropped native-`<meter>`/`<progress>` design
-history:
-[research/c-components/_clusters/status.md](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/status.md).
+history, on the [Status](?path=/docs/research-c-component-briefs-clusters-status--docs)
+research page.

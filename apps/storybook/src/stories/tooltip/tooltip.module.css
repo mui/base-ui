@@ -184,3 +184,20 @@
     }
   }
 }
+
+.Output {
+  font-size: 0.875rem;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem 1.5rem;
+  justify-items: center;
+  padding: 2rem;
+}

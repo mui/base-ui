@@ -37,9 +37,9 @@ A one-time password input composed of individual character slots.
 
 ## When not to use
 
-- A short code with no need for individual-character visual segmentation → a plain text `Input`/`Field` is simpler; the whole roving-focus/paste-splitting/hidden-validation-input machinery is overhead a single box doesn't need. [G] — no maintainer quote directly compares the two; this follows from the component's stated purpose.
+- A short code with no need for individual-character visual segmentation → a plain text `Input`/`Field` is simpler; the whole roving-focus/paste-splitting/hidden-validation-input machinery is overhead a single box doesn't need. No maintainer quote directly compares the two — this follows from the component's stated purpose.
 - Long-form free text or multi-word entry → not a fit at all; the entire pipeline assumes a fixed `length`, one character per slot.
-- A masked _password_ field with an unknown/variable length → a plain password `Input`, not OTP Field with `mask`. [I] — OTP Field's fixed-`length` contract and per-slot navigation model are built for known-length codes, not open-ended password entry.
+- A masked _password_ field with an unknown/variable length → a plain password `Input`, not OTP Field with `mask` — OTP Field's fixed-`length` contract and per-slot navigation model are built for known-length codes, not open-ended password entry.
 - Math-expression or free-form numeric entry → [Number Field](?path=/docs/form-inputs-number-field--docs), which has an `Intl.NumberFormat`-based parsing pipeline this component doesn't.
 
 ## Anatomy
@@ -161,7 +161,7 @@ Slots can be nested in arbitrary DOM structure — here two plain `<div>` groups
 - **Roving `tabIndex`, not full Tab-stops-on-every-slot**: only the active slot gets `tabIndex={0}`; every other slot gets `tabIndex={-1}`. Tab moves out of the field entirely.
 - **Labeling is asymmetric across slots — verify, don't assume.** Slot 0 inherits the field's overall accessible name via an external `<label htmlFor>` or `Field.Label`; slots 1..N-1 need their own `aria-label` (e.g. `"Character 2 of 6"`) to be distinguishable to assistive technology. A dev-only warning catches `aria-label` mistakenly placed on slot 0 — but there is **no** warning for the inverse mistake (forgetting `aria-label` on later slots entirely). This directly answers "single input semantics vs. per-slot labeling?": the actual contract is a hybrid of both, not either extreme.
 - `aria-invalid` is applied **per-slot**, not just at the group level — a screen-reader user landing on any slot hears the invalid state.
-- **Known issues**: [G] masked slots (`mask` prop, native `type="password"`) may not expose the same accessible `textbox` role that unmasked slots do in all browser/AT combinations — flagged as a nuance to verify independently with a real screen reader, not a confirmed fact. [G] No dedicated open a11y-issue sweep was performed beyond source verification for this Tier-2 brief.
+- **Known issues**: masked slots (`mask` prop, native `type="password"`) may not expose the same accessible `textbox` role that unmasked slots do in all browser/AT combinations — flagged as a nuance to verify independently with a real screen reader, not a confirmed fact. No dedicated open accessibility-issue sweep was performed beyond source verification for this page.
 
 ## Styling hooks
 

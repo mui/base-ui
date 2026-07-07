@@ -211,6 +211,56 @@
   }
 }
 
+.List {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.MenuPositioner {
+  outline: 0;
+}
+
+.MenuPopup {
+  box-sizing: border-box;
+  outline: 0;
+  padding-block: 0.25rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+}
+
+.MenuItem {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+
+  &[data-highlighted] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+}
+
 .Input {
   box-sizing: border-box;
   height: 2rem;

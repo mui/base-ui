@@ -1,8 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (source, docs, tests, git history, capped upstream mining
-    — research/c-components/tooltip/brief.md). Overlay decision guidance from
-    research/c-components/_clusters/overlays.md. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as TooltipStories from './tooltip.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -87,6 +82,30 @@ Hover opens after `delay` (Trigger prop, default `600ms` — `OPEN_DELAY` in `ut
 
 <Canvas of={TooltipStories.KeyboardFocusOpen} />
 
+### Customizing delay/closeDelay per trigger
+
+<Canvas of={TooltipStories.DelayCustomization} />
+
+`Tooltip.Trigger`'s own `delay`/`closeDelay` props override the default/Provider timing for that one trigger. This story is documentation-only (not play-tested): the props only govern the hover path, and hover-rest-timer assertions are flaky in browser automation — inspect manually by hovering each trigger.
+
+### Controlled open state
+
+<Canvas of={TooltipStories.ControlledOpen} />
+
+External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` (`trigger-hover`/`trigger-focus`/`escape-key`/`outside-press`/`imperative-action`) reporting which interaction caused each transition.
+
+### Disabling a tooltip
+
+<Canvas of={TooltipStories.DisabledTrigger} />
+
+`Root disabled` suppresses opening on every interaction path; `Trigger disabled` (a separate prop) stops only that one trigger while leaving its DOM element otherwise interactive.
+
+### Detached triggers via `createHandle()`
+
+<Canvas of={TooltipStories.DetachedTriggerHandle} />
+
+`Tooltip.createHandle()` connects a `Trigger` to a `Root`/`Popup` declared anywhere else in the tree — no DOM parent/child relationship required. External code can also drive it imperatively via `handle.open(triggerId)`/`handle.close()`.
+
 ### `Tooltip.Provider`'s delay-grouping mechanism
 
 Wrap several `Tooltip.Root`s in one `<Tooltip.Provider timeout={400}>` (the `timeout` default) to give them a shared "warm" window: the first trigger in the group pays the full open delay, but hopping to an adjacent trigger within the `timeout` window after the first tooltip closes collapses that trigger's effective delay to `0` and suppresses the fade animation during the handoff (`data-instant="delay"`). Wait longer than `timeout` after the group's tooltip has fully closed, and the next trigger pays the full delay again — the group has gone "cold."
@@ -102,6 +121,8 @@ Tooltip **never opens on touch input**, verified at the source level: `TooltipTr
 All positioning lives on the Positioner: `side`, `align`, `sideOffset`. `Tooltip.Arrow` tracks the anchor on every side via its `data-side` attribute.
 
 <Canvas of={TooltipStories.PositioningAndArrow} />
+
+<Canvas of={TooltipStories.PositioningMatrix} />
 
 ## Examples
 
@@ -122,7 +143,7 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 
 - **ARIA managed for you**: none. This is deliberate — giving the Popup a `role="tooltip"` plus a live `aria-describedby` link would make its content part of the accessible name/description tree, which is exactly what the tooltip is *not* meant to be (that's Popover's job — see When not to use).
 - **Screen reader**: no tooltip announcement at all, by design. **You must provide** an `aria-label` directly on the Trigger that closely matches the tooltip's content — the tooltip itself is invisible to assistive technology; the burden is placed on the author to label the trigger directly.
-- **Known issues**: [G] no dedicated tooltip-specific accessibility bug report was surfaced in this pass beyond the design-intent discussion in [#3530](https://github.com/mui/base-ui/issues/3530) (honest gap, not an exhaustive search — see brief.md §7).
+- **Known issues**: no dedicated tooltip-specific accessibility bug report was found beyond the design-intent discussion in [#3530](https://github.com/mui/base-ui/issues/3530) — an honest gap, not an exhaustive search.
 
 ## Styling hooks
 
@@ -158,9 +179,6 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 ## In the wild
 
 <WildCards>
-  <WildCard repo="Lay3rLabs/TrustGraph" title="Lay3rLabs/TrustGraph" href="https://github.com/Lay3rLabs/TrustGraph/blob/HEAD/frontend/components/Tooltip.tsx" live="https://trust-graph-demo.vercel.app" license="MIT" reuse="code-ok">
-    a governance-tooling app with a standalone `Tooltip.tsx`; found via a Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI), not independently re-verified here.
-  </WildCard>
   <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tooltip/tooltip.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     a fully styled wrapper, with a matching Figma-generator script for design-tool parity.
   </WildCard>
@@ -179,13 +197,13 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 
 ## Known issues & open questions
 
-- [G] No dedicated tooltip-specific accessibility bug reports were surfaced in this pass — searched for issues discussing the missing `role`/`aria-describedby` wiring; none found beyond the general design-intent discussion in [#3530](https://github.com/mui/base-ui/issues/3530).
+- No dedicated tooltip-specific accessibility bug reports were found — searched for issues discussing the missing `role`/`aria-describedby` wiring; none found beyond the general design-intent discussion in [#3530](https://github.com/mui/base-ui/issues/3530).
 
 ## Related
 
 - To reveal **essential content** behind an info icon, use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover`.
 - To preview a **link's destination**, use [Preview Card](?path=/docs/overlays-preview-card--docs).
-- Cluster-wide overlay decision guidance: `research/c-components/_clusters/overlays.md`.
+- Cluster-wide overlay decision guidance: [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs).
 
 ## API reference
 

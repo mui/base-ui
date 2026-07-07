@@ -535,15 +535,21 @@
     "reuse": "code-ok",
     "category": "production-app",
     "lastActivity": "2026-03-03",
-    "importSpecifier": "@base-ui/react/toast",
-    "files": [],
+    "importSpecifier": "@base-ui/react",
+    "files": [
+      {
+        "path": "src/toast-root.tsx",
+        "permalink": "https://github.com/vcode-sh/popser/blob/6f361b6fa7b47797e001472d9a7b4e2160bb62d6/src/toast-root.tsx",
+        "pinned": true
+      }
+    ],
     "liveUrl": "https://popser.vcui.dev",
     "partsUsed": [],
-    "contextSummary": "A standalone, sonner-compatible toast library ('the headless primitives era starts now') built entirely on top of Base UI's Toast \u2014 a downstream *library* rather than an app consumer. 7.4 KB gzipped, no !important. Description-based signal only; source file not inspected.",
+    "contextSummary": "Verified this pass: `src/toast-root.tsx` imports `Toast` from the top-level `@base-ui/react` package (not a subpath) and builds a sonner-compatible API on top of it \u2014 a genuine downstream library, not description-inferred.",
     "diversityTags": [
       "production-app",
       "dedicated-library",
-      "description-inferred-not-subpath-verified"
+      "verified-import"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -557,7 +563,7 @@
       "liveSite": 1,
       "licenseBonus": 1
     },
-    "rankRationale": "A dedicated downstream library (not an app) built entirely on Base UI's Toast with a sonner-compatible API \u2014 evidence that Toast is solid enough to re-platform an existing popular API on top of. Description-based only (source file not inspected in this pass); verify before citing API specifics."
+    "rankRationale": "A dedicated downstream library (not an app) built entirely on Base UI's Toast with a sonner-compatible API \u2014 evidence that Toast is solid enough to re-platform an existing popular API on top of. Description-based only (source file not inspected in this pass); verify before citing API specifics. (Verified this pass via a direct file fetch; previously description-inferred only.)"
   },
   {
     "id": "toast-001",
@@ -570,13 +576,20 @@
     "category": "oss-design-system",
     "lastActivity": "2026-04-23",
     "importSpecifier": "@base-ui/react/toast",
-    "files": [],
+    "files": [
+      {
+        "path": "apps/www/components/ui/toast.tsx",
+        "permalink": "https://github.com/baseui-cn/baseui-cn/blob/df7c18b459c02a1646640f684a4b2daef8a0b6ff/apps/www/components/ui/toast.tsx",
+        "pinned": true
+      }
+    ],
     "liveUrl": "https://www.baseui-cn.com",
     "partsUsed": [],
-    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. Description-based signal only; no cached subpath search or file inspection has verified an actual Toast file in this repo.",
+    "contextSummary": "Verified this pass: `apps/www/components/ui/toast.tsx` imports `Toast as ToastPrimitive` from `@base-ui/react/toast` directly \u2014 the same shadcn-style registry already verified for Drawer, confirmed here for Toast too.",
     "diversityTags": [
       "oss-design-system",
-      "description-inferred-not-subpath-verified"
+      "shadcn-registry",
+      "verified-subpath-import"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -590,6 +603,6 @@
       "liveSite": 1,
       "licenseBonus": 1
     },
-    "rankRationale": "Weakest-evidence entry: included for completeness from an earlier description-based pass, but no cached code search or file inspection has actually confirmed a Toast file in this repo. Keep at the bottom and re-verify before use in a doc citation."
+    "rankRationale": "Weakest-evidence entry: included for completeness from an earlier description-based pass, but no cached code search or file inspection has actually confirmed a Toast file in this repo. Keep at the bottom and re-verify before use in a doc citation. (Verified this pass via a direct file fetch; previously description-inferred only.)"
   }
 ]

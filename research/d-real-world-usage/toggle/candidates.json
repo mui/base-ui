@@ -9,7 +9,7 @@
     "reuse": "link-only",
     "category": "production-app",
     "lastActivity": "2026-05-14",
-    "importSpecifier": "@base-ui/react/toggle",
+    "importSpecifier": "@base-ui-components/react/menu",
     "files": [
       {
         "path": "src/components/theme-toggle.tsx",
@@ -19,10 +19,11 @@
     ],
     "liveUrl": "https://tmuxreference.com",
     "partsUsed": [],
-    "contextSummary": "A quick reference for tmux shortcuts [Signal note (filename-based, not a direct cached subpath search): File named theme-toggle.tsx; repo found via Base UI menu/popover subpath searches.]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `theme-toggle.tsx` imports `Menu as DropdownMenuPrimitive` from `@base-ui-components/react/menu` (old package name) \u2014 a light/dark/system theme-picker dropdown built on Menu, not Base UI's Toggle. Kept here for honesty but not a genuine Toggle usage; removed from the Storybook MDX page's \"In the wild\" section.",
     "diversityTags": [
       "production-app",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "menu-based-theme-toggle-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {
@@ -39,7 +40,7 @@
     "reuse": "link-only",
     "category": "oss-design-system",
     "lastActivity": "2025-07-21",
-    "importSpecifier": "@base-ui/react/toggle",
+    "importSpecifier": "@base-ui-components/react/menu",
     "files": [
       {
         "path": "src/components/mode-toggle.tsx",
@@ -49,10 +50,11 @@
     ],
     "liveUrl": "https://ui-chi-flame.vercel.app",
     "partsUsed": [],
-    "contextSummary": "Cool looking UI components [Signal note (filename-based, not a direct cached subpath search): File named mode-toggle.tsx in an oss-design-system repo; repo found via Base UI menu subpath search.]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `mode-toggle.tsx` imports `Menu` from `@base-ui-components/react/menu` (old package name) \u2014 same 'theme-toggle built on Menu' pattern as tmux-reference, not Base UI's Toggle. Kept here for honesty but not a genuine Toggle usage; removed from the Storybook MDX page's \"In the wild\" section.",
     "diversityTags": [
       "oss-design-system",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "menu-based-theme-toggle-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {

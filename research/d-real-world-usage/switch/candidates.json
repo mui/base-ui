@@ -9,7 +9,7 @@
     "reuse": "code-ok",
     "category": "production-app",
     "lastActivity": "2026-07-06",
-    "importSpecifier": "@base-ui/react/switch",
+    "importSpecifier": "@base-ui-components/react/select",
     "files": [
       {
         "path": "src/components/theme-switch.tsx",
@@ -19,10 +19,11 @@
     ],
     "liveUrl": "https://graphql.org",
     "partsUsed": [],
-    "contextSummary": "The code of the graphql.org website [Signal note (filename-based, not a direct cached subpath search): File named theme-switch.tsx, a common real-world use of a Switch primitive for dark-mode toggling; repo found via Base UI select subpath search.]",
+    "contextSummary": "CORRECTED this pass: file inspection shows `theme-switch.tsx` imports `Select` from `@base-ui-components/react/select` (old package name) \u2014 a light/dark/system three-way theme picker built on Select, not Base UI's Switch. Kept here for honesty but not a genuine Switch usage; removed from the Storybook MDX page's \"In the wild\" section.",
     "diversityTags": [
       "production-app",
-      "filename-inferred-not-subpath-verified"
+      "false-positive-verified",
+      "select-based-theme-switch-pattern"
     ],
     "instructiveMisuse": false,
     "screenshot": {

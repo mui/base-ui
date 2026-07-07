@@ -205,6 +205,93 @@
   }
 }
 
+.CheckboxItem,
+.RadioItem {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 0.625rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 1rem 1fr;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+}
+
+.CheckboxItemIndicator,
+.RadioItemIndicator {
+  grid-column-start: 1;
+}
+
+.CheckboxItemText,
+.RadioItemText {
+  grid-column-start: 2;
+}
+
+.ToolbarRoot {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  padding: 1px;
+  width: fit-content;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+}
+
+.ToolbarButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 0;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
 .Stack {
   display: flex;
   flex-direction: column;

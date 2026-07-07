@@ -1,8 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (source, docs, tests, git history, 2 targeted upstream issue
-    lookups — research/c-components/preview-card/brief.md). Overlay decision guidance
-    from research/c-components/_clusters/overlays.md. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as PreviewCardStories from './preview-card.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -46,6 +41,10 @@ Both Tooltip and Preview Card are hover/focus-only and sighted-only, never move 
 - **[Tooltip](?path=/docs/overlays-tooltip--docs)'s trigger is typically a non-link control** (a button/icon) whose purpose is unrelated to the tooltip content — the tooltip is a label for a tool, not the point of interacting with the trigger.
 - If touch/keyboard/screen-reader access to the content is **required**, use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover` instead — Popover supports every input modality and moves focus in; Preview Card by design never does either. Both [#4170](https://github.com/mui/base-ui/issues/4170) and [#4778](https://github.com/mui/base-ui/issues/4778) were closed as "use something else," not "we'll fix accessibility."
 
+<Canvas of={PreviewCardStories.TooltipVsPreviewCardDistinction} />
+
+Litmus test verbatim from the maintainer: "If you're not rendering a link, you should not use PreviewCard."
+
 ## Anatomy
 
 ```tsx
@@ -88,6 +87,24 @@ import { PreviewCard } from '@base-ui/react/preview-card';
 Focus opens the card too, with the **same delay** as hover — `useFocus(floatingRootContext, { delay })` is wired unconditionally alongside the hover interaction, and `PreviewCardRoot.test.tsx` has dedicated tests ("should open when the trigger is focused" / "should close when the trigger is blurred") pinning this. This means a sighted keyboard user tabbing through links does get the preview card, subject to the same 600ms delay — it is only touch and screen-reader/AT users who are excluded by design (see Keyboard & screen reader).
 
 <Canvas of={PreviewCardStories.KeyboardFocusOpen} />
+
+### Customizing delay/closeDelay per trigger
+
+<Canvas of={PreviewCardStories.DelayTuning} />
+
+Since focus obeys the same delay as hover (unlike Tooltip, where only hover has a delay), the timing difference between a `delay={0}` trigger and the default `600`ms trigger can be pinned reliably via focus rather than hover simulation.
+
+### Controlled open state
+
+<Canvas of={PreviewCardStories.ControlledOpen} />
+
+External `open`/`onOpenChange` state works the same as uncontrolled use, plus `eventDetails.reason` reporting which interaction caused each transition.
+
+### Detached triggers via `createHandle()`
+
+<Canvas of={PreviewCardStories.DetachedTriggerWithHandle} />
+
+`PreviewCard.createHandle()` connects a `Trigger` to a `Root`/`Popup` declared anywhere else in the tree, mirroring Tooltip's detached-trigger pattern; external code can also drive it imperatively via `handle.open(triggerId)`/`handle.close()`.
 
 ### Touch never opens it
 
@@ -172,13 +189,13 @@ Pattern: **none** — there is no W3C APG pattern for a link-hover preview (unli
 
 ## Known issues & open questions
 
-- [G] No further open accessibility issues were found beyond [#4170](https://github.com/mui/base-ui/issues/4170)/[#4778](https://github.com/mui/base-ui/issues/4778) within this pass's mining budget (both confirmed as the only two issue numbers indexed for preview-card in the mined discussions corpus).
+- No further open accessibility issues were found beyond [#4170](https://github.com/mui/base-ui/issues/4170)/[#4778](https://github.com/mui/base-ui/issues/4778) — the only two issues found for Preview Card in a search of the project's discussions.
 
 ## Related
 
 - To label a control whose **own action** is the point, use [Tooltip](?path=/docs/overlays-tooltip--docs) — sighted-hover-only hint, no link required.
 - For **essential or interactive** anchored content reachable by every modality, use [Popover](?path=/docs/overlays-popover--docs) with `openOnHover`.
-- Cluster-wide overlay decision guidance: `research/c-components/_clusters/overlays.md`.
+- Cluster-wide overlay decision guidance: [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs).
 
 ## API reference
 

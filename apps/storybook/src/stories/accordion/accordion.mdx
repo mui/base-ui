@@ -1,6 +1,3 @@
-{/* Floor page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (full brief). Sections beyond the floor scope carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as AccordionStories from './accordion.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -40,7 +37,7 @@ A set of collapsible panels with headings.
 
 - For a single show/hide region with no siblings to coordinate, use [Collapsible](?path=/docs/disclosure-structure-collapsible--docs) directly — Accordion's Root/value/`multiple` machinery buys nothing for a lone panel.
 - For switching between mutually exclusive, persistent peer views (not stacked disclosure), use [Tabs](?path=/docs/navigation-tabs--docs) — an accordion's panels are all part of one continuous document (any subset can be open); tabs present exactly one panel at a time in a fixed viewport region.
-- See the full three-way comparison in `research/c-components/_clusters/disclosure.md` (Accordion vs Collapsible vs Tabs).
+- See the full three-way comparison in [Disclosure](?path=/docs/research-c-component-briefs-clusters-disclosure--docs) (Accordion vs Collapsible vs Tabs).
 
 ## Anatomy
 
@@ -118,7 +115,7 @@ The following story asserts this contract directly: Tab/Shift+Tab moves focus be
 
 - **ARIA**: `Trigger` gets `aria-expanded` (always present) and `aria-controls` (present only while open); `Panel` gets `role="region"` and `aria-labelledby={triggerId}`. `Root` and `Item` carry no ARIA role or state.
 - **You must provide**: nothing extra — the Header→Trigger→Panel labeling chain is fully automatic as long as the canonical nesting is followed.
-- **Known issues**: none open beyond the resolved APG-alignment PRs below. [G] a deeper issue sweep is pending a Tier-1-depth pass (`research/c-components/accordion/brief.md` §7).
+- **Known issues**: none open beyond the resolved APG-alignment PRs below — a lighter search than the deepest components on this site received, so treat it as a search result, not an exhaustive audit.
 
 ## Styling hooks
 
@@ -172,7 +169,7 @@ Two related PRs, merged the same day (2026-06-08), that removed behavior which h
 - **[#4965](https://github.com/mui/base-ui/pull/4965) — "Align Accordion keyboard navigation with APG"**: "The Accordion APG pattern no longer recommends roving focus, as documented in [w3c/aria-practices#3434](https://github.com/w3c/aria-practices/pull/3434). This PR proposes removing roving focus from Accordion to align with the latest APG guidance." Base UI's Accordion never used a `Composite`/roving-tabindex implementation to begin with in later revisions of this brief's research window — this PR formalizes the absence as *deliberate*, not a missing feature, and marks `orientation`/`loopFocus` as `@deprecated` for keyboard purposes.
 - **[#4961](https://github.com/mui/base-ui/pull/4961) — "Remove region role from `Accordion.Root`"**: "Based on the WAI-ARIA accordion pattern, region is typically applied to accordion panels rather than the root container. Since `Accordion.Root` serves as a structural wrapper and does not have an accessible label of its own, removing the region role seems more aligned with the APG guidance." `role="region"` already lived correctly on `Accordion.Panel`, so no functional gap resulted — only removal of a redundant/misplaced role on Root.
 
-This is a genuinely deliberate removal, not a regression: current W3C APG guidance dropped roving-focus arrow-key navigation from the Accordion pattern entirely, and Base UI tracks that guidance rather than an older, more elaborate version some other libraries still implement. See the full three-way disclosure comparison for how this affects the Accordion-vs-Tabs boundary: `research/c-components/_clusters/disclosure.md`.
+This is a genuinely deliberate removal, not a regression: current W3C APG guidance dropped roving-focus arrow-key navigation from the Accordion pattern entirely, and Base UI tracks that guidance rather than an older, more elaborate version some other libraries still implement. See the full three-way disclosure comparison for how this affects the Accordion-vs-Tabs boundary: [Disclosure](?path=/docs/research-c-component-briefs-clusters-disclosure--docs).
 
 - **2024-10-30** — Accordion ships ([#577](https://github.com/mui/base-ui/pull/577)), built from day one atop shared Collapsible hooks.
 - **2025-beta.5** — `multiple` defaults to `false` ([#3141](https://github.com/mui/base-ui/pull/3141)), a deliberate breaking change.

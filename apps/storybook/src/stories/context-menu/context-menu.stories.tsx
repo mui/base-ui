@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fireEvent, waitFor, within } from 'storybook/test';
 import { ContextMenu } from '@base-ui/react/context-menu';
+import { Menu } from '@base-ui/react/menu';
 import styles from './context-menu.module.css';
 
 /**
@@ -229,6 +230,358 @@ export const CheckboxAndRadioItems: Story = {
     await waitFor(() => expect(nameOption).toHaveAttribute('aria-checked', 'true'));
     const dateOption = within(menu).getByRole('menuitemradio', { name: 'Sort by Date' });
     await expect(dateOption).toHaveAttribute('aria-checked', 'false');
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Custom anchor override (#3202 — the explicit prop wins)              */
+/* ------------------------------------------------------------------ */
+
+function CustomAnchorOverrideExample() {
+  const markerRef = React.useRef<HTMLDivElement>(null);
+  return (
+    <React.Fragment>
+      <ContextMenu.Root>
+        <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+          Right-click anywhere here
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner className={styles.Positioner} anchor={markerRef} side="top">
+            <ContextMenu.Popup className={styles.Popup} data-testid="popup">
+              <ContextMenu.Item className={styles.Item}>Add to Library</ContextMenu.Item>
+              <ContextMenu.Item className={styles.Item}>Favorite</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
+      <div ref={markerRef} className={styles.Marker} data-testid="marker">
+        anchor
+      </div>
+    </React.Fragment>
+  );
+}
+
+/**
+ * An explicit `anchor` prop on `Positioner` always wins over the automatic
+ * pointer-derived anchor — a fix, not the original behavior
+ * ([#3202](https://github.com/mui/base-ui/pull/3202) corrected a bug where
+ * the explicit prop was silently ignored). Right-clicking anywhere in the
+ * trigger area opens the popup at the fixed marker element, not at the click
+ * coordinates.
+ */
+export const CustomAnchorOverride: Story = {
+  render: () => <CustomAnchorOverrideExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+    const marker = canvas.getByTestId('marker');
+
+    // Right-click far from the marker — the popup should still seat at the marker.
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+    const popup = await body.findByTestId('popup');
+    await waitFor(() => expect(popup).toBeVisible());
+
+    const markerRect = marker.getBoundingClientRect();
+    const popupRect = popup.getBoundingClientRect();
+    // The popup is seated at the marker (well above it, not near the click point at 10,10).
+    await expect(popupRect.bottom).toBeLessThanOrEqual(markerRect.top + 1);
+
+    fireEvent.click(within(popup).getByRole('menuitem', { name: 'Favorite' }));
+    await waitFor(() => expect(popup).not.toBeInTheDocument());
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Disabled trigger — native menu allowed                               */
+/* ------------------------------------------------------------------ */
+
+function DisabledTriggerExample() {
+  return (
+    <ContextMenu.Root disabled>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Right-click this disabled surface
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          <ContextMenu.Popup className={styles.Popup}>
+            <ContextMenu.Item className={styles.Item}>Add to Library</ContextMenu.Item>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * `disabled` restores native OS behavior completely — it doesn't just keep
+ * the Base UI popup from opening, it also stops the component from
+ * suppressing the browser's own context menu (a meaningfully broader
+ * contract than most Base UI `disabled` props). This story only asserts the
+ * popup stays absent — it deliberately does **not** assert on
+ * `event.defaultPrevented`, since real browser-native-menu suppression isn't
+ * observable through Testing Library's synthetic event in this environment;
+ * the exact `defaultPrevented === false` assertion lives in the source
+ * suite (`ContextMenuTrigger.test.tsx`).
+ */
+export const DisabledTrigger: Story = {
+  render: () => <DisabledTriggerExample />,
+  play: async ({ canvas, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+
+    fireEvent.contextMenu(trigger, { clientX: 20, clientY: 20, button: 2 });
+    await expect(body.queryByRole('menu')).not.toBeInTheDocument();
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Long-press (touch) — documented, not played                         */
+/* ------------------------------------------------------------------ */
+
+function LongPressDescriptionExample() {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Long-press this on touch (500ms, cancels on &gt;10px movement)
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          <ContextMenu.Popup className={styles.Popup}>
+            <ContextMenu.Item className={styles.Item}>Reply</ContextMenu.Item>
+            <ContextMenu.Item className={styles.Item}>Copy</ContextMenu.Item>
+            <ContextMenu.Item className={styles.Item}>Delete</ContextMenu.Item>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * Long-press mechanics (documented here rather than driven by a `play`
+ * function — simulating real touch timing/movement reliably from a
+ * synthetic-event play function is out of scope for this story, per the
+ * source test suite which exercises this with fake timers, not Testing
+ * Library user events): single-touch only; a 500ms `LONG_PRESS_DELAY`
+ * (shared with the desktop drag-release grace timer, despite the name
+ * suggesting it's touch-only); a 10px movement threshold cancels the
+ * long-press to disambiguate a deliberate long-press from a scroll gesture
+ * starting under the finger; `WebkitTouchCallout: 'none'` suppresses iOS's
+ * native text-selection callout from competing with the custom menu.
+ */
+export const LongPressDescription: Story = {
+  render: () => <LongPressDescriptionExample />,
+};
+
+/* ------------------------------------------------------------------ */
+/* Group labels                                                        */
+/* ------------------------------------------------------------------ */
+
+function GroupLabelsExample() {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Right-click this file
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          <ContextMenu.Popup className={styles.Popup}>
+            <ContextMenu.Group>
+              <ContextMenu.GroupLabel className={styles.GroupLabel}>File</ContextMenu.GroupLabel>
+              <ContextMenu.Item className={styles.Item}>Rename</ContextMenu.Item>
+              <ContextMenu.Item className={styles.Item}>Duplicate</ContextMenu.Item>
+            </ContextMenu.Group>
+            <ContextMenu.Separator className={styles.Separator} />
+            <ContextMenu.Group>
+              <ContextMenu.GroupLabel className={styles.GroupLabel}>Danger</ContextMenu.GroupLabel>
+              <ContextMenu.Item className={styles.Item}>Delete</ContextMenu.Item>
+            </ContextMenu.Group>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * `Group` + `GroupLabel` are direct re-exports of the Menu parts — the label
+ * is auto-wired via `aria-labelledby` onto the `role="group"` container,
+ * unchanged by context-menu parentage.
+ */
+export const GroupLabels: Story = {
+  render: () => <GroupLabelsExample />,
+  play: async ({ canvas, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+
+    fireEvent.contextMenu(trigger, { clientX: 30, clientY: 30, button: 2 });
+    await body.findByRole('menu');
+
+    await waitFor(() => expect(body.getByRole('group', { name: 'File' })).toBeVisible());
+    await expect(body.getByRole('group', { name: 'Danger' })).toBeVisible();
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Link items                                                          */
+/* ------------------------------------------------------------------ */
+
+function LinkItemsExample() {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Right-click this article
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          <ContextMenu.Popup className={styles.Popup}>
+            <ContextMenu.LinkItem className={styles.LinkItem} href="#documentation">
+              Open documentation
+            </ContextMenu.LinkItem>
+            <ContextMenu.LinkItem className={styles.LinkItem} href="#shortcuts">
+              Keyboard shortcuts
+            </ContextMenu.LinkItem>
+            <ContextMenu.Separator className={styles.Separator} />
+            <ContextMenu.Item className={styles.Item}>Copy link</ContextMenu.Item>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * `LinkItem` is a direct re-export of `Menu.LinkItem` — a real `<a href>`
+ * carrying `role="menuitem"`. Like checkbox/radio items, `closeOnClick`
+ * defaults to `false` on link items.
+ */
+export const LinkItems: Story = {
+  render: () => <LinkItemsExample />,
+  play: async ({ canvas, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+
+    fireEvent.contextMenu(trigger, { clientX: 30, clientY: 30, button: 2 });
+    const menu = await body.findByRole('menu');
+    await waitFor(() => expect(menu).toBeVisible());
+
+    const docsLink = within(menu).getByRole('menuitem', { name: 'Open documentation' });
+    await expect(docsLink.tagName).toBe('A');
+    await expect(docsLink).toHaveAttribute('href', '#documentation');
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Mixed Menu.* parts composition (part interchangeability, #3365)      */
+/* ------------------------------------------------------------------ */
+
+function MixedMenuPartsCompositionExample() {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Right-click this canvas
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          {/* Bare Menu.* parts nested directly inside a ContextMenu.Popup — proof the
+              re-exported parts genuinely interchange (in-repo scenario per #3365). */}
+          <ContextMenu.Popup className={styles.Popup}>
+            <Menu.Item className={styles.Item}>Copy</Menu.Item>
+            <Menu.Item className={styles.Item}>Paste</Menu.Item>
+            <Menu.SubmenuRoot>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                Transform
+                <CaretRightIcon />
+              </Menu.SubmenuTrigger>
+              <Menu.Portal>
+                <Menu.Positioner className={styles.Positioner} alignOffset={-4} sideOffset={-4}>
+                  <Menu.Popup className={styles.Popup}>
+                    <Menu.Item className={styles.Item}>Rotate</Menu.Item>
+                    <Menu.Item className={styles.Item}>Flip</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.SubmenuRoot>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * `ContextMenu.*` and `Menu.*` parts are direct re-exports of each other —
+ * "all the context menu parts are direct reexports of regular menu parts so
+ * they are interchangeable" (atomiks, #3365). This story mixes bare
+ * `Menu.Item`/`Menu.SubmenuRoot` directly inside a `ContextMenu.Popup`, the
+ * same interchangeability scenario the in-repo experiments exercise.
+ */
+export const MixedMenuPartsComposition: Story = {
+  render: () => <MixedMenuPartsCompositionExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+
+    fireEvent.contextMenu(trigger, { clientX: 30, clientY: 30, button: 2 });
+    const menu = await body.findByRole('menu');
+    await waitFor(() => expect(menu).toBeVisible());
+
+    const submenuTrigger = within(menu).getByRole('menuitem', { name: 'Transform' });
+    await userEvent.click(submenuTrigger);
+    const submenu = await body.findByRole('menu', { name: 'Transform' });
+    await waitFor(() => expect(within(submenu).getByRole('menuitem', { name: 'Rotate' })).toBeVisible());
+
+    fireEvent.click(within(submenu).getByRole('menuitem', { name: 'Rotate' }));
+    await waitFor(() => expect(menu).not.toBeInTheDocument());
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* closeOnClick configuration                                          */
+/* ------------------------------------------------------------------ */
+
+function CloseOnClickConfigurationExample() {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger className={styles.Trigger} data-testid="trigger">
+        Right-click this feed item
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Positioner className={styles.Positioner}>
+          <ContextMenu.Popup className={styles.Popup}>
+            <ContextMenu.Item className={styles.Item} closeOnClick={false}>
+              Refresh now (stays open)
+            </ContextMenu.Item>
+            <ContextMenu.Item className={styles.Item}>Mark as read (closes)</ContextMenu.Item>
+          </ContextMenu.Popup>
+        </ContextMenu.Positioner>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+/**
+ * `closeOnClick` defaults to `true` on a plain `Item` — override it per item
+ * to keep the popup open after activation, identical to Menu's contract
+ * since `Item` is a direct re-export.
+ */
+export const CloseOnClickConfiguration: Story = {
+  render: () => <CloseOnClickConfigurationExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByTestId('trigger');
+
+    fireEvent.contextMenu(trigger, { clientX: 30, clientY: 30, button: 2 });
+    const menu = await body.findByRole('menu');
+    await waitFor(() => expect(menu).toBeVisible());
+
+    const stayOpenItem = within(menu).getByRole('menuitem', { name: 'Refresh now (stays open)' });
+    await userEvent.click(stayOpenItem);
+    await waitFor(() => expect(menu).toBeVisible());
+
+    const closesItem = within(menu).getByRole('menuitem', { name: 'Mark as read (closes)' });
+    await userEvent.click(closesItem);
+    await waitFor(() => expect(menu).not.toBeInTheDocument());
   },
 };
 

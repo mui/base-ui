@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (lean). Sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as RadioStories from './radio.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -67,9 +64,27 @@ import { RadioGroup } from '@base-ui/react/radio-group';
 
 `defaultValue` for uncontrolled use; `value` + `onValueChange(value, eventDetails)` when external state drives selection. `eventDetails.cancel()` vetoes the change while staying uncontrolled.
 
+<Canvas of={RadioStories.ControlledValue} />
+
+`null` is a real, externally-reachable app state (matching the native-parity contract from `#2473`), not merely "nothing selected yet."
+
 ### Labeling
 
 Form controls must have an accessible name. Wrap each option in a `<label>` (hero above), or label the whole group with `Fieldset.Legend` + per-option `Field.Item` for managed wiring (see [Field](?path=/docs/form-inputs-field--docs)).
+
+<Canvas of={RadioStories.WithFieldAndFieldset} />
+
+### Required / validation
+
+<Canvas of={RadioStories.RequiredInvalidState} />
+
+`required` on the `Field.Root`/`RadioGroup` pair flags `valueMissing` when nothing is selected on submit; selecting any option clears the error.
+
+### Read-only groups
+
+<Canvas of={RadioStories.ReadOnlyGroup} />
+
+`readOnly` blocks every selection path (click, arrow-key auto-select, Space) while keeping the group focusable and its current value visible — distinct from `disabled`, which also removes it from the tab sequence.
 
 ### Rendering a native button
 
@@ -90,6 +105,10 @@ With `name` on `RadioGroup`, the selected value submits via each radio's hidden 
 ## Keyboard & screen reader
 
 <Canvas of={RadioStories.ArrowDownSelectsOnNavigation} />
+
+<Canvas of={RadioStories.SpaceSelectsOnKeyUp} />
+
+<Canvas of={RadioStories.HomeEndHaveNoEffect} />
 
 | Key | Context | Action |
 |---|---|---|

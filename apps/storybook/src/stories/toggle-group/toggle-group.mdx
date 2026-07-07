@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleGroupStories from './toggle-group.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -16,7 +13,7 @@ Provides a shared state to a series of toggle buttons.
 - **Import:** `import { ToggleGroup } from '@base-ui/react/toggle-group';`
 - **Parts:** 1 at the export surface — no `ToggleGroup.Item`; items are plain [Toggle](?path=/docs/actions-toggle--docs) components.
 - **Status:** Stable. Introduced jointly with Toggle in a single PR ([#763](https://github.com/mui/base-ui/pull/763)).
-- **ARIA pattern:** closest to the roving-tabindex mechanics of the [Toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) pattern, layered under `role="group"`; item-level semantics follow the [Toggle Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/#toggle_button) pattern. [I] — general web knowledge, not fetched in this pass.
+- **ARIA pattern:** closest to the roving-tabindex mechanics of the [Toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) pattern, layered under `role="group"`; item-level semantics follow the [Toggle Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/#toggle_button) pattern.
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
 <Canvas of={ToggleGroupStories.Hero} />
@@ -89,7 +86,7 @@ A standalone `ToggleGroup` wraps its own `CompositeRoot`: the group is a single 
 
 - **ARIA**: `role="group"` on the container (deliberately no `aria-orientation` — invalid on `role="group"`); each child Toggle supplies its own `aria-pressed`.
 - **You must provide**: a group-level accessible name via `aria-label`/`aria-labelledby` on `<ToggleGroup>`.
-- **Known issues**: [#3525](https://github.com/mui/base-ui/issues/3525) (open) — no non-visual signal distinguishes single-selection Toggle Group from "you can also select nothing"; maintainers have declined `role="radio"`. [G] the Home/End Toolbar-hosted gap has no dedicated maintainer discussion found in the mined corpus — flagged as a documentation-worthy nuance, not a confirmed tracked bug.
+- **Known issues**: [#3525](https://github.com/mui/base-ui/issues/3525) (open) — no non-visual signal distinguishes single-selection Toggle Group from "you can also select nothing"; maintainers have declined `role="radio"`. The Home/End Toolbar-hosted gap has no dedicated maintainer discussion found — flagged as a documentation-worthy nuance, not a confirmed tracked bug.
 
 ## Styling hooks
 

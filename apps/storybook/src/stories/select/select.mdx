@@ -1,10 +1,14 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
-    — research/c-components/select/brief.md); real-world data from research/d-real-world-usage/select. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SelectStories from './select.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
+import { MiniPlayground } from '../shared/MiniPlayground';
+import { ThemePickerExample } from './recreations/ThemePickerExample';
+import { RegistrySelectExample } from './recreations/RegistrySelectExample';
+import { DashboardFilterExample } from './recreations/DashboardFilterExample';
+import themePickerSource from './recreations/ThemePickerExample.tsx?raw';
+import registrySelectSource from './recreations/RegistrySelectExample.tsx?raw';
+import dashboardFilterSource from './recreations/DashboardFilterExample.tsx?raw';
+import selectRealWorldCss from './select-real-world.module.css?raw';
 import kumoUiComOpenShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com-open.png';
 import wordpressOrgGutenbergOpenShot from '../../../../../research/d-real-world-usage/_captures/wordpress-org-gutenberg-open.png';
 import mastraAiOpenShot from '../../../../../research/d-real-world-usage/_captures/mastra-ai-open.png';
@@ -44,13 +48,13 @@ A common form component for choosing a predefined value in a dropdown menu — a
 
 ## When not to use
 
-Decision guidance for the three listbox-driven pickers lives in `research/c-components/_clusters/pickers.md`; the short version: *free-form text → Autocomplete; visible filter input over a fixed set → Combobox; button + predefined values → Select; popup that performs actions → Menu.*
+Decision guidance for the three listbox-driven pickers lives in [Pickers](?path=/docs/research-c-component-briefs-clusters-pickers--docs); the short version: *free-form text → Autocomplete; visible filter input over a fixed set → Combobox; button + predefined values → Select; popup that performs actions → Menu.*
 
 - For large, filterable lists, use [Combobox](?path=/docs/form-inputs-combobox--docs), because "Combobox is a filterable Select — prefer it when the number of items is sufficiently large to warrant filtering" (select/combobox docs usage guidelines).
 - For free-form text with suggestions, use [Autocomplete](?path=/docs/form-inputs-autocomplete--docs), because its input text *is* the value; Select and Combobox only commit predefined items.
 - For a built-in Clear affordance, compose a [Combobox](?path=/docs/form-inputs-combobox--docs) without a visible input (`Trigger` + `Value` + `Clear`), because Select deliberately ships no clear button — "native HTML and OS ones just don't have a clear button" ([#2734](https://github.com/mui/base-ui/issues/2734)). A controlled Select with an external clear control also works (see the clear-all story below).
 - For a list of *actions* rather than a persisted value, use Menu — the dividing line is whether choosing writes a `value` that submits with a form (Select) or performs a command (Menu).
-- For binary or tiny option sets, prefer Radio, Switch, or Checkbox — a popup is overhead when all options can be visible. [I] derived from API affordances; no maintainer statement found [G].
+- For binary or tiny option sets, prefer Radio, Switch, or Checkbox — a popup is overhead when all options can be visible (based on the components' API design; no maintainer statement makes this comparison directly).
 
 ## Anatomy
 
@@ -255,7 +259,7 @@ Pattern: [APG select-only combobox](https://www.w3.org/WAI/ARIA/apg/patterns/com
 - **ARIA managed for you**: Trigger — `role="combobox"`, `aria-expanded`, `aria-haspopup="listbox"`, `aria-controls`, `aria-labelledby` (auto-linked from `Select.Label`/`Field.Label`), `aria-readonly`, `aria-required`. List (or Popup when no List) — `role="listbox"`, `aria-multiselectable` in multiple mode. Item — `role="option"`, `aria-selected`. Group — `role="group"` with label association. The hidden form input is `aria-hidden` and forwards focus to the trigger.
 - **Screen reader**: opening announces the listbox and the focused (selected) option; disabled options remain focusable so they can be discovered.
 - **You must provide**: an accessible name — `Select.Label`, `Field.Label`, or `aria-label` on the Trigger for icon-only triggers — plus visible `:focus-visible` styling and sufficient contrast.
-- **Known issues**: [#5139](https://github.com/mui/base-ui/issues/5139) (open) — `focusableWhenDisabled` not configurable on items; [#1761](https://github.com/mui/base-ui/issues/1761) (open, has workaround) — focus indicator lost on the trigger while the popup is open; [#1425](https://github.com/mui/base-ui/issues/1425) (open) — Field does not invalidate some required controls including Select. [G] No open screen-reader-specific select bugs found beyond the answered [#4754](https://github.com/mui/base-ui/issues/4754) (searched upstream 2026-07).
+- **Known issues**: [#5139](https://github.com/mui/base-ui/issues/5139) (open) — `focusableWhenDisabled` not configurable on items; [#1761](https://github.com/mui/base-ui/issues/1761) (open, has workaround) — focus indicator lost on the trigger while the popup is open; [#1425](https://github.com/mui/base-ui/issues/1425) (open) — Field does not invalidate some required controls including Select. No open screen-reader-specific Select bugs were found beyond the answered [#4754](https://github.com/mui/base-ui/issues/4754) (searched upstream 2026-07).
 
 ## Styling hooks
 
@@ -308,7 +312,7 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 - Don't expect the popup to unmount on close — it stays mounted after first interaction ([#1906](https://github.com/mui/base-ui/pull/1906)); drive unmount via `actionsRef` if needed.
 - Don't expect closed-trigger typeahead in `multiple` mode — intentional; open the popup first ([#2274](https://github.com/mui/base-ui/issues/2274)).
 - Don't `render` a non-button trigger without `nativeButton={false}` — the trigger is a native `<button>` since beta.5 ([#3177](https://github.com/mui/base-ui/pull/3177)).
-- Don't push the popup away with a large `sideOffset` to "fix" the default overlap — that's `alignItemWithTrigger` working as designed; set it to `false` instead (observed misuse in the wild, `research/d-real-world-usage/select/ranked.json` [#15](https://github.com/mui/base-ui/issues/15)).
+- Don't push the popup away with a large `sideOffset` to "fix" the default overlap — that's `alignItemWithTrigger` working as designed; set it to `false` instead (observed misuse in the wild — see the [Select examples](?path=/docs/research-d-real-world-usage-select-examples--docs) research page, [#15](https://github.com/mui/base-ui/issues/15)).
 
 ## In the wild
 
@@ -332,13 +336,46 @@ To keep pointer `:hover` visually distinct from the keyboard highlight, disable 
 
 Ecosystem note: shadcn/ui's Base UI registry ([source](https://github.com/shadcn-ui/ui/blob/d8ace420baa5c8a1abccd75e52570f2a232f193d/apps/v4/registry/bases/base/ui/select.tsx), MIT) is the template behind thousands of downstream `components/ui/select.tsx` files.
 
-Three recreations live in this Storybook — a theme picker (graphql.org), a registry-style wrapper (Kumo), and a filter bar (from [climatepolicyradar/knowledge-graph](https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx), Apache-2.0, code-ok):
+Three recreations live in this Storybook — a theme picker (graphql.org), a registry-style wrapper (Kumo), and a filter bar (from [climatepolicyradar/knowledge-graph](https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx), Apache-2.0, code-ok). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:
 
-<Canvas of={SelectStories.RealWorldThemePicker} />
+<MiniPlayground
+  title="Theme picker"
+  source={{
+    repo: 'graphql/graphql.github.io',
+    href: 'https://github.com/graphql/graphql.github.io/blob/caecac98353ff3e2bcb08c4fde52a9546784be29/src/components/theme-switch.tsx',
+    license: 'MIT',
+  }}
+  code={themePickerSource}
+  css={selectRealWorldCss}
+>
+  <ThemePickerExample />
+</MiniPlayground>
 
-<Canvas of={SelectStories.RealWorldWrappedRegistrySelect} />
+<MiniPlayground
+  title="Registry-style wrapper"
+  source={{
+    repo: 'cloudflare/kumo',
+    href: 'https://github.com/cloudflare/kumo/blob/8f2c40b3a9d14dc8e6b3b39ba87e1fa7b03d8f26/packages/kumo/src/components/select/select.tsx',
+    license: 'MIT',
+  }}
+  code={registrySelectSource}
+  css={selectRealWorldCss}
+>
+  <RegistrySelectExample />
+</MiniPlayground>
 
-<Canvas of={SelectStories.RealWorldDashboardFilter} />
+<MiniPlayground
+  title="Dashboard filter bar"
+  source={{
+    repo: 'climatepolicyradar/knowledge-graph',
+    href: 'https://github.com/climatepolicyradar/knowledge-graph/blob/a1dbac5934b2a177b8cdc730c6fab4fb16426b0a/vibe-checker/webapp/components/PredictionFilters.tsx',
+    license: 'Apache-2.0',
+  }}
+  code={dashboardFilterSource}
+  css={selectRealWorldCss}
+>
+  <DashboardFilterExample />
+</MiniPlayground>
 
 ## Decision log
 

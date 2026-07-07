@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (lean). Sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxGroupStories from './checkbox-group.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -68,6 +65,8 @@ A parent checkbox's `aria-controls` is a space-separated list of every child's i
 
 `defaultValue`/`value`/`onValueChange` (all `string[]`), with `defaultValue` defaulting to `[]` when omitted. Each child's click independently pushes/removes its `value` from the array (filter-based removal, not a re-sort).
 
+<Canvas of={CheckboxGroupStories.GroupValueCoordination} />
+
 ### The parent "select all" tri-state cycle
 
 <Canvas of={CheckboxGroupStories.ParentCheckboxTriState} />
@@ -76,6 +75,18 @@ The parent's `checked`/`indeterminate` are computed automatically from the live 
 
 Requires `allValues` (every child's value) and a **controlled** `value` + `onValueChange` — the parent pattern is not supported in fully-uncontrolled mode.
 
+<Canvas of={CheckboxGroupStories.ParentIndeterminateFromPartialSelection} />
+
+<Canvas of={CheckboxGroupStories.DisabledChildExcludedFromParentToggle} />
+
+A `disabled` child is excluded from the parent's bulk select-all/select-none: it is left untouched by either bulk action, regardless of its own checked state.
+
+### Nested groups (app-composed)
+
+<Canvas of={CheckboxGroupStories.NestedParentCheckbox} />
+
+There is no native multi-level tree API — a nested "group of groups" is composed by wiring two `CheckboxGroup` instances together with app-level `onValueChange` propagation, exactly like the docs' "nested" demo.
+
 ### Form integration
 
 <Canvas of={CheckboxGroupStories.FormSubmitArray} />
@@ -83,6 +94,8 @@ Requires `allValues` (every child's value) and a **controlled** `value` + `onVal
 `CheckboxGroup` has no `name` prop of its own — wrap it in `Field.Root name` (composed with `Fieldset.Root render={<CheckboxGroup />}`) to submit the checked values as one array-valued field (`#1948`). No per-checkbox `name` is needed.
 
 ### The counter-intuitive `required` contract
+
+<Canvas of={CheckboxGroupStories.RequiredMeansAllMustBeChecked} />
 
 Setting `required` on individual group members means **every** `required` checkbox must be checked before the group's error clears — it does **not** mean "at least one must be checked," which is what "required" might intuitively suggest for a multi-select set. This is directly confirmed by a dedicated test: checking only one of two `required` checkboxes in a group does not clear the group's validation error; it only clears once every required checkbox is checked. If "at least one" is the desired semantics, implement it via a custom `Field.Root validate` function reading the group's array length — there is no built-in prop for it.
 

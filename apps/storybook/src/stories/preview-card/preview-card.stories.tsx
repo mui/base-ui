@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor, within } from 'storybook/test';
 import { PreviewCard } from '@base-ui/react/preview-card';
+import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './preview-card.module.css';
 
 /**
@@ -140,4 +141,267 @@ export const PositioningWithArrow: Story = {
       ))}
     </div>
   ),
+};
+
+function ControlledOpenExample() {
+  const [open, setOpen] = React.useState(false);
+  const [reason, setReason] = React.useState<string | null>(null);
+  const actionsRef = React.useRef<PreviewCard.Root.Actions>(null);
+
+  return (
+    <div className={styles.Stack}>
+      <PreviewCard.Root
+        open={open}
+        actionsRef={actionsRef}
+        onOpenChange={(nextOpen, eventDetails) => {
+          setOpen(nextOpen);
+          setReason(eventDetails.reason ?? null);
+        }}
+      >
+        <p className={styles.Paragraph}>
+          Focus{' '}
+          <PreviewCard.Trigger
+            className={styles.Link}
+            href="https://en.wikipedia.org/wiki/Typography"
+          >
+            this link
+          </PreviewCard.Trigger>{' '}
+          to open it.
+        </p>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
+            <PreviewCard.Popup className={styles.Popup}>
+              <PreviewCard.Arrow className={styles.Arrow} />
+              <div className={styles.PopupContent}>
+                <p className={styles.Summary}>Controlled preview card</p>
+              </div>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>
+      <button
+        type="button"
+        className={styles.Button}
+        onClick={() => actionsRef.current?.close()}
+      >
+        Close programmatically
+      </button>
+      <output className={styles.Output}>
+        open={String(open)} reason={String(reason)}
+      </output>
+    </div>
+  );
+}
+
+/** External `open`/`onOpenChange` state drives the card; `eventDetails.reason` reports which interaction caused each transition (`trigger-focus` for the focus-open path used here, `imperative-action` for the external "close programmatically" button via `actionsRef`). */
+export const ControlledOpen: Story = {
+  render: () => <ControlledOpenExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByRole('link', { name: 'this link' });
+
+    await userEvent.tab();
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await waitFor(() => expect(body.getByText('Controlled preview card')).toBeVisible(), {
+      timeout: 2000,
+    });
+    await waitFor(() => expect(canvas.getByText(/reason=trigger-focus/)).toBeVisible());
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Close programmatically' }));
+    await waitFor(() =>
+      expect(body.queryByText('Controlled preview card')).not.toBeInTheDocument(),
+    );
+    await waitFor(() => expect(canvas.getByText(/reason=imperative-action/)).toBeVisible());
+  },
+};
+
+/** `PreviewCard.Trigger`'s own `delay`/`closeDelay` props (default `600`/`300`ms) override the timing per trigger — since focus obeys the same delay as hover (unlike Tooltip), this can be pinned reliably via focus: the `delay={0}` trigger opens near-instantly, the default-delay trigger opens only after the full ~600ms wait. */
+export const DelayTuning: Story = {
+  render: () => (
+    <div className={styles.Container}>
+      <p className={styles.Paragraph}>
+        <PreviewCard.Trigger
+          className={styles.Link}
+          delay={0}
+          href="https://en.wikipedia.org/wiki/Typography"
+        >
+          instant
+        </PreviewCard.Trigger>
+      </p>
+      <PreviewCard.Root>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
+            <PreviewCard.Popup className={styles.Popup}>
+              <PreviewCard.Arrow className={styles.Arrow} />
+              <div className={styles.PopupContent}>
+                <p className={styles.Summary}>Opens with delay=0</p>
+              </div>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>
+
+      <p className={styles.Paragraph}>
+        <PreviewCard.Trigger
+          className={styles.Link}
+          href="https://en.wikipedia.org/wiki/Typography"
+        >
+          default delay
+        </PreviewCard.Trigger>
+      </p>
+      <PreviewCard.Root>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
+            <PreviewCard.Popup className={styles.Popup}>
+              <PreviewCard.Arrow className={styles.Arrow} />
+              <div className={styles.PopupContent}>
+                <p className={styles.Summary}>Opens after the default 600ms delay</p>
+              </div>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>
+    </div>
+  ),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    const instant = canvas.getByRole('link', { name: 'instant' });
+    instant.focus();
+    await waitFor(() => expect(body.getByText('Opens with delay=0')).toBeVisible());
+
+    const withDefaultDelay = canvas.getByRole('link', { name: 'default delay' });
+    withDefaultDelay.focus();
+    await waitFor(
+      () => expect(body.getByText('Opens after the default 600ms delay')).toBeVisible(),
+      { timeout: 2000 },
+    );
+  },
+};
+
+/**
+ * The boundary from the parent brief: Tooltip labels a non-link control ("the point of
+ * interacting with the trigger is unrelated to the tooltip content"); Preview Card previews
+ * where a real `<a href>` link goes. Rendering both side by side in the same sentence makes the
+ * distinction concrete — hover/focus each in turn and compare trigger element and popup content.
+ * Litmus test verbatim from brief.md §4 (colmtuite, mui/base-ui#4778): "If you're not rendering
+ * a link, you should not use PreviewCard."
+ */
+export const TooltipVsPreviewCardDistinction: Story = {
+  render: () => (
+    <p className={styles.Paragraph}>
+      Click{' '}
+      <Tooltip.Root>
+        <Tooltip.Trigger render={<button type="button" />} className={styles.Button}>
+          Copy
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>Copy to clipboard</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>{' '}
+      to copy this snippet, or read more about{' '}
+      <PreviewCard.Root>
+        <PreviewCard.Trigger
+          className={styles.Link}
+          href="https://en.wikipedia.org/wiki/Typography"
+        >
+          typography
+        </PreviewCard.Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
+            <PreviewCard.Popup className={styles.Popup}>
+              <PreviewCard.Arrow className={styles.Arrow} />
+              <div className={styles.PopupContent}>
+                <img
+                  width="224"
+                  height="150"
+                  className={styles.Image}
+                  src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+                  alt="Station Hofplein signage in Rotterdam, Netherlands"
+                />
+                <p className={styles.Summary}>
+                  <strong>Typography</strong> is the art of arranging type.
+                </p>
+              </div>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>{' '}
+      first.
+    </p>
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    // The Tooltip trigger is a plain button; its content is short text only.
+    const tooltipTrigger = canvas.getByRole('button', { name: 'Copy' });
+    tooltipTrigger.focus();
+    await waitFor(() => expect(body.getByText('Copy to clipboard')).toBeVisible());
+    expect(body.queryByRole('img')).not.toBeInTheDocument();
+    tooltipTrigger.blur();
+    await waitFor(() => expect(body.queryByText('Copy to clipboard')).not.toBeInTheDocument());
+
+    // The Preview Card trigger is a real link; its content is richer (image + summary).
+    const previewCardTrigger = canvas.getByRole('link', { name: 'typography' });
+    previewCardTrigger.focus();
+    await waitFor(() => expect(body.getByRole('img')).toBeVisible(), { timeout: 2000 });
+  },
+};
+
+const detachedHandle = PreviewCard.createHandle();
+
+/** `PreviewCard.createHandle()` connects a `Trigger` rendered anywhere in the tree to a `Root`/`Popup` declared elsewhere — no DOM parent/child relationship required, mirroring Tooltip's detached-trigger pattern. */
+export const DetachedTriggerWithHandle: Story = {
+  render: () => (
+    <div className={styles.Stack}>
+      <p className={styles.Paragraph}>
+        See the{' '}
+        <PreviewCard.Trigger
+          handle={detachedHandle}
+          id="detached-trigger"
+          className={styles.Link}
+          href="https://en.wikipedia.org/wiki/Typography"
+        >
+          detached trigger
+        </PreviewCard.Trigger>{' '}
+        above; its popup is declared separately below.
+      </p>
+      <button
+        type="button"
+        className={styles.Button}
+        onClick={() => detachedHandle.open('detached-trigger')}
+      >
+        Open programmatically
+      </button>
+      <button type="button" className={styles.Button} onClick={() => detachedHandle.close()}>
+        Close
+      </button>
+
+      <PreviewCard.Root handle={detachedHandle}>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner className={styles.Positioner} sideOffset={8}>
+            <PreviewCard.Popup className={styles.Popup}>
+              <PreviewCard.Arrow className={styles.Arrow} />
+              <div className={styles.PopupContent}>
+                <p className={styles.Summary}>Declared elsewhere in the tree</p>
+              </div>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>
+    </div>
+  ),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open programmatically' }));
+    await waitFor(() => expect(body.getByText('Declared elsewhere in the tree')).toBeVisible());
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
+    await waitFor(() =>
+      expect(body.queryByText('Declared elsewhere in the tree')).not.toBeInTheDocument(),
+    );
+  },
 };

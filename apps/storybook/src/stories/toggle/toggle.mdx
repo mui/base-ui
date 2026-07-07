@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ToggleStories from './toggle.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -16,7 +13,7 @@ A two-state button that can be on or off.
 - **Import:** `import { Toggle } from '@base-ui/react/toggle';`
 - **Parts:** 1 — no sub-parts; renders a single `<button>` (or via `CompositeItem` when grouped).
 - **Status:** Stable. Introduced jointly with [Toggle Group](?path=/docs/actions-togglegroup--docs) in a single PR ([#763](https://github.com/mui/base-ui/pull/763)) — the two components have never existed independently.
-- **ARIA pattern:** [Toggle Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/#toggle_button). [I] — general web knowledge, not fetched in this pass.
+- **ARIA pattern:** [Toggle Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/#toggle_button).
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
 <Canvas of={ToggleStories.Hero} />
@@ -36,7 +33,7 @@ A two-state button that can be on or off.
 
 ## When not to use
 
-See [`_clusters/binary-controls.md`](https://github.com/yannbf/base-ui/tree/research/research/c-components/_clusters/binary-controls.md) for the full comparative table.
+See the [Binary controls](?path=/docs/research-c-component-briefs-clusters-binary-controls--docs) research page for the full comparative table.
 
 - **A single-select-you-can't-clear semantic → [Radio Group](?path=/docs/form-inputs-radiogroup--docs)**, not a single-mode Toggle Group. "A single-select-you-can't-clear widget *is* a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert — open, unresolved community concern).
 - **A value that must submit with a `<form>` or participate in native constraint validation → [Switch](?path=/docs/form-inputs-switch--docs)**. Toggle explicitly discards `form`/`type` (see below) — it has no hidden-input form-participation machinery.
@@ -108,12 +105,6 @@ No CSS variables — no dynamic measurements to expose.
 ## In the wild
 
 <WildCards>
-  <WildCard repo="joshuawootonn/tmux-reference" title="tmux-reference" href="https://github.com/joshuawootonn/tmux-reference/blob/HEAD/src/components/theme-toggle.tsx" live="https://tmuxreference.com" license="no SPDX license detected" reuse="link-only, do not copy">
-    a `theme-toggle.tsx` found by filename on a Base UI menu/popover subpath search, not independently re-verified here.
-  </WildCard>
-  <WildCard repo="aditya-vinodh/ui" title="aditya-vinodh/ui" href="https://github.com/aditya-vinodh/ui/blob/HEAD/src/components/mode-toggle.tsx" live="https://ui-chi-flame.vercel.app" license="no SPDX license detected" reuse="link-only, do not copy">
-    a `mode-toggle.tsx` in a small design-system repo, also filename-inferred rather than subpath-verified.
-  </WildCard>
   <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
     ships a Radix-backed twin of the same Toggle API alongside the Base UI version.
   </WildCard>

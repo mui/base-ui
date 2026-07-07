@@ -40,11 +40,11 @@ A panel that slides in from the edge of the screen, with swipe-to-dismiss gestur
 
 ## When not to use
 
-Cluster-level guidance: `research/c-components/_clusters/overlays.md`. Drawer-specific boundary:
+Cluster-level guidance: [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs). Drawer-specific boundary:
 
 - **vs Dialog** — stated symmetrically on both docs pages: "Drawer extends Dialog: it adds gesture support, snap points, and indent effects. If you don't need these, use [Dialog](?path=/docs/overlays-dialog--docs) instead. A panel that slides in from the edge of the screen and doesn't need gesture support is a positioned Dialog." The boundary is **gestures, not visual position** — a side panel with no swipe-to-dismiss is a Dialog, not a Drawer.
-- **vs Popover** — both hold interactive content, but Popover anchors to its trigger element while Drawer is edge-attached and page-scoped. A desktop popover often becomes a mobile drawer at a breakpoint. [I]
-- **vs AlertDialog** — Drawer's swipe-to-dismiss is the opposite of AlertDialog's "no light dismiss" contract; never present a required-response flow as a swipeable sheet. [I]
+- **vs Popover** — both hold interactive content, but Popover anchors to its trigger element while Drawer is edge-attached and page-scoped. A desktop popover often becomes a mobile drawer at a breakpoint.
+- **vs AlertDialog** — Drawer's swipe-to-dismiss is the opposite of AlertDialog's "no light dismiss" contract; never present a required-response flow as a swipeable sheet.
 - **Don't reach for vaul + Base UI Dialog together** — vaul sets `pointer-events: none` on `<body>` and breaks embedded Base UI popups ([#3725](https://github.com/mui/base-ui/issues/3725), [#2854](https://github.com/mui/base-ui/issues/2854)); the native Drawer removes the need for that interop entirely.
 
 ## Anatomy
@@ -209,8 +209,8 @@ Transitions hang off `[data-starting-style]`/`[data-ending-style]`, exactly like
 
 - **Gestures add no keyboard surface** — snap points and swipe have no arrow-key equivalent. That is exactly why a visible `Drawer.Close` must stay inside the popup: swipe-to-dismiss is pointer-only, and the trap is otherwise identical to Dialog's.
 - **ARIA managed for you** — inherited whole from Dialog: `role="dialog"`, `aria-labelledby`/`aria-describedby` auto-wired from Title/Description, `aria-haspopup="dialog"`/`aria-expanded`/`aria-controls` on the Trigger. No `aria-modal` (same deliberate choice as Dialog).
-- **Snap-point changes make no announcement** — moving between detents is visual state only; no live region is wired in the snap-point code. [I]
-- **`SwipeArea` is invisible and pointer-only** — it must never be the sole way to open the drawer; always pair it with a real `Trigger`. [I]
+- **Snap-point changes make no announcement** — moving between detents is visual state only; no live region is wired in the snap-point code.
+- **`SwipeArea` is invisible and pointer-only** — it must never be the sole way to open the drawer; always pair it with a real `Trigger`.
 - **You must provide**: a `Drawer.Title` (or `aria-label`), a visible `Drawer.Close`, `:focus-visible` styles, and sufficient contrast.
 - **Known issues**: the Dialog-family issues apply verbatim ([#4678](https://github.com/mui/base-ui/issues/4678) aria-hidden tabbables, [#4843](https://github.com/mui/base-ui/issues/4843) `aria-modal`, [#4583](https://github.com/mui/base-ui/issues/4583) multi-Esc). No Drawer-specific open accessibility issue was found in the `[drawer]`-scoped git/issue history.
 
@@ -256,17 +256,11 @@ See "The swipe styling contract" above for the full CSS-variable table (the gest
 
 ## In the wild
 
-[G] Phase D's corpus-only pass returned three **lean, unverified** candidates for Drawer (`research/d-real-world-usage/drawer/candidates.json`) — none reached the subpath-verification tier that Dialog/Menu/Popover/Select have, so they are listed here honestly rather than written up as full case studies:
+Two of three early leads for Drawer turned out to be false positives on closer inspection — components literally named "drawer" that in fact wrap Dialog, not Base UI's Drawer — and were dropped. The one that verified:
 
 <WildCards>
-  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok" image={baseuiCnComShot}>
-    a shadcn-style registry whose description mentions fixing Drawer, Select, Toast, and overlay/focus issues; found by description match, not a direct subpath search.
-  </WildCard>
-  <WildCard repo="australia/mobtranslate.com" title="mobtranslate.com" href="https://github.com/australia/mobtranslate.com/blob/HEAD/packages/ui/src/components/drawer/drawer.tsx" license="license not found" reuse="link-only, do not copy">
-    a `drawer.tsx` in a component-registry path; found by filename, not verified against actual `@base-ui/react/drawer` usage.
-  </WildCard>
-  <WildCard repo="xuerzong/redis-dash" title="redis-dash" href="https://github.com/xuerzong/redis-dash/blob/HEAD/app/src/client/components/ui/Drawer/index.tsx" live="https://redis-dash.xuco.me/" license="MIT" reuse="code-ok">
-    a Redis GUI client with a shadcn-style `ui/Drawer/index.tsx`; also filename-inferred, not subpath-verified.
+  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn/blob/e596e7cad66f1d090be265682d09e465035f74ec/apps/www/components/ui/drawer.tsx" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok" image={baseuiCnComShot}>
+    a shadcn-style registry whose `drawer.tsx` genuinely imports `Drawer` from `@base-ui/react/drawer` — confirmed by reading the file, not just the repo's description.
   </WildCard>
 </WildCards>
 
@@ -281,11 +275,11 @@ A direct registry-tree mining pass (not a code search) confirms the same drawer/
   </WildCard>
 </WildCards>
 
-The `MobileNavigation` story above recreates the documented mobile-navigation archetype instead of a specific production repo, for the same reason [G].
+The `MobileNavigation` story above recreates the documented mobile-navigation archetype instead of a specific production repo, for the same reason.
 
 <Canvas of={DrawerStories.MobileNavigation} />
 
-A follow-up Phase D pass ranked 10 genuine Drawer usages (`research/d-real-world-usage/drawer/ranked.json`); two recreations live in this Storybook, picked from the code-ok top set — `createHandle` decoupling a detached trigger from the popup, with the draft reset on every reopen (Julchu/pricey `pantry-drawer.tsx`, MIT, code-ok, #3), and a `position`-aware compound wrapper mapping `left`/`right`/`top`/`bottom` to the matching `swipeDirection` (ironbyte0x/buckethub `drawer.tsx`, MIT, code-ok, #4 — a peer project that ships its own `drawer.stories.tsx`):
+A follow-up ranking pass surfaced 10 genuine Drawer usages in the wild; two recreations live in this Storybook, picked from the code-ok top set — `createHandle` decoupling a detached trigger from the popup, with the draft reset on every reopen (Julchu/pricey `pantry-drawer.tsx`, MIT, code-ok, #3), and a `position`-aware compound wrapper mapping `left`/`right`/`top`/`bottom` to the matching `swipeDirection` (ironbyte0x/buckethub `drawer.tsx`, MIT, code-ok, #4 — a peer project that ships its own `drawer.stories.tsx`):
 
 <Canvas of={DrawerStories.RealWorldHandleFormReset} />
 
@@ -307,13 +301,13 @@ The vaul succession, in order:
 
 - Dialog-family issues apply verbatim: [#4678](https://github.com/mui/base-ui/issues/4678) (aria-hidden tabbables), [#4843](https://github.com/mui/base-ui/issues/4843) (`aria-modal`), [#4583](https://github.com/mui/base-ui/issues/4583) (multi-Esc).
 - [#3905](https://github.com/mui/base-ui/issues/3905) — Dialog's own CloseWatcher/Android-back-button request is still open; Drawer already ships this.
-- [G] No Drawer-specific open accessibility issue was found in a `[drawer]`-scoped search of git history and issues (2026-07).
-- [I] Parent-bound (absolute-positioned, `container`-portaled) drawers remain an unanswered request from the original [#38](https://github.com/mui/base-ui/issues/38) thread (dartess's `positionMethod='fixed' | 'absolute'` ask).
+- No Drawer-specific open accessibility issue was found in a `[drawer]`-scoped search of git history and issues (2026-07).
+- Parent-bound (absolute-positioned, `container`-portaled) drawers remain an unanswered request from the original [#38](https://github.com/mui/base-ui/issues/38) thread (dartess's `positionMethod='fixed' | 'absolute'` ask).
 
 ## Related
 
 - To use the same overlay **without** gestures, snap points, or an indent effect, use [Dialog](?path=/docs/overlays-dialog--docs) — Drawer runs its engine underneath.
-- To force a response to a destructive or irreversible action, use AlertDialog — no Storybook page yet [G]; never present a required-response flow as a swipeable sheet.
+- To force a response to a destructive or irreversible action, use [Alert Dialog](?path=/docs/overlays-alert-dialog--docs); never present a required-response flow as a swipeable sheet.
 - To attach content to a specific trigger element instead of the whole page's edge, use [Popover](?path=/docs/overlays-popover--docs).
 
 ## API reference

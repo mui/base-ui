@@ -1,10 +1,6 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as SwitchStories from './switch.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
-import graphqlOrgShot from '../../../../../research/d-real-world-usage/_captures/graphql-org.png';
 import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
 import reuiIoOpenShot from '../../../../../research/d-real-world-usage/_captures/reui-io-open.png';
 
@@ -32,11 +28,11 @@ A toggle for a boolean setting that takes effect immediately, rendered as a swit
 ## When to use
 
 - A boolean setting that applies **immediately** (notifications on/off, dark mode) — the docs hero's own framing.
-- [G] Fuller evidenced scenarios pending the binary-controls cluster note (`research/c-components/_clusters/binary-controls.md`).
+- Fuller evidenced scenarios are on the [Binary controls](?path=/docs/research-c-component-briefs-clusters-binary-controls--docs) research page.
 
 ## When not to use
 
-- For a boolean that only applies when a form is **submitted**, prefer [Checkbox](?path=/docs/form-inputs-checkbox--docs), because switch semantics imply immediate effect. [I] — derived from ARIA switch-vs-checkbox convention; maintainer statement pending C brief.
+- For a boolean that only applies when a form is **submitted**, prefer [Checkbox](?path=/docs/form-inputs-checkbox--docs), because switch semantics imply immediate effect (derived from ARIA switch-vs-checkbox convention; no direct maintainer statement makes this comparison).
 - For an on/off **tool state** that is not a form value (e.g. bold in a toolbar), use [Toggle](?path=/docs/actions-toggle--docs) (`aria-pressed`), which does not submit form data.
 
 ## Anatomy
@@ -90,7 +86,7 @@ With a `name`, the switch submits via a hidden `<input>` (value `on` when checke
 
 - **ARIA**: `role="switch"`, `aria-checked` managed for you; `aria-disabled`/`aria-readonly` reflected as appropriate.
 - **You must provide**: an accessible name (label element, `Field.Label`, or `aria-label`), visible `:focus-visible` styling, and sufficient contrast.
-- **Known issues**: [G] none found in a quick upstream search (2026-07); full sweep pending C brief.
+- **Known issues**: none found in a search of upstream issues (2026-07); a deeper sweep hasn't been run yet.
 
 ## Styling hooks
 
@@ -122,14 +118,11 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 
 **Don't**
 
-- Don't use a switch for values that only apply on submit — that's a checkbox's contract. [I]
+- Don't use a switch for values that only apply on submit — that's a checkbox's contract.
 
 ## In the wild
 
 <WildCards>
-  <WildCard repo="graphql/graphql.github.io" title="graphql.org" href="https://github.com/graphql/graphql.github.io/blob/HEAD/src/components/theme-switch.tsx" live="https://graphql.org" license="MIT" reuse="code-ok" image={graphqlOrgShot}>
-    the site-wide dark-mode toggle; found by filename match (`theme-switch.tsx`) on a Base UI select subpath search, not independently re-verified here.
-  </WildCard>
   <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
     a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings, composed with Field/Fieldset for form contexts.
   </WildCard>

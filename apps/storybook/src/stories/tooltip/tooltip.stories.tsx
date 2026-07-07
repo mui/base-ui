@@ -199,3 +199,218 @@ export const PositioningAndArrow: Story = {
     </div>
   ),
 };
+
+const alignments = ['start', 'center', 'end'] as const;
+
+/** A fuller positioning matrix: every `side` × `align` combination, each rendered open so `data-side`/`data-align`/`data-uncentered` can be spot-checked visually against `Tooltip.Arrow`'s rotation and offset. */
+export const PositioningMatrix: Story = {
+  render: () => (
+    <div className={styles.Grid}>
+      {arrowSides.map((side) =>
+        alignments.map((align) => (
+          <Tooltip.Root key={`${side}-${align}`} defaultOpen>
+            <Tooltip.Trigger className={styles.TextButton}>
+              {`${side}/${align}`}
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner side={side} align={align} sideOffset={8}>
+                <Tooltip.Popup className={styles.Popup}>
+                  <Tooltip.Arrow className={styles.Arrow} />
+                  {`${side} / ${align}`}
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        )),
+      )}
+    </div>
+  ),
+};
+
+function ControlledOpenExample() {
+  const [open, setOpen] = React.useState(false);
+  const [reason, setReason] = React.useState<string | null>(null);
+  const actionsRef = React.useRef<Tooltip.Root.Actions>(null);
+
+  return (
+    <div className={styles.Row}>
+      <Tooltip.Root
+        open={open}
+        actionsRef={actionsRef}
+        onOpenChange={(nextOpen, eventDetails) => {
+          setOpen(nextOpen);
+          setReason(eventDetails.reason ?? null);
+        }}
+      >
+        <Tooltip.Trigger className={styles.TextButton}>Focus me</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Controlled tooltip
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+      <button
+        type="button"
+        className={styles.TextButton}
+        onClick={() => actionsRef.current?.close()}
+      >
+        Close programmatically
+      </button>
+      <output className={styles.Output}>
+        open={String(open)} reason={String(reason)}
+      </output>
+    </div>
+  );
+}
+
+/** External `open`/`onOpenChange` state drives the tooltip; `eventDetails.reason` reports which interaction caused each transition (`trigger-focus` for the focus-open path used here, `imperative-action` for the external "close programmatically" button via `actionsRef`). */
+export const ControlledOpen: Story = {
+  render: () => <ControlledOpenExample />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const trigger = canvas.getByRole('button', { name: 'Focus me' });
+
+    await userEvent.tab();
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await waitFor(() => expect(body.getByText('Controlled tooltip')).toBeVisible());
+    await waitFor(() => expect(canvas.getByText(/reason=trigger-focus/)).toBeVisible());
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Close programmatically' }));
+    await waitFor(() => expect(body.queryByText('Controlled tooltip')).not.toBeInTheDocument());
+    await waitFor(() => expect(canvas.getByText(/reason=imperative-action/)).toBeVisible());
+  },
+};
+
+/**
+ * `Tooltip.Trigger`'s own `delay`/`closeDelay` props override the Provider/default timing per
+ * trigger (default `600`ms open / `0`ms close). This story is documentation-only, not
+ * play-tested: per story-plan.md's reliability notes, hover-rest-timer assertions are flaky in
+ * a browser-automation play function, and these props specifically govern the *hover* path
+ * (focus-open ignores `delay` entirely) — so there is no reliable non-hover way to pin the
+ * timing difference in an automated test. Inspect manually: the left trigger opens instantly on
+ * hover, the right one waits the full default delay.
+ */
+export const DelayCustomization: Story = {
+  render: () => (
+    <div className={styles.Row}>
+      <Tooltip.Root>
+        <Tooltip.Trigger className={styles.TextButton} delay={0}>
+          delay=0
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Opens instantly
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+      <Tooltip.Root>
+        <Tooltip.Trigger className={styles.TextButton} closeDelay={500}>
+          closeDelay=500
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Lingers on close
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </div>
+  ),
+};
+
+/** `Tooltip.Root disabled` suppresses opening entirely, on every interaction path — unlike `Tooltip.Trigger disabled`, which only stops that one trigger from opening its tooltip while leaving the DOM element itself interactive. */
+export const DisabledTrigger: Story = {
+  render: () => (
+    <div className={styles.Row}>
+      <Tooltip.Root>
+        <Tooltip.Trigger className={styles.TextButton}>Enabled</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Enabled tooltip
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+      <Tooltip.Root disabled>
+        <Tooltip.Trigger className={styles.TextButton}>Disabled</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Disabled tooltip
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </div>
+  ),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const enabled = canvas.getByRole('button', { name: 'Enabled' });
+    const disabled = canvas.getByRole('button', { name: 'Disabled' });
+
+    enabled.focus();
+    await waitFor(() => expect(body.getByText('Enabled tooltip')).toBeVisible());
+
+    disabled.focus();
+    await expect(body.queryByText('Disabled tooltip')).not.toBeInTheDocument();
+  },
+};
+
+const detachedHandle = Tooltip.createHandle();
+
+/** `Tooltip.createHandle()` connects a `Trigger` rendered anywhere in the tree to a `Root`/`Popup` declared elsewhere — no parent/child DOM relationship is required. Here, external buttons call `handle.open(id)`/`handle.close()` imperatively, and the physically-separate trigger's own focus/hover still works too. */
+export const DetachedTriggerHandle: Story = {
+  render: () => (
+    <div className={styles.Form}>
+      <div className={styles.Row}>
+        <Tooltip.Trigger handle={detachedHandle} id="detached-trigger" className={styles.TextButton}>
+          Detached trigger
+        </Tooltip.Trigger>
+        <button type="button" className={styles.TextButton} onClick={() => detachedHandle.open('detached-trigger')}>
+          Open programmatically
+        </button>
+        <button type="button" className={styles.TextButton} onClick={() => detachedHandle.close()}>
+          Close
+        </button>
+      </div>
+
+      <Tooltip.Root handle={detachedHandle}>
+        <Tooltip.Portal>
+          <Tooltip.Positioner sideOffset={8}>
+            <Tooltip.Popup className={styles.Popup}>
+              <Tooltip.Arrow className={styles.Arrow} />
+              Declared elsewhere in the tree
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </div>
+  ),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open programmatically' }));
+    await waitFor(() => expect(body.getByText('Declared elsewhere in the tree')).toBeVisible());
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Close' }));
+    await waitFor(() =>
+      expect(body.queryByText('Declared elsewhere in the tree')).not.toBeInTheDocument(),
+    );
+
+    // The detached trigger's own focus-open path still works independently of the handle buttons.
+    const trigger = canvas.getByRole('button', { name: 'Detached trigger' });
+    trigger.focus();
+    await waitFor(() => expect(body.getByText('Declared elsewhere in the tree')).toBeVisible());
+  },
+};

@@ -9,14 +9,21 @@
     "reuse": "code-ok",
     "category": "oss-design-system",
     "lastActivity": "2026-04-23",
-    "importSpecifier": "@base-ui/react/dialog",
-    "files": [],
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "apps/www/components/ui/drawer.tsx",
+        "permalink": "https://github.com/baseui-cn/baseui-cn/blob/e596e7cad66f1d090be265682d09e465035f74ec/apps/www/components/ui/drawer.tsx",
+        "pinned": true
+      }
+    ],
     "liveUrl": "https://www.baseui-cn.com",
     "partsUsed": [],
-    "contextSummary": "Base UI components for React (shadcn-style) \u2014 fixes Drawer, Select, Toast and overlay/focus issues. Description-based signal only; no cached subpath search or file inspection has verified an actual Drawer file in this repo.",
+    "contextSummary": "Verified this pass: `apps/www/components/ui/drawer.tsx` imports `Drawer as DrawerPrimitive` from `@base-ui/react/drawer` directly \u2014 a shadcn-style registry component genuinely built on Base UI's Drawer, not the Dialog-based false positives found alongside it in this corpus (mobtranslate.com, redis-dash).",
     "diversityTags": [
       "oss-design-system",
-      "description-inferred-not-subpath-verified"
+      "shadcn-registry",
+      "verified-subpath-import"
     ],
     "instructiveMisuse": false,
     "screenshot": {

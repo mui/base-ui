@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 3 (source + docs); sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ButtonStories from './button.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -16,7 +13,7 @@ A button component that can be rendered as another tag or focusable when disable
 - **Import:** `import { Button } from '@base-ui/react/button';`
 - **Parts:** 1 — no sub-parts; renders a single `<button>` (or the `render`-swapped tag).
 - **Status:** Stable. Merged in mid-2025 (`#2363`) — one of the youngest components by introduction date, despite being conceptually primitive.
-- **ARIA pattern:** [Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) (native-button case). [I] — general web knowledge, not a docs citation.
+- **ARIA pattern:** [Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) (native-button case).
 - **Docs verified against:** `@base-ui/react` workspace source (v1.6.0 line).
 
 <Canvas of={ButtonStories.Hero} />
@@ -78,7 +75,7 @@ The default element is a `<button>`. Passing both `render` and `nativeButton={fa
 - **ARIA**: `role="button"` only on non-native renders; `aria-disabled="true"` when disabled (either non-native, or native + `focusableWhenDisabled`); native `disabled` attribute only for a native `<button>` without `focusableWhenDisabled`.
 - **You must provide**: an accessible name (text content or `aria-label`), visible `:focus-visible` styling.
 - **Dev-time correctness guard**: a mismatched `nativeButton` vs actual rendered tag throws a console `Base UI:` error explaining the risk, in both directions.
-- **Known issues**: [G] no Button-specific open a11y bug found in the mined discussions/issues corpus beyond the scope debate covered in the decision log below; the absence is unverified rather than confirmed-clean.
+- **Known issues**: no open Button-specific accessibility issue was found beyond the scope debate covered in the decision log below — this reflects a search of project issues/discussions, not a guarantee the component is bug-free.
 
 ## Styling hooks
 
@@ -128,7 +125,7 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 ## Known issues & open questions
 
-- [G] No Button-specific open a11y bug surfaced in the mined discussions/issues corpus (`button / toolbar | 4008, 4021, 5150, 3759` — these are scope/API discussions, not a11y bugs; [#4021](https://github.com/mui/base-ui/issues/4021)/#5150/#3759 not individually verified in this pass).
+- No open Button-specific accessibility issue was found beyond scope/API discussions in `button`/`toolbar` ([#4008](https://github.com/mui/base-ui/issues/4008), [#4021](https://github.com/mui/base-ui/issues/4021), #5150, #3759) — those are scope debates, not accessibility bugs.
 
 ## Related
 

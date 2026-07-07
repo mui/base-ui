@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (source, docs, tests, experiments, 1 targeted upstream PR
-    lookup — research/c-components/scroll-area/brief.md). */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as ScrollAreaStories from './scroll-area.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -39,7 +35,7 @@ A native scroll container with custom scrollbars.
 
 ## When not to use
 
-- **Large virtualized lists** — Scroll Area does not virtualize; it only decorates a real overflowing `<div>`. Treat virtualization as an orthogonal, compatible concern the app must add itself if content is huge. [G] No maintainer statement explicitly contrasting Scroll Area with a virtualization library was found in the mined corpus.
+- **Large virtualized lists** — Scroll Area does not virtualize; it only decorates a real overflowing `<div>`. Treat virtualization as an orthogonal, compatible concern the app must add itself if content is huge. No maintainer statement explicitly contrasting Scroll Area with a virtualization library was found.
 - **Average, non-decorated overflow** — plain CSS `overflow: auto` with the browser's native scrollbar remains the simpler default when no custom styling of the scrollbar chrome itself is required.
 - **Select's own popup scrolling** — `Select.Popup`/`Select.List` has its own built-in scroll handling plus dedicated scroll-up/down arrow parts, architecturally independent of `ScrollArea.*`. The two mechanisms can coexist when deliberately composed, but they are not designed to interoperate — pick one scroll mechanism per popup, not both.
 
@@ -138,7 +134,7 @@ Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollb
 - **ARIA managed for you**: none, by deliberate design — the actual scrolling affordance and its accessible semantics belong entirely to the native, real `overflow: scroll` Viewport; Scrollbar/Thumb/Corner are purely visual/pointer-driven mirrors of what the browser already exposes correctly.
 - **Screen reader**: the Viewport is announced as a real scrollable region (native browser behavior); the Scrollbar/Thumb/Corner chrome is not announced at all, because it carries no role.
 - **You must provide**: visible `:focus-visible` styling on the Viewport, since it can enter the tab order.
-- **Known issues**: [G] the mined GitHub issues/discussions corpus has zero entries for this component (`research/c-components/scroll-area/brief.md` §7) — no open accessibility bug reports were found, but this reflects a search-budget gap as much as a genuinely quiet component, and neither can be ruled out from this pass alone.
+- **Known issues**: no open accessibility bug reports were found for this component — we haven't yet ruled out whether that reflects a genuinely quiet component or a search gap.
 
 ## Styling hooks
 
@@ -195,7 +191,7 @@ Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollb
 
 ## Known issues & open questions
 
-- [G] `research/b-library-principles/_mining/discussions.md` has zero entries for scroll-area — no open accessibility or behavioral bug reports were surfaced in this pass. This is stated honestly as a search-budget limitation, not evidence the component is bug-free.
+- No open accessibility or behavioral bug reports were found for Scroll Area. Stated honestly: this is the result of a search, not proof the component is bug-free.
 
 ## Related
 

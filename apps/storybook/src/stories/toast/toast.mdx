@@ -41,7 +41,7 @@ A self-managing stack of transient, non-interrupting status notifications — th
 
 ## When not to use
 
-Cluster-level overlay comparison: `research/c-components/_clusters/overlays.md` (Toast boundary appended there). Toast-specific reasoning:
+Cluster-level overlay comparison: [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs) (Toast boundary appended there). Toast-specific reasoning:
 
 - If the user **must** respond or the message blocks progress, use Alert Dialog — focus never moves to a toast ([#4533](https://github.com/mui/base-ui/pull/4533)), so a required decision inside one is unreachable-by-default for keyboard/screen-reader users ([#4253](https://github.com/mui/base-ui/issues/4253)).
 - For a hover hint about a control, use [Popover](?path=/docs/overlays-popover--docs)/Tooltip instead — a toast is feedback about an *event*, not a hint about a control.
@@ -250,24 +250,24 @@ There is no arrow-key navigation between toasts — tab-based only, no roving fo
 
 ## In the wild
 
-Corpus-signal only — full ranked recreations were not run for Toast (`research/d-real-world-usage/toast/candidates.json`, description-inferred, code not fetched/verified against source):
+Two early leads for Toast were description-inferred only; both verified true on inspection:
 
 <WildCards>
-  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok" image={baseuiCnComShot}>
-    a shadcn-style registry of Base UI components that explicitly lists fixes to Toast among its overlay/focus work; useful as a second reference implementation of the manager pattern, not independently verified here.
+  <WildCard repo="baseui-cn/baseui-cn" title="baseui-cn" href="https://github.com/baseui-cn/baseui-cn/blob/df7c18b459c02a1646640f684a4b2daef8a0b6ff/apps/www/components/ui/toast.tsx" live="https://www.baseui-cn.com" license="MIT" reuse="code-ok" image={baseuiCnComShot}>
+    a shadcn-style registry whose `toast.tsx` imports `Toast` from `@base-ui/react/toast` directly — a second reference implementation of the manager pattern alongside kumo's below.
   </WildCard>
-  <WildCard repo="vcode-sh/popser" title="popser" href="https://github.com/vcode-sh/popser" live="https://popser.vcui.dev" license="MIT" reuse="code-ok">
-    a dedicated "Sonner-compatible API" toast library built on Base UI's Toast primitive; instructive as a from-scratch wrapper, but its internals were not fetched for this page — treat as a lead, not a verified example.
+  <WildCard repo="vcode-sh/popser" title="popser" href="https://github.com/vcode-sh/popser/blob/6f361b6fa7b47797e001472d9a7b4e2160bb62d6/src/toast-root.tsx" live="https://popser.vcui.dev" license="MIT" reuse="code-ok">
+    a dedicated "Sonner-compatible API" toast library built on Base UI's Toast primitive — `toast-root.tsx` imports `Toast` from `@base-ui/react` directly, confirming a genuine from-scratch wrapper.
   </WildCard>
   <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toast/toast.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled Toast wrapper (not a bare re-export), with a matching Figma-generator script for design-tool parity; verified directly against the file tree, unlike the two description-inferred candidates above.
+    a fully styled Toast wrapper (not a bare re-export), with a matching Figma-generator script for design-tool parity.
   </WildCard>
   <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toast.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
     a Tailwind-styled registry item, published as both a package export and an installable file.
   </WildCard>
 </WildCards>
 
-A full Phase D pass has since ranked 12 candidates (`research/d-real-world-usage/toast/ranked.json`); two recreations live in this Storybook, picked from the code-ok top set — an anchored, actionable toast combining `Arrow` and `Action` (patrick-xin/lumi-ui, MIT, code-ok, #6 — the fullest Toast anatomy found in any registry) and the "Alert inside `Toast.Content`" idiom (rosen-bridge/ui, MIT, code-ok, #8), where a full pre-existing Alert component renders in place of Title/Description/Action:
+A follow-up ranking pass surfaced 12 genuine Toast usages in the wild; two recreations live in this Storybook, picked from the code-ok top set — an anchored, actionable toast combining `Arrow` and `Action` (patrick-xin/lumi-ui, MIT, code-ok, #6 — the fullest Toast anatomy found in any registry) and the "Alert inside `Toast.Content`" idiom (rosen-bridge/ui, MIT, code-ok, #8), where a full pre-existing Alert component renders in place of Title/Description/Action:
 
 <Canvas of={ToastStories.RealWorldAnchoredActionableToast} />
 
@@ -295,7 +295,7 @@ A full Phase D pass has since ranked 12 candidates (`research/d-real-world-usage
 
 ## Related
 
-- To force a response the user must act on before proceeding, use Dialog/Alert Dialog instead — no Storybook page yet [G].
+- To force a response the user must act on before proceeding, use [Dialog](?path=/docs/overlays-dialog--docs) or [Alert Dialog](?path=/docs/overlays-alert-dialog--docs) instead.
 - For a hover hint about a control (not an event), use [Popover](?path=/docs/overlays-popover--docs).
 - For validation and form errors tied to a specific field, use [Field](?path=/docs/form-inputs-field--docs) and [Form](?path=/docs/form-inputs-form--docs).
 

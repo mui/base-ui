@@ -1,6 +1,3 @@
-{/* Pilot page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 2 (lean). Sections pending the full C brief carry [G]. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as CheckboxStories from './checkbox.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -65,9 +62,13 @@ A third, separate hidden `<input type="hidden">` appears conditionally: when `un
 
 `defaultChecked` for uncontrolled use; `checked` + `onCheckedChange(checked, eventDetails)` for external state. `eventDetails.cancel()` vetoes the change.
 
+<Canvas of={CheckboxStories.ControlledChecked} />
+
 ### Labeling
 
 Wrap in a `<label>` (hero above) or use `Field.Label` for managed wiring. The default `<span>` shape exists specifically so an enclosing `<label>` doesn't produce invalid HTML wrapping two form controls.
+
+<Canvas of={CheckboxStories.NativeButtonSiblingLabel} />
 
 ### Toggling
 
@@ -86,6 +87,20 @@ Clicking the label, the visible span, or the hidden input all toggle identically
 <Canvas of={CheckboxStories.FormWithUncheckedValue} />
 
 By default (no `uncheckedValue`), an unchecked checkbox submits nothing — verified byte-for-byte identical to a real native `<input type="checkbox">` in the same test suite. Setting `uncheckedValue` opts into an explicit "off" sentinel instead, matching the same `#3406` fix that Switch received (["match native off state in form submission"](?path=/docs/form-inputs-switch--docs)).
+
+<Canvas of={CheckboxStories.InFieldWithValidation} />
+
+### Read-only vs disabled
+
+<Canvas of={CheckboxStories.ReadOnlyBlocksToggle} />
+
+`readOnly` blocks every toggle path (click, Space) while keeping the checkbox in the tab sequence and its current value visible; `disabled` additionally removes it from the tab sequence.
+
+### Parent checkbox ("select all")
+
+<Canvas of={CheckboxStories.ParentCheckboxPreview} />
+
+`parent` is declared on `Checkbox.Root`, but the full tri-state cycle algorithm and its edge cases (disabled-child exclusion, nested groups, form-submission exclusion) belong to [Checkbox Group](?path=/docs/form-inputs-checkbox-group--docs), which is where the coordinating logic (`useCheckboxGroupParent`) actually lives.
 
 ## Keyboard & screen reader
 

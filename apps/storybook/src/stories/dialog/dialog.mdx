@@ -1,7 +1,3 @@
-{/* Page implementing research/a-documentation-standard/component-doc-template.mdx.
-    Evidence tier: Tier 1 (source, docs, tests, experiments, git history, upstream issues/PRs
-    — research/c-components/dialog/brief.md); real-world data from research/d-real-world-usage/dialog. */}
-
 import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
 import * as DialogStories from './dialog.stories';
 import { WildCards, WildCard } from '../shared/InTheWild';
@@ -46,13 +42,13 @@ A popup that opens on top of the entire page — a focus-managed, screen-reader-
 
 ## When not to use
 
-Cluster-level decision guidance for all overlay components lives in `research/c-components/_clusters/overlays.md`; the dialog-specific boundaries:
+Cluster-level decision guidance for all overlay components lives in [Overlays](?path=/docs/research-c-component-briefs-clusters-overlays--docs); the dialog-specific boundaries:
 
 - When the user **must** respond before proceeding, use **Alert Dialog** — it is Dialog with `role="alertdialog"`, `modal` forced `true`, and pointer dismissal forced off (`useRenderDialogRoot`; the difference is an acknowledged docs gap, [#1687](https://github.com/mui/base-ui/issues/1687)). Use Dialog for everything dismissible.
 - For swipeable sheets, use **Drawer**: "Drawer extends Dialog: It adds gesture support, snap points, and indent effects. If you don't need these, use Dialog instead" (drawer docs). The boundary is gestures, not visual position.
 - For content **anchored to an element**, use [Popover](?path=/docs/overlays-popover--docs) — Dialog deliberately has no Positioner/anchoring machinery ([#3596](https://github.com/mui/base-ui/issues/3596) remains open) and is modal by default; Popover points at its trigger and is non-modal by default.
 - For passive, self-expiring notifications, use Toast (which *does* have an imperative manager). Dialogs wait for the user; a `dialogManager` was explicitly declined ([#2802](https://github.com/mui/base-ui/issues/2802)) — reach for handles + payloads instead.
-- For an inline panel that needs no focus, scroll, or pointer management, plain markup suffices — Dialog's value *is* that management. [I]
+- For an inline panel that needs no focus, scroll, or pointer management, plain markup suffices — Dialog's value *is* that management.
 
 ## Anatomy
 
@@ -195,7 +191,7 @@ CSS transitions hook onto `[data-starting-style]`/`[data-ending-style]` on Popup
 
 <Canvas of={DialogStories.ExitAnimation} />
 
-`keepMounted` on the Portal keeps the closed popup in the DOM — the base for Motion-style render-prop animation (the Motion recipe itself is not shown here because `motion` is not a dependency of this Storybook [G]):
+`keepMounted` on the Portal keeps the closed popup in the DOM — the base for Motion-style render-prop animation (the Motion recipe itself is not shown here because `motion` is not a dependency of this Storybook):
 
 <Canvas of={DialogStories.KeepMounted} />
 
@@ -309,8 +305,8 @@ Two recreations live in this Storybook — an edge-docked side panel (Oxide) and
 
 ## Related
 
-- To force a response to a destructive or irreversible action, use **Alert Dialog** (same parts, hard-coded modality) — no Storybook page yet [G].
-- To add swipe gestures, snap points, and indent effects to a sheet, use **Drawer** — no Storybook page yet [G].
+- To force a response to a destructive or irreversible action, use [Alert Dialog](?path=/docs/overlays-alert-dialog--docs) (same parts, hard-coded modality).
+- To add swipe gestures, snap points, and indent effects to a sheet, use [Drawer](?path=/docs/overlays-drawer--docs).
 - To attach content to a specific element instead of the whole page, use [Popover](?path=/docs/overlays-popover--docs).
 - To open a dialog from a list of actions, compose with [Menu](?path=/docs/overlays-menu--docs) (see "Opening from a menu" above).
 - To collect input inside the dialog, use [Form](?path=/docs/form-inputs-form--docs) and [Field](?path=/docs/form-inputs-field--docs) (see "Forms in dialogs" above).
