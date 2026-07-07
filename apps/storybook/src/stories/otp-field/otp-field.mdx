@@ -146,6 +146,12 @@ The full value is carried by a hidden, `aria-hidden` validation `<input type="te
 - Don't assume `getByRole('textbox')` finds masked slots the same way it finds unmasked ones — verify independently.
 - Don't import `OTPFieldPreview` — it was renamed to `OTPField` as a breaking change in v1.6.0.
 
+## In the wild
+
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/input-otp.tsx), MIT, code-ok) — named `input-otp.tsx` (the shadcn/Radix naming convention) but built on `@base-ui/react/otp-field` underneath.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/otp-field.tsx), MIT, code-ok) — keeps the Base UI name (`otp-field.tsx`) rather than the shadcn `input-otp` convention, with masked, alphanumeric, grouped, and form-integration example variants.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/otp-field.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's registry also ships a dedicated OtpField wrapper as part of its near-complete component set.
+
 ## Related
 
 - For a plain, unsegmented numeric value with formatting, use [Number Field](?path=/docs/form-inputs-number-field--docs).

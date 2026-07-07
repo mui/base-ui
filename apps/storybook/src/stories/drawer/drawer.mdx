@@ -266,6 +266,11 @@ See "The swipe styling contract" above for the full CSS-variable table (the gest
 - **mobtranslate.com** ([source](https://github.com/australia/mobtranslate.com/blob/HEAD/packages/ui/src/components/drawer/drawer.tsx), license not found — link-only, do not copy) — a `drawer.tsx` in a component-registry path; found by filename, not verified against actual `@base-ui/react/drawer` usage.
 - **[redis-dash](https://redis-dash.xuco.me/)** ([source](https://github.com/xuerzong/redis-dash/blob/HEAD/app/src/client/components/ui/Drawer/index.tsx), MIT, code-ok) — a Redis GUI client with a shadcn-style `ui/Drawer/index.tsx`; also filename-inferred, not subpath-verified.
 
+A direct registry-tree mining pass (not a code search) confirms the same drawer/sheet dual-naming pattern independently:
+
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/drawer.tsx), AGPL-3.0, link-only, do not copy) — ships both a `drawer.tsx` and a shadcn-convention `sheet.tsx` — two names for the same Base UI Dialog-based edge panel.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/drawer.tsx), MIT, code-ok) — the same dual-naming pattern, with a Radix-backed twin registry alongside it.
+
 The `MobileNavigation` story above recreates the documented mobile-navigation archetype instead of a specific production repo, for the same reason [G].
 
 <Canvas of={DrawerStories.MobileNavigation} />

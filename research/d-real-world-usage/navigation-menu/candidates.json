@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": "navigation-menu-001",
+    "component": "navigation-menu",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/navigation-menu.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/navigation-menu.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind-styled site-header wrapper, distributed as a copy-paste registry item alongside its sibling Menubar/DropdownMenu files.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-002",
+    "component": "navigation-menu",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "packages/ui/src/components/ui/navigation-menu.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/navigation-menu.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same registry pattern, published as both a package export and an installable file.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "navigation-menu-003",
+    "component": "navigation-menu",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/navigation-menu",
+    "files": [
+      {
+        "path": "packages/kumo/src/primitives/navigation-menu.ts",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/primitives/navigation-menu.ts",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. notably has **not** built a styled wrapper yet \u2014 it ships only the auto-generated `primitives/navigation-menu.ts` re-export (`export * from \"@base-ui/react/navigation-menu\"`), an honest 'not skinned yet' signal from Cloudflare's own design system.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

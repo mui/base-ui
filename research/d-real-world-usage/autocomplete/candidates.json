@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "id": "autocomplete-001",
+    "component": "autocomplete",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/autocomplete/autocomplete.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive, unlike several other Kumo components), with its own Figma-generator script kept in sync with the code.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "autocomplete-002",
+    "component": "autocomplete",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      {
+        "path": "packages/ui/src/form/primitives/autocomplete/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/autocomplete/input.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/input.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/autocomplete/list.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/list.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/autocomplete/popup.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/popup.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/autocomplete/group.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/group.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui` form primitives package, sharing structure with its sibling Combobox implementation.",
+    "diversityTags": [
+      "production-app",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "autocomplete-003",
+    "component": "autocomplete",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/autocomplete",
+    "files": [
+      {
+        "path": "apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx",
+        "pinned": false
+      },
+      {
+        "path": "apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-async-demo.tsx",
+        "pinned": false
+      },
+      {
+        "path": "apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-fuzzy-matcher-demo.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

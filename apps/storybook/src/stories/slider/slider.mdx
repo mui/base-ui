@@ -134,6 +134,12 @@ Each Thumb's nested native `<input type="range">` carries `name`/`form`/`min`/`m
 - Don't expect `div[role="slider"]` in the DOM — query the native `<input>` instead.
 - Don't turn on `aria-live` for `Slider.Value` expecting more helpful announcements — it's off by default for a documented reason.
 
+## In the wild
+
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/slider.tsx), MIT, code-ok) — a Tailwind-styled Slider registry item, copy-paste distributed like the rest of the 9ui set.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/slider.tsx), MIT, code-ok) — the same wrapper pattern, published as both a package export and an installable registry file.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/slider.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system also ships a dedicated Slider wrapper as part of its near-complete registry.
+
 ## Related
 
 - For typed, formatted, or locale-sensitive numeric precision, use [Number Field](?path=/docs/form-inputs-number-field--docs).

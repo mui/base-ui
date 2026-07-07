@@ -1,1 +1,97 @@
-[]
+[
+  {
+    "id": "scroll-area-001",
+    "component": "scroll-area",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/scroll-area",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/scroll-area.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/scroll-area.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind-styled ScrollArea wrapper, copy-paste distributed like the rest of the 9ui set.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "scroll-area-002",
+    "component": "scroll-area",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/scroll-area",
+    "files": [
+      {
+        "path": "packages/ui/src/components/ui/scroll-area.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/scroll-area.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same wrapper pattern, published as both a package export and an installable registry file.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "scroll-area-003",
+    "component": "scroll-area",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/scroll-area",
+    "files": [
+      {
+        "path": "registry/bases/base/ui/scroll-area.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/scroll-area.tsx",
+        "pinned": false
+      },
+      {
+        "path": "registry/bases/radix/ui/scroll-area.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/radix/ui/scroll-area.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. ships a Radix-backed twin of the same ScrollArea API alongside the Base UI version, for projects that want to switch primitive libraries later.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

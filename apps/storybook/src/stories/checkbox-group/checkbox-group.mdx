@@ -118,7 +118,9 @@ The group container itself carries only `data-disabled`, plus the full Field val
 
 ## In the wild
 
-[G] Pending Phase D dataset for checkbox-group (Tier 2 — see `research/d-real-world-usage/`). Strongly signaled by the built-in parent-checkbox feature and its own docs demos: permission/role-assignment forms, filter-checkbox panels with a "select all" toggle, and file/folder tree selectors.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/checkbox-group.tsx), MIT, code-ok) — a dedicated wrapper file separate from plain Checkbox, confirming CheckboxGroup is treated as its own registry item rather than folded into Checkbox.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/checkbox-group.tsx), MIT, code-ok) — the same split — a standalone CheckboxGroup registry item alongside Checkbox — published as both a package export and an installable file.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox-group.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's registry keeps CheckboxGroup separate from Checkbox as well, corroborating the pattern across two independent registries.
 
 ## Decision log
 

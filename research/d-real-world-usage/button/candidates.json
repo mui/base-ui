@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": "button-001",
+    "component": "button",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/button",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/button/button.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/button/button.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. Cloudflare's own design system wraps `@base-ui/react` for Button too, with a matching Figma-generator (`packages/kumo-figma/src/generators/button.ts`) that keeps the design tool's variants in sync with the Tailwind implementation.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "button-002",
+    "component": "button",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/button",
+    "files": [
+      {
+        "path": "packages/ui/src/button/button.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/button/button.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the new `@wordpress/ui` package (distinct from the older `@wordpress/components` Button) has its own Base UI-backed button implementation.",
+    "diversityTags": [
+      "production-app",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "button-003",
+    "component": "button",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/button",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/button.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/button.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the broadest demo set of any 9ui component: disabled, loading, icon, link-rendered, rounded, and size/variant matrix demos all built on one wrapper.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

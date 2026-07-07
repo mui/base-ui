@@ -178,7 +178,9 @@ See the [Field styling contract](?path=/docs/form-inputs-field--docs) for the fu
 
 ## In the wild
 
-[G] pending Phase D usage mining for form (`research/d-real-world-usage/`) — expected archetypes to verify: login/signup forms with server-side uniqueness errors, RHF-owned forms keeping Base UI `<Form>` as the element, and Server-Function forms in Next.js apps.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/form.tsx), MIT, code-ok) — a copy-paste Form wrapper in the 9ui registry, styled to match its Field/Fieldset/Input siblings.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/form.tsx), MIT, code-ok) — the same wrapper pattern, published as both a package export and an installable registry file.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/form.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system registry also ships a dedicated Form wrapper alongside its Field/Fieldset files.
 
 ## Decision log
 

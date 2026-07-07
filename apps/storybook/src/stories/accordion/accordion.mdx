@@ -113,6 +113,12 @@ Root-level `disabled` cascades to every item; Item-level `disabled` disables jus
 
 - Don't expect ArrowUp/ArrowDown to move focus between headers — that behavior was deliberately removed ([#4965](https://github.com/mui/base-ui/pull/4965)); use Tab/Shift+Tab instead.
 
+## In the wild
+
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx), MIT, code-ok) — a shadcn-style `data-slot="accordion"` wrapper over `@base-ui/react/accordion`, styled with Tailwind border-bottom dividers per item.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx), MIT, code-ok) — the same one-file-per-registry-item pattern, published both as an installable registry item (`apps/www/registry/ui/accordion.tsx`) and inside the distributable `@lumi-ui` package.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx), MIT, code-ok) — ships parallel Base UI and Radix implementations behind the same component API (`registry/bases/base/` vs `registry/bases/radix/`), letting consumers pick a primitive backend per project.
+
 ## Decision log — the APG-alignment removal
 
 Two related PRs, merged the same day (2026-06-08), that removed behavior which had shipped since Accordion's 2024-10-30 launch ([#577](https://github.com/mui/base-ui/pull/577)):

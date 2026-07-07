@@ -1,0 +1,35 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Research/About this research" tags={['research']} />
+
+# About this research
+
+Every documentation page in this Storybook sits on top of a research corpus that was produced first — and committed alongside the stories under [`research/`](https://github.com/storybook-tmp/base-ui/tree/research/research) in this branch. The pages in this **Research** section render those source files directly (live `?raw` imports — they can't drift from what's committed).
+
+They are hidden from the sidebar by default: enable the **research** tag in the sidebar's filter menu to browse them.
+
+## How this Storybook was made
+
+The project ran as a five-phase, evidence-first pipeline (the full work order is in [The brief](?path=/docs/research-the-brief-prompt--docs)):
+
+| Phase | What it produced | Where |
+|---|---|---|
+| **A — Documentation standard** | Studies of 6 gold-standard design-system docs (GOV.UK first among them) distilled into a 28-section [Definition of Done](?path=/docs/research-a-documentation-standard-definition-of-done--docs) and a purpose-based [taxonomy](?path=/docs/research-a-documentation-standard-taxonomy--docs) that became this sidebar's categories | `a-documentation-standard/` |
+| **B — Library principles** | [48 principles](?path=/docs/research-b-library-principles-principles--docs) of how Base UI thinks — every one cited to upstream issues/PRs/commits — plus a [glossary](?path=/docs/research-b-library-principles-glossary--docs) and a 434-entry [source bibliography](?path=/docs/research-b-library-principles-sources--docs) | `b-library-principles/` |
+| **C — Component briefs** | A per-component evidence base: intention in the maintainers' own words, decision boundaries, anatomy, behavior, keyboard/SR contract, prop guidance, decision log, pitfalls — one brief per component under **C — Component briefs** | `c-components/` |
+| **D — Real-world usage** | An 877-repo corpus of Base UI usage in the wild (shadcn/ui, Next.js devtools, PostHog, Gutenberg…), with ranked and annotated examples for the deep-dive components — see [methodology](?path=/docs/research-d-real-world-usage-methodology--docs) | `d-real-world-usage/` |
+| **E — This Storybook** | The scaffold decisions, the verbatim `storybook ai setup` prompt, and the [coverage table](?path=/docs/research-e-storybook-build-coverage--docs) — 337+ verified stories across all 37 components + 4 utils | `e-storybook/` + `apps/storybook/` |
+
+Evidence discipline throughout: every claim about maintainer intent carries a citation and a tag — **[E]** direct evidence, **[I]** inference (with what it's inferred from), **[G]** an acknowledged gap (looked, found nothing, said where). The [G] markers you see on component pages are that honesty surfacing, GOV.UK-style, rather than silent omission.
+
+## How the research feeds the pages you're reading
+
+- **"When (not) to use"** sections come from the briefs' decision-boundary research and the six [cluster notes](?path=/docs/research-c-component-briefs-clusters-overlays--docs) (overlays, pickers, menus, binary controls, disclosure, status).
+- **Keyboard & screen-reader contracts** come from source/test archaeology — including the deviations upstream deliberately made (tooltip's missing `role="tooltip"`, accordion's removed arrow navigation, slider's hidden native inputs).
+- **Decision logs** come from PR/issue mining — why a prop exists, what was rejected, and when things changed.
+- **"In the wild"** sections come from the usage corpus, with licenses recorded and link-only repos never copied.
+- **Stories** implement each brief's story plan; every one runs as a browser test.
+
+## Session narrative
+
+The [Progress ledger](?path=/docs/research-progress-ledger--docs) is the honest, blow-by-blow account (including two usage-limit interruptions and their recovery), the [Final report](?path=/docs/research-final-report-summary--docs) carries the self-verification checklist and the ten most interesting findings, and the [Resume playbook](?path=/docs/research-resume-playbook--docs) is the operational recipe that would let a fresh session continue the work.

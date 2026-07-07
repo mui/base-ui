@@ -207,7 +207,9 @@ Field itself adds only one keyboard binding — everything else belongs to whate
 
 ## In the wild
 
-[G] Phase D usage mining for field/form was not run at the time of writing (corpus queries planned but not executed) — see `research/c-components/field/brief.md` §11.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx), MIT, code-ok) — a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to compose label/description/error slots consistently.
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/label/control/description/details/item) inside the new form-primitives package that also backs its Combobox and Autocomplete.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx), MIT, code-ok) — a Tailwind wrapper published both as an installable registry item and inside the distributable package.
 
 ## Decision log
 

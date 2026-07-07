@@ -1,1 +1,97 @@
-[]
+[
+  {
+    "id": "accordion-001",
+    "component": "accordion",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/accordion",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/accordion.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a shadcn-style `data-slot=\"accordion\"` wrapper over `@base-ui/react/accordion`, styled with Tailwind border-bottom dividers per item.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "accordion-002",
+    "component": "accordion",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/accordion",
+    "files": [
+      {
+        "path": "packages/ui/src/components/ui/accordion.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same one-file-per-registry-item pattern, published both as an installable registry item (`apps/www/registry/ui/accordion.tsx`) and inside the distributable `@lumi-ui` package.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "accordion-003",
+    "component": "accordion",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/accordion",
+    "files": [
+      {
+        "path": "registry/bases/base/ui/accordion.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx",
+        "pinned": false
+      },
+      {
+        "path": "registry/bases/radix/ui/accordion.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/radix/ui/accordion.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. ships parallel Base UI and Radix implementations behind the same component API (`registry/bases/base/` vs `registry/bases/radix/`), letting consumers pick a primitive backend per project.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

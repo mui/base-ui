@@ -31,6 +31,8 @@ const preview: Preview = {
           'Actions',
           'Status & display',
           'Utilities',
+          'Research',
+          ['About this research', 'The brief (PROMPT)', 'Progress ledger', 'Final report (SUMMARY)'],
         ],
       },
     },

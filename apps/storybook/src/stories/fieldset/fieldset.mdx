@@ -85,6 +85,12 @@ No `Fieldset*CssVars.ts` and no dedicated data-attribute file beyond the one boo
 - Don't expect `Fieldset.Legend` to be a native `<legend>` — it's a `<div>`, by deliberate design (#3044).
 - Don't assume a single right answer for validation boundaries around heterogeneous grouped controls — #3930 is open and unresolved.
 
+## In the wild
+
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/legend/description/details/context) in the form-primitives package — the richest Fieldset breakdown found in the corpus.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/fieldset.tsx), MIT, code-ok) — a Tailwind wrapper distributed both as an installable registry item and a package export.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/fieldset.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system also treats Fieldset as its own registry file rather than folding it into Field.
+
 ## Related
 
 - [Field](?path=/docs/form-inputs-field--docs) — the single-control labeling/validation counterpart; `Field.Item` labels each option inside a Fieldset-grouped control.

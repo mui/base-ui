@@ -141,6 +141,12 @@ Pattern: none — there is no dedicated WAI-ARIA APG pattern for "custom scrollb
 - Don't expect `Select.ScrollUpArrow`/`ScrollDownArrow` to combine with `ScrollArea.*` inside the same popup — they don't share any composition point; pick one scroll mechanism per popup.
 - Don't reach for Scroll Area to virtualize a huge list — it decorates a real, fully-rendered overflowing container, it does not manage which items exist in the DOM.
 
+## In the wild
+
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/scroll-area.tsx), MIT, code-ok) — a Tailwind-styled ScrollArea wrapper, copy-paste distributed like the rest of the 9ui set.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/scroll-area.tsx), MIT, code-ok) — the same wrapper pattern, published as both a package export and an installable registry file.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/scroll-area.tsx), MIT, code-ok) — ships a Radix-backed twin of the same ScrollArea API alongside the Base UI version, for projects that want to switch primitive libraries later.
+
 ## Decision log
 
 - **2024-11-05** — Scroll Area ships ([#665](https://github.com/mui/base-ui/pull/665), atomiks), closing mui/mui-x#649. Debated in review — oliviertassinari floated scoping it out of core into a premium tier; colmtuite pushed back: "It's just a basic building block of high-quality web dev… Very many web apps (Slack, Linear, Radix docs etc.) have custom scrollbars… We need it for our new docs (for the sidebar and code blocks)." It shipped in core.

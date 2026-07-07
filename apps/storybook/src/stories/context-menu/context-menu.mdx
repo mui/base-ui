@@ -206,6 +206,13 @@ identical rule Menu documents for itself:
 - Don't assume `disabled` fully suppresses right-click feedback — it hands the
   surface back to the native OS context menu instead of showing nothing.
 
+## In the wild
+
+- **[zweien/docx-template-system](https://zweien.github.io/docx-template-system/)** ([source](https://github.com/zweien/docx-template-system/blob/HEAD/src/components/ui/context-menu.tsx), no SPDX license detected, link-only, do not copy) — a small (6-star) shadcn-style registry with a file literally named `context-menu.tsx`; found by filename match on a Base UI menu subpath search, not independently verified against `@base-ui/react/context-menu` imports.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/context-menu.tsx), MIT, code-ok) — ships a Radix-backed twin of the same ContextMenu API alongside the Base UI version.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/context-menu.tsx), MIT, code-ok) — a Tailwind-styled registry item, published as both a package export and an installable file.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/context-menu.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system also ships a dedicated ContextMenu wrapper as part of its near-complete registry.
+
 ## FAQ
 
 - **"My context menu doesn't open when it's nested inside another popup's

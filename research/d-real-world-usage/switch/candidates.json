@@ -28,5 +28,70 @@
     "screenshot": {
       "status": "not-attempted"
     }
+  },
+  {
+    "id": "switch-002",
+    "component": "switch",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/switch",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/switch/switch.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings, composed with Field/Fieldset for form contexts.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "switch-003",
+    "component": "switch",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/switch",
+    "files": [
+      {
+        "path": "registry/bases/base/ui/switch.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx",
+        "pinned": false
+      },
+      {
+        "path": "registry/bases/radix/ui/switch.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/radix/ui/switch.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. ships a Radix-backed twin of the same Switch API alongside the Base UI version.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
   }
 ]

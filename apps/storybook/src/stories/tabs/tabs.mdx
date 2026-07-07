@@ -124,6 +124,12 @@ An underline indicator typically uses `left`/`width` (horizontal) or `top`/`heig
 
 - Don't expect Framer Motion/Radix-style exit animations "out of the box" — the animation docs' JS-library recipes target popup components; use CSS transitions on `data-starting-style`/`data-ending-style` instead ([#1494](https://github.com/mui/base-ui/issues/1494), closed not-planned).
 
+## In the wild
+
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tabs/tabs.tsx), MIT, code-ok) — one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool parity.
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/tabs/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/list/tab/panel/context) in the `@wordpress/ui` package, with its own "best practices" MDX story alongside the implementation.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/tabs.tsx), MIT, code-ok) — a Tailwind-styled Tabs registry item, copy-paste distributed like the rest of the 9ui set.
+
 ## Decision log
 
 - **2024-04-29 — Tabs API overhaul** ([#245](https://github.com/mui/base-ui/pull/245)): replaced the Material-UI-era slots API with the render prop; renamed `selectionFollowsFocus` to `activateOnFocus` and moved it from Root to List; added `loop` and `keepMounted`. This PR is also where the activation-direction CSS attribute contract (`data-activation-direction`, normalized `up|down|right|left`) was argued into its current shape during review.

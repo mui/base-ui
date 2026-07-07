@@ -152,6 +152,12 @@ Pattern: **none** — the W3C APG ["Tooltip"](https://www.w3.org/WAI/ARIA/apg/pa
 - Don't use Tooltip for "Copied!"-style contextual feedback — the docs explicitly redirect this to an anchored Toast so the message is announced to screen readers.
 - Don't rely on Tooltip for content a touch-only user must reach — there is no touch fallback by design ([#3530](https://github.com/mui/base-ui/issues/3530)).
 
+## In the wild
+
+- **[Lay3rLabs/TrustGraph](https://trust-graph-demo.vercel.app)** ([source](https://github.com/Lay3rLabs/TrustGraph/blob/HEAD/frontend/components/Tooltip.tsx), MIT, code-ok) — a governance-tooling app with a standalone `Tooltip.tsx`; found via a Base UI popover subpath search (Tooltip and Popover share positioning primitives in Base UI), not independently re-verified here.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tooltip/tooltip.tsx), MIT, code-ok) — a fully styled wrapper, with a matching Figma-generator script for design-tool parity.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/tooltip.tsx), MIT, code-ok) — ships a Radix-backed twin of the same Tooltip API alongside the Base UI version.
+
 ## Decision log
 
 - **2024-05-29** — Tooltip ships ([#264](https://github.com/mui/base-ui/pull/264), closing [#32](https://github.com/mui/base-ui/issues/32)); framed from day one as a thin wrapper around Floating UI's hover/focus/dismiss primitives.

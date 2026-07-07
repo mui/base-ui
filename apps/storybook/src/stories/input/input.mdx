@@ -89,6 +89,12 @@ Identical to `Field.Control`'s (brief §8) — no CSS variables of Input's own:
 - Don't expect data attributes (`data-touched`/`data-dirty`/etc.) to appear on a standalone `<Input />` — they only populate inside `Field.Root`.
 - Don't reach for a `render`-based tag swap on `Input` — no precedent exists for it; use `Field.Control render={<textarea />}` instead, the maintainer-confirmed custom-control path.
 
+## In the wild
+
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/input/input.tsx), MIT, code-ok) — a fully styled wrapper plus a companion `input-area.tsx`, both composed into the separate `input-group` family for prefix/suffix addons.
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/input/input.tsx), no SPDX license detected, link-only, do not copy) — its own Input primitive inside the form-primitives package, distinct from the Autocomplete/Combobox input sub-components that live alongside it.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/input.tsx), MIT, code-ok) — a Tailwind-styled Input registry item with a dedicated `input-with-button.tsx` composition example.
+
 ## Decision log
 
 - **Pre-2024** — `Input`/`InputBase` lineage inherited from `@mui/base`, predating Base UI's component-per-DOM-node rewrite.

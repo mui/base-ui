@@ -255,7 +255,9 @@ Popup/Positioner **must** consume the size variables for morphing to work at all
 
 ## In the wild
 
-[G] Phase D real-world extraction (`research/d-real-world-usage/navigation-menu/ranked.json`) has not been run for this component — the lean dataset for Navigation Menu is empty; no recreation stories are included here. A cached first-page code search (2026-07-06) found 1,280 GitHub hits for `"@base-ui/react/navigation-menu"`, with early archetypes suggesting registry/design-system wrappers (shadcn-ui/ui, Cloudflare Kumo), production site headers (twentyhq/twenty, wevm/vocs), and small personal-site navs — but none of these were fetched, deduplicated, or ranked, so no links are cited here until that pass runs.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/navigation-menu.tsx), MIT, code-ok) — a Tailwind-styled site-header wrapper, distributed as a copy-paste registry item alongside its sibling Menubar/DropdownMenu files.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/navigation-menu.tsx), MIT, code-ok) — the same registry pattern, published as both a package export and an installable file.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/primitives/navigation-menu.ts), MIT, code-ok) — notably has **not** built a styled wrapper yet — it ships only the auto-generated `primitives/navigation-menu.ts` re-export (`export * from "@base-ui/react/navigation-menu"`), an honest 'not skinned yet' signal from Cloudflare's own design system.
 
 ## Decision log
 

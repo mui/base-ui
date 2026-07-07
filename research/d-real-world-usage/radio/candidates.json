@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": "radio-001",
+    "component": "radio",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/radio",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/radio/radio.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/radio/radio.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a fully styled wrapper with a dedicated `radio.type-spec.tsx` file documenting its prop types \u2014 an unusually explicit contract for a copy-paste registry.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "radio-002",
+    "component": "radio",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/radio",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/radio-group.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/radio-group.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. named `radio-group.tsx` (matching the shadcn/Radix convention) but wraps `@base-ui/react/radio`'s `Group`/`Root`/`Indicator` parts underneath.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "radio-003",
+    "component": "radio",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/radio",
+    "files": [
+      {
+        "path": "packages/components/src/radio-group/radio.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/radio-group/radio.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the older `@wordpress/components` package (distinct from the newer `@wordpress/ui`) has its own Base UI-backed radio-group.tsx.",
+    "diversityTags": [
+      "production-app",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

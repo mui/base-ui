@@ -211,6 +211,12 @@ the destructive action behind a typed confirmation phrase:
 - Don't expect the backdrop or an outside click to ever close an AlertDialog — it's
   a permanent, type-level guarantee, not a runtime default that can be flipped.
 
+## In the wild
+
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/alert-dialog/root.tsx), no SPDX license detected, link-only, do not copy) — one file per Base UI part (root/popup/trigger/portal/context) plus its own test suite and Storybook story — the richest one-to-one part mapping found for this component.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/alert-dialog.tsx), MIT, code-ok) — a Tailwind-styled confirm/destructive-action wrapper, distributed as a copy-paste shadcn-style registry item.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/alert-dialog.tsx), MIT, code-ok) — the same registry pattern, with a dedicated `alert-dialog-open-from-menu.tsx` example showing it triggered from a dropdown menu item rather than a plain button.
+
 ## FAQ
 
 - **"Why doesn't clicking the backdrop close my alert dialog?"** → by design —

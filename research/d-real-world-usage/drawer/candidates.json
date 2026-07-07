@@ -82,5 +82,75 @@
     "screenshot": {
       "status": "not-attempted"
     }
+  },
+  {
+    "id": "drawer-004",
+    "component": "drawer",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "packages/ui/src/components/drawer.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/drawer.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/components/sheet.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/sheet.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. ships both a `drawer.tsx` and a shadcn-convention `sheet.tsx` \u2014 two names for the same Base UI Dialog-based edge panel.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "drawer-005",
+    "component": "drawer",
+    "repo": "keenthemes/reui",
+    "repoUrl": "https://github.com/keenthemes/reui",
+    "stars": 3045,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/drawer",
+    "files": [
+      {
+        "path": "registry/bases/base/ui/drawer.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/drawer.tsx",
+        "pinned": false
+      },
+      {
+        "path": "registry/bases/base/ui/sheet.tsx",
+        "permalink": "https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/sheet.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://reui.io",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. the same dual-naming pattern, with a Radix-backed twin registry alongside it.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
   }
 ]

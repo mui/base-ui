@@ -211,6 +211,15 @@ and open the adjacent top-level trigger's submenu in one step:
   is a different ARIA pattern than a bar of persistent menus, even when visually
   similar.
 
+## In the wild
+
+The corpus's 20 Menubar hits are overwhelmingly one shadcn-derived `components/ui/menubar.tsx` template, copied near-verbatim across small apps rather than diverse custom builds — an honest finding in itself:
+
+- **[zero-calendar](https://zerocalendar.com)** ([source](https://github.com/x1xhlol/zero-calendar/blob/HEAD/components/ui/menubar.tsx), MIT, code-ok) — a 356-star calendar app using the near-canonical shadcn-style `components/ui/menubar.tsx` wrapper.
+- **[gsap](https://gsap.pacekit.dev)** ([source](https://github.com/pacekit/gsap/blob/HEAD/src/components/ui/menubar.tsx), MIT, code-ok) — the same wrapper template, copied into a GSAP animation toolkit's app shell.
+- **[earl](https://mathematic-inc.github.io/earl/)** ([source](https://github.com/mathematic-inc/earl/blob/HEAD/web/src/components/ui/menubar.tsx), Apache-2.0, code-ok) — an Apache-2.0 app repeating the identical wrapper structure — by this point a strong signal that almost every corpus hit for Menubar is one shared template, not diverse custom builds.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx), MIT, code-ok) — confirms the same lineage independently: even a from-scratch registry (not a shadcn fork) converges on the same menu/item/trigger structure.
+
 ## FAQ
 
 - **"Hovering over my menubar items does nothing until I click one"** → by design,

@@ -38,6 +38,13 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-mcp'),
   ],
   framework: getAbsolutePath('@storybook/react-vite'),
+  tags: {
+    // The Research section renders the project's research corpus (research/*.md) as
+    // docs pages; hidden from the sidebar by default — enable via the tag filter menu.
+    research: {
+      defaultFilterSelection: 'exclude',
+    },
+  },
   typescript: {
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {

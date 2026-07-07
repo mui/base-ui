@@ -1,1 +1,107 @@
-[]
+[
+  {
+    "id": "fieldset-001",
+    "component": "fieldset",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/fieldset",
+    "files": [
+      {
+        "path": "packages/ui/src/form/primitives/fieldset/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/root.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/fieldset/legend.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/legend.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/fieldset/description.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/description.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/form/primitives/fieldset/details.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/fieldset/details.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one file per part (root/legend/description/details/context) in the form-primitives package \u2014 the richest Fieldset breakdown found in the corpus.",
+    "diversityTags": [
+      "production-app",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "fieldset-002",
+    "component": "fieldset",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/fieldset",
+    "files": [
+      {
+        "path": "packages/ui/src/components/ui/fieldset.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/fieldset.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind wrapper distributed both as an installable registry item and a package export.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "fieldset-003",
+    "component": "fieldset",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/fieldset",
+    "files": [
+      {
+        "path": "packages/ui/src/components/fieldset.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/fieldset.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. Cal.com's design system also treats Fieldset as its own registry file rather than folding it into Field.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

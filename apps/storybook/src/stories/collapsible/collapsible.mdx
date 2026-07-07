@@ -112,6 +112,12 @@ By default the panel unmounts from the DOM once closed and its exit transition c
 
 - Don't expect a JS animation library's exit sequencing to work from `keepMounted` alone — Motion/framer-motion-style libraries need the *element*, not just non-unmounting, to drive their own exit timing.
 
+## In the wild
+
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx), MIT, code-ok) — one of Kumo's fully styled wrappers (versus the thin re-export `primitives/collapsible.ts` it also ships for design-tool parity).
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/root.tsx), no SPDX license detected, link-only, do not copy) — one file per part (root/panel/trigger) with its own test suite and Storybook story in the `@wordpress/ui` package.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx), MIT, code-ok) — a Tailwind-styled wrapper distributed as a copy-paste registry item, same pattern as the rest of the 9ui set.
+
 ## Decision log
 
 - **2024-08-28** — Collapsible introduced ([#481](https://github.com/mui/base-ui/pull/481)).

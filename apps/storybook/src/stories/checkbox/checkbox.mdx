@@ -128,7 +128,9 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 ## In the wild
 
-[G] Pending Phase D dataset for checkbox (Tier 2 — see `research/d-real-world-usage/`). Expected archetypes: terms-and-conditions agreements, settings that submit as a form array, and (strongly signaled by the built-in `parent` pattern) file/permission tree selectors and bulk-select table rows.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/checkbox/checkbox.tsx), MIT, code-ok) — a fully styled wrapper (not a bare re-export) with its own size/variant Tailwind mapping and Figma generator.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system wraps Checkbox with `class-variance-authority` variants, part of a near-complete one-file-per-component Base UI registry.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/checkbox.tsx), MIT, code-ok) — ships side-by-side with a Radix-backed twin of the same component, letting downstream apps swap primitive libraries without changing the public API.
 
 ## Decision log
 

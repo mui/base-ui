@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "id": "collapsible-001",
+    "component": "collapsible",
+    "repo": "cloudflare/kumo",
+    "repoUrl": "https://github.com/cloudflare/kumo",
+    "stars": 2782,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/collapsible",
+    "files": [
+      {
+        "path": "packages/kumo/src/components/collapsible/collapsible.tsx",
+        "permalink": "https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://kumo-ui.com",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one of Kumo's fully styled wrappers (versus the thin re-export `primitives/collapsible.ts` it also ships for design-tool parity).",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "collapsible-002",
+    "component": "collapsible",
+    "repo": "WordPress/gutenberg",
+    "repoUrl": "https://github.com/WordPress/gutenberg",
+    "stars": 11718,
+    "license": "none-found",
+    "reuse": "link-only",
+    "category": "production-app",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/collapsible",
+    "files": [
+      {
+        "path": "packages/ui/src/collapsible/root.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/root.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/collapsible/panel.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/panel.tsx",
+        "pinned": false
+      },
+      {
+        "path": "packages/ui/src/collapsible/trigger.tsx",
+        "permalink": "https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/trigger.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": null,
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. one file per part (root/panel/trigger) with its own test suite and Storybook story in the `@wordpress/ui` package.",
+    "diversityTags": [
+      "production-app",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "collapsible-003",
+    "component": "collapsible",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/collapsible",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/collapsible.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. a Tailwind-styled wrapper distributed as a copy-paste registry item, same pattern as the rest of the 9ui set.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

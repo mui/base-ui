@@ -122,7 +122,9 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 
 ## In the wild
 
-[G] pending Phase D dataset for switch (Tier 3 — see `research/d-real-world-usage/`).
+- **[graphql.org](https://graphql.org)** ([source](https://github.com/graphql/graphql.github.io/blob/HEAD/src/components/theme-switch.tsx), MIT, code-ok) — the site-wide dark-mode toggle; found by filename match (`theme-switch.tsx`) on a Base UI select subpath search, not independently re-verified here.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx), MIT, code-ok) — a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings, composed with Field/Fieldset for form contexts.
+- **[reui](https://reui.io)** ([source](https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx), MIT, code-ok) — ships a Radix-backed twin of the same Switch API alongside the Base UI version.
 
 ## Decision log
 

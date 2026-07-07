@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": "otp-field-001",
+    "component": "otp-field",
+    "repo": "borabaloglu/9ui",
+    "repoUrl": "https://github.com/borabaloglu/9ui",
+    "stars": 665,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/otp-field",
+    "files": [
+      {
+        "path": "apps/www/src/components/ui/input-otp.tsx",
+        "permalink": "https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/input-otp.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.9ui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. named `input-otp.tsx` (the shadcn/Radix naming convention) but built on `@base-ui/react/otp-field` underneath.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "otp-field-002",
+    "component": "otp-field",
+    "repo": "patrick-xin/lumi-ui",
+    "repoUrl": "https://github.com/patrick-xin/lumi-ui",
+    "stars": 25,
+    "license": "MIT",
+    "reuse": "code-ok",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/otp-field",
+    "files": [
+      {
+        "path": "apps/www/registry/ui/otp-field.tsx",
+        "permalink": "https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/otp-field.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://www.lumiui.dev",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. keeps the Base UI name (`otp-field.tsx`) rather than the shadcn `input-otp` convention, with masked, alphanumeric, grouped, and form-integration example variants.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  },
+  {
+    "id": "otp-field-003",
+    "component": "otp-field",
+    "repo": "cosscom/coss",
+    "repoUrl": "https://github.com/cosscom/coss",
+    "stars": 10195,
+    "license": "AGPL-3.0",
+    "reuse": "link-only",
+    "category": "oss-design-system",
+    "lastActivity": "2026-07-06",
+    "importSpecifier": "@base-ui/react/otp-field",
+    "files": [
+      {
+        "path": "packages/ui/src/components/otp-field.tsx",
+        "permalink": "https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/otp-field.tsx",
+        "pinned": false
+      }
+    ],
+    "liveUrl": "https://coss.com/ui",
+    "partsUsed": [],
+    "contextSummary": "Found via targeted registry-tree mining (2026-07) of a Base UI component registry/design-system repo, not a GitHub code search. Cal.com's registry also ships a dedicated OtpField wrapper as part of its near-complete component set.",
+    "diversityTags": [
+      "oss-design-system",
+      "registry-tree-mined-2026-07"
+    ],
+    "instructiveMisuse": false,
+    "screenshot": {
+      "status": "not-attempted"
+    }
+  }
+]

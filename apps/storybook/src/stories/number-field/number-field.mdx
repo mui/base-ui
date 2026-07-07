@@ -141,6 +141,12 @@ State attributes present on **every** part (`data-scrubbing` included, per the l
 - Don't expect `role="spinbutton"` or `aria-valuenow` — verified absent from source, not merely undocumented.
 - Don't expect PageUp/PageDown to large-step — only Home/End (when bounds are set) and Shift+Arrow do.
 
+## In the wild
+
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/number-field.tsx), MIT, code-ok) — a Tailwind-styled stepper wrapper, distributed as a copy-paste registry item.
+- **[lumi-ui](https://www.lumiui.dev)** ([source](https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/number-field.tsx), MIT, code-ok) — the same wrapper pattern, published as both a package export and an installable registry file.
+- **[coss](https://coss.com/ui)** ([source](https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/number-field.tsx), AGPL-3.0, link-only, do not copy) — Cal.com's design system also ships a dedicated NumberField wrapper as part of its near-complete registry.
+
 ## Related
 
 - For continuous/glanceable range selection instead of typed precision, use [Slider](?path=/docs/form-inputs-slider--docs).

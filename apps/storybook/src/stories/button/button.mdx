@@ -104,7 +104,9 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 ## In the wild
 
-[G] pending Phase D dataset for button (Tier 3 — see `research/d-real-world-usage/`).
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/button/button.tsx), MIT, code-ok) — Cloudflare's own design system wraps `@base-ui/react` for Button too, with a matching Figma-generator (`packages/kumo-figma/src/generators/button.ts`) that keeps the design tool's variants in sync with the Tailwind implementation.
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/button/button.tsx), no SPDX license detected, link-only, do not copy) — the new `@wordpress/ui` package (distinct from the older `@wordpress/components` Button) has its own Base UI-backed button implementation.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/button.tsx), MIT, code-ok) — the broadest demo set of any 9ui component: disabled, loading, icon, link-rendered, rounded, and size/variant matrix demos all built on one wrapper.
 
 ## Decision log
 

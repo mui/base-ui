@@ -135,7 +135,9 @@ State attributes present on **both** `Root` and `Indicator`:
 
 ## In the wild
 
-[G] Pending Phase D dataset for radio (Tier 2 — see `research/d-real-world-usage/`). Expected archetypes: settings screens with a small fixed option set (theme, plan tier), checkout payment-method pickers, single-answer survey questions.
+- **[kumo](https://kumo-ui.com)** ([source](https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/radio/radio.tsx), MIT, code-ok) — a fully styled wrapper with a dedicated `radio.type-spec.tsx` file documenting its prop types — an unusually explicit contract for a copy-paste registry.
+- **[9ui](https://www.9ui.dev)** ([source](https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/radio-group.tsx), MIT, code-ok) — named `radio-group.tsx` (matching the shadcn/Radix convention) but wraps `@base-ui/react/radio`'s `Group`/`Root`/`Indicator` parts underneath.
+- **[WordPress Gutenberg](https://github.com/WordPress/gutenberg)** ([source](https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/radio-group/radio.tsx), no SPDX license detected, link-only, do not copy) — the older `@wordpress/components` package (distinct from the newer `@wordpress/ui`) has its own Base UI-backed radio-group.tsx.
 
 ## Decision log
 
