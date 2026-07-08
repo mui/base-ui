@@ -332,18 +332,22 @@ these `##` sections, in order, when there are findings: `Bugs`, `Tests`,
 
 ## Posting to GitHub (--comment)
 
-The `--comment` flag was passed. After producing the findings list, if the review
-target is a GitHub PR, post each finding as an inline PR comment via `gh api`
-(`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per finding, including a
-suggestion block only when it fully fixes the issue. (If a GitHub inline-comment MCP
-tool is available in this session, use it instead.) If the target is not a PR, print
-the findings to the terminal and note that `--comment` was ignored.
+If the `--comment` flag was passed in the arguments, then after producing the
+findings list, if the review target is a GitHub PR, post each finding as an inline
+PR comment via `gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per
+finding, including a suggestion block only when it fully fixes the issue. (If a
+GitHub inline-comment MCP tool is available in this session, use it instead.) If
+the target is not a PR, print the findings to the terminal and note that
+`--comment` was ignored.
 
 ## Applying fixes (--fix)
 
-The `--fix` flag was passed. After producing the findings list, apply the findings to
-the working tree instead of stopping at the report: fix each one directly -
-correctness bugs and reuse/simplification/efficiency cleanups alike. Skip any finding
-whose fix would change intended behavior, require changes well outside the reviewed
-diff, or that you judge to be a false positive - note the skip rather than arguing
-with it. Finish with a brief summary of what was fixed and what was skipped.
+If the `--fix` flag was passed in the arguments, then after producing the findings
+list, apply the findings to the working tree instead of stopping at the report: fix
+each one directly - correctness bugs and reuse/simplification/efficiency cleanups
+alike. Skip any finding whose fix would change intended behavior, require changes
+well outside the reviewed diff, or that you judge to be a false positive - note the
+skip rather than arguing with it. Finish with a brief summary of what was fixed and
+what was skipped.
+
+If neither `--comment` nor `--fix` was passed, stop at the Markdown review report.
