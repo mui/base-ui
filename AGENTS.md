@@ -10,6 +10,12 @@ This repository contains the source code and documentation for Base UI: a headl
 - Public documentation is located at `docs/src/app/(docs)/react/`. Alter the docs where necessary when changes must be visible to library users.
 - When creating public demos on the docs, refer to the `hero` demo for the given component and largely follow its styles (both CSS Modules and Tailwind CSS versions). Other demos may also contain relevant styling. Do not add custom styling beyond the critical layout styles necessary for new demos.
 
+## Agent skills
+
+- The shared `/base-ui-review` skill lives in `.agents/skills/base-ui-review/SKILL.md`. Update that file when the Base UI review workflow changes.
+- Claude Code users can install it personally without adding a repo-local `.claude/skills` folder:
+  `mkdir -p ~/.claude/skills && ln -s "$PWD/.agents/skills/base-ui-review" ~/.claude/skills/base-ui-review`.
+
 ## Code guidelines
 
 - Always use the `useTimeout` utility from `@base-ui/utils/useTimeout` instead of `window.setTimeout`, and `useAnimationFrame` from `@base-ui/utils/useAnimationFrame` instead of `requestAnimationFrame`. Search for other example usage in the codebase if unsure how to use them.
