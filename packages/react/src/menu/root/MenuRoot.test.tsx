@@ -257,6 +257,43 @@ describe('<Menu.Root />', () => {
           expect(hiddenItem).toHaveAttribute('tabindex', '-1');
         });
 
+        it.skipIf(isJSDOM)('skips natively disabled items in text navigation', async () => {
+          const itemElements = [
+            <Menu.Item key="apple">Apple</Menu.Item>,
+            <Menu.Item
+              key="banana"
+              data-testid="item-banana"
+              nativeButton
+              render={<button type="button" disabled />}
+            >
+              Banana
+            </Menu.Item>,
+            <Menu.Item key="blueberry" data-testid="item-blueberry">
+              Blueberry
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const appleItem = screen.getByText('Apple');
+          const bananaItem = screen.getByTestId('item-banana');
+          const blueberryItem = screen.getByTestId('item-blueberry');
+
+          await act(async () => {
+            appleItem.focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(blueberryItem).toHaveFocus();
+          });
+
+          expect(bananaItem).toHaveAttribute('tabindex', '-1');
+          expect(bananaItem).not.toHaveAttribute('data-highlighted');
+        });
+
         it.skipIf(!isJSDOM)(
           'changes the highlighted item using text navigation on label prop',
           async () => {
