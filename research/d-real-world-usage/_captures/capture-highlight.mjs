@@ -357,8 +357,10 @@ async function captureTarget(browser, target) {
         entry.file = path.basename(basePath);
 
         entry.matchedRole = located.role ?? null;
+        // Prefer the intended Base UI component name (from the target) over the matched ARIA
+        // role, so e.g. a Select trigger (role="combobox") is labelled "Select", not "Combobox".
         const label =
-          (located.role && ROLE_LABELS[located.role]) ?? entry.components[0] ?? 'Base UI component';
+          entry.components[0] ?? (located.role && ROLE_LABELS[located.role]) ?? 'Base UI component';
         await applyHighlight(page, rects, label);
         await page.screenshot({ path: highlightPath });
         entry.fileHighlight = path.basename(highlightPath);

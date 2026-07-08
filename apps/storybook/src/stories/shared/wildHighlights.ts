@@ -138,6 +138,112 @@ import img_9ui_dev_hl_page from '../../../../../research/d-real-world-usage/_cap
 import img_9ui_dev_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-dev-hl-highlight.png';
 import img_reui_io_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-io-hl.png';
 import img_reui_io_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-io-hl-highlight.png';
+import img_9ui_autocomplete_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-autocomplete-hl.png';
+import img_9ui_autocomplete_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-autocomplete-hl-highlight.png';
+import img_reui_autocomplete_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-autocomplete-hl.png';
+import img_reui_autocomplete_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-autocomplete-hl-highlight.png';
+import img_coss_autocomplete_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-autocomplete-hl.png';
+import img_coss_autocomplete_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-autocomplete-hl-highlight.png';
+import img_lumiui_autocomplete_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-autocomplete-hl.png';
+import img_lumiui_autocomplete_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-autocomplete-hl-highlight.png';
+import img_reui_button_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-button-hl.png';
+import img_reui_button_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-button-hl-highlight.png';
+import img_coss_button_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-button-hl.png';
+import img_coss_button_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-button-hl-highlight.png';
+import img_reui_collapsible_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-collapsible-hl.png';
+import img_reui_collapsible_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-collapsible-hl-highlight.png';
+import img_coss_collapsible_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-collapsible-hl.png';
+import img_coss_collapsible_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-collapsible-hl-highlight.png';
+import img_lumiui_collapsible_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-collapsible-hl.png';
+import img_lumiui_collapsible_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-collapsible-hl-highlight.png';
+import img_9ui_combobox_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-combobox-hl.png';
+import img_9ui_combobox_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-combobox-hl-highlight.png';
+import img_reui_combobox_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-combobox-hl.png';
+import img_reui_combobox_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-combobox-hl-highlight.png';
+import img_coss_combobox_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-combobox-hl.png';
+import img_coss_combobox_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-combobox-hl-highlight.png';
+import img_lumiui_combobox_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-combobox-hl.png';
+import img_lumiui_combobox_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-combobox-hl-highlight.png';
+import img_9ui_dialog_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-dialog-hl.png';
+import img_9ui_dialog_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-dialog-hl-highlight.png';
+import img_reui_dialog_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-dialog-hl.png';
+import img_reui_dialog_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-dialog-hl-highlight.png';
+import img_coss_dialog_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-dialog-hl.png';
+import img_coss_dialog_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-dialog-hl-highlight.png';
+import img_lumiui_dialog_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-dialog-hl.png';
+import img_lumiui_dialog_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-dialog-hl-highlight.png';
+import img_reui_field_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-field-hl.png';
+import img_reui_field_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-field-hl-highlight.png';
+import img_coss_field_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-field-hl.png';
+import img_coss_field_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-field-hl-highlight.png';
+import img_lumiui_field_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-field-hl.png';
+import img_lumiui_field_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-field-hl-highlight.png';
+import img_9ui_form_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-form-hl.png';
+import img_9ui_form_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-form-hl-highlight.png';
+import img_coss_form_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-form-hl.png';
+import img_coss_form_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-form-hl-highlight.png';
+import img_lumiui_form_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-form-hl.png';
+import img_lumiui_form_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-form-hl-highlight.png';
+import img_reui_input_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-input-hl.png';
+import img_reui_input_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-input-hl-highlight.png';
+import img_coss_input_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-input-hl.png';
+import img_coss_input_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-input-hl-highlight.png';
+import img_lumiui_input_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-input-hl.png';
+import img_lumiui_input_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-input-hl-highlight.png';
+import img_9ui_menu_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-menu-hl.png';
+import img_9ui_menu_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-menu-hl-highlight.png';
+import img_reui_menu_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-menu-hl.png';
+import img_reui_menu_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-menu-hl-highlight.png';
+import img_coss_menu_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-menu-hl.png';
+import img_coss_menu_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-menu-hl-highlight.png';
+import img_lumiui_menu_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-menu-hl.png';
+import img_lumiui_menu_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-menu-hl-highlight.png';
+import img_9ui_menubar_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-menubar-hl.png';
+import img_9ui_menubar_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-menubar-hl-highlight.png';
+import img_reui_menubar_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-menubar-hl.png';
+import img_reui_menubar_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-menubar-hl-highlight.png';
+import img_9ui_popover_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-popover-hl.png';
+import img_9ui_popover_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-popover-hl-highlight.png';
+import img_reui_popover_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-popover-hl.png';
+import img_reui_popover_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-popover-hl-highlight.png';
+import img_coss_popover_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-popover-hl.png';
+import img_coss_popover_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-popover-hl-highlight.png';
+import img_lumiui_popover_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-popover-hl.png';
+import img_lumiui_popover_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-popover-hl-highlight.png';
+import img_reui_radio_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-radio-hl.png';
+import img_reui_radio_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-radio-hl-highlight.png';
+import img_coss_radio_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-radio-hl.png';
+import img_coss_radio_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-radio-hl-highlight.png';
+import img_lumiui_radio_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-radio-hl.png';
+import img_lumiui_radio_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-radio-hl-highlight.png';
+import img_9ui_select_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-select-hl.png';
+import img_9ui_select_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-select-hl-highlight.png';
+import img_reui_select_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-select-hl.png';
+import img_reui_select_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-select-hl-highlight.png';
+import img_coss_select_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-select-hl.png';
+import img_coss_select_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-select-hl-highlight.png';
+import img_lumiui_select_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-select-hl.png';
+import img_lumiui_select_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-select-hl-highlight.png';
+import img_9ui_switch_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-switch-hl.png';
+import img_9ui_switch_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-switch-hl-highlight.png';
+import img_coss_switch_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-switch-hl.png';
+import img_coss_switch_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-switch-hl-highlight.png';
+import img_lumiui_switch_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-switch-hl.png';
+import img_lumiui_switch_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-switch-hl-highlight.png';
+import img_reui_tabs_hl_page from '../../../../../research/d-real-world-usage/_captures/reui-tabs-hl.png';
+import img_reui_tabs_hl_hi from '../../../../../research/d-real-world-usage/_captures/reui-tabs-hl-highlight.png';
+import img_coss_tabs_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-tabs-hl.png';
+import img_coss_tabs_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-tabs-hl-highlight.png';
+import img_lumiui_tabs_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-tabs-hl.png';
+import img_lumiui_tabs_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-tabs-hl-highlight.png';
+import img_coss_toast_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-toast-hl.png';
+import img_coss_toast_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-toast-hl-highlight.png';
+import img_9ui_tooltip_hl_page from '../../../../../research/d-real-world-usage/_captures/9ui-tooltip-hl.png';
+import img_9ui_tooltip_hl_hi from '../../../../../research/d-real-world-usage/_captures/9ui-tooltip-hl-highlight.png';
+import img_coss_tooltip_hl_page from '../../../../../research/d-real-world-usage/_captures/coss-tooltip-hl.png';
+import img_coss_tooltip_hl_hi from '../../../../../research/d-real-world-usage/_captures/coss-tooltip-hl-highlight.png';
+import img_lumiui_tooltip_hl_page from '../../../../../research/d-real-world-usage/_captures/lumiui-tooltip-hl.png';
+import img_lumiui_tooltip_hl_hi from '../../../../../research/d-real-world-usage/_captures/lumiui-tooltip-hl-highlight.png';
 /* eslint-enable import/no-relative-packages */
 
 export interface WildHighlight {
@@ -181,540 +287,964 @@ const ROLE_COMPONENTS: Record<string, readonly string[]> = {
 
 /** Keyed by `${component}::${domain}` or the site-level `*::${domain}`. */
 export const wildHighlights: Record<string, WildHighlight> = {
-  '*::9ui.dev': {
+  "*::9ui.dev": {
     image: img_9ui_dev_hl_page,
     highlightImage: img_9ui_dev_hl_hi,
-    selector: '[role="tablist"]',
-    route: '/',
-    pageUrl: 'https://www.9ui.dev',
-    matchedRole: 'tablist',
+    selector: "[role=\"tablist\"]",
+    route: "/",
+    pageUrl: "https://www.9ui.dev",
+    matchedRole: "tablist",
   },
-  '*::graphql.org': {
+  "*::graphql.org": {
     image: img_graphql_org_hl_page,
     highlightImage: img_graphql_org_hl_hi,
-    selector: '[role="combobox"]',
-    route: '/',
-    pageUrl: 'https://graphql.org',
-    matchedRole: 'combobox',
+    selector: "[role=\"combobox\"]",
+    route: "/",
+    pageUrl: "https://graphql.org",
+    matchedRole: "combobox",
   },
-  '*::kumo-ui.com': {
+  "*::kumo-ui.com": {
     image: img_kumo_ui_com_hl_page,
     highlightImage: img_kumo_ui_com_hl_hi,
-    selector: '[role="combobox"]',
-    route: '/',
-    pageUrl: 'https://kumo-ui.com',
-    matchedRole: 'combobox',
+    selector: "[role=\"combobox\"]",
+    route: "/",
+    pageUrl: "https://kumo-ui.com",
+    matchedRole: "combobox",
   },
-  '*::mastra.ai': {
+  "*::mastra.ai": {
     image: img_mastra_ai_hl_page,
     highlightImage: img_mastra_ai_hl_hi,
-    selector: '[role="tablist"]',
-    route: '/',
-    pageUrl: 'https://mastra.ai',
-    matchedRole: 'tablist',
+    selector: "[role=\"tablist\"]",
+    route: "/",
+    pageUrl: "https://mastra.ai",
+    matchedRole: "tablist",
   },
-  '*::nextjs.org': {
+  "*::nextjs.org": {
     image: img_nextjs_org_hl_page,
     highlightImage: img_nextjs_org_hl_hi,
-    selector: '[role="radiogroup"]',
-    route: '/',
-    pageUrl: 'https://nextjs.org',
-    matchedRole: 'radiogroup',
+    selector: "[role=\"radiogroup\"]",
+    route: "/",
+    pageUrl: "https://nextjs.org",
+    matchedRole: "radiogroup",
   },
-  '*::posthog.com': {
+  "*::posthog.com": {
     image: img_posthog_com_hl_page,
     highlightImage: img_posthog_com_hl_hi,
-    selector: '[role="menubar"]',
-    route: '/',
-    pageUrl: 'https://posthog.com',
-    matchedRole: 'menubar',
+    selector: "[role=\"menubar\"]",
+    route: "/",
+    pageUrl: "https://posthog.com",
+    matchedRole: "menubar",
   },
-  '*::reui.io': {
+  "*::reui.io": {
     image: img_reui_io_hl_page,
     highlightImage: img_reui_io_hl_hi,
-    selector: '[role="combobox"]',
-    route: '/',
-    pageUrl: 'https://reui.io',
-    matchedRole: 'combobox',
+    selector: "[role=\"combobox\"]",
+    route: "/",
+    pageUrl: "https://reui.io",
+    matchedRole: "combobox",
   },
-  '*::ui.shadcn.com': {
+  "*::ui.shadcn.com": {
     image: img_ui_shadcn_com_hl_page,
     highlightImage: img_ui_shadcn_com_hl_hi,
-    selector: '[role="radiogroup"]',
-    route: '/',
-    pageUrl: 'https://ui.shadcn.com',
-    matchedRole: 'radiogroup',
+    selector: "[role=\"radiogroup\"]",
+    route: "/",
+    pageUrl: "https://ui.shadcn.com",
+    matchedRole: "radiogroup",
   },
-  '*::wordpress.org': {
+  "*::wordpress.org": {
     image: img_wordpress_org_gutenberg_hl_page,
     highlightImage: img_wordpress_org_gutenberg_hl_hi,
-    selector: '[role="tablist"]',
-    route: '/gutenberg/',
-    pageUrl: 'https://wordpress.org/gutenberg/',
-    matchedRole: 'tablist',
+    selector: "[role=\"tablist\"]",
+    route: "/gutenberg/",
+    pageUrl: "https://wordpress.org/gutenberg/",
+    matchedRole: "tablist",
   },
-  '*::zweien.github.io': {
+  "*::zweien.github.io": {
     image: img_zweien_github_io_docx_template_system_hl_page,
     highlightImage: img_zweien_github_io_docx_template_system_hl_hi,
-    selector: '[role="combobox"]',
-    route: '/docx-template-system/',
-    pageUrl: 'https://zweien.github.io/docx-template-system/',
-    matchedRole: 'combobox',
+    selector: "[role=\"combobox\"]",
+    route: "/docx-template-system/",
+    pageUrl: "https://zweien.github.io/docx-template-system/",
+    matchedRole: "combobox",
   },
-  'accordion::9ui.dev': {
+  "accordion::9ui.dev": {
     image: img_9ui_accordion_hl_page,
     highlightImage: img_9ui_accordion_hl_hi,
-    selector: '[data-slot="accordion"]',
-    route: '/docs/components/accordion',
-    pageUrl: 'https://www.9ui.dev/docs/components/accordion',
-    matchedRole: 'region',
+    selector: "[data-slot=\"accordion\"]",
+    route: "/docs/components/accordion",
+    pageUrl: "https://www.9ui.dev/docs/components/accordion",
+    matchedRole: "region",
   },
-  'accordion::lumiui.dev': {
+  "accordion::lumiui.dev": {
     image: img_lumiui_accordion_hl_page,
     highlightImage: img_lumiui_accordion_hl_hi,
-    selector: '[data-slot="accordion"]',
-    route: '/docs/components/layout-nav/accordion',
-    pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/accordion',
+    selector: "[data-slot=\"accordion\"]",
+    route: "/docs/components/layout-nav/accordion",
+    pageUrl: "https://www.lumiui.dev/docs/components/layout-nav/accordion",
     matchedRole: null,
   },
-  'accordion::reui.io': {
+  "accordion::reui.io": {
     image: img_reui_accordion_hl_page,
     highlightImage: img_reui_accordion_hl_hi,
-    selector: '[data-slot="accordion"]',
-    route: '/components/accordion',
-    pageUrl: 'https://reui.io/components/accordion',
-    matchedRole: 'region',
+    selector: "[data-slot=\"accordion\"]",
+    route: "/components/accordion",
+    pageUrl: "https://reui.io/components/accordion",
+    matchedRole: "region",
   },
-  'alert-dialog::9ui.dev': {
+  "alert-dialog::9ui.dev": {
     image: img_9ui_alert_dialog_hl_page,
     highlightImage: img_9ui_alert_dialog_hl_hi,
-    selector: '[data-slot^="alert-dialog"]',
-    route: '/docs/components/alert-dialog',
-    pageUrl: 'https://www.9ui.dev/docs/components/alert-dialog',
+    selector: "[data-slot^=\"alert-dialog\"]",
+    route: "/docs/components/alert-dialog",
+    pageUrl: "https://www.9ui.dev/docs/components/alert-dialog",
     matchedRole: null,
   },
-  'alert-dialog::lumiui.dev': {
+  "alert-dialog::lumiui.dev": {
     image: img_lumiui_alert_dialog_hl_page,
     highlightImage: img_lumiui_alert_dialog_hl_hi,
-    selector: '[data-slot^="alert-dialog"]',
-    route: '/docs/components/overlays-dialogs/alert-dialog',
-    pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog',
+    selector: "[data-slot^=\"alert-dialog\"]",
+    route: "/docs/components/overlays-dialogs/alert-dialog",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog",
     matchedRole: null,
   },
-  'avatar::9ui.dev': {
+  "autocomplete::9ui.dev": {
+    image: img_9ui_autocomplete_hl_page,
+    highlightImage: img_9ui_autocomplete_hl_hi,
+    selector: "[data-slot^=\"autocomplete\"]",
+    route: "/docs/components/autocomplete",
+    pageUrl: "https://www.9ui.dev/docs/components/autocomplete",
+    matchedRole: null,
+  },
+  "autocomplete::coss.com": {
+    image: img_coss_autocomplete_hl_page,
+    highlightImage: img_coss_autocomplete_hl_hi,
+    selector: "[data-slot^=\"autocomplete\"]",
+    route: "/ui/docs/components/autocomplete",
+    pageUrl: "https://coss.com/ui/docs/components/autocomplete",
+    matchedRole: "group",
+  },
+  "autocomplete::lumiui.dev": {
+    image: img_lumiui_autocomplete_hl_page,
+    highlightImage: img_lumiui_autocomplete_hl_hi,
+    selector: "[data-slot^=\"autocomplete\"]",
+    route: "/docs/components/form-input/autocomplete",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/autocomplete",
+    matchedRole: "group",
+  },
+  "autocomplete::reui.io": {
+    image: img_reui_autocomplete_hl_page,
+    highlightImage: img_reui_autocomplete_hl_hi,
+    selector: "[data-slot^=\"autocomplete\"]",
+    route: "/components/autocomplete",
+    pageUrl: "https://reui.io/components/autocomplete",
+    matchedRole: "combobox",
+  },
+  "avatar::9ui.dev": {
     image: img_9ui_avatar_hl_page,
     highlightImage: img_9ui_avatar_hl_hi,
-    selector: '[data-slot="avatar"]',
-    route: '/docs/components/avatar',
-    pageUrl: 'https://www.9ui.dev/docs/components/avatar',
+    selector: "[data-slot=\"avatar\"]",
+    route: "/docs/components/avatar",
+    pageUrl: "https://www.9ui.dev/docs/components/avatar",
     matchedRole: null,
   },
-  'avatar::lumiui.dev': {
+  "avatar::lumiui.dev": {
     image: img_lumiui_avatar_hl_page,
     highlightImage: img_lumiui_avatar_hl_hi,
-    selector: '[data-slot="avatar"]',
-    route: '/docs/components/display-media/avatar',
-    pageUrl: 'https://www.lumiui.dev/docs/components/display-media/avatar',
+    selector: "[data-slot=\"avatar\"]",
+    route: "/docs/components/display-media/avatar",
+    pageUrl: "https://www.lumiui.dev/docs/components/display-media/avatar",
     matchedRole: null,
   },
-  'avatar::reui.io': {
+  "avatar::reui.io": {
     image: img_reui_avatar_hl_page,
     highlightImage: img_reui_avatar_hl_hi,
-    selector: '[data-slot="avatar"]',
-    route: '/components/avatar',
-    pageUrl: 'https://reui.io/components/avatar',
+    selector: "[data-slot=\"avatar\"]",
+    route: "/components/avatar",
+    pageUrl: "https://reui.io/components/avatar",
     matchedRole: null,
   },
-  'button::9ui.dev': {
+  "button::9ui.dev": {
     image: img_9ui_button_hl_page,
     highlightImage: img_9ui_button_hl_hi,
-    selector: '[data-slot="button"]',
-    route: '/docs/components/button',
-    pageUrl: 'https://www.9ui.dev/docs/components/button',
+    selector: "[data-slot=\"button\"]",
+    route: "/docs/components/button",
+    pageUrl: "https://www.9ui.dev/docs/components/button",
     matchedRole: null,
   },
-  'checkbox-group::9ui.dev': {
+  "button::coss.com": {
+    image: img_coss_button_hl_page,
+    highlightImage: img_coss_button_hl_hi,
+    selector: "[data-slot=\"button\"]",
+    route: "/ui/docs/components/button",
+    pageUrl: "https://coss.com/ui/docs/components/button",
+    matchedRole: null,
+  },
+  "button::reui.io": {
+    image: img_reui_button_hl_page,
+    highlightImage: img_reui_button_hl_hi,
+    selector: "[data-slot=\"button\"]",
+    route: "/components/button",
+    pageUrl: "https://reui.io/components/button",
+    matchedRole: null,
+  },
+  "checkbox-group::9ui.dev": {
     image: img_9ui_checkbox_group_hl_page,
     highlightImage: img_9ui_checkbox_group_hl_hi,
-    selector: '[role="checkbox"]',
-    route: '/docs/components/checkbox-group',
-    pageUrl: 'https://www.9ui.dev/docs/components/checkbox-group',
-    matchedRole: 'checkbox',
+    selector: "[role=\"checkbox\"]",
+    route: "/docs/components/checkbox-group",
+    pageUrl: "https://www.9ui.dev/docs/components/checkbox-group",
+    matchedRole: "checkbox",
   },
-  'checkbox-group::coss.com': {
+  "checkbox-group::coss.com": {
     image: img_coss_checkbox_group_hl_page,
     highlightImage: img_coss_checkbox_group_hl_hi,
-    selector: '[role="checkbox"]',
-    route: '/ui/docs/components/checkbox-group',
-    pageUrl: 'https://coss.com/ui/docs/components/checkbox-group',
-    matchedRole: 'checkbox',
+    selector: "[role=\"checkbox\"]",
+    route: "/ui/docs/components/checkbox-group",
+    pageUrl: "https://coss.com/ui/docs/components/checkbox-group",
+    matchedRole: "checkbox",
   },
-  'checkbox-group::lumiui.dev': {
+  "checkbox-group::lumiui.dev": {
     image: img_lumiui_checkbox_group_hl_page,
     highlightImage: img_lumiui_checkbox_group_hl_hi,
-    selector: '[role="checkbox"]',
-    route: '/docs/components/form-input/checkbox-group',
-    pageUrl: 'https://www.lumiui.dev/docs/components/form-input/checkbox-group',
-    matchedRole: 'checkbox',
+    selector: "[role=\"checkbox\"]",
+    route: "/docs/components/form-input/checkbox-group",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/checkbox-group",
+    matchedRole: "checkbox",
   },
-  'checkbox::coss.com': {
+  "checkbox::coss.com": {
     image: img_coss_checkbox_hl_page,
     highlightImage: img_coss_checkbox_hl_hi,
-    selector: '[role="checkbox"]',
-    route: '/ui/docs/components/checkbox',
-    pageUrl: 'https://coss.com/ui/docs/components/checkbox',
-    matchedRole: 'checkbox',
+    selector: "[role=\"checkbox\"]",
+    route: "/ui/docs/components/checkbox",
+    pageUrl: "https://coss.com/ui/docs/components/checkbox",
+    matchedRole: "checkbox",
   },
-  'checkbox::reui.io': {
+  "checkbox::reui.io": {
     image: img_reui_checkbox_hl_page,
     highlightImage: img_reui_checkbox_hl_hi,
-    selector: '[role="checkbox"]',
-    route: '/components/checkbox',
-    pageUrl: 'https://reui.io/components/checkbox',
-    matchedRole: 'checkbox',
+    selector: "[role=\"checkbox\"]",
+    route: "/components/checkbox",
+    pageUrl: "https://reui.io/components/checkbox",
+    matchedRole: "checkbox",
   },
-  'collapsible::9ui.dev': {
+  "collapsible::9ui.dev": {
     image: img_9ui_collapsible_hl_page,
     highlightImage: img_9ui_collapsible_hl_hi,
-    selector: '[data-slot^="collapsible"]',
-    route: '/docs/components/collapsible',
-    pageUrl: 'https://www.9ui.dev/docs/components/collapsible',
+    selector: "[data-slot^=\"collapsible\"]",
+    route: "/docs/components/collapsible",
+    pageUrl: "https://www.9ui.dev/docs/components/collapsible",
     matchedRole: null,
   },
-  'context-menu::coss.com': {
+  "collapsible::coss.com": {
+    image: img_coss_collapsible_hl_page,
+    highlightImage: img_coss_collapsible_hl_hi,
+    selector: "[data-slot^=\"collapsible\"]",
+    route: "/ui/docs/components/collapsible",
+    pageUrl: "https://coss.com/ui/docs/components/collapsible",
+    matchedRole: null,
+  },
+  "collapsible::lumiui.dev": {
+    image: img_lumiui_collapsible_hl_page,
+    highlightImage: img_lumiui_collapsible_hl_hi,
+    selector: "[data-slot^=\"collapsible\"]",
+    route: "/docs/components/misc/collapsible",
+    pageUrl: "https://www.lumiui.dev/docs/components/misc/collapsible",
+    matchedRole: null,
+  },
+  "collapsible::reui.io": {
+    image: img_reui_collapsible_hl_page,
+    highlightImage: img_reui_collapsible_hl_hi,
+    selector: "[data-slot^=\"collapsible\"]",
+    route: "/components/collapsible",
+    pageUrl: "https://reui.io/components/collapsible",
+    matchedRole: null,
+  },
+  "combobox::9ui.dev": {
+    image: img_9ui_combobox_hl_page,
+    highlightImage: img_9ui_combobox_hl_hi,
+    selector: "[data-slot^=\"combobox\"]",
+    route: "/docs/components/combobox",
+    pageUrl: "https://www.9ui.dev/docs/components/combobox",
+    matchedRole: null,
+  },
+  "combobox::coss.com": {
+    image: img_coss_combobox_hl_page,
+    highlightImage: img_coss_combobox_hl_hi,
+    selector: "[data-slot^=\"combobox\"]",
+    route: "/ui/docs/components/combobox",
+    pageUrl: "https://coss.com/ui/docs/components/combobox",
+    matchedRole: "group",
+  },
+  "combobox::lumiui.dev": {
+    image: img_lumiui_combobox_hl_page,
+    highlightImage: img_lumiui_combobox_hl_hi,
+    selector: "[data-slot^=\"combobox\"]",
+    route: "/docs/components/form-input/combobox",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/combobox",
+    matchedRole: "group",
+  },
+  "combobox::reui.io": {
+    image: img_reui_combobox_hl_page,
+    highlightImage: img_reui_combobox_hl_hi,
+    selector: "[data-slot^=\"combobox\"]",
+    route: "/components/combobox",
+    pageUrl: "https://reui.io/components/combobox",
+    matchedRole: null,
+  },
+  "context-menu::coss.com": {
     image: img_coss_context_menu_hl_page,
     highlightImage: img_coss_context_menu_hl_hi,
-    selector: '[data-slot^="context-menu"]',
-    route: '/ui/docs/components/context-menu',
-    pageUrl: 'https://coss.com/ui/docs/components/context-menu',
+    selector: "[data-slot^=\"context-menu\"]",
+    route: "/ui/docs/components/context-menu",
+    pageUrl: "https://coss.com/ui/docs/components/context-menu",
     matchedRole: null,
   },
-  'context-menu::lumiui.dev': {
+  "context-menu::lumiui.dev": {
     image: img_lumiui_context_menu_hl_page,
     highlightImage: img_lumiui_context_menu_hl_hi,
-    selector: '[data-slot^="context-menu"]',
-    route: '/docs/components/overlays-dialogs/context-menu',
-    pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu',
+    selector: "[data-slot^=\"context-menu\"]",
+    route: "/docs/components/overlays-dialogs/context-menu",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu",
     matchedRole: null,
   },
-  'context-menu::reui.io': {
+  "context-menu::reui.io": {
     image: img_reui_context_menu_hl_page,
     highlightImage: img_reui_context_menu_hl_hi,
-    selector: '[data-slot^="context-menu"]',
-    route: '/components/context-menu',
-    pageUrl: 'https://reui.io/components/context-menu',
+    selector: "[data-slot^=\"context-menu\"]",
+    route: "/components/context-menu",
+    pageUrl: "https://reui.io/components/context-menu",
     matchedRole: null,
   },
-  'drawer::coss.com': {
+  "dialog::9ui.dev": {
+    image: img_9ui_dialog_hl_page,
+    highlightImage: img_9ui_dialog_hl_hi,
+    selector: "[data-slot^=\"dialog\"]",
+    route: "/docs/components/dialog",
+    pageUrl: "https://www.9ui.dev/docs/components/dialog",
+    matchedRole: null,
+  },
+  "dialog::coss.com": {
+    image: img_coss_dialog_hl_page,
+    highlightImage: img_coss_dialog_hl_hi,
+    selector: "[data-slot^=\"dialog\"]",
+    route: "/ui/docs/components/dialog",
+    pageUrl: "https://coss.com/ui/docs/components/dialog",
+    matchedRole: null,
+  },
+  "dialog::lumiui.dev": {
+    image: img_lumiui_dialog_hl_page,
+    highlightImage: img_lumiui_dialog_hl_hi,
+    selector: "[data-slot^=\"dialog\"]",
+    route: "/docs/components/overlays-dialogs/dialog",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/dialog",
+    matchedRole: null,
+  },
+  "dialog::reui.io": {
+    image: img_reui_dialog_hl_page,
+    highlightImage: img_reui_dialog_hl_hi,
+    selector: "[data-slot^=\"dialog\"]",
+    route: "/components/dialog",
+    pageUrl: "https://reui.io/components/dialog",
+    matchedRole: null,
+  },
+  "drawer::coss.com": {
     image: img_coss_drawer_hl_page,
     highlightImage: img_coss_drawer_hl_hi,
-    selector: '[data-slot^="drawer"]',
-    route: '/ui/docs/components/drawer',
-    pageUrl: 'https://coss.com/ui/docs/components/drawer',
+    selector: "[data-slot^=\"drawer\"]",
+    route: "/ui/docs/components/drawer",
+    pageUrl: "https://coss.com/ui/docs/components/drawer",
     matchedRole: null,
   },
-  'drawer::reui.io': {
+  "drawer::reui.io": {
     image: img_reui_drawer_hl_page,
     highlightImage: img_reui_drawer_hl_hi,
-    selector: '[data-slot^="drawer"]',
-    route: '/components/drawer',
-    pageUrl: 'https://reui.io/components/drawer',
+    selector: "[data-slot^=\"drawer\"]",
+    route: "/components/drawer",
+    pageUrl: "https://reui.io/components/drawer",
     matchedRole: null,
   },
-  'fieldset::coss.com': {
+  "field::coss.com": {
+    image: img_coss_field_hl_page,
+    highlightImage: img_coss_field_hl_hi,
+    selector: "[data-slot^=\"field\"]",
+    route: "/ui/docs/components/field",
+    pageUrl: "https://coss.com/ui/docs/components/field",
+    matchedRole: null,
+  },
+  "field::lumiui.dev": {
+    image: img_lumiui_field_hl_page,
+    highlightImage: img_lumiui_field_hl_hi,
+    selector: "[data-slot^=\"field\"]",
+    route: "/docs/components/form-input/field",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/field",
+    matchedRole: null,
+  },
+  "field::reui.io": {
+    image: img_reui_field_hl_page,
+    highlightImage: img_reui_field_hl_hi,
+    selector: "[data-slot^=\"field\"]",
+    route: "/components/field",
+    pageUrl: "https://reui.io/components/field",
+    matchedRole: null,
+  },
+  "fieldset::coss.com": {
     image: img_coss_fieldset_hl_page,
     highlightImage: img_coss_fieldset_hl_hi,
-    selector: 'fieldset',
-    route: '/ui/docs/components/fieldset',
-    pageUrl: 'https://coss.com/ui/docs/components/fieldset',
+    selector: "fieldset",
+    route: "/ui/docs/components/fieldset",
+    pageUrl: "https://coss.com/ui/docs/components/fieldset",
     matchedRole: null,
   },
-  'fieldset::lumiui.dev': {
+  "fieldset::lumiui.dev": {
     image: img_lumiui_fieldset_hl_page,
     highlightImage: img_lumiui_fieldset_hl_hi,
-    selector: 'fieldset',
-    route: '/docs/components/form-input/fieldset',
-    pageUrl: 'https://www.lumiui.dev/docs/components/form-input/fieldset',
+    selector: "fieldset",
+    route: "/docs/components/form-input/fieldset",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/fieldset",
     matchedRole: null,
   },
-  'input::9ui.dev': {
+  "form::9ui.dev": {
+    image: img_9ui_form_hl_page,
+    highlightImage: img_9ui_form_hl_hi,
+    selector: "form",
+    route: "/docs/components/form",
+    pageUrl: "https://www.9ui.dev/docs/components/form",
+    matchedRole: null,
+  },
+  "form::coss.com": {
+    image: img_coss_form_hl_page,
+    highlightImage: img_coss_form_hl_hi,
+    selector: "form",
+    route: "/ui/docs/components/form",
+    pageUrl: "https://coss.com/ui/docs/components/form",
+    matchedRole: null,
+  },
+  "form::lumiui.dev": {
+    image: img_lumiui_form_hl_page,
+    highlightImage: img_lumiui_form_hl_hi,
+    selector: "form",
+    route: "/docs/components/form-input/form",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/form",
+    matchedRole: null,
+  },
+  "input::9ui.dev": {
     image: img_9ui_input_hl_page,
     highlightImage: img_9ui_input_hl_hi,
-    selector: '[data-slot="input"]',
-    route: '/docs/components/input',
-    pageUrl: 'https://www.9ui.dev/docs/components/input',
+    selector: "[data-slot=\"input\"]",
+    route: "/docs/components/input",
+    pageUrl: "https://www.9ui.dev/docs/components/input",
     matchedRole: null,
   },
-  'menubar::lumiui.dev': {
+  "input::coss.com": {
+    image: img_coss_input_hl_page,
+    highlightImage: img_coss_input_hl_hi,
+    selector: "[data-slot=\"input\"]",
+    route: "/ui/docs/components/input",
+    pageUrl: "https://coss.com/ui/docs/components/input",
+    matchedRole: null,
+  },
+  "input::lumiui.dev": {
+    image: img_lumiui_input_hl_page,
+    highlightImage: img_lumiui_input_hl_hi,
+    selector: "[data-slot=\"input\"]",
+    route: "/docs/components/form-input/input",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/input",
+    matchedRole: null,
+  },
+  "input::reui.io": {
+    image: img_reui_input_hl_page,
+    highlightImage: img_reui_input_hl_hi,
+    selector: "[data-slot=\"input\"]",
+    route: "/components/input",
+    pageUrl: "https://reui.io/components/input",
+    matchedRole: null,
+  },
+  "menu::9ui.dev": {
+    image: img_9ui_menu_hl_page,
+    highlightImage: img_9ui_menu_hl_hi,
+    selector: "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]",
+    route: "/docs/components/dropdown-menu",
+    pageUrl: "https://www.9ui.dev/docs/components/dropdown-menu",
+    matchedRole: null,
+  },
+  "menu::coss.com": {
+    image: img_coss_menu_hl_page,
+    highlightImage: img_coss_menu_hl_hi,
+    selector: "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]",
+    route: "/ui/docs/components/menu",
+    pageUrl: "https://coss.com/ui/docs/components/menu",
+    matchedRole: null,
+  },
+  "menu::lumiui.dev": {
+    image: img_lumiui_menu_hl_page,
+    highlightImage: img_lumiui_menu_hl_hi,
+    selector: "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]",
+    route: "/docs/components/overlays-dialogs/dropdown-menu",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/dropdown-menu",
+    matchedRole: null,
+  },
+  "menu::reui.io": {
+    image: img_reui_menu_hl_page,
+    highlightImage: img_reui_menu_hl_hi,
+    selector: "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]",
+    route: "/components/dropdown-menu",
+    pageUrl: "https://reui.io/components/dropdown-menu",
+    matchedRole: null,
+  },
+  "menubar::9ui.dev": {
+    image: img_9ui_menubar_hl_page,
+    highlightImage: img_9ui_menubar_hl_hi,
+    selector: "[role=\"menubar\"]",
+    route: "/docs/components/menubar",
+    pageUrl: "https://www.9ui.dev/docs/components/menubar",
+    matchedRole: "menubar",
+  },
+  "menubar::lumiui.dev": {
     image: img_lumiui_menubar_hl_page,
     highlightImage: img_lumiui_menubar_hl_hi,
-    selector: '[role="menubar"]',
-    route: '/docs/components/misc/menubar',
-    pageUrl: 'https://www.lumiui.dev/docs/components/misc/menubar',
-    matchedRole: 'menubar',
+    selector: "[role=\"menubar\"]",
+    route: "/docs/components/misc/menubar",
+    pageUrl: "https://www.lumiui.dev/docs/components/misc/menubar",
+    matchedRole: "menubar",
   },
-  'meter::9ui.dev': {
+  "menubar::reui.io": {
+    image: img_reui_menubar_hl_page,
+    highlightImage: img_reui_menubar_hl_hi,
+    selector: "[role=\"menubar\"]",
+    route: "/components/menubar",
+    pageUrl: "https://reui.io/components/menubar",
+    matchedRole: "menubar",
+  },
+  "meter::9ui.dev": {
     image: img_9ui_meter_hl_page,
     highlightImage: img_9ui_meter_hl_hi,
-    selector: '[role="meter"]',
-    route: '/docs/components/meter',
-    pageUrl: 'https://www.9ui.dev/docs/components/meter',
-    matchedRole: 'meter',
+    selector: "[role=\"meter\"]",
+    route: "/docs/components/meter",
+    pageUrl: "https://www.9ui.dev/docs/components/meter",
+    matchedRole: "meter",
   },
-  'meter::lumiui.dev': {
+  "meter::lumiui.dev": {
     image: img_lumiui_meter_hl_page,
     highlightImage: img_lumiui_meter_hl_hi,
-    selector: '[role="meter"]',
-    route: '/docs/components/feedback-status/meter',
-    pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/meter',
-    matchedRole: 'meter',
+    selector: "[role=\"meter\"]",
+    route: "/docs/components/feedback-status/meter",
+    pageUrl: "https://www.lumiui.dev/docs/components/feedback-status/meter",
+    matchedRole: "meter",
   },
-  'navigation-menu::9ui.dev': {
+  "navigation-menu::9ui.dev": {
     image: img_9ui_navigation_menu_hl_page,
     highlightImage: img_9ui_navigation_menu_hl_hi,
-    selector: '[data-slot^="navigation-menu"]',
-    route: '/docs/components/navigation-menu',
-    pageUrl: 'https://www.9ui.dev/docs/components/navigation-menu',
+    selector: "[data-slot^=\"navigation-menu\"]",
+    route: "/docs/components/navigation-menu",
+    pageUrl: "https://www.9ui.dev/docs/components/navigation-menu",
     matchedRole: null,
   },
-  'navigation-menu::lumiui.dev': {
+  "navigation-menu::lumiui.dev": {
     image: img_lumiui_navigation_menu_hl_page,
     highlightImage: img_lumiui_navigation_menu_hl_hi,
-    selector: '[data-slot^="navigation-menu"]',
-    route: '/docs/components/layout-nav/navigation-menu',
-    pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/navigation-menu',
+    selector: "[data-slot^=\"navigation-menu\"]",
+    route: "/docs/components/layout-nav/navigation-menu",
+    pageUrl: "https://www.lumiui.dev/docs/components/layout-nav/navigation-menu",
     matchedRole: null,
   },
-  'number-field::9ui.dev': {
+  "number-field::9ui.dev": {
     image: img_9ui_number_field_hl_page,
     highlightImage: img_9ui_number_field_hl_hi,
-    selector: '[data-slot^="number-field"]',
-    route: '/docs/components/number-field',
-    pageUrl: 'https://www.9ui.dev/docs/components/number-field',
+    selector: "[data-slot^=\"number-field\"]",
+    route: "/docs/components/number-field",
+    pageUrl: "https://www.9ui.dev/docs/components/number-field",
     matchedRole: null,
   },
-  'number-field::coss.com': {
+  "number-field::coss.com": {
     image: img_coss_number_field_hl_page,
     highlightImage: img_coss_number_field_hl_hi,
-    selector: '[data-slot^="number-field"]',
-    route: '/ui/docs/components/number-field',
-    pageUrl: 'https://coss.com/ui/docs/components/number-field',
+    selector: "[data-slot^=\"number-field\"]",
+    route: "/ui/docs/components/number-field",
+    pageUrl: "https://coss.com/ui/docs/components/number-field",
     matchedRole: null,
   },
-  'number-field::lumiui.dev': {
+  "number-field::lumiui.dev": {
     image: img_lumiui_number_field_hl_page,
     highlightImage: img_lumiui_number_field_hl_hi,
-    selector: '[data-slot^="number-field"]',
-    route: '/docs/components/form-input/number-field',
-    pageUrl: 'https://www.lumiui.dev/docs/components/form-input/number-field',
+    selector: "[data-slot^=\"number-field\"]",
+    route: "/docs/components/form-input/number-field",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/number-field",
     matchedRole: null,
   },
-  'otp-field::9ui.dev': {
+  "otp-field::9ui.dev": {
     image: img_9ui_otp_field_hl_page,
     highlightImage: img_9ui_otp_field_hl_hi,
-    selector: '[data-slot^="input-otp"], [data-slot^="otp"], [autocomplete="one-time-code"]',
-    route: '/docs/components/input-otp',
-    pageUrl: 'https://www.9ui.dev/docs/components/input-otp',
+    selector: "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]",
+    route: "/docs/components/input-otp",
+    pageUrl: "https://www.9ui.dev/docs/components/input-otp",
     matchedRole: null,
   },
-  'otp-field::coss.com': {
+  "otp-field::coss.com": {
     image: img_coss_otp_field_hl_page,
     highlightImage: img_coss_otp_field_hl_hi,
-    selector: '[role="group"]',
-    route: '/ui/docs/components/otp-field',
-    pageUrl: 'https://coss.com/ui/docs/components/otp-field',
-    matchedRole: 'group',
+    selector: "[role=\"group\"]",
+    route: "/ui/docs/components/otp-field",
+    pageUrl: "https://coss.com/ui/docs/components/otp-field",
+    matchedRole: "group",
   },
-  'otp-field::lumiui.dev': {
+  "otp-field::lumiui.dev": {
     image: img_lumiui_otp_field_hl_page,
     highlightImage: img_lumiui_otp_field_hl_hi,
-    selector: '[role="group"]',
-    route: '/docs/components/form-input/otp-field',
-    pageUrl: 'https://www.lumiui.dev/docs/components/form-input/otp-field',
-    matchedRole: 'group',
+    selector: "[role=\"group\"]",
+    route: "/docs/components/form-input/otp-field",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/otp-field",
+    matchedRole: "group",
   },
-  'preview-card::9ui.dev': {
+  "popover::9ui.dev": {
+    image: img_9ui_popover_hl_page,
+    highlightImage: img_9ui_popover_hl_hi,
+    selector: "[data-slot^=\"popover\"]",
+    route: "/docs/components/popover",
+    pageUrl: "https://www.9ui.dev/docs/components/popover",
+    matchedRole: null,
+  },
+  "popover::coss.com": {
+    image: img_coss_popover_hl_page,
+    highlightImage: img_coss_popover_hl_hi,
+    selector: "[data-slot^=\"popover\"]",
+    route: "/ui/docs/components/popover",
+    pageUrl: "https://coss.com/ui/docs/components/popover",
+    matchedRole: null,
+  },
+  "popover::lumiui.dev": {
+    image: img_lumiui_popover_hl_page,
+    highlightImage: img_lumiui_popover_hl_hi,
+    selector: "[data-slot^=\"popover\"]",
+    route: "/docs/components/overlays-dialogs/popover",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/popover",
+    matchedRole: null,
+  },
+  "popover::reui.io": {
+    image: img_reui_popover_hl_page,
+    highlightImage: img_reui_popover_hl_hi,
+    selector: "[data-slot^=\"popover\"]",
+    route: "/components/popover",
+    pageUrl: "https://reui.io/components/popover",
+    matchedRole: null,
+  },
+  "preview-card::9ui.dev": {
     image: img_9ui_preview_card_hl_page,
     highlightImage: img_9ui_preview_card_hl_hi,
-    selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
-    route: '/docs/components/preview-card',
-    pageUrl: 'https://www.9ui.dev/docs/components/preview-card',
+    selector: "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
+    route: "/docs/components/preview-card",
+    pageUrl: "https://www.9ui.dev/docs/components/preview-card",
     matchedRole: null,
   },
-  'preview-card::coss.com': {
+  "preview-card::coss.com": {
     image: img_coss_preview_card_hl_page,
     highlightImage: img_coss_preview_card_hl_hi,
-    selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
-    route: '/ui/docs/components/preview-card',
-    pageUrl: 'https://coss.com/ui/docs/components/preview-card',
+    selector: "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
+    route: "/ui/docs/components/preview-card",
+    pageUrl: "https://coss.com/ui/docs/components/preview-card",
     matchedRole: null,
   },
-  'preview-card::lumiui.dev': {
+  "preview-card::lumiui.dev": {
     image: img_lumiui_preview_card_hl_page,
     highlightImage: img_lumiui_preview_card_hl_hi,
-    selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
-    route: '/docs/components/overlays-dialogs/preview-card',
-    pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card',
+    selector: "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
+    route: "/docs/components/overlays-dialogs/preview-card",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card",
     matchedRole: null,
   },
-  'progress::9ui.dev': {
+  "progress::9ui.dev": {
     image: img_9ui_progress_hl_page,
     highlightImage: img_9ui_progress_hl_hi,
-    selector: '[role="progressbar"]',
-    route: '/docs/components/progress',
-    pageUrl: 'https://www.9ui.dev/docs/components/progress',
-    matchedRole: 'progressbar',
+    selector: "[role=\"progressbar\"]",
+    route: "/docs/components/progress",
+    pageUrl: "https://www.9ui.dev/docs/components/progress",
+    matchedRole: "progressbar",
   },
-  'progress::coss.com': {
+  "progress::coss.com": {
     image: img_coss_progress_hl_page,
     highlightImage: img_coss_progress_hl_hi,
-    selector: '[role="progressbar"]',
-    route: '/ui/docs/components/progress',
-    pageUrl: 'https://coss.com/ui/docs/components/progress',
-    matchedRole: 'progressbar',
+    selector: "[role=\"progressbar\"]",
+    route: "/ui/docs/components/progress",
+    pageUrl: "https://coss.com/ui/docs/components/progress",
+    matchedRole: "progressbar",
   },
-  'progress::lumiui.dev': {
+  "progress::lumiui.dev": {
     image: img_lumiui_progress_hl_page,
     highlightImage: img_lumiui_progress_hl_hi,
-    selector: '[role="progressbar"]',
-    route: '/docs/components/feedback-status/progress',
-    pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/progress',
-    matchedRole: 'progressbar',
+    selector: "[role=\"progressbar\"]",
+    route: "/docs/components/feedback-status/progress",
+    pageUrl: "https://www.lumiui.dev/docs/components/feedback-status/progress",
+    matchedRole: "progressbar",
   },
-  'radio::9ui.dev': {
+  "radio::9ui.dev": {
     image: img_9ui_radio_hl_page,
     highlightImage: img_9ui_radio_hl_hi,
-    selector: '[role="radio"]',
-    route: '/docs/components/radio-group',
-    pageUrl: 'https://www.9ui.dev/docs/components/radio-group',
-    matchedRole: 'radio',
+    selector: "[role=\"radio\"]",
+    route: "/docs/components/radio-group",
+    pageUrl: "https://www.9ui.dev/docs/components/radio-group",
+    matchedRole: "radio",
   },
-  'scroll-area::9ui.dev': {
+  "radio::coss.com": {
+    image: img_coss_radio_hl_page,
+    highlightImage: img_coss_radio_hl_hi,
+    selector: "[role=\"radio\"]",
+    route: "/ui/docs/components/radio-group",
+    pageUrl: "https://coss.com/ui/docs/components/radio-group",
+    matchedRole: "radio",
+  },
+  "radio::lumiui.dev": {
+    image: img_lumiui_radio_hl_page,
+    highlightImage: img_lumiui_radio_hl_hi,
+    selector: "[role=\"radio\"]",
+    route: "/docs/components/form-input/radio",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/radio",
+    matchedRole: "radio",
+  },
+  "radio::reui.io": {
+    image: img_reui_radio_hl_page,
+    highlightImage: img_reui_radio_hl_hi,
+    selector: "[role=\"radio\"]",
+    route: "/components/radio-group",
+    pageUrl: "https://reui.io/components/radio-group",
+    matchedRole: "radio",
+  },
+  "scroll-area::9ui.dev": {
     image: img_9ui_scroll_area_hl_page,
     highlightImage: img_9ui_scroll_area_hl_hi,
-    selector: '[data-slot="scroll-area"]',
-    route: '/docs/components/scroll-area',
-    pageUrl: 'https://www.9ui.dev/docs/components/scroll-area',
-    matchedRole: 'presentation',
+    selector: "[data-slot=\"scroll-area\"]",
+    route: "/docs/components/scroll-area",
+    pageUrl: "https://www.9ui.dev/docs/components/scroll-area",
+    matchedRole: "presentation",
   },
-  'scroll-area::lumiui.dev': {
+  "scroll-area::lumiui.dev": {
     image: img_lumiui_scroll_area_hl_page,
     highlightImage: img_lumiui_scroll_area_hl_hi,
-    selector: '[data-slot="scroll-area"]',
-    route: '/docs/components/layout-nav/scroll-area',
-    pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/scroll-area',
-    matchedRole: 'presentation',
+    selector: "[data-slot=\"scroll-area\"]",
+    route: "/docs/components/layout-nav/scroll-area",
+    pageUrl: "https://www.lumiui.dev/docs/components/layout-nav/scroll-area",
+    matchedRole: "presentation",
   },
-  'scroll-area::reui.io': {
+  "scroll-area::reui.io": {
     image: img_reui_scroll_area_hl_page,
     highlightImage: img_reui_scroll_area_hl_hi,
-    selector: '[data-slot="scroll-area"]',
-    route: '/components/scroll-area',
-    pageUrl: 'https://reui.io/components/scroll-area',
+    selector: "[data-slot=\"scroll-area\"]",
+    route: "/components/scroll-area",
+    pageUrl: "https://reui.io/components/scroll-area",
     matchedRole: null,
   },
-  'slider::9ui.dev': {
+  "select::9ui.dev": {
+    image: img_9ui_select_hl_page,
+    highlightImage: img_9ui_select_hl_hi,
+    selector: "[data-slot^=\"select\"]",
+    route: "/docs/components/select",
+    pageUrl: "https://www.9ui.dev/docs/components/select",
+    matchedRole: "combobox",
+  },
+  "select::coss.com": {
+    image: img_coss_select_hl_page,
+    highlightImage: img_coss_select_hl_hi,
+    selector: "[data-slot^=\"select\"]",
+    route: "/ui/docs/components/select",
+    pageUrl: "https://coss.com/ui/docs/components/select",
+    matchedRole: "combobox",
+  },
+  "select::lumiui.dev": {
+    image: img_lumiui_select_hl_page,
+    highlightImage: img_lumiui_select_hl_hi,
+    selector: "[data-slot^=\"select\"]",
+    route: "/docs/components/form-input/select",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/select",
+    matchedRole: "combobox",
+  },
+  "select::reui.io": {
+    image: img_reui_select_hl_page,
+    highlightImage: img_reui_select_hl_hi,
+    selector: "[data-slot^=\"select\"]",
+    route: "/components/select",
+    pageUrl: "https://reui.io/components/select",
+    matchedRole: "combobox",
+  },
+  "slider::9ui.dev": {
     image: img_9ui_slider_hl_page,
     highlightImage: img_9ui_slider_hl_hi,
-    selector: '[role="group"]',
-    route: '/docs/components/slider',
-    pageUrl: 'https://www.9ui.dev/docs/components/slider',
-    matchedRole: 'group',
+    selector: "[role=\"group\"]",
+    route: "/docs/components/slider",
+    pageUrl: "https://www.9ui.dev/docs/components/slider",
+    matchedRole: "group",
   },
-  'slider::coss.com': {
+  "slider::coss.com": {
     image: img_coss_slider_hl_page,
     highlightImage: img_coss_slider_hl_hi,
-    selector: '[role="slider"], [data-slot^="slider"]',
-    route: '/ui/docs/components/slider',
-    pageUrl: 'https://coss.com/ui/docs/components/slider',
+    selector: "[role=\"slider\"], [data-slot^=\"slider\"]",
+    route: "/ui/docs/components/slider",
+    pageUrl: "https://coss.com/ui/docs/components/slider",
     matchedRole: null,
   },
-  'slider::lumiui.dev': {
+  "slider::lumiui.dev": {
     image: img_lumiui_slider_hl_page,
     highlightImage: img_lumiui_slider_hl_hi,
-    selector: '[role="group"]',
-    route: '/docs/components/form-input/slider',
-    pageUrl: 'https://www.lumiui.dev/docs/components/form-input/slider',
-    matchedRole: 'group',
+    selector: "[role=\"group\"]",
+    route: "/docs/components/form-input/slider",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/slider",
+    matchedRole: "group",
   },
-  'switch::reui.io': {
+  "switch::9ui.dev": {
+    image: img_9ui_switch_hl_page,
+    highlightImage: img_9ui_switch_hl_hi,
+    selector: "[role=\"switch\"]",
+    route: "/docs/components/switch",
+    pageUrl: "https://www.9ui.dev/docs/components/switch",
+    matchedRole: "switch",
+  },
+  "switch::coss.com": {
+    image: img_coss_switch_hl_page,
+    highlightImage: img_coss_switch_hl_hi,
+    selector: "[role=\"switch\"]",
+    route: "/ui/docs/components/switch",
+    pageUrl: "https://coss.com/ui/docs/components/switch",
+    matchedRole: "switch",
+  },
+  "switch::lumiui.dev": {
+    image: img_lumiui_switch_hl_page,
+    highlightImage: img_lumiui_switch_hl_hi,
+    selector: "[role=\"switch\"]",
+    route: "/docs/components/form-input/switch",
+    pageUrl: "https://www.lumiui.dev/docs/components/form-input/switch",
+    matchedRole: "switch",
+  },
+  "switch::reui.io": {
     image: img_reui_switch_hl_page,
     highlightImage: img_reui_switch_hl_hi,
-    selector: '[role="switch"]',
-    route: '/components/switch',
-    pageUrl: 'https://reui.io/components/switch',
-    matchedRole: 'switch',
+    selector: "[role=\"switch\"]",
+    route: "/components/switch",
+    pageUrl: "https://reui.io/components/switch",
+    matchedRole: "switch",
   },
-  'tabs::9ui.dev': {
+  "tabs::9ui.dev": {
     image: img_9ui_tabs_hl_page,
     highlightImage: img_9ui_tabs_hl_hi,
-    selector: '[role="tablist"]',
-    route: '/docs/components/tabs',
-    pageUrl: 'https://www.9ui.dev/docs/components/tabs',
-    matchedRole: 'tablist',
+    selector: "[role=\"tablist\"]",
+    route: "/docs/components/tabs",
+    pageUrl: "https://www.9ui.dev/docs/components/tabs",
+    matchedRole: "tablist",
   },
-  'toast::lumiui.dev': {
+  "tabs::coss.com": {
+    image: img_coss_tabs_hl_page,
+    highlightImage: img_coss_tabs_hl_hi,
+    selector: "[role=\"tablist\"]",
+    route: "/ui/docs/components/tabs",
+    pageUrl: "https://coss.com/ui/docs/components/tabs",
+    matchedRole: "tablist",
+  },
+  "tabs::lumiui.dev": {
+    image: img_lumiui_tabs_hl_page,
+    highlightImage: img_lumiui_tabs_hl_hi,
+    selector: "[role=\"tablist\"]",
+    route: "/docs/components/layout-nav/tabs",
+    pageUrl: "https://www.lumiui.dev/docs/components/layout-nav/tabs",
+    matchedRole: "tablist",
+  },
+  "tabs::reui.io": {
+    image: img_reui_tabs_hl_page,
+    highlightImage: img_reui_tabs_hl_hi,
+    selector: "[role=\"tablist\"]",
+    route: "/components/tabs",
+    pageUrl: "https://reui.io/components/tabs",
+    matchedRole: "tablist",
+  },
+  "toast::coss.com": {
+    image: img_coss_toast_hl_page,
+    highlightImage: img_coss_toast_hl_hi,
+    selector: "[data-slot=\"preview\"]",
+    route: "/ui/docs/components/toast",
+    pageUrl: "https://coss.com/ui/docs/components/toast",
+    matchedRole: null,
+  },
+  "toast::lumiui.dev": {
     image: img_lumiui_toast_hl_page,
     highlightImage: img_lumiui_toast_hl_hi,
-    selector: '[data-slot^="toast"]',
-    route: '/docs/components/feedback-status/toast',
-    pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/toast',
-    matchedRole: 'region',
+    selector: "[data-slot^=\"toast\"]",
+    route: "/docs/components/feedback-status/toast",
+    pageUrl: "https://www.lumiui.dev/docs/components/feedback-status/toast",
+    matchedRole: "region",
   },
-  'toggle-group::9ui.dev': {
+  "toggle-group::9ui.dev": {
     image: img_9ui_toggle_group_hl_page,
     highlightImage: img_9ui_toggle_group_hl_hi,
-    selector: '[data-slot="toggle-group"]',
-    route: '/docs/components/toggle-group',
-    pageUrl: 'https://www.9ui.dev/docs/components/toggle-group',
-    matchedRole: 'group',
+    selector: "[data-slot=\"toggle-group\"]",
+    route: "/docs/components/toggle-group",
+    pageUrl: "https://www.9ui.dev/docs/components/toggle-group",
+    matchedRole: "group",
   },
-  'toggle-group::lumiui.dev': {
+  "toggle-group::lumiui.dev": {
     image: img_lumiui_toggle_group_hl_page,
     highlightImage: img_lumiui_toggle_group_hl_hi,
-    selector: '[data-slot="toggle-group"]',
-    route: '/docs/components/misc/toggle-group',
-    pageUrl: 'https://www.lumiui.dev/docs/components/misc/toggle-group',
-    matchedRole: 'group',
+    selector: "[data-slot=\"toggle-group\"]",
+    route: "/docs/components/misc/toggle-group",
+    pageUrl: "https://www.lumiui.dev/docs/components/misc/toggle-group",
+    matchedRole: "group",
   },
-  'toggle::coss.com': {
+  "toggle::coss.com": {
     image: img_coss_toggle_hl_page,
     highlightImage: img_coss_toggle_hl_hi,
-    selector: '[data-slot="toggle"]',
-    route: '/ui/docs/components/toggle',
-    pageUrl: 'https://coss.com/ui/docs/components/toggle',
+    selector: "[data-slot=\"toggle\"]",
+    route: "/ui/docs/components/toggle",
+    pageUrl: "https://coss.com/ui/docs/components/toggle",
     matchedRole: null,
   },
-  'toggle::reui.io': {
+  "toggle::reui.io": {
     image: img_reui_toggle_hl_page,
     highlightImage: img_reui_toggle_hl_hi,
-    selector: '[data-slot="toggle"]',
-    route: '/components/toggle',
-    pageUrl: 'https://reui.io/components/toggle',
+    selector: "[data-slot=\"toggle\"]",
+    route: "/components/toggle",
+    pageUrl: "https://reui.io/components/toggle",
     matchedRole: null,
   },
-  'toolbar::9ui.dev': {
+  "toolbar::9ui.dev": {
     image: img_9ui_toolbar_hl_page,
     highlightImage: img_9ui_toolbar_hl_hi,
-    selector: '[role="toolbar"]',
-    route: '/docs/components/toolbar',
-    pageUrl: 'https://www.9ui.dev/docs/components/toolbar',
-    matchedRole: 'toolbar',
+    selector: "[role=\"toolbar\"]",
+    route: "/docs/components/toolbar",
+    pageUrl: "https://www.9ui.dev/docs/components/toolbar",
+    matchedRole: "toolbar",
   },
-  'toolbar::lumiui.dev': {
+  "toolbar::lumiui.dev": {
     image: img_lumiui_toolbar_hl_page,
     highlightImage: img_lumiui_toolbar_hl_hi,
-    selector: '[role="toolbar"]',
-    route: '/docs/components/misc/toolbar',
-    pageUrl: 'https://www.lumiui.dev/docs/components/misc/toolbar',
-    matchedRole: 'toolbar',
+    selector: "[role=\"toolbar\"]",
+    route: "/docs/components/misc/toolbar",
+    pageUrl: "https://www.lumiui.dev/docs/components/misc/toolbar",
+    matchedRole: "toolbar",
   },
-  'tooltip::reui.io': {
+  "tooltip::9ui.dev": {
+    image: img_9ui_tooltip_hl_page,
+    highlightImage: img_9ui_tooltip_hl_hi,
+    selector: "[data-slot^=\"tooltip\"]",
+    route: "/docs/components/tooltip",
+    pageUrl: "https://www.9ui.dev/docs/components/tooltip",
+    matchedRole: null,
+  },
+  "tooltip::coss.com": {
+    image: img_coss_tooltip_hl_page,
+    highlightImage: img_coss_tooltip_hl_hi,
+    selector: "[data-slot^=\"tooltip\"]",
+    route: "/ui/docs/components/tooltip",
+    pageUrl: "https://coss.com/ui/docs/components/tooltip",
+    matchedRole: null,
+  },
+  "tooltip::lumiui.dev": {
+    image: img_lumiui_tooltip_hl_page,
+    highlightImage: img_lumiui_tooltip_hl_hi,
+    selector: "[data-slot^=\"tooltip\"]",
+    route: "/docs/components/overlays-dialogs/tooltip",
+    pageUrl: "https://www.lumiui.dev/docs/components/overlays-dialogs/tooltip",
+    matchedRole: null,
+  },
+  "tooltip::reui.io": {
     image: img_reui_tooltip_hl_page,
     highlightImage: img_reui_tooltip_hl_hi,
-    selector: '[data-slot^="tooltip"]',
-    route: '/components/tooltip',
-    pageUrl: 'https://reui.io/components/tooltip',
+    selector: "[data-slot^=\"tooltip\"]",
+    route: "/components/tooltip",
+    pageUrl: "https://reui.io/components/tooltip",
     matchedRole: null,
   },
 };

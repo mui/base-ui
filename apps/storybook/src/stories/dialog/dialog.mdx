@@ -279,6 +279,46 @@ CSS transitions hook onto `[data-starting-style]`/`[data-ending-style]` on Popup
   <WildCard repo="pingdotgg/t3code" title="t3.codes" href="https://github.com/pingdotgg/t3code/blob/32e7844837b35ca0a0ff038997a45ea75cb7103f/apps/web/src/components/ui/command.tsx" live="https://t3.codes" license="MIT" reuse="code-ok" image={t3CodesShot}>
     a ⌘K command palette hosted in a Dialog: dedicated `Backdrop + Viewport + Popup` stack with `createHandle` re-exported so the palette opens from anywhere.
   </WildCard>
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/dialog.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+  >
+    a shadcn-style `data-slot` wrapper over Base UI's Dialog, styled with Tailwind.
+  </WildCard>
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/dialog.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+  >
+    ships parallel Base UI and Radix Dialog implementations behind one component API.
+  </WildCard>
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/dialog.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+  >
+    Cal.com's design system wraps Dialog in its one-file-per-component Base UI registry.
+  </WildCard>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/dialog.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+  >
+    Dialog as an installable registry item, published in the `@lumi-ui` package.
+  </WildCard>
 </WildCards>
 
 Two recreations live in this Storybook — an edge-docked side panel (Oxide) and a wrapper-based settings modal (shadcn/ui). Each `MiniPlayground` below shows the live recreation alongside its JSX, its live-captured rendered HTML, and its CSS:

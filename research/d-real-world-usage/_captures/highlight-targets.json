@@ -1,429 +1,596 @@
 [
   {
-    "slug": "9ui-accordion-hl",
-    "url": "https://www.9ui.dev/docs/components/accordion",
+    "slug": "9ui-autocomplete-hl",
+    "url": "https://www.9ui.dev/docs/components/autocomplete",
     "domain": "9ui.dev",
-    "components": ["Accordion"],
-    "selector": "[data-slot=\"accordion\"]"
+    "components": [
+      "Autocomplete"
+    ],
+    "selector": "[data-slot^=\"autocomplete\"]"
   },
   {
-    "slug": "lumiui-accordion-hl",
-    "url": "https://www.lumiui.dev/docs/components/layout-nav/accordion",
-    "domain": "lumiui.dev",
-    "components": ["Accordion"],
-    "selector": "[data-slot=\"accordion\"]"
-  },
-  {
-    "slug": "reui-accordion-hl",
-    "url": "https://reui.io/components/accordion",
+    "slug": "reui-autocomplete-hl",
+    "url": "https://reui.io/components/autocomplete",
     "domain": "reui.io",
-    "components": ["Accordion"],
-    "selector": "[data-slot=\"accordion\"]"
+    "components": [
+      "Autocomplete"
+    ],
+    "selector": "[data-slot^=\"autocomplete\"]"
   },
   {
-    "slug": "9ui-alert-dialog-hl",
-    "url": "https://www.9ui.dev/docs/components/alert-dialog",
-    "domain": "9ui.dev",
-    "components": ["Alert Dialog"],
-    "selector": "[data-slot^=\"alert-dialog\"]"
+    "slug": "coss-autocomplete-hl",
+    "url": "https://coss.com/ui/docs/components/autocomplete",
+    "domain": "coss.com",
+    "components": [
+      "Autocomplete"
+    ],
+    "selector": "[data-slot^=\"autocomplete\"]"
   },
   {
-    "slug": "lumiui-alert-dialog-hl",
-    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog",
+    "slug": "lumiui-autocomplete-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/autocomplete",
     "domain": "lumiui.dev",
-    "components": ["Alert Dialog"],
-    "selector": "[data-slot^=\"alert-dialog\"]"
-  },
-  {
-    "slug": "9ui-avatar-hl",
-    "url": "https://www.9ui.dev/docs/components/avatar",
-    "domain": "9ui.dev",
-    "components": ["Avatar"],
-    "selector": "[data-slot=\"avatar\"]"
-  },
-  {
-    "slug": "lumiui-avatar-hl",
-    "url": "https://www.lumiui.dev/docs/components/display-media/avatar",
-    "domain": "lumiui.dev",
-    "components": ["Avatar"],
-    "selector": "[data-slot=\"avatar\"]"
-  },
-  {
-    "slug": "reui-avatar-hl",
-    "url": "https://reui.io/components/avatar",
-    "domain": "reui.io",
-    "components": ["Avatar"],
-    "selector": "[data-slot=\"avatar\"]"
+    "components": [
+      "Autocomplete"
+    ],
+    "selector": "[data-slot^=\"autocomplete\"]"
   },
   {
     "slug": "9ui-button-hl",
     "url": "https://www.9ui.dev/docs/components/button",
     "domain": "9ui.dev",
-    "components": ["Button"],
+    "components": [
+      "Button"
+    ],
     "selector": "[data-slot=\"button\"]"
   },
   {
-    "slug": "9ui-checkbox-group-hl",
-    "url": "https://www.9ui.dev/docs/components/checkbox-group",
-    "domain": "9ui.dev",
-    "components": ["Checkbox Group"],
-    "selector": "[role=\"checkbox\"]"
-  },
-  {
-    "slug": "coss-checkbox-group-hl",
-    "url": "https://coss.com/ui/docs/components/checkbox-group",
-    "domain": "coss.com",
-    "components": ["Checkbox Group"],
-    "selector": "[role=\"checkbox\"]"
-  },
-  {
-    "slug": "lumiui-checkbox-group-hl",
-    "url": "https://www.lumiui.dev/docs/components/form-input/checkbox-group",
-    "domain": "lumiui.dev",
-    "components": ["Checkbox Group"],
-    "selector": "[role=\"checkbox\"]"
-  },
-  {
-    "slug": "coss-checkbox-hl",
-    "url": "https://coss.com/ui/docs/components/checkbox",
-    "domain": "coss.com",
-    "components": ["Checkbox"],
-    "selector": "[role=\"checkbox\"]"
-  },
-  {
-    "slug": "reui-checkbox-hl",
-    "url": "https://reui.io/components/checkbox",
+    "slug": "reui-button-hl",
+    "url": "https://reui.io/components/button",
     "domain": "reui.io",
-    "components": ["Checkbox"],
-    "selector": "[role=\"checkbox\"]"
+    "components": [
+      "Button"
+    ],
+    "selector": "[data-slot=\"button\"]"
+  },
+  {
+    "slug": "coss-button-hl",
+    "url": "https://coss.com/ui/docs/components/button",
+    "domain": "coss.com",
+    "components": [
+      "Button"
+    ],
+    "selector": "[data-slot=\"button\"]"
+  },
+  {
+    "slug": "lumiui-button-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/button",
+    "domain": "lumiui.dev",
+    "components": [
+      "Button"
+    ],
+    "selector": "[data-slot=\"button\"]"
   },
   {
     "slug": "9ui-collapsible-hl",
     "url": "https://www.9ui.dev/docs/components/collapsible",
     "domain": "9ui.dev",
-    "components": ["Collapsible"],
+    "components": [
+      "Collapsible"
+    ],
     "selector": "[data-slot^=\"collapsible\"]"
   },
   {
-    "slug": "coss-context-menu-hl",
-    "url": "https://coss.com/ui/docs/components/context-menu",
-    "domain": "coss.com",
-    "components": ["Context Menu"],
-    "selector": "[data-slot^=\"context-menu\"]"
-  },
-  {
-    "slug": "lumiui-context-menu-hl",
-    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu",
-    "domain": "lumiui.dev",
-    "components": ["Context Menu"],
-    "selector": "[data-slot^=\"context-menu\"]"
-  },
-  {
-    "slug": "reui-context-menu-hl",
-    "url": "https://reui.io/components/context-menu",
+    "slug": "reui-collapsible-hl",
+    "url": "https://reui.io/components/collapsible",
     "domain": "reui.io",
-    "components": ["Context Menu"],
-    "selector": "[data-slot^=\"context-menu\"]"
+    "components": [
+      "Collapsible"
+    ],
+    "selector": "[data-slot^=\"collapsible\"]"
   },
   {
-    "slug": "coss-drawer-hl",
-    "url": "https://coss.com/ui/docs/components/drawer",
+    "slug": "coss-collapsible-hl",
+    "url": "https://coss.com/ui/docs/components/collapsible",
     "domain": "coss.com",
-    "components": ["Drawer"],
-    "selector": "[data-slot^=\"drawer\"]"
+    "components": [
+      "Collapsible"
+    ],
+    "selector": "[data-slot^=\"collapsible\"]"
   },
   {
-    "slug": "reui-drawer-hl",
-    "url": "https://reui.io/components/drawer",
-    "domain": "reui.io",
-    "components": ["Drawer"],
-    "selector": "[data-slot^=\"drawer\"]"
-  },
-  {
-    "slug": "coss-fieldset-hl",
-    "url": "https://coss.com/ui/docs/components/fieldset",
-    "domain": "coss.com",
-    "components": ["Fieldset"],
-    "selector": "fieldset"
-  },
-  {
-    "slug": "lumiui-fieldset-hl",
-    "url": "https://www.lumiui.dev/docs/components/form-input/fieldset",
+    "slug": "lumiui-collapsible-hl",
+    "url": "https://www.lumiui.dev/docs/components/misc/collapsible",
     "domain": "lumiui.dev",
-    "components": ["Fieldset"],
-    "selector": "fieldset"
+    "components": [
+      "Collapsible"
+    ],
+    "selector": "[data-slot^=\"collapsible\"]"
+  },
+  {
+    "slug": "9ui-combobox-hl",
+    "url": "https://www.9ui.dev/docs/components/combobox",
+    "domain": "9ui.dev",
+    "components": [
+      "Combobox"
+    ],
+    "selector": "[data-slot^=\"combobox\"]"
+  },
+  {
+    "slug": "reui-combobox-hl",
+    "url": "https://reui.io/components/combobox",
+    "domain": "reui.io",
+    "components": [
+      "Combobox"
+    ],
+    "selector": "[data-slot^=\"combobox\"]"
+  },
+  {
+    "slug": "coss-combobox-hl",
+    "url": "https://coss.com/ui/docs/components/combobox",
+    "domain": "coss.com",
+    "components": [
+      "Combobox"
+    ],
+    "selector": "[data-slot^=\"combobox\"]"
+  },
+  {
+    "slug": "lumiui-combobox-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/combobox",
+    "domain": "lumiui.dev",
+    "components": [
+      "Combobox"
+    ],
+    "selector": "[data-slot^=\"combobox\"]"
+  },
+  {
+    "slug": "9ui-dialog-hl",
+    "url": "https://www.9ui.dev/docs/components/dialog",
+    "domain": "9ui.dev",
+    "components": [
+      "Dialog"
+    ],
+    "selector": "[data-slot^=\"dialog\"]"
+  },
+  {
+    "slug": "reui-dialog-hl",
+    "url": "https://reui.io/components/dialog",
+    "domain": "reui.io",
+    "components": [
+      "Dialog"
+    ],
+    "selector": "[data-slot^=\"dialog\"]"
+  },
+  {
+    "slug": "coss-dialog-hl",
+    "url": "https://coss.com/ui/docs/components/dialog",
+    "domain": "coss.com",
+    "components": [
+      "Dialog"
+    ],
+    "selector": "[data-slot^=\"dialog\"]"
+  },
+  {
+    "slug": "lumiui-dialog-hl",
+    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/dialog",
+    "domain": "lumiui.dev",
+    "components": [
+      "Dialog"
+    ],
+    "selector": "[data-slot^=\"dialog\"]"
+  },
+  {
+    "slug": "reui-field-hl",
+    "url": "https://reui.io/components/field",
+    "domain": "reui.io",
+    "components": [
+      "Field"
+    ],
+    "selector": "[data-slot^=\"field\"]"
+  },
+  {
+    "slug": "coss-field-hl",
+    "url": "https://coss.com/ui/docs/components/field",
+    "domain": "coss.com",
+    "components": [
+      "Field"
+    ],
+    "selector": "[data-slot^=\"field\"]"
+  },
+  {
+    "slug": "lumiui-field-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/field",
+    "domain": "lumiui.dev",
+    "components": [
+      "Field"
+    ],
+    "selector": "[data-slot^=\"field\"]"
+  },
+  {
+    "slug": "9ui-form-hl",
+    "url": "https://www.9ui.dev/docs/components/form",
+    "domain": "9ui.dev",
+    "components": [
+      "Form"
+    ],
+    "selector": "form"
+  },
+  {
+    "slug": "coss-form-hl",
+    "url": "https://coss.com/ui/docs/components/form",
+    "domain": "coss.com",
+    "components": [
+      "Form"
+    ],
+    "selector": "form"
+  },
+  {
+    "slug": "lumiui-form-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/form",
+    "domain": "lumiui.dev",
+    "components": [
+      "Form"
+    ],
+    "selector": "form"
   },
   {
     "slug": "9ui-input-hl",
     "url": "https://www.9ui.dev/docs/components/input",
     "domain": "9ui.dev",
-    "components": ["Input"],
+    "components": [
+      "Input"
+    ],
     "selector": "[data-slot=\"input\"]"
+  },
+  {
+    "slug": "reui-input-hl",
+    "url": "https://reui.io/components/input",
+    "domain": "reui.io",
+    "components": [
+      "Input"
+    ],
+    "selector": "[data-slot=\"input\"]"
+  },
+  {
+    "slug": "coss-input-hl",
+    "url": "https://coss.com/ui/docs/components/input",
+    "domain": "coss.com",
+    "components": [
+      "Input"
+    ],
+    "selector": "[data-slot=\"input\"]"
+  },
+  {
+    "slug": "lumiui-input-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/input",
+    "domain": "lumiui.dev",
+    "components": [
+      "Input"
+    ],
+    "selector": "[data-slot=\"input\"]"
+  },
+  {
+    "slug": "9ui-menu-hl",
+    "url": "https://www.9ui.dev/docs/components/dropdown-menu",
+    "domain": "9ui.dev",
+    "components": [
+      "Menu"
+    ],
+    "selector": "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]"
+  },
+  {
+    "slug": "reui-menu-hl",
+    "url": "https://reui.io/components/dropdown-menu",
+    "domain": "reui.io",
+    "components": [
+      "Menu"
+    ],
+    "selector": "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]"
+  },
+  {
+    "slug": "coss-menu-hl",
+    "url": "https://coss.com/ui/docs/components/menu",
+    "domain": "coss.com",
+    "components": [
+      "Menu"
+    ],
+    "selector": "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]"
+  },
+  {
+    "slug": "lumiui-menu-hl",
+    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/dropdown-menu",
+    "domain": "lumiui.dev",
+    "components": [
+      "Menu"
+    ],
+    "selector": "[data-slot^=\"dropdown-menu\"], [data-slot^=\"menu\"]"
+  },
+  {
+    "slug": "9ui-menubar-hl",
+    "url": "https://www.9ui.dev/docs/components/menubar",
+    "domain": "9ui.dev",
+    "components": [
+      "Menubar"
+    ],
+    "selector": "[role=\"menubar\"]"
+  },
+  {
+    "slug": "reui-menubar-hl",
+    "url": "https://reui.io/components/menubar",
+    "domain": "reui.io",
+    "components": [
+      "Menubar"
+    ],
+    "selector": "[role=\"menubar\"]"
   },
   {
     "slug": "lumiui-menubar-hl",
     "url": "https://www.lumiui.dev/docs/components/misc/menubar",
     "domain": "lumiui.dev",
-    "components": ["Menubar"],
+    "components": [
+      "Menubar"
+    ],
     "selector": "[role=\"menubar\"]"
   },
   {
-    "slug": "9ui-meter-hl",
-    "url": "https://www.9ui.dev/docs/components/meter",
+    "slug": "9ui-popover-hl",
+    "url": "https://www.9ui.dev/docs/components/popover",
     "domain": "9ui.dev",
-    "components": ["Meter"],
-    "selector": "[role=\"meter\"]"
+    "components": [
+      "Popover"
+    ],
+    "selector": "[data-slot^=\"popover\"]"
   },
   {
-    "slug": "lumiui-meter-hl",
-    "url": "https://www.lumiui.dev/docs/components/feedback-status/meter",
-    "domain": "lumiui.dev",
-    "components": ["Meter"],
-    "selector": "[role=\"meter\"]"
+    "slug": "reui-popover-hl",
+    "url": "https://reui.io/components/popover",
+    "domain": "reui.io",
+    "components": [
+      "Popover"
+    ],
+    "selector": "[data-slot^=\"popover\"]"
   },
   {
-    "slug": "9ui-navigation-menu-hl",
-    "url": "https://www.9ui.dev/docs/components/navigation-menu",
-    "domain": "9ui.dev",
-    "components": ["Navigation Menu"],
-    "selector": "[data-slot^=\"navigation-menu\"]"
-  },
-  {
-    "slug": "lumiui-navigation-menu-hl",
-    "url": "https://www.lumiui.dev/docs/components/layout-nav/navigation-menu",
-    "domain": "lumiui.dev",
-    "components": ["Navigation Menu"],
-    "selector": "[data-slot^=\"navigation-menu\"]"
-  },
-  {
-    "slug": "9ui-number-field-hl",
-    "url": "https://www.9ui.dev/docs/components/number-field",
-    "domain": "9ui.dev",
-    "components": ["Number Field"],
-    "selector": "[data-slot^=\"number-field\"]"
-  },
-  {
-    "slug": "coss-number-field-hl",
-    "url": "https://coss.com/ui/docs/components/number-field",
+    "slug": "coss-popover-hl",
+    "url": "https://coss.com/ui/docs/components/popover",
     "domain": "coss.com",
-    "components": ["Number Field"],
-    "selector": "[data-slot^=\"number-field\"]"
+    "components": [
+      "Popover"
+    ],
+    "selector": "[data-slot^=\"popover\"]"
   },
   {
-    "slug": "lumiui-number-field-hl",
-    "url": "https://www.lumiui.dev/docs/components/form-input/number-field",
+    "slug": "lumiui-popover-hl",
+    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/popover",
     "domain": "lumiui.dev",
-    "components": ["Number Field"],
-    "selector": "[data-slot^=\"number-field\"]"
-  },
-  {
-    "slug": "9ui-otp-field-hl",
-    "url": "https://www.9ui.dev/docs/components/input-otp",
-    "domain": "9ui.dev",
-    "components": ["Otp Field"],
-    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
-  },
-  {
-    "slug": "coss-otp-field-hl",
-    "url": "https://coss.com/ui/docs/components/otp-field",
-    "domain": "coss.com",
-    "components": ["Otp Field"],
-    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
-  },
-  {
-    "slug": "lumiui-otp-field-hl",
-    "url": "https://www.lumiui.dev/docs/components/form-input/otp-field",
-    "domain": "lumiui.dev",
-    "components": ["Otp Field"],
-    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
-  },
-  {
-    "slug": "9ui-preview-card-hl",
-    "url": "https://www.9ui.dev/docs/components/preview-card",
-    "domain": "9ui.dev",
-    "components": ["Preview Card"],
-    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
-  },
-  {
-    "slug": "coss-preview-card-hl",
-    "url": "https://coss.com/ui/docs/components/preview-card",
-    "domain": "coss.com",
-    "components": ["Preview Card"],
-    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
-  },
-  {
-    "slug": "lumiui-preview-card-hl",
-    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card",
-    "domain": "lumiui.dev",
-    "components": ["Preview Card"],
-    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
-  },
-  {
-    "slug": "9ui-progress-hl",
-    "url": "https://www.9ui.dev/docs/components/progress",
-    "domain": "9ui.dev",
-    "components": ["Progress"],
-    "selector": "[role=\"progressbar\"]"
-  },
-  {
-    "slug": "coss-progress-hl",
-    "url": "https://coss.com/ui/docs/components/progress",
-    "domain": "coss.com",
-    "components": ["Progress"],
-    "selector": "[role=\"progressbar\"]"
-  },
-  {
-    "slug": "lumiui-progress-hl",
-    "url": "https://www.lumiui.dev/docs/components/feedback-status/progress",
-    "domain": "lumiui.dev",
-    "components": ["Progress"],
-    "selector": "[role=\"progressbar\"]"
+    "components": [
+      "Popover"
+    ],
+    "selector": "[data-slot^=\"popover\"]"
   },
   {
     "slug": "9ui-radio-hl",
     "url": "https://www.9ui.dev/docs/components/radio-group",
     "domain": "9ui.dev",
-    "components": ["Radio"],
+    "components": [
+      "Radio"
+    ],
     "selector": "[role=\"radio\"]"
   },
   {
-    "slug": "9ui-scroll-area-hl",
-    "url": "https://www.9ui.dev/docs/components/scroll-area",
-    "domain": "9ui.dev",
-    "components": ["Scroll Area"],
-    "selector": "[data-slot=\"scroll-area\"]"
-  },
-  {
-    "slug": "lumiui-scroll-area-hl",
-    "url": "https://www.lumiui.dev/docs/components/layout-nav/scroll-area",
-    "domain": "lumiui.dev",
-    "components": ["Scroll Area"],
-    "selector": "[data-slot=\"scroll-area\"]"
-  },
-  {
-    "slug": "reui-scroll-area-hl",
-    "url": "https://reui.io/components/scroll-area",
+    "slug": "reui-radio-hl",
+    "url": "https://reui.io/components/radio-group",
     "domain": "reui.io",
-    "components": ["Scroll Area"],
-    "selector": "[data-slot=\"scroll-area\"]"
+    "components": [
+      "Radio"
+    ],
+    "selector": "[role=\"radio\"]"
   },
   {
-    "slug": "9ui-separator-hl",
-    "url": "https://www.9ui.dev/docs/components/separator",
-    "domain": "9ui.dev",
-    "components": ["Separator"],
-    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr"
-  },
-  {
-    "slug": "lumiui-separator-hl",
-    "url": "https://www.lumiui.dev/docs/components/layout-nav/separator",
-    "domain": "lumiui.dev",
-    "components": ["Separator"],
-    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr"
-  },
-  {
-    "slug": "9ui-slider-hl",
-    "url": "https://www.9ui.dev/docs/components/slider",
-    "domain": "9ui.dev",
-    "components": ["Slider"],
-    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
-  },
-  {
-    "slug": "coss-slider-hl",
-    "url": "https://coss.com/ui/docs/components/slider",
+    "slug": "coss-radio-hl",
+    "url": "https://coss.com/ui/docs/components/radio-group",
     "domain": "coss.com",
-    "components": ["Slider"],
-    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
+    "components": [
+      "Radio"
+    ],
+    "selector": "[role=\"radio\"]"
   },
   {
-    "slug": "lumiui-slider-hl",
-    "url": "https://www.lumiui.dev/docs/components/form-input/slider",
+    "slug": "lumiui-radio-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/radio",
     "domain": "lumiui.dev",
-    "components": ["Slider"],
-    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
+    "components": [
+      "Radio"
+    ],
+    "selector": "[role=\"radio\"]"
+  },
+  {
+    "slug": "9ui-select-hl",
+    "url": "https://www.9ui.dev/docs/components/select",
+    "domain": "9ui.dev",
+    "components": [
+      "Select"
+    ],
+    "selector": "[data-slot^=\"select\"]"
+  },
+  {
+    "slug": "reui-select-hl",
+    "url": "https://reui.io/components/select",
+    "domain": "reui.io",
+    "components": [
+      "Select"
+    ],
+    "selector": "[data-slot^=\"select\"]"
+  },
+  {
+    "slug": "coss-select-hl",
+    "url": "https://coss.com/ui/docs/components/select",
+    "domain": "coss.com",
+    "components": [
+      "Select"
+    ],
+    "selector": "[data-slot^=\"select\"]"
+  },
+  {
+    "slug": "lumiui-select-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/select",
+    "domain": "lumiui.dev",
+    "components": [
+      "Select"
+    ],
+    "selector": "[data-slot^=\"select\"]"
+  },
+  {
+    "slug": "9ui-switch-hl",
+    "url": "https://www.9ui.dev/docs/components/switch",
+    "domain": "9ui.dev",
+    "components": [
+      "Switch"
+    ],
+    "selector": "[role=\"switch\"]"
   },
   {
     "slug": "reui-switch-hl",
     "url": "https://reui.io/components/switch",
     "domain": "reui.io",
-    "components": ["Switch"],
+    "components": [
+      "Switch"
+    ],
+    "selector": "[role=\"switch\"]"
+  },
+  {
+    "slug": "coss-switch-hl",
+    "url": "https://coss.com/ui/docs/components/switch",
+    "domain": "coss.com",
+    "components": [
+      "Switch"
+    ],
+    "selector": "[role=\"switch\"]"
+  },
+  {
+    "slug": "lumiui-switch-hl",
+    "url": "https://www.lumiui.dev/docs/components/form-input/switch",
+    "domain": "lumiui.dev",
+    "components": [
+      "Switch"
+    ],
     "selector": "[role=\"switch\"]"
   },
   {
     "slug": "9ui-tabs-hl",
     "url": "https://www.9ui.dev/docs/components/tabs",
     "domain": "9ui.dev",
-    "components": ["Tabs"],
+    "components": [
+      "Tabs"
+    ],
     "selector": "[role=\"tablist\"]"
+  },
+  {
+    "slug": "reui-tabs-hl",
+    "url": "https://reui.io/components/tabs",
+    "domain": "reui.io",
+    "components": [
+      "Tabs"
+    ],
+    "selector": "[role=\"tablist\"]"
+  },
+  {
+    "slug": "coss-tabs-hl",
+    "url": "https://coss.com/ui/docs/components/tabs",
+    "domain": "coss.com",
+    "components": [
+      "Tabs"
+    ],
+    "selector": "[role=\"tablist\"]"
+  },
+  {
+    "slug": "lumiui-tabs-hl",
+    "url": "https://www.lumiui.dev/docs/components/layout-nav/tabs",
+    "domain": "lumiui.dev",
+    "components": [
+      "Tabs"
+    ],
+    "selector": "[role=\"tablist\"]"
+  },
+  {
+    "slug": "9ui-toast-hl",
+    "url": "https://www.9ui.dev/docs/components/toast",
+    "domain": "9ui.dev",
+    "components": [
+      "Toast"
+    ],
+    "selector": "[data-slot^=\"toast\"]"
+  },
+  {
+    "slug": "coss-toast-hl",
+    "url": "https://coss.com/ui/docs/components/toast",
+    "domain": "coss.com",
+    "components": [
+      "Toast"
+    ],
+    "selector": "[data-slot^=\"toast\"]"
   },
   {
     "slug": "lumiui-toast-hl",
     "url": "https://www.lumiui.dev/docs/components/feedback-status/toast",
     "domain": "lumiui.dev",
-    "components": ["Toast"],
+    "components": [
+      "Toast"
+    ],
     "selector": "[data-slot^=\"toast\"]"
   },
   {
-    "slug": "9ui-toggle-group-hl",
-    "url": "https://www.9ui.dev/docs/components/toggle-group",
+    "slug": "9ui-tooltip-hl",
+    "url": "https://www.9ui.dev/docs/components/tooltip",
     "domain": "9ui.dev",
-    "components": ["Toggle Group"],
-    "selector": "[data-slot=\"toggle-group\"]"
-  },
-  {
-    "slug": "lumiui-toggle-group-hl",
-    "url": "https://www.lumiui.dev/docs/components/misc/toggle-group",
-    "domain": "lumiui.dev",
-    "components": ["Toggle Group"],
-    "selector": "[data-slot=\"toggle-group\"]"
-  },
-  {
-    "slug": "coss-toggle-hl",
-    "url": "https://coss.com/ui/docs/components/toggle",
-    "domain": "coss.com",
-    "components": ["Toggle"],
-    "selector": "[data-slot=\"toggle\"]"
-  },
-  {
-    "slug": "reui-toggle-hl",
-    "url": "https://reui.io/components/toggle",
-    "domain": "reui.io",
-    "components": ["Toggle"],
-    "selector": "[data-slot=\"toggle\"]"
-  },
-  {
-    "slug": "9ui-toolbar-hl",
-    "url": "https://www.9ui.dev/docs/components/toolbar",
-    "domain": "9ui.dev",
-    "components": ["Toolbar"],
-    "selector": "[role=\"toolbar\"]"
-  },
-  {
-    "slug": "lumiui-toolbar-hl",
-    "url": "https://www.lumiui.dev/docs/components/misc/toolbar",
-    "domain": "lumiui.dev",
-    "components": ["Toolbar"],
-    "selector": "[role=\"toolbar\"]"
+    "components": [
+      "Tooltip"
+    ],
+    "selector": "[data-slot^=\"tooltip\"]"
   },
   {
     "slug": "reui-tooltip-hl",
     "url": "https://reui.io/components/tooltip",
     "domain": "reui.io",
-    "components": ["Tooltip"],
+    "components": [
+      "Tooltip"
+    ],
+    "selector": "[data-slot^=\"tooltip\"]"
+  },
+  {
+    "slug": "coss-tooltip-hl",
+    "url": "https://coss.com/ui/docs/components/tooltip",
+    "domain": "coss.com",
+    "components": [
+      "Tooltip"
+    ],
+    "selector": "[data-slot^=\"tooltip\"]"
+  },
+  {
+    "slug": "lumiui-tooltip-hl",
+    "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/tooltip",
+    "domain": "lumiui.dev",
+    "components": [
+      "Tooltip"
+    ],
     "selector": "[data-slot^=\"tooltip\"]"
   },
   {
     "slug": "graphql-org-hl",
     "url": "https://graphql.org",
     "domain": "graphql.org",
-    "components": ["Select"],
+    "components": [
+      "Select"
+    ],
     "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
   },
   {
     "slug": "kumo-ui-com-hl",
     "url": "https://kumo-ui.com",
     "domain": "kumo-ui.com",
-    "components": ["Select"],
+    "components": [
+      "Select"
+    ],
     "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
   }
 ]

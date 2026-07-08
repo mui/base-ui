@@ -375,6 +375,46 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
     to a chat textarea, with `initialFocus={false}`/`finalFocus={false}` so keyboard focus never
     leaves the textarea.
   </WildCard>
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/popover.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+  >
+    a shadcn-style `data-slot` wrapper over Base UI's Popover, styled with Tailwind.
+  </WildCard>
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/popover.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+  >
+    ships parallel Base UI and Radix Popover implementations behind one component API.
+  </WildCard>
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/popover.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+  >
+    Cal.com's design system wraps Popover in its one-file-per-component Base UI registry.
+  </WildCard>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/popover.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+  >
+    Popover as an installable registry item, published in the `@lumi-ui` package.
+  </WildCard>
 </WildCards>
 
 Ecosystem note: the cal.com team's [coss ui](https://github.com/cosscom/coss/blob/996b077952a733e7866e4a2c19a4df002cb58608/packages/ui/src/components/popover.tsx) registry (AGPL — link-only) is the origin of the dominant wrapper lineage (createHandle re-export + Viewport part + tooltip-style variant), copied nearly line-for-line into downstream MIT apps such as [Green-Wall](https://github.com/Codennnn/Green-Wall/blob/dbb5cdc8e1de3b7abcd3078759400e9b4f7fc036/src/components/ui/popover.tsx).
