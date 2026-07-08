@@ -368,6 +368,8 @@
     --radius-8: initial;
     --radius-12: initial;
     --radius-16: initial;
+    --radius-24: initial;
+    --radius-36: initial;
     --radius-pill: initial;
     --radius-circle: initial;
 
@@ -379,6 +381,7 @@
     --space-24: initial;
     --space-28: initial;
     --space-32: initial;
+    --space-36: initial;
     --space-40: initial;
     --space-48: initial;
 
