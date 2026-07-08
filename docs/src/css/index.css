@@ -87,7 +87,9 @@
   --color-green-700: oklch(52.7% 0.154 150.069deg);
 
   /* Typography */
-  --font-mono: 'Paper Mono', monospace;
+  --font-mono:
+    'Paper Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   --font-sans: 'die grotesk a', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 }
