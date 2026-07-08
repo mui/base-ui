@@ -1,0 +1,7 @@
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
+import content from '../../../../../research/WHATS-MISSING.md?raw';
+
+<Meta title="Research/What's missing" tags={['research']} />
+
+<Markdown>{linkifyIssues(content)}</Markdown>

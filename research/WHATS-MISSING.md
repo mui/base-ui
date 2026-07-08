@@ -1,0 +1,32 @@
+# What's missing — honest gap inventory (2026-07-08)
+
+Everything below is known, recorded, and deliberate — the difference between "the Storybook as shipped" and "everything the original brief plus owner feedback could imply." Ordered by likely value.
+
+## Content gaps
+
+1. **Tier-2/3 real-world datasets stay compressed.** Full ranked+annotated datasets (with rationales and licenses) exist for all 11 Tier-1 components; the other 26 have candidates-only or honest-empty datasets derived from the shared corpus and registry trees, without per-component code searches or file inspection. A full §9.2 pass per component is ~2–3h of agent time. Tracked in: `d-real-world-usage/*/NOTES.md`, methodology.md "Compressed pass".
+2. **Skipped planned stories** (each skip is documented in its stories file with a source-verified comment). Three classes:
+   - *Gesture-untestable*: drawer swipe sequences, number-field pointer-lock scrub, slider pointer-drag collision behaviors, toast swipe — rendered and documented, not play-driven (pointer-capture gestures aren't reliable in the vitest browser harness).
+   - *Unevidenced features*: stories the plans hypothesized but source verification disproved (e.g. radio `orientation`, input clear-on-click #4643) — correctly not built.
+   - *Deprioritized*: RTL keyboard-navigation stories for toolbar/toggle-group/tabs; a few keep-mounted/id-override variants. ~20 stories total across the library.
+3. **Screenshot coverage is partial.** 18 quality-gated live captures are wired; ~40 more In-the-wild entries show GitHub OG cards only (no liveUrl, capture failed the quality gate, or the site wasn't captured). PostHog's cookie banner resisted dismissal; flashtype.com turned out to be a parked domain (dataset notes updated).
+4. **Utils have minimal story sets by design** (1–2 each; csp-provider is MDX-only). Deeper useRender/mergeProps cookbooks would be net-new content beyond the brief.
+5. **The 6 Patterns pages are prose+links**; embedding dedicated cross-component demo stories (e.g. a full "settings page" composition) would strengthen them. All inputs exist.
+
+## Quality/infra gaps
+
+6. **A11y: 35 library-attributable findings are documented but not upstreamed.** `e-storybook/a11y-review.md` contains at least two report-worthy upstream bugs: `markOthers` aria-hides a Combobox's own label while its popup is open (strips the accessible name), and `toastManager.promise()`'s string shorthand always produces a nameless dialog toast (reproduces in the official docs demo). Filing these as mui/base-ui issues is the single highest-leverage next act.
+7. **NavigationMenu.Link + render-composed child hangs the vitest browser** — reproducible, worked around in stories, root cause unidentified (library vs @vitest/browser). Follow-up task chip was filed during authoring.
+8. **The visual-sweep detector needs refinement** — it flags JSX comments inside legit rendered code blocks and sweep-induced OG-CDN 429s as problems; residuals were hand-verified false-positive this pass, but re-runs will re-flag them. (`_captures/docs-sweep.mjs`.)
+9. **Docs verified against v1.6.0-line workspace source.** Upstream moves monthly; there is no automation to detect drift between these pages and future Base UI releases (a CI job diffing part lists/props against the briefs would catch it).
+10. **No CI wiring** — vitest/build run locally only; the repo's own CI knows nothing about apps/storybook. A root script + workflow would make the 471-test suite a gate.
+
+## Structural notes (not defects)
+
+11. **Stories are app-local, not colocated** in packages/react/src (deliberate: keeps library lint/type/test pipelines untouched — see e-storybook/decisions.md).
+12. **Research-section pages keep their [E]/[I]/[G] markers** — they are research artifacts; only user-facing pages were production-toned.
+13. **Two docs claims remain register-level honest but unverifiable**: tooltip's missing APG role rationale and switch-vs-checkbox boundary have no maintainer statement (marked as API-derived reasoning in prose).
+
+## Where things are tracked
+
+- Living ledger: `research/PROGRESS.md` · Coverage evidence: `research/e-storybook/coverage.md` · Final report: `research/SUMMARY.md` · A11y findings: `research/e-storybook/a11y-review.md` · Resume recipes: `research/RESUME-PLAYBOOK.md`.
