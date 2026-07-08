@@ -49,7 +49,6 @@ const paragraphs = [
 
 /** The docs hero demo: a fixed-height panel of long text content with a single vertical scrollbar whose opacity is gated on `[data-hovering]`/`[data-scrolling]`. `Corner` is composed per the canonical anatomy, but only renders once both axes overflow simultaneously — here it stays absent. */
 export const Hero: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <ScrollArea.Root className={styles.ScrollArea}>
       <ScrollArea.Viewport className={styles.Viewport}>
@@ -68,17 +67,16 @@ export const Hero: Story = {
     </ScrollArea.Root>
   ),
   play: async ({ canvasElement }) => {
-    // The vertical Scrollbar renders (content overflows the fixed height)
-    // and carries the orientation data attribute used for styling.
-    const scrollbar = canvasElement.querySelector('[data-orientation="vertical"]');
-    await waitFor(() => expect(scrollbar).not.toBeNull());
-    await expect(scrollbar).toBeInTheDocument();
+    // The vertical Scrollbar renders (content overflows the fixed height) after the overflow
+    // measurement effect, so re-query inside waitFor rather than capturing a stale null.
+    await waitFor(() => {
+      expect(canvasElement.querySelector('[data-orientation="vertical"]')).not.toBeNull();
+    });
   },
 };
 
 /** A single horizontal `Scrollbar` over a wide row of cards. `orientation="horizontal"` is the only way to get a horizontal scrollbar — there is no `orientation="both"`; render two `Scrollbar` elements for that (see `BothAxesWithCorner`). */
 export const HorizontalOnly: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <ScrollArea.Root className={styles.ScrollArea}>
       <ScrollArea.Viewport className={styles.Viewport}>
@@ -98,15 +96,14 @@ export const HorizontalOnly: Story = {
     </ScrollArea.Root>
   ),
   play: async ({ canvasElement }) => {
-    const scrollbar = canvasElement.querySelector('[data-orientation="horizontal"]');
-    await waitFor(() => expect(scrollbar).not.toBeNull());
-    await expect(scrollbar).toBeInTheDocument();
+    await waitFor(() => {
+      expect(canvasElement.querySelector('[data-orientation="horizontal"]')).not.toBeNull();
+    });
   },
 };
 
 /** Recreation of the docs "both" demo: a 100-item grid overflows on both axes, so a vertical and a horizontal `Scrollbar` are both rendered, plus `ScrollArea.Corner` — which only renders once both axes overflow simultaneously (`hiddenState.corner`), preventing the two scrollbar tracks from intersecting. */
 export const BothAxesWithCorner: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <ScrollArea.Root className={styles.ScrollAreaSquare}>
       <ScrollArea.Viewport className={styles.Viewport}>
@@ -130,14 +127,12 @@ export const BothAxesWithCorner: Story = {
     </ScrollArea.Root>
   ),
   play: async ({ canvasElement }) => {
-    // Both axes overflow the fixed 20rem x 20rem viewport, so both
-    // scrollbars — and the Corner that keeps them from intersecting — render.
-    const vertical = canvasElement.querySelector('[data-orientation="vertical"]');
-    const horizontal = canvasElement.querySelector('[data-orientation="horizontal"]');
-    await waitFor(() => expect(vertical).not.toBeNull());
-    await waitFor(() => expect(horizontal).not.toBeNull());
-    await expect(vertical).toBeInTheDocument();
-    await expect(horizontal).toBeInTheDocument();
+    // Both axes overflow the fixed 20rem x 20rem viewport, so both scrollbars — and the Corner
+    // that keeps them from intersecting — render after the overflow measurement effect.
+    await waitFor(() => {
+      expect(canvasElement.querySelector('[data-orientation="vertical"]')).not.toBeNull();
+      expect(canvasElement.querySelector('[data-orientation="horizontal"]')).not.toBeNull();
+    });
   },
 };
 
@@ -220,7 +215,6 @@ export const OverflowEdgeStyling: Story = {
  * always-visible variant (`opacity: 1` unconditionally) side by side.
  */
 export const AlwaysVisibleScrollbars: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Legend2Up}>
       <div>
@@ -263,15 +257,17 @@ export const AlwaysVisibleScrollbars: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const gated = canvasElement.querySelector('[data-testid="gated-scrollbar"]') as HTMLElement;
-    const alwaysVisible = canvasElement.querySelector(
-      '[data-testid="always-visible-scrollbar"]',
-    ) as HTMLElement;
-
-    // At rest (no hover, no scroll), the gated scrollbar is transparent while
-    // the always-visible variant is opaque — a plain CSS opacity difference.
-    await waitFor(() => expect(getComputedStyle(gated).opacity).toBe('0'));
-    await expect(getComputedStyle(alwaysVisible).opacity).toBe('1');
+    // The scrollbars render after the overflow measurement effect; re-query inside waitFor so
+    // getComputedStyle is never handed a stale null. At rest (no hover, no scroll) the gated
+    // scrollbar is transparent while the always-visible variant is opaque.
+    await waitFor(() => {
+      const gated = canvasElement.querySelector('[data-testid="gated-scrollbar"]');
+      const alwaysVisible = canvasElement.querySelector('[data-testid="always-visible-scrollbar"]');
+      expect(gated).not.toBeNull();
+      expect(alwaysVisible).not.toBeNull();
+      expect(getComputedStyle(gated as HTMLElement).opacity).toBe('0');
+      expect(getComputedStyle(alwaysVisible as HTMLElement).opacity).toBe('1');
+    });
   },
 };
 
@@ -281,7 +277,6 @@ export const AlwaysVisibleScrollbars: Story = {
  * `[data-scrolling]` on the horizontal Scrollbar.
  */
 export const OnScrollVisibility: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <ScrollArea.Root className={styles.ScrollAreaSquare}>
       <ScrollArea.Viewport className={styles.Viewport} data-testid="onscroll-viewport">
@@ -314,9 +309,13 @@ export const OnScrollVisibility: Story = {
     const viewport = canvasElement.querySelector(
       '[data-testid="onscroll-viewport"]',
     ) as HTMLElement;
-    const verticalScrollbar = canvasElement.querySelector(
-      '[data-testid="vertical-onscroll"]',
-    ) as HTMLElement;
+    // The scrollbars render after the overflow measurement effect — wait for the vertical one
+    // to exist before asserting on it.
+    const verticalScrollbar = await waitFor(() => {
+      const el = canvasElement.querySelector('[data-testid="vertical-onscroll"]');
+      expect(el).not.toBeNull();
+      return el as HTMLElement;
+    });
     const horizontalScrollbar = canvasElement.querySelector(
       '[data-testid="horizontal-onscroll"]',
     ) as HTMLElement;
@@ -432,7 +431,6 @@ export const InsideAPopup: Story = {
  * `ScrollAreaThumb.test.tsx`'s own RTL-parametrized drag tests.
  */
 export const RTL: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div dir="rtl">
       <DirectionProvider direction="rtl">
@@ -460,14 +458,11 @@ export const RTL: Story = {
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const horizontalScrollbar = canvasElement.querySelector(
-      '[data-orientation="horizontal"]',
-    ) as HTMLElement;
-    await waitFor(() => expect(horizontalScrollbar).not.toBeNull());
-    // Logical inline-start placement flips: in RTL the track still sits at
-    // the block-appropriate edge via `insetInlineStart`, resolved by the
-    // browser according to the ambient `dir="rtl"` rather than a literal
-    // `left`/`right` the component would otherwise need to flip manually.
-    await expect(horizontalScrollbar).toBeInTheDocument();
+    // Logical inline-start placement flips: in RTL the track still sits at the block-appropriate
+    // edge via `insetInlineStart`, resolved by the browser according to the ambient `dir="rtl"`.
+    // The scrollbar renders after the overflow measurement effect, so re-query inside waitFor.
+    await waitFor(() => {
+      expect(canvasElement.querySelector('[data-orientation="horizontal"]')).not.toBeNull();
+    });
   },
 };

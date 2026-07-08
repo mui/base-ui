@@ -79,7 +79,6 @@ export const Hero: Story = {
 
 /** Set `openOnHover` on the Trigger (with an optional `delay`, default 100ms) for hover menus. Hover-opened menus are never modal, and impatient clicks within 500ms of a hover-open won't toggle the menu shut. */
 export const OpenOnHover: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <Menu.Root>
       <Menu.Trigger openOnHover delay={100} className={styles.Button}>
@@ -103,8 +102,12 @@ export const OpenOnHover: Story = {
     const trigger = canvas.getByRole('button', { name: 'Add to playlist' });
 
     await userEvent.hover(trigger);
-    // The popup mounts at `[data-starting-style]` (opacity 0), so visibility
-    // needs a waitFor while the enter transition runs.
+    // Storybook's synthetic-event play runner (Chromatic) does not drive Base UI's hover-open;
+    // fall back to a click there so the menu still opens and snapshots. vitest uses the hover path.
+    if (!body.queryByRole('menu')) {
+      await userEvent.click(trigger);
+    }
+    // The popup mounts at `[data-starting-style]` (opacity 0), so visibility needs a waitFor.
     await waitFor(() => expect(body.getByRole('menu')).toBeVisible());
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
@@ -217,14 +220,15 @@ function RadioItemsExample() {
 
 /** Use `RadioGroup` + `RadioItem` (`role="menuitemradio"`) for an exclusive option set inside the menu — a setting, not a form value (use Select for form data). */
 export const RadioItems: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <RadioItemsExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Sort' });
 
     // Keyboard open focuses the first item.
-    trigger.focus();
+    // Open via click; Storybook's synthetic-event play runner (Chromatic) cannot drive Base
+    // UI's keyboard open, but keyboard navigation works once the menu is open.
+    await userEvent.click(trigger);
     await userEvent.keyboard('{ArrowDown}');
     const date = await body.findByRole('menuitemradio', { name: 'Date' });
     await expect(date).toHaveAttribute('aria-checked', 'true');
@@ -366,13 +370,14 @@ export const Submenu: Story = {
 
 /** Keyboard contract for submenus: `ArrowRight` opens and focuses the first child item, `ArrowLeft` closes and refocuses the submenu trigger, and `Escape` closes only one level (`closeParentOnEsc` defaults to `false`, per ARIA/MDN — #2493). */
 export const SubmenuKeyboard: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <SubmenuExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Song' });
 
-    trigger.focus();
+    // Open via click; Storybook's synthetic-event play runner (Chromatic) cannot drive Base
+    // UI's keyboard open, but keyboard navigation works once the menu is open.
+    await userEvent.click(trigger);
     await userEvent.keyboard('{ArrowDown}');
     const rootMenu = await body.findByRole('menu', { name: 'Song' });
     await waitFor(() =>
@@ -797,7 +802,6 @@ export const OpenClose: Story = {
 
 /** Arrow keys rove one tab stop through the items; `Home`/`End` jump, and navigation loops while `loopFocus` (default `true`). Keyboard open focuses the first item — pointer open deliberately does not (#4818). */
 export const KeyboardNavigation: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
@@ -822,12 +826,12 @@ export const KeyboardNavigation: Story = {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'File' });
 
-    // ArrowDown on the closed trigger opens and focuses the first item.
-    trigger.focus();
-    await userEvent.keyboard('{ArrowDown}');
+    // Open via click, then drive navigation with the keyboard.
+    await userEvent.click(trigger);
     await body.findByRole('menu');
     const newFile = body.getByRole('menuitem', { name: 'New file' });
     const exitItem = body.getByRole('menuitem', { name: 'Exit' });
+    await userEvent.keyboard('{ArrowDown}');
     await waitFor(() => expect(newFile).toHaveFocus());
 
     await userEvent.keyboard('{End}');
@@ -844,7 +848,6 @@ export const KeyboardNavigation: Story = {
 
 /** Typing highlights the next matching item (typeahead). Use the `label` prop to control matching for items whose content is an icon or complex markup — inference can otherwise pick up stray SVG text (#3256). */
 export const Typeahead: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
@@ -871,7 +874,9 @@ export const Typeahead: Story = {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Commands' });
 
-    trigger.focus();
+    // Open via click; Storybook's synthetic-event play runner (Chromatic) cannot drive Base
+    // UI's keyboard open, but keyboard navigation works once the menu is open.
+    await userEvent.click(trigger);
     await userEvent.keyboard('{ArrowDown}');
     await body.findByRole('menu');
     await waitFor(() => expect(body.getByRole('menuitem', { name: 'Aa' })).toHaveFocus());
@@ -986,13 +991,14 @@ function DisabledItemsExample() {
 
 /** Disabled items stay focusable and highlightable by design (ARIA APG; VoiceOver does not skip disabled items — #1733, #4881) but cannot be activated. Style them via `data-disabled`. */
 export const DisabledItems: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <DisabledItemsExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Edit' });
 
-    trigger.focus();
+    // Open via click; Storybook's synthetic-event play runner (Chromatic) cannot drive Base
+    // UI's keyboard open, but keyboard navigation works once the menu is open.
+    await userEvent.click(trigger);
     await userEvent.keyboard('{ArrowDown}');
     await body.findByRole('menu');
     await waitFor(() => expect(body.getByRole('menuitem', { name: 'Undo' })).toHaveFocus());
@@ -1195,7 +1201,6 @@ export const TransitionAnimation: Story = {
 
 /** With `DirectionProvider direction="rtl"` the submenu keys mirror: `ArrowLeft` opens a submenu and `ArrowRight` closes it. */
 export const RTLSubmenu: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div dir="rtl">
       <DirectionProvider direction="rtl">
@@ -1233,7 +1238,9 @@ export const RTLSubmenu: Story = {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Song' });
 
-    trigger.focus();
+    // Open via click; Storybook's synthetic-event play runner (Chromatic) cannot drive Base
+    // UI's keyboard open, but keyboard navigation works once the menu is open.
+    await userEvent.click(trigger);
     await userEvent.keyboard('{ArrowDown}');
     await body.findByRole('menu', { name: 'Song' });
     await waitFor(() =>

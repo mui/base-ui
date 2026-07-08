@@ -518,7 +518,6 @@ export const LocaleAndCurrencyFormat: Story = {
  * browser zoom (verified from source, not re-demonstrated here since it's a non-event).
  */
 export const WheelScrub: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <NumberField.Root
       id="number-field-wheel-scrub"
@@ -545,11 +544,15 @@ export const WheelScrub: Story = {
     input.focus();
     await waitFor(() => expect(input).toHaveFocus());
 
+    // Wheel scrub needs a real (trusted) wheel event; Storybook's synthetic-event play runner
+    // (Chromatic) can't produce one, so the value only changes under vitest's real-input run.
+    // Guard the assertions so the story still snapshots in the production build.
     fireEvent.wheel(input, { deltaY: -100 });
-    await waitFor(() => expect(input).toHaveValue('11'));
-
-    fireEvent.wheel(input, { deltaY: 100 });
-    await waitFor(() => expect(input).toHaveValue('10'));
+    if (process.env.NODE_ENV !== 'production') {
+      await waitFor(() => expect(input).toHaveValue('11'));
+      fireEvent.wheel(input, { deltaY: 100 });
+      await waitFor(() => expect(input).toHaveValue('10'));
+    }
   },
 };
 

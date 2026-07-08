@@ -165,19 +165,22 @@ function NativeButtonMismatchExample() {
  * before the mount-time warning effect fires.
  */
 export const NativeButtonMismatchWarning: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <NativeButtonMismatchExample />,
   play: async ({ canvas, userEvent }) => {
     const errorSpy = spyOn(console, 'error').mockImplementation(() => {});
     try {
       await userEvent.click(canvas.getByRole('button', { name: 'Mount mismatched button' }));
-      await waitFor(() => {
-        expect(errorSpy).toHaveBeenCalledWith(
-          expect.stringContaining(
-            'Base UI: A component that acts as a button expected a native <button> because the `nativeButton` prop is true.',
-          ),
-        );
-      });
+      // The warning is a dev-only guard (`process.env.NODE_ENV !== 'production'`), so it is not
+      // emitted in the production Storybook build (Chromatic). Assert it only where it fires.
+      if (process.env.NODE_ENV !== 'production') {
+        await waitFor(() => {
+          expect(errorSpy).toHaveBeenCalledWith(
+            expect.stringContaining(
+              'Base UI: A component that acts as a button expected a native <button> because the `nativeButton` prop is true.',
+            ),
+          );
+        });
+      }
     } finally {
       errorSpy.mockRestore();
     }

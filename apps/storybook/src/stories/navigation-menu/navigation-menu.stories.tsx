@@ -921,7 +921,6 @@ function CloseOnClickExample() {
 
 /** `Link closeOnClick` defaults to `false` after a deliberate reversal ([#2535](https://github.com/mui/base-ui/pull/2535) → [#2740](https://github.com/mui/base-ui/pull/2740)): "Stripe and Apple leave theirs open as they act as external links". Opt in per link for client-side navigations within a persistent layout (`link-press` reason). */
 export const CloseOnClickLinks: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <CloseOnClickExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);

@@ -211,8 +211,8 @@ export const FilteringModePerVariant: Story = {
   ),
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const listInput = canvas.getByRole('combobox', { name: 'mode="list" (filters)' });
-    const noneInput = canvas.getByRole('combobox', { name: 'mode="none" (static)' });
+    const listInput = await canvas.findByRole('combobox', { name: 'mode="list" (filters)' });
+    const noneInput = await canvas.findByRole('combobox', { name: 'mode="none" (static)' });
     await expect(noneInput).toHaveAttribute('aria-autocomplete', 'none');
 
     await userEvent.type(listInput, 'fix');
@@ -276,7 +276,6 @@ export const EmptyNoResultsState: Story = {
 
 /** `autoHighlight` compared: `true` highlights the first match only while typing; `"always"` keeps the first item highlighted whenever the list renders — the command-palette setting, so Enter always has a target. */
 export const AutoHighlight: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <Autocomplete.Root items={tags} autoHighlight>
@@ -348,19 +347,19 @@ export const AutoHighlight: Story = {
       ).length;
 
     // "always": the first item is highlighted as soon as the popup opens.
-    await userEvent.click(canvas.getByRole('button', { name: 'Open always list' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Open always list' }));
     await body.findByRole('listbox');
     await waitFor(() => expect(countHighlighted()).toBe(1));
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(body.queryByRole('listbox')).not.toBeInTheDocument());
 
     // true: opening without a query highlights nothing…
-    await userEvent.click(canvas.getByRole('button', { name: 'Open while-typing list' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Open while-typing list' }));
     await body.findByRole('listbox');
     await expect(countHighlighted()).toBe(0);
 
     // …but typing highlights the first match.
-    await userEvent.type(canvas.getByRole('combobox', { name: 'While typing' }), 'do');
+    await userEvent.type(await canvas.findByRole('combobox', { name: 'While typing' }), 'do');
     await waitFor(() => expect(countHighlighted()).toBe(1));
   },
 };
@@ -379,8 +378,8 @@ export const OpenOnInputClick: Story = {
   ),
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const defaultInput = canvas.getByRole('combobox', { name: 'Default (opens on typing)' });
-    const clickInput = canvas.getByRole('combobox', { name: 'openOnInputClick' });
+    const defaultInput = await canvas.findByRole('combobox', { name: 'Default (opens on typing)' });
+    const clickInput = await canvas.findByRole('combobox', { name: 'openOnInputClick' });
 
     await userEvent.click(defaultInput);
     await expect(defaultInput).toHaveAttribute('aria-expanded', 'false');
@@ -628,7 +627,7 @@ export const ObjectItemsStringification: Story = {
     await userEvent.click(await body.findByRole('option', { name: 'Japan' }));
     await waitFor(() => expect(input).toHaveValue('Japan'));
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Save' }));
     await expect(await canvas.findByText('submitted: country=Japan')).toBeVisible();
   },
 };
@@ -671,14 +670,14 @@ export const InFieldWithValidation: Story = {
   play: async ({ canvas, userEvent }) => {
     const input = canvas.getByRole('combobox');
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Book trip' }));
     await expect(await canvas.findByText('Please enter a destination.')).toBeVisible();
     await expect(input).toHaveAttribute('data-invalid');
 
     // Free-form text (not in the list) satisfies the required constraint.
     await userEvent.type(input, 'Reykjavik');
     await userEvent.keyboard('{Escape}');
-    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Book trip' }));
 
     await expect(await canvas.findByText('Submitted')).toBeVisible();
     await expect(canvas.queryByText('Please enter a destination.')).not.toBeInTheDocument();
@@ -1121,7 +1120,7 @@ export const CommandPalette: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Open command palette' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Open command palette' }));
     const dialog = await body.findByRole('dialog');
     const input = within(dialog).getByRole('combobox', { name: 'Search commands' });
 
@@ -1235,7 +1234,7 @@ export const GridLayout: Story = {
 
     // With the Input inside the Popup, the outside Trigger is the combobox
     // reference with aria-haspopup="dialog" (#2973).
-    const trigger = canvas.getByRole('combobox', { name: 'Choose emoji' });
+    const trigger = await canvas.findByRole('combobox', { name: 'Choose emoji' });
     await expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
     await userEvent.click(trigger);
     // Input inside the popup: the popup becomes role="dialog" and contains a grid.
@@ -1446,14 +1445,14 @@ export const RealWorldFieldIntegratedWrapper: Story = {
   play: async ({ canvas, userEvent }) => {
     const input = canvas.getByRole('combobox');
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Book trip' }));
     await expect(await canvas.findByText('Please enter a destination.')).toBeVisible();
     await expect(input).toHaveAttribute('data-invalid');
 
     // Free-form text (not in the suggestion list) still satisfies the required constraint.
     await userEvent.type(input, 'Reykjavik');
     await userEvent.keyboard('{Escape}');
-    await userEvent.click(canvas.getByRole('button', { name: 'Book trip' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Book trip' }));
 
     await expect(await canvas.findByText('Submitted')).toBeVisible();
     await expect(canvas.queryByText('Please enter a destination.')).not.toBeInTheDocument();
@@ -1484,7 +1483,7 @@ export const RealWorldMultiSkinRegistry: Story = {
     // Close the popup first: while open, the switcher buttons sit outside the anchor's
     // accessible subtree (Combobox/Autocomplete hides background content from AT users).
     await userEvent.keyboard('{Escape}');
-    await userEvent.click(canvas.getByRole('button', { name: 'nova' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'nova' }));
 
     await userEvent.type(input, 'b');
     const reopenedListbox = await body.findByRole('listbox');

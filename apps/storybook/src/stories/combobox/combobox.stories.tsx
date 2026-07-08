@@ -225,6 +225,14 @@ function ChipsCombobox({ root }: { root?: Partial<Combobox.Root.Props<Lang, true
 /* ------------------------------------------------------------------ */
 
 /** The docs hero demo: a labeled input filtering a fruit list, with a caret trigger and a clear button that mounts only while a value is selected. Use as the starting point for choosing one predefined value from a large list. */
+// The combobox demos render both a Combobox.Input and a Combobox.Trigger; in the production
+// build the trigger also exposes role="combobox", so getByRole("combobox") is ambiguous there.
+// Always target the text <input>.
+function comboboxInput(scope: { getAllByRole(role: string): HTMLElement[] }): HTMLInputElement {
+  const all = scope.getAllByRole('combobox');
+  return (all.find((el) => el instanceof HTMLInputElement) ?? all[0]) as HTMLInputElement;
+}
+
 export const Hero: Story = {
   render: () => <DemoCombobox label="Choose a fruit" placeholder="e.g. Apple" />,
 };
@@ -248,11 +256,10 @@ function OpenFilterSelectCloseExample() {
 
 /** The full interaction contract in one story: click the input to open, type to filter, ArrowDown to highlight (virtual focus — DOM focus never leaves the input; the item is referenced by `aria-activedescendant`), Enter to commit, popup closes and `onValueChange` receives `(value, eventDetails)`. */
 export const OpenFilterSelectClose: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <OpenFilterSelectCloseExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(input);
     const listbox = await body.findByRole('listbox');
@@ -321,11 +328,10 @@ function ControlledValueAndInputExample() {
 
 /** The two text-bearing state axes are controlled separately: `value`/`onValueChange` (the committed selection) and `inputValue`/`onInputValueChange` (the text). Programmatic changes update the field without mounting or opening the popup; clear with `null`. */
 export const ControlledValueAndInput: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <ControlledValueAndInputExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Select Kiwi' }));
     await expect(input).toHaveValue('Kiwi');
@@ -371,11 +377,10 @@ function ControlledOpenExample() {
 
 /** Use `open` + `onOpenChange` to control the popup. Every change request carries a typed `reason` — clicking the input reports `input-press`, distinct from `trigger-press` (#4015) — and `eventDetails.cancel()` vetoes the change, here keeping the popup open through outside presses. */
 export const ControlledOpenWithEventDetails: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <ControlledOpenExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(input);
     const listbox = await body.findByRole('listbox');
@@ -443,12 +448,11 @@ function UseFilterExample() {
 
 /** `Combobox.useFilter()` exposes the same `Intl.Collator`-based matching the component uses internally (`contains`/`startsWith`/`endsWith`; case-, diacritic- and punctuation-insensitive). Pass one of them to the `filter` prop when building external filtering with identical semantics. */
 export const ExternalFilterWithUseFilter: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <UseFilterExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     // Collator matching is diacritic-insensitive: "sao" matches "São Paulo".
     await userEvent.keyboard('sao');
     const match = await body.findByRole('option', { name: 'São Paulo' });
@@ -513,12 +517,11 @@ export const UseFilteredItemsForVirtualizer: Story = {
 
 /** `Combobox.Empty` renders its children only when the filtered list is empty (it requires the `items` prop). It is a polite live region (`role="status"`) that must stay mounted — conditionally render its children, not the part itself. */
 export const EmptyState: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <DemoCombobox label="Fruit" placeholder="e.g. Apple" />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     await userEvent.keyboard('zzz');
 
     const empty = await body.findByText('No fruits found.');
@@ -531,7 +534,6 @@ export const EmptyState: Story = {
 
 /** `autoHighlight` keeps the first match highlighted while filtering, so Enter selects it immediately; the default (`false`) follows the APG stance of never highlighting without an explicit arrow key. */
 export const AutoHighlightModes: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <DemoCombobox label="autoHighlight" placeholder="Type ba…" root={{ autoHighlight: true }} />
@@ -540,7 +542,9 @@ export const AutoHighlightModes: Story = {
   ),
   play: async ({ canvas, canvasElement, userEvent }) => {
     const doc = canvasElement.ownerDocument;
-    const [autoInput, plainInput] = canvas.getAllByRole('combobox');
+    const [autoInput, plainInput] = canvas
+      .getAllByRole('combobox')
+      .filter((el) => el instanceof HTMLInputElement);
 
     await userEvent.click(autoInput);
     await userEvent.keyboard('ba');
@@ -582,7 +586,7 @@ function ChipsKeyboardExample() {
 export const ChipsKeyboardFlow: Story = {
   render: () => <ChipsKeyboardExample />,
   play: async ({ canvas, userEvent }) => {
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
     // The chips container becomes role="toolbar" while chips exist.
     await expect(canvas.getByRole('toolbar')).toBeVisible();
     await expect(canvas.getByText('3 selected')).toBeVisible();
@@ -665,11 +669,10 @@ function IsItemEqualToValueExample() {
 
 /** Object values that arrive from a server or form library are never referentially identical to the `items` — `isItemEqualToValue` (here comparing `id`) keeps the selection matched, and `itemToStringLabel` resolves the input text. Without it the selection silently drops (defaults to `Object.is`). */
 export const IsItemEqualToValueObjects: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <IsItemEqualToValueExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     // The label resolves even though the value is a clone of the item.
     await expect(input).toHaveValue('Grace Hopper');
@@ -703,12 +706,11 @@ function FormSerializationExample() {
 
 /** A visually-hidden `<input>` inside Root carries the serialized value into native form submission: `itemToStringValue` controls the payload for object values (`{ value, label }` shapes serialize automatically), `itemToStringLabel` the visible text. */
 export const ObjectValuesStringification: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <FormSerializationExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     await userEvent.click(await body.findByRole('option', { name: 'Ada Lovelace' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Submit' }));
 
@@ -722,13 +724,12 @@ export const ObjectValuesStringification: Story = {
 
 /** `Combobox.Clear` mounts only while a value is selected and is deliberately not tabbable ("one tab stop per field", #3630) — keyboard users clear with Escape while the popup is closed, or Delete. */
 export const ClearableSelection: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <DemoCombobox label="Fruit" placeholder="e.g. Apple" root={{ defaultValue: fruits[0] }} />
   ),
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
     await expect(input).toHaveValue('Apple');
 
     const clear = canvas.getByRole('button', { name: 'Clear selection' });
@@ -904,13 +905,12 @@ function GridExample() {
 
 /** The emoji-picker layout: `grid` on Root plus `Row` wrappers switch navigation to two dimensions (columns are inferred from the rendered rows, #2683) and emit grid/row ARIA roles. Arrow keys move the virtual highlight across and down. */
 export const GridLayout: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <GridExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const doc = canvasElement.ownerDocument;
     const body = within(doc.body);
 
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     const grid = await body.findByRole('grid');
     await waitFor(() => expect(grid).toBeVisible());
 
@@ -960,7 +960,7 @@ export const InputInsidePopup: Story = {
   ),
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const trigger = canvas.getByRole('combobox');
+    const trigger = comboboxInput(canvas);
 
     await userEvent.click(trigger);
     const dialog = await body.findByRole('dialog');
@@ -1012,7 +1012,7 @@ export const InlineNoPopup: Story = {
     const listbox = canvas.getByRole('listbox');
     await expect(listbox).toBeVisible();
 
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     await userEvent.keyboard('ban');
     await waitFor(() =>
       expect(canvas.queryByRole('option', { name: 'Apple' })).not.toBeInTheDocument(),
@@ -1443,11 +1443,10 @@ function CreatableExample() {
 
 /** The kept docs "Creatable" pattern: when the query has no exact match, a synthetic `Create "…"` item is appended; picking it opens a confirmation Dialog instead of committing, and confirming appends the new item to `items` and selects it. */
 export const CreatableEntries: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <CreatableExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(input);
     await userEvent.keyboard('Tangerine');
@@ -1596,7 +1595,6 @@ export const Virtualized: Story = {
 
 /** `disabled` disables the whole control; `readOnly` keeps the value visible and submittable while blocking opening and editing (native `readonly` + `aria-readonly` on the input). */
 export const DisabledAndReadOnly: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <DemoCombobox label="Disabled" root={{ disabled: true, defaultValue: fruits[0] }} />
@@ -1604,7 +1602,9 @@ export const DisabledAndReadOnly: Story = {
     </div>
   ),
   play: async ({ canvas, userEvent }) => {
-    const [disabledInput, readOnlyInput] = canvas.getAllByRole('combobox');
+    const [disabledInput, readOnlyInput] = canvas
+      .getAllByRole('combobox')
+      .filter((el) => el instanceof HTMLInputElement);
 
     await expect(disabledInput).toBeDisabled();
 
@@ -1678,7 +1678,7 @@ export const InFieldWithValidation: Story = {
   render: () => <FieldValidationExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
     await expect(await canvas.findByText('Please choose a fruit.')).toBeVisible();
@@ -1715,10 +1715,9 @@ function AnimatedExample() {
 
 /** Animate with CSS transitions on `[data-starting-style]`/`[data-ending-style]` and `transform-origin: var(--transform-origin)`; the popup stays mounted mid-transition and `onOpenChangeComplete` fires once it settles (pair with `actionsRef.unmount()` for JS animation libraries). */
 export const AnimatedPopup: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <AnimatedExample />,
   play: async ({ canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole('combobox'));
+    await userEvent.click(comboboxInput(canvas));
     await expect(await canvas.findByText('animation settled: open')).toBeVisible();
 
     await userEvent.keyboard('{Escape}');
@@ -1895,12 +1894,11 @@ function GroupedSyncTargetPicker() {
  * recomposed here as a sync-target picker for a local-first-sync-style admin console.
  */
 export const RealWorldGroupedSyncTargetPicker: Story = {
-  parameters: { chromatic: { disableSnapshot: true } },
   tags: ['recreation'],
   render: () => <GroupedSyncTargetPicker />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const input = canvas.getByRole('combobox');
+    const input = comboboxInput(canvas);
 
     await userEvent.click(input);
     const listbox = await body.findByRole('listbox');
