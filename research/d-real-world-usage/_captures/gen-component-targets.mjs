@@ -153,5 +153,32 @@ for (const [component, sites] of Object.entries(MATRIX)) {
   }
 }
 
+// Site-level landing-page captures (`*::domain`). These are used only as a fallback for a
+// card whose component the landing capture genuinely depicts — `lookupHighlight` gates the
+// fallback by the matched ARIA role (see wildHighlights.ts). We keep only the app-site
+// landings whose first Base UI component IS the component of a real docs card: graphql.org
+// and kumo-ui.com both surface a Select (role=combobox) that backs their Select cards.
+const ROLE_UNION =
+  '[role="tablist"], [role="menubar"], [role="switch"], [role="slider"], [role="radiogroup"], [role="checkbox"], [role="combobox"], [role="meter"], [role="progressbar"]';
+const SITE_LEVEL = [
+  {
+    slug: 'graphql-org-hl',
+    url: 'https://graphql.org',
+    domain: 'graphql.org',
+    components: ['Select'],
+  },
+  {
+    slug: 'kumo-ui-com-hl',
+    url: 'https://kumo-ui.com',
+    domain: 'kumo-ui.com',
+    components: ['Select'],
+  },
+];
+for (const t of SITE_LEVEL) {
+  targets.push({ ...t, selector: ROLE_UNION });
+}
+
 fs.writeFileSync(path.join(dir, 'highlight-targets.json'), `${JSON.stringify(targets, null, 2)}\n`);
-console.log(`wrote ${targets.length} component targets across ${Object.keys(SITES).length} sites`);
+console.log(
+  `wrote ${targets.length} targets (${targets.length - SITE_LEVEL.length} component + ${SITE_LEVEL.length} site-level) across ${Object.keys(SITES).length} sites`,
+);

@@ -11,9 +11,7 @@
       "url": "https://www.9ui.dev/docs/components/accordion",
       "route": "/docs/components/accordion",
       "domain": "9ui.dev",
-      "components": [
-        "Accordion"
-      ],
+      "components": ["Accordion"],
       "selector": "[data-slot=\"accordion\"]",
       "matchedRole": "region",
       "box": {
@@ -31,9 +29,7 @@
       "url": "https://www.9ui.dev/docs/components/alert-dialog",
       "route": "/docs/components/alert-dialog",
       "domain": "9ui.dev",
-      "components": [
-        "Alert Dialog"
-      ],
+      "components": ["Alert Dialog"],
       "selector": "[data-slot^=\"alert-dialog\"]",
       "matchedRole": null,
       "box": {
@@ -51,9 +47,7 @@
       "url": "https://www.9ui.dev/docs/components/avatar",
       "route": "/docs/components/avatar",
       "domain": "9ui.dev",
-      "components": [
-        "Avatar"
-      ],
+      "components": ["Avatar"],
       "selector": "[data-slot=\"avatar\"]",
       "matchedRole": null,
       "box": {
@@ -71,9 +65,7 @@
       "url": "https://www.9ui.dev/docs/components/button",
       "route": "/docs/components/button",
       "domain": "9ui.dev",
-      "components": [
-        "Button"
-      ],
+      "components": ["Button"],
       "selector": "[data-slot=\"button\"]",
       "matchedRole": null,
       "box": {
@@ -91,9 +83,7 @@
       "url": "https://www.9ui.dev/docs/components/checkbox-group",
       "route": "/docs/components/checkbox-group",
       "domain": "9ui.dev",
-      "components": [
-        "Checkbox Group"
-      ],
+      "components": ["Checkbox Group"],
       "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
@@ -111,9 +101,7 @@
       "url": "https://www.9ui.dev/docs/components/collapsible",
       "route": "/docs/components/collapsible",
       "domain": "9ui.dev",
-      "components": [
-        "Collapsible"
-      ],
+      "components": ["Collapsible"],
       "selector": "[data-slot^=\"collapsible\"]",
       "matchedRole": null,
       "box": {
@@ -167,9 +155,7 @@
       "url": "https://www.9ui.dev/docs/components/input",
       "route": "/docs/components/input",
       "domain": "9ui.dev",
-      "components": [
-        "Input"
-      ],
+      "components": ["Input"],
       "selector": "[data-slot=\"input\"]",
       "matchedRole": null,
       "box": {
@@ -187,9 +173,7 @@
       "url": "https://www.9ui.dev/docs/components/meter",
       "route": "/docs/components/meter",
       "domain": "9ui.dev",
-      "components": [
-        "Meter"
-      ],
+      "components": ["Meter"],
       "selector": "[role=\"meter\"]",
       "matchedRole": "meter",
       "box": {
@@ -207,9 +191,7 @@
       "url": "https://www.9ui.dev/docs/components/navigation-menu",
       "route": "/docs/components/navigation-menu",
       "domain": "9ui.dev",
-      "components": [
-        "Navigation Menu"
-      ],
+      "components": ["Navigation Menu"],
       "selector": "[data-slot^=\"navigation-menu\"]",
       "matchedRole": null,
       "box": {
@@ -227,9 +209,7 @@
       "url": "https://www.9ui.dev/docs/components/number-field",
       "route": "/docs/components/number-field",
       "domain": "9ui.dev",
-      "components": [
-        "Number Field"
-      ],
+      "components": ["Number Field"],
       "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
@@ -247,9 +227,7 @@
       "url": "https://www.9ui.dev/docs/components/input-otp",
       "route": "/docs/components/input-otp",
       "domain": "9ui.dev",
-      "components": [
-        "Otp Field"
-      ],
+      "components": ["Otp Field"],
       "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]",
       "matchedRole": null,
       "box": {
@@ -267,9 +245,7 @@
       "url": "https://www.9ui.dev/docs/components/preview-card",
       "route": "/docs/components/preview-card",
       "domain": "9ui.dev",
-      "components": [
-        "Preview Card"
-      ],
+      "components": ["Preview Card"],
       "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
       "matchedRole": null,
       "box": {
@@ -287,9 +263,7 @@
       "url": "https://www.9ui.dev/docs/components/progress",
       "route": "/docs/components/progress",
       "domain": "9ui.dev",
-      "components": [
-        "Progress"
-      ],
+      "components": ["Progress"],
       "selector": "[role=\"progressbar\"]",
       "matchedRole": "progressbar",
       "box": {
@@ -307,9 +281,7 @@
       "url": "https://www.9ui.dev/docs/components/radio-group",
       "route": "/docs/components/radio-group",
       "domain": "9ui.dev",
-      "components": [
-        "Radio"
-      ],
+      "components": ["Radio"],
       "selector": "[role=\"radio\"]",
       "matchedRole": "radio",
       "box": {
@@ -327,9 +299,7 @@
       "url": "https://www.9ui.dev/docs/components/scroll-area",
       "route": "/docs/components/scroll-area",
       "domain": "9ui.dev",
-      "components": [
-        "Scroll Area"
-      ],
+      "components": ["Scroll Area"],
       "selector": "[data-slot=\"scroll-area\"]",
       "matchedRole": "presentation",
       "box": {
@@ -347,9 +317,7 @@
       "url": "https://www.9ui.dev/docs/components/separator",
       "route": "/docs/components/separator",
       "domain": "9ui.dev",
-      "components": [
-        "Separator"
-      ],
+      "components": ["Separator"],
       "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
       "matchedRole": null,
       "box": null,
@@ -362,9 +330,7 @@
       "url": "https://www.9ui.dev/docs/components/slider",
       "route": "/docs/components/slider",
       "domain": "9ui.dev",
-      "components": [
-        "Slider"
-      ],
+      "components": ["Slider"],
       "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
@@ -382,9 +348,7 @@
       "url": "https://www.9ui.dev/docs/components/tabs",
       "route": "/docs/components/tabs",
       "domain": "9ui.dev",
-      "components": [
-        "Tabs"
-      ],
+      "components": ["Tabs"],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
       "box": {
@@ -402,9 +366,7 @@
       "url": "https://www.9ui.dev/docs/components/toggle-group",
       "route": "/docs/components/toggle-group",
       "domain": "9ui.dev",
-      "components": [
-        "Toggle Group"
-      ],
+      "components": ["Toggle Group"],
       "selector": "[data-slot=\"toggle-group\"]",
       "matchedRole": "group",
       "box": {
@@ -422,9 +384,7 @@
       "url": "https://www.9ui.dev/docs/components/toolbar",
       "route": "/docs/components/toolbar",
       "domain": "9ui.dev",
-      "components": [
-        "Toolbar"
-      ],
+      "components": ["Toolbar"],
       "selector": "[role=\"toolbar\"]",
       "matchedRole": "toolbar",
       "box": {
@@ -442,10 +402,7 @@
       "url": "https://www.baseui-cn.com",
       "route": "/",
       "domain": "baseui-cn.com",
-      "components": [
-        "toast",
-        "drawer"
-      ],
+      "components": ["toast", "drawer"],
       "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
       "matchedRole": null,
       "box": null,
@@ -458,9 +415,7 @@
       "url": "https://chanhdai.com",
       "route": "/",
       "domain": "chanhdai.com",
-      "components": [
-        "ecosystem"
-      ],
+      "components": ["ecosystem"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -473,10 +428,7 @@
       "url": "https://cmux.com",
       "route": "/",
       "domain": "cmux.com",
-      "components": [
-        "dialog",
-        "menu"
-      ],
+      "components": ["dialog", "menu"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -489,10 +441,7 @@
       "url": "https://console-preview.oxide.computer",
       "route": "/",
       "domain": "console-preview.oxide.computer",
-      "components": [
-        "dialog",
-        "menu"
-      ],
+      "components": ["dialog", "menu"],
       "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
       "matchedRole": null,
       "box": null,
@@ -505,9 +454,7 @@
       "url": "https://coss.com/ui/docs/components/checkbox",
       "route": "/ui/docs/components/checkbox",
       "domain": "coss.com",
-      "components": [
-        "Checkbox"
-      ],
+      "components": ["Checkbox"],
       "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
@@ -525,9 +472,7 @@
       "url": "https://coss.com/ui/docs/components/checkbox-group",
       "route": "/ui/docs/components/checkbox-group",
       "domain": "coss.com",
-      "components": [
-        "Checkbox Group"
-      ],
+      "components": ["Checkbox Group"],
       "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
@@ -572,9 +517,7 @@
       "url": "https://coss.com/ui/docs/components/context-menu",
       "route": "/ui/docs/components/context-menu",
       "domain": "coss.com",
-      "components": [
-        "Context Menu"
-      ],
+      "components": ["Context Menu"],
       "selector": "[data-slot^=\"context-menu\"]",
       "matchedRole": null,
       "box": {
@@ -592,9 +535,7 @@
       "url": "https://coss.com/ui/docs/components/drawer",
       "route": "/ui/docs/components/drawer",
       "domain": "coss.com",
-      "components": [
-        "Drawer"
-      ],
+      "components": ["Drawer"],
       "selector": "[data-slot^=\"drawer\"]",
       "matchedRole": null,
       "box": {
@@ -612,9 +553,7 @@
       "url": "https://coss.com/ui/docs/components/fieldset",
       "route": "/ui/docs/components/fieldset",
       "domain": "coss.com",
-      "components": [
-        "Fieldset"
-      ],
+      "components": ["Fieldset"],
       "selector": "fieldset",
       "matchedRole": null,
       "box": {
@@ -632,9 +571,7 @@
       "url": "https://coss.com/ui/docs/components/number-field",
       "route": "/ui/docs/components/number-field",
       "domain": "coss.com",
-      "components": [
-        "Number Field"
-      ],
+      "components": ["Number Field"],
       "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
@@ -652,10 +589,8 @@
       "url": "https://coss.com/ui/docs/components/otp-field",
       "route": "/ui/docs/components/otp-field",
       "domain": "coss.com",
-      "components": [
-        "Otp Field"
-      ],
-      "selector": "[data-slot^=\"otp\"]",
+      "components": ["Otp Field"],
+      "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
         "x": 580,
@@ -672,9 +607,7 @@
       "url": "https://coss.com/ui/docs/components/preview-card",
       "route": "/ui/docs/components/preview-card",
       "domain": "coss.com",
-      "components": [
-        "Preview Card"
-      ],
+      "components": ["Preview Card"],
       "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
       "matchedRole": null,
       "box": {
@@ -692,9 +625,7 @@
       "url": "https://coss.com/ui/docs/components/progress",
       "route": "/ui/docs/components/progress",
       "domain": "coss.com",
-      "components": [
-        "Progress"
-      ],
+      "components": ["Progress"],
       "selector": "[role=\"progressbar\"]",
       "matchedRole": "progressbar",
       "box": {
@@ -712,16 +643,14 @@
       "url": "https://coss.com/ui/docs/components/slider",
       "route": "/ui/docs/components/slider",
       "domain": "coss.com",
-      "components": [
-        "Slider"
-      ],
-      "selector": "[data-slot=\"preview\"]",
+      "components": ["Slider"],
+      "selector": "[role=\"slider\"], [data-slot^=\"slider\"]",
       "matchedRole": null,
       "box": {
-        "x": 568,
-        "y": 2338,
-        "width": 256,
-        "height": 32
+        "x": 688,
+        "y": 559,
+        "width": 16,
+        "height": 16
       },
       "screenshot": "coss-slider-hl.png",
       "screenshotOpen": null,
@@ -732,9 +661,7 @@
       "url": "https://coss.com/ui/docs/components/toggle",
       "route": "/ui/docs/components/toggle",
       "domain": "coss.com",
-      "components": [
-        "Toggle"
-      ],
+      "components": ["Toggle"],
       "selector": "[data-slot=\"toggle\"]",
       "matchedRole": null,
       "box": {
@@ -752,9 +679,7 @@
       "url": "https://dbhub.ai",
       "route": "/",
       "domain": "dbhub.ai",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -767,9 +692,7 @@
       "url": "https://developers.cloudflare.com",
       "route": "/",
       "domain": "developers.cloudflare.com",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -782,12 +705,7 @@
       "url": "https://dify.ai",
       "route": "/",
       "domain": "dify.ai",
-      "components": [
-        "select",
-        "dialog",
-        "menu",
-        "popover"
-      ],
+      "components": ["select", "dialog", "menu", "popover"],
       "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
       "matchedRole": null,
       "box": null,
@@ -800,9 +718,7 @@
       "url": "https://electric.ax",
       "route": "/",
       "domain": "electric.ax",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
       "matchedRole": null,
       "box": null,
@@ -815,10 +731,7 @@
       "url": "https://flashtype.com",
       "route": "/",
       "domain": "flashtype.com",
-      "components": [
-        "select",
-        "popover"
-      ],
+      "components": ["select", "popover"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -831,9 +744,7 @@
       "url": "https://gitbutler.com",
       "route": "/",
       "domain": "gitbutler.com",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -846,12 +757,15 @@
       "url": "https://graphql.org",
       "route": "/",
       "domain": "graphql.org",
-      "components": [
-        "select"
-      ],
+      "components": ["select"],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": null,
+      "box": {
+        "x": 1108,
+        "y": 14,
+        "width": 256,
+        "height": 36
+      },
       "screenshot": "graphql-org.png",
       "screenshotOpen": "graphql-org-open.png",
       "screenshotHighlight": "graphql-org-hl-highlight.png",
@@ -861,12 +775,7 @@
       "url": "https://green-wall.leoku.dev",
       "route": "/",
       "domain": "green-wall.leoku.dev",
-      "components": [
-        "select",
-        "dialog",
-        "menu",
-        "popover"
-      ],
+      "components": ["select", "dialog", "menu", "popover"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -879,9 +788,7 @@
       "url": "https://kaneo.app/",
       "route": "/",
       "domain": "kaneo.app",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -894,11 +801,7 @@
       "url": "https://krds.gracefullight.dev",
       "route": "/",
       "domain": "krds.gracefullight.dev",
-      "components": [
-        "select",
-        "dialog",
-        "popover"
-      ],
+      "components": ["select", "dialog", "popover"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -911,14 +814,15 @@
       "url": "https://kumo-ui.com",
       "route": "/",
       "domain": "kumo-ui.com",
-      "components": [
-        "select",
-        "dialog",
-        "menu"
-      ],
+      "components": ["select", "dialog", "menu"],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": null,
+      "box": {
+        "x": 1110,
+        "y": 211,
+        "width": 200,
+        "height": 36
+      },
       "screenshot": "kumo-ui-com.png",
       "screenshotOpen": "kumo-ui-com-open.png",
       "screenshotHighlight": "kumo-ui-com-hl-highlight.png",
@@ -941,9 +845,7 @@
       "url": "https://latitude.so",
       "route": "/",
       "domain": "latitude.so",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -956,9 +858,7 @@
       "url": "https://www.lumiui.dev/docs/components/layout-nav/accordion",
       "route": "/docs/components/layout-nav/accordion",
       "domain": "lumiui.dev",
-      "components": [
-        "Accordion"
-      ],
+      "components": ["Accordion"],
       "selector": "[data-slot=\"accordion\"]",
       "matchedRole": null,
       "box": {
@@ -976,9 +876,7 @@
       "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog",
       "route": "/docs/components/overlays-dialogs/alert-dialog",
       "domain": "lumiui.dev",
-      "components": [
-        "Alert Dialog"
-      ],
+      "components": ["Alert Dialog"],
       "selector": "[data-slot^=\"alert-dialog\"]",
       "matchedRole": null,
       "box": {
@@ -996,9 +894,7 @@
       "url": "https://www.lumiui.dev/docs/components/display-media/avatar",
       "route": "/docs/components/display-media/avatar",
       "domain": "lumiui.dev",
-      "components": [
-        "Avatar"
-      ],
+      "components": ["Avatar"],
       "selector": "[data-slot=\"avatar\"]",
       "matchedRole": null,
       "box": {
@@ -1016,9 +912,7 @@
       "url": "https://www.lumiui.dev/docs/components/form-input/checkbox-group",
       "route": "/docs/components/form-input/checkbox-group",
       "domain": "lumiui.dev",
-      "components": [
-        "Checkbox Group"
-      ],
+      "components": ["Checkbox Group"],
       "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
@@ -1036,9 +930,7 @@
       "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu",
       "route": "/docs/components/overlays-dialogs/context-menu",
       "domain": "lumiui.dev",
-      "components": [
-        "Context Menu"
-      ],
+      "components": ["Context Menu"],
       "selector": "[data-slot^=\"context-menu\"]",
       "matchedRole": null,
       "box": {
@@ -1089,9 +981,7 @@
       "url": "https://www.lumiui.dev/docs/components/form-input/fieldset",
       "route": "/docs/components/form-input/fieldset",
       "domain": "lumiui.dev",
-      "components": [
-        "Fieldset"
-      ],
+      "components": ["Fieldset"],
       "selector": "fieldset",
       "matchedRole": null,
       "box": {
@@ -1109,9 +999,7 @@
       "url": "https://www.lumiui.dev/docs/components/misc/menubar",
       "route": "/docs/components/misc/menubar",
       "domain": "lumiui.dev",
-      "components": [
-        "Menubar"
-      ],
+      "components": ["Menubar"],
       "selector": "[role=\"menubar\"]",
       "matchedRole": "menubar",
       "box": {
@@ -1129,9 +1017,7 @@
       "url": "https://www.lumiui.dev/docs/components/feedback-status/meter",
       "route": "/docs/components/feedback-status/meter",
       "domain": "lumiui.dev",
-      "components": [
-        "Meter"
-      ],
+      "components": ["Meter"],
       "selector": "[role=\"meter\"]",
       "matchedRole": "meter",
       "box": {
@@ -1149,9 +1035,7 @@
       "url": "https://www.lumiui.dev/docs/components/layout-nav/navigation-menu",
       "route": "/docs/components/layout-nav/navigation-menu",
       "domain": "lumiui.dev",
-      "components": [
-        "Navigation Menu"
-      ],
+      "components": ["Navigation Menu"],
       "selector": "[data-slot^=\"navigation-menu\"]",
       "matchedRole": null,
       "box": {
@@ -1169,9 +1053,7 @@
       "url": "https://www.lumiui.dev/docs/components/form-input/number-field",
       "route": "/docs/components/form-input/number-field",
       "domain": "lumiui.dev",
-      "components": [
-        "Number Field"
-      ],
+      "components": ["Number Field"],
       "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
@@ -1189,10 +1071,8 @@
       "url": "https://www.lumiui.dev/docs/components/form-input/otp-field",
       "route": "/docs/components/form-input/otp-field",
       "domain": "lumiui.dev",
-      "components": [
-        "Otp Field"
-      ],
-      "selector": "[data-slot^=\"otp\"]",
+      "components": ["Otp Field"],
+      "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
         "x": 608,
@@ -1209,9 +1089,7 @@
       "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card",
       "route": "/docs/components/overlays-dialogs/preview-card",
       "domain": "lumiui.dev",
-      "components": [
-        "Preview Card"
-      ],
+      "components": ["Preview Card"],
       "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
       "matchedRole": null,
       "box": {
@@ -1229,9 +1107,7 @@
       "url": "https://www.lumiui.dev/docs/components/feedback-status/progress",
       "route": "/docs/components/feedback-status/progress",
       "domain": "lumiui.dev",
-      "components": [
-        "Progress"
-      ],
+      "components": ["Progress"],
       "selector": "[role=\"progressbar\"]",
       "matchedRole": "progressbar",
       "box": {
@@ -1249,9 +1125,7 @@
       "url": "https://www.lumiui.dev/docs/components/layout-nav/scroll-area",
       "route": "/docs/components/layout-nav/scroll-area",
       "domain": "lumiui.dev",
-      "components": [
-        "Scroll Area"
-      ],
+      "components": ["Scroll Area"],
       "selector": "[data-slot=\"scroll-area\"]",
       "matchedRole": "presentation",
       "box": {
@@ -1269,11 +1143,9 @@
       "url": "https://www.lumiui.dev/docs/components/layout-nav/separator",
       "route": "/docs/components/layout-nav/separator",
       "domain": "lumiui.dev",
-      "components": [
-        "Separator"
-      ],
-      "selector": "[data-slot=\"separator\"]",
-      "matchedRole": "separator",
+      "components": ["Separator"],
+      "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
+      "matchedRole": null,
       "box": null,
       "screenshot": "lumiui-separator-hl.png",
       "screenshotOpen": null,
@@ -1284,9 +1156,7 @@
       "url": "https://www.lumiui.dev/docs/components/form-input/slider",
       "route": "/docs/components/form-input/slider",
       "domain": "lumiui.dev",
-      "components": [
-        "Slider"
-      ],
+      "components": ["Slider"],
       "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
@@ -1304,9 +1174,7 @@
       "url": "https://www.lumiui.dev/docs/components/feedback-status/toast",
       "route": "/docs/components/feedback-status/toast",
       "domain": "lumiui.dev",
-      "components": [
-        "Toast"
-      ],
+      "components": ["Toast"],
       "selector": "[data-slot^=\"toast\"]",
       "matchedRole": "region",
       "box": {
@@ -1324,9 +1192,7 @@
       "url": "https://www.lumiui.dev/docs/components/misc/toggle-group",
       "route": "/docs/components/misc/toggle-group",
       "domain": "lumiui.dev",
-      "components": [
-        "Toggle Group"
-      ],
+      "components": ["Toggle Group"],
       "selector": "[data-slot=\"toggle-group\"]",
       "matchedRole": "group",
       "box": {
@@ -1344,9 +1210,7 @@
       "url": "https://www.lumiui.dev/docs/components/misc/toolbar",
       "route": "/docs/components/misc/toolbar",
       "domain": "lumiui.dev",
-      "components": [
-        "Toolbar"
-      ],
+      "components": ["Toolbar"],
       "selector": "[role=\"toolbar\"]",
       "matchedRole": "toolbar",
       "box": {
@@ -1364,12 +1228,7 @@
       "url": "https://mastra.ai",
       "route": "/",
       "domain": "mastra.ai",
-      "components": [
-        "select",
-        "dialog",
-        "menu",
-        "popover"
-      ],
+      "components": ["select", "dialog", "menu", "popover"],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
       "box": null,
@@ -1382,9 +1241,7 @@
       "url": "https://mui-treasury.com",
       "route": "/",
       "domain": "mui-treasury.com",
-      "components": [
-        "menubar"
-      ],
+      "components": ["menubar"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -1397,9 +1254,7 @@
       "url": "https://nextjs.org",
       "route": "/",
       "domain": "nextjs.org",
-      "components": [
-        "menu"
-      ],
+      "components": ["menu"],
       "selector": "[role=\"radiogroup\"]",
       "matchedRole": "radiogroup",
       "box": null,
@@ -1412,11 +1267,7 @@
       "url": "https://openade.ai",
       "route": "/",
       "domain": "openade.ai",
-      "components": [
-        "select",
-        "menu",
-        "popover"
-      ],
+      "components": ["select", "menu", "popover"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -1429,11 +1280,7 @@
       "url": "https://posthog.com",
       "route": "/",
       "domain": "posthog.com",
-      "components": [
-        "dialog",
-        "menu",
-        "popover"
-      ],
+      "components": ["dialog", "menu", "popover"],
       "selector": "[role=\"menubar\"]",
       "matchedRole": "menubar",
       "box": null,
@@ -1446,9 +1293,7 @@
       "url": "https://reui.io/components/accordion",
       "route": "/components/accordion",
       "domain": "reui.io",
-      "components": [
-        "Accordion"
-      ],
+      "components": ["Accordion"],
       "selector": "[data-slot=\"accordion\"]",
       "matchedRole": "region",
       "box": {
@@ -1466,9 +1311,7 @@
       "url": "https://reui.io/components/avatar",
       "route": "/components/avatar",
       "domain": "reui.io",
-      "components": [
-        "Avatar"
-      ],
+      "components": ["Avatar"],
       "selector": "[data-slot=\"avatar\"]",
       "matchedRole": null,
       "box": {
@@ -1486,9 +1329,7 @@
       "url": "https://reui.io/components/checkbox",
       "route": "/components/checkbox",
       "domain": "reui.io",
-      "components": [
-        "Checkbox"
-      ],
+      "components": ["Checkbox"],
       "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
@@ -1506,9 +1347,7 @@
       "url": "https://reui.io/components/context-menu",
       "route": "/components/context-menu",
       "domain": "reui.io",
-      "components": [
-        "Context Menu"
-      ],
+      "components": ["Context Menu"],
       "selector": "[data-slot^=\"context-menu\"]",
       "matchedRole": null,
       "box": {
@@ -1526,9 +1365,7 @@
       "url": "https://reui.io/components/drawer",
       "route": "/components/drawer",
       "domain": "reui.io",
-      "components": [
-        "Drawer"
-      ],
+      "components": ["Drawer"],
       "selector": "[data-slot^=\"drawer\"]",
       "matchedRole": null,
       "box": {
@@ -1569,9 +1406,7 @@
       "url": "https://reui.io/components/scroll-area",
       "route": "/components/scroll-area",
       "domain": "reui.io",
-      "components": [
-        "Scroll Area"
-      ],
+      "components": ["Scroll Area"],
       "selector": "[data-slot=\"scroll-area\"]",
       "matchedRole": null,
       "box": {
@@ -1589,9 +1424,7 @@
       "url": "https://reui.io/components/switch",
       "route": "/components/switch",
       "domain": "reui.io",
-      "components": [
-        "Switch"
-      ],
+      "components": ["Switch"],
       "selector": "[role=\"switch\"]",
       "matchedRole": "switch",
       "box": {
@@ -1609,9 +1442,7 @@
       "url": "https://reui.io/components/toggle",
       "route": "/components/toggle",
       "domain": "reui.io",
-      "components": [
-        "Toggle"
-      ],
+      "components": ["Toggle"],
       "selector": "[data-slot=\"toggle\"]",
       "matchedRole": null,
       "box": {
@@ -1629,9 +1460,7 @@
       "url": "https://reui.io/components/tooltip",
       "route": "/components/tooltip",
       "domain": "reui.io",
-      "components": [
-        "Tooltip"
-      ],
+      "components": ["Tooltip"],
       "selector": "[data-slot^=\"tooltip\"]",
       "matchedRole": null,
       "box": {
@@ -1649,10 +1478,7 @@
       "url": "https://t3.codes",
       "route": "/",
       "domain": "t3.codes",
-      "components": [
-        "dialog",
-        "menu"
-      ],
+      "components": ["dialog", "menu"],
       "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
       "matchedRole": null,
       "box": null,
@@ -1665,9 +1491,7 @@
       "url": "https://typebot.io",
       "route": "/",
       "domain": "typebot.io",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -1680,10 +1504,7 @@
       "url": "https://ui.shadcn.com",
       "route": "/",
       "domain": "ui.shadcn.com",
-      "components": [
-        "select",
-        "dialog"
-      ],
+      "components": ["select", "dialog"],
       "selector": "[role=\"radiogroup\"]",
       "matchedRole": "radiogroup",
       "box": {
@@ -1701,9 +1522,7 @@
       "url": "https://woocommerce.com",
       "route": "/",
       "domain": "woocommerce.com",
-      "components": [
-        "combobox"
-      ],
+      "components": ["combobox"],
       "selector": null,
       "matchedRole": null,
       "box": null,
@@ -1716,12 +1535,7 @@
       "url": "https://wordpress.org/gutenberg/",
       "route": "/gutenberg/",
       "domain": "wordpress.org",
-      "components": [
-        "select",
-        "dialog",
-        "menu",
-        "popover"
-      ],
+      "components": ["select", "dialog", "menu", "popover"],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
       "box": null,

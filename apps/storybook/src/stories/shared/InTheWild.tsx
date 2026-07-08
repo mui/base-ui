@@ -4,6 +4,23 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { lookupHighlight } from './wildHighlights';
 import styles from './InTheWild.module.css';
 
+/**
+ * Label for a card's secondary link: a GitHub URL points at source, so it reads
+ * "link to code"; anything else is a live/marketing site ("live site").
+ */
+function secondaryLinkLabel(url: string | undefined): string {
+  if (!url) {
+    return 'live site';
+  }
+  try {
+    return new URL(url).hostname.replace(/^www\./, '') === 'github.com'
+      ? 'link to code'
+      : 'live site';
+  } catch {
+    return 'live site';
+  }
+}
+
 export interface WildCardProps {
   /**
    * GitHub `owner/name` for the project, used to fetch the repository's social-preview
@@ -235,13 +252,15 @@ export function WildCard({
     ],
   );
 
+  // Only capture-backed cards join the fullscreen carousel; OG-card fallbacks stay as static
+  // thumbnails so the viewer never pages through highlight-less shots.
   React.useEffect(() => {
-    if (!context || !imageSrc) {
+    if (!context || !isCapture) {
       return undefined;
     }
     context.register(entry);
     return () => context.unregister(id);
-  }, [context, entry, id, imageSrc]);
+  }, [context, entry, id, isCapture]);
 
   // Prefer the component-highlighted frame for the thumbnail so the card leads with the
   // Base UI component itself, not just the page it lives on.
@@ -261,7 +280,7 @@ export function WildCard({
 
   return (
     <div className={isCapture ? styles.Card : `${styles.Card} ${styles.CardFallback}`}>
-      {context && imageSrc ? (
+      {context && isCapture ? (
         <button
           type="button"
           className={styles.PreviewButton}
@@ -285,7 +304,7 @@ export function WildCard({
               target="_blank"
               rel="noreferrer"
             >
-              live site
+              {secondaryLinkLabel(effectivePageUrl ?? live)}
             </a>
           ) : null}
         </div>
@@ -417,26 +436,6 @@ function WildCardViewer({
                       : `${item.title} screenshot`
                   }
                 />
-                {hasHighlight ? (
-                  <div className={styles.ViewerToggle} role="group" aria-label="Screenshot view">
-                    <button
-                      type="button"
-                      className={styles.ViewerToggleButton}
-                      aria-pressed={!showComponent}
-                      onClick={() => setShowComponent(false)}
-                    >
-                      Full page
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.ViewerToggleButton}
-                      aria-pressed={showComponent}
-                      onClick={() => setShowComponent(true)}
-                    >
-                      Component
-                    </button>
-                  </div>
-                ) : null}
                 <button
                   type="button"
                   className={styles.ViewerNavNext}
@@ -468,7 +467,7 @@ function WildCardViewer({
                       target="_blank"
                       rel="noreferrer"
                     >
-                      live site
+                      {secondaryLinkLabel(item.pageUrl ?? item.live)}
                     </a>
                   ) : null}
                   {item.license ? <span className={styles.License}>{item.license}</span> : null}
@@ -480,8 +479,30 @@ function WildCardViewer({
                     </span>
                   ) : null}
                 </div>
-                <div className={styles.ViewerCounter}>
-                  {index + 1} of {count}
+                <div className={styles.ViewerFooterRight}>
+                  {hasHighlight ? (
+                    <div className={styles.ViewerToggle} role="group" aria-label="Screenshot view">
+                      <button
+                        type="button"
+                        className={styles.ViewerToggleButton}
+                        aria-pressed={!showComponent}
+                        onClick={() => setShowComponent(false)}
+                      >
+                        Full page
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.ViewerToggleButton}
+                        aria-pressed={showComponent}
+                        onClick={() => setShowComponent(true)}
+                      >
+                        Component
+                      </button>
+                    </div>
+                  ) : null}
+                  <div className={styles.ViewerCounter}>
+                    {index + 1} of {count}
+                  </div>
                 </div>
               </div>
               {item.selector ? (

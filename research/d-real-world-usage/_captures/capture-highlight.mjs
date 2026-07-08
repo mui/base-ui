@@ -6,7 +6,7 @@
 //
 //   1. <slug>.png            — the plain page screenshot (same framing as the other drivers)
 //   2. <slug>-highlight.png  — the SAME framing with a spotlight overlay dimming everything
-//                              except the located component, plus an outline + label box.
+//                              except the located component instance(s), plus a name label.
 //
 // and records, per target, the machine-actionable location so a later agent can drive the
 // exact element without re-discovering it:
@@ -90,9 +90,11 @@ async function tryGoto(page, url) {
 }
 
 // Inject a multi-spotlight overlay: dim the whole viewport EXCEPT each located component
-// instance (SVG mask with a hole per rect), outline each, and label the topmost visible one.
+// instance (SVG mask with a hole per rect) so the component reads at full brightness while
+// everything else is dimmed — no outline, so nothing but the component itself is marked up.
 // Highlighting every instance shows the many occurrences of the component on the page; the
-// label is clamped into the viewport so a large/off-screen box never hides the name.
+// label (the component name, clamped into the viewport) is anchored to the topmost visible
+// instance so a large/off-screen box never hides the name.
 async function applyHighlight(page, rects, label) {
   await page.evaluate(
     ({ rects, text }) => {
@@ -137,30 +139,20 @@ async function applyHighlight(page, rects, label) {
       dim.setAttribute('y', 0);
       dim.setAttribute('width', vw);
       dim.setAttribute('height', vh);
-      dim.setAttribute('fill', 'rgba(10,12,18,0.55)');
+      dim.setAttribute('fill', 'rgba(10,12,18,0.62)');
       dim.setAttribute('mask', 'url(#__baseui_mask__)');
       svg.appendChild(dim);
-      for (const r of rects) {
-        const o = document.createElementNS(NS, 'rect');
-        o.setAttribute('x', r.x - pad);
-        o.setAttribute('y', r.y - pad);
-        o.setAttribute('width', r.width + pad * 2);
-        o.setAttribute('height', r.height + pad * 2);
-        o.setAttribute('rx', 6);
-        o.setAttribute('fill', 'none');
-        o.setAttribute('stroke', '#4f9dff');
-        o.setAttribute('stroke-width', '2');
-        svg.appendChild(o);
-      }
       layer.appendChild(svg);
 
       if (text) {
         // Anchor the label at the topmost instance that's actually within the viewport, and
         // clamp it so it's always on-screen (never off the top or past the right edge).
-        const visible = rects.filter((r) => r.y + r.height > 0 && r.y < vh && r.x < vw && r.x + r.width > 0);
+        const visible = rects.filter(
+          (r) => r.y + r.height > 0 && r.y < vh && r.x < vw && r.x + r.width > 0,
+        );
         const anchor = (visible.length ? visible : rects).slice().sort((a, b) => a.y - b.y)[0];
         const tag = document.createElement('div');
-        tag.textContent = rects.length > 1 ? `${text} ×${rects.length}` : text;
+        tag.textContent = text;
         let ty = anchor.y - 26;
         if (ty < 6) {
           ty = anchor.y + anchor.height + 6;
@@ -214,7 +206,13 @@ async function locateTarget(page, target) {
   //    per-target overlay role, then a wrapper, then a generic role scan.
   const roleFallback = target.overlayRole
     ? [`[role="${target.overlayRole}"]`]
-    : ['[data-slot="preview"]', '[data-slot="components-preview"]', '[role="dialog"]', '[role="menu"]', '[role="listbox"]'];
+    : [
+        '[data-slot="preview"]',
+        '[data-slot="components-preview"]',
+        '[role="dialog"]',
+        '[role="menu"]',
+        '[role="listbox"]',
+      ];
   const selectors = [target.selector, ...roleFallback].filter(Boolean);
   const MAX_INSTANCES = 24;
 
@@ -243,10 +241,24 @@ async function locateTarget(page, target) {
       const isSingleExplicit =
         target.selector != null && target.selector === sel && !sel.includes(',');
       const selector = isSingleExplicit ? sel : role ? `[role="${role}"]` : sel;
-      return { handles: matched, primary, selector, role, count: matched.length, note: `matched ${sel} (${matched.length})` };
+      return {
+        handles: matched,
+        primary,
+        selector,
+        role,
+        count: matched.length,
+        note: `matched ${sel} (${matched.length})`,
+      };
     } catch {}
   }
-  return { handles: [], primary: null, selector: null, role: null, count: 0, note: 'no target element located' };
+  return {
+    handles: [],
+    primary: null,
+    selector: null,
+    role: null,
+    count: 0,
+    note: 'no target element located',
+  };
 }
 
 // ARIA role → friendly Base UI component name, for the highlight box label.

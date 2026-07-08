@@ -143,7 +143,7 @@ import img_reui_io_hl_hi from '../../../../../research/d-real-world-usage/_captu
 export interface WildHighlight {
   /** The page screenshot (same frame as the highlight). */
   image: string;
-  /** The spotlight screenshot (page dimmed, component outlined). */
+  /** The spotlight screenshot (page dimmed, component spotlighted). */
   highlightImage: string;
   /** Concrete CSS selector to the component on the page. */
   selector: string;
@@ -151,7 +151,33 @@ export interface WildHighlight {
   route: string;
   /** Full page URL the screenshots came from. */
   pageUrl: string;
+  /** ARIA role of the spotlighted element at capture time (null if it had none). */
+  matchedRole: string | null;
 }
+
+/**
+ * ARIA role of a site-level capture → the Base UI component names it can legitimately
+ * depict. Used to gate the site-level (`*::domain`) fallback so a landing-page capture is
+ * only shown on a card whose component it actually shows (e.g. a `combobox`-role capture is
+ * a valid stand-in for a Select card, but not for a Radio card).
+ */
+const ROLE_COMPONENTS: Record<string, readonly string[]> = {
+  tablist: ['tabs'],
+  tab: ['tabs'],
+  menubar: ['menubar'],
+  radiogroup: ['radio'],
+  radio: ['radio'],
+  combobox: ['select', 'combobox', 'autocomplete'],
+  listbox: ['select', 'combobox', 'autocomplete'],
+  checkbox: ['checkbox', 'checkbox-group'],
+  switch: ['switch'],
+  slider: ['slider'],
+  meter: ['meter'],
+  progressbar: ['progress'],
+  menu: ['menu'],
+  dialog: ['dialog', 'alert-dialog'],
+  toolbar: ['toolbar'],
+};
 
 /** Keyed by `${component}::${domain}` or the site-level `*::${domain}`. */
 export const wildHighlights: Record<string, WildHighlight> = {
@@ -161,6 +187,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="tablist"]',
     route: '/',
     pageUrl: 'https://www.9ui.dev',
+    matchedRole: 'tablist',
   },
   '*::graphql.org': {
     image: img_graphql_org_hl_page,
@@ -168,6 +195,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="combobox"]',
     route: '/',
     pageUrl: 'https://graphql.org',
+    matchedRole: 'combobox',
   },
   '*::kumo-ui.com': {
     image: img_kumo_ui_com_hl_page,
@@ -175,6 +203,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="combobox"]',
     route: '/',
     pageUrl: 'https://kumo-ui.com',
+    matchedRole: 'combobox',
   },
   '*::mastra.ai': {
     image: img_mastra_ai_hl_page,
@@ -182,6 +211,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="tablist"]',
     route: '/',
     pageUrl: 'https://mastra.ai',
+    matchedRole: 'tablist',
   },
   '*::nextjs.org': {
     image: img_nextjs_org_hl_page,
@@ -189,6 +219,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="radiogroup"]',
     route: '/',
     pageUrl: 'https://nextjs.org',
+    matchedRole: 'radiogroup',
   },
   '*::posthog.com': {
     image: img_posthog_com_hl_page,
@@ -196,6 +227,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="menubar"]',
     route: '/',
     pageUrl: 'https://posthog.com',
+    matchedRole: 'menubar',
   },
   '*::reui.io': {
     image: img_reui_io_hl_page,
@@ -203,6 +235,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="combobox"]',
     route: '/',
     pageUrl: 'https://reui.io',
+    matchedRole: 'combobox',
   },
   '*::ui.shadcn.com': {
     image: img_ui_shadcn_com_hl_page,
@@ -210,6 +243,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="radiogroup"]',
     route: '/',
     pageUrl: 'https://ui.shadcn.com',
+    matchedRole: 'radiogroup',
   },
   '*::wordpress.org': {
     image: img_wordpress_org_gutenberg_hl_page,
@@ -217,6 +251,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="tablist"]',
     route: '/gutenberg/',
     pageUrl: 'https://wordpress.org/gutenberg/',
+    matchedRole: 'tablist',
   },
   '*::zweien.github.io': {
     image: img_zweien_github_io_docx_template_system_hl_page,
@@ -224,6 +259,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="combobox"]',
     route: '/docx-template-system/',
     pageUrl: 'https://zweien.github.io/docx-template-system/',
+    matchedRole: 'combobox',
   },
   'accordion::9ui.dev': {
     image: img_9ui_accordion_hl_page,
@@ -231,6 +267,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="accordion"]',
     route: '/docs/components/accordion',
     pageUrl: 'https://www.9ui.dev/docs/components/accordion',
+    matchedRole: 'region',
   },
   'accordion::lumiui.dev': {
     image: img_lumiui_accordion_hl_page,
@@ -238,6 +275,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="accordion"]',
     route: '/docs/components/layout-nav/accordion',
     pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/accordion',
+    matchedRole: null,
   },
   'accordion::reui.io': {
     image: img_reui_accordion_hl_page,
@@ -245,6 +283,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="accordion"]',
     route: '/components/accordion',
     pageUrl: 'https://reui.io/components/accordion',
+    matchedRole: 'region',
   },
   'alert-dialog::9ui.dev': {
     image: img_9ui_alert_dialog_hl_page,
@@ -252,6 +291,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="alert-dialog"]',
     route: '/docs/components/alert-dialog',
     pageUrl: 'https://www.9ui.dev/docs/components/alert-dialog',
+    matchedRole: null,
   },
   'alert-dialog::lumiui.dev': {
     image: img_lumiui_alert_dialog_hl_page,
@@ -259,6 +299,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="alert-dialog"]',
     route: '/docs/components/overlays-dialogs/alert-dialog',
     pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog',
+    matchedRole: null,
   },
   'avatar::9ui.dev': {
     image: img_9ui_avatar_hl_page,
@@ -266,6 +307,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="avatar"]',
     route: '/docs/components/avatar',
     pageUrl: 'https://www.9ui.dev/docs/components/avatar',
+    matchedRole: null,
   },
   'avatar::lumiui.dev': {
     image: img_lumiui_avatar_hl_page,
@@ -273,6 +315,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="avatar"]',
     route: '/docs/components/display-media/avatar',
     pageUrl: 'https://www.lumiui.dev/docs/components/display-media/avatar',
+    matchedRole: null,
   },
   'avatar::reui.io': {
     image: img_reui_avatar_hl_page,
@@ -280,6 +323,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="avatar"]',
     route: '/components/avatar',
     pageUrl: 'https://reui.io/components/avatar',
+    matchedRole: null,
   },
   'button::9ui.dev': {
     image: img_9ui_button_hl_page,
@@ -287,6 +331,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="button"]',
     route: '/docs/components/button',
     pageUrl: 'https://www.9ui.dev/docs/components/button',
+    matchedRole: null,
   },
   'checkbox-group::9ui.dev': {
     image: img_9ui_checkbox_group_hl_page,
@@ -294,6 +339,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="checkbox"]',
     route: '/docs/components/checkbox-group',
     pageUrl: 'https://www.9ui.dev/docs/components/checkbox-group',
+    matchedRole: 'checkbox',
   },
   'checkbox-group::coss.com': {
     image: img_coss_checkbox_group_hl_page,
@@ -301,6 +347,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="checkbox"]',
     route: '/ui/docs/components/checkbox-group',
     pageUrl: 'https://coss.com/ui/docs/components/checkbox-group',
+    matchedRole: 'checkbox',
   },
   'checkbox-group::lumiui.dev': {
     image: img_lumiui_checkbox_group_hl_page,
@@ -308,6 +355,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="checkbox"]',
     route: '/docs/components/form-input/checkbox-group',
     pageUrl: 'https://www.lumiui.dev/docs/components/form-input/checkbox-group',
+    matchedRole: 'checkbox',
   },
   'checkbox::coss.com': {
     image: img_coss_checkbox_hl_page,
@@ -315,6 +363,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="checkbox"]',
     route: '/ui/docs/components/checkbox',
     pageUrl: 'https://coss.com/ui/docs/components/checkbox',
+    matchedRole: 'checkbox',
   },
   'checkbox::reui.io': {
     image: img_reui_checkbox_hl_page,
@@ -322,6 +371,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="checkbox"]',
     route: '/components/checkbox',
     pageUrl: 'https://reui.io/components/checkbox',
+    matchedRole: 'checkbox',
   },
   'collapsible::9ui.dev': {
     image: img_9ui_collapsible_hl_page,
@@ -329,6 +379,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="collapsible"]',
     route: '/docs/components/collapsible',
     pageUrl: 'https://www.9ui.dev/docs/components/collapsible',
+    matchedRole: null,
   },
   'context-menu::coss.com': {
     image: img_coss_context_menu_hl_page,
@@ -336,6 +387,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="context-menu"]',
     route: '/ui/docs/components/context-menu',
     pageUrl: 'https://coss.com/ui/docs/components/context-menu',
+    matchedRole: null,
   },
   'context-menu::lumiui.dev': {
     image: img_lumiui_context_menu_hl_page,
@@ -343,6 +395,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="context-menu"]',
     route: '/docs/components/overlays-dialogs/context-menu',
     pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu',
+    matchedRole: null,
   },
   'context-menu::reui.io': {
     image: img_reui_context_menu_hl_page,
@@ -350,6 +403,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="context-menu"]',
     route: '/components/context-menu',
     pageUrl: 'https://reui.io/components/context-menu',
+    matchedRole: null,
   },
   'drawer::coss.com': {
     image: img_coss_drawer_hl_page,
@@ -357,6 +411,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="drawer"]',
     route: '/ui/docs/components/drawer',
     pageUrl: 'https://coss.com/ui/docs/components/drawer',
+    matchedRole: null,
   },
   'drawer::reui.io': {
     image: img_reui_drawer_hl_page,
@@ -364,6 +419,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="drawer"]',
     route: '/components/drawer',
     pageUrl: 'https://reui.io/components/drawer',
+    matchedRole: null,
   },
   'fieldset::coss.com': {
     image: img_coss_fieldset_hl_page,
@@ -371,6 +427,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: 'fieldset',
     route: '/ui/docs/components/fieldset',
     pageUrl: 'https://coss.com/ui/docs/components/fieldset',
+    matchedRole: null,
   },
   'fieldset::lumiui.dev': {
     image: img_lumiui_fieldset_hl_page,
@@ -378,6 +435,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: 'fieldset',
     route: '/docs/components/form-input/fieldset',
     pageUrl: 'https://www.lumiui.dev/docs/components/form-input/fieldset',
+    matchedRole: null,
   },
   'input::9ui.dev': {
     image: img_9ui_input_hl_page,
@@ -385,6 +443,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="input"]',
     route: '/docs/components/input',
     pageUrl: 'https://www.9ui.dev/docs/components/input',
+    matchedRole: null,
   },
   'menubar::lumiui.dev': {
     image: img_lumiui_menubar_hl_page,
@@ -392,6 +451,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="menubar"]',
     route: '/docs/components/misc/menubar',
     pageUrl: 'https://www.lumiui.dev/docs/components/misc/menubar',
+    matchedRole: 'menubar',
   },
   'meter::9ui.dev': {
     image: img_9ui_meter_hl_page,
@@ -399,6 +459,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="meter"]',
     route: '/docs/components/meter',
     pageUrl: 'https://www.9ui.dev/docs/components/meter',
+    matchedRole: 'meter',
   },
   'meter::lumiui.dev': {
     image: img_lumiui_meter_hl_page,
@@ -406,6 +467,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="meter"]',
     route: '/docs/components/feedback-status/meter',
     pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/meter',
+    matchedRole: 'meter',
   },
   'navigation-menu::9ui.dev': {
     image: img_9ui_navigation_menu_hl_page,
@@ -413,6 +475,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="navigation-menu"]',
     route: '/docs/components/navigation-menu',
     pageUrl: 'https://www.9ui.dev/docs/components/navigation-menu',
+    matchedRole: null,
   },
   'navigation-menu::lumiui.dev': {
     image: img_lumiui_navigation_menu_hl_page,
@@ -420,6 +483,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="navigation-menu"]',
     route: '/docs/components/layout-nav/navigation-menu',
     pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/navigation-menu',
+    matchedRole: null,
   },
   'number-field::9ui.dev': {
     image: img_9ui_number_field_hl_page,
@@ -427,6 +491,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="number-field"]',
     route: '/docs/components/number-field',
     pageUrl: 'https://www.9ui.dev/docs/components/number-field',
+    matchedRole: null,
   },
   'number-field::coss.com': {
     image: img_coss_number_field_hl_page,
@@ -434,6 +499,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="number-field"]',
     route: '/ui/docs/components/number-field',
     pageUrl: 'https://coss.com/ui/docs/components/number-field',
+    matchedRole: null,
   },
   'number-field::lumiui.dev': {
     image: img_lumiui_number_field_hl_page,
@@ -441,6 +507,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="number-field"]',
     route: '/docs/components/form-input/number-field',
     pageUrl: 'https://www.lumiui.dev/docs/components/form-input/number-field',
+    matchedRole: null,
   },
   'otp-field::9ui.dev': {
     image: img_9ui_otp_field_hl_page,
@@ -448,20 +515,23 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="input-otp"], [data-slot^="otp"], [autocomplete="one-time-code"]',
     route: '/docs/components/input-otp',
     pageUrl: 'https://www.9ui.dev/docs/components/input-otp',
+    matchedRole: null,
   },
   'otp-field::coss.com': {
     image: img_coss_otp_field_hl_page,
     highlightImage: img_coss_otp_field_hl_hi,
-    selector: '[data-slot^="otp"]',
+    selector: '[role="group"]',
     route: '/ui/docs/components/otp-field',
     pageUrl: 'https://coss.com/ui/docs/components/otp-field',
+    matchedRole: 'group',
   },
   'otp-field::lumiui.dev': {
     image: img_lumiui_otp_field_hl_page,
     highlightImage: img_lumiui_otp_field_hl_hi,
-    selector: '[data-slot^="otp"]',
+    selector: '[role="group"]',
     route: '/docs/components/form-input/otp-field',
     pageUrl: 'https://www.lumiui.dev/docs/components/form-input/otp-field',
+    matchedRole: 'group',
   },
   'preview-card::9ui.dev': {
     image: img_9ui_preview_card_hl_page,
@@ -469,6 +539,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
     route: '/docs/components/preview-card',
     pageUrl: 'https://www.9ui.dev/docs/components/preview-card',
+    matchedRole: null,
   },
   'preview-card::coss.com': {
     image: img_coss_preview_card_hl_page,
@@ -476,6 +547,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
     route: '/ui/docs/components/preview-card',
     pageUrl: 'https://coss.com/ui/docs/components/preview-card',
+    matchedRole: null,
   },
   'preview-card::lumiui.dev': {
     image: img_lumiui_preview_card_hl_page,
@@ -483,6 +555,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="preview-card"], [data-slot^="hover-card"]',
     route: '/docs/components/overlays-dialogs/preview-card',
     pageUrl: 'https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card',
+    matchedRole: null,
   },
   'progress::9ui.dev': {
     image: img_9ui_progress_hl_page,
@@ -490,6 +563,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="progressbar"]',
     route: '/docs/components/progress',
     pageUrl: 'https://www.9ui.dev/docs/components/progress',
+    matchedRole: 'progressbar',
   },
   'progress::coss.com': {
     image: img_coss_progress_hl_page,
@@ -497,6 +571,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="progressbar"]',
     route: '/ui/docs/components/progress',
     pageUrl: 'https://coss.com/ui/docs/components/progress',
+    matchedRole: 'progressbar',
   },
   'progress::lumiui.dev': {
     image: img_lumiui_progress_hl_page,
@@ -504,6 +579,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="progressbar"]',
     route: '/docs/components/feedback-status/progress',
     pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/progress',
+    matchedRole: 'progressbar',
   },
   'radio::9ui.dev': {
     image: img_9ui_radio_hl_page,
@@ -511,6 +587,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="radio"]',
     route: '/docs/components/radio-group',
     pageUrl: 'https://www.9ui.dev/docs/components/radio-group',
+    matchedRole: 'radio',
   },
   'scroll-area::9ui.dev': {
     image: img_9ui_scroll_area_hl_page,
@@ -518,6 +595,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="scroll-area"]',
     route: '/docs/components/scroll-area',
     pageUrl: 'https://www.9ui.dev/docs/components/scroll-area',
+    matchedRole: 'presentation',
   },
   'scroll-area::lumiui.dev': {
     image: img_lumiui_scroll_area_hl_page,
@@ -525,6 +603,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="scroll-area"]',
     route: '/docs/components/layout-nav/scroll-area',
     pageUrl: 'https://www.lumiui.dev/docs/components/layout-nav/scroll-area',
+    matchedRole: 'presentation',
   },
   'scroll-area::reui.io': {
     image: img_reui_scroll_area_hl_page,
@@ -532,6 +611,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="scroll-area"]',
     route: '/components/scroll-area',
     pageUrl: 'https://reui.io/components/scroll-area',
+    matchedRole: null,
   },
   'slider::9ui.dev': {
     image: img_9ui_slider_hl_page,
@@ -539,13 +619,15 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="group"]',
     route: '/docs/components/slider',
     pageUrl: 'https://www.9ui.dev/docs/components/slider',
+    matchedRole: 'group',
   },
   'slider::coss.com': {
     image: img_coss_slider_hl_page,
     highlightImage: img_coss_slider_hl_hi,
-    selector: '[data-slot="preview"]',
+    selector: '[role="slider"], [data-slot^="slider"]',
     route: '/ui/docs/components/slider',
     pageUrl: 'https://coss.com/ui/docs/components/slider',
+    matchedRole: null,
   },
   'slider::lumiui.dev': {
     image: img_lumiui_slider_hl_page,
@@ -553,6 +635,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="group"]',
     route: '/docs/components/form-input/slider',
     pageUrl: 'https://www.lumiui.dev/docs/components/form-input/slider',
+    matchedRole: 'group',
   },
   'switch::reui.io': {
     image: img_reui_switch_hl_page,
@@ -560,6 +643,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="switch"]',
     route: '/components/switch',
     pageUrl: 'https://reui.io/components/switch',
+    matchedRole: 'switch',
   },
   'tabs::9ui.dev': {
     image: img_9ui_tabs_hl_page,
@@ -567,6 +651,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="tablist"]',
     route: '/docs/components/tabs',
     pageUrl: 'https://www.9ui.dev/docs/components/tabs',
+    matchedRole: 'tablist',
   },
   'toast::lumiui.dev': {
     image: img_lumiui_toast_hl_page,
@@ -574,6 +659,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="toast"]',
     route: '/docs/components/feedback-status/toast',
     pageUrl: 'https://www.lumiui.dev/docs/components/feedback-status/toast',
+    matchedRole: 'region',
   },
   'toggle-group::9ui.dev': {
     image: img_9ui_toggle_group_hl_page,
@@ -581,6 +667,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="toggle-group"]',
     route: '/docs/components/toggle-group',
     pageUrl: 'https://www.9ui.dev/docs/components/toggle-group',
+    matchedRole: 'group',
   },
   'toggle-group::lumiui.dev': {
     image: img_lumiui_toggle_group_hl_page,
@@ -588,6 +675,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="toggle-group"]',
     route: '/docs/components/misc/toggle-group',
     pageUrl: 'https://www.lumiui.dev/docs/components/misc/toggle-group',
+    matchedRole: 'group',
   },
   'toggle::coss.com': {
     image: img_coss_toggle_hl_page,
@@ -595,6 +683,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="toggle"]',
     route: '/ui/docs/components/toggle',
     pageUrl: 'https://coss.com/ui/docs/components/toggle',
+    matchedRole: null,
   },
   'toggle::reui.io': {
     image: img_reui_toggle_hl_page,
@@ -602,6 +691,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot="toggle"]',
     route: '/components/toggle',
     pageUrl: 'https://reui.io/components/toggle',
+    matchedRole: null,
   },
   'toolbar::9ui.dev': {
     image: img_9ui_toolbar_hl_page,
@@ -609,6 +699,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="toolbar"]',
     route: '/docs/components/toolbar',
     pageUrl: 'https://www.9ui.dev/docs/components/toolbar',
+    matchedRole: 'toolbar',
   },
   'toolbar::lumiui.dev': {
     image: img_lumiui_toolbar_hl_page,
@@ -616,6 +707,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[role="toolbar"]',
     route: '/docs/components/misc/toolbar',
     pageUrl: 'https://www.lumiui.dev/docs/components/misc/toolbar',
+    matchedRole: 'toolbar',
   },
   'tooltip::reui.io': {
     image: img_reui_tooltip_hl_page,
@@ -623,6 +715,7 @@ export const wildHighlights: Record<string, WildHighlight> = {
     selector: '[data-slot^="tooltip"]',
     route: '/components/tooltip',
     pageUrl: 'https://reui.io/components/tooltip',
+    matchedRole: null,
   },
 };
 
@@ -646,8 +739,21 @@ export function lookupHighlight(
   if (!domain) {
     return undefined;
   }
-  return (
-    (component ? wildHighlights[`${component}::${domain}`] : undefined) ??
-    wildHighlights[`*::${domain}`]
-  );
+  // A per-component capture is targeted at that component's own page, so it is always
+  // correct for its card.
+  const exact = component ? wildHighlights[`${component}::${domain}`] : undefined;
+  if (exact) {
+    return exact;
+  }
+  // The site-level fallback is a single landing-page capture that shows one arbitrary
+  // component; only serve it when the component it actually depicts (its ARIA role) matches
+  // the card's component — otherwise a card would show the wrong component.
+  const site = wildHighlights[`*::${domain}`];
+  if (site && component) {
+    const shows = site.matchedRole ? ROLE_COMPONENTS[site.matchedRole] : undefined;
+    if (shows && shows.includes(component)) {
+      return site;
+    }
+  }
+  return undefined;
 }

@@ -96,8 +96,10 @@ To highlight the *exact* component a given docs card documents (e.g. the accordi
 accordion card), target that component's OWN page on the site. The selector points at the
 component **instances** (ARIA role — `[role="checkbox"]` etc. — else `data-slot`), not the
 demo wrapper, and the driver spotlights **every** visible instance (SVG-mask multi-spotlight,
-up to 24) with an on-screen `×N` label — so one card shows all occurrences at once. The four
-showcase sites use a shadcn-style `data-slot` convention; the discovered page patterns:
+up to 24) — the component reads at full brightness while the rest of the page is dimmed, with
+just the component name as a label (no outline, no count) so one card shows all occurrences at
+once. The four showcase sites use a shadcn-style `data-slot` convention; the discovered page
+patterns:
 
 | Site | Component page URL | Demo selector |
 |---|---|---|
@@ -115,12 +117,17 @@ Pipeline:
 3. `build-in-the-wild-index.mjs` — rebuilds `in-the-wild.json`.
 4. `gen-wild-highlights.mjs` — generates `apps/storybook/src/stories/shared/wildHighlights.ts`,
    a registry keyed by `component::domain` (per-component) with a `*::domain` site-level
-   fallback.
+   fallback. Each entry records the `matchedRole` (the spotlighted element's ARIA role).
 
 **Wiring into docs:** each `<WildCards>` section carries a `component` prop; `WildCard` looks
-the highlight up by that component + the card's domain (falling back to `*::domain`). A card
-with a screenshot but no highlight falls back to the GitHub OG card — so no docs card ever
-shows a highlight-less capture.
+the highlight up by that component + the card's domain. A per-component `component::domain`
+hit is served as-is (it's targeted at that component's page). The `*::domain` site-level
+fallback — a single landing-page capture that shows one arbitrary component — is **gated by
+`matchedRole`**: it's only served to a card whose component the capture genuinely depicts
+(e.g. a `combobox`-role landing capture backs a Select card, but never a Radio card), so a
+card never shows the wrong component. A card with a screenshot but no eligible highlight
+falls back to the GitHub OG card — so no docs card ever shows a highlight-less or
+wrong-component capture.
 
 ## The scripts
 

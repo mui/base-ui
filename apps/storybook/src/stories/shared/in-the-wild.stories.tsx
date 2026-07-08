@@ -145,11 +145,12 @@ export const WithComponentHighlight: Story = {
 };
 
 /**
- * Cards with a real screenshot capture sort ahead of GitHub OG-card fallbacks, even when
- * the fallback card is authored first. Here the OG-only "Fallbacky" card is written before
- * the captured "9ui" card, yet the carousel opens 9ui at position 1 of 2.
+ * Only cards backed by a real screenshot capture join the fullscreen carousel; GitHub
+ * OG-card fallbacks stay as static grid thumbnails. Here the OG-only "Fallbacky" card is
+ * authored first, but the carousel contains just the captured "9ui" card (1 of 1) — the
+ * fallback card has no "View full size" button at all.
  */
-export const SortsCapturesFirst: Story = {
+export const OnlyCapturesInCarousel: Story = {
   render: () => (
     <WildCards>
       <WildCard
@@ -169,6 +170,7 @@ export const SortsCapturesFirst: Story = {
         license="MIT"
         reuse="code-ok"
         image={nineUiShot}
+        highlightImage={nineUiHighlight}
       >
         Backed by a real screenshot capture.
       </WildCard>
@@ -177,16 +179,15 @@ export const SortsCapturesFirst: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
 
-    // The captured card, though authored second, is first in the carousel order.
+    // The OG-fallback card renders in the grid but is not a carousel button.
+    await expect(body.getByRole('link', { name: 'Fallbacky' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'View full size — Fallbacky' })).toBeNull();
+
+    // Only the captured card opens the viewer, and it's alone in the carousel.
     await userEvent.click(canvas.getByRole('button', { name: 'View full size — 9ui' }));
     const dialog = await body.findByRole('dialog');
     await waitFor(() => expect(dialog).toBeVisible());
-    await expect(body.getByText('1 of 2')).toBeVisible();
-
-    // Paging forward reaches the OG-fallback card.
-    await userEvent.keyboard('{ArrowRight}');
-    await waitFor(() => expect(body.getByText('2 of 2')).toBeVisible());
-    await expect(body.getByRole('link', { name: 'Fallbacky' })).toBeVisible();
+    await expect(body.getByText('1 of 1')).toBeVisible();
 
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(dialog).not.toBeInTheDocument());

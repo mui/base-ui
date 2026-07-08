@@ -37,6 +37,15 @@ All story files carry `tags: ['ai-generated']` — every `needs-work` tag was st
 - Gesture interactions (drawer swipe, number-field scrub, toast swipe) are rendered and documented but not play-driven — pointer-capture gestures aren't reliably testable in this harness.
 
 
+## POLISH STATE (2026-07-08, rev. 8 — correct-component highlights + viewer polish)
+
+Owner feedback: some highlights showed the **wrong component** (Cloudflare Kumo's Radio card spotlighted a Select/combobox; PostHog's Combobox card spotlighted a Menubar), the blue outline + `×N` label were noise, and the viewer/carousel chrome needed tidying. Fixes:
+
+- **No card ever shows the wrong component.** Root cause: the site-level `*::domain` fallback is one landing-page capture of an *arbitrary* component, served to any card on that domain. `lookupHighlight` now **gates the fallback by the capture's `matchedRole`** (recorded per entry): a `combobox`-role landing capture backs a Select card but never a Radio card, etc. Mismatched cards fall back to the GitHub OG card. Fixed kumo/radio, posthog/combobox, mastra·wordpress·shadcn·nextjs/select-menu; kept the genuinely-correct graphql/kumo Select landings. (`gen-wild-highlights.mjs` + `wildHighlights.ts`.)
+- **Borderless spotlight, name-only label.** The capture overlay dropped the blue outline (component reads via brightness contrast against a slightly stronger dim) and the `×N` suffix (just the component name). Re-captured all targets: **57 per-component highlights + 2 gated site-level (graphql, kumo Select)**; 67 highlight PNGs regenerated. (`capture-highlight.mjs`.)
+- **Viewer/carousel polish** (`InTheWild.tsx` + CSS): the **Full page / Component** toggle moved out of the image stage into the footer beside the "N of M" counter (no longer overlays the screenshot); the fullscreen **carousel now contains only capture-backed cards** (OG-fallback cards stay static grid thumbnails, no "View full size" button); and a card whose secondary link is a **GitHub URL now reads "link to code"** instead of "live site".
+- Verified: **474/474 storybook tests green** (updated the `in-the-wild` story that asserted the old carousel behavior → `OnlyCapturesInCarousel`), `pnpm build-storybook` green, tsc/eslint/stylelint/prettier clean on touched files, and browser-confirmed against a fresh static build — kumo/radio now OG-fallback (no combobox highlight), 9ui Tabs spotlight borderless, toggle in footer below the image, WordPress card "link to code".
+
 ## POLISH STATE (2026-07-08, rev. 7 — multi-instance highlights + live-slug links)
 
 Owner feedback on the highlights (reui checkbox): the box was a huge off-screen wrapper, the label was hidden, base ≠ highlight, and "live site" went to the site root. Fixes in `capture-highlight.mjs` + `InTheWild.tsx`:

@@ -303,11 +303,9 @@
   }
 }
 
-/* Segmented "Full page / Component" toggle over the screenshot (top-left of the stage). */
+/* Segmented "Full page / Component" toggle. Lives in the footer beside the counter so
+   switching views never overlaps or shifts the screenshot itself. */
 .ViewerToggle {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
   display: inline-flex;
   overflow: hidden;
   border: 1px solid oklch(87% 0 0deg);
@@ -318,6 +316,14 @@
     border-color: oklch(35% 0 0deg);
     background-color: oklch(25% 0 0deg / 90%);
   }
+}
+
+/* Right cluster of the viewer footer: the view toggle + the "N of M" counter. */
+.ViewerFooterRight {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .ViewerToggleButton {

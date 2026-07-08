@@ -4,9 +4,7 @@
     "url": "https://www.9ui.dev/docs/components/accordion",
     "route": "/docs/components/accordion",
     "domain": "9ui.dev",
-    "components": [
-      "Accordion"
-    ],
+    "components": ["Accordion"],
     "selector": "[data-slot=\"accordion\"]",
     "matchedRole": "region",
     "instances": 2,
@@ -19,19 +17,14 @@
     "file": "9ui-accordion-hl.png",
     "fileHighlight": "9ui-accordion-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"accordion\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"accordion\"] (2)"]
   },
   {
     "slug": "lumiui-accordion-hl",
     "url": "https://www.lumiui.dev/docs/components/layout-nav/accordion",
     "route": "/docs/components/layout-nav/accordion",
     "domain": "lumiui.dev",
-    "components": [
-      "Accordion"
-    ],
+    "components": ["Accordion"],
     "selector": "[data-slot=\"accordion\"]",
     "matchedRole": null,
     "instances": 8,
@@ -44,19 +37,14 @@
     "file": "lumiui-accordion-hl.png",
     "fileHighlight": "lumiui-accordion-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"accordion\"] (8)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"accordion\"] (8)"]
   },
   {
     "slug": "reui-accordion-hl",
     "url": "https://reui.io/components/accordion",
     "route": "/components/accordion",
     "domain": "reui.io",
-    "components": [
-      "Accordion"
-    ],
+    "components": ["Accordion"],
     "selector": "[data-slot=\"accordion\"]",
     "matchedRole": "region",
     "instances": 7,
@@ -69,19 +57,14 @@
     "file": "reui-accordion-hl.png",
     "fileHighlight": "reui-accordion-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"accordion\"] (7)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"accordion\"] (7)"]
   },
   {
     "slug": "9ui-alert-dialog-hl",
     "url": "https://www.9ui.dev/docs/components/alert-dialog",
     "route": "/docs/components/alert-dialog",
     "domain": "9ui.dev",
-    "components": [
-      "Alert Dialog"
-    ],
+    "components": ["Alert Dialog"],
     "selector": "[data-slot^=\"alert-dialog\"]",
     "matchedRole": null,
     "instances": 1,
@@ -94,19 +77,14 @@
     "file": "9ui-alert-dialog-hl.png",
     "fileHighlight": "9ui-alert-dialog-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"alert-dialog\"] (1)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"alert-dialog\"] (1)"]
   },
   {
     "slug": "lumiui-alert-dialog-hl",
     "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog",
     "route": "/docs/components/overlays-dialogs/alert-dialog",
     "domain": "lumiui.dev",
-    "components": [
-      "Alert Dialog"
-    ],
+    "components": ["Alert Dialog"],
     "selector": "[data-slot^=\"alert-dialog\"]",
     "matchedRole": null,
     "instances": 7,
@@ -119,19 +97,14 @@
     "file": "lumiui-alert-dialog-hl.png",
     "fileHighlight": "lumiui-alert-dialog-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"alert-dialog\"] (7)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"alert-dialog\"] (7)"]
   },
   {
     "slug": "9ui-avatar-hl",
     "url": "https://www.9ui.dev/docs/components/avatar",
     "route": "/docs/components/avatar",
     "domain": "9ui.dev",
-    "components": [
-      "Avatar"
-    ],
+    "components": ["Avatar"],
     "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
     "instances": 8,
@@ -144,19 +117,14 @@
     "file": "9ui-avatar-hl.png",
     "fileHighlight": "9ui-avatar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"avatar\"] (8)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"avatar\"] (8)"]
   },
   {
     "slug": "lumiui-avatar-hl",
     "url": "https://www.lumiui.dev/docs/components/display-media/avatar",
     "route": "/docs/components/display-media/avatar",
     "domain": "lumiui.dev",
-    "components": [
-      "Avatar"
-    ],
+    "components": ["Avatar"],
     "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
     "instances": 2,
@@ -169,19 +137,14 @@
     "file": "lumiui-avatar-hl.png",
     "fileHighlight": "lumiui-avatar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"avatar\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"avatar\"] (2)"]
   },
   {
     "slug": "reui-avatar-hl",
     "url": "https://reui.io/components/avatar",
     "route": "/components/avatar",
     "domain": "reui.io",
-    "components": [
-      "Avatar"
-    ],
+    "components": ["Avatar"],
     "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
     "instances": 24,
@@ -194,19 +157,14 @@
     "file": "reui-avatar-hl.png",
     "fileHighlight": "reui-avatar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"avatar\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"avatar\"] (24)"]
   },
   {
     "slug": "9ui-button-hl",
     "url": "https://www.9ui.dev/docs/components/button",
     "route": "/docs/components/button",
     "domain": "9ui.dev",
-    "components": [
-      "Button"
-    ],
+    "components": ["Button"],
     "selector": "[data-slot=\"button\"]",
     "matchedRole": null,
     "instances": 24,
@@ -219,19 +177,14 @@
     "file": "9ui-button-hl.png",
     "fileHighlight": "9ui-button-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"button\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"button\"] (24)"]
   },
   {
     "slug": "9ui-checkbox-group-hl",
     "url": "https://www.9ui.dev/docs/components/checkbox-group",
     "route": "/docs/components/checkbox-group",
     "domain": "9ui.dev",
-    "components": [
-      "Checkbox Group"
-    ],
+    "components": ["Checkbox Group"],
     "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
     "instances": 5,
@@ -244,19 +197,14 @@
     "file": "9ui-checkbox-group-hl.png",
     "fileHighlight": "9ui-checkbox-group-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"checkbox\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"checkbox\"] (5)"]
   },
   {
     "slug": "coss-checkbox-group-hl",
     "url": "https://coss.com/ui/docs/components/checkbox-group",
     "route": "/ui/docs/components/checkbox-group",
     "domain": "coss.com",
-    "components": [
-      "Checkbox Group"
-    ],
+    "components": ["Checkbox Group"],
     "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
     "instances": 21,
@@ -269,19 +217,14 @@
     "file": "coss-checkbox-group-hl.png",
     "fileHighlight": "coss-checkbox-group-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"checkbox\"] (21)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"checkbox\"] (21)"]
   },
   {
     "slug": "lumiui-checkbox-group-hl",
     "url": "https://www.lumiui.dev/docs/components/form-input/checkbox-group",
     "route": "/docs/components/form-input/checkbox-group",
     "domain": "lumiui.dev",
-    "components": [
-      "Checkbox Group"
-    ],
+    "components": ["Checkbox Group"],
     "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
     "instances": 18,
@@ -294,19 +237,14 @@
     "file": "lumiui-checkbox-group-hl.png",
     "fileHighlight": "lumiui-checkbox-group-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"checkbox\"] (18)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"checkbox\"] (18)"]
   },
   {
     "slug": "coss-checkbox-hl",
     "url": "https://coss.com/ui/docs/components/checkbox",
     "route": "/ui/docs/components/checkbox",
     "domain": "coss.com",
-    "components": [
-      "Checkbox"
-    ],
+    "components": ["Checkbox"],
     "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
     "instances": 5,
@@ -319,19 +257,14 @@
     "file": "coss-checkbox-hl.png",
     "fileHighlight": "coss-checkbox-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"checkbox\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"checkbox\"] (5)"]
   },
   {
     "slug": "reui-checkbox-hl",
     "url": "https://reui.io/components/checkbox",
     "route": "/components/checkbox",
     "domain": "reui.io",
-    "components": [
-      "Checkbox"
-    ],
+    "components": ["Checkbox"],
     "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
     "instances": 12,
@@ -344,19 +277,14 @@
     "file": "reui-checkbox-hl.png",
     "fileHighlight": "reui-checkbox-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"checkbox\"] (12)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"checkbox\"] (12)"]
   },
   {
     "slug": "9ui-collapsible-hl",
     "url": "https://www.9ui.dev/docs/components/collapsible",
     "route": "/docs/components/collapsible",
     "domain": "9ui.dev",
-    "components": [
-      "Collapsible"
-    ],
+    "components": ["Collapsible"],
     "selector": "[data-slot^=\"collapsible\"]",
     "matchedRole": null,
     "instances": 2,
@@ -369,19 +297,14 @@
     "file": "9ui-collapsible-hl.png",
     "fileHighlight": "9ui-collapsible-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"collapsible\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"collapsible\"] (2)"]
   },
   {
     "slug": "coss-context-menu-hl",
     "url": "https://coss.com/ui/docs/components/context-menu",
     "route": "/ui/docs/components/context-menu",
     "domain": "coss.com",
-    "components": [
-      "Context Menu"
-    ],
+    "components": ["Context Menu"],
     "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
     "instances": 8,
@@ -394,19 +317,14 @@
     "file": "coss-context-menu-hl.png",
     "fileHighlight": "coss-context-menu-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"context-menu\"] (8)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"context-menu\"] (8)"]
   },
   {
     "slug": "lumiui-context-menu-hl",
     "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu",
     "route": "/docs/components/overlays-dialogs/context-menu",
     "domain": "lumiui.dev",
-    "components": [
-      "Context Menu"
-    ],
+    "components": ["Context Menu"],
     "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
     "instances": 4,
@@ -419,19 +337,14 @@
     "file": "lumiui-context-menu-hl.png",
     "fileHighlight": "lumiui-context-menu-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"context-menu\"] (4)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"context-menu\"] (4)"]
   },
   {
     "slug": "reui-context-menu-hl",
     "url": "https://reui.io/components/context-menu",
     "route": "/components/context-menu",
     "domain": "reui.io",
-    "components": [
-      "Context Menu"
-    ],
+    "components": ["Context Menu"],
     "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
     "instances": 6,
@@ -444,19 +357,14 @@
     "file": "reui-context-menu-hl.png",
     "fileHighlight": "reui-context-menu-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"context-menu\"] (6)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"context-menu\"] (6)"]
   },
   {
     "slug": "coss-drawer-hl",
     "url": "https://coss.com/ui/docs/components/drawer",
     "route": "/ui/docs/components/drawer",
     "domain": "coss.com",
-    "components": [
-      "Drawer"
-    ],
+    "components": ["Drawer"],
     "selector": "[data-slot^=\"drawer\"]",
     "matchedRole": null,
     "instances": 13,
@@ -469,19 +377,14 @@
     "file": "coss-drawer-hl.png",
     "fileHighlight": "coss-drawer-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"drawer\"] (13)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"drawer\"] (13)"]
   },
   {
     "slug": "reui-drawer-hl",
     "url": "https://reui.io/components/drawer",
     "route": "/components/drawer",
     "domain": "reui.io",
-    "components": [
-      "Drawer"
-    ],
+    "components": ["Drawer"],
     "selector": "[data-slot^=\"drawer\"]",
     "matchedRole": null,
     "instances": 5,
@@ -494,19 +397,14 @@
     "file": "reui-drawer-hl.png",
     "fileHighlight": "reui-drawer-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"drawer\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"drawer\"] (5)"]
   },
   {
     "slug": "coss-fieldset-hl",
     "url": "https://coss.com/ui/docs/components/fieldset",
     "route": "/ui/docs/components/fieldset",
     "domain": "coss.com",
-    "components": [
-      "Fieldset"
-    ],
+    "components": ["Fieldset"],
     "selector": "fieldset",
     "matchedRole": null,
     "instances": 1,
@@ -519,19 +417,14 @@
     "file": "coss-fieldset-hl.png",
     "fileHighlight": "coss-fieldset-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched fieldset (1)"
-    ]
+    "notes": ["goto: networkidle", "matched fieldset (1)"]
   },
   {
     "slug": "lumiui-fieldset-hl",
     "url": "https://www.lumiui.dev/docs/components/form-input/fieldset",
     "route": "/docs/components/form-input/fieldset",
     "domain": "lumiui.dev",
-    "components": [
-      "Fieldset"
-    ],
+    "components": ["Fieldset"],
     "selector": "fieldset",
     "matchedRole": null,
     "instances": 3,
@@ -544,19 +437,14 @@
     "file": "lumiui-fieldset-hl.png",
     "fileHighlight": "lumiui-fieldset-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched fieldset (3)"
-    ]
+    "notes": ["goto: networkidle", "matched fieldset (3)"]
   },
   {
     "slug": "9ui-input-hl",
     "url": "https://www.9ui.dev/docs/components/input",
     "route": "/docs/components/input",
     "domain": "9ui.dev",
-    "components": [
-      "Input"
-    ],
+    "components": ["Input"],
     "selector": "[data-slot=\"input\"]",
     "matchedRole": null,
     "instances": 4,
@@ -569,19 +457,14 @@
     "file": "9ui-input-hl.png",
     "fileHighlight": "9ui-input-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"input\"] (4)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"input\"] (4)"]
   },
   {
     "slug": "lumiui-menubar-hl",
     "url": "https://www.lumiui.dev/docs/components/misc/menubar",
     "route": "/docs/components/misc/menubar",
     "domain": "lumiui.dev",
-    "components": [
-      "Menubar"
-    ],
+    "components": ["Menubar"],
     "selector": "[role=\"menubar\"]",
     "matchedRole": "menubar",
     "instances": 5,
@@ -594,19 +477,14 @@
     "file": "lumiui-menubar-hl.png",
     "fileHighlight": "lumiui-menubar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"menubar\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"menubar\"] (5)"]
   },
   {
     "slug": "9ui-meter-hl",
     "url": "https://www.9ui.dev/docs/components/meter",
     "route": "/docs/components/meter",
     "domain": "9ui.dev",
-    "components": [
-      "Meter"
-    ],
+    "components": ["Meter"],
     "selector": "[role=\"meter\"]",
     "matchedRole": "meter",
     "instances": 1,
@@ -619,19 +497,14 @@
     "file": "9ui-meter-hl.png",
     "fileHighlight": "9ui-meter-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"meter\"] (1)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"meter\"] (1)"]
   },
   {
     "slug": "lumiui-meter-hl",
     "url": "https://www.lumiui.dev/docs/components/feedback-status/meter",
     "route": "/docs/components/feedback-status/meter",
     "domain": "lumiui.dev",
-    "components": [
-      "Meter"
-    ],
+    "components": ["Meter"],
     "selector": "[role=\"meter\"]",
     "matchedRole": "meter",
     "instances": 3,
@@ -644,19 +517,14 @@
     "file": "lumiui-meter-hl.png",
     "fileHighlight": "lumiui-meter-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"meter\"] (3)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"meter\"] (3)"]
   },
   {
     "slug": "9ui-navigation-menu-hl",
     "url": "https://www.9ui.dev/docs/components/navigation-menu",
     "route": "/docs/components/navigation-menu",
     "domain": "9ui.dev",
-    "components": [
-      "Navigation Menu"
-    ],
+    "components": ["Navigation Menu"],
     "selector": "[data-slot^=\"navigation-menu\"]",
     "matchedRole": null,
     "instances": 10,
@@ -669,19 +537,14 @@
     "file": "9ui-navigation-menu-hl.png",
     "fileHighlight": "9ui-navigation-menu-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"navigation-menu\"] (10)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"navigation-menu\"] (10)"]
   },
   {
     "slug": "lumiui-navigation-menu-hl",
     "url": "https://www.lumiui.dev/docs/components/layout-nav/navigation-menu",
     "route": "/docs/components/layout-nav/navigation-menu",
     "domain": "lumiui.dev",
-    "components": [
-      "Navigation Menu"
-    ],
+    "components": ["Navigation Menu"],
     "selector": "[data-slot^=\"navigation-menu\"]",
     "matchedRole": null,
     "instances": 19,
@@ -694,19 +557,14 @@
     "file": "lumiui-navigation-menu-hl.png",
     "fileHighlight": "lumiui-navigation-menu-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"navigation-menu\"] (19)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"navigation-menu\"] (19)"]
   },
   {
     "slug": "9ui-number-field-hl",
     "url": "https://www.9ui.dev/docs/components/number-field",
     "route": "/docs/components/number-field",
     "domain": "9ui.dev",
-    "components": [
-      "Number Field"
-    ],
+    "components": ["Number Field"],
     "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
     "instances": 6,
@@ -719,19 +577,14 @@
     "file": "9ui-number-field-hl.png",
     "fileHighlight": "9ui-number-field-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"number-field\"] (6)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"number-field\"] (6)"]
   },
   {
     "slug": "coss-number-field-hl",
     "url": "https://coss.com/ui/docs/components/number-field",
     "route": "/ui/docs/components/number-field",
     "domain": "coss.com",
-    "components": [
-      "Number Field"
-    ],
+    "components": ["Number Field"],
     "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
     "instances": 24,
@@ -744,19 +597,14 @@
     "file": "coss-number-field-hl.png",
     "fileHighlight": "coss-number-field-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"number-field\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"number-field\"] (24)"]
   },
   {
     "slug": "lumiui-number-field-hl",
     "url": "https://www.lumiui.dev/docs/components/form-input/number-field",
     "route": "/docs/components/form-input/number-field",
     "domain": "lumiui.dev",
-    "components": [
-      "Number Field"
-    ],
+    "components": ["Number Field"],
     "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
     "instances": 16,
@@ -769,19 +617,14 @@
     "file": "lumiui-number-field-hl.png",
     "fileHighlight": "lumiui-number-field-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"number-field\"] (16)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"number-field\"] (16)"]
   },
   {
     "slug": "9ui-otp-field-hl",
     "url": "https://www.9ui.dev/docs/components/input-otp",
     "route": "/docs/components/input-otp",
     "domain": "9ui.dev",
-    "components": [
-      "Otp Field"
-    ],
+    "components": ["Otp Field"],
     "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]",
     "matchedRole": null,
     "instances": 10,
@@ -804,12 +647,10 @@
     "url": "https://coss.com/ui/docs/components/otp-field",
     "route": "/ui/docs/components/otp-field",
     "domain": "coss.com",
-    "components": [
-      "Otp Field"
-    ],
-    "selector": "[data-slot^=\"otp\"]",
+    "components": ["Otp Field"],
+    "selector": "[role=\"group\"]",
     "matchedRole": "group",
-    "instances": 24,
+    "instances": 21,
     "box": {
       "x": 580,
       "y": 551,
@@ -821,7 +662,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"otp\"] (24)"
+      "matched [data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"] (24)"
     ]
   },
   {
@@ -829,12 +670,10 @@
     "url": "https://www.lumiui.dev/docs/components/form-input/otp-field",
     "route": "/docs/components/form-input/otp-field",
     "domain": "lumiui.dev",
-    "components": [
-      "Otp Field"
-    ],
-    "selector": "[data-slot^=\"otp\"]",
+    "components": ["Otp Field"],
+    "selector": "[role=\"group\"]",
     "matchedRole": "group",
-    "instances": 24,
+    "instances": 21,
     "box": {
       "x": 608,
       "y": 503,
@@ -846,7 +685,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"otp\"] (24)"
+      "matched [data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"] (24)"
     ]
   },
   {
@@ -854,9 +693,7 @@
     "url": "https://www.9ui.dev/docs/components/preview-card",
     "route": "/docs/components/preview-card",
     "domain": "9ui.dev",
-    "components": [
-      "Preview Card"
-    ],
+    "components": ["Preview Card"],
     "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
     "instances": 1,
@@ -879,9 +716,7 @@
     "url": "https://coss.com/ui/docs/components/preview-card",
     "route": "/ui/docs/components/preview-card",
     "domain": "coss.com",
-    "components": [
-      "Preview Card"
-    ],
+    "components": ["Preview Card"],
     "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
     "instances": 1,
@@ -904,9 +739,7 @@
     "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card",
     "route": "/docs/components/overlays-dialogs/preview-card",
     "domain": "lumiui.dev",
-    "components": [
-      "Preview Card"
-    ],
+    "components": ["Preview Card"],
     "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
     "instances": 2,
@@ -929,9 +762,7 @@
     "url": "https://www.9ui.dev/docs/components/progress",
     "route": "/docs/components/progress",
     "domain": "9ui.dev",
-    "components": [
-      "Progress"
-    ],
+    "components": ["Progress"],
     "selector": "[role=\"progressbar\"]",
     "matchedRole": "progressbar",
     "instances": 2,
@@ -944,19 +775,14 @@
     "file": "9ui-progress-hl.png",
     "fileHighlight": "9ui-progress-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"progressbar\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"progressbar\"] (2)"]
   },
   {
     "slug": "coss-progress-hl",
     "url": "https://coss.com/ui/docs/components/progress",
     "route": "/ui/docs/components/progress",
     "domain": "coss.com",
-    "components": [
-      "Progress"
-    ],
+    "components": ["Progress"],
     "selector": "[role=\"progressbar\"]",
     "matchedRole": "progressbar",
     "instances": 3,
@@ -969,19 +795,14 @@
     "file": "coss-progress-hl.png",
     "fileHighlight": "coss-progress-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"progressbar\"] (3)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"progressbar\"] (3)"]
   },
   {
     "slug": "lumiui-progress-hl",
     "url": "https://www.lumiui.dev/docs/components/feedback-status/progress",
     "route": "/docs/components/feedback-status/progress",
     "domain": "lumiui.dev",
-    "components": [
-      "Progress"
-    ],
+    "components": ["Progress"],
     "selector": "[role=\"progressbar\"]",
     "matchedRole": "progressbar",
     "instances": 6,
@@ -994,19 +815,14 @@
     "file": "lumiui-progress-hl.png",
     "fileHighlight": "lumiui-progress-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"progressbar\"] (6)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"progressbar\"] (6)"]
   },
   {
     "slug": "9ui-radio-hl",
     "url": "https://www.9ui.dev/docs/components/radio-group",
     "route": "/docs/components/radio-group",
     "domain": "9ui.dev",
-    "components": [
-      "Radio"
-    ],
+    "components": ["Radio"],
     "selector": "[role=\"radio\"]",
     "matchedRole": "radio",
     "instances": 6,
@@ -1019,19 +835,14 @@
     "file": "9ui-radio-hl.png",
     "fileHighlight": "9ui-radio-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"radio\"] (6)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"radio\"] (6)"]
   },
   {
     "slug": "9ui-scroll-area-hl",
     "url": "https://www.9ui.dev/docs/components/scroll-area",
     "route": "/docs/components/scroll-area",
     "domain": "9ui.dev",
-    "components": [
-      "Scroll Area"
-    ],
+    "components": ["Scroll Area"],
     "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": "presentation",
     "instances": 2,
@@ -1044,19 +855,14 @@
     "file": "9ui-scroll-area-hl.png",
     "fileHighlight": "9ui-scroll-area-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"scroll-area\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"scroll-area\"] (2)"]
   },
   {
     "slug": "lumiui-scroll-area-hl",
     "url": "https://www.lumiui.dev/docs/components/layout-nav/scroll-area",
     "route": "/docs/components/layout-nav/scroll-area",
     "domain": "lumiui.dev",
-    "components": [
-      "Scroll Area"
-    ],
+    "components": ["Scroll Area"],
     "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": "presentation",
     "instances": 7,
@@ -1069,19 +875,14 @@
     "file": "lumiui-scroll-area-hl.png",
     "fileHighlight": "lumiui-scroll-area-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"scroll-area\"] (7)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"scroll-area\"] (7)"]
   },
   {
     "slug": "reui-scroll-area-hl",
     "url": "https://reui.io/components/scroll-area",
     "route": "/components/scroll-area",
     "domain": "reui.io",
-    "components": [
-      "Scroll Area"
-    ],
+    "components": ["Scroll Area"],
     "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": null,
     "instances": 6,
@@ -1094,19 +895,14 @@
     "file": "reui-scroll-area-hl.png",
     "fileHighlight": "reui-scroll-area-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"scroll-area\"] (6)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"scroll-area\"] (6)"]
   },
   {
     "slug": "9ui-separator-hl",
     "url": "https://www.9ui.dev/docs/components/separator",
     "route": "/docs/components/separator",
     "domain": "9ui.dev",
-    "components": [
-      "Separator"
-    ],
+    "components": ["Separator"],
     "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
     "matchedRole": null,
     "instances": null,
@@ -1124,18 +920,17 @@
     "url": "https://www.lumiui.dev/docs/components/layout-nav/separator",
     "route": "/docs/components/layout-nav/separator",
     "domain": "lumiui.dev",
-    "components": [
-      "Separator"
-    ],
-    "selector": "[data-slot=\"separator\"]",
-    "matchedRole": "separator",
+    "components": ["Separator"],
+    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
+    "matchedRole": null,
+    "instances": null,
     "box": null,
     "file": "lumiui-separator-hl.png",
     "fileHighlight": null,
     "status": "page-only",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"separator\"]"
+      "matched [role=\"separator\"], [data-slot=\"separator\"], hr (3)"
     ]
   },
   {
@@ -1143,9 +938,7 @@
     "url": "https://www.9ui.dev/docs/components/slider",
     "route": "/docs/components/slider",
     "domain": "9ui.dev",
-    "components": [
-      "Slider"
-    ],
+    "components": ["Slider"],
     "selector": "[role=\"group\"]",
     "matchedRole": "group",
     "instances": 24,
@@ -1158,44 +951,34 @@
     "file": "9ui-slider-hl.png",
     "fileHighlight": "9ui-slider-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"]
   },
   {
     "slug": "coss-slider-hl",
     "url": "https://coss.com/ui/docs/components/slider",
     "route": "/ui/docs/components/slider",
     "domain": "coss.com",
-    "components": [
-      "Slider"
-    ],
-    "selector": "[data-slot=\"preview\"]",
+    "components": ["Slider"],
+    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]",
     "matchedRole": null,
-    "instances": 3,
+    "instances": 6,
     "box": {
-      "x": 568,
-      "y": 2338,
-      "width": 256,
-      "height": 32
+      "x": 688,
+      "y": 559,
+      "width": 16,
+      "height": 16
     },
     "file": "coss-slider-hl.png",
     "fileHighlight": "coss-slider-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"preview\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"slider\"], [data-slot^=\"slider\"] (21)"]
   },
   {
     "slug": "lumiui-slider-hl",
     "url": "https://www.lumiui.dev/docs/components/form-input/slider",
     "route": "/docs/components/form-input/slider",
     "domain": "lumiui.dev",
-    "components": [
-      "Slider"
-    ],
+    "components": ["Slider"],
     "selector": "[role=\"group\"]",
     "matchedRole": "group",
     "instances": 12,
@@ -1208,19 +991,14 @@
     "file": "lumiui-slider-hl.png",
     "fileHighlight": "lumiui-slider-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"]
   },
   {
     "slug": "reui-switch-hl",
     "url": "https://reui.io/components/switch",
     "route": "/components/switch",
     "domain": "reui.io",
-    "components": [
-      "Switch"
-    ],
+    "components": ["Switch"],
     "selector": "[role=\"switch\"]",
     "matchedRole": "switch",
     "instances": 18,
@@ -1233,19 +1011,14 @@
     "file": "reui-switch-hl.png",
     "fileHighlight": "reui-switch-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"switch\"] (18)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"switch\"] (18)"]
   },
   {
     "slug": "9ui-tabs-hl",
     "url": "https://www.9ui.dev/docs/components/tabs",
     "route": "/docs/components/tabs",
     "domain": "9ui.dev",
-    "components": [
-      "Tabs"
-    ],
+    "components": ["Tabs"],
     "selector": "[role=\"tablist\"]",
     "matchedRole": "tablist",
     "instances": 5,
@@ -1258,19 +1031,14 @@
     "file": "9ui-tabs-hl.png",
     "fileHighlight": "9ui-tabs-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"tablist\"] (5)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"tablist\"] (5)"]
   },
   {
     "slug": "lumiui-toast-hl",
     "url": "https://www.lumiui.dev/docs/components/feedback-status/toast",
     "route": "/docs/components/feedback-status/toast",
     "domain": "lumiui.dev",
-    "components": [
-      "Toast"
-    ],
+    "components": ["Toast"],
     "selector": "[data-slot^=\"toast\"]",
     "matchedRole": "region",
     "instances": 1,
@@ -1283,19 +1051,14 @@
     "file": "lumiui-toast-hl.png",
     "fileHighlight": "lumiui-toast-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"toast\"] (1)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"toast\"] (1)"]
   },
   {
     "slug": "9ui-toggle-group-hl",
     "url": "https://www.9ui.dev/docs/components/toggle-group",
     "route": "/docs/components/toggle-group",
     "domain": "9ui.dev",
-    "components": [
-      "Toggle Group"
-    ],
+    "components": ["Toggle Group"],
     "selector": "[data-slot=\"toggle-group\"]",
     "matchedRole": "group",
     "instances": 2,
@@ -1308,19 +1071,14 @@
     "file": "9ui-toggle-group-hl.png",
     "fileHighlight": "9ui-toggle-group-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"toggle-group\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"toggle-group\"] (2)"]
   },
   {
     "slug": "lumiui-toggle-group-hl",
     "url": "https://www.lumiui.dev/docs/components/misc/toggle-group",
     "route": "/docs/components/misc/toggle-group",
     "domain": "lumiui.dev",
-    "components": [
-      "Toggle Group"
-    ],
+    "components": ["Toggle Group"],
     "selector": "[data-slot=\"toggle-group\"]",
     "matchedRole": "group",
     "instances": 11,
@@ -1333,19 +1091,14 @@
     "file": "lumiui-toggle-group-hl.png",
     "fileHighlight": "lumiui-toggle-group-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"toggle-group\"] (11)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"toggle-group\"] (11)"]
   },
   {
     "slug": "coss-toggle-hl",
     "url": "https://coss.com/ui/docs/components/toggle",
     "route": "/ui/docs/components/toggle",
     "domain": "coss.com",
-    "components": [
-      "Toggle"
-    ],
+    "components": ["Toggle"],
     "selector": "[data-slot=\"toggle\"]",
     "matchedRole": null,
     "instances": 9,
@@ -1358,19 +1111,14 @@
     "file": "coss-toggle-hl.png",
     "fileHighlight": "coss-toggle-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"toggle\"] (9)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"toggle\"] (9)"]
   },
   {
     "slug": "reui-toggle-hl",
     "url": "https://reui.io/components/toggle",
     "route": "/components/toggle",
     "domain": "reui.io",
-    "components": [
-      "Toggle"
-    ],
+    "components": ["Toggle"],
     "selector": "[data-slot=\"toggle\"]",
     "matchedRole": null,
     "instances": 17,
@@ -1383,19 +1131,14 @@
     "file": "reui-toggle-hl.png",
     "fileHighlight": "reui-toggle-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot=\"toggle\"] (17)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot=\"toggle\"] (17)"]
   },
   {
     "slug": "9ui-toolbar-hl",
     "url": "https://www.9ui.dev/docs/components/toolbar",
     "route": "/docs/components/toolbar",
     "domain": "9ui.dev",
-    "components": [
-      "Toolbar"
-    ],
+    "components": ["Toolbar"],
     "selector": "[role=\"toolbar\"]",
     "matchedRole": "toolbar",
     "instances": 2,
@@ -1408,19 +1151,14 @@
     "file": "9ui-toolbar-hl.png",
     "fileHighlight": "9ui-toolbar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"toolbar\"] (2)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"toolbar\"] (2)"]
   },
   {
     "slug": "lumiui-toolbar-hl",
     "url": "https://www.lumiui.dev/docs/components/misc/toolbar",
     "route": "/docs/components/misc/toolbar",
     "domain": "lumiui.dev",
-    "components": [
-      "Toolbar"
-    ],
+    "components": ["Toolbar"],
     "selector": "[role=\"toolbar\"]",
     "matchedRole": "toolbar",
     "instances": 1,
@@ -1433,19 +1171,14 @@
     "file": "lumiui-toolbar-hl.png",
     "fileHighlight": "lumiui-toolbar-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [role=\"toolbar\"] (1)"
-    ]
+    "notes": ["goto: networkidle", "matched [role=\"toolbar\"] (1)"]
   },
   {
     "slug": "reui-tooltip-hl",
     "url": "https://reui.io/components/tooltip",
     "route": "/components/tooltip",
     "domain": "reui.io",
-    "components": [
-      "Tooltip"
-    ],
+    "components": ["Tooltip"],
     "selector": "[data-slot^=\"tooltip\"]",
     "matchedRole": null,
     "instances": 24,
@@ -1458,10 +1191,7 @@
     "file": "reui-tooltip-hl.png",
     "fileHighlight": "reui-tooltip-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "goto: networkidle",
-      "matched [data-slot^=\"tooltip\"] (24)"
-    ]
+    "notes": ["goto: networkidle", "matched [data-slot^=\"tooltip\"] (24)"]
   },
   {
     "slug": "baseui-cn-com-hl",
@@ -1475,10 +1205,7 @@
     "file": "baseui-cn-com-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: networkidle",
-      "no target element located"
-    ]
+    "notes": ["goto: networkidle", "no target element located"]
   },
   {
     "slug": "electric-ax-hl",
@@ -1492,10 +1219,7 @@
     "file": "electric-ax-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: networkidle",
-      "no target element located"
-    ]
+    "notes": ["goto: networkidle", "no target element located"]
   },
   {
     "slug": "latitude-so-hl",
@@ -1509,10 +1233,7 @@
     "file": "latitude-so-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: load (networkidle timed out)",
-      "no target element located"
-    ]
+    "notes": ["goto: load (networkidle timed out)", "no target element located"]
   },
   {
     "slug": "dify-ai-hl",
@@ -1526,10 +1247,7 @@
     "file": "dify-ai-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: networkidle",
-      "no target element located"
-    ]
+    "notes": ["goto: networkidle", "no target element located"]
   },
   {
     "slug": "t3-codes-hl",
@@ -1543,10 +1261,7 @@
     "file": "t3-codes-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: networkidle",
-      "no target element located"
-    ]
+    "notes": ["goto: networkidle", "no target element located"]
   },
   {
     "slug": "console-preview-oxide-computer-hl",
@@ -1560,10 +1275,7 @@
     "file": "console-preview-oxide-computer-hl.png",
     "fileHighlight": null,
     "status": "page-only",
-    "notes": [
-      "goto: networkidle",
-      "no target element located"
-    ]
+    "notes": ["goto: networkidle", "no target element located"]
   },
   {
     "slug": "ui-shadcn-com-hl",
@@ -1592,15 +1304,22 @@
     "url": "https://graphql.org",
     "route": "/",
     "domain": "graphql.org",
-    "components": [],
+    "components": ["Select"],
     "selector": "[role=\"combobox\"]",
     "matchedRole": "combobox",
-    "box": null,
+    "instances": 4,
+    "box": {
+      "x": 1108,
+      "y": 14,
+      "width": 256,
+      "height": 36
+    },
     "file": "graphql-org-hl.png",
     "fileHighlight": "graphql-org-hl-highlight.png",
     "status": "captured",
     "notes": [
-      "re-added first-pass landing"
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"] (4)"
     ]
   },
   {
@@ -1608,15 +1327,22 @@
     "url": "https://kumo-ui.com",
     "route": "/",
     "domain": "kumo-ui.com",
-    "components": [],
+    "components": ["Select"],
     "selector": "[role=\"combobox\"]",
     "matchedRole": "combobox",
-    "box": null,
+    "instances": 8,
+    "box": {
+      "x": 1110,
+      "y": 211,
+      "width": 200,
+      "height": 36
+    },
     "file": "kumo-ui-com-hl.png",
     "fileHighlight": "kumo-ui-com-hl-highlight.png",
     "status": "captured",
     "notes": [
-      "re-added first-pass landing"
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"] (8)"
     ]
   },
   {
@@ -1631,9 +1357,7 @@
     "file": "mastra-ai-hl.png",
     "fileHighlight": "mastra-ai-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "re-added first-pass landing"
-    ]
+    "notes": ["re-added first-pass landing"]
   },
   {
     "slug": "nextjs-org-hl",
@@ -1647,9 +1371,7 @@
     "file": "nextjs-org-hl.png",
     "fileHighlight": "nextjs-org-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "re-added first-pass landing"
-    ]
+    "notes": ["re-added first-pass landing"]
   },
   {
     "slug": "posthog-com-hl",
@@ -1663,9 +1385,7 @@
     "file": "posthog-com-hl.png",
     "fileHighlight": "posthog-com-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "re-added first-pass landing"
-    ]
+    "notes": ["re-added first-pass landing"]
   },
   {
     "slug": "wordpress-org-gutenberg-hl",
@@ -1679,9 +1399,7 @@
     "file": "wordpress-org-gutenberg-hl.png",
     "fileHighlight": "wordpress-org-gutenberg-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "re-added first-pass landing"
-    ]
+    "notes": ["re-added first-pass landing"]
   },
   {
     "slug": "zweien-github-io-docx-template-system-hl",
@@ -1695,9 +1413,7 @@
     "file": "zweien-github-io-docx-template-system-hl.png",
     "fileHighlight": "zweien-github-io-docx-template-system-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "re-added first-pass landing"
-    ]
+    "notes": ["re-added first-pass landing"]
   },
   {
     "slug": "9ui-dev-hl",
@@ -1711,9 +1427,7 @@
     "file": "9ui-dev-hl.png",
     "fileHighlight": "9ui-dev-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "landing fallback"
-    ]
+    "notes": ["landing fallback"]
   },
   {
     "slug": "reui-io-hl",
@@ -1727,8 +1441,6 @@
     "file": "reui-io-hl.png",
     "fileHighlight": "reui-io-hl-highlight.png",
     "status": "captured",
-    "notes": [
-      "landing fallback"
-    ]
+    "notes": ["landing fallback"]
   }
 ]

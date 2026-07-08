@@ -83,6 +83,7 @@ for (const [key, r] of [...byKey.entries()].sort()) {
     `    selector: ${JSON.stringify(r.e.selector)},\n` +
     `    route: ${JSON.stringify(r.e.route)},\n` +
     `    pageUrl: ${JSON.stringify(r.e.url)},\n` +
+    `    matchedRole: ${JSON.stringify(r.e.matchedRole ?? null)},\n` +
     `  },\n`;
 }
 
@@ -98,7 +99,7 @@ ${imports.trimEnd()}
 export interface WildHighlight {
   /** The page screenshot (same frame as the highlight). */
   image: string;
-  /** The spotlight screenshot (page dimmed, component outlined). */
+  /** The spotlight screenshot (page dimmed, component spotlighted). */
   highlightImage: string;
   /** Concrete CSS selector to the component on the page. */
   selector: string;
@@ -106,7 +107,33 @@ export interface WildHighlight {
   route: string;
   /** Full page URL the screenshots came from. */
   pageUrl: string;
+  /** ARIA role of the spotlighted element at capture time (null if it had none). */
+  matchedRole: string | null;
 }
+
+/**
+ * ARIA role of a site-level capture → the Base UI component names it can legitimately
+ * depict. Used to gate the site-level (\`*::domain\`) fallback so a landing-page capture is
+ * only shown on a card whose component it actually shows (e.g. a \`combobox\`-role capture is
+ * a valid stand-in for a Select card, but not for a Radio card).
+ */
+const ROLE_COMPONENTS: Record<string, readonly string[]> = {
+  tablist: ['tabs'],
+  tab: ['tabs'],
+  menubar: ['menubar'],
+  radiogroup: ['radio'],
+  radio: ['radio'],
+  combobox: ['select', 'combobox', 'autocomplete'],
+  listbox: ['select', 'combobox', 'autocomplete'],
+  checkbox: ['checkbox', 'checkbox-group'],
+  switch: ['switch'],
+  slider: ['slider'],
+  meter: ['meter'],
+  progressbar: ['progress'],
+  menu: ['menu'],
+  dialog: ['dialog', 'alert-dialog'],
+  toolbar: ['toolbar'],
+};
 
 /** Keyed by \`\${component}::\${domain}\` or the site-level \`*::\${domain}\`. */
 export const wildHighlights: Record<string, WildHighlight> = {
@@ -133,10 +160,23 @@ export function lookupHighlight(
   if (!domain) {
     return undefined;
   }
-  return (
-    (component ? wildHighlights[\`\${component}::\${domain}\`] : undefined) ??
-    wildHighlights[\`*::\${domain}\`]
-  );
+  // A per-component capture is targeted at that component's own page, so it is always
+  // correct for its card.
+  const exact = component ? wildHighlights[\`\${component}::\${domain}\`] : undefined;
+  if (exact) {
+    return exact;
+  }
+  // The site-level fallback is a single landing-page capture that shows one arbitrary
+  // component; only serve it when the component it actually depicts (its ARIA role) matches
+  // the card's component — otherwise a card would show the wrong component.
+  const site = wildHighlights[\`*::\${domain}\`];
+  if (site && component) {
+    const shows = site.matchedRole ? ROLE_COMPONENTS[site.matchedRole] : undefined;
+    if (shows && shows.includes(component)) {
+      return site;
+    }
+  }
+  return undefined;
 }
 `;
 
