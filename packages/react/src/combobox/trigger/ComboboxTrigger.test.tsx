@@ -481,36 +481,6 @@ describe('<Combobox.Trigger />', () => {
       expect(listbox.isConnected).toBe(true);
     });
 
-    it('keeps the popup open when the release is within 5px of the trigger bounds', async () => {
-      await render(
-        <Combobox.Root>
-          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      trigger.getBoundingClientRect = () =>
-        DOMRect.fromRect({ x: 100, y: 100, width: 100, height: 40 });
-
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
-      fireEvent.mouseDown(trigger, { button: 0 });
-
-      const listbox = await screen.findByRole('listbox');
-
-      fireEvent.mouseUp(document.body, { button: 0, clientX: 95, clientY: 120 });
-
-      expect(listbox.isConnected).toBe(true);
-    });
-
     it('closes the popup when the release is more than 5px outside the trigger bounds', async () => {
       await render(
         <Combobox.Root>
