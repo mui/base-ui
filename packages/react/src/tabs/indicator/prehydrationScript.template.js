@@ -84,20 +84,29 @@
       return;
     }
 
-    const observer = new ResizeObserver(() => {
+    let timeout, observer;
+    function stop() {
+      observer.disconnect();
+      clearTimeout(timeout);
+    }
+
+    observer = new ResizeObserver(() => {
       if (!indicator.isConnected || !indicator.hasAttribute('hidden')) {
         // Hydration got there first.
-        observer.disconnect();
+        stop();
         return;
       }
 
       if (activeTab.offsetWidth > 0 && tabsList.offsetWidth > 0) {
-        observer.disconnect();
+        stop();
         position();
       }
     });
 
     observer.observe(tabsList);
+    // Bounded lifetime so the observer can't retain the subtree forever if it's
+    // removed while still 0×0 (no resize fires to trigger self-disconnect).
+    timeout = setTimeout(stop, 10000);
     return;
   }
 
