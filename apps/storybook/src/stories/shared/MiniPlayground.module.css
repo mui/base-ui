@@ -1,10 +1,10 @@
+/* stylelint-disable selector-pseudo-class-no-unknown -- CSS Modules :global() is required to target Prism token classes. */
 /* Tab styling adapted from stories/tabs/tabs.module.css (hero look), not imported
    across directories per repo convention — each story tree owns its own CSS module. */
 
 .Root {
   box-sizing: border-box;
   width: 100%;
-  max-width: 40rem;
   border: 1px solid oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
@@ -15,15 +15,25 @@
 .Header {
   box-sizing: border-box;
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
+  row-gap: 0.5rem;
   padding: 0.625rem 0.75rem;
   border-bottom: 1px solid oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border-bottom-color: white;
   }
+}
+
+.HeaderActions {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
 }
 
 .Title {
@@ -269,4 +279,111 @@
   line-height: 1.375rem;
   white-space: pre;
   tab-size: 2;
+}
+
+/* Token colors for the `SyntaxHighlighter` (from `storybook/internal/components`) used in
+   the JSX/CSS tabs. Its tokens are plain Prism classNames (e.g. `token comment`) with no
+   built-in color of their own, but the active Storybook theme injects its own token
+   colors via `styled-components`/emotion (an ancestor-scoped `.css-<hash> * .token.xxx`
+   rule). That hash class is version-dependent and not something we can reliably
+   out-specify, so `!important` is the deliberate, robust override here. */
+:global(.token.comment),
+:global(.token.prolog),
+:global(.token.doctype),
+:global(.token.cdata) {
+  color: oklch(55.6% 0 0deg) !important;
+  font-style: italic;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(62% 0 0deg) !important;
+  }
+}
+
+:global(.token.punctuation) {
+  color: oklch(50% 0 0deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0 0deg) !important;
+  }
+}
+
+:global(.token.tag),
+:global(.token.selector),
+:global(.token.deleted) {
+  color: oklch(52% 0.18 20deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(78% 0.14 20deg) !important;
+  }
+}
+
+:global(.token.attr-name),
+:global(.token.property),
+:global(.token.variable) {
+  color: oklch(48% 0.15 235deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(78% 0.12 235deg) !important;
+  }
+}
+
+:global(.token.string),
+:global(.token.attr-value),
+:global(.token.char),
+:global(.token.inserted) {
+  color: oklch(45% 0.14 150deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(78% 0.13 150deg) !important;
+  }
+}
+
+:global(.token.keyword),
+:global(.token.atrule),
+:global(.token.important),
+:global(.token.regex) {
+  color: oklch(48% 0.19 300deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(80% 0.13 300deg) !important;
+  }
+}
+
+:global(.token.function),
+:global(.token.class-name) {
+  color: oklch(46% 0.17 265deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(80% 0.12 265deg) !important;
+  }
+}
+
+:global(.token.number),
+:global(.token.boolean),
+:global(.token.constant),
+:global(.token.symbol),
+:global(.token.unit) {
+  color: oklch(52% 0.17 55deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(80% 0.14 55deg) !important;
+  }
+}
+
+:global(.token.operator),
+:global(.token.entity),
+:global(.token.url) {
+  color: oklch(50% 0.05 235deg) !important;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0.05 235deg) !important;
+  }
+}
+
+:global(.token.bold) {
+  font-weight: 700;
+}
+
+:global(.token.italic) {
+  font-style: italic;
 }

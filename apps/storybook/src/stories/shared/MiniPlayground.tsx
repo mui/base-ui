@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
+import { SyntaxHighlighter } from 'storybook/internal/components';
+import { ThemeProvider, ensure, themes } from 'storybook/theming';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import styles from './MiniPlayground.module.css';
@@ -44,6 +46,15 @@ export interface MiniPlaygroundProps {
   children: React.ReactNode;
 }
 
+// The Storybook `SyntaxHighlighter` component is styled through `storybook/theming`'s
+// styled-components context (colors, borders, etc). It's normally provided by the Docs
+// container this panel is embedded in, but this panel can also render in a plain
+// (non-docs) story canvas where no such provider exists, so we supply our own baseline
+// here to avoid a crash. Token colors are re-themed for light/dark in
+// MiniPlayground.module.css (which wins on CSS specificity), so the exact base theme
+// picked here doesn't matter much.
+const syntaxHighlighterTheme = ensure(themes.light);
+
 /**
  * A tiny recreation-of-a-real-world-example harness for Storybook docs pages: shows the
  * LIVE component alongside its JSX snippet, its live-captured rendered HTML, and its CSS —
@@ -76,16 +87,25 @@ export function MiniPlayground({ title, source, code, css, children }: MiniPlayg
     copiedTimeout.start(1500, () => setCopied(false));
   };
 
+  const handleOpenInStackBlitz = () => {
+    openInStackBlitz({ title, code, css });
+  };
+
   return (
     <div className={styles.Root}>
       <div className={styles.Header}>
         {title ? <h3 className={styles.Title}>{title}</h3> : null}
-        {source ? (
-          <a className={styles.Source} href={source.href} target="_blank" rel="noreferrer">
-            {source.repo}
-            <span className={styles.License}>{source.license}</span>
-          </a>
-        ) : null}
+        <div className={styles.HeaderActions}>
+          {source ? (
+            <a className={styles.Source} href={source.href} target="_blank" rel="noreferrer">
+              {source.repo}
+              <span className={styles.License}>{source.license}</span>
+            </a>
+          ) : null}
+          <button type="button" className={styles.ToolbarButton} onClick={handleOpenInStackBlitz}>
+            Open in StackBlitz ⚡
+          </button>
+        </div>
       </div>
 
       <Tabs.Root className={styles.TabsRoot} defaultValue="preview">
@@ -120,9 +140,13 @@ export function MiniPlayground({ title, source, code, css, children }: MiniPlayg
                 {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
-            <pre className={styles.Pre}>
-              <code>{code}</code>
-            </pre>
+            <div className={styles.Pre}>
+              <ThemeProvider theme={syntaxHighlighterTheme}>
+                <SyntaxHighlighter language="tsx" copyable={false} bordered={false} format={false}>
+                  {code}
+                </SyntaxHighlighter>
+              </ThemeProvider>
+            </div>
           </Tabs.Panel>
 
           <Tabs.Panel className={styles.Panel} value="html">
@@ -139,9 +163,18 @@ export function MiniPlayground({ title, source, code, css, children }: MiniPlayg
 
           {css ? (
             <Tabs.Panel className={styles.Panel} value="css">
-              <pre className={styles.Pre}>
-                <code>{css}</code>
-              </pre>
+              <div className={styles.Pre}>
+                <ThemeProvider theme={syntaxHighlighterTheme}>
+                  <SyntaxHighlighter
+                    language="css"
+                    copyable={false}
+                    bordered={false}
+                    format={false}
+                  >
+                    {css}
+                  </SyntaxHighlighter>
+                </ThemeProvider>
+              </div>
             </Tabs.Panel>
           ) : null}
         </div>
@@ -217,4 +250,147 @@ function formatHtmlSnippet(html: string): string {
   }
 
   return output.join('\n');
+}
+
+const MODULE_CSS_IMPORT_LINE_RE = /^.*import\s+\w+\s+from\s+(['"])[^'"]*\.module\.css\1;?.*$\n?/gm;
+const MODULE_CSS_IMPORT_SOURCE_RE = /(import\s+\w+\s+from\s+)(['"])[^'"]*\.module\.css\2(;?)/;
+
+/**
+ * Rewrites a captured demo's `import styles from '...module.css'` line (whatever the
+ * original relative path was) to point at the flattened `./styles.module.css` file the
+ * StackBlitz project writes the `css` prop to. When there's no `css` prop there's no
+ * stylesheet to import, so any such line is stripped instead (it would 404).
+ */
+function rewriteModuleCssImport(code: string, hasCss: boolean): string {
+  if (hasCss) {
+    return code.replace(MODULE_CSS_IMPORT_SOURCE_RE, `$1'./styles.module.css'$3`);
+  }
+  return code.replace(MODULE_CSS_IMPORT_LINE_RE, '');
+}
+
+const STACKBLITZ_PACKAGE_JSON = (title: string) =>
+  JSON.stringify(
+    {
+      name:
+        `base-ui-${title || 'mini-playground'}`
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 60) || 'base-ui-mini-playground',
+      private: true,
+      type: 'module',
+      scripts: {
+        dev: 'vite',
+      },
+      dependencies: {
+        react: '^19.0.0',
+        'react-dom': '^19.0.0',
+        '@base-ui/react': 'latest',
+      },
+      devDependencies: {
+        vite: '^6.0.0',
+        '@vitejs/plugin-react': '^4.0.0',
+        typescript: '^5.0.0',
+        '@types/react': '^19.0.0',
+        '@types/react-dom': '^19.0.0',
+      },
+    },
+    null,
+    2,
+  );
+
+const STACKBLITZ_VITE_CONFIG = `import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+});
+`;
+
+const STACKBLITZ_INDEX_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base UI recreation</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+`;
+
+const STACKBLITZ_MAIN_TSX = `import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import * as Demo from './Demo';
+
+const DemoComponent = Object.values(Demo).find(
+  (value) => typeof value === 'function',
+) as React.ComponentType | undefined;
+
+const root = document.getElementById('root')!;
+
+createRoot(root).render(
+  DemoComponent ? React.createElement(DemoComponent) : React.createElement('p', null, 'No demo export found.'),
+);
+`;
+
+/**
+ * Opens the current JSX (+ optional CSS) snippet as a runnable Vite + React + TypeScript
+ * project on StackBlitz, via the documented `https://stackblitz.com/run` form-POST API
+ * (no SDK dependency — see https://developer.stackblitz.com/platform/api/post-api).
+ */
+function openInStackBlitz({
+  title,
+  code,
+  css,
+}: {
+  title?: string;
+  code: string;
+  css?: string;
+}): void {
+  const hasCss = Boolean(css);
+  const demoSource = rewriteModuleCssImport(code, hasCss);
+
+  const files: Record<string, string> = {
+    'package.json': STACKBLITZ_PACKAGE_JSON(title ?? ''),
+    'vite.config.ts': STACKBLITZ_VITE_CONFIG,
+    'index.html': STACKBLITZ_INDEX_HTML,
+    'src/main.tsx': STACKBLITZ_MAIN_TSX,
+    'src/Demo.tsx': demoSource,
+  };
+
+  if (hasCss && css) {
+    files['src/styles.module.css'] = css;
+  }
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://stackblitz.com/run?file=src%2FDemo.tsx';
+  form.target = '_blank';
+  form.style.display = 'none';
+
+  const addField = (name: string, value: string) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
+
+  addField('project[title]', title ? `Base UI recreation: ${title}` : 'Base UI recreation');
+  addField(
+    'project[description]',
+    'A Base UI component recreation, exported from the Base UI Storybook MiniPlayground.',
+  );
+  addField('project[template]', 'node');
+
+  for (const [path, contents] of Object.entries(files)) {
+    addField(`project[files][${path}]`, contents);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
 }

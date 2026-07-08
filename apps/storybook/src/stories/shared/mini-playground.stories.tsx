@@ -51,7 +51,11 @@ export const Basic: Story = {
     const jsxTab = canvas.getByRole('tab', { name: 'JSX' });
     await userEvent.click(jsxTab);
     await waitFor(() => expect(jsxTab).toHaveAttribute('aria-selected', 'true'));
-    await expect(canvas.getByText(/Hello, world!/)).toBeVisible();
+    // The JSX/CSS tabs render via Storybook's `SyntaxHighlighter`, which tokenizes the
+    // source into many nested `<span>`s and mounts asynchronously (React.lazy + an
+    // effect), so match on the panel's aggregate text content rather than a single node.
+    const jsxPanel = canvas.getByRole('tabpanel', { name: 'JSX' });
+    await waitFor(() => expect(jsxPanel.textContent).toMatch(/Hello, world!/));
 
     const htmlTab = canvas.getByRole('tab', { name: 'HTML' });
     await userEvent.click(htmlTab);
