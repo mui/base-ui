@@ -215,14 +215,15 @@ Prefix every finding title with a severity marker:
   breakage. Must block merge.
 - 🔴 **high - blocking.** A realistic user-visible regression in normal component
   usage, accessibility, keyboard/focus behavior, controlled/uncontrolled behavior,
-  form integration, SSR/hydration, public API behavior, or a public docs example. It
-  should block merge even when the affected path has a workaround or is not the most
-  common path.
+  form integration, SSR/hydration, public API behavior, or a public docs example
+  that no longer compiles or teaches broken API usage. It should block merge even
+  when the affected path has a workaround or is not the most common path.
 - 🟠 **medium - non-blocking.** A real issue worth fixing before merge when
   practical but not normally blocking: a narrow or uncommon bug, meaningful missing
-  test, stale public docs, or cleanup that avoids likely future mistakes. Use this
-  only when the issue does not break a public contract and does not affect
-  accessibility, focus, forms, SSR, or normal component usage.
+  test, stale public-doc prose that does not break copy-pasted code, or cleanup that
+  avoids likely future mistakes. Use this only when the issue does not break a public
+  contract and does not affect accessibility, focus, forms, SSR, or normal component
+  usage.
 - 🟡 **low - non-blocking.** A minor edge-case bug, small test/doc gap, or modest
   simplification that is useful but easy for maintainers to defer.
 - ℹ️ **note.** Informational - an observation, heads-up, or optional suggestion the
@@ -232,7 +233,8 @@ Base UI has a stricter quality bar than most apps because small component-libra
 regressions are multiplied across many downstream products. When choosing between
 adjacent severities, choose the higher severity if the failure reaches realistic
 consumer usage, accessibility behavior, form behavior, focus management, SSR, or a
-public API/docs contract. Do not reserve 🔴 high only for outage-level failures.
+public API contract or broken public docs example. Do not reserve 🔴 high only for
+outage-level failures.
 
 Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️. Include the same
 marker in each inline PR comment body when posting with `--comment inline`.
