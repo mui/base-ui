@@ -137,12 +137,14 @@ function MobileNavPopupImpl({
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
-  const lastReadySearchValueRef = React.useRef('');
   const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
   const hasQuery = searchValue.trim() !== '';
   const sitemapImport = sitemap ?? loadSearchSitemap;
   const searchSitemap = useDeferredSearchSitemap(hasQuery, sitemapImport);
-  const { results, search, defaultResults, buildResultUrl, isReady } = useDocsSearch(searchSitemap);
+  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
+    searchSitemap,
+    searchValue,
+  );
 
   const searchResults = useDeferredEmptySearchResults({
     active: hasQuery && isReady,
@@ -188,28 +190,13 @@ function MobileNavPopupImpl({
     };
   }, [hasQuery, sitemapImport]);
 
-  React.useEffect(() => {
-    if (!hasQuery) {
-      lastReadySearchValueRef.current = '';
-      return;
-    }
-
-    if (!isReady || lastReadySearchValueRef.current === searchValue) {
-      return;
-    }
-
-    lastReadySearchValueRef.current = searchValue;
-    void search(searchValue, { groupBy: { properties: ['group'], maxResult: 5 } });
-  }, [hasQuery, isReady, search, searchValue]);
-
   const handleValueChange = React.useCallback(
     async (value: string) => {
       onSearchValueChange(value);
       setSearchValue(value);
-      lastReadySearchValueRef.current = isReady && value.trim() ? value : '';
-      await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
+      await performSearch(value);
     },
-    [isReady, onSearchValueChange, search, setSearchValue],
+    [onSearchValueChange, performSearch, setSearchValue],
   );
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {

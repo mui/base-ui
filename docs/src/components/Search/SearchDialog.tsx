@@ -74,10 +74,12 @@ export function SearchDialog({
   const popupRef = React.useRef<HTMLDivElement>(null);
   const searchTracking = useSearchTracking();
   const wasOpenRef = React.useRef(false);
-  const lastReadySearchValueRef = React.useRef('');
 
   const searchSitemap = useDeferredSearchSitemap(open, sitemapImport);
-  const { results, search, defaultResults, buildResultUrl, isReady } = useDocsSearch(searchSitemap);
+  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
+    searchSitemap,
+    searchValue,
+  );
 
   const searchResults = useDeferredEmptySearchResults({
     active: open && isReady,
@@ -108,22 +110,6 @@ export function SearchDialog({
     wasOpenRef.current = open;
   }, [handleCloseDialog, handleOpenDialog, open]);
 
-  React.useEffect(() => {
-    const hasSearchValue = searchValue.trim() !== '';
-
-    if (!hasSearchValue) {
-      lastReadySearchValueRef.current = '';
-      return;
-    }
-
-    if (!isReady || lastReadySearchValueRef.current === searchValue) {
-      return;
-    }
-
-    lastReadySearchValueRef.current = searchValue;
-    void search(searchValue, { groupBy: { properties: ['group'], maxResult: 5 } });
-  }, [isReady, search, searchValue]);
-
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
       onOpenChange(nextOpen);
@@ -144,10 +130,9 @@ export function SearchDialog({
     async (value: string) => {
       setSearchValue(value);
       searchTracking.handleSearchValueChange(value);
-      lastReadySearchValueRef.current = isReady && value.trim() ? value : '';
-      await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
+      await performSearch(value);
     },
-    [isReady, search, searchTracking],
+    [performSearch, searchTracking],
   );
 
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
