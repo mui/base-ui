@@ -266,8 +266,8 @@ harness you are actually running in. Always include this footer, including on th
 # PR review
 
 One to three sentences summarizing the concrete risk, most important theme, and
-any meaningful verification limit. State up front whether anything is merge-blocking
-(any 🟣 or 🔴). If there are no actionable findings, say that clearly.
+any meaningful verification limit. State up front whether anything is merge-blocking.
+If there are no actionable findings, say that clearly.
 
 ## Bugs ({count})
 
