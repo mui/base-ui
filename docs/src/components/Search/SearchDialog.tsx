@@ -6,7 +6,6 @@ import type { SearchResult, SearchResults } from '@mui/internal-docs-infra/useSe
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CornerDownLeft } from 'lucide-react';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { getDisplayTitle } from '../../utils/getDisplayTitle';
@@ -16,6 +15,7 @@ import {
   searchResultToString,
 } from './searchUtils';
 import { loadSearchSitemap, type SearchSitemapLoader } from './searchSitemap';
+import { useDeferredSearchSitemap } from './useDeferredSearchSitemap';
 import { useDeferredEmptySearchResults } from './useDeferredEmptySearchResults';
 import { useDocsSearch } from './useDocsSearch';
 import { useSearchTracking } from './useSearchTracking';
@@ -56,7 +56,6 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
 
 export interface SearchDialogProps {
   handle: Dialog.Handle<unknown>;
-  onReady: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sitemap?: SearchSitemapLoader;
@@ -65,7 +64,6 @@ export interface SearchDialogProps {
 
 export function SearchDialog({
   handle,
-  onReady,
   open,
   onOpenChange,
   sitemap: sitemapImport = loadSearchSitemap,
@@ -76,15 +74,13 @@ export function SearchDialog({
   const popupRef = React.useRef<HTMLDivElement>(null);
   const searchTracking = useSearchTracking();
   const wasOpenRef = React.useRef(false);
+  const lastReadySearchValueRef = React.useRef('');
 
-  useIsoLayoutEffect(() => {
-    onReady();
-  }, [onReady]);
-
-  const { results, search, defaultResults, buildResultUrl } = useDocsSearch(sitemapImport);
+  const searchSitemap = useDeferredSearchSitemap(open, sitemapImport);
+  const { results, search, defaultResults, buildResultUrl, isReady } = useDocsSearch(searchSitemap);
 
   const searchResults = useDeferredEmptySearchResults({
-    active: open,
+    active: open && isReady,
     defaultResults,
     onResultCountChange: searchTracking.setResultCount,
     resetDelay: 200,
@@ -112,6 +108,22 @@ export function SearchDialog({
     wasOpenRef.current = open;
   }, [handleCloseDialog, handleOpenDialog, open]);
 
+  React.useEffect(() => {
+    const hasSearchValue = searchValue.trim() !== '';
+
+    if (!hasSearchValue) {
+      lastReadySearchValueRef.current = '';
+      return;
+    }
+
+    if (!isReady || lastReadySearchValueRef.current === searchValue) {
+      return;
+    }
+
+    lastReadySearchValueRef.current = searchValue;
+    void search(searchValue, { groupBy: { properties: ['group'], maxResult: 5 } });
+  }, [isReady, search, searchValue]);
+
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
       onOpenChange(nextOpen);
@@ -132,9 +144,10 @@ export function SearchDialog({
     async (value: string) => {
       setSearchValue(value);
       searchTracking.handleSearchValueChange(value);
+      lastReadySearchValueRef.current = isReady && value.trim() ? value : '';
       await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
     },
-    [search, searchTracking],
+    [isReady, search, searchTracking],
   );
 
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
@@ -204,7 +217,7 @@ export function SearchDialog({
   const hasSearchValue = searchValue.trim() !== '';
   let searchResultsContent: React.ReactNode = null;
 
-  if (searchResults.results.length === 0 && hasSearchValue) {
+  if (searchResults.results.length === 0 && hasSearchValue && isReady) {
     searchResultsContent = (
       <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>
     );

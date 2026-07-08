@@ -5,7 +5,11 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { SearchResult, SearchResults } from '@mui/internal-docs-infra/useSearch/types';
+import type {
+  SearchResult,
+  SearchResults,
+  Sitemap,
+} from '@mui/internal-docs-infra/useSearch/types';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { getDisplayTitle } from '../utils/getDisplayTitle';
 import { MobileNavContent } from './MobileNavContent';
@@ -15,6 +19,7 @@ import {
   searchResultToString,
 } from './Search/searchUtils';
 import { loadSearchSitemap, type SearchSitemapLoader } from './Search/searchSitemap';
+import { useDeferredSearchSitemap } from './Search/useDeferredSearchSitemap';
 import { useDeferredEmptySearchResults } from './Search/useDeferredEmptySearchResults';
 import { useDocsSearch } from './Search/useDocsSearch';
 import { useSearchTracking } from './Search/useSearchTracking';
@@ -22,7 +27,6 @@ import { useSearchTracking } from './Search/useSearchTracking';
 interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'handle'> {
   focusSearchOnOpen: boolean;
   handle: Drawer.Handle<unknown>;
-  onReady: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sitemap?: SearchSitemapLoader;
@@ -32,7 +36,6 @@ interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'han
 export function MobileNavDrawer({
   focusSearchOnOpen,
   handle,
-  onReady,
   open,
   onOpenChange,
   sitemap,
@@ -44,10 +47,6 @@ export function MobileNavDrawer({
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const wasOpenRef = React.useRef(false);
-
-  useIsoLayoutEffect(() => {
-    onReady();
-  }, [onReady]);
 
   const handleOpenDrawer = React.useCallback(() => {
     searchTracking.handleOpen();
@@ -138,14 +137,15 @@ function MobileNavPopupImpl({
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
+  const lastReadySearchValueRef = React.useRef('');
+  const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
   const hasQuery = searchValue.trim() !== '';
   const sitemapImport = sitemap ?? loadSearchSitemap;
-  const sitemapPromise = React.useMemo(() => sitemapImport(), [sitemapImport]);
-  const searchSitemap = React.useCallback(() => sitemapPromise, [sitemapPromise]);
-  const { results, search, defaultResults, buildResultUrl } = useDocsSearch(searchSitemap);
+  const searchSitemap = useDeferredSearchSitemap(hasQuery, sitemapImport);
+  const { results, search, defaultResults, buildResultUrl, isReady } = useDocsSearch(searchSitemap);
 
   const searchResults = useDeferredEmptySearchResults({
-    active: hasQuery,
+    active: hasQuery && isReady,
     defaultResults,
     onResultCountChange,
     results,
@@ -163,13 +163,53 @@ function MobileNavPopupImpl({
     hadQueryRef.current = hasQuery;
   }, [hasQuery]);
 
+  React.useEffect(() => {
+    if (hasQuery) {
+      return undefined;
+    }
+
+    let ignore = false;
+
+    void sitemapImport().then(
+      ({ sitemap: nextSitemap }) => {
+        if (!ignore) {
+          setNavSitemap(nextSitemap ?? null);
+        }
+      },
+      () => {
+        if (!ignore) {
+          setNavSitemap(null);
+        }
+      },
+    );
+
+    return () => {
+      ignore = true;
+    };
+  }, [hasQuery, sitemapImport]);
+
+  React.useEffect(() => {
+    if (!hasQuery) {
+      lastReadySearchValueRef.current = '';
+      return;
+    }
+
+    if (!isReady || lastReadySearchValueRef.current === searchValue) {
+      return;
+    }
+
+    lastReadySearchValueRef.current = searchValue;
+    void search(searchValue, { groupBy: { properties: ['group'], maxResult: 5 } });
+  }, [hasQuery, isReady, search, searchValue]);
+
   const handleValueChange = React.useCallback(
     async (value: string) => {
       onSearchValueChange(value);
       setSearchValue(value);
+      lastReadySearchValueRef.current = isReady && value.trim() ? value : '';
       await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
     },
-    [onSearchValueChange, search, setSearchValue],
+    [isReady, onSearchValueChange, search, setSearchValue],
   );
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
@@ -245,6 +285,33 @@ function MobileNavPopupImpl({
     [buildResultUrl, handleResultNavigate],
   );
 
+  let mobileNavContent: React.ReactNode = null;
+
+  if (hasQuery) {
+    mobileNavContent = (
+      <div className="MobileNavSearchResults">
+        {searchResults.results.length === 0 && isReady ? (
+          <Autocomplete.Status className="MobileNavEmptyState">
+            No results found.
+          </Autocomplete.Status>
+        ) : (
+          <Autocomplete.List
+            className="MobileNavSearchList"
+            onKeyDownCapture={handleKeyDownCapture}
+          >
+            {renderResultsList}
+          </Autocomplete.List>
+        )}
+      </div>
+    );
+  } else {
+    mobileNavContent = (
+      <nav aria-label="Docs navigation" className="MobileNavPanel">
+        <MobileNavContent sitemap={navSitemap} />
+      </nav>
+    );
+  }
+
   return (
     <Autocomplete.Root
       items={searchResults.results}
@@ -279,28 +346,7 @@ function MobileNavPopupImpl({
         <ScrollArea.Root className="MobileNavScrollAreaRoot">
           <ScrollArea.Viewport ref={scrollAreaViewportRef} className="MobileNavScrollAreaViewport">
             <ScrollArea.Content className="MobileNavScrollAreaContent">
-              {hasQuery ? (
-                <div className="MobileNavSearchResults">
-                  {searchResults.results.length === 0 ? (
-                    <Autocomplete.Status className="MobileNavEmptyState">
-                      No results found.
-                    </Autocomplete.Status>
-                  ) : (
-                    <Autocomplete.List
-                      className="MobileNavSearchList"
-                      onKeyDownCapture={handleKeyDownCapture}
-                    >
-                      {renderResultsList}
-                    </Autocomplete.List>
-                  )}
-                </div>
-              ) : (
-                <nav aria-label="Docs navigation" className="MobileNavPanel">
-                  <React.Suspense fallback={null}>
-                    <MobileNavContent sitemapPromise={sitemapPromise} />
-                  </React.Suspense>
-                </nav>
-              )}
+              {mobileNavContent}
             </ScrollArea.Content>
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar className="MobileNavScrollbar">

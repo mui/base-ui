@@ -6,41 +6,12 @@ import { Drawer } from '@base-ui/react/drawer';
 import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
+import { MobileNavDrawer } from './MobileNavDrawer';
+import { SearchDialog } from './Search/SearchDialog';
 import { loadSearchSitemap } from './Search/searchSitemap';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 import './SearchTrigger.css';
-
-const importSearchDialog = () => import('./Search/SearchDialog');
-const importMobileNavDrawer = () => import('./MobileNavDrawer');
-
-let searchDialogPromise: ReturnType<typeof importSearchDialog> | undefined;
-let mobileNavDrawerPromise: ReturnType<typeof importMobileNavDrawer> | undefined;
-
-function loadSearchDialog() {
-  searchDialogPromise ??= importSearchDialog().catch((error) => {
-    searchDialogPromise = undefined;
-    throw error;
-  });
-
-  return searchDialogPromise;
-}
-
-function loadMobileNavDrawer() {
-  mobileNavDrawerPromise ??= importMobileNavDrawer().catch((error) => {
-    mobileNavDrawerPromise = undefined;
-    throw error;
-  });
-
-  return mobileNavDrawerPromise;
-}
-
-const LazySearchDialog = React.lazy(() =>
-  loadSearchDialog().then((module) => ({ default: module.SearchDialog })),
-);
-const LazyMobileNavDrawer = React.lazy(() =>
-  loadMobileNavDrawer().then((module) => ({ default: module.MobileNavDrawer })),
-);
 
 type OpenTarget = 'desktop' | 'mobile' | 'mobile-search';
 type DialogTriggerClickEvent = Parameters<NonNullable<Dialog.Trigger.Props['onClick']>>[0];
@@ -62,10 +33,6 @@ export function SearchControls({
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
-  const [desktopRequested, setDesktopRequested] = React.useState(false);
-  const [mobileRequested, setMobileRequested] = React.useState(false);
-  const [desktopReady, setDesktopReady] = React.useState(false);
-  const [mobileReady, setMobileReady] = React.useState(false);
   const preloadTimeout = useTimeout();
 
   const isCmd = React.useSyncExternalStore(
@@ -74,28 +41,9 @@ export function SearchControls({
     () => true,
   );
 
-  const preloadTarget = React.useCallback((target: OpenTarget) => {
-    if (target === 'desktop') {
-      void loadSearchDialog().catch(() => undefined);
-      return;
-    }
-
-    void loadMobileNavDrawer().catch(() => undefined);
+  const preloadSearchSitemap = React.useCallback(() => {
+    void loadSearchSitemap().catch(() => undefined);
   }, []);
-
-  const requestTarget = React.useCallback(
-    (target: OpenTarget) => {
-      preloadTarget(target);
-
-      if (target === 'desktop') {
-        setDesktopRequested(true);
-        return;
-      }
-
-      setMobileRequested(true);
-    },
-    [preloadTarget],
-  );
 
   const closeMobileNav = React.useCallback(() => {
     setOpenTarget(null);
@@ -106,91 +54,63 @@ export function SearchControls({
   const handleDesktopTriggerClick = React.useCallback(
     (event: DialogTriggerClickEvent) => {
       event?.preventBaseUIHandler();
-      requestTarget('desktop');
+      preloadSearchSitemap();
       setOpenTarget('desktop');
     },
-    [requestTarget],
+    [preloadSearchSitemap],
   );
 
   const handleMobileTriggerClick = React.useCallback(
     (event: DrawerTriggerClickEvent) => {
       event?.preventBaseUIHandler();
-      requestTarget('mobile');
+      preloadSearchSitemap();
       setOpenTarget('mobile');
     },
-    [requestTarget],
+    [preloadSearchSitemap],
   );
 
   const handleDesktopTriggerPointerDown = React.useCallback(() => {
-    requestTarget('desktop');
-  }, [requestTarget]);
+    preloadSearchSitemap();
+  }, [preloadSearchSitemap]);
 
   const handleMobileTriggerPointerDown = React.useCallback(() => {
-    requestTarget('mobile');
-  }, [requestTarget]);
+    preloadSearchSitemap();
+  }, [preloadSearchSitemap]);
 
-  const handleDesktopReady = React.useCallback(() => {
-    setDesktopReady(true);
-  }, []);
+  const handleDesktopOpenChange = React.useCallback((open: boolean) => {
+    if (open) {
+      setOpenTarget('desktop');
+      return;
+    }
 
-  const handleMobileReady = React.useCallback(() => {
-    setMobileReady(true);
-  }, []);
-
-  const handleDesktopOpenChange = React.useCallback(
-    (open: boolean) => {
-      if (open) {
-        setOpenTarget('desktop');
-        return;
+    setOpenTarget((target) => {
+      if (target === 'desktop') {
+        return null;
       }
 
-      setOpenTarget((target) => {
-        if (target === 'desktop' && desktopReady) {
-          return null;
-        }
+      return target;
+    });
+  }, []);
 
-        return target;
-      });
-    },
-    [desktopReady],
-  );
+  const handleMobileOpenChange = React.useCallback((open: boolean) => {
+    if (open) {
+      setOpenTarget('mobile');
+      return;
+    }
 
-  const handleMobileOpenChange = React.useCallback(
-    (open: boolean) => {
-      if (open) {
-        setOpenTarget('mobile');
-        return;
+    setOpenTarget((target) => {
+      if (target === 'mobile' || target === 'mobile-search') {
+        return null;
       }
 
-      setOpenTarget((target) => {
-        if ((target === 'mobile' || target === 'mobile-search') && mobileReady) {
-          return null;
-        }
-
-        return target;
-      });
-    },
-    [mobileReady],
-  );
+      return target;
+    });
+  }, []);
 
   React.useEffect(() => {
-    const preload = () => {
-      void loadSearchSitemap().catch(() => undefined);
-
-      const target = getShortcutTarget(desktopTriggerRef.current, mobileTriggerRef.current);
-      preloadTarget(target);
-
-      if (target === 'desktop') {
-        setDesktopRequested(true);
-        return;
-      }
-
-      setMobileRequested(true);
-    };
-
-    preloadTimeout.start(250, preload);
+    preloadTimeout.start(250, preloadSearchSitemap);
     return preloadTimeout.clear;
-  }, [preloadTarget, preloadTimeout]);
+  }, [preloadSearchSitemap, preloadTimeout]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -207,17 +127,17 @@ export function SearchControls({
         event.preventDefault();
         event.stopPropagation();
 
-        requestTarget(nextOpenTarget);
+        preloadSearchSitemap();
         setOpenTarget(nextOpenTarget);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [requestTarget]);
+  }, [preloadSearchSitemap]);
 
-  const desktopOpen = openTarget === 'desktop' && desktopReady;
-  const mobileOpen = (openTarget === 'mobile' || openTarget === 'mobile-search') && mobileReady;
+  const desktopOpen = openTarget === 'desktop';
+  const mobileOpen = openTarget === 'mobile' || openTarget === 'mobile-search';
   const focusMobileSearchOnOpen = openTarget === 'mobile-search';
 
   return (
@@ -236,18 +156,13 @@ export function SearchControls({
           <kbd>k</kbd>)
         </span>
       </Dialog.Trigger>
-      {desktopRequested && (
-        <React.Suspense fallback={null}>
-          <LazySearchDialog
-            handle={desktopHandle}
-            onReady={handleDesktopReady}
-            open={desktopOpen}
-            onOpenChange={handleDesktopOpenChange}
-            sitemap={loadSearchSitemap}
-            triggerId={desktopOpen ? desktopTriggerId : null}
-          />
-        </React.Suspense>
-      )}
+      <SearchDialog
+        handle={desktopHandle}
+        open={desktopOpen}
+        onOpenChange={handleDesktopOpenChange}
+        sitemap={loadSearchSitemap}
+        triggerId={desktopOpen ? desktopTriggerId : null}
+      />
 
       <MobileNavContext.Provider value={mobileContextValue}>
         <Drawer.Trigger
@@ -261,19 +176,14 @@ export function SearchControls({
           <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
           Navigation
         </Drawer.Trigger>
-        {mobileRequested && (
-          <React.Suspense fallback={null}>
-            <LazyMobileNavDrawer
-              handle={mobileHandle}
-              focusSearchOnOpen={focusMobileSearchOnOpen}
-              onReady={handleMobileReady}
-              open={mobileOpen}
-              onOpenChange={handleMobileOpenChange}
-              sitemap={loadSearchSitemap}
-              triggerId={mobileOpen ? mobileTriggerId : null}
-            />
-          </React.Suspense>
-        )}
+        <MobileNavDrawer
+          handle={mobileHandle}
+          focusSearchOnOpen={focusMobileSearchOnOpen}
+          open={mobileOpen}
+          onOpenChange={handleMobileOpenChange}
+          sitemap={loadSearchSitemap}
+          triggerId={mobileOpen ? mobileTriggerId : null}
+        />
       </MobileNavContext.Provider>
     </React.Fragment>
   );
