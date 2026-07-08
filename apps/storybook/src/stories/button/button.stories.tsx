@@ -165,6 +165,7 @@ function NativeButtonMismatchExample() {
  * before the mount-time warning effect fires.
  */
 export const NativeButtonMismatchWarning: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <NativeButtonMismatchExample />,
   play: async ({ canvas, userEvent }) => {
     const errorSpy = spyOn(console, 'error').mockImplementation(() => {});

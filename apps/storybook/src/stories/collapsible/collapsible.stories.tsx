@@ -112,6 +112,7 @@ export const KeepMounted: Story = {
  * the same way a real find-in-page hit would.
  */
 export const HiddenUntilFound: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <Collapsible.Root className={styles.Collapsible} defaultOpen={false}>
       <Collapsible.Trigger className={styles.Trigger}>

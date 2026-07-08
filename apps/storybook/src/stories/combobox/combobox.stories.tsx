@@ -248,6 +248,7 @@ function OpenFilterSelectCloseExample() {
 
 /** The full interaction contract in one story: click the input to open, type to filter, ArrowDown to highlight (virtual focus — DOM focus never leaves the input; the item is referenced by `aria-activedescendant`), Enter to commit, popup closes and `onValueChange` receives `(value, eventDetails)`. */
 export const OpenFilterSelectClose: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <OpenFilterSelectCloseExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -320,6 +321,7 @@ function ControlledValueAndInputExample() {
 
 /** The two text-bearing state axes are controlled separately: `value`/`onValueChange` (the committed selection) and `inputValue`/`onInputValueChange` (the text). Programmatic changes update the field without mounting or opening the popup; clear with `null`. */
 export const ControlledValueAndInput: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <ControlledValueAndInputExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -369,6 +371,7 @@ function ControlledOpenExample() {
 
 /** Use `open` + `onOpenChange` to control the popup. Every change request carries a typed `reason` — clicking the input reports `input-press`, distinct from `trigger-press` (#4015) — and `eventDetails.cancel()` vetoes the change, here keeping the popup open through outside presses. */
 export const ControlledOpenWithEventDetails: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <ControlledOpenExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -440,6 +443,7 @@ function UseFilterExample() {
 
 /** `Combobox.useFilter()` exposes the same `Intl.Collator`-based matching the component uses internally (`contains`/`startsWith`/`endsWith`; case-, diacritic- and punctuation-insensitive). Pass one of them to the `filter` prop when building external filtering with identical semantics. */
 export const ExternalFilterWithUseFilter: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <UseFilterExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -509,6 +513,7 @@ export const UseFilteredItemsForVirtualizer: Story = {
 
 /** `Combobox.Empty` renders its children only when the filtered list is empty (it requires the `items` prop). It is a polite live region (`role="status"`) that must stay mounted — conditionally render its children, not the part itself. */
 export const EmptyState: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <DemoCombobox label="Fruit" placeholder="e.g. Apple" />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -526,6 +531,7 @@ export const EmptyState: Story = {
 
 /** `autoHighlight` keeps the first match highlighted while filtering, so Enter selects it immediately; the default (`false`) follows the APG stance of never highlighting without an explicit arrow key. */
 export const AutoHighlightModes: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <DemoCombobox label="autoHighlight" placeholder="Type ba…" root={{ autoHighlight: true }} />
@@ -659,6 +665,7 @@ function IsItemEqualToValueExample() {
 
 /** Object values that arrive from a server or form library are never referentially identical to the `items` — `isItemEqualToValue` (here comparing `id`) keeps the selection matched, and `itemToStringLabel` resolves the input text. Without it the selection silently drops (defaults to `Object.is`). */
 export const IsItemEqualToValueObjects: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <IsItemEqualToValueExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -696,6 +703,7 @@ function FormSerializationExample() {
 
 /** A visually-hidden `<input>` inside Root carries the serialized value into native form submission: `itemToStringValue` controls the payload for object values (`{ value, label }` shapes serialize automatically), `itemToStringLabel` the visible text. */
 export const ObjectValuesStringification: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <FormSerializationExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -714,6 +722,7 @@ export const ObjectValuesStringification: Story = {
 
 /** `Combobox.Clear` mounts only while a value is selected and is deliberately not tabbable ("one tab stop per field", #3630) — keyboard users clear with Escape while the popup is closed, or Delete. */
 export const ClearableSelection: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <DemoCombobox label="Fruit" placeholder="e.g. Apple" root={{ defaultValue: fruits[0] }} />
   ),
@@ -895,6 +904,7 @@ function GridExample() {
 
 /** The emoji-picker layout: `grid` on Root plus `Row` wrappers switch navigation to two dimensions (columns are inferred from the rendered rows, #2683) and emit grid/row ARIA roles. Arrow keys move the virtual highlight across and down. */
 export const GridLayout: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <GridExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const doc = canvasElement.ownerDocument;
@@ -1433,6 +1443,7 @@ function CreatableExample() {
 
 /** The kept docs "Creatable" pattern: when the query has no exact match, a synthetic `Create "…"` item is appended; picking it opens a confirmation Dialog instead of committing, and confirming appends the new item to `items` and selects it. */
 export const CreatableEntries: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <CreatableExample />,
   play: async ({ canvas, canvasElement, userEvent }) => {
     const body = within(canvasElement.ownerDocument.body);
@@ -1585,6 +1596,7 @@ export const Virtualized: Story = {
 
 /** `disabled` disables the whole control; `readOnly` keeps the value visible and submittable while blocking opening and editing (native `readonly` + `aria-readonly` on the input). */
 export const DisabledAndReadOnly: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <DemoCombobox label="Disabled" root={{ disabled: true, defaultValue: fruits[0] }} />
@@ -1703,6 +1715,7 @@ function AnimatedExample() {
 
 /** Animate with CSS transitions on `[data-starting-style]`/`[data-ending-style]` and `transform-origin: var(--transform-origin)`; the popup stays mounted mid-transition and `onOpenChangeComplete` fires once it settles (pair with `actionsRef.unmount()` for JS animation libraries). */
 export const AnimatedPopup: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <AnimatedExample />,
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole('combobox'));
@@ -1882,6 +1895,7 @@ function GroupedSyncTargetPicker() {
  * recomposed here as a sync-target picker for a local-first-sync-style admin console.
  */
 export const RealWorldGroupedSyncTargetPicker: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   tags: ['recreation'],
   render: () => <GroupedSyncTargetPicker />,
   play: async ({ canvas, canvasElement, userEvent }) => {

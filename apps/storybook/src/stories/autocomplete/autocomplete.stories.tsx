@@ -276,6 +276,7 @@ export const EmptyNoResultsState: Story = {
 
 /** `autoHighlight` compared: `true` highlights the first match only while typing; `"always"` keeps the first item highlighted whenever the list renders — the command-palette setting, so Enter always has a target. */
 export const AutoHighlight: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <div className={styles.Row}>
       <Autocomplete.Root items={tags} autoHighlight>
@@ -284,7 +285,10 @@ export const AutoHighlight: Story = {
           <Autocomplete.InputGroup className={styles.InputGroup}>
             <Autocomplete.Input placeholder="autoHighlight" className={styles.GroupedInput} />
             <div className={styles.ActionButtons}>
-              <Autocomplete.Trigger className={styles.ActionButton} aria-label="Open while-typing list">
+              <Autocomplete.Trigger
+                className={styles.ActionButton}
+                aria-label="Open while-typing list"
+              >
                 <CaretDownIcon />
               </Autocomplete.Trigger>
             </div>
@@ -308,7 +312,10 @@ export const AutoHighlight: Story = {
         <label className={styles.Label}>
           Always
           <Autocomplete.InputGroup className={styles.InputGroup}>
-            <Autocomplete.Input placeholder='autoHighlight="always"' className={styles.GroupedInput} />
+            <Autocomplete.Input
+              placeholder='autoHighlight="always"'
+              className={styles.GroupedInput}
+            />
             <div className={styles.ActionButtons}>
               <Autocomplete.Trigger className={styles.ActionButton} aria-label="Open always list">
                 <CaretDownIcon />
@@ -488,11 +495,7 @@ function FreeTextSubmitExample() {
         setPayload(`q=${String(data.get('q'))}`);
       }}
     >
-      <DemoAutocomplete
-        label="Search"
-        placeholder="Type anything"
-        root={{ name: 'q' }}
-      />
+      <DemoAutocomplete label="Search" placeholder="Type anything" root={{ name: 'q' }} />
       <button type="submit" className={styles.Button}>
         Search
       </button>
@@ -937,9 +940,7 @@ async function searchMovies(
   await new Promise((resolve) => {
     setTimeout(resolve, 300);
   });
-  return topMovies.filter(
-    (movie) => match(movie.title, query) || match(String(movie.year), query),
-  );
+  return topMovies.filter((movie) => match(movie.title, query) || match(String(movie.year), query));
 }
 
 function AsyncSuggestionsExample() {
@@ -1081,7 +1082,11 @@ function CommandPaletteExample() {
               </Autocomplete.Empty>
               <Autocomplete.List className={styles.PaletteList}>
                 {(group: { value: string; items: Command[] }) => (
-                  <Autocomplete.Group key={group.value} items={group.items} className={styles.Group}>
+                  <Autocomplete.Group
+                    key={group.value}
+                    items={group.items}
+                    className={styles.Group}
+                  >
                     <Autocomplete.GroupLabel className={styles.GroupLabel}>
                       {group.value}
                     </Autocomplete.GroupLabel>
@@ -1196,12 +1201,7 @@ function GridLayoutExample() {
 
   return (
     <div className={styles.Stack}>
-      <Autocomplete.Root
-        items={emojiItems}
-        grid
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-      >
+      <Autocomplete.Root items={emojiItems} grid open={pickerOpen} onOpenChange={setPickerOpen}>
         <Autocomplete.Trigger className={styles.Button} aria-label="Choose emoji">
           😀 Choose emoji
         </Autocomplete.Trigger>

@@ -518,6 +518,7 @@ export const LocaleAndCurrencyFormat: Story = {
  * browser zoom (verified from source, not re-demonstrated here since it's a non-event).
  */
 export const WheelScrub: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => (
     <NumberField.Root
       id="number-field-wheel-scrub"

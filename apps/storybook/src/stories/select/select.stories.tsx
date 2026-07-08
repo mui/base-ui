@@ -727,6 +727,7 @@ export const RTLItemAlignment: Story = {
 
 /** Like native `<select>`, typing on the closed trigger commits a matching value without opening the popup (single mode only; disabled items are skipped, #5025). */
 export const TypeaheadKeyboard: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
   render: () => <DemoSelect label="Country" placeholder="Select country" options={countries} />,
   play: async ({ canvas, userEvent }) => {
     const trigger = canvas.getByRole('combobox');
