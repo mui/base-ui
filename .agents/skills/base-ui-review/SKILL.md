@@ -229,7 +229,7 @@ Follow the verdict with one clause naming the deciding factor.
 Then close the review with a footer: a `---` horizontal rule, a blank line, then a
 single line of plain text:
 
-```
+```text
 ---
 
 🤖 Review generated with Claude Code
