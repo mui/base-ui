@@ -1,6 +1,6 @@
 ---
 name: base-ui-review
-description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.'
+description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post a top-level PR comment, --comment inline for inline PR comments, or --fix to apply findings.'
 ---
 
 # Base UI Review
@@ -11,7 +11,7 @@ Review the current diff and report **regressions and correctness bugs** alongsid
 areas across subagents, `xhigh` adds a sweep, and `max` adds verifier subagents.
 See [Effort levels](#effort-levels).
 
-Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment] [<target>]`
+Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline]] [<target>]`
 
 You are reviewing for **precision** at medium effort: every finding you surface
 should be one a maintainer would act on. At **high**, **xhigh**, and especially
@@ -235,7 +235,7 @@ consumer usage, accessibility behavior, form behavior, focus management, SSR, or
 public API/docs contract. Do not reserve 🔴 high only for outage-level failures.
 
 Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️. Include the same
-marker in the inline PR comment body when posting with `--comment`.
+marker in each inline PR comment body when posting with `--comment inline`.
 
 End the review with a `## Verdict` line derived from those markers:
 
@@ -333,12 +333,14 @@ these `##` sections, in order, when there are findings: `Bugs`, `Tests`,
 ## Posting to GitHub (--comment)
 
 If the `--comment` flag was passed in the arguments, then after producing the
-findings list, if the review target is a GitHub PR, post each finding as an inline
-PR comment via `gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per
-finding, including a suggestion block only when it fully fixes the issue. (If a
-GitHub inline-comment MCP tool is available in this session, use it instead.) If
-the target is not a PR, print the findings to the terminal and note that
-`--comment` was ignored.
+findings list, post to GitHub only when the review target is a GitHub PR. Plain
+`--comment` posts the Markdown review as one top-level PR comment via
+`gh pr comment`. `--comment inline` posts each finding as an inline PR comment via
+`gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per finding,
+including a suggestion block only when it fully fixes the issue. (If a GitHub
+inline-comment MCP tool is available in this session, use it instead.) If the
+target is not a PR, print the findings to the terminal and note that `--comment`
+was ignored.
 
 ## Applying fixes (--fix)
 

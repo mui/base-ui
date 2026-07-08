@@ -9,4 +9,5 @@ This is the Claude Code entrypoint for the shared repo skill.
 
 Before reviewing, read `.agents/skills/base-ui-review/SKILL.md` completely and
 follow that canonical workflow. Pass through any user arguments such as `low`,
-`medium`, `high`, `xhigh`, `max`, `--comment`, `--fix`, or a review target.
+`medium`, `high`, `xhigh`, `max`, `--comment`, `--comment inline`, `--fix`, or a
+review target.
