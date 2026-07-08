@@ -211,19 +211,30 @@ explains a specific finding or limitation.
 
 Prefix every finding title with a severity marker:
 
-- 🟣 **critical - blocking.** A severe correctness issue that can crash common
-  flows, lose user data, create a security/privacy problem, or ship a broken public
-  contract. Must block merge.
-- 🔴 **high - blocking.** A regression or correctness bug that breaks important
-  behavior for realistic usage, but without critical severity. Should block merge
-  until fixed.
+- 🟣 **critical - blocking.** A correctness issue that can crash common flows, lose
+  user data, create a security/privacy problem, make a public component contract
+  unusable, or create broad cross-component accessibility, focus, form, or SSR
+  breakage. Must block merge.
+- 🔴 **high - blocking.** A realistic user-visible regression in normal component
+  usage, accessibility, keyboard/focus behavior, controlled/uncontrolled behavior,
+  form integration, SSR/hydration, public API behavior, or a public docs example. It
+  should block merge even when the affected path has a workaround or is not the most
+  common path.
 - 🟠 **medium - non-blocking.** A real issue worth fixing before merge when
-  practical: a narrow bug, meaningful missing test, stale public docs, or cleanup
-  that avoids likely future mistakes.
+  practical but not normally blocking: a narrow or uncommon bug, meaningful missing
+  test, stale public docs, or cleanup that avoids likely future mistakes. Use this
+  only when the issue does not break a public contract and does not affect
+  accessibility, focus, forms, SSR, or normal component usage.
 - 🟡 **low - non-blocking.** A minor edge-case bug, small test/doc gap, or modest
   simplification that is useful but easy for maintainers to defer.
 - ℹ️ **note.** Informational - an observation, heads-up, or optional suggestion the
   maintainer may reasonably decline.
+
+Base UI has a stricter quality bar than most apps because small component-library
+regressions are multiplied across many downstream products. When choosing between
+adjacent severities, choose the higher severity if the failure reaches realistic
+consumer usage, accessibility behavior, form behavior, focus management, SSR, or a
+public API/docs contract. Do not reserve 🔴 high only for outage-level failures.
 
 Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️. Include the same
 marker in the inline PR comment body when posting with `--comment`.
