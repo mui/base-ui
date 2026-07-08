@@ -1,22 +1,23 @@
 ---
 name: base-ui-review
-description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.'
+description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.'
 ---
 
 # Base UI Review
 
 Review the current diff and report **regressions and correctness bugs** alongside
 **cleanup** (reuse / simplification / efficiency), scaling depth to the chosen effort
-level. The effort level (`low` / `medium` / `high`, default `medium`) controls how
-many areas are reviewed, whether work fans out to subagents, and the precision/recall
-bias - see [Effort levels](#effort-levels) for the canonical behavior of each.
+level. The effort level (`low` / `medium` / `high` / `xhigh` / `max`, default
+`medium`) controls how many areas are reviewed, whether work fans out to subagents,
+and the precision/recall bias - see [Effort levels](#effort-levels) for the
+canonical behavior of each.
 
-Argument hint: `[low|medium|high] [--fix] [--comment] [<target>]`
+Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment] [<target>]`
 
 You are reviewing for **precision** at medium effort: every finding you surface
-should be one a maintainer would act on. At **high** the bias shifts to **recall**
-to catch every real bug a careful reviewer would catch; a missed bug ships, so err
-on the side of surfacing (uncertain findings are allowed, labeled).
+should be one a maintainer would act on. At **high**, **xhigh**, and especially
+**max**, the bias shifts toward **recall**; a missed bug ships, so surface uncertain
+findings when the mechanism is realistic and label them clearly.
 
 ## Scope
 
@@ -28,15 +29,16 @@ that target instead.
 
 ## Phase 1 - Find candidates
 
-Review the four main areas below: Bugs, Tests, Simplifications, and Docs. At
-`medium` (default) do this locally in the main agent with no subagents; at `high`
-run those four areas as **independent subagents**. At `low`, only Area 1 (Bugs)
-applies, and only its high-confidence runtime-correctness subset - see
-[Effort levels](#effort-levels). Each area surfaces actionable candidate findings
-with `file`, `line`, a one-line `summary`, a `severity` (🔴 / 🟡 / ℹ️ - see
-[Output](#output) for the rubric), and a concrete `failure_scenario`. Do NOT let
-one area's conclusions suppress another's - if two areas flag the same line for
-different reasons, record both.
+Review the four main areas below: Bugs, Tests, Simplifications, and Docs. At `low`,
+only Area 1 (Bugs) applies, and only its high-confidence runtime-correctness subset.
+At `medium` (default), do this locally in the main agent; if the change is large,
+risky, or touches fragile behavior, also spawn an independent bug/regression hunter
+subagent. At `high`, `xhigh`, and `max`, run the four areas as **independent
+subagents** - see [Effort levels](#effort-levels). Each area surfaces actionable
+candidate findings with `file`, `line`, a one-line `summary`, a `severity` (🟣 / 🔴 /
+🟠 / 🟡 / ℹ️ - see [Output](#output) for the rubric), and a concrete
+`failure_scenario`. Do NOT let one area's conclusions suppress another's - if two
+areas flag the same line for different reasons, record both.
 
 Pass every candidate with a nameable failure scenario through - finders that
 silently drop half-believed candidates bypass the verify step and are the
@@ -128,7 +130,8 @@ This specialist is not part of the default four-area fan-out. Skip it entirely a
 `low`. At `medium`, include it in the main-agent pass when the diff adds or changes
 a public API surface: a component, prop, event, hook, provider, imperative method,
 exported type, value shape, behavior contract, or docs example that teaches an API.
-At `high`, run it as an independent API design subagent when triggered.
+At `high`, `xhigh`, and `max`, run it as an independent API design subagent when
+triggered.
 
 Heavily critique the taste of the API: naming, mental model, consistency with
 nearby APIs in the same codebase, controlled/uncontrolled ergonomics, composition,
@@ -144,8 +147,8 @@ This specialist is not part of the default four-area fan-out. Skip it entirely a
 runtime performance: render hot paths, large item collections, virtualization,
 positioning, layout measurement, scroll/resize/pointer/keyboard handlers,
 observers, animations, repeated DOM reads/writes, state updates in loops, or
-component registration/lookup paths. At `high`, run it as an independent runtime
-performance subagent when triggered.
+component registration/lookup paths. At `high`, `xhigh`, and `max`, run it as an
+independent runtime performance subagent when triggered.
 
 Prefer concrete measurement when feasible: existing perf tests, targeted benchmark
 scripts, or a small reproducible measurement. If measuring is not practical, state
@@ -165,7 +168,7 @@ review is ordered.
 
 Dedup candidates that point at the same line/mechanism, keeping the one with the
 most concrete failure scenario. By default, verify candidates locally in the main
-agent. At `high` effort, run **one verifier** as a subagent for each remaining
+agent. At `max` effort, run **one verifier** as a subagent for each remaining
 candidate when subagents are available and authorized: give it the diff, the
 relevant file(s), and the candidate, and have it return exactly one of:
 
@@ -178,7 +181,7 @@ relevant file(s), and the candidate, and have it return exactly one of:
 
 Keep candidates where the vote is CONFIRMED or PLAUSIBLE.
 
-At **high**, verify is recall-biased - **PLAUSIBLE by default**: do not
+At **max**, verify is recall-biased - **PLAUSIBLE by default**: do not
 refute a candidate for being "speculative" or "depends on runtime state" when the
 state is realistic (concurrency races, nil/undefined on a rare-but-reachable path,
 falsy-zero treated as missing, off-by-one on a boundary the code does not exclude,
@@ -186,16 +189,17 @@ retry storms / partial failures, regex/allowlist that lost an anchor). REFUTE on
 when constructible from the code: factually wrong, provably impossible, already
 handled in this diff, or pure style with no observable effect.
 
-## Phase 3 - Sweep for gaps (high effort)
+## Phase 3 - Sweep for gaps (xhigh / max effort)
 
-Run **one more finder** as a fresh reviewer who has the verified list. Re-read the
-diff and enclosing functions looking ONLY for defects not already listed. Do not
-re-derive or re-confirm anything already there - the job is gaps. Focus on what the
-first pass tends to miss: moved/extracted code that dropped a guard or anchor;
-second-tier footguns (dataclass default evaluated once, `hash()` non-determinism,
-lock-scope shrink, predicate methods with side effects); setup/teardown asymmetry in
-tests; config defaults flipped. Surface additional candidates that name a defect not
-already on the list. If nothing new, return an empty sweep - do not pad.
+At `xhigh` and `max`, run **one more finder** as a fresh reviewer who has the
+current finding list. Re-read the diff and enclosing functions looking ONLY for
+defects not already listed. Do not re-derive or re-confirm anything already there -
+the job is gaps. Focus on what the first pass tends to miss: moved/extracted code
+that dropped a guard or anchor; second-tier footguns (dataclass default evaluated
+once, `hash()` non-determinism, lock-scope shrink, predicate methods with side
+effects); setup/teardown asymmetry in tests; config defaults flipped. Surface
+additional candidates that name a defect not already on the list. If nothing new,
+return an empty sweep - do not pad.
 
 ## Output
 
@@ -207,23 +211,29 @@ explains a specific finding or limitation.
 
 Prefix every finding title with a severity marker:
 
-- 🔴 **high / critical - blocking.** A regression or correctness bug that breaks
-  behavior, loses data, crashes, or ships a broken public contract. Should block
-  merge until fixed.
-- 🟡 **low / medium - non-blocking.** A real issue worth fixing but not
-  merge-blocking: a minor bug on a rare path, a simplification, a missing test, or
-  stale docs.
+- 🟣 **critical - blocking.** A severe correctness issue that can crash common
+  flows, lose user data, create a security/privacy problem, or ship a broken public
+  contract. Must block merge.
+- 🔴 **high - blocking.** A regression or correctness bug that breaks important
+  behavior for realistic usage, but without critical severity. Should block merge
+  until fixed.
+- 🟠 **medium - non-blocking.** A real issue worth fixing before merge when
+  practical: a narrow bug, meaningful missing test, stale public docs, or cleanup
+  that avoids likely future mistakes.
+- 🟡 **low - non-blocking.** A minor edge-case bug, small test/doc gap, or modest
+  simplification that is useful but easy for maintainers to defer.
 - ℹ️ **note.** Informational - an observation, heads-up, or optional suggestion the
   maintainer may reasonably decline.
 
-Within each section, order findings 🔴 -> 🟡 -> ℹ️. Include the same marker in the
-inline PR comment body when posting with `--comment`.
+Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️. Include the same
+marker in the inline PR comment body when posting with `--comment`.
 
 End the review with a `## Verdict` line derived from those markers:
 
-- **Request changes** - at least one 🔴 finding.
-- **Approve after nits** - no 🔴, but one or more 🟡 findings worth addressing.
-- **Approve** - no 🔴 and no 🟡 (only ℹ️ notes, or nothing).
+- **Request changes** - at least one 🟣 or 🔴 finding.
+- **Approve after nits** - no 🟣 or 🔴, but one or more 🟠 or 🟡 findings worth
+  addressing.
+- **Approve** - no 🟣, 🔴, 🟠, or 🟡 findings (only ℹ️ notes, or nothing).
 
 Follow the verdict with one clause naming the deciding factor.
 
@@ -246,7 +256,7 @@ harness you are actually running in. Always include this footer, including on th
 
 One to three sentences summarizing the concrete risk, most important theme, and
 any meaningful verification limit. State up front whether anything is merge-blocking
-(any 🔴). If there are no actionable findings, say that clearly.
+(any 🟣 or 🔴). If there are no actionable findings, say that clearly.
 
 ## Bugs ({count})
 
@@ -302,10 +312,17 @@ these `##` sections, in order, when there are findings: `Bugs`, `Tests`,
   high-confidence runtime-correctness bugs visible from the hunk alone.
 - **medium** (default) -> main agent reviews Bugs, Tests, Simplifications, and Docs
   locally, includes API design and runtime performance locally when the diff
-  warrants them, then verifies locally. Precision bias. No subagents.
-- **high** -> run the four main areas as independent fan-out subagents, run verifier
-  subagents for surviving candidates, trigger API design/perf specialist subagents
-  when warranted, add the Phase 3 sweep. Recall bias.
+  warrants them, then verifies locally. Precision bias. If the change is large,
+  risky, or touches fragile behavior, also spawn an independent bug/regression hunter
+  subagent and merge its candidates into the local review before verification.
+- **high** -> run Bugs, Tests, Simplifications, and Docs as independent fan-out
+  subagents; trigger API design/perf specialist subagents when warranted; then dedup
+  and sanity-check locally. Do not run verifier subagents or the Phase 3 sweep.
+- **xhigh** -> same as `high`, plus the Phase 3 sweep re-check. Do not run verifier
+  subagents.
+- **max** -> current most expensive mode: run the independent fan-out subagents, run
+  verifier subagents for surviving candidates, trigger API design/perf specialist
+  subagents when warranted, and add the Phase 3 sweep. Strong recall bias.
 
 ## Posting to GitHub (--comment)
 
