@@ -3,8 +3,8 @@
   "generatedBy": "build-in-the-wild-index.mjs",
   "note": "One record per In-the-wild site. `selector`/`box`/`screenshotHighlight` are populated by capture-highlight.mjs; null means a highlight pass is still pending.",
   "counts": {
-    "total": 30,
-    "withHighlight": 2
+    "total": 38,
+    "withHighlight": 9
   },
   "entries": {
     "9ui-dev": {
@@ -36,6 +36,7 @@
         "form"
       ],
       "selector": "[role=\"tablist\"]",
+      "matchedRole": "tablist",
       "box": {
         "x": 105,
         "y": 685,
@@ -55,7 +56,8 @@
         "toast",
         "drawer"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "baseui-cn-com.png",
       "screenshotOpen": null,
@@ -70,6 +72,7 @@
         "ecosystem"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "chanhdai-com.png",
       "screenshotOpen": null,
@@ -85,6 +88,7 @@
         "menu"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "cmux-com.png",
       "screenshotOpen": "cmux-com-open.png",
@@ -99,7 +103,8 @@
         "dialog",
         "menu"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "console-preview-oxide-computer.png",
       "screenshotOpen": "console-preview-oxide-computer-open.png",
@@ -125,7 +130,8 @@
         "checkbox-group",
         "form"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "coss-com-ui.png",
       "screenshotOpen": null,
@@ -140,6 +146,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "dbhub-ai.png",
       "screenshotOpen": null,
@@ -154,6 +161,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "developers-cloudflare-com.png",
       "screenshotOpen": null,
@@ -170,7 +178,8 @@
         "menu",
         "popover"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "dify-ai.png",
       "screenshotOpen": "dify-ai-open.png",
@@ -184,7 +193,8 @@
       "components": [
         "combobox"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "electric-ax.png",
       "screenshotOpen": null,
@@ -200,6 +210,7 @@
         "popover"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "flashtype-com.png",
       "screenshotOpen": "flashtype-com-open.png",
@@ -213,7 +224,8 @@
       "components": [
         "combobox"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "gitbutler-com.png",
       "screenshotOpen": null,
@@ -227,11 +239,17 @@
       "components": [
         "select"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"combobox\"]",
+      "matchedRole": "combobox",
+      "box": {
+        "x": 1108,
+        "y": 14,
+        "width": 256,
+        "height": 36
+      },
       "screenshot": "graphql-org.png",
       "screenshotOpen": "graphql-org-open.png",
-      "screenshotHighlight": null,
+      "screenshotHighlight": "graphql-org-hl-highlight.png",
       "status": "captured"
     },
     "green-wall-leoku-dev": {
@@ -245,11 +263,25 @@
         "popover"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "green-wall-leoku-dev.png",
       "screenshotOpen": "green-wall-leoku-dev-open.png",
       "screenshotHighlight": null,
       "status": "captured"
+    },
+    "gsap-pacekit-dev": {
+      "url": "https://gsap.pacekit.dev",
+      "route": "/",
+      "domain": "gsap.pacekit.dev",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "gsap-pacekit-dev-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "kaneo-app": {
       "url": "https://kaneo.app/",
@@ -259,6 +291,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "kaneo-app.png",
       "screenshotOpen": null,
@@ -275,6 +308,7 @@
         "popover"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "krds-gracefullight-dev.png",
       "screenshotOpen": "krds-gracefullight-dev-open.png",
@@ -290,12 +324,31 @@
         "dialog",
         "menu"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"combobox\"]",
+      "matchedRole": "combobox",
+      "box": {
+        "x": 1110,
+        "y": 211,
+        "width": 200,
+        "height": 36
+      },
       "screenshot": "kumo-ui-com.png",
       "screenshotOpen": "kumo-ui-com-open.png",
-      "screenshotHighlight": null,
+      "screenshotHighlight": "kumo-ui-com-hl-highlight.png",
       "status": "captured"
+    },
+    "latitude-so": {
+      "url": "https://latitude.so",
+      "route": "/",
+      "domain": "latitude.so",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "latitude-so-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "latitude-so-jpg": {
       "url": "https://latitude.so",
@@ -305,6 +358,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "latitude-so.jpg",
       "screenshotOpen": null,
@@ -337,6 +391,7 @@
         "form"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "lumiui-dev.png",
       "screenshotOpen": "lumiui-dev-open.png",
@@ -353,12 +408,31 @@
         "menu",
         "popover"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"tablist\"]",
+      "matchedRole": "tablist",
+      "box": {
+        "x": 56,
+        "y": 50,
+        "width": 138,
+        "height": 800
+      },
       "screenshot": "mastra-ai.png",
       "screenshotOpen": "mastra-ai-open.png",
-      "screenshotHighlight": null,
+      "screenshotHighlight": "mastra-ai-hl-highlight.png",
       "status": "captured"
+    },
+    "mathematic-inc-github-io-earl": {
+      "url": "https://mathematic-inc.github.io/earl/",
+      "route": "/earl/",
+      "domain": "mathematic-inc.github.io",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "mathematic-inc-github-io-earl-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "mui-treasury-com": {
       "url": "https://mui-treasury.com",
@@ -368,11 +442,25 @@
         "menubar"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "mui-treasury-com.png",
       "screenshotOpen": null,
       "screenshotHighlight": null,
       "status": "captured"
+    },
+    "museeks-io": {
+      "url": "https://museeks.io",
+      "route": "/",
+      "domain": "museeks.io",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "museeks-io-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "nextjs-org": {
       "url": "https://nextjs.org",
@@ -381,11 +469,17 @@
       "components": [
         "menu"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"radiogroup\"]",
+      "matchedRole": "radiogroup",
+      "box": {
+        "x": 1216,
+        "y": 816,
+        "width": 104,
+        "height": 40
+      },
       "screenshot": "nextjs-org.png",
       "screenshotOpen": null,
-      "screenshotHighlight": null,
+      "screenshotHighlight": "nextjs-org-hl-highlight.png",
       "status": "captured"
     },
     "openade-ai": {
@@ -398,11 +492,25 @@
         "popover"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "openade-ai.png",
       "screenshotOpen": null,
       "screenshotHighlight": null,
       "status": "captured"
+    },
+    "popser-vcui-dev": {
+      "url": "https://popser.vcui.dev",
+      "route": "/",
+      "domain": "popser.vcui.dev",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "popser-vcui-dev-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "posthog-com": {
       "url": "https://posthog.com",
@@ -413,12 +521,31 @@
         "menu",
         "popover"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"menubar\"]",
+      "matchedRole": "menubar",
+      "box": {
+        "x": 2,
+        "y": 4,
+        "width": 420,
+        "height": 32
+      },
       "screenshot": "posthog-com.png",
       "screenshotOpen": "posthog-com-open.png",
-      "screenshotHighlight": null,
+      "screenshotHighlight": "posthog-com-hl-highlight.png",
       "status": "captured"
+    },
+    "raystack-frontier-vercel-app": {
+      "url": "https://raystack-frontier.vercel.app/",
+      "route": "/",
+      "domain": "raystack-frontier.vercel.app",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "raystack-frontier-vercel-app-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "reui-io": {
       "url": "https://reui.io",
@@ -435,12 +562,13 @@
         "checkbox",
         "avatar"
       ],
-      "selector": "[role=\"switch\"]",
+      "selector": "[role=\"combobox\"]",
+      "matchedRole": "combobox",
       "box": {
-        "x": 781,
-        "y": 441,
-        "width": 32,
-        "height": 18
+        "x": 53,
+        "y": 553,
+        "width": 94,
+        "height": 32
       },
       "screenshot": "reui-io.png",
       "screenshotOpen": "reui-io-open.png",
@@ -455,7 +583,8 @@
         "dialog",
         "menu"
       ],
-      "selector": null,
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
       "box": null,
       "screenshot": "t3-codes.png",
       "screenshotOpen": null,
@@ -470,6 +599,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "typebot-io.png",
       "screenshotOpen": null,
@@ -485,6 +615,7 @@
         "dialog"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "ui-shadcn-com.png",
       "screenshotOpen": "ui-shadcn-com-open.png",
@@ -499,6 +630,7 @@
         "combobox"
       ],
       "selector": null,
+      "matchedRole": null,
       "box": null,
       "screenshot": "woocommerce-com.png",
       "screenshotOpen": null,
@@ -515,11 +647,48 @@
         "menu",
         "popover"
       ],
-      "selector": null,
-      "box": null,
+      "selector": "[role=\"tablist\"]",
+      "matchedRole": "tablist",
+      "box": {
+        "x": 1160,
+        "y": 64,
+        "width": 128,
+        "height": 48
+      },
       "screenshot": "wordpress-org-gutenberg.png",
       "screenshotOpen": "wordpress-org-gutenberg-open.png",
+      "screenshotHighlight": "wordpress-org-gutenberg-hl-highlight.png",
+      "status": "captured"
+    },
+    "zerocalendar-com": {
+      "url": "https://zerocalendar.com",
+      "route": "/",
+      "domain": "zerocalendar.com",
+      "components": [],
+      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "zerocalendar-com-hl.png",
+      "screenshotOpen": null,
       "screenshotHighlight": null,
+      "status": "page-only"
+    },
+    "zweien-github-io-docx-template-system": {
+      "url": "https://zweien.github.io/docx-template-system/",
+      "route": "/docx-template-system/",
+      "domain": "zweien.github.io",
+      "components": [],
+      "selector": "[role=\"combobox\"]",
+      "matchedRole": "combobox",
+      "box": {
+        "x": 1120,
+        "y": 15,
+        "width": 256,
+        "height": 34
+      },
+      "screenshot": "zweien-github-io-docx-template-system-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "zweien-github-io-docx-template-system-hl-highlight.png",
       "status": "captured"
     }
   }

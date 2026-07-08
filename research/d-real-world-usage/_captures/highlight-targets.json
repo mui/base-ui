@@ -1,16 +1,163 @@
 [
   {
-    "slug": "9ui-dev-hl",
-    "url": "https://www.9ui.dev",
-    "domain": "9ui.dev",
-    "components": ["tabs"],
-    "selector": "[role=\"tablist\"]"
+    "slug": "console-preview-oxide-computer-hl",
+    "url": "https://console-preview.oxide.computer",
+    "domain": "console-preview.oxide.computer",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "coss-com-ui-hl",
+    "url": "https://coss.com/ui",
+    "domain": "coss.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "dify-ai-hl",
+    "url": "https://dify.ai",
+    "domain": "dify.ai",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "electric-ax-hl",
+    "url": "https://electric.ax",
+    "domain": "electric.ax",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "gitbutler-com-hl",
+    "url": "https://gitbutler.com",
+    "domain": "gitbutler.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "graphql-org-hl",
+    "url": "https://graphql.org",
+    "domain": "graphql.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "gsap-pacekit-dev-hl",
+    "url": "https://gsap.pacekit.dev",
+    "domain": "gsap.pacekit.dev",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "kumo-ui-com-hl",
+    "url": "https://kumo-ui.com",
+    "domain": "kumo-ui.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "latitude-so-hl",
+    "url": "https://latitude.so",
+    "domain": "latitude.so",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "mastra-ai-hl",
+    "url": "https://mastra.ai",
+    "domain": "mastra.ai",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "mathematic-inc-github-io-earl-hl",
+    "url": "https://mathematic-inc.github.io/earl/",
+    "domain": "mathematic-inc.github.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "museeks-io-hl",
+    "url": "https://museeks.io",
+    "domain": "museeks.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "nextjs-org-hl",
+    "url": "https://nextjs.org",
+    "domain": "nextjs.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "popser-vcui-dev-hl",
+    "url": "https://popser.vcui.dev",
+    "domain": "popser.vcui.dev",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "posthog-com-hl",
+    "url": "https://posthog.com",
+    "domain": "posthog.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "raystack-frontier-vercel-app-hl",
+    "url": "https://raystack-frontier.vercel.app/",
+    "domain": "raystack-frontier.vercel.app",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
   },
   {
     "slug": "reui-io-hl",
     "url": "https://reui.io",
     "domain": "reui.io",
-    "components": ["switch"],
-    "selector": "[role=\"switch\"]"
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "t3-codes-hl",
+    "url": "https://t3.codes",
+    "domain": "t3.codes",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "wordpress-org-gutenberg-hl",
+    "url": "https://wordpress.org/gutenberg/",
+    "domain": "wordpress.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "9ui-dev-hl",
+    "url": "https://www.9ui.dev",
+    "domain": "9ui.dev",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "baseui-cn-com-hl",
+    "url": "https://www.baseui-cn.com",
+    "domain": "baseui-cn.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "zerocalendar-com-hl",
+    "url": "https://zerocalendar.com",
+    "domain": "zerocalendar.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+  },
+  {
+    "slug": "zweien-github-io-docx-template-system-hl",
+    "url": "https://zweien.github.io/docx-template-system/",
+    "domain": "zweien.github.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
   }
 ]

@@ -25,15 +25,15 @@ export interface WildCardProps {
   live?: string;
   /**
    * License string as reported by the research corpus, e.g. `"MIT"`, `"AGPL-3.0"`,
-   * `"no SPDX license detected"`. Rendered verbatim in a small badge.
+   * `"no SPDX license detected"`. Rendered verbatim in a small badge; omitted when absent.
    */
-  license: string;
+  license?: string;
   /**
    * Reuse note as reported by the research corpus, e.g. `"code-ok"`, `"link-only"`,
-   * `"link-only, do not copy"`. Rendered verbatim in a small badge; anything other than
-   * `"code-ok"` is visually flagged (e.g. "link-only — do not copy" cases).
+   * `"link-only, do not copy"`. Rendered verbatim in a small badge (omitted when absent);
+   * anything other than `"code-ok"` is visually flagged (e.g. "link-only — do not copy").
    */
-  reuse: string;
+  reuse?: string;
   /**
    * Optional local screenshot import overriding the GitHub social-preview image. Either
    * way, the rendered thumbnail opens a fullscreen carousel viewer (shared across every
@@ -83,8 +83,8 @@ interface WildCardEntry {
   repo: string;
   href: string;
   live?: string;
-  license: string;
-  reuse: string;
+  license?: string;
+  reuse?: string;
 }
 
 interface WildCardsContextValue {
@@ -170,7 +170,7 @@ export function WildCard({
   selector,
   children,
 }: WildCardProps) {
-  const isCodeOk = reuse.trim().toLowerCase() === 'code-ok';
+  const isCodeOk = reuse?.trim().toLowerCase() === 'code-ok';
   const isCapture = Boolean(image);
   const imageSrc = image ?? `https://opengraph.githubassets.com/1/${repo}`;
   const id = React.useId();
@@ -259,10 +259,12 @@ export function WildCard({
           ) : null}
         </div>
         <div className={styles.Badges}>
-          <span className={styles.License}>{license}</span>
-          <span className={isCodeOk ? styles.Reuse : `${styles.Reuse} ${styles.ReuseFlagged}`}>
-            {reuse}
-          </span>
+          {license ? <span className={styles.License}>{license}</span> : null}
+          {reuse ? (
+            <span className={isCodeOk ? styles.Reuse : `${styles.Reuse} ${styles.ReuseFlagged}`}>
+              {reuse}
+            </span>
+          ) : null}
           {highlightImage ? (
             <span className={styles.Located} title="Component located on the page">
               ◎ located
@@ -295,7 +297,7 @@ function WildCardViewer({
   const count = items.length;
   const isOpen = index >= 0 && index < count;
   const item = isOpen ? items[index] : undefined;
-  const isCodeOk = item != null && item.reuse.trim().toLowerCase() === 'code-ok';
+  const isCodeOk = item?.reuse?.trim().toLowerCase() === 'code-ok';
 
   const hasHighlight = Boolean(item?.highlightImage);
   const [showComponent, setShowComponent] = React.useState(true);
@@ -438,12 +440,14 @@ function WildCardViewer({
                       live site
                     </a>
                   ) : null}
-                  <span className={styles.License}>{item.license}</span>
-                  <span
-                    className={isCodeOk ? styles.Reuse : `${styles.Reuse} ${styles.ReuseFlagged}`}
-                  >
-                    {item.reuse}
-                  </span>
+                  {item.license ? <span className={styles.License}>{item.license}</span> : null}
+                  {item.reuse ? (
+                    <span
+                      className={isCodeOk ? styles.Reuse : `${styles.Reuse} ${styles.ReuseFlagged}`}
+                    >
+                      {item.reuse}
+                    </span>
+                  ) : null}
                 </div>
                 <div className={styles.ViewerCounter}>
                   {index + 1} of {count}

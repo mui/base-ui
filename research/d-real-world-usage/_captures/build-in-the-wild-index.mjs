@@ -58,6 +58,7 @@ for (const manifestName of ['manifest-a.json', 'manifest-b.json']) {
       domain: e.domain ?? null,
       components: e.components ?? [],
       selector: null,
+      matchedRole: null,
       box: null,
       screenshot: e.file ?? null,
       screenshotOpen: e.fileOpen ?? null,
@@ -66,6 +67,10 @@ for (const manifestName of ['manifest-a.json', 'manifest-b.json']) {
     };
   }
 }
+
+// A union/fallback capture records its concrete match as the matched element's role.
+const resolveSelector = (selector, role) =>
+  selector && selector.includes(',') && role ? `[role="${role}"]` : selector;
 
 // 2. Highlight captures — fold `<slug>-hl` back onto the base `<slug>` and attach the
 //    located selector/box/highlight image. Create a standalone entry if there's no base.
@@ -82,13 +87,15 @@ if (Array.isArray(highlights)) {
         domain: h.domain ?? null,
         components: h.components ?? [],
         selector: null,
+        matchedRole: null,
         box: null,
         screenshot: h.file ?? null,
         screenshotOpen: null,
         screenshotHighlight: null,
         status: h.status ?? null,
       });
-    target.selector = h.selector ?? target.selector;
+    target.matchedRole = h.matchedRole ?? target.matchedRole;
+    target.selector = resolveSelector(h.selector, h.matchedRole) ?? target.selector;
     target.box = h.box ?? target.box;
     target.screenshotHighlight = h.fileHighlight ?? target.screenshotHighlight;
     if (!target.url) {

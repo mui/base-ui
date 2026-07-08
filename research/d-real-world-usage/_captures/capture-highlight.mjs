@@ -89,37 +89,6 @@ async function tryGoto(page, url) {
   }
 }
 
-// Build a stable-ish CSS selector for an element handle, preferring id, then a role/aria
-// path, then a nth-of-type tag chain. Runs in-page. Not guaranteed globally unique on every
-// site, but concrete enough for an agent to re-locate the component (and it's paired with the
-// box, so ambiguity is resolvable).
-const SELECTOR_FN = `(el) => {
-  if (!el) return null;
-  const seg = (node) => {
-    if (node.id && /^[A-Za-z][\\w-]*$/.test(node.id)) return '#' + node.id;
-    let s = node.tagName.toLowerCase();
-    const role = node.getAttribute && node.getAttribute('role');
-    if (role) s += '[role="' + role + '"]';
-    const parent = node.parentElement;
-    if (parent) {
-      const sameTag = Array.from(parent.children).filter((c) => c.tagName === node.tagName);
-      if (sameTag.length > 1) s += ':nth-of-type(' + (Array.from(parent.children).indexOf(node) + 1) + ')';
-    }
-    return s;
-  };
-  const parts = [];
-  let node = el;
-  let depth = 0;
-  while (node && node.nodeType === 1 && depth < 6) {
-    const s = seg(node);
-    parts.unshift(s);
-    if (s.startsWith('#')) break;
-    node = node.parentElement;
-    depth += 1;
-  }
-  return parts.join(' > ');
-}`;
-
 // Inject a spotlight overlay: dim the whole viewport except the target rect (via a huge
 // box-shadow), draw a bright outline around it, and label it with the component name(s).
 async function applyHighlight(page, handle, label) {
@@ -203,14 +172,37 @@ async function locateTarget(page, target) {
       const loc = page.locator(sel).first();
       if (await loc.isVisible({ timeout: 1500 })) {
         const handle = await loc.elementHandle();
-        // Report the concrete selector actually resolved (explicit one wins; else derive).
-        const selector = target.selector === sel ? sel : await page.evaluate(SELECTOR_FN, handle);
-        return { handle, selector, note: `matched ${sel}` };
+        // Report a concrete selector: an explicit single selector wins; otherwise (a union
+        // or a role fallback) collapse to the matched element's own role, which is concrete
+        // and actionable (and paired with the box, so any ambiguity is resolvable).
+        const role = await handle.getAttribute('role').catch(() => null);
+        const isSingleExplicit =
+          target.selector != null && target.selector === sel && !sel.includes(',');
+        const selector = isSingleExplicit ? sel : role ? `[role="${role}"]` : sel;
+        return { handle, selector, role, note: `matched ${sel}` };
       }
     } catch {}
   }
-  return { handle: null, selector: null, note: 'no target element located' };
+  return { handle: null, selector: null, role: null, note: 'no target element located' };
 }
+
+// ARIA role → friendly Base UI component name, for the highlight box label.
+const ROLE_LABELS = {
+  tablist: 'Tabs',
+  menubar: 'Menubar',
+  switch: 'Switch',
+  slider: 'Slider',
+  radiogroup: 'Radio Group',
+  checkbox: 'Checkbox',
+  combobox: 'Combobox',
+  meter: 'Meter',
+  progressbar: 'Progress',
+  dialog: 'Dialog',
+  menu: 'Menu',
+  listbox: 'Select',
+  tab: 'Tabs',
+  separator: 'Separator',
+};
 
 async function captureTarget(browser, target) {
   const basePath = path.join(scriptDir, `${target.slug}.png`);
@@ -236,6 +228,7 @@ async function captureTarget(browser, target) {
       })(),
     components: target.components ?? [],
     selector: target.selector ?? null,
+    matchedRole: null,
     box: null,
     file: null,
     fileHighlight: null,
@@ -273,7 +266,10 @@ async function captureTarget(browser, target) {
       await page.screenshot({ path: basePath });
       entry.file = path.basename(basePath);
 
-      await applyHighlight(page, located.handle, entry.components[0] ?? 'Base UI component');
+      entry.matchedRole = located.role ?? null;
+      const label =
+        (located.role && ROLE_LABELS[located.role]) ?? entry.components[0] ?? 'Base UI component';
+      await applyHighlight(page, located.handle, label);
       await page.screenshot({ path: highlightPath });
       entry.fileHighlight = path.basename(highlightPath);
       entry.status = 'captured';
@@ -309,6 +305,7 @@ function mergeIntoIndex(entries) {
       domain: e.domain,
       components: e.components,
       selector: e.selector,
+      matchedRole: e.matchedRole ?? null,
       box: e.box,
       screenshot: e.file,
       screenshotHighlight: e.fileHighlight,

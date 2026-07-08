@@ -37,6 +37,12 @@ All story files carry `tags: ['ai-generated']` — every `needs-work` tag was st
 - Gesture interactions (drawer swipe, number-field scrub, toast swipe) are rendered and documented but not play-driven — pointer-capture gestures aren't reliably testable in this harness.
 
 
+## POLISH STATE (2026-07-08, rev. 5 — full component-highlight pass)
+
+- **Component highlights captured across the docs sites**: a 26-site batch pass (role-union selector, `capture-highlight.mjs`) produced **9 solid highlights** — Tabs/Combobox/Menubar/Radio-Group on 9ui, graphql.org, Cloudflare Kumo, Mastra, Next.js, PostHog, ReUI, WordPress Gutenberg, docx-template-system. 14 sites were `page-only` (component behind an interaction or on a subpage the landing URL doesn't show); 3 degenerate matches (<18px) culled by hand. Each highlight carries a concrete `[role="…"]` selector + `matchedRole` + `box` + `route` in `in-the-wild.json`.
+- **All highlights are visible** in a new `Utilities/InTheWild highlights (internal)` story (rendered via the shared viewer). `WildCard`'s `license`/`reuse` are now optional, so the gallery shows real provenance-free captures without fabricating badges.
+- The capture README documents the batch/union approach; process is fully reproducible from `highlight-targets.json`.
+
 ## POLISH STATE (2026-07-08, rev. 4 — component-first in-the-wild + capture doc)
 
 - **In-the-wild component view is now the default** (`shared/InTheWild.tsx`): the fullscreen viewer opens on the **Component** (highlighted) frame when one exists, and card thumbnails lead with the highlighted frame too (falling back to the plain page / OG card otherwise).

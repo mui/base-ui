@@ -71,6 +71,25 @@ If no explicit `selector` matches, the script falls back to the first visible
 it. Targets whose component can't be located are still saved as a plain page screenshot
 (`status: "page-only"`).
 
+### Batch pass with a role-union selector
+
+To sweep many sites at once without hand-picking a selector per site, give each target a
+**union** of Base UI component roles as its `selector` and let the script highlight (and
+label, via the matched element's `role`) whichever appears first:
+
+```
+[role="tablist"], [role="menubar"], [role="switch"], [role="slider"],
+[role="radiogroup"], [role="checkbox"], [role="combobox"], [role="meter"], [role="progressbar"]
+```
+
+This is how the current set was captured: a 26-site pass yielded 9 solid component
+highlights (Tabs, Menubar, Combobox, Radio Group across 9ui, graphql, kumo, mastra, nextjs,
+posthog, reui, wordpress, docx-template-system). The rest were `page-only` — their component
+usually lives behind an interaction or on a subpage the landing URL doesn't show; those need
+a per-component `url` + `selector` (or an `interact`) to capture. Degenerate matches (a
+component under ~18px) were culled by hand. Every captured highlight is rendered in the
+`Utilities/InTheWild highlights (internal)` Storybook story.
+
 ## The scripts
 
 | Script | Produces | Notes |

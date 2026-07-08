@@ -1,13 +1,370 @@
 [
   {
+    "slug": "console-preview-oxide-computer-hl",
+    "url": "https://console-preview.oxide.computer",
+    "route": "/",
+    "domain": "console-preview.oxide.computer",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "console-preview-oxide-computer-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "coss-com-ui-hl",
+    "url": "https://coss.com/ui",
+    "route": "/ui",
+    "domain": "coss.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "coss-com-ui-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "dify-ai-hl",
+    "url": "https://dify.ai",
+    "route": "/",
+    "domain": "dify.ai",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "dify-ai-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "electric-ax-hl",
+    "url": "https://electric.ax",
+    "route": "/",
+    "domain": "electric.ax",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "electric-ax-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "gitbutler-com-hl",
+    "url": "https://gitbutler.com",
+    "route": "/",
+    "domain": "gitbutler.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "gitbutler-com-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "graphql-org-hl",
+    "url": "https://graphql.org",
+    "route": "/",
+    "domain": "graphql.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "combobox",
+    "box": {
+      "x": 1108,
+      "y": 14,
+      "width": 256,
+      "height": 36
+    },
+    "file": "graphql-org-hl.png",
+    "fileHighlight": "graphql-org-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "gsap-pacekit-dev-hl",
+    "url": "https://gsap.pacekit.dev",
+    "route": "/",
+    "domain": "gsap.pacekit.dev",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "gsap-pacekit-dev-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "kumo-ui-com-hl",
+    "url": "https://kumo-ui.com",
+    "route": "/",
+    "domain": "kumo-ui.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "combobox",
+    "box": {
+      "x": 1110,
+      "y": 211,
+      "width": 200,
+      "height": 36
+    },
+    "file": "kumo-ui-com-hl.png",
+    "fileHighlight": "kumo-ui-com-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "latitude-so-hl",
+    "url": "https://latitude.so",
+    "route": "/",
+    "domain": "latitude.so",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "latitude-so-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: load (networkidle timed out)",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "mastra-ai-hl",
+    "url": "https://mastra.ai",
+    "route": "/",
+    "domain": "mastra.ai",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "tablist",
+    "box": {
+      "x": 56,
+      "y": 50,
+      "width": 138,
+      "height": 800
+    },
+    "file": "mastra-ai-hl.png",
+    "fileHighlight": "mastra-ai-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "mathematic-inc-github-io-earl-hl",
+    "url": "https://mathematic-inc.github.io/earl/",
+    "route": "/earl/",
+    "domain": "mathematic-inc.github.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "mathematic-inc-github-io-earl-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "museeks-io-hl",
+    "url": "https://museeks.io",
+    "route": "/",
+    "domain": "museeks.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "museeks-io-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "nextjs-org-hl",
+    "url": "https://nextjs.org",
+    "route": "/",
+    "domain": "nextjs.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "radiogroup",
+    "box": {
+      "x": 1216,
+      "y": 816,
+      "width": 104,
+      "height": 40
+    },
+    "file": "nextjs-org-hl.png",
+    "fileHighlight": "nextjs-org-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "popser-vcui-dev-hl",
+    "url": "https://popser.vcui.dev",
+    "route": "/",
+    "domain": "popser.vcui.dev",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "popser-vcui-dev-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "posthog-com-hl",
+    "url": "https://posthog.com",
+    "route": "/",
+    "domain": "posthog.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "menubar",
+    "box": {
+      "x": 2,
+      "y": 4,
+      "width": 420,
+      "height": 32
+    },
+    "file": "posthog-com-hl.png",
+    "fileHighlight": "posthog-com-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "raystack-frontier-vercel-app-hl",
+    "url": "https://raystack-frontier.vercel.app/",
+    "route": "/",
+    "domain": "raystack-frontier.vercel.app",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "raystack-frontier-vercel-app-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "reui-io-hl",
+    "url": "https://reui.io",
+    "route": "/",
+    "domain": "reui.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "combobox",
+    "box": {
+      "x": 53,
+      "y": 553,
+      "width": 94,
+      "height": 32
+    },
+    "file": "reui-io-hl.png",
+    "fileHighlight": "reui-io-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
+    "slug": "t3-codes-hl",
+    "url": "https://t3.codes",
+    "route": "/",
+    "domain": "t3.codes",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "t3-codes-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "wordpress-org-gutenberg-hl",
+    "url": "https://wordpress.org/gutenberg/",
+    "route": "/gutenberg/",
+    "domain": "wordpress.org",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "tablist",
+    "box": {
+      "x": 1160,
+      "y": 64,
+      "width": 128,
+      "height": 48
+    },
+    "file": "wordpress-org-gutenberg-hl.png",
+    "fileHighlight": "wordpress-org-gutenberg-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
+    ]
+  },
+  {
     "slug": "9ui-dev-hl",
     "url": "https://www.9ui.dev",
     "route": "/",
     "domain": "9ui.dev",
-    "components": [
-      "tabs"
-    ],
-    "selector": "[role=\"tablist\"]",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "tablist",
     "box": {
       "x": 105,
       "y": 685,
@@ -19,30 +376,63 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [role=\"tablist\"]"
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
     ]
   },
   {
-    "slug": "reui-io-hl",
-    "url": "https://reui.io",
+    "slug": "baseui-cn-com-hl",
+    "url": "https://www.baseui-cn.com",
     "route": "/",
-    "domain": "reui.io",
-    "components": [
-      "switch"
-    ],
-    "selector": "[role=\"switch\"]",
+    "domain": "baseui-cn.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "baseui-cn-com-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "zerocalendar-com-hl",
+    "url": "https://zerocalendar.com",
+    "route": "/",
+    "domain": "zerocalendar.com",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": null,
+    "box": null,
+    "file": "zerocalendar-com-hl.png",
+    "fileHighlight": null,
+    "status": "page-only",
+    "notes": [
+      "goto: networkidle",
+      "no target element located"
+    ]
+  },
+  {
+    "slug": "zweien-github-io-docx-template-system-hl",
+    "url": "https://zweien.github.io/docx-template-system/",
+    "route": "/docx-template-system/",
+    "domain": "zweien.github.io",
+    "components": [],
+    "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "matchedRole": "combobox",
     "box": {
-      "x": 781,
-      "y": 441,
-      "width": 32,
-      "height": 18
+      "x": 1120,
+      "y": 15,
+      "width": 256,
+      "height": 34
     },
-    "file": "reui-io-hl.png",
-    "fileHighlight": "reui-io-hl-highlight.png",
+    "file": "zweien-github-io-docx-template-system-hl.png",
+    "fileHighlight": "zweien-github-io-docx-template-system-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [role=\"switch\"]"
+      "matched [role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]"
     ]
   }
 ]
