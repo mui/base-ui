@@ -9,6 +9,7 @@
     ],
     "selector": "[data-slot=\"accordion\"]",
     "matchedRole": "region",
+    "instances": 2,
     "box": {
       "x": 528,
       "y": 302,
@@ -20,7 +21,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"accordion\"]"
+      "matched [data-slot=\"accordion\"] (2)"
     ]
   },
   {
@@ -33,6 +34,7 @@
     ],
     "selector": "[data-slot=\"accordion\"]",
     "matchedRole": null,
+    "instances": 8,
     "box": {
       "x": 512,
       "y": 340,
@@ -44,7 +46,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"accordion\"]"
+      "matched [data-slot=\"accordion\"] (8)"
     ]
   },
   {
@@ -55,20 +57,21 @@
     "components": [
       "Accordion"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
-    "matchedRole": null,
+    "selector": "[data-slot=\"accordion\"]",
+    "matchedRole": "region",
+    "instances": 7,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 2341
+      "x": 379,
+      "y": 413,
+      "width": 374,
+      "height": 158
     },
     "file": "reui-accordion-hl.png",
     "fileHighlight": "reui-accordion-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot=\"accordion\"] (7)"
     ]
   },
   {
@@ -81,6 +84,7 @@
     ],
     "selector": "[data-slot^=\"alert-dialog\"]",
     "matchedRole": null,
+    "instances": 1,
     "box": {
       "x": 665,
       "y": 344,
@@ -92,7 +96,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"alert-dialog\"]"
+      "matched [data-slot^=\"alert-dialog\"] (1)"
     ]
   },
   {
@@ -105,6 +109,7 @@
     ],
     "selector": "[data-slot^=\"alert-dialog\"]",
     "matchedRole": null,
+    "instances": 7,
     "box": {
       "x": 660,
       "y": 520,
@@ -116,7 +121,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"alert-dialog\"]"
+      "matched [data-slot^=\"alert-dialog\"] (7)"
     ]
   },
   {
@@ -129,6 +134,7 @@
     ],
     "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
+    "instances": 8,
     "box": {
       "x": 700,
       "y": 342,
@@ -140,7 +146,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"avatar\"]"
+      "matched [data-slot=\"avatar\"] (8)"
     ]
   },
   {
@@ -153,6 +159,7 @@
     ],
     "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
+    "instances": 2,
     "box": {
       "x": 680,
       "y": 494,
@@ -164,7 +171,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"avatar\"]"
+      "matched [data-slot=\"avatar\"] (2)"
     ]
   },
   {
@@ -175,20 +182,21 @@
     "components": [
       "Avatar"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot=\"avatar\"]",
     "matchedRole": null,
+    "instances": 24,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 6020
+      "x": 550,
+      "y": 406,
+      "width": 32,
+      "height": 32
     },
     "file": "reui-avatar-hl.png",
     "fileHighlight": "reui-avatar-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot=\"avatar\"] (24)"
     ]
   },
   {
@@ -201,6 +209,7 @@
     ],
     "selector": "[data-slot=\"button\"]",
     "matchedRole": null,
+    "instances": 24,
     "box": {
       "x": 1007,
       "y": 12,
@@ -212,7 +221,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"button\"]"
+      "matched [data-slot=\"button\"] (24)"
     ]
   },
   {
@@ -223,8 +232,9 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot^=\"checkbox\"]",
+    "selector": "[role=\"checkbox\"]",
     "matchedRole": "checkbox",
+    "instances": 5,
     "box": {
       "x": 674,
       "y": 314,
@@ -236,7 +246,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"checkbox\"]"
+      "matched [role=\"checkbox\"] (5)"
     ]
   },
   {
@@ -247,20 +257,21 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot=\"preview\"]",
-    "matchedRole": null,
+    "selector": "[role=\"checkbox\"]",
+    "matchedRole": "checkbox",
+    "instances": 21,
     "box": {
       "x": 661,
       "y": 531,
-      "width": 71,
-      "height": 72
+      "width": 16,
+      "height": 16
     },
     "file": "coss-checkbox-group-hl.png",
     "fileHighlight": "coss-checkbox-group-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [role=\"checkbox\"] (21)"
     ]
   },
   {
@@ -271,20 +282,21 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot=\"checkbox-group\"]",
-    "matchedRole": "group",
+    "selector": "[role=\"checkbox\"]",
+    "matchedRole": "checkbox",
+    "instances": 18,
     "box": {
       "x": 680,
-      "y": 456,
-      "width": 112,
-      "height": 108
+      "y": 492,
+      "width": 16,
+      "height": 16
     },
     "file": "lumiui-checkbox-group-hl.png",
     "fileHighlight": "lumiui-checkbox-group-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"checkbox-group\"]"
+      "matched [role=\"checkbox\"] (18)"
     ]
   },
   {
@@ -295,20 +307,21 @@
     "components": [
       "Checkbox"
     ],
-    "selector": "[data-slot=\"preview\"]",
-    "matchedRole": null,
+    "selector": "[role=\"checkbox\"]",
+    "matchedRole": "checkbox",
+    "instances": 5,
     "box": {
       "x": 587,
-      "y": 555,
-      "width": 218,
-      "height": 24
+      "y": 556,
+      "width": 16,
+      "height": 16
     },
     "file": "coss-checkbox-hl.png",
     "fileHighlight": "coss-checkbox-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [role=\"checkbox\"] (5)"
     ]
   },
   {
@@ -319,20 +332,21 @@
     "components": [
       "Checkbox"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
-    "matchedRole": null,
+    "selector": "[role=\"checkbox\"]",
+    "matchedRole": "checkbox",
+    "instances": 12,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 3491
+      "x": 501,
+      "y": 442,
+      "width": 16,
+      "height": 16
     },
     "file": "reui-checkbox-hl.png",
     "fileHighlight": "reui-checkbox-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [role=\"checkbox\"] (12)"
     ]
   },
   {
@@ -343,8 +357,9 @@
     "components": [
       "Collapsible"
     ],
-    "selector": "[data-slot=\"collapsible\"]",
+    "selector": "[data-slot^=\"collapsible\"]",
     "matchedRole": null,
+    "instances": 2,
     "box": {
       "x": 640,
       "y": 304,
@@ -356,7 +371,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"collapsible\"]"
+      "matched [data-slot^=\"collapsible\"] (2)"
     ]
   },
   {
@@ -367,8 +382,9 @@
     "components": [
       "Context Menu"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
+    "instances": 8,
     "box": {
       "x": 504,
       "y": 503,
@@ -380,7 +396,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot^=\"context-menu\"] (8)"
     ]
   },
   {
@@ -393,6 +409,7 @@
     ],
     "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
+    "instances": 4,
     "box": {
       "x": 586,
       "y": 435,
@@ -404,7 +421,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"context-menu\"]"
+      "matched [data-slot^=\"context-menu\"] (4)"
     ]
   },
   {
@@ -415,20 +432,21 @@
     "components": [
       "Context Menu"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot^=\"context-menu\"]",
     "matchedRole": null,
+    "instances": 6,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 1638
+      "x": 427,
+      "y": 451,
+      "width": 278,
+      "height": 70
     },
     "file": "reui-context-menu-hl.png",
     "fileHighlight": "reui-context-menu-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot^=\"context-menu\"] (6)"
     ]
   },
   {
@@ -439,8 +457,9 @@
     "components": [
       "Drawer"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "[data-slot^=\"drawer\"]",
     "matchedRole": null,
+    "instances": 13,
     "box": {
       "x": 640,
       "y": 579,
@@ -452,7 +471,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot^=\"drawer\"] (13)"
     ]
   },
   {
@@ -463,20 +482,21 @@
     "components": [
       "Drawer"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot^=\"drawer\"]",
     "matchedRole": null,
+    "instances": 5,
     "box": {
-      "x": 256,
-      "y": 122,
-      "width": 1184,
-      "height": 778
+      "x": 511,
+      "y": 406,
+      "width": 110,
+      "height": 32
     },
     "file": "reui-drawer-hl.png",
     "fileHighlight": "reui-drawer-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot^=\"drawer\"] (5)"
     ]
   },
   {
@@ -487,8 +507,9 @@
     "components": [
       "Fieldset"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "fieldset",
     "matchedRole": null,
+    "instances": 1,
     "box": {
       "x": 568,
       "y": 451,
@@ -500,7 +521,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched fieldset (1)"
     ]
   },
   {
@@ -511,8 +532,9 @@
     "components": [
       "Fieldset"
     ],
-    "selector": "[data-slot=\"fieldset\"]",
+    "selector": "fieldset",
     "matchedRole": null,
+    "instances": 3,
     "box": {
       "x": 576,
       "y": 420,
@@ -524,7 +546,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"fieldset\"]"
+      "matched fieldset (3)"
     ]
   },
   {
@@ -537,6 +559,7 @@
     ],
     "selector": "[data-slot=\"input\"]",
     "matchedRole": null,
+    "instances": 4,
     "box": {
       "x": 560,
       "y": 344,
@@ -548,7 +571,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"input\"]"
+      "matched [data-slot=\"input\"] (4)"
     ]
   },
   {
@@ -559,8 +582,9 @@
     "components": [
       "Menubar"
     ],
-    "selector": "[data-slot=\"menubar\"]",
+    "selector": "[role=\"menubar\"]",
     "matchedRole": "menubar",
+    "instances": 5,
     "box": {
       "x": 602,
       "y": 492,
@@ -572,7 +596,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"menubar\"]"
+      "matched [role=\"menubar\"] (5)"
     ]
   },
   {
@@ -583,8 +607,9 @@
     "components": [
       "Meter"
     ],
-    "selector": "[data-slot=\"meter\"]",
+    "selector": "[role=\"meter\"]",
     "matchedRole": "meter",
+    "instances": 1,
     "box": {
       "x": 624,
       "y": 345,
@@ -596,7 +621,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"meter\"]"
+      "matched [role=\"meter\"] (1)"
     ]
   },
   {
@@ -607,8 +632,9 @@
     "components": [
       "Meter"
     ],
-    "selector": "[data-slot=\"meter\"]",
+    "selector": "[role=\"meter\"]",
     "matchedRole": "meter",
+    "instances": 3,
     "box": {
       "x": 624,
       "y": 494,
@@ -620,7 +646,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"meter\"]"
+      "matched [role=\"meter\"] (3)"
     ]
   },
   {
@@ -631,8 +657,9 @@
     "components": [
       "Navigation Menu"
     ],
-    "selector": "[data-slot=\"navigation-menu\"]",
+    "selector": "[data-slot^=\"navigation-menu\"]",
     "matchedRole": null,
+    "instances": 10,
     "box": {
       "x": 393,
       "y": 344,
@@ -644,7 +671,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"navigation-menu\"]"
+      "matched [data-slot^=\"navigation-menu\"] (10)"
     ]
   },
   {
@@ -655,8 +682,9 @@
     "components": [
       "Navigation Menu"
     ],
-    "selector": "[data-slot=\"navigation-menu\"]",
+    "selector": "[data-slot^=\"navigation-menu\"]",
     "matchedRole": null,
+    "instances": 19,
     "box": {
       "x": 436,
       "y": 472,
@@ -668,7 +696,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"navigation-menu\"]"
+      "matched [data-slot^=\"navigation-menu\"] (19)"
     ]
   },
   {
@@ -679,8 +707,9 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"number-field\"]",
+    "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
+    "instances": 6,
     "box": {
       "x": 644,
       "y": 330,
@@ -692,7 +721,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"number-field\"]"
+      "matched [data-slot^=\"number-field\"] (6)"
     ]
   },
   {
@@ -703,8 +732,9 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
+    "instances": 24,
     "box": {
       "x": 568,
       "y": 551,
@@ -716,7 +746,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot^=\"number-field\"] (24)"
     ]
   },
   {
@@ -727,8 +757,9 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"number-field\"]",
+    "selector": "[data-slot^=\"number-field\"]",
     "matchedRole": null,
+    "instances": 16,
     "box": {
       "x": 672,
       "y": 503,
@@ -740,7 +771,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"number-field\"]"
+      "matched [data-slot^=\"number-field\"] (16)"
     ]
   },
   {
@@ -751,12 +782,13 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"input-otp\"]",
+    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]",
     "matchedRole": null,
+    "instances": 10,
     "box": {
       "x": 592,
       "y": 344,
-      "width": 256,
+      "width": 108,
       "height": 36
     },
     "file": "9ui-otp-field-hl.png",
@@ -764,7 +796,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"input-otp\"]"
+      "matched [data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"] (10)"
     ]
   },
   {
@@ -775,8 +807,9 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"preview\"]",
-    "matchedRole": null,
+    "selector": "[data-slot^=\"otp\"]",
+    "matchedRole": "group",
+    "instances": 24,
     "box": {
       "x": 580,
       "y": 551,
@@ -788,7 +821,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot^=\"otp\"] (24)"
     ]
   },
   {
@@ -799,8 +832,9 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"otp-field\"]",
+    "selector": "[data-slot^=\"otp\"]",
     "matchedRole": "group",
+    "instances": 24,
     "box": {
       "x": 608,
       "y": 503,
@@ -812,7 +846,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"otp-field\"]"
+      "matched [data-slot^=\"otp\"] (24)"
     ]
   },
   {
@@ -825,6 +859,7 @@
     ],
     "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
+    "instances": 1,
     "box": {
       "x": 855,
       "y": 352,
@@ -836,7 +871,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
+      "matched [data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"] (1)"
     ]
   },
   {
@@ -847,8 +882,9 @@
     "components": [
       "Preview Card"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
+    "instances": 1,
     "box": {
       "x": 644,
       "y": 551,
@@ -860,7 +896,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"] (1)"
     ]
   },
   {
@@ -873,6 +909,7 @@
     ],
     "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
     "matchedRole": null,
+    "instances": 2,
     "box": {
       "x": 774,
       "y": 480,
@@ -884,7 +921,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
+      "matched [data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"] (2)"
     ]
   },
   {
@@ -895,8 +932,9 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"progress\"]",
+    "selector": "[role=\"progressbar\"]",
     "matchedRole": "progressbar",
+    "instances": 2,
     "box": {
       "x": 560,
       "y": 358,
@@ -908,7 +946,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"progress\"]"
+      "matched [role=\"progressbar\"] (2)"
     ]
   },
   {
@@ -919,8 +957,9 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"preview\"]",
-    "matchedRole": null,
+    "selector": "[role=\"progressbar\"]",
+    "matchedRole": "progressbar",
+    "instances": 3,
     "box": {
       "x": 568,
       "y": 564,
@@ -932,7 +971,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [role=\"progressbar\"] (3)"
     ]
   },
   {
@@ -943,8 +982,9 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"progress\"]",
+    "selector": "[role=\"progressbar\"]",
     "matchedRole": "progressbar",
+    "instances": 6,
     "box": {
       "x": 556,
       "y": 506,
@@ -956,7 +996,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"progress\"]"
+      "matched [role=\"progressbar\"] (6)"
     ]
   },
   {
@@ -967,20 +1007,21 @@
     "components": [
       "Radio"
     ],
-    "selector": "[data-slot=\"radio-group\"]",
-    "matchedRole": "radiogroup",
+    "selector": "[role=\"radio\"]",
+    "matchedRole": "radio",
+    "instances": 6,
     "box": {
       "x": 670,
-      "y": 308,
-      "width": 98,
-      "height": 108
+      "y": 344,
+      "width": 16,
+      "height": 16
     },
     "file": "9ui-radio-hl.png",
     "fileHighlight": "9ui-radio-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"radio-group\"]"
+      "matched [role=\"radio\"] (6)"
     ]
   },
   {
@@ -993,6 +1034,7 @@
     ],
     "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": "presentation",
+    "instances": 2,
     "box": {
       "x": 600,
       "y": 302,
@@ -1004,7 +1046,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"scroll-area\"]"
+      "matched [data-slot=\"scroll-area\"] (2)"
     ]
   },
   {
@@ -1017,6 +1059,7 @@
     ],
     "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": "presentation",
+    "instances": 7,
     "box": {
       "x": 52,
       "y": 64,
@@ -1028,7 +1071,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"scroll-area\"]"
+      "matched [data-slot=\"scroll-area\"] (7)"
     ]
   },
   {
@@ -1039,20 +1082,21 @@
     "components": [
       "Scroll Area"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot=\"scroll-area\"]",
     "matchedRole": null,
+    "instances": 6,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 1376
+      "x": 0,
+      "y": 107,
+      "width": 256,
+      "height": 793
     },
     "file": "reui-scroll-area-hl.png",
     "fileHighlight": "reui-scroll-area-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot=\"scroll-area\"] (6)"
     ]
   },
   {
@@ -1063,15 +1107,16 @@
     "components": [
       "Separator"
     ],
-    "selector": "[data-slot=\"separator\"], [role=\"separator\"]",
+    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
     "matchedRole": null,
+    "instances": null,
     "box": null,
     "file": "9ui-separator-hl.png",
     "fileHighlight": null,
     "status": "page-only",
     "notes": [
       "goto: networkidle",
-      "no target element located"
+      "matched [role=\"separator\"], [data-slot=\"separator\"], hr (3)"
     ]
   },
   {
@@ -1084,15 +1129,10 @@
     ],
     "selector": "[data-slot=\"separator\"]",
     "matchedRole": "separator",
-    "box": {
-      "x": 481,
-      "y": 519,
-      "width": 510,
-      "height": 1
-    },
+    "box": null,
     "file": "lumiui-separator-hl.png",
-    "fileHighlight": "lumiui-separator-hl-highlight.png",
-    "status": "captured",
+    "fileHighlight": null,
+    "status": "page-only",
     "notes": [
       "goto: networkidle",
       "matched [data-slot=\"separator\"]"
@@ -1106,8 +1146,9 @@
     "components": [
       "Slider"
     ],
-    "selector": "[data-slot=\"slider\"]",
+    "selector": "[role=\"group\"]",
     "matchedRole": "group",
+    "instances": 24,
     "box": {
       "x": 520,
       "y": 359,
@@ -1119,7 +1160,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"slider\"]"
+      "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"
     ]
   },
   {
@@ -1132,18 +1173,19 @@
     ],
     "selector": "[data-slot=\"preview\"]",
     "matchedRole": null,
+    "instances": 3,
     "box": {
       "x": 568,
-      "y": 565,
+      "y": 2338,
       "width": 256,
-      "height": 4
+      "height": 32
     },
     "file": "coss-slider-hl.png",
     "fileHighlight": "coss-slider-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot=\"preview\"] (5)"
     ]
   },
   {
@@ -1154,8 +1196,9 @@
     "components": [
       "Slider"
     ],
-    "selector": "[data-slot=\"slider\"]",
+    "selector": "[role=\"group\"]",
     "matchedRole": "group",
+    "instances": 12,
     "box": {
       "x": 592,
       "y": 493,
@@ -1167,7 +1210,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"slider\"]"
+      "matched [role=\"slider\"], [data-slot^=\"slider\"] (24)"
     ]
   },
   {
@@ -1178,20 +1221,21 @@
     "components": [
       "Switch"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
-    "matchedRole": null,
+    "selector": "[role=\"switch\"]",
+    "matchedRole": "switch",
+    "instances": 18,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 2055
+      "x": 497,
+      "y": 413,
+      "width": 32,
+      "height": 18
     },
     "file": "reui-switch-hl.png",
     "fileHighlight": "reui-switch-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [role=\"switch\"] (18)"
     ]
   },
   {
@@ -1202,20 +1246,21 @@
     "components": [
       "Tabs"
     ],
-    "selector": "[data-slot=\"tabs\"]",
-    "matchedRole": null,
+    "selector": "[role=\"tablist\"]",
+    "matchedRole": "tablist",
+    "instances": 5,
     "box": {
       "x": 528,
       "y": 302,
-      "width": 384,
-      "height": 352
+      "width": 131,
+      "height": 36
     },
     "file": "9ui-tabs-hl.png",
     "fileHighlight": "9ui-tabs-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"tabs\"]"
+      "matched [role=\"tablist\"] (5)"
     ]
   },
   {
@@ -1226,20 +1271,21 @@
     "components": [
       "Toast"
     ],
-    "selector": "[role=\"dialog\"]",
-    "matchedRole": "dialog",
+    "selector": "[data-slot^=\"toast\"]",
+    "matchedRole": "region",
+    "instances": 1,
     "box": {
-      "x": 496,
-      "y": 476,
-      "width": 321,
-      "height": 76
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900
     },
     "file": "lumiui-toast-hl.png",
     "fileHighlight": "lumiui-toast-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [role=\"dialog\"]"
+      "matched [data-slot^=\"toast\"] (1)"
     ]
   },
   {
@@ -1252,6 +1298,7 @@
     ],
     "selector": "[data-slot=\"toggle-group\"]",
     "matchedRole": "group",
+    "instances": 2,
     "box": {
       "x": 666,
       "y": 344,
@@ -1263,7 +1310,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"toggle-group\"]"
+      "matched [data-slot=\"toggle-group\"] (2)"
     ]
   },
   {
@@ -1276,6 +1323,7 @@
     ],
     "selector": "[data-slot=\"toggle-group\"]",
     "matchedRole": "group",
+    "instances": 11,
     "box": {
       "x": 608,
       "y": 492,
@@ -1287,7 +1335,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"toggle-group\"]"
+      "matched [data-slot=\"toggle-group\"] (11)"
     ]
   },
   {
@@ -1298,8 +1346,9 @@
     "components": [
       "Toggle"
     ],
-    "selector": "[data-slot=\"preview\"]",
+    "selector": "[data-slot=\"toggle\"]",
     "matchedRole": null,
+    "instances": 9,
     "box": {
       "x": 665,
       "y": 551,
@@ -1311,7 +1360,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"preview\"]"
+      "matched [data-slot=\"toggle\"] (9)"
     ]
   },
   {
@@ -1322,20 +1371,21 @@
     "components": [
       "Toggle"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot=\"toggle\"]",
     "matchedRole": null,
+    "instances": 17,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 1960
+      "x": 504,
+      "y": 406,
+      "width": 36,
+      "height": 32
     },
     "file": "reui-toggle-hl.png",
     "fileHighlight": "reui-toggle-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot=\"toggle\"] (17)"
     ]
   },
   {
@@ -1346,15 +1396,21 @@
     "components": [
       "Toolbar"
     ],
-    "selector": "[data-slot^=\"toolbar\"]",
-    "matchedRole": null,
-    "box": null,
+    "selector": "[role=\"toolbar\"]",
+    "matchedRole": "toolbar",
+    "instances": 2,
+    "box": {
+      "x": 549,
+      "y": 340,
+      "width": 342,
+      "height": 44
+    },
     "file": "9ui-toolbar-hl.png",
-    "fileHighlight": null,
-    "status": "page-only",
+    "fileHighlight": "9ui-toolbar-hl-highlight.png",
+    "status": "captured",
     "notes": [
       "goto: networkidle",
-      "no target element located"
+      "matched [role=\"toolbar\"] (2)"
     ]
   },
   {
@@ -1365,8 +1421,9 @@
     "components": [
       "Toolbar"
     ],
-    "selector": "[data-slot=\"toolbar\"]",
+    "selector": "[role=\"toolbar\"]",
     "matchedRole": "toolbar",
+    "instances": 1,
     "box": {
       "x": 544,
       "y": 490,
@@ -1378,7 +1435,7 @@
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"toolbar\"]"
+      "matched [role=\"toolbar\"] (1)"
     ]
   },
   {
@@ -1389,20 +1446,21 @@
     "components": [
       "Tooltip"
     ],
-    "selector": "[data-slot=\"components-preview\"]",
+    "selector": "[data-slot^=\"tooltip\"]",
     "matchedRole": null,
+    "instances": 24,
     "box": {
-      "x": 256,
-      "y": 0,
-      "width": 1184,
-      "height": 2254
+      "x": 1041,
+      "y": 12,
+      "width": 32,
+      "height": 32
     },
     "file": "reui-tooltip-hl.png",
     "fileHighlight": "reui-tooltip-hl-highlight.png",
     "status": "captured",
     "notes": [
       "goto: networkidle",
-      "matched [data-slot=\"components-preview\"]"
+      "matched [data-slot^=\"tooltip\"] (24)"
     ]
   },
   {

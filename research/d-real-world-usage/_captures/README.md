@@ -93,8 +93,11 @@ component under ~18px) were culled by hand. Every captured highlight is rendered
 ## Per-component docs highlights (the exact component per card)
 
 To highlight the *exact* component a given docs card documents (e.g. the accordion on 9ui's
-accordion card), target that component's OWN page on the site. The four showcase sites use a
-shadcn-style `data-slot` convention; the discovered patterns:
+accordion card), target that component's OWN page on the site. The selector points at the
+component **instances** (ARIA role — `[role="checkbox"]` etc. — else `data-slot`), not the
+demo wrapper, and the driver spotlights **every** visible instance (SVG-mask multi-spotlight,
+up to 24) with an on-screen `×N` label — so one card shows all occurrences at once. The four
+showcase sites use a shadcn-style `data-slot` convention; the discovered page patterns:
 
 | Site | Component page URL | Demo selector |
 |---|---|---|

@@ -37,6 +37,16 @@ All story files carry `tags: ['ai-generated']` — every `needs-work` tag was st
 - Gesture interactions (drawer swipe, number-field scrub, toast swipe) are rendered and documented but not play-driven — pointer-capture gestures aren't reliably testable in this harness.
 
 
+## POLISH STATE (2026-07-08, rev. 7 — multi-instance highlights + live-slug links)
+
+Owner feedback on the highlights (reui checkbox): the box was a huge off-screen wrapper, the label was hidden, base ≠ highlight, and "live site" went to the site root. Fixes in `capture-highlight.mjs` + `InTheWild.tsx`:
+
+- **Highlight the component instances, not the wrapper.** Selectors now target the component itself (ARIA role, e.g. `[role="checkbox"]`, or `data-slot`), and the driver spotlights **every** visible instance (SVG-mask multi-spotlight, up to 24) — so a card shows all occurrences at once (e.g. **Checkbox ×12**). Re-captured all 4 showcase sites: **57 per-component highlights, 47 of them multi-instance.**
+- **Label always visible** — anchored to the topmost in-viewport instance and clamped on-screen; shows the instance count.
+- **Base = highlight frame** — both shot after scrolling the first instance into view (fixed the "looks like an interaction" wrapper artifact).
+- **"Live site" → exact component slug** — `WildCard` links to the registry `pageUrl` (e.g. `reui.io/components/checkbox`) in both the card and the viewer.
+- Separators (a 1px line) stay page-only and fall back to the site-level highlight / OG card.
+
 ## POLISH STATE (2026-07-08, rev. 6 — per-component docs highlights + TOC fix)
 
 - **Docs TOC now shows section headings.** `docs.toc.headingSelector` set to `h2` in `.storybook/preview.tsx` — components list up to 19 API-part h3s under "API reference" plus many behavior/recreation h3s, which overflowed the sticky TOC and pushed sections like **In the wild** below the fold. The TOC now lists the ~14 top-level sections.

@@ -75,26 +75,63 @@ const LUMIUI_PATH = {
   toolbar: 'misc/toolbar',
 };
 
+// Selector that targets the component INSTANCES themselves (so every occurrence on the page
+// gets its own spotlight), not the demo wrapper. ARIA-role selectors match across every site;
+// role-less components fall back to shadcn `data-slot` conventions. The capture driver adds a
+// demo-wrapper + generic-role fallback when none of these match.
+const COMPONENT_SELECTOR = {
+  accordion: '[data-slot="accordion"]',
+  'alert-dialog': '[data-slot^="alert-dialog"]',
+  avatar: '[data-slot="avatar"]',
+  button: '[data-slot="button"]',
+  'checkbox-group': '[role="checkbox"]',
+  checkbox: '[role="checkbox"]',
+  collapsible: '[data-slot^="collapsible"]',
+  'context-menu': '[data-slot^="context-menu"]',
+  drawer: '[data-slot^="drawer"]',
+  fieldset: 'fieldset',
+  input: '[data-slot="input"]',
+  menubar: '[role="menubar"]',
+  meter: '[role="meter"]',
+  'navigation-menu': '[data-slot^="navigation-menu"]',
+  'number-field': '[data-slot^="number-field"]',
+  'otp-field': '[data-slot^="input-otp"], [data-slot^="otp"], [autocomplete="one-time-code"]',
+  'preview-card': '[data-slot^="preview-card"], [data-slot^="hover-card"]',
+  progress: '[role="progressbar"]',
+  radio: '[role="radio"]',
+  'scroll-area': '[data-slot="scroll-area"]',
+  separator: '[role="separator"], [data-slot="separator"], hr',
+  slider: '[role="slider"], [data-slot^="slider"]',
+  switch: '[role="switch"]',
+  tabs: '[role="tablist"]',
+  toast: '[data-slot^="toast"]',
+  'toggle-group': '[data-slot="toggle-group"]',
+  toggle: '[data-slot="toggle"]',
+  toolbar: '[role="toolbar"]',
+  tooltip: '[data-slot^="tooltip"]',
+};
+const selectorFor = (c) => COMPONENT_SELECTOR[c] ?? `[data-slot="${c}"]`;
+
 const SITES = {
   '9ui': {
     domain: '9ui.dev',
     url: (c) => `https://www.9ui.dev/docs/components/${NINE_UI_SLUG[c] ?? c}`,
-    selector: (c) => `[data-slot="${NINE_UI_SLUG[c] ?? c}"]`,
+    selector: selectorFor,
   },
   reui: {
     domain: 'reui.io',
     url: (c) => `https://reui.io/components/${c}`,
-    selector: () => '[data-slot="components-preview"]',
+    selector: selectorFor,
   },
   coss: {
     domain: 'coss.com',
     url: (c) => `https://coss.com/ui/docs/components/${c}`,
-    selector: () => '[data-slot="preview"]',
+    selector: selectorFor,
   },
   lumiui: {
     domain: 'lumiui.dev',
     url: (c) => `https://www.lumiui.dev/docs/components/${LUMIUI_PATH[c]}`,
-    selector: (c) => `[data-slot="${c}"]`,
+    selector: selectorFor,
   },
 };
 

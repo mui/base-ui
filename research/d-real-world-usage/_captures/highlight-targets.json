@@ -24,7 +24,7 @@
     "components": [
       "Accordion"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot=\"accordion\"]"
   },
   {
     "slug": "9ui-alert-dialog-hl",
@@ -33,7 +33,7 @@
     "components": [
       "Alert Dialog"
     ],
-    "selector": "[data-slot=\"alert-dialog\"]"
+    "selector": "[data-slot^=\"alert-dialog\"]"
   },
   {
     "slug": "lumiui-alert-dialog-hl",
@@ -42,7 +42,7 @@
     "components": [
       "Alert Dialog"
     ],
-    "selector": "[data-slot=\"alert-dialog\"]"
+    "selector": "[data-slot^=\"alert-dialog\"]"
   },
   {
     "slug": "9ui-avatar-hl",
@@ -69,7 +69,7 @@
     "components": [
       "Avatar"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot=\"avatar\"]"
   },
   {
     "slug": "9ui-button-hl",
@@ -87,7 +87,7 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot=\"checkbox-group\"]"
+    "selector": "[role=\"checkbox\"]"
   },
   {
     "slug": "coss-checkbox-group-hl",
@@ -96,7 +96,7 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[role=\"checkbox\"]"
   },
   {
     "slug": "lumiui-checkbox-group-hl",
@@ -105,7 +105,7 @@
     "components": [
       "Checkbox Group"
     ],
-    "selector": "[data-slot=\"checkbox-group\"]"
+    "selector": "[role=\"checkbox\"]"
   },
   {
     "slug": "coss-checkbox-hl",
@@ -114,7 +114,7 @@
     "components": [
       "Checkbox"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[role=\"checkbox\"]"
   },
   {
     "slug": "reui-checkbox-hl",
@@ -123,7 +123,7 @@
     "components": [
       "Checkbox"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[role=\"checkbox\"]"
   },
   {
     "slug": "9ui-collapsible-hl",
@@ -132,7 +132,7 @@
     "components": [
       "Collapsible"
     ],
-    "selector": "[data-slot=\"collapsible\"]"
+    "selector": "[data-slot^=\"collapsible\"]"
   },
   {
     "slug": "coss-context-menu-hl",
@@ -141,7 +141,7 @@
     "components": [
       "Context Menu"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot^=\"context-menu\"]"
   },
   {
     "slug": "lumiui-context-menu-hl",
@@ -150,7 +150,7 @@
     "components": [
       "Context Menu"
     ],
-    "selector": "[data-slot=\"context-menu\"]"
+    "selector": "[data-slot^=\"context-menu\"]"
   },
   {
     "slug": "reui-context-menu-hl",
@@ -159,7 +159,7 @@
     "components": [
       "Context Menu"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot^=\"context-menu\"]"
   },
   {
     "slug": "coss-drawer-hl",
@@ -168,7 +168,7 @@
     "components": [
       "Drawer"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot^=\"drawer\"]"
   },
   {
     "slug": "reui-drawer-hl",
@@ -177,7 +177,7 @@
     "components": [
       "Drawer"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot^=\"drawer\"]"
   },
   {
     "slug": "coss-fieldset-hl",
@@ -186,7 +186,7 @@
     "components": [
       "Fieldset"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "fieldset"
   },
   {
     "slug": "lumiui-fieldset-hl",
@@ -195,7 +195,7 @@
     "components": [
       "Fieldset"
     ],
-    "selector": "[data-slot=\"fieldset\"]"
+    "selector": "fieldset"
   },
   {
     "slug": "9ui-input-hl",
@@ -213,7 +213,7 @@
     "components": [
       "Menubar"
     ],
-    "selector": "[data-slot=\"menubar\"]"
+    "selector": "[role=\"menubar\"]"
   },
   {
     "slug": "9ui-meter-hl",
@@ -222,7 +222,7 @@
     "components": [
       "Meter"
     ],
-    "selector": "[data-slot=\"meter\"]"
+    "selector": "[role=\"meter\"]"
   },
   {
     "slug": "lumiui-meter-hl",
@@ -231,7 +231,7 @@
     "components": [
       "Meter"
     ],
-    "selector": "[data-slot=\"meter\"]"
+    "selector": "[role=\"meter\"]"
   },
   {
     "slug": "9ui-navigation-menu-hl",
@@ -240,7 +240,7 @@
     "components": [
       "Navigation Menu"
     ],
-    "selector": "[data-slot=\"navigation-menu\"]"
+    "selector": "[data-slot^=\"navigation-menu\"]"
   },
   {
     "slug": "lumiui-navigation-menu-hl",
@@ -249,7 +249,7 @@
     "components": [
       "Navigation Menu"
     ],
-    "selector": "[data-slot=\"navigation-menu\"]"
+    "selector": "[data-slot^=\"navigation-menu\"]"
   },
   {
     "slug": "9ui-number-field-hl",
@@ -258,7 +258,7 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"number-field\"]"
+    "selector": "[data-slot^=\"number-field\"]"
   },
   {
     "slug": "coss-number-field-hl",
@@ -267,7 +267,7 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot^=\"number-field\"]"
   },
   {
     "slug": "lumiui-number-field-hl",
@@ -276,7 +276,7 @@
     "components": [
       "Number Field"
     ],
-    "selector": "[data-slot=\"number-field\"]"
+    "selector": "[data-slot^=\"number-field\"]"
   },
   {
     "slug": "9ui-otp-field-hl",
@@ -285,7 +285,7 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"input-otp\"]"
+    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
   },
   {
     "slug": "coss-otp-field-hl",
@@ -294,7 +294,7 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
   },
   {
     "slug": "lumiui-otp-field-hl",
@@ -303,7 +303,7 @@
     "components": [
       "Otp Field"
     ],
-    "selector": "[data-slot=\"otp-field\"]"
+    "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]"
   },
   {
     "slug": "9ui-preview-card-hl",
@@ -312,7 +312,7 @@
     "components": [
       "Preview Card"
     ],
-    "selector": "[data-slot=\"preview-card\"]"
+    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
   },
   {
     "slug": "coss-preview-card-hl",
@@ -321,7 +321,7 @@
     "components": [
       "Preview Card"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
   },
   {
     "slug": "lumiui-preview-card-hl",
@@ -330,7 +330,7 @@
     "components": [
       "Preview Card"
     ],
-    "selector": "[data-slot=\"preview-card\"]"
+    "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]"
   },
   {
     "slug": "9ui-progress-hl",
@@ -339,7 +339,7 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"progress\"]"
+    "selector": "[role=\"progressbar\"]"
   },
   {
     "slug": "coss-progress-hl",
@@ -348,7 +348,7 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[role=\"progressbar\"]"
   },
   {
     "slug": "lumiui-progress-hl",
@@ -357,7 +357,7 @@
     "components": [
       "Progress"
     ],
-    "selector": "[data-slot=\"progress\"]"
+    "selector": "[role=\"progressbar\"]"
   },
   {
     "slug": "9ui-radio-hl",
@@ -366,7 +366,7 @@
     "components": [
       "Radio"
     ],
-    "selector": "[data-slot=\"radio-group\"]"
+    "selector": "[role=\"radio\"]"
   },
   {
     "slug": "9ui-scroll-area-hl",
@@ -393,7 +393,7 @@
     "components": [
       "Scroll Area"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot=\"scroll-area\"]"
   },
   {
     "slug": "9ui-separator-hl",
@@ -402,7 +402,7 @@
     "components": [
       "Separator"
     ],
-    "selector": "[data-slot=\"separator\"]"
+    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr"
   },
   {
     "slug": "lumiui-separator-hl",
@@ -411,7 +411,7 @@
     "components": [
       "Separator"
     ],
-    "selector": "[data-slot=\"separator\"]"
+    "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr"
   },
   {
     "slug": "9ui-slider-hl",
@@ -420,7 +420,7 @@
     "components": [
       "Slider"
     ],
-    "selector": "[data-slot=\"slider\"]"
+    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
   },
   {
     "slug": "coss-slider-hl",
@@ -429,7 +429,7 @@
     "components": [
       "Slider"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
   },
   {
     "slug": "lumiui-slider-hl",
@@ -438,7 +438,7 @@
     "components": [
       "Slider"
     ],
-    "selector": "[data-slot=\"slider\"]"
+    "selector": "[role=\"slider\"], [data-slot^=\"slider\"]"
   },
   {
     "slug": "reui-switch-hl",
@@ -447,7 +447,7 @@
     "components": [
       "Switch"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[role=\"switch\"]"
   },
   {
     "slug": "9ui-tabs-hl",
@@ -456,7 +456,7 @@
     "components": [
       "Tabs"
     ],
-    "selector": "[data-slot=\"tabs\"]"
+    "selector": "[role=\"tablist\"]"
   },
   {
     "slug": "lumiui-toast-hl",
@@ -465,7 +465,7 @@
     "components": [
       "Toast"
     ],
-    "selector": "[data-slot=\"toast\"]"
+    "selector": "[data-slot^=\"toast\"]"
   },
   {
     "slug": "9ui-toggle-group-hl",
@@ -492,7 +492,7 @@
     "components": [
       "Toggle"
     ],
-    "selector": "[data-slot=\"preview\"]"
+    "selector": "[data-slot=\"toggle\"]"
   },
   {
     "slug": "reui-toggle-hl",
@@ -501,7 +501,7 @@
     "components": [
       "Toggle"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot=\"toggle\"]"
   },
   {
     "slug": "9ui-toolbar-hl",
@@ -510,7 +510,7 @@
     "components": [
       "Toolbar"
     ],
-    "selector": "[data-slot=\"toolbar\"]"
+    "selector": "[role=\"toolbar\"]"
   },
   {
     "slug": "lumiui-toolbar-hl",
@@ -519,7 +519,7 @@
     "components": [
       "Toolbar"
     ],
-    "selector": "[data-slot=\"toolbar\"]"
+    "selector": "[role=\"toolbar\"]"
   },
   {
     "slug": "reui-tooltip-hl",
@@ -528,6 +528,6 @@
     "components": [
       "Tooltip"
     ],
-    "selector": "[data-slot=\"components-preview\"]"
+    "selector": "[data-slot^=\"tooltip\"]"
   }
 ]

@@ -89,39 +89,88 @@ async function tryGoto(page, url) {
   }
 }
 
-// Inject a spotlight overlay: dim the whole viewport except the target rect (via a huge
-// box-shadow), draw a bright outline around it, and label it with the component name(s).
-async function applyHighlight(page, handle, label) {
+// Inject a multi-spotlight overlay: dim the whole viewport EXCEPT each located component
+// instance (SVG mask with a hole per rect), outline each, and label the topmost visible one.
+// Highlighting every instance shows the many occurrences of the component on the page; the
+// label is clamped into the viewport so a large/off-screen box never hides the name.
+async function applyHighlight(page, rects, label) {
   await page.evaluate(
-    ({ selectorArgs }) => {
-      const { rect, text } = selectorArgs;
+    ({ rects, text }) => {
+      const NS = 'http://www.w3.org/2000/svg';
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
       const prev = document.getElementById('__baseui_highlight__');
-      if (prev) prev.remove();
+      if (prev) {
+        prev.remove();
+      }
       const layer = document.createElement('div');
       layer.id = '__baseui_highlight__';
       layer.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
 
-      const box = document.createElement('div');
-      box.style.cssText = [
-        'position:fixed',
-        'left:' + rect.x + 'px',
-        'top:' + rect.y + 'px',
-        'width:' + rect.width + 'px',
-        'height:' + rect.height + 'px',
-        'border:2px solid #4f9dff',
-        'border-radius:6px',
-        'box-shadow:0 0 0 2px rgba(79,157,255,.35), 0 0 0 100000px rgba(10,12,18,.55)',
-      ].join(';');
-      layer.appendChild(box);
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('width', vw);
+      svg.setAttribute('height', vh);
+      svg.style.cssText = 'position:fixed;inset:0;';
+      const mask = document.createElementNS(NS, 'mask');
+      mask.id = '__baseui_mask__';
+      const full = document.createElementNS(NS, 'rect');
+      full.setAttribute('x', 0);
+      full.setAttribute('y', 0);
+      full.setAttribute('width', vw);
+      full.setAttribute('height', vh);
+      full.setAttribute('fill', 'white');
+      mask.appendChild(full);
+      const pad = 4;
+      for (const r of rects) {
+        const hole = document.createElementNS(NS, 'rect');
+        hole.setAttribute('x', r.x - pad);
+        hole.setAttribute('y', r.y - pad);
+        hole.setAttribute('width', r.width + pad * 2);
+        hole.setAttribute('height', r.height + pad * 2);
+        hole.setAttribute('rx', 6);
+        hole.setAttribute('fill', 'black');
+        mask.appendChild(hole);
+      }
+      svg.appendChild(mask);
+      const dim = document.createElementNS(NS, 'rect');
+      dim.setAttribute('x', 0);
+      dim.setAttribute('y', 0);
+      dim.setAttribute('width', vw);
+      dim.setAttribute('height', vh);
+      dim.setAttribute('fill', 'rgba(10,12,18,0.55)');
+      dim.setAttribute('mask', 'url(#__baseui_mask__)');
+      svg.appendChild(dim);
+      for (const r of rects) {
+        const o = document.createElementNS(NS, 'rect');
+        o.setAttribute('x', r.x - pad);
+        o.setAttribute('y', r.y - pad);
+        o.setAttribute('width', r.width + pad * 2);
+        o.setAttribute('height', r.height + pad * 2);
+        o.setAttribute('rx', 6);
+        o.setAttribute('fill', 'none');
+        o.setAttribute('stroke', '#4f9dff');
+        o.setAttribute('stroke-width', '2');
+        svg.appendChild(o);
+      }
+      layer.appendChild(svg);
 
       if (text) {
+        // Anchor the label at the topmost instance that's actually within the viewport, and
+        // clamp it so it's always on-screen (never off the top or past the right edge).
+        const visible = rects.filter((r) => r.y + r.height > 0 && r.y < vh && r.x < vw && r.x + r.width > 0);
+        const anchor = (visible.length ? visible : rects).slice().sort((a, b) => a.y - b.y)[0];
         const tag = document.createElement('div');
-        const top = rect.y > 28 ? rect.y - 26 : rect.y + rect.height + 6;
-        tag.textContent = text;
+        tag.textContent = rects.length > 1 ? `${text} ×${rects.length}` : text;
+        let ty = anchor.y - 26;
+        if (ty < 6) {
+          ty = anchor.y + anchor.height + 6;
+        }
+        ty = Math.max(6, Math.min(ty, vh - 26));
+        const tx = Math.max(6, Math.min(anchor.x, vw - 160));
         tag.style.cssText = [
           'position:fixed',
-          'left:' + rect.x + 'px',
-          'top:' + top + 'px',
+          'left:' + tx + 'px',
+          'top:' + ty + 'px',
           'padding:2px 8px',
           'background:#4f9dff',
           'color:#fff',
@@ -133,7 +182,7 @@ async function applyHighlight(page, handle, label) {
       }
       document.body.appendChild(layer);
     },
-    { selectorArgs: { rect: await handle.boundingBox(), text: label } },
+    { rects, text: label },
   );
   await page.waitForTimeout(120);
 }
@@ -161,29 +210,43 @@ async function locateTarget(page, target) {
     }
   }
 
-  // 2. Prefer an explicit selector, then a role-based overlay, then a generic role scan.
+  // 2. Prefer the component's own selector (which matches every instance on the page), then
+  //    per-target overlay role, then a wrapper, then a generic role scan.
   const roleFallback = target.overlayRole
     ? [`[role="${target.overlayRole}"]`]
-    : ['[role="dialog"]', '[role="menu"]', '[role="listbox"]'];
+    : ['[data-slot="preview"]', '[data-slot="components-preview"]', '[role="dialog"]', '[role="menu"]', '[role="listbox"]'];
   const selectors = [target.selector, ...roleFallback].filter(Boolean);
+  const MAX_INSTANCES = 24;
 
   for (const sel of selectors) {
     try {
-      const loc = page.locator(sel).first();
-      if (await loc.isVisible({ timeout: 1500 })) {
-        const handle = await loc.elementHandle();
-        // Report a concrete selector: an explicit single selector wins; otherwise (a union
-        // or a role fallback) collapse to the matched element's own role, which is concrete
-        // and actionable (and paired with the box, so any ambiguity is resolvable).
-        const role = await handle.getAttribute('role').catch(() => null);
-        const isSingleExplicit =
-          target.selector != null && target.selector === sel && !sel.includes(',');
-        const selector = isSingleExplicit ? sel : role ? `[role="${role}"]` : sel;
-        return { handle, selector, role, note: `matched ${sel}` };
+      const all = await page.locator(sel).all();
+      const matched = [];
+      for (const loc of all) {
+        // eslint-disable-next-line no-await-in-loop
+        if (await loc.isVisible().catch(() => false)) {
+          // eslint-disable-next-line no-await-in-loop
+          const handle = await loc.elementHandle();
+          if (handle) {
+            matched.push(handle);
+          }
+        }
+        if (matched.length >= MAX_INSTANCES) {
+          break;
+        }
       }
+      if (matched.length === 0) {
+        continue;
+      }
+      const primary = matched[0];
+      const role = await primary.getAttribute('role').catch(() => null);
+      const isSingleExplicit =
+        target.selector != null && target.selector === sel && !sel.includes(',');
+      const selector = isSingleExplicit ? sel : role ? `[role="${role}"]` : sel;
+      return { handles: matched, primary, selector, role, count: matched.length, note: `matched ${sel} (${matched.length})` };
     } catch {}
   }
-  return { handle: null, selector: null, role: null, note: 'no target element located' };
+  return { handles: [], primary: null, selector: null, role: null, count: 0, note: 'no target element located' };
 }
 
 // ARIA role → friendly Base UI component name, for the highlight box label.
@@ -229,6 +292,7 @@ async function captureTarget(browser, target) {
     components: target.components ?? [],
     selector: target.selector ?? null,
     matchedRole: null,
+    instances: null,
     box: null,
     file: null,
     fileHighlight: null,
@@ -246,33 +310,48 @@ async function captureTarget(browser, target) {
 
     const located = await locateTarget(page, target);
     entry.notes.push(located.note);
-    if (located.handle) {
-      // Scroll the component into view FIRST, then capture the plain and highlighted frames
-      // back-to-back at the same scroll position — so the two screenshots are pixel-identical
-      // apart from the overlay (and the plain frame always actually contains the component).
-      await located.handle.scrollIntoViewIfNeeded().catch(() => {});
+    if (located.primary) {
+      // Scroll the primary instance into view FIRST, then capture the plain and highlighted
+      // frames back-to-back at the same scroll position — so the two screenshots are identical
+      // apart from the overlay (and the plain frame always contains the component).
+      await located.primary.scrollIntoViewIfNeeded().catch(() => {});
       await page.waitForTimeout(200);
-      const box = await located.handle.boundingBox();
-      entry.box = box
-        ? {
-            x: Math.round(box.x),
-            y: Math.round(box.y),
-            width: Math.round(box.width),
-            height: Math.round(box.height),
-          }
-        : null;
-      entry.selector = located.selector ?? entry.selector;
 
-      await page.screenshot({ path: basePath });
-      entry.file = path.basename(basePath);
+      // Collect a viewport rect for every located instance; keep only those with a sane size.
+      const rects = [];
+      for (const handle of located.handles) {
+        // eslint-disable-next-line no-await-in-loop
+        const b = await handle.boundingBox().catch(() => null);
+        if (b && b.width >= 6 && b.height >= 6) {
+          rects.push({ x: b.x, y: b.y, width: b.width, height: b.height });
+        }
+      }
+      if (rects.length === 0) {
+        entry.status = 'page-only';
+        await page.screenshot({ path: basePath });
+        entry.file = path.basename(basePath);
+      } else {
+        const first = rects[0];
+        entry.box = {
+          x: Math.round(first.x),
+          y: Math.round(first.y),
+          width: Math.round(first.width),
+          height: Math.round(first.height),
+        };
+        entry.instances = rects.length;
+        entry.selector = located.selector ?? entry.selector;
 
-      entry.matchedRole = located.role ?? null;
-      const label =
-        (located.role && ROLE_LABELS[located.role]) ?? entry.components[0] ?? 'Base UI component';
-      await applyHighlight(page, located.handle, label);
-      await page.screenshot({ path: highlightPath });
-      entry.fileHighlight = path.basename(highlightPath);
-      entry.status = 'captured';
+        await page.screenshot({ path: basePath });
+        entry.file = path.basename(basePath);
+
+        entry.matchedRole = located.role ?? null;
+        const label =
+          (located.role && ROLE_LABELS[located.role]) ?? entry.components[0] ?? 'Base UI component';
+        await applyHighlight(page, rects, label);
+        await page.screenshot({ path: highlightPath });
+        entry.fileHighlight = path.basename(highlightPath);
+        entry.status = 'captured';
+      }
     } else {
       // No component located — fall back to a plain top-of-page screenshot.
       await page.screenshot({ path: basePath });
@@ -340,6 +419,12 @@ function mergeIntoIndex(entries) {
       if (Array.isArray(prev)) {
         const bySlug = new Map(prev.map((e) => [e.slug, e]));
         for (const entry of manifest) {
+          // Don't let a fresh page-only/skipped result clobber a prior successful capture of
+          // the same slug (e.g. a broadened-selector retry that worked).
+          const existing = bySlug.get(entry.slug);
+          if (existing?.fileHighlight && !entry.fileHighlight) {
+            continue;
+          }
           bySlug.set(entry.slug, entry);
         }
         merged = [...bySlug.values()];

@@ -278,8 +278,13 @@ export function WildCard({
           <a className={styles.Title} href={href} target="_blank" rel="noreferrer">
             {title}
           </a>
-          {live ? (
-            <a className={styles.Live} href={live} target="_blank" rel="noreferrer">
+          {(effectivePageUrl ?? live) ? (
+            <a
+              className={styles.Live}
+              href={effectivePageUrl ?? live}
+              target="_blank"
+              rel="noreferrer"
+            >
               live site
             </a>
           ) : null}
@@ -456,10 +461,10 @@ function WildCardViewer({
                     {item.title}
                   </a>
                   <span className={styles.ViewerRepo}>{item.repo}</span>
-                  {item.live ? (
+                  {(item.pageUrl ?? item.live) ? (
                     <a
                       className={styles.ViewerLive}
-                      href={item.live}
+                      href={item.pageUrl ?? item.live}
                       target="_blank"
                       rel="noreferrer"
                     >

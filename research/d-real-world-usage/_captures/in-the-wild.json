@@ -94,7 +94,7 @@
       "components": [
         "Checkbox Group"
       ],
-      "selector": "[data-slot^=\"checkbox\"]",
+      "selector": "[role=\"checkbox\"]",
       "matchedRole": "checkbox",
       "box": {
         "x": 674,
@@ -114,7 +114,7 @@
       "components": [
         "Collapsible"
       ],
-      "selector": "[data-slot=\"collapsible\"]",
+      "selector": "[data-slot^=\"collapsible\"]",
       "matchedRole": null,
       "box": {
         "x": 640,
@@ -190,7 +190,7 @@
       "components": [
         "Meter"
       ],
-      "selector": "[data-slot=\"meter\"]",
+      "selector": "[role=\"meter\"]",
       "matchedRole": "meter",
       "box": {
         "x": 624,
@@ -210,7 +210,7 @@
       "components": [
         "Navigation Menu"
       ],
-      "selector": "[data-slot=\"navigation-menu\"]",
+      "selector": "[data-slot^=\"navigation-menu\"]",
       "matchedRole": null,
       "box": {
         "x": 393,
@@ -230,7 +230,7 @@
       "components": [
         "Number Field"
       ],
-      "selector": "[data-slot=\"number-field\"]",
+      "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
         "x": 644,
@@ -250,12 +250,12 @@
       "components": [
         "Otp Field"
       ],
-      "selector": "[data-slot=\"input-otp\"]",
+      "selector": "[data-slot^=\"input-otp\"], [data-slot^=\"otp\"], [autocomplete=\"one-time-code\"]",
       "matchedRole": null,
       "box": {
         "x": 592,
         "y": 344,
-        "width": 256,
+        "width": 108,
         "height": 36
       },
       "screenshot": "9ui-otp-field-hl.png",
@@ -290,7 +290,7 @@
       "components": [
         "Progress"
       ],
-      "selector": "[data-slot=\"progress\"]",
+      "selector": "[role=\"progressbar\"]",
       "matchedRole": "progressbar",
       "box": {
         "x": 560,
@@ -310,13 +310,13 @@
       "components": [
         "Radio"
       ],
-      "selector": "[data-slot=\"radio-group\"]",
-      "matchedRole": "radiogroup",
+      "selector": "[role=\"radio\"]",
+      "matchedRole": "radio",
       "box": {
         "x": 670,
-        "y": 308,
-        "width": 98,
-        "height": 108
+        "y": 344,
+        "width": 16,
+        "height": 16
       },
       "screenshot": "9ui-radio-hl.png",
       "screenshotOpen": null,
@@ -350,7 +350,7 @@
       "components": [
         "Separator"
       ],
-      "selector": "[data-slot=\"separator\"], [role=\"separator\"]",
+      "selector": "[role=\"separator\"], [data-slot=\"separator\"], hr",
       "matchedRole": null,
       "box": null,
       "screenshot": "9ui-separator-hl.png",
@@ -365,7 +365,7 @@
       "components": [
         "Slider"
       ],
-      "selector": "[data-slot=\"slider\"]",
+      "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
         "x": 520,
@@ -385,13 +385,13 @@
       "components": [
         "Tabs"
       ],
-      "selector": "[data-slot=\"tabs\"]",
-      "matchedRole": null,
+      "selector": "[role=\"tablist\"]",
+      "matchedRole": "tablist",
       "box": {
         "x": 528,
         "y": 302,
-        "width": 384,
-        "height": 352
+        "width": 131,
+        "height": 36
       },
       "screenshot": "9ui-tabs-hl.png",
       "screenshotOpen": null,
@@ -425,13 +425,18 @@
       "components": [
         "Toolbar"
       ],
-      "selector": "[data-slot^=\"toolbar\"]",
-      "matchedRole": null,
-      "box": null,
+      "selector": "[role=\"toolbar\"]",
+      "matchedRole": "toolbar",
+      "box": {
+        "x": 549,
+        "y": 340,
+        "width": 342,
+        "height": 44
+      },
       "screenshot": "9ui-toolbar-hl.png",
       "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
+      "screenshotHighlight": "9ui-toolbar-hl-highlight.png",
+      "status": "captured"
     },
     "baseui-cn-com": {
       "url": "https://www.baseui-cn.com",
@@ -503,13 +508,13 @@
       "components": [
         "Checkbox"
       ],
-      "selector": "[data-slot=\"preview\"]",
-      "matchedRole": null,
+      "selector": "[role=\"checkbox\"]",
+      "matchedRole": "checkbox",
       "box": {
         "x": 587,
-        "y": 555,
-        "width": 218,
-        "height": 24
+        "y": 556,
+        "width": 16,
+        "height": 16
       },
       "screenshot": "coss-checkbox-hl.png",
       "screenshotOpen": null,
@@ -523,13 +528,13 @@
       "components": [
         "Checkbox Group"
       ],
-      "selector": "[data-slot=\"preview\"]",
-      "matchedRole": null,
+      "selector": "[role=\"checkbox\"]",
+      "matchedRole": "checkbox",
       "box": {
         "x": 661,
         "y": 531,
-        "width": 71,
-        "height": 72
+        "width": 16,
+        "height": 16
       },
       "screenshot": "coss-checkbox-group-hl.png",
       "screenshotOpen": null,
@@ -570,7 +575,7 @@
       "components": [
         "Context Menu"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "[data-slot^=\"context-menu\"]",
       "matchedRole": null,
       "box": {
         "x": 504,
@@ -590,7 +595,7 @@
       "components": [
         "Drawer"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "[data-slot^=\"drawer\"]",
       "matchedRole": null,
       "box": {
         "x": 640,
@@ -610,7 +615,7 @@
       "components": [
         "Fieldset"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "fieldset",
       "matchedRole": null,
       "box": {
         "x": 568,
@@ -630,7 +635,7 @@
       "components": [
         "Number Field"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
         "x": 568,
@@ -650,8 +655,8 @@
       "components": [
         "Otp Field"
       ],
-      "selector": "[data-slot=\"preview\"]",
-      "matchedRole": null,
+      "selector": "[data-slot^=\"otp\"]",
+      "matchedRole": "group",
       "box": {
         "x": 580,
         "y": 551,
@@ -670,7 +675,7 @@
       "components": [
         "Preview Card"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
       "matchedRole": null,
       "box": {
         "x": 644,
@@ -690,8 +695,8 @@
       "components": [
         "Progress"
       ],
-      "selector": "[data-slot=\"preview\"]",
-      "matchedRole": null,
+      "selector": "[role=\"progressbar\"]",
+      "matchedRole": "progressbar",
       "box": {
         "x": 568,
         "y": 564,
@@ -714,9 +719,9 @@
       "matchedRole": null,
       "box": {
         "x": 568,
-        "y": 565,
+        "y": 2338,
         "width": 256,
-        "height": 4
+        "height": 32
       },
       "screenshot": "coss-slider-hl.png",
       "screenshotOpen": null,
@@ -730,7 +735,7 @@
       "components": [
         "Toggle"
       ],
-      "selector": "[data-slot=\"preview\"]",
+      "selector": "[data-slot=\"toggle\"]",
       "matchedRole": null,
       "box": {
         "x": 665,
@@ -1014,13 +1019,13 @@
       "components": [
         "Checkbox Group"
       ],
-      "selector": "[data-slot=\"checkbox-group\"]",
-      "matchedRole": "group",
+      "selector": "[role=\"checkbox\"]",
+      "matchedRole": "checkbox",
       "box": {
         "x": 680,
-        "y": 456,
-        "width": 112,
-        "height": 108
+        "y": 492,
+        "width": 16,
+        "height": 16
       },
       "screenshot": "lumiui-checkbox-group-hl.png",
       "screenshotOpen": null,
@@ -1087,7 +1092,7 @@
       "components": [
         "Fieldset"
       ],
-      "selector": "[data-slot=\"fieldset\"]",
+      "selector": "fieldset",
       "matchedRole": null,
       "box": {
         "x": 576,
@@ -1107,7 +1112,7 @@
       "components": [
         "Menubar"
       ],
-      "selector": "[data-slot=\"menubar\"]",
+      "selector": "[role=\"menubar\"]",
       "matchedRole": "menubar",
       "box": {
         "x": 602,
@@ -1127,7 +1132,7 @@
       "components": [
         "Meter"
       ],
-      "selector": "[data-slot=\"meter\"]",
+      "selector": "[role=\"meter\"]",
       "matchedRole": "meter",
       "box": {
         "x": 624,
@@ -1147,7 +1152,7 @@
       "components": [
         "Navigation Menu"
       ],
-      "selector": "[data-slot=\"navigation-menu\"]",
+      "selector": "[data-slot^=\"navigation-menu\"]",
       "matchedRole": null,
       "box": {
         "x": 436,
@@ -1167,7 +1172,7 @@
       "components": [
         "Number Field"
       ],
-      "selector": "[data-slot=\"number-field\"]",
+      "selector": "[data-slot^=\"number-field\"]",
       "matchedRole": null,
       "box": {
         "x": 672,
@@ -1187,7 +1192,7 @@
       "components": [
         "Otp Field"
       ],
-      "selector": "[data-slot=\"otp-field\"]",
+      "selector": "[data-slot^=\"otp\"]",
       "matchedRole": "group",
       "box": {
         "x": 608,
@@ -1227,7 +1232,7 @@
       "components": [
         "Progress"
       ],
-      "selector": "[data-slot=\"progress\"]",
+      "selector": "[role=\"progressbar\"]",
       "matchedRole": "progressbar",
       "box": {
         "x": 556,
@@ -1269,16 +1274,11 @@
       ],
       "selector": "[data-slot=\"separator\"]",
       "matchedRole": "separator",
-      "box": {
-        "x": 481,
-        "y": 519,
-        "width": 510,
-        "height": 1
-      },
+      "box": null,
       "screenshot": "lumiui-separator-hl.png",
       "screenshotOpen": null,
-      "screenshotHighlight": "lumiui-separator-hl-highlight.png",
-      "status": "captured"
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "lumiui-slider": {
       "url": "https://www.lumiui.dev/docs/components/form-input/slider",
@@ -1287,7 +1287,7 @@
       "components": [
         "Slider"
       ],
-      "selector": "[data-slot=\"slider\"]",
+      "selector": "[role=\"group\"]",
       "matchedRole": "group",
       "box": {
         "x": 592,
@@ -1307,13 +1307,13 @@
       "components": [
         "Toast"
       ],
-      "selector": "[role=\"dialog\"]",
-      "matchedRole": "dialog",
+      "selector": "[data-slot^=\"toast\"]",
+      "matchedRole": "region",
       "box": {
-        "x": 496,
-        "y": 476,
-        "width": 321,
-        "height": 76
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900
       },
       "screenshot": "lumiui-toast-hl.png",
       "screenshotOpen": null,
@@ -1347,7 +1347,7 @@
       "components": [
         "Toolbar"
       ],
-      "selector": "[data-slot=\"toolbar\"]",
+      "selector": "[role=\"toolbar\"]",
       "matchedRole": "toolbar",
       "box": {
         "x": 544,
@@ -1449,13 +1449,13 @@
       "components": [
         "Accordion"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
-      "matchedRole": null,
+      "selector": "[data-slot=\"accordion\"]",
+      "matchedRole": "region",
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 2341
+        "x": 379,
+        "y": 413,
+        "width": 374,
+        "height": 158
       },
       "screenshot": "reui-accordion-hl.png",
       "screenshotOpen": null,
@@ -1469,13 +1469,13 @@
       "components": [
         "Avatar"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot=\"avatar\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 6020
+        "x": 550,
+        "y": 406,
+        "width": 32,
+        "height": 32
       },
       "screenshot": "reui-avatar-hl.png",
       "screenshotOpen": null,
@@ -1489,13 +1489,13 @@
       "components": [
         "Checkbox"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
-      "matchedRole": null,
+      "selector": "[role=\"checkbox\"]",
+      "matchedRole": "checkbox",
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 3491
+        "x": 501,
+        "y": 442,
+        "width": 16,
+        "height": 16
       },
       "screenshot": "reui-checkbox-hl.png",
       "screenshotOpen": null,
@@ -1509,13 +1509,13 @@
       "components": [
         "Context Menu"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot^=\"context-menu\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 1638
+        "x": 427,
+        "y": 451,
+        "width": 278,
+        "height": 70
       },
       "screenshot": "reui-context-menu-hl.png",
       "screenshotOpen": null,
@@ -1529,13 +1529,13 @@
       "components": [
         "Drawer"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot^=\"drawer\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 122,
-        "width": 1184,
-        "height": 778
+        "x": 511,
+        "y": 406,
+        "width": 110,
+        "height": 32
       },
       "screenshot": "reui-drawer-hl.png",
       "screenshotOpen": null,
@@ -1572,13 +1572,13 @@
       "components": [
         "Scroll Area"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot=\"scroll-area\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 1376
+        "x": 0,
+        "y": 107,
+        "width": 256,
+        "height": 793
       },
       "screenshot": "reui-scroll-area-hl.png",
       "screenshotOpen": null,
@@ -1592,13 +1592,13 @@
       "components": [
         "Switch"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
-      "matchedRole": null,
+      "selector": "[role=\"switch\"]",
+      "matchedRole": "switch",
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 2055
+        "x": 497,
+        "y": 413,
+        "width": 32,
+        "height": 18
       },
       "screenshot": "reui-switch-hl.png",
       "screenshotOpen": null,
@@ -1612,13 +1612,13 @@
       "components": [
         "Toggle"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot=\"toggle\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 1960
+        "x": 504,
+        "y": 406,
+        "width": 36,
+        "height": 32
       },
       "screenshot": "reui-toggle-hl.png",
       "screenshotOpen": null,
@@ -1632,13 +1632,13 @@
       "components": [
         "Tooltip"
       ],
-      "selector": "[data-slot=\"components-preview\"]",
+      "selector": "[data-slot^=\"tooltip\"]",
       "matchedRole": null,
       "box": {
-        "x": 256,
-        "y": 0,
-        "width": 1184,
-        "height": 2254
+        "x": 1041,
+        "y": 12,
+        "width": 32,
+        "height": 32
       },
       "screenshot": "reui-tooltip-hl.png",
       "screenshotOpen": null,
