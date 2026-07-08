@@ -63,6 +63,7 @@ export function Item({ href, external, ...props }: ItemProps) {
       {external ? (
         <a {...linkProps}>{props.children}</a>
       ) : (
+        // We handle scroll manually
         <NextLink {...linkProps} scroll={false} onNavigate={handleNavigate}>
           {props.children}
         </NextLink>
