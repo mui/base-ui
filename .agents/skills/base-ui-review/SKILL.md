@@ -336,11 +336,15 @@ If the `--comment` flag was passed in the arguments, then after producing the
 findings list, post to GitHub only when the review target is a GitHub PR. Plain
 `--comment` posts the Markdown review as one top-level PR comment via
 `gh pr comment`. `--comment inline` posts each finding as an inline PR comment via
-`gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per finding,
-including a suggestion block only when it fully fixes the issue. (If a GitHub
-inline-comment MCP tool is available in this session, use it instead.) If the
-target is not a PR, print the findings to the terminal and note that `--comment`
-was ignored.
+`gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`) only when the finding maps to
+a line present in the PR diff. Use the latest PR head `commit_id`, `path`, `line`,
+and `side` for each inline comment, one call per finding, including a suggestion
+block only when it fully fixes the issue. (If a GitHub inline-comment MCP tool is
+available in this session, use it instead.) Put findings outside the PR diff, such
+as unchanged lines in touched functions, in a top-level fallback comment via
+`gh pr comment`; do not drop them or stop posting the rest of the review because
+one inline comment is not commentable. If the target is not a PR, print the
+findings to the terminal and note that `--comment` was ignored.
 
 ## Applying fixes (--fix)
 
