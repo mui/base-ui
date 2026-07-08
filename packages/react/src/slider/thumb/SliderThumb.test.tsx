@@ -1082,6 +1082,34 @@ describe('<Slider.Thumb />', () => {
       expect(document.querySelector('script')).not.toBe(null);
     });
 
+    it('renders a single pre-hydration script with the last thumb', async () => {
+      const { container } = await renderToString(
+        <Slider.Root
+          defaultValue={[30, 40]}
+          thumbAlignment="edge"
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb index={0} data-testid="thumb" />
+              <Slider.Thumb index={1} data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      const scripts = container.querySelectorAll('script');
+      expect(scripts).toHaveLength(1);
+
+      // The script must render with the last thumb so all preceding thumbs are already in the DOM.
+      const thumbs = await screen.findAllByTestId('thumb');
+      expect(thumbs[thumbs.length - 1].contains(scripts[0])).toBe(true);
+    });
+
     it('multiple thumbs', async () => {
       renderToString(
         <Slider.Root

@@ -52,6 +52,9 @@ For simple, one-off interactions, place the `<PreviewCard.Trigger>` inside `<Pre
 However, if defining the preview card's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<PreviewCard.Trigger>` outside of `<PreviewCard.Root>` and linking them with a `handle` created by the `PreviewCard.createHandle()` function.
 
+The imperative methods on the handle, such as `open()` and `close()`, require a `<PreviewCard.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
+
 ```jsx title="Detached triggers"
 const demoPreviewCard = PreviewCard.createHandle();
 

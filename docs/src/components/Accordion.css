@@ -119,6 +119,22 @@
   .AccordionScrollable {
     overflow-x: hidden;
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(.AccordionScrollableInner:focus-visible) {
+      position: relative;
+      z-index: 1;
+
+      &::before {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -1px;
+      }
+    }
+
     &[data-scrollable] {
       position: relative;
 
@@ -170,6 +186,10 @@
 
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    &:focus-visible {
+      outline: 0;
     }
   }
 

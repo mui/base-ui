@@ -15,7 +15,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -35,14 +35,20 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     children,
   } = props;
 
-  const store = PreviewCardStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) =>
+      new PreviewCardStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);

@@ -187,7 +187,7 @@ export default function MenuTriggers() {
       </div>
 
       <h2>Uncontrolled, detached triggers</h2>
-      <StoreInspector store={menu1.store} title="Uncontrolled, detached triggers" />
+      <StoreInspector handle={menu1} title="Uncontrolled, detached triggers" />
       <div className={styles.Container}>
         <StyledMenu handle={menu1} />
         <StyledTrigger handle={menu1} payload={'Library' as const} />
@@ -196,7 +196,7 @@ export default function MenuTriggers() {
       </div>
 
       <h2>Controlled, detached triggers</h2>
-      <StoreInspector store={menu2.store} title="Controlled, detached triggers" />
+      <StoreInspector handle={menu2} title="Controlled, detached triggers" />
       <div className={styles.Container}>
         <StyledMenu
           handle={menu2}
