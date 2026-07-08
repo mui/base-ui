@@ -1,0 +1,824 @@
+[
+  {
+    "id": "overview-introduction--docs",
+    "title": "Overview/Introduction",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overview-principles--docs",
+    "title": "Overview/Principles",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overview-choosing-components--docs",
+    "title": "Overview/Choosing components",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-build-a-validated-form--docs",
+    "title": "Patterns/Build a validated form",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-choosing-an-overlay--docs",
+    "title": "Patterns/Choosing an overlay",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-pickers-select-combobox-autocomplete--docs",
+    "title": "Patterns/Pickers: select, combobox, autocomplete",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-menus-navigation--docs",
+    "title": "Patterns/Menus & navigation",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-composite-keyboard-navigation--docs",
+    "title": "Patterns/Composite keyboard navigation",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "patterns-animating-open-and-close--docs",
+    "title": "Patterns/Animating open and close",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-autocomplete--docs",
+    "title": "Form inputs/Autocomplete",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "error-indicator",
+        "detail": [
+          {
+            "kind": "auto-generate-failed-text"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-checkbox-group--docs",
+    "title": "Form inputs/Checkbox Group",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "act/checkbox-group'; \\n  \\n <CheckboxGroup> \\n   <Checkbox.Root /> \\n   {/* …repeated per option, each with its own value */} \\n </Chec"
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-checkbox--docs",
+    "title": "Form inputs/Checkbox",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-combobox--docs",
+    "title": "Form inputs/Combobox",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "error-indicator",
+        "detail": [
+          {
+            "kind": "auto-generate-failed-text"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-field--docs",
+    "title": "Form inputs/Field",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-fieldset--docs",
+    "title": "Form inputs/Fieldset",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-form--docs",
+    "title": "Form inputs/Form",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-input--docs",
+    "title": "Form inputs/Input",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-number-field--docs",
+    "title": "Form inputs/Number Field",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-otp-field--docs",
+    "title": "Form inputs/OTP Field",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "new",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "-field'; \\n  \\n <OTPField.Root length={6}> \\n   <OTPField.Input /> \\n   {/* …repeated, one per slot */} \\n   <OTPField.Separator /> \\n </O"
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-radio--docs",
+    "title": "Form inputs/Radio",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "p> \\n   <Radio.Root> \\n     <Radio.Indicator /> \\n   </Radio.Root> \\n   {/* …repeated per option */} \\n </RadioGroup>; \\n Copy \\n Part\tRender"
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-select--docs",
+    "title": "Form inputs/Select",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "Select.Group> \\n             <Select.GroupLabel /> \\n             {/* <Select.Item /> … */} \\n           </Select.Group> \\n         "
+      },
+      {
+        "type": "broken-image",
+        "detail": [
+          {
+            "src": "https://opengraph.githubassets.com/1/opral/flashtype",
+            "alt": "opral/flashtype repository card"
+          }
+        ]
+      },
+      {
+        "type": "console-error",
+        "detail": [
+          "Failed to load resource: the server responded with a status of 429 ()"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "form-inputs-slider--docs",
+    "title": "Form inputs/Slider",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "form-inputs-switch--docs",
+    "title": "Form inputs/Switch",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overlays-alert-dialog--docs",
+    "title": "Overlays/Alert Dialog",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overlays-context-menu--docs",
+    "title": "Overlays/Context Menu",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "t/context-menu'; \\n  \\n <ContextMenu.Root> \\n   <ContextMenu.Trigger>{/* wrapped content */}</ContextMenu.Trigger> \\n   <ContextMenu"
+      }
+    ]
+  },
+  {
+    "id": "overlays-dialog--docs",
+    "title": "Overlays/Dialog",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overlays-drawer--docs",
+    "title": "Overlays/Drawer",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "error-indicator",
+        "detail": [
+          {
+            "kind": "auto-generate-failed-text"
+          }
+        ]
+      },
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "om '@base-ui/react/drawer'; \\n  \\n <Drawer.Provider>              {/* optional: app-shell indent coordinator */} \\n   <Drawer.Ind"
+      }
+    ]
+  },
+  {
+    "id": "overlays-menu--docs",
+    "title": "Overlays/Menu",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "al> \\n             <Menu.Positioner> \\n               <Menu.Popup>{/* … */}</Menu.Popup> \\n             </Menu.Positioner> \\n       "
+      }
+    ]
+  },
+  {
+    "id": "overlays-popover--docs",
+    "title": "Overlays/Popover",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "broken-image",
+        "detail": [
+          {
+            "src": "https://opengraph.githubassets.com/1/opral/flashtype",
+            "alt": "opral/flashtype repository card"
+          }
+        ]
+      },
+      {
+        "type": "console-error",
+        "detail": [
+          "Failed to load resource: the server responded with a status of 429 ()"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "overlays-preview-card--docs",
+    "title": "Overlays/Preview Card",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "overlays-toast--docs",
+    "title": "Overlays/Toast",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "/react/toast'; \\n  \\n <Toast.Provider timeout={5000} limit={3}> \\n   {/* app — anywhere below, useToastManager() can add toasts *"
+      },
+      {
+        "type": "broken-image",
+        "detail": [
+          {
+            "src": "https://opengraph.githubassets.com/1/vcode-sh/popser",
+            "alt": "vcode-sh/popser repository card"
+          }
+        ]
+      },
+      {
+        "type": "console-error",
+        "detail": [
+          "Failed to load resource: the server responded with a status of 429 ()"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "overlays-tooltip--docs",
+    "title": "Overlays/Tooltip",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "navigation-menubar--docs",
+    "title": "Navigation/Menubar",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "     </Menu.Positioner> \\n     </Menu.Portal> \\n   </Menu.Root> \\n   {/* …more Menu.Root siblings */} \\n </Menubar>; \\n Copy \\n Part\tRende"
+      },
+      {
+        "type": "broken-image",
+        "detail": [
+          {
+            "src": "https://opengraph.githubassets.com/1/pacekit/gsap",
+            "alt": "pacekit/gsap repository card"
+          }
+        ]
+      },
+      {
+        "type": "console-error",
+        "detail": [
+          "Failed to load resource: the server responded with a status of 429 ()"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "navigation-navigation-menu--docs",
+    "title": "Navigation/Navigation Menu",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "gationMenu.Content> \\n         <NavigationMenu.Link /> \\n         {/* or a nested Root for submenus */} \\n       </NavigationMenu"
+      }
+    ]
+  },
+  {
+    "id": "navigation-tabs--docs",
+    "title": "Navigation/Tabs",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "disclosure-structure-accordion--docs",
+    "title": "Disclosure & structure/Accordion",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "disclosure-structure-collapsible--docs",
+    "title": "Disclosure & structure/Collapsible",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "disclosure-structure-scroll-area--docs",
+    "title": "Disclosure & structure/Scroll Area",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "disclosure-structure-separator--docs",
+    "title": "Disclosure & structure/Separator",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "actions-button--docs",
+    "title": "Actions/Button",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "actions-toggle-group--docs",
+    "title": "Actions/Toggle Group",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "actions-toggle--docs",
+    "title": "Actions/Toggle",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "actions-toolbar--docs",
+    "title": "Actions/Toolbar",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "status-display-avatar--docs",
+    "title": "Status & display/Avatar",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "console-error",
+        "detail": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "status-display-meter--docs",
+    "title": "Status & display/Meter",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "status-display-progress--docs",
+    "title": "Status & display/Progress",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "utilities-csp-provider--docs",
+    "title": "Utilities/CSP Provider",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "unattached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "-provider'; \\n  \\n // prettier-ignore \\n <CSPProvider nonce=\"...\"> \\n   {/* Your app or a group of components */} \\n </CSPProvider> \\n Cop"
+      }
+    ]
+  },
+  {
+    "id": "utilities-direction-provider--docs",
+    "title": "Utilities/Direction Provider",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "attached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "unrendered-mdx-comment",
+        "context": "e \\n <div dir=\"rtl\"> \\n   <DirectionProvider direction=\"rtl\"> \\n     {/* Your app or a group of components */} \\n   </DirectionProvi"
+      }
+    ]
+  },
+  {
+    "id": "utilities-mergeprops--docs",
+    "title": "Utilities/mergeProps",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "utilities-userender--docs",
+    "title": "Utilities/useRender",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "play-fn",
+      "attached-mdx"
+    ],
+    "problems": []
+  },
+  {
+    "id": "research-about-this-research--docs",
+    "title": "Research/About this research",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "research",
+      "unattached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "literal-bracket-g",
+        "context": "ect evidence, [I] inference (with what it's inferred from), [G] an acknowledged gap (looked, found nothing, said where)."
+      },
+      {
+        "type": "markdown-artifact",
+        "name": "raw-query-param",
+        "context": "s Research section render those source files directly (live ?raw imports — they can't drift from what's committed). \\n  \\n The"
+      }
+    ]
+  },
+  {
+    "id": "research-the-brief-prompt--docs",
+    "title": "Research/The brief (PROMPT)",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "research",
+      "unattached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "literal-bracket-g",
+        "context": "ion), \\n [I] — your inference (state what it's inferred from), \\n [G] — acknowledged gap (looked, found nothing; say where you"
+      }
+    ]
+  },
+  {
+    "id": "research-progress-ledger--docs",
+    "title": "Research/Progress ledger",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "research",
+      "unattached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "literal-bracket-g",
+        "context": "d.tsx (image click opens it). Status: agent launched 00:4x. \\n [G]/research-language sweep in user-facing pages — component"
+      },
+      {
+        "type": "markdown-artifact",
+        "name": "raw-query-param",
+        "context": "pet + rendered HTML + CSS (use Base UI Tabs for the tab UI; ?raw imports for code/css; outerHTML capture for the HTML ta"
+      }
+    ]
+  },
+  {
+    "id": "research-final-report-summary--docs",
+    "title": "Research/Final report (SUMMARY)",
+    "tags": [
+      "dev",
+      "test",
+      "manifest",
+      "research",
+      "unattached-mdx"
+    ],
+    "problems": [
+      {
+        "type": "markdown-artifact",
+        "name": "literal-bracket-g",
+        "context": "ames. Each became documented guidance, not just a test fix. \\n [G] inventory (top gaps carried forward) \\n No consolidated SSR"
+      }
+    ]
+  }
+]

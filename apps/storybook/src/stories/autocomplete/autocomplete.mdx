@@ -415,7 +415,10 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 
 ### Autocomplete.Value
 
-<ArgTypes of={Autocomplete.Value} />
+| Prop | Type | Description |
+|---|---|---|
+| `children` | `ReactNode \| (value) => ReactNode` | Render the current value, or a function receiving the selected value |
+| `placeholder` | `ReactNode` | Shown when no value is selected (overridden by `children` or a null item's label) |
 
 ### Autocomplete.Portal
 
@@ -455,7 +458,9 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 
 ### Autocomplete.Collection
 
-<ArgTypes of={Autocomplete.Collection} />
+| Prop | Type | Description |
+|---|---|---|
+| `children` | `(item, index) => ReactNode` | Render function called for each filtered item |
 
 ### Autocomplete.Status
 
