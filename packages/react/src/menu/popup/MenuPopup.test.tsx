@@ -211,4 +211,61 @@ describe('<Menu.Popup />', () => {
       });
     });
   });
+
+  describe('prop: initialFocus', () => {
+    it('should focus the first item within the popup by default', async () => {
+      await render(
+        <div>
+          <input />
+          <Menu.Root>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                  <Menu.Item>Item 2</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await act(async () => {
+        trigger.click();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('item-1')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus is false', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup initialFocus={false}>
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+  });
 });

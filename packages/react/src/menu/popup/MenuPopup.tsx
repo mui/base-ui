@@ -34,7 +34,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side, align } = useMenuPositionerContext();
@@ -132,6 +132,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
+  const resolvedInitialFocus = initialFocus === undefined ? parent.type !== 'menu' : initialFocus;
+
   return (
     <FloatingFocusManager
       context={floatingContext}
@@ -139,7 +141,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
-      initialFocus={parent.type !== 'menu'}
+      initialFocus={resolvedInitialFocus}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
@@ -161,6 +163,22 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupSta
    * @ignore
    */
   id?: string | undefined;
+  /**
+   * Determines the element to focus when the menu is opened.
+   * By default, focus moves to the first tabbable element inside the popup, except for a nested
+   * submenu, where focus stays on the parent menu.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
+   */
+  initialFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+    | undefined;
   /**
    * Determines the element to focus when the menu is closed.
    *
