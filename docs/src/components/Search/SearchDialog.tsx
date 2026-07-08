@@ -246,7 +246,7 @@ export function SearchDialog({
                       {searchResultsContent}
                     </ScrollArea.Content>
                   </ScrollArea.Viewport>
-                  <ScrollArea.Scrollbar className="SearchScrollbar ">
+                  <ScrollArea.Scrollbar className="SearchScrollbar">
                     <ScrollArea.Thumb className="SearchScrollbarThumb" />
                   </ScrollArea.Scrollbar>
                 </ScrollArea.Root>
