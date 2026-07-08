@@ -32,9 +32,9 @@ export function SearchControls({
   const mobileTriggerId = React.useId();
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const scrollTopAfterMobileCloseRef = React.useRef(false);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
   const preloadTimeout = useTimeout();
-  const scrollTopTimeout = useTimeout();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -47,17 +47,14 @@ export function SearchControls({
   }, []);
 
   const closeMobileNav = React.useCallback(() => {
+    scrollTopAfterMobileCloseRef.current = false;
     setOpenTarget(null);
   }, []);
 
   const closeMobileNavAndScrollTop = React.useCallback(() => {
+    scrollTopAfterMobileCloseRef.current = true;
     setOpenTarget(null);
-    // Wait for the drawer to close before scrolling. The timeout must outlive
-    // the drawer contents, which unmount when the close transition ends.
-    scrollTopTimeout.start(500, () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }, [scrollTopTimeout]);
+  }, []);
 
   const mobileContextValue = React.useMemo(
     () => ({ close: closeMobileNav, closeAndScrollTop: closeMobileNavAndScrollTop }),
@@ -77,6 +74,7 @@ export function SearchControls({
     (event: DrawerTriggerClickEvent) => {
       event?.preventBaseUIHandler();
       preloadSearchSitemap();
+      scrollTopAfterMobileCloseRef.current = false;
       setOpenTarget('mobile');
     },
     [preloadSearchSitemap],
@@ -107,6 +105,7 @@ export function SearchControls({
 
   const handleMobileOpenChange = React.useCallback((open: boolean) => {
     if (open) {
+      scrollTopAfterMobileCloseRef.current = false;
       setOpenTarget('mobile');
       return;
     }
@@ -118,6 +117,15 @@ export function SearchControls({
 
       return target;
     });
+  }, []);
+
+  const handleMobileOpenChangeComplete = React.useCallback((open: boolean) => {
+    if (open || !scrollTopAfterMobileCloseRef.current) {
+      return;
+    }
+
+    scrollTopAfterMobileCloseRef.current = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   React.useEffect(() => {
@@ -194,6 +202,7 @@ export function SearchControls({
           focusSearchOnOpen={focusMobileSearchOnOpen}
           open={mobileOpen}
           onOpenChange={handleMobileOpenChange}
+          onOpenChangeComplete={handleMobileOpenChangeComplete}
           sitemap={loadSearchSitemap}
           triggerId={mobileOpen ? mobileTriggerId : null}
         />

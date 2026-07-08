@@ -37,7 +37,7 @@
     }
 
     &[data-ending-style] {
-      transition-duration: clamp(120ms, calc(var(--drawer-swipe-strength, 1) * 240ms), 240ms);
+      transition-duration: clamp(90ms, calc(var(--drawer-swipe-strength, 1) * 160ms), 160ms);
       transition-timing-function: linear;
     }
   }
@@ -95,7 +95,7 @@
       transform: translateY(
         calc(100% - var(--mobile-nav-bleed) + var(--mobile-nav-shadow-clearance))
       );
-      transition-duration: clamp(180ms, calc(var(--drawer-swipe-strength, 1) * 300ms), 300ms);
+      transition-duration: clamp(140ms, calc(var(--drawer-swipe-strength, 1) * 220ms), 220ms);
       transition-timing-function: cubic-bezier(0.32, 0, 0.67, 0);
     }
 
