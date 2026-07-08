@@ -205,17 +205,25 @@ export function WildCard({
   const context = React.useContext(WildCardsContext);
 
   // Auto-attach the per-component highlight captured from this site's own component page,
-  // keyed by the section's `component` + this card's domain. Explicit props still win.
+  // keyed by the section's `component` + this card's domain.
   const registryHit = lookupHighlight(context?.component, live ?? href);
-  const candidateImage = image ?? registryHit?.image;
   const effectiveHighlight = highlightImage ?? registryHit?.highlightImage;
+
+  // "Full page" and "Component" must differ ONLY by the overlay, so the plain frame has to be
+  // the exact frame the highlight was captured from (same route + scroll position). The
+  // capture driver shoots the base and highlight back-to-back, so when the highlight comes
+  // from the registry the plain frame is the registry's base image — NOT the card's `image`
+  // prop, which is often a site landing page (that mismatch made "Full page" show the homepage
+  // while "Component" showed the component's own route). An explicit `highlightImage` prop
+  // pairs with the explicit `image` prop instead.
+  const pairedImage = highlightImage != null ? image : (registryHit?.image ?? image);
   const effectivePageUrl = pageUrl ?? registryHit?.pageUrl ?? live;
   const effectiveRoute = route ?? registryHit?.route;
   const effectiveSelector = selector ?? registryHit?.selector;
 
   // Every screenshot must have a component highlight: a bare capture (an image with no
   // highlight) falls back to the GitHub OG card instead of showing a highlight-less shot.
-  const effectiveImage = effectiveHighlight ? candidateImage : undefined;
+  const effectiveImage = effectiveHighlight ? (pairedImage ?? effectiveHighlight) : undefined;
   const isCapture = Boolean(effectiveImage);
   const imageSrc = effectiveImage ?? `https://opengraph.githubassets.com/1/${repo}`;
 
