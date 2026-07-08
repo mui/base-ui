@@ -24,13 +24,29 @@ export function useDeferredSearchSitemap(active: boolean, sitemapImport = loadSe
     return undefined;
   }, [active]);
 
+  const waitForActivation = useStableCallback(
+    () =>
+      new Promise<void>((resolve) => {
+        pendingResolversRef.current.add(resolve);
+      }),
+  );
+
   return useStableCallback(async () => {
     if (!activeRef.current) {
-      await new Promise<void>((resolve) => {
-        pendingResolversRef.current.add(resolve);
-      });
+      await waitForActivation();
     }
 
-    return sitemapImportRef.current();
+    for (;;) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        return await sitemapImportRef.current();
+      } catch {
+        // The import failed (e.g. a network error) and its cache was reset.
+        // Retry on the next activation instead of leaving search
+        // permanently broken, since the caller only invokes this loader once.
+        // eslint-disable-next-line no-await-in-loop
+        await waitForActivation();
+      }
+    }
   });
 }
