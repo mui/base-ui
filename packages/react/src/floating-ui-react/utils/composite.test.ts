@@ -1,4 +1,4 @@
-import { isElementVisible, isHiddenByStyles } from './composite';
+import { isElementVisible, isHiddenByStyles, isListIndexDisabled } from './composite';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -42,4 +42,25 @@ it('uses CSS visibility fallbacks when checkVisibility is unavailable', () => {
   expect(isElementVisible(displayHidden)).toBe(false);
   expect(isElementVisible(displayContents)).toBe(false);
   expect(isElementVisible(contentHidden)).toBe(true);
+});
+
+it('always treats natively disabled elements as disabled, unlike aria-disabled ones', () => {
+  const nativeDisabled = document.createElement('button');
+  nativeDisabled.disabled = true;
+  const ariaDisabled = document.createElement('button');
+  ariaDisabled.setAttribute('aria-disabled', 'true');
+
+  document.body.append(nativeDisabled, ariaDisabled);
+  const list = [nativeDisabled, ariaDisabled];
+
+  expect(isListIndexDisabled(list, 0)).toBe(true);
+  expect(isListIndexDisabled(list, 1)).toBe(true);
+
+  // An empty `disabledIndices` marks every item as enabled, but natively
+  // disabled elements can never receive focus, so they stay disabled.
+  expect(isListIndexDisabled(list, 0, [])).toBe(true);
+  expect(isListIndexDisabled(list, 1, [])).toBe(false);
+
+  expect(isListIndexDisabled(list, 0, () => false)).toBe(true);
+  expect(isListIndexDisabled(list, 1, () => false)).toBe(false);
 });
