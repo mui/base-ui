@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 
@@ -32,10 +31,9 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ href, external, ...props }: ItemProps) {
-  const { close } = React.useContext(MobileNavContext);
+  const { close, closeAndScrollTop } = React.useContext(MobileNavContext);
   const pathname = usePathname();
   const active = props.active ?? pathname === href;
-  const scrollTimeout = useTimeout();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (href !== window.location.pathname || isModifiedEvent(event)) {
@@ -43,10 +41,7 @@ export function Item({ href, external, ...props }: ItemProps) {
     }
 
     event.preventDefault();
-    close();
-    scrollTimeout.start(500, () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    closeAndScrollTop();
   };
 
   const handleNavigate = () => {

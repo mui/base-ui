@@ -34,6 +34,7 @@ export function SearchControls({
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
   const preloadTimeout = useTimeout();
+  const scrollTopTimeout = useTimeout();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -49,7 +50,19 @@ export function SearchControls({
     setOpenTarget(null);
   }, []);
 
-  const mobileContextValue = React.useMemo(() => ({ close: closeMobileNav }), [closeMobileNav]);
+  const closeMobileNavAndScrollTop = React.useCallback(() => {
+    setOpenTarget(null);
+    // Wait for the drawer to close before scrolling. The timeout must outlive
+    // the drawer contents, which unmount when the close transition ends.
+    scrollTopTimeout.start(500, () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }, [scrollTopTimeout]);
+
+  const mobileContextValue = React.useMemo(
+    () => ({ close: closeMobileNav, closeAndScrollTop: closeMobileNavAndScrollTop }),
+    [closeMobileNav, closeMobileNavAndScrollTop],
+  );
 
   const handleDesktopTriggerClick = React.useCallback(
     (event: DialogTriggerClickEvent) => {
