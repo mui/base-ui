@@ -19,6 +19,12 @@
   }
 }
 
+/* Cards without a real screenshot (GitHub OG-card fallback) sort after captured ones.
+   `order: 1` beats the default `order: 0` in the grid without reordering the DOM. */
+.CardFallback {
+  order: 1;
+}
+
 .Preview {
   display: block;
   width: 100%;
@@ -119,6 +125,22 @@
   @media (prefers-color-scheme: dark) {
     border-color: oklch(60% 0.15 40deg);
     color: oklch(75% 0.15 40deg);
+  }
+}
+
+/* Badge marking a card whose component has been located + highlighted on the page. */
+.Located {
+  border: 1px solid oklch(70% 0.12 250deg);
+  border-radius: 0.25rem;
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: oklch(45% 0.14 250deg);
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(55% 0.12 250deg);
+    color: oklch(78% 0.12 250deg);
   }
 }
 
@@ -281,6 +303,49 @@
   }
 }
 
+/* Segmented "Full page / Component" toggle over the screenshot (top-left of the stage). */
+.ViewerToggle {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid oklch(87% 0 0deg);
+  border-radius: 999px;
+  background-color: oklch(100% 0 0deg / 90%);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(35% 0 0deg);
+    background-color: oklch(25% 0 0deg / 90%);
+  }
+}
+
+.ViewerToggleButton {
+  border: none;
+  margin: 0;
+  padding: 0.3125rem 0.75rem;
+  background: none;
+  color: oklch(40% 0 0deg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(75% 0 0deg);
+  }
+
+  &[aria-pressed='true'] {
+    background-color: oklch(55% 0.15 250deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(55% 0.15 250deg);
+    outline-offset: -2px;
+  }
+}
+
 .ViewerFooter {
   display: flex;
   flex-wrap: wrap;
@@ -292,6 +357,83 @@
 
   @media (prefers-color-scheme: dark) {
     border-top-color: oklch(30% 0 0deg);
+  }
+}
+
+/* Agent-handoff locator bar: route + CSS selector + copy, below the attribution footer. */
+.ViewerLocator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid oklch(92% 0 0deg);
+  background-color: oklch(98% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: oklch(26% 0 0deg);
+    background-color: oklch(15% 0 0deg);
+  }
+}
+
+.ViewerLocatorLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: oklch(55% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(65% 0 0deg);
+  }
+}
+
+.ViewerRoute,
+.ViewerSelector {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  background-color: oklch(94% 0 0deg);
+  color: oklch(25% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(25% 0 0deg);
+    color: oklch(88% 0 0deg);
+  }
+}
+
+.ViewerSelector {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.ViewerCopySelector {
+  margin-left: auto;
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid oklch(80% 0 0deg);
+  border-radius: 0.25rem;
+  background: white;
+  color: oklch(25% 0 0deg);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  line-height: 1;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(40% 0 0deg);
+    background: oklch(22% 0 0deg);
+    color: oklch(88% 0 0deg);
+  }
+
+  &:hover {
+    border-color: oklch(60% 0 0deg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(55% 0.15 250deg);
+    outline-offset: 1px;
   }
 }
 
