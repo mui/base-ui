@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "9ui-dev-hl",
+    "url": "https://www.9ui.dev",
+    "domain": "9ui.dev",
+    "components": ["tabs"],
+    "selector": "[role=\"tablist\"]"
+  },
+  {
+    "slug": "reui-io-hl",
+    "url": "https://reui.io",
+    "domain": "reui.io",
+    "components": ["switch"],
+    "selector": "[role=\"switch\"]"
+  }
+]

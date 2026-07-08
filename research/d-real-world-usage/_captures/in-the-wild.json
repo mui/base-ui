@@ -1,0 +1,526 @@
+{
+  "version": 1,
+  "generatedBy": "build-in-the-wild-index.mjs",
+  "note": "One record per In-the-wild site. `selector`/`box`/`screenshotHighlight` are populated by capture-highlight.mjs; null means a highlight pass is still pending.",
+  "counts": {
+    "total": 30,
+    "withHighlight": 2
+  },
+  "entries": {
+    "9ui-dev": {
+      "url": "https://www.9ui.dev",
+      "route": "/",
+      "domain": "9ui.dev",
+      "components": [
+        "tabs",
+        "autocomplete",
+        "alert-dialog",
+        "navigation-menu",
+        "number-field",
+        "otp-field",
+        "slider",
+        "preview-card",
+        "scroll-area",
+        "accordion",
+        "radio",
+        "avatar",
+        "button",
+        "collapsible",
+        "input",
+        "meter",
+        "progress",
+        "separator",
+        "toggle-group",
+        "toolbar",
+        "checkbox-group",
+        "form"
+      ],
+      "selector": "[role=\"tablist\"]",
+      "box": {
+        "x": 105,
+        "y": 685,
+        "width": 250,
+        "height": 36
+      },
+      "screenshot": "9ui-dev.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-dev-hl-highlight.png",
+      "status": "captured"
+    },
+    "baseui-cn-com": {
+      "url": "https://www.baseui-cn.com",
+      "route": "/",
+      "domain": "baseui-cn.com",
+      "components": [
+        "toast",
+        "drawer"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "baseui-cn-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "chanhdai-com": {
+      "url": "https://chanhdai.com",
+      "route": "/",
+      "domain": "chanhdai.com",
+      "components": [
+        "ecosystem"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "chanhdai-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "cmux-com": {
+      "url": "https://cmux.com",
+      "route": "/",
+      "domain": "cmux.com",
+      "components": [
+        "dialog",
+        "menu"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "cmux-com.png",
+      "screenshotOpen": "cmux-com-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "console-preview-oxide-computer": {
+      "url": "https://console-preview.oxide.computer",
+      "route": "/",
+      "domain": "console-preview.oxide.computer",
+      "components": [
+        "dialog",
+        "menu"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "console-preview-oxide-computer.png",
+      "screenshotOpen": "console-preview-oxide-computer-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "coss-com-ui": {
+      "url": "https://coss.com/ui",
+      "route": "/ui",
+      "domain": "coss.com",
+      "components": [
+        "combobox",
+        "drawer",
+        "toggle",
+        "context-menu",
+        "number-field",
+        "otp-field",
+        "slider",
+        "preview-card",
+        "checkbox",
+        "fieldset",
+        "progress",
+        "checkbox-group",
+        "form"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "coss-com-ui.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "dbhub-ai": {
+      "url": "https://dbhub.ai",
+      "route": "/",
+      "domain": "dbhub.ai",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "dbhub-ai.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "developers-cloudflare-com": {
+      "url": "https://developers.cloudflare.com",
+      "route": "/",
+      "domain": "developers.cloudflare.com",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "developers-cloudflare-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "dify-ai": {
+      "url": "https://dify.ai",
+      "route": "/",
+      "domain": "dify.ai",
+      "components": [
+        "select",
+        "dialog",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "dify-ai.png",
+      "screenshotOpen": "dify-ai-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "electric-ax": {
+      "url": "https://electric.ax",
+      "route": "/",
+      "domain": "electric.ax",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "electric-ax.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "flashtype-com": {
+      "url": "https://flashtype.com",
+      "route": "/",
+      "domain": "flashtype.com",
+      "components": [
+        "select",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "flashtype-com.png",
+      "screenshotOpen": "flashtype-com-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "gitbutler-com": {
+      "url": "https://gitbutler.com",
+      "route": "/",
+      "domain": "gitbutler.com",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "gitbutler-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "graphql-org": {
+      "url": "https://graphql.org",
+      "route": "/",
+      "domain": "graphql.org",
+      "components": [
+        "select"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "graphql-org.png",
+      "screenshotOpen": "graphql-org-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "green-wall-leoku-dev": {
+      "url": "https://green-wall.leoku.dev",
+      "route": "/",
+      "domain": "green-wall.leoku.dev",
+      "components": [
+        "select",
+        "dialog",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "green-wall-leoku-dev.png",
+      "screenshotOpen": "green-wall-leoku-dev-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "kaneo-app": {
+      "url": "https://kaneo.app/",
+      "route": "/",
+      "domain": "kaneo.app",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "kaneo-app.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "krds-gracefullight-dev": {
+      "url": "https://krds.gracefullight.dev",
+      "route": "/",
+      "domain": "krds.gracefullight.dev",
+      "components": [
+        "select",
+        "dialog",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "krds-gracefullight-dev.png",
+      "screenshotOpen": "krds-gracefullight-dev-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "kumo-ui-com": {
+      "url": "https://kumo-ui.com",
+      "route": "/",
+      "domain": "kumo-ui.com",
+      "components": [
+        "select",
+        "dialog",
+        "menu"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "kumo-ui-com.png",
+      "screenshotOpen": "kumo-ui-com-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "latitude-so-jpg": {
+      "url": "https://latitude.so",
+      "route": "/",
+      "domain": "latitude.so",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "latitude-so.jpg",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "lumiui-dev": {
+      "url": "https://www.lumiui.dev",
+      "route": "/",
+      "domain": "lumiui.dev",
+      "components": [
+        "toast",
+        "menubar",
+        "context-menu",
+        "alert-dialog",
+        "navigation-menu",
+        "field",
+        "number-field",
+        "otp-field",
+        "slider",
+        "preview-card",
+        "accordion",
+        "avatar",
+        "meter",
+        "progress",
+        "separator",
+        "toggle-group",
+        "toolbar",
+        "checkbox-group",
+        "form"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "lumiui-dev.png",
+      "screenshotOpen": "lumiui-dev-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "mastra-ai": {
+      "url": "https://mastra.ai",
+      "route": "/",
+      "domain": "mastra.ai",
+      "components": [
+        "select",
+        "dialog",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "mastra-ai.png",
+      "screenshotOpen": "mastra-ai-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "mui-treasury-com": {
+      "url": "https://mui-treasury.com",
+      "route": "/",
+      "domain": "mui-treasury.com",
+      "components": [
+        "menubar"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "mui-treasury-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "nextjs-org": {
+      "url": "https://nextjs.org",
+      "route": "/",
+      "domain": "nextjs.org",
+      "components": [
+        "menu"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "nextjs-org.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "openade-ai": {
+      "url": "https://openade.ai",
+      "route": "/",
+      "domain": "openade.ai",
+      "components": [
+        "select",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "openade-ai.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "posthog-com": {
+      "url": "https://posthog.com",
+      "route": "/",
+      "domain": "posthog.com",
+      "components": [
+        "dialog",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "posthog-com.png",
+      "screenshotOpen": "posthog-com-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "reui-io": {
+      "url": "https://reui.io",
+      "route": "/",
+      "domain": "reui.io",
+      "components": [
+        "drawer",
+        "switch",
+        "tooltip",
+        "toggle",
+        "context-menu",
+        "scroll-area",
+        "accordion",
+        "checkbox",
+        "avatar"
+      ],
+      "selector": "[role=\"switch\"]",
+      "box": {
+        "x": 781,
+        "y": 441,
+        "width": 32,
+        "height": 18
+      },
+      "screenshot": "reui-io.png",
+      "screenshotOpen": "reui-io-open.png",
+      "screenshotHighlight": "reui-io-hl-highlight.png",
+      "status": "captured"
+    },
+    "t3-codes": {
+      "url": "https://t3.codes",
+      "route": "/",
+      "domain": "t3.codes",
+      "components": [
+        "dialog",
+        "menu"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "t3-codes.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "typebot-io": {
+      "url": "https://typebot.io",
+      "route": "/",
+      "domain": "typebot.io",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "typebot-io.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "ui-shadcn-com": {
+      "url": "https://ui.shadcn.com",
+      "route": "/",
+      "domain": "ui.shadcn.com",
+      "components": [
+        "select",
+        "dialog"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "ui-shadcn-com.png",
+      "screenshotOpen": "ui-shadcn-com-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "woocommerce-com": {
+      "url": "https://woocommerce.com",
+      "route": "/",
+      "domain": "woocommerce.com",
+      "components": [
+        "combobox"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "woocommerce-com.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "wordpress-org-gutenberg": {
+      "url": "https://wordpress.org/gutenberg/",
+      "route": "/gutenberg/",
+      "domain": "wordpress.org",
+      "components": [
+        "select",
+        "dialog",
+        "menu",
+        "popover"
+      ],
+      "selector": null,
+      "box": null,
+      "screenshot": "wordpress-org-gutenberg.png",
+      "screenshotOpen": "wordpress-org-gutenberg-open.png",
+      "screenshotHighlight": null,
+      "status": "captured"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+import { Meta, Markdown } from '@storybook/addon-docs/blocks';
+import { linkifyIssues } from './linkify';
+import content from '../../../../../research/d-real-world-usage/_captures/README.md?raw';
+
+<Meta title="Research/D — Real-world usage/Screenshot capture" tags={['research']} />
+
+<Markdown>{linkifyIssues(content)}</Markdown>

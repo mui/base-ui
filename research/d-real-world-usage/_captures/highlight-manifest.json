@@ -1,0 +1,48 @@
+[
+  {
+    "slug": "9ui-dev-hl",
+    "url": "https://www.9ui.dev",
+    "route": "/",
+    "domain": "9ui.dev",
+    "components": [
+      "tabs"
+    ],
+    "selector": "[role=\"tablist\"]",
+    "box": {
+      "x": 105,
+      "y": 685,
+      "width": 250,
+      "height": 36
+    },
+    "file": "9ui-dev-hl.png",
+    "fileHighlight": "9ui-dev-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"tablist\"]"
+    ]
+  },
+  {
+    "slug": "reui-io-hl",
+    "url": "https://reui.io",
+    "route": "/",
+    "domain": "reui.io",
+    "components": [
+      "switch"
+    ],
+    "selector": "[role=\"switch\"]",
+    "box": {
+      "x": 781,
+      "y": 441,
+      "width": 32,
+      "height": 18
+    },
+    "file": "reui-io-hl.png",
+    "fileHighlight": "reui-io-hl-highlight.png",
+    "status": "captured",
+    "notes": [
+      "goto: networkidle",
+      "matched [role=\"switch\"]"
+    ]
+  }
+]
