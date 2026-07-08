@@ -3,10 +3,130 @@
   "generatedBy": "build-in-the-wild-index.mjs",
   "note": "One record per In-the-wild site. `selector`/`box`/`screenshotHighlight` are populated by capture-highlight.mjs; null means a highlight pass is still pending.",
   "counts": {
-    "total": 38,
-    "withHighlight": 9
+    "total": 91,
+    "withHighlight": 67
   },
   "entries": {
+    "9ui-accordion": {
+      "url": "https://www.9ui.dev/docs/components/accordion",
+      "route": "/docs/components/accordion",
+      "domain": "9ui.dev",
+      "components": [
+        "Accordion"
+      ],
+      "selector": "[data-slot=\"accordion\"]",
+      "matchedRole": "region",
+      "box": {
+        "x": 528,
+        "y": 302,
+        "width": 384,
+        "height": 179
+      },
+      "screenshot": "9ui-accordion-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-accordion-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-alert-dialog": {
+      "url": "https://www.9ui.dev/docs/components/alert-dialog",
+      "route": "/docs/components/alert-dialog",
+      "domain": "9ui.dev",
+      "components": [
+        "Alert Dialog"
+      ],
+      "selector": "[data-slot^=\"alert-dialog\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 665,
+        "y": 344,
+        "width": 108,
+        "height": 36
+      },
+      "screenshot": "9ui-alert-dialog-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-alert-dialog-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-avatar": {
+      "url": "https://www.9ui.dev/docs/components/avatar",
+      "route": "/docs/components/avatar",
+      "domain": "9ui.dev",
+      "components": [
+        "Avatar"
+      ],
+      "selector": "[data-slot=\"avatar\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 700,
+        "y": 342,
+        "width": 40,
+        "height": 40
+      },
+      "screenshot": "9ui-avatar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-avatar-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-button": {
+      "url": "https://www.9ui.dev/docs/components/button",
+      "route": "/docs/components/button",
+      "domain": "9ui.dev",
+      "components": [
+        "Button"
+      ],
+      "selector": "[data-slot=\"button\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 1007,
+        "y": 12,
+        "width": 256,
+        "height": 32
+      },
+      "screenshot": "9ui-button-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-button-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-checkbox-group": {
+      "url": "https://www.9ui.dev/docs/components/checkbox-group",
+      "route": "/docs/components/checkbox-group",
+      "domain": "9ui.dev",
+      "components": [
+        "Checkbox Group"
+      ],
+      "selector": "[data-slot^=\"checkbox\"]",
+      "matchedRole": "checkbox",
+      "box": {
+        "x": 674,
+        "y": 314,
+        "width": 16,
+        "height": 16
+      },
+      "screenshot": "9ui-checkbox-group-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-checkbox-group-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-collapsible": {
+      "url": "https://www.9ui.dev/docs/components/collapsible",
+      "route": "/docs/components/collapsible",
+      "domain": "9ui.dev",
+      "components": [
+        "Collapsible"
+      ],
+      "selector": "[data-slot=\"collapsible\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 640,
+        "y": 304,
+        "width": 160,
+        "height": 116
+      },
+      "screenshot": "9ui-collapsible-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-collapsible-hl-highlight.png",
+      "status": "captured"
+    },
     "9ui-dev": {
       "url": "https://www.9ui.dev",
       "route": "/",
@@ -37,16 +157,281 @@
       ],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
-      "box": {
-        "x": 105,
-        "y": 685,
-        "width": 250,
-        "height": 36
-      },
+      "box": null,
       "screenshot": "9ui-dev.png",
       "screenshotOpen": null,
       "screenshotHighlight": "9ui-dev-hl-highlight.png",
       "status": "captured"
+    },
+    "9ui-input": {
+      "url": "https://www.9ui.dev/docs/components/input",
+      "route": "/docs/components/input",
+      "domain": "9ui.dev",
+      "components": [
+        "Input"
+      ],
+      "selector": "[data-slot=\"input\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 560,
+        "y": 344,
+        "width": 320,
+        "height": 36
+      },
+      "screenshot": "9ui-input-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-input-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-meter": {
+      "url": "https://www.9ui.dev/docs/components/meter",
+      "route": "/docs/components/meter",
+      "domain": "9ui.dev",
+      "components": [
+        "Meter"
+      ],
+      "selector": "[data-slot=\"meter\"]",
+      "matchedRole": "meter",
+      "box": {
+        "x": 624,
+        "y": 345,
+        "width": 192,
+        "height": 34
+      },
+      "screenshot": "9ui-meter-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-meter-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-navigation-menu": {
+      "url": "https://www.9ui.dev/docs/components/navigation-menu",
+      "route": "/docs/components/navigation-menu",
+      "domain": "9ui.dev",
+      "components": [
+        "Navigation Menu"
+      ],
+      "selector": "[data-slot=\"navigation-menu\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 393,
+        "y": 344,
+        "width": 653,
+        "height": 36
+      },
+      "screenshot": "9ui-navigation-menu-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-navigation-menu-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-number-field": {
+      "url": "https://www.9ui.dev/docs/components/number-field",
+      "route": "/docs/components/number-field",
+      "domain": "9ui.dev",
+      "components": [
+        "Number Field"
+      ],
+      "selector": "[data-slot=\"number-field\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 644,
+        "y": 330,
+        "width": 152,
+        "height": 64
+      },
+      "screenshot": "9ui-number-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-number-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-otp-field": {
+      "url": "https://www.9ui.dev/docs/components/input-otp",
+      "route": "/docs/components/input-otp",
+      "domain": "9ui.dev",
+      "components": [
+        "Otp Field"
+      ],
+      "selector": "[data-slot=\"input-otp\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 592,
+        "y": 344,
+        "width": 256,
+        "height": 36
+      },
+      "screenshot": "9ui-otp-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-otp-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-preview-card": {
+      "url": "https://www.9ui.dev/docs/components/preview-card",
+      "route": "/docs/components/preview-card",
+      "domain": "9ui.dev",
+      "components": [
+        "Preview Card"
+      ],
+      "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 855,
+        "y": 352,
+        "width": 23,
+        "height": 20
+      },
+      "screenshot": "9ui-preview-card-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-preview-card-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-progress": {
+      "url": "https://www.9ui.dev/docs/components/progress",
+      "route": "/docs/components/progress",
+      "domain": "9ui.dev",
+      "components": [
+        "Progress"
+      ],
+      "selector": "[data-slot=\"progress\"]",
+      "matchedRole": "progressbar",
+      "box": {
+        "x": 560,
+        "y": 358,
+        "width": 320,
+        "height": 8
+      },
+      "screenshot": "9ui-progress-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-progress-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-radio": {
+      "url": "https://www.9ui.dev/docs/components/radio-group",
+      "route": "/docs/components/radio-group",
+      "domain": "9ui.dev",
+      "components": [
+        "Radio"
+      ],
+      "selector": "[data-slot=\"radio-group\"]",
+      "matchedRole": "radiogroup",
+      "box": {
+        "x": 670,
+        "y": 308,
+        "width": 98,
+        "height": 108
+      },
+      "screenshot": "9ui-radio-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-radio-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-scroll-area": {
+      "url": "https://www.9ui.dev/docs/components/scroll-area",
+      "route": "/docs/components/scroll-area",
+      "domain": "9ui.dev",
+      "components": [
+        "Scroll Area"
+      ],
+      "selector": "[data-slot=\"scroll-area\"]",
+      "matchedRole": "presentation",
+      "box": {
+        "x": 600,
+        "y": 302,
+        "width": 240,
+        "height": 240
+      },
+      "screenshot": "9ui-scroll-area-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-scroll-area-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-separator": {
+      "url": "https://www.9ui.dev/docs/components/separator",
+      "route": "/docs/components/separator",
+      "domain": "9ui.dev",
+      "components": [
+        "Separator"
+      ],
+      "selector": "[data-slot=\"separator\"], [role=\"separator\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "9ui-separator-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
+    },
+    "9ui-slider": {
+      "url": "https://www.9ui.dev/docs/components/slider",
+      "route": "/docs/components/slider",
+      "domain": "9ui.dev",
+      "components": [
+        "Slider"
+      ],
+      "selector": "[data-slot=\"slider\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 520,
+        "y": 359,
+        "width": 400,
+        "height": 6
+      },
+      "screenshot": "9ui-slider-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-slider-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-tabs": {
+      "url": "https://www.9ui.dev/docs/components/tabs",
+      "route": "/docs/components/tabs",
+      "domain": "9ui.dev",
+      "components": [
+        "Tabs"
+      ],
+      "selector": "[data-slot=\"tabs\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 528,
+        "y": 302,
+        "width": 384,
+        "height": 352
+      },
+      "screenshot": "9ui-tabs-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-tabs-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-toggle-group": {
+      "url": "https://www.9ui.dev/docs/components/toggle-group",
+      "route": "/docs/components/toggle-group",
+      "domain": "9ui.dev",
+      "components": [
+        "Toggle Group"
+      ],
+      "selector": "[data-slot=\"toggle-group\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 666,
+        "y": 344,
+        "width": 108,
+        "height": 36
+      },
+      "screenshot": "9ui-toggle-group-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "9ui-toggle-group-hl-highlight.png",
+      "status": "captured"
+    },
+    "9ui-toolbar": {
+      "url": "https://www.9ui.dev/docs/components/toolbar",
+      "route": "/docs/components/toolbar",
+      "domain": "9ui.dev",
+      "components": [
+        "Toolbar"
+      ],
+      "selector": "[data-slot^=\"toolbar\"]",
+      "matchedRole": null,
+      "box": null,
+      "screenshot": "9ui-toolbar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": null,
+      "status": "page-only"
     },
     "baseui-cn-com": {
       "url": "https://www.baseui-cn.com",
@@ -111,6 +496,46 @@
       "screenshotHighlight": null,
       "status": "captured"
     },
+    "coss-checkbox": {
+      "url": "https://coss.com/ui/docs/components/checkbox",
+      "route": "/ui/docs/components/checkbox",
+      "domain": "coss.com",
+      "components": [
+        "Checkbox"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 587,
+        "y": 555,
+        "width": 218,
+        "height": 24
+      },
+      "screenshot": "coss-checkbox-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-checkbox-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-checkbox-group": {
+      "url": "https://coss.com/ui/docs/components/checkbox-group",
+      "route": "/ui/docs/components/checkbox-group",
+      "domain": "coss.com",
+      "components": [
+        "Checkbox Group"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 661,
+        "y": 531,
+        "width": 71,
+        "height": 72
+      },
+      "screenshot": "coss-checkbox-group-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-checkbox-group-hl-highlight.png",
+      "status": "captured"
+    },
     "coss-com-ui": {
       "url": "https://coss.com/ui",
       "route": "/ui",
@@ -130,12 +555,192 @@
         "checkbox-group",
         "form"
       ],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "selector": null,
       "matchedRole": null,
       "box": null,
       "screenshot": "coss-com-ui.png",
       "screenshotOpen": null,
       "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "coss-context-menu": {
+      "url": "https://coss.com/ui/docs/components/context-menu",
+      "route": "/ui/docs/components/context-menu",
+      "domain": "coss.com",
+      "components": [
+        "Context Menu"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 504,
+        "y": 503,
+        "width": 384,
+        "height": 128
+      },
+      "screenshot": "coss-context-menu-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-context-menu-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-drawer": {
+      "url": "https://coss.com/ui/docs/components/drawer",
+      "route": "/ui/docs/components/drawer",
+      "domain": "coss.com",
+      "components": [
+        "Drawer"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 640,
+        "y": 579,
+        "width": 112,
+        "height": 32
+      },
+      "screenshot": "coss-drawer-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-drawer-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-fieldset": {
+      "url": "https://coss.com/ui/docs/components/fieldset",
+      "route": "/ui/docs/components/fieldset",
+      "domain": "coss.com",
+      "components": [
+        "Fieldset"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 568,
+        "y": 451,
+        "width": 256,
+        "height": 232
+      },
+      "screenshot": "coss-fieldset-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-fieldset-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-number-field": {
+      "url": "https://coss.com/ui/docs/components/number-field",
+      "route": "/ui/docs/components/number-field",
+      "domain": "coss.com",
+      "components": [
+        "Number Field"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 568,
+        "y": 551,
+        "width": 256,
+        "height": 32
+      },
+      "screenshot": "coss-number-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-number-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-otp-field": {
+      "url": "https://coss.com/ui/docs/components/otp-field",
+      "route": "/ui/docs/components/otp-field",
+      "domain": "coss.com",
+      "components": [
+        "Otp Field"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 580,
+        "y": 551,
+        "width": 232,
+        "height": 32
+      },
+      "screenshot": "coss-otp-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-otp-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-preview-card": {
+      "url": "https://coss.com/ui/docs/components/preview-card",
+      "route": "/ui/docs/components/preview-card",
+      "domain": "coss.com",
+      "components": [
+        "Preview Card"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 644,
+        "y": 551,
+        "width": 104,
+        "height": 32
+      },
+      "screenshot": "coss-preview-card-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-preview-card-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-progress": {
+      "url": "https://coss.com/ui/docs/components/progress",
+      "route": "/ui/docs/components/progress",
+      "domain": "coss.com",
+      "components": [
+        "Progress"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 568,
+        "y": 564,
+        "width": 256,
+        "height": 6
+      },
+      "screenshot": "coss-progress-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-progress-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-slider": {
+      "url": "https://coss.com/ui/docs/components/slider",
+      "route": "/ui/docs/components/slider",
+      "domain": "coss.com",
+      "components": [
+        "Slider"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 568,
+        "y": 565,
+        "width": 256,
+        "height": 4
+      },
+      "screenshot": "coss-slider-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-slider-hl-highlight.png",
+      "status": "captured"
+    },
+    "coss-toggle": {
+      "url": "https://coss.com/ui/docs/components/toggle",
+      "route": "/ui/docs/components/toggle",
+      "domain": "coss.com",
+      "components": [
+        "Toggle"
+      ],
+      "selector": "[data-slot=\"preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 665,
+        "y": 551,
+        "width": 62,
+        "height": 32
+      },
+      "screenshot": "coss-toggle-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "coss-toggle-hl-highlight.png",
       "status": "captured"
     },
     "dbhub-ai": {
@@ -224,7 +829,7 @@
       "components": [
         "combobox"
       ],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+      "selector": null,
       "matchedRole": null,
       "box": null,
       "screenshot": "gitbutler-com.png",
@@ -241,12 +846,7 @@
       ],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": {
-        "x": 1108,
-        "y": 14,
-        "width": 256,
-        "height": 36
-      },
+      "box": null,
       "screenshot": "graphql-org.png",
       "screenshotOpen": "graphql-org-open.png",
       "screenshotHighlight": "graphql-org-hl-highlight.png",
@@ -269,19 +869,6 @@
       "screenshotOpen": "green-wall-leoku-dev-open.png",
       "screenshotHighlight": null,
       "status": "captured"
-    },
-    "gsap-pacekit-dev": {
-      "url": "https://gsap.pacekit.dev",
-      "route": "/",
-      "domain": "gsap.pacekit.dev",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
-      "matchedRole": null,
-      "box": null,
-      "screenshot": "gsap-pacekit-dev-hl.png",
-      "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
     },
     "kaneo-app": {
       "url": "https://kaneo.app/",
@@ -326,12 +913,7 @@
       ],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": {
-        "x": 1110,
-        "y": 211,
-        "width": 200,
-        "height": 36
-      },
+      "box": null,
       "screenshot": "kumo-ui-com.png",
       "screenshotOpen": "kumo-ui-com-open.png",
       "screenshotHighlight": "kumo-ui-com-hl-highlight.png",
@@ -363,6 +945,106 @@
       "screenshot": "latitude-so.jpg",
       "screenshotOpen": null,
       "screenshotHighlight": null,
+      "status": "captured"
+    },
+    "lumiui-accordion": {
+      "url": "https://www.lumiui.dev/docs/components/layout-nav/accordion",
+      "route": "/docs/components/layout-nav/accordion",
+      "domain": "lumiui.dev",
+      "components": [
+        "Accordion"
+      ],
+      "selector": "[data-slot=\"accordion\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 512,
+        "y": 340,
+        "width": 448,
+        "height": 214
+      },
+      "screenshot": "lumiui-accordion-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-accordion-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-alert-dialog": {
+      "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/alert-dialog",
+      "route": "/docs/components/overlays-dialogs/alert-dialog",
+      "domain": "lumiui.dev",
+      "components": [
+        "Alert Dialog"
+      ],
+      "selector": "[data-slot^=\"alert-dialog\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 660,
+        "y": 520,
+        "width": 151,
+        "height": 36
+      },
+      "screenshot": "lumiui-alert-dialog-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-alert-dialog-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-avatar": {
+      "url": "https://www.lumiui.dev/docs/components/display-media/avatar",
+      "route": "/docs/components/display-media/avatar",
+      "domain": "lumiui.dev",
+      "components": [
+        "Avatar"
+      ],
+      "selector": "[data-slot=\"avatar\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 680,
+        "y": 494,
+        "width": 32,
+        "height": 32
+      },
+      "screenshot": "lumiui-avatar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-avatar-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-checkbox-group": {
+      "url": "https://www.lumiui.dev/docs/components/form-input/checkbox-group",
+      "route": "/docs/components/form-input/checkbox-group",
+      "domain": "lumiui.dev",
+      "components": [
+        "Checkbox Group"
+      ],
+      "selector": "[data-slot=\"checkbox-group\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 680,
+        "y": 456,
+        "width": 112,
+        "height": 108
+      },
+      "screenshot": "lumiui-checkbox-group-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-checkbox-group-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-context-menu": {
+      "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/context-menu",
+      "route": "/docs/components/overlays-dialogs/context-menu",
+      "domain": "lumiui.dev",
+      "components": [
+        "Context Menu"
+      ],
+      "selector": "[data-slot^=\"context-menu\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 586,
+        "y": 435,
+        "width": 300,
+        "height": 150
+      },
+      "screenshot": "lumiui-context-menu-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-context-menu-hl-highlight.png",
       "status": "captured"
     },
     "lumiui-dev": {
@@ -398,6 +1080,286 @@
       "screenshotHighlight": null,
       "status": "captured"
     },
+    "lumiui-fieldset": {
+      "url": "https://www.lumiui.dev/docs/components/form-input/fieldset",
+      "route": "/docs/components/form-input/fieldset",
+      "domain": "lumiui.dev",
+      "components": [
+        "Fieldset"
+      ],
+      "selector": "[data-slot=\"fieldset\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 576,
+        "y": 420,
+        "width": 320,
+        "height": 180
+      },
+      "screenshot": "lumiui-fieldset-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-fieldset-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-menubar": {
+      "url": "https://www.lumiui.dev/docs/components/misc/menubar",
+      "route": "/docs/components/misc/menubar",
+      "domain": "lumiui.dev",
+      "components": [
+        "Menubar"
+      ],
+      "selector": "[data-slot=\"menubar\"]",
+      "matchedRole": "menubar",
+      "box": {
+        "x": 602,
+        "y": 492,
+        "width": 267,
+        "height": 36
+      },
+      "screenshot": "lumiui-menubar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-menubar-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-meter": {
+      "url": "https://www.lumiui.dev/docs/components/feedback-status/meter",
+      "route": "/docs/components/feedback-status/meter",
+      "domain": "lumiui.dev",
+      "components": [
+        "Meter"
+      ],
+      "selector": "[data-slot=\"meter\"]",
+      "matchedRole": "meter",
+      "box": {
+        "x": 624,
+        "y": 494,
+        "width": 224,
+        "height": 32
+      },
+      "screenshot": "lumiui-meter-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-meter-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-navigation-menu": {
+      "url": "https://www.lumiui.dev/docs/components/layout-nav/navigation-menu",
+      "route": "/docs/components/layout-nav/navigation-menu",
+      "domain": "lumiui.dev",
+      "components": [
+        "Navigation Menu"
+      ],
+      "selector": "[data-slot=\"navigation-menu\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 436,
+        "y": 472,
+        "width": 600,
+        "height": 76
+      },
+      "screenshot": "lumiui-navigation-menu-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-navigation-menu-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-number-field": {
+      "url": "https://www.lumiui.dev/docs/components/form-input/number-field",
+      "route": "/docs/components/form-input/number-field",
+      "domain": "lumiui.dev",
+      "components": [
+        "Number Field"
+      ],
+      "selector": "[data-slot=\"number-field\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 672,
+        "y": 503,
+        "width": 128,
+        "height": 36
+      },
+      "screenshot": "lumiui-number-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-number-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-otp-field": {
+      "url": "https://www.lumiui.dev/docs/components/form-input/otp-field",
+      "route": "/docs/components/form-input/otp-field",
+      "domain": "lumiui.dev",
+      "components": [
+        "Otp Field"
+      ],
+      "selector": "[data-slot=\"otp-field\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 608,
+        "y": 503,
+        "width": 256,
+        "height": 36
+      },
+      "screenshot": "lumiui-otp-field-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-otp-field-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-preview-card": {
+      "url": "https://www.lumiui.dev/docs/components/overlays-dialogs/preview-card",
+      "route": "/docs/components/overlays-dialogs/preview-card",
+      "domain": "lumiui.dev",
+      "components": [
+        "Preview Card"
+      ],
+      "selector": "[data-slot^=\"preview-card\"], [data-slot^=\"hover-card\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 774,
+        "y": 480,
+        "width": 85,
+        "height": 36
+      },
+      "screenshot": "lumiui-preview-card-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-preview-card-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-progress": {
+      "url": "https://www.lumiui.dev/docs/components/feedback-status/progress",
+      "route": "/docs/components/feedback-status/progress",
+      "domain": "lumiui.dev",
+      "components": [
+        "Progress"
+      ],
+      "selector": "[data-slot=\"progress\"]",
+      "matchedRole": "progressbar",
+      "box": {
+        "x": 556,
+        "y": 506,
+        "width": 360,
+        "height": 8
+      },
+      "screenshot": "lumiui-progress-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-progress-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-scroll-area": {
+      "url": "https://www.lumiui.dev/docs/components/layout-nav/scroll-area",
+      "route": "/docs/components/layout-nav/scroll-area",
+      "domain": "lumiui.dev",
+      "components": [
+        "Scroll Area"
+      ],
+      "selector": "[data-slot=\"scroll-area\"]",
+      "matchedRole": "presentation",
+      "box": {
+        "x": 52,
+        "y": 64,
+        "width": 240,
+        "height": 3032
+      },
+      "screenshot": "lumiui-scroll-area-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-scroll-area-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-separator": {
+      "url": "https://www.lumiui.dev/docs/components/layout-nav/separator",
+      "route": "/docs/components/layout-nav/separator",
+      "domain": "lumiui.dev",
+      "components": [
+        "Separator"
+      ],
+      "selector": "[data-slot=\"separator\"]",
+      "matchedRole": "separator",
+      "box": {
+        "x": 481,
+        "y": 519,
+        "width": 510,
+        "height": 1
+      },
+      "screenshot": "lumiui-separator-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-separator-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-slider": {
+      "url": "https://www.lumiui.dev/docs/components/form-input/slider",
+      "route": "/docs/components/form-input/slider",
+      "domain": "lumiui.dev",
+      "components": [
+        "Slider"
+      ],
+      "selector": "[data-slot=\"slider\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 592,
+        "y": 493,
+        "width": 288,
+        "height": 34
+      },
+      "screenshot": "lumiui-slider-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-slider-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-toast": {
+      "url": "https://www.lumiui.dev/docs/components/feedback-status/toast",
+      "route": "/docs/components/feedback-status/toast",
+      "domain": "lumiui.dev",
+      "components": [
+        "Toast"
+      ],
+      "selector": "[role=\"dialog\"]",
+      "matchedRole": "dialog",
+      "box": {
+        "x": 496,
+        "y": 476,
+        "width": 321,
+        "height": 76
+      },
+      "screenshot": "lumiui-toast-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-toast-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-toggle-group": {
+      "url": "https://www.lumiui.dev/docs/components/misc/toggle-group",
+      "route": "/docs/components/misc/toggle-group",
+      "domain": "lumiui.dev",
+      "components": [
+        "Toggle Group"
+      ],
+      "selector": "[data-slot=\"toggle-group\"]",
+      "matchedRole": "group",
+      "box": {
+        "x": 608,
+        "y": 492,
+        "width": 256,
+        "height": 36
+      },
+      "screenshot": "lumiui-toggle-group-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-toggle-group-hl-highlight.png",
+      "status": "captured"
+    },
+    "lumiui-toolbar": {
+      "url": "https://www.lumiui.dev/docs/components/misc/toolbar",
+      "route": "/docs/components/misc/toolbar",
+      "domain": "lumiui.dev",
+      "components": [
+        "Toolbar"
+      ],
+      "selector": "[data-slot=\"toolbar\"]",
+      "matchedRole": "toolbar",
+      "box": {
+        "x": 544,
+        "y": 490,
+        "width": 384,
+        "height": 40
+      },
+      "screenshot": "lumiui-toolbar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "lumiui-toolbar-hl-highlight.png",
+      "status": "captured"
+    },
     "mastra-ai": {
       "url": "https://mastra.ai",
       "route": "/",
@@ -410,29 +1372,11 @@
       ],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
-      "box": {
-        "x": 56,
-        "y": 50,
-        "width": 138,
-        "height": 800
-      },
+      "box": null,
       "screenshot": "mastra-ai.png",
       "screenshotOpen": "mastra-ai-open.png",
       "screenshotHighlight": "mastra-ai-hl-highlight.png",
       "status": "captured"
-    },
-    "mathematic-inc-github-io-earl": {
-      "url": "https://mathematic-inc.github.io/earl/",
-      "route": "/earl/",
-      "domain": "mathematic-inc.github.io",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
-      "matchedRole": null,
-      "box": null,
-      "screenshot": "mathematic-inc-github-io-earl-hl.png",
-      "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
     },
     "mui-treasury-com": {
       "url": "https://mui-treasury.com",
@@ -449,19 +1393,6 @@
       "screenshotHighlight": null,
       "status": "captured"
     },
-    "museeks-io": {
-      "url": "https://museeks.io",
-      "route": "/",
-      "domain": "museeks.io",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
-      "matchedRole": null,
-      "box": null,
-      "screenshot": "museeks-io-hl.png",
-      "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
-    },
     "nextjs-org": {
       "url": "https://nextjs.org",
       "route": "/",
@@ -471,12 +1402,7 @@
       ],
       "selector": "[role=\"radiogroup\"]",
       "matchedRole": "radiogroup",
-      "box": {
-        "x": 1216,
-        "y": 816,
-        "width": 104,
-        "height": 40
-      },
+      "box": null,
       "screenshot": "nextjs-org.png",
       "screenshotOpen": null,
       "screenshotHighlight": "nextjs-org-hl-highlight.png",
@@ -499,19 +1425,6 @@
       "screenshotHighlight": null,
       "status": "captured"
     },
-    "popser-vcui-dev": {
-      "url": "https://popser.vcui.dev",
-      "route": "/",
-      "domain": "popser.vcui.dev",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
-      "matchedRole": null,
-      "box": null,
-      "screenshot": "popser-vcui-dev-hl.png",
-      "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
-    },
     "posthog-com": {
       "url": "https://posthog.com",
       "route": "/",
@@ -523,29 +1436,111 @@
       ],
       "selector": "[role=\"menubar\"]",
       "matchedRole": "menubar",
-      "box": {
-        "x": 2,
-        "y": 4,
-        "width": 420,
-        "height": 32
-      },
+      "box": null,
       "screenshot": "posthog-com.png",
       "screenshotOpen": "posthog-com-open.png",
       "screenshotHighlight": "posthog-com-hl-highlight.png",
       "status": "captured"
     },
-    "raystack-frontier-vercel-app": {
-      "url": "https://raystack-frontier.vercel.app/",
-      "route": "/",
-      "domain": "raystack-frontier.vercel.app",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
+    "reui-accordion": {
+      "url": "https://reui.io/components/accordion",
+      "route": "/components/accordion",
+      "domain": "reui.io",
+      "components": [
+        "Accordion"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
       "matchedRole": null,
-      "box": null,
-      "screenshot": "raystack-frontier-vercel-app-hl.png",
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 2341
+      },
+      "screenshot": "reui-accordion-hl.png",
       "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
+      "screenshotHighlight": "reui-accordion-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-avatar": {
+      "url": "https://reui.io/components/avatar",
+      "route": "/components/avatar",
+      "domain": "reui.io",
+      "components": [
+        "Avatar"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 6020
+      },
+      "screenshot": "reui-avatar-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-avatar-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-checkbox": {
+      "url": "https://reui.io/components/checkbox",
+      "route": "/components/checkbox",
+      "domain": "reui.io",
+      "components": [
+        "Checkbox"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 3491
+      },
+      "screenshot": "reui-checkbox-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-checkbox-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-context-menu": {
+      "url": "https://reui.io/components/context-menu",
+      "route": "/components/context-menu",
+      "domain": "reui.io",
+      "components": [
+        "Context Menu"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 1638
+      },
+      "screenshot": "reui-context-menu-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-context-menu-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-drawer": {
+      "url": "https://reui.io/components/drawer",
+      "route": "/components/drawer",
+      "domain": "reui.io",
+      "components": [
+        "Drawer"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 122,
+        "width": 1184,
+        "height": 778
+      },
+      "screenshot": "reui-drawer-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-drawer-hl-highlight.png",
+      "status": "captured"
     },
     "reui-io": {
       "url": "https://reui.io",
@@ -564,15 +1559,90 @@
       ],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": {
-        "x": 53,
-        "y": 553,
-        "width": 94,
-        "height": 32
-      },
+      "box": null,
       "screenshot": "reui-io.png",
       "screenshotOpen": "reui-io-open.png",
       "screenshotHighlight": "reui-io-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-scroll-area": {
+      "url": "https://reui.io/components/scroll-area",
+      "route": "/components/scroll-area",
+      "domain": "reui.io",
+      "components": [
+        "Scroll Area"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 1376
+      },
+      "screenshot": "reui-scroll-area-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-scroll-area-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-switch": {
+      "url": "https://reui.io/components/switch",
+      "route": "/components/switch",
+      "domain": "reui.io",
+      "components": [
+        "Switch"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 2055
+      },
+      "screenshot": "reui-switch-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-switch-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-toggle": {
+      "url": "https://reui.io/components/toggle",
+      "route": "/components/toggle",
+      "domain": "reui.io",
+      "components": [
+        "Toggle"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 1960
+      },
+      "screenshot": "reui-toggle-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-toggle-hl-highlight.png",
+      "status": "captured"
+    },
+    "reui-tooltip": {
+      "url": "https://reui.io/components/tooltip",
+      "route": "/components/tooltip",
+      "domain": "reui.io",
+      "components": [
+        "Tooltip"
+      ],
+      "selector": "[data-slot=\"components-preview\"]",
+      "matchedRole": null,
+      "box": {
+        "x": 256,
+        "y": 0,
+        "width": 1184,
+        "height": 2254
+      },
+      "screenshot": "reui-tooltip-hl.png",
+      "screenshotOpen": null,
+      "screenshotHighlight": "reui-tooltip-hl-highlight.png",
       "status": "captured"
     },
     "t3-codes": {
@@ -614,12 +1684,17 @@
         "select",
         "dialog"
       ],
-      "selector": null,
-      "matchedRole": null,
-      "box": null,
+      "selector": "[role=\"radiogroup\"]",
+      "matchedRole": "radiogroup",
+      "box": {
+        "x": 226,
+        "y": 656,
+        "width": 44,
+        "height": 16
+      },
       "screenshot": "ui-shadcn-com.png",
       "screenshotOpen": "ui-shadcn-com-open.png",
-      "screenshotHighlight": null,
+      "screenshotHighlight": "ui-shadcn-com-hl-highlight.png",
       "status": "captured"
     },
     "woocommerce-com": {
@@ -649,29 +1724,11 @@
       ],
       "selector": "[role=\"tablist\"]",
       "matchedRole": "tablist",
-      "box": {
-        "x": 1160,
-        "y": 64,
-        "width": 128,
-        "height": 48
-      },
+      "box": null,
       "screenshot": "wordpress-org-gutenberg.png",
       "screenshotOpen": "wordpress-org-gutenberg-open.png",
       "screenshotHighlight": "wordpress-org-gutenberg-hl-highlight.png",
       "status": "captured"
-    },
-    "zerocalendar-com": {
-      "url": "https://zerocalendar.com",
-      "route": "/",
-      "domain": "zerocalendar.com",
-      "components": [],
-      "selector": "[role=\"tablist\"], [role=\"menubar\"], [role=\"switch\"], [role=\"slider\"], [role=\"radiogroup\"], [role=\"checkbox\"], [role=\"combobox\"], [role=\"meter\"], [role=\"progressbar\"]",
-      "matchedRole": null,
-      "box": null,
-      "screenshot": "zerocalendar-com-hl.png",
-      "screenshotOpen": null,
-      "screenshotHighlight": null,
-      "status": "page-only"
     },
     "zweien-github-io-docx-template-system": {
       "url": "https://zweien.github.io/docx-template-system/",
@@ -680,12 +1737,7 @@
       "components": [],
       "selector": "[role=\"combobox\"]",
       "matchedRole": "combobox",
-      "box": {
-        "x": 1120,
-        "y": 15,
-        "width": 256,
-        "height": 34
-      },
+      "box": null,
       "screenshot": "zweien-github-io-docx-template-system-hl.png",
       "screenshotOpen": null,
       "screenshotHighlight": "zweien-github-io-docx-template-system-hl-highlight.png",

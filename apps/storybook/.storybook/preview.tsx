@@ -12,6 +12,15 @@ const preview: Preview = {
       },
     },
 
+    docs: {
+      // Show top-level section headings only (h2). Components list up to 19 API parts as h3
+      // under "API reference", plus many behavior + recreation h3s — including them overflows
+      // the sticky TOC and pushes sections like "In the wild" below the fold.
+      toc: {
+        headingSelector: 'h2',
+      },
+    },
+
     a11y: {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
@@ -41,7 +50,12 @@ const preview: Preview = {
           'Status & display',
           'Utilities',
           'Research',
-          ['About this research', 'The brief (PROMPT)', 'Progress ledger', 'Final report (SUMMARY)'],
+          [
+            'About this research',
+            'The brief (PROMPT)',
+            'Progress ledger',
+            'Final report (SUMMARY)',
+          ],
         ],
       },
     },

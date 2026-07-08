@@ -55,13 +55,13 @@ import { Accordion } from '@base-ui/react/accordion';
 </Accordion.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Accordion.Root` | `<div>` | Groups all parts of the accordion | required |
-| `Accordion.Item` | `<div>` | Groups a header with its corresponding panel | required, repeated |
-| `Accordion.Header` | `<h3>` | A heading that labels the corresponding panel | required |
-| `Accordion.Trigger` | `<button>` | Opens and closes the corresponding panel | required |
-| `Accordion.Panel` | `<div>` | The collapsible panel contents | required |
+| Part                | Renders    | Purpose                                       | Optional?          |
+| ------------------- | ---------- | --------------------------------------------- | ------------------ |
+| `Accordion.Root`    | `<div>`    | Groups all parts of the accordion             | required           |
+| `Accordion.Item`    | `<div>`    | Groups a header with its corresponding panel  | required, repeated |
+| `Accordion.Header`  | `<h3>`     | A heading that labels the corresponding panel | required           |
+| `Accordion.Trigger` | `<button>` | Opens and closes the corresponding panel      | required           |
+| `Accordion.Panel`   | `<div>`    | The collapsible panel contents                | required           |
 
 ## How it works
 
@@ -103,12 +103,12 @@ External `value`/`onValueChange` state, driven by buttons outside the accordion 
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Tab` / `Shift+Tab` | Moves focus to the next/previous focusable element in native DOM tab order — including between headers, since each Trigger is an ordinary tab stop, not a roving-tabindex composite member |
-| `Enter` | Toggles the focused item's open state |
-| `Space` | Toggles the focused item's open state (fires on keyup, matching native button semantics) |
-| `ArrowUp` / `ArrowDown` / `Home` / `End` | **No accordion-specific behavior** — deliberate, current-APG-aligned design, not an omission |
+| Key                                      | Action                                                                                                                                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Tab` / `Shift+Tab`                      | Moves focus to the next/previous focusable element in native DOM tab order — including between headers, since each Trigger is an ordinary tab stop, not a roving-tabindex composite member |
+| `Enter`                                  | Toggles the focused item's open state                                                                                                                                                      |
+| `Space`                                  | Toggles the focused item's open state (fires on keyup, matching native button semantics)                                                                                                   |
+| `ArrowUp` / `ArrowDown` / `Home` / `End` | **No accordion-specific behavior** — deliberate, current-APG-aligned design, not an omission                                                                                               |
 
 The following story asserts this contract directly: Tab/Shift+Tab moves focus between triggers, ArrowDown deliberately does nothing, and Space toggles the focused trigger.
 
@@ -120,12 +120,12 @@ The following story asserts this contract directly: Tab/Shift+Tab moves focus be
 
 ## Styling hooks
 
-| Part | Attribute / variable | Present when |
-|---|---|---|
-| `Item` / `Header` | `data-open`, `data-disabled`, `data-index` | reflects item state |
-| `Trigger` | `data-panel-open` (not `data-open`), `data-disabled` | trigger's associated panel is open / trigger disabled |
-| `Panel` | `data-open`, `data-disabled`, `data-starting-style`, `data-ending-style`, `data-orientation` | animation boundaries and state |
-| `Panel` | `--accordion-panel-height`, `--accordion-panel-width` | always, drives the height/width transition |
+| Part              | Attribute / variable                                                                         | Present when                                          |
+| ----------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `Item` / `Header` | `data-open`, `data-disabled`, `data-index`                                                   | reflects item state                                   |
+| `Trigger`         | `data-panel-open` (not `data-open`), `data-disabled`                                         | trigger's associated panel is open / trigger disabled |
+| `Panel`           | `data-open`, `data-disabled`, `data-starting-style`, `data-ending-style`, `data-orientation` | animation boundaries and state                        |
+| `Panel`           | `--accordion-panel-height`, `--accordion-panel-width`                                        | always, drives the height/width transition            |
 
 ## Choosing the right props
 
@@ -151,15 +151,43 @@ An `Accordion.Panel` can contain an entirely independent, nested `Accordion.Root
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    a shadcn-style `data-slot="accordion"` wrapper over `@base-ui/react/accordion`, styled with Tailwind border-bottom dividers per item.
+<WildCards component="accordion">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/accordion.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    a shadcn-style `data-slot="accordion"` wrapper over `@base-ui/react/accordion`, styled with
+    Tailwind border-bottom dividers per item.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
-    the same one-file-per-registry-item pattern, published both as an installable registry item (`apps/www/registry/ui/accordion.tsx`) and inside the distributable `@lumi-ui` package.
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/accordion.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
+    the same one-file-per-registry-item pattern, published both as an installable registry item
+    (`apps/www/registry/ui/accordion.tsx`) and inside the distributable `@lumi-ui` package.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
-    ships parallel Base UI and Radix implementations behind the same component API (`registry/bases/base/` vs `registry/bases/radix/`), letting consumers pick a primitive backend per project.
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/accordion.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+    image={reuiIoOpenShot}
+  >
+    ships parallel Base UI and Radix implementations behind the same component API
+    (`registry/bases/base/` vs `registry/bases/radix/`), letting consumers pick a primitive backend
+    per project.
   </WildCard>
 </WildCards>
 
@@ -167,7 +195,7 @@ An `Accordion.Panel` can contain an entirely independent, nested `Accordion.Root
 
 Two related PRs, merged the same day (2026-06-08), that removed behavior which had shipped since Accordion's 2024-10-30 launch ([#577](https://github.com/mui/base-ui/pull/577)):
 
-- **[#4965](https://github.com/mui/base-ui/pull/4965) — "Align Accordion keyboard navigation with APG"**: "The Accordion APG pattern no longer recommends roving focus, as documented in [w3c/aria-practices#3434](https://github.com/w3c/aria-practices/pull/3434). This PR proposes removing roving focus from Accordion to align with the latest APG guidance." Base UI's Accordion never used a `Composite`/roving-tabindex implementation to begin with in later revisions of this brief's research window — this PR formalizes the absence as *deliberate*, not a missing feature, and marks `orientation`/`loopFocus` as `@deprecated` for keyboard purposes.
+- **[#4965](https://github.com/mui/base-ui/pull/4965) — "Align Accordion keyboard navigation with APG"**: "The Accordion APG pattern no longer recommends roving focus, as documented in [w3c/aria-practices#3434](https://github.com/w3c/aria-practices/pull/3434). This PR proposes removing roving focus from Accordion to align with the latest APG guidance." Base UI's Accordion never used a `Composite`/roving-tabindex implementation to begin with in later revisions of this brief's research window — this PR formalizes the absence as _deliberate_, not a missing feature, and marks `orientation`/`loopFocus` as `@deprecated` for keyboard purposes.
 - **[#4961](https://github.com/mui/base-ui/pull/4961) — "Remove region role from `Accordion.Root`"**: "Based on the WAI-ARIA accordion pattern, region is typically applied to accordion panels rather than the root container. Since `Accordion.Root` serves as a structural wrapper and does not have an accessible label of its own, removing the region role seems more aligned with the APG guidance." `role="region"` already lived correctly on `Accordion.Panel`, so no functional gap resulted — only removal of a redundant/misplaced role on Root.
 
 This is a genuinely deliberate removal, not a regression: current W3C APG guidance dropped roving-focus arrow-key navigation from the Accordion pattern entirely, and Base UI tracks that guidance rather than an older, more elaborate version some other libraries still implement. See the full three-way disclosure comparison for how this affects the Accordion-vs-Tabs boundary: [Disclosure](?path=/docs/research-c-component-briefs-clusters-disclosure--docs).
@@ -203,8 +231,8 @@ This is a genuinely deliberate removal, not a regression: current W3C APG guidan
 
 <ArgTypes of={Accordion.Panel} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/accordion](https://base-ui.com/react/components/accordion#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/accordion](https://base-ui.com/react/components/accordion#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+accordion) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/accordion).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+accordion) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/accordion)._

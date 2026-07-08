@@ -46,9 +46,9 @@ import { Button } from '@base-ui/react/button';
 <Button />;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Button` | `<button>` (or the `render`-swapped tag) | The single element: state, keyboard normalization, disabled semantics | required |
+| Part     | Renders                                  | Purpose                                                               | Optional? |
+| -------- | ---------------------------------------- | --------------------------------------------------------------------- | --------- |
+| `Button` | `<button>` (or the `render`-swapped tag) | The single element: state, keyboard normalization, disabled semantics | required  |
 
 ## How it works
 
@@ -82,11 +82,11 @@ Button enforces `role="button"` and button keyboard interaction. Style a link-st
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Enter` | Activates the button (native on a real `<button>`; synthesized by Base UI on a `render`-swapped tag) |
+| Key     | Action                                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Enter` | Activates the button (native on a real `<button>`; synthesized by Base UI on a `render`-swapped tag)                      |
 | `Space` | Activates on `keyup` when standalone; normalized to `keydown` when the button is a composite item (e.g. inside a Toolbar) |
-| `Tab` | Skips the button when `disabled` (unless `focusableWhenDisabled` is set, in which case it stays reachable) |
+| `Tab`   | Skips the button when `disabled` (unless `focusableWhenDisabled` is set, in which case it stays reachable)                |
 
 - **ARIA**: `role="button"` only on non-native renders; `aria-disabled="true"` when disabled (either non-native, or native + `focusableWhenDisabled`); native `disabled` attribute only for a native `<button>` without `focusableWhenDisabled`.
 - **You must provide**: an accessible name (text content or `aria-label`), visible `:focus-visible` styling.
@@ -95,8 +95,8 @@ Button enforces `role="button"` and button keyboard interaction. Style a link-st
 
 ## Styling hooks
 
-| Attribute | Present when |
-|---|---|
+| Attribute       | Present when                                                   |
+| --------------- | -------------------------------------------------------------- |
 | `data-disabled` | the button is disabled (regardless of `focusableWhenDisabled`) |
 
 No CSS variables — Button has no dynamic measurements to expose, the leanest styling contract of any component in this batch.
@@ -120,15 +120,42 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/button/button.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    Cloudflare's own design system wraps `@base-ui/react` for Button too, with a matching Figma-generator (`packages/kumo-figma/src/generators/button.ts`) that keeps the design tool's variants in sync with the Tailwind implementation.
+<WildCards component="button">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/button/button.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    Cloudflare's own design system wraps `@base-ui/react` for Button too, with a matching
+    Figma-generator (`packages/kumo-figma/src/generators/button.ts`) that keeps the design tool's
+    variants in sync with the Tailwind implementation.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/button/button.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    the new `@wordpress/ui` package (distinct from the older `@wordpress/components` Button) has its own Base UI-backed button implementation.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/button/button.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    the new `@wordpress/ui` package (distinct from the older `@wordpress/components` Button) has its
+    own Base UI-backed button implementation.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/button.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    the broadest demo set of any 9ui component: disabled, loading, icon, link-rendered, rounded, and size/variant matrix demos all built on one wrapper.
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/button.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    the broadest demo set of any 9ui component: disabled, loading, icon, link-rendered, rounded, and
+    size/variant matrix demos all built on one wrapper.
   </WildCard>
 </WildCards>
 
@@ -157,4 +184,4 @@ No CSS variables — Button has no dynamic measurements to expose, the leanest s
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+button) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/button).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+button) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/button)._

@@ -28,28 +28,95 @@ const SITES = [
     url: 'https://www.9ui.dev',
     slug: '9ui-dev',
     domain: '9ui.dev',
-    components: ['tabs', 'autocomplete', 'alert-dialog', 'navigation-menu', 'number-field', 'otp-field', 'slider', 'preview-card', 'scroll-area', 'accordion', 'radio', 'avatar', 'button', 'collapsible', 'input', 'meter', 'progress', 'separator', 'toggle-group', 'toolbar', 'checkbox-group', 'form'],
+    components: [
+      'tabs',
+      'autocomplete',
+      'alert-dialog',
+      'navigation-menu',
+      'number-field',
+      'otp-field',
+      'slider',
+      'preview-card',
+      'scroll-area',
+      'accordion',
+      'radio',
+      'avatar',
+      'button',
+      'collapsible',
+      'input',
+      'meter',
+      'progress',
+      'separator',
+      'toggle-group',
+      'toolbar',
+      'checkbox-group',
+      'form',
+    ],
     interact: { kind: 'text', value: 'Accordion' },
   },
   {
     url: 'https://reui.io',
     slug: 'reui-io',
     domain: 'reui.io',
-    components: ['drawer', 'switch', 'tooltip', 'toggle', 'context-menu', 'scroll-area', 'accordion', 'checkbox', 'avatar'],
+    components: [
+      'drawer',
+      'switch',
+      'tooltip',
+      'toggle',
+      'context-menu',
+      'scroll-area',
+      'accordion',
+      'checkbox',
+      'avatar',
+    ],
     interact: { kind: 'text', value: 'Components' },
   },
   {
     url: 'https://www.lumiui.dev',
     slug: 'lumiui-dev',
     domain: 'lumiui.dev',
-    components: ['toast', 'menubar', 'context-menu', 'alert-dialog', 'navigation-menu', 'field', 'number-field', 'otp-field', 'slider', 'preview-card', 'accordion', 'avatar', 'meter', 'progress', 'separator', 'toggle-group', 'toolbar', 'checkbox-group', 'form'],
+    components: [
+      'toast',
+      'menubar',
+      'context-menu',
+      'alert-dialog',
+      'navigation-menu',
+      'field',
+      'number-field',
+      'otp-field',
+      'slider',
+      'preview-card',
+      'accordion',
+      'avatar',
+      'meter',
+      'progress',
+      'separator',
+      'toggle-group',
+      'toolbar',
+      'checkbox-group',
+      'form',
+    ],
     interact: { kind: 'text', value: 'Docs' },
   },
   {
     url: 'https://coss.com/ui',
     slug: 'coss-com-ui',
     domain: 'coss.com',
-    components: ['combobox', 'drawer', 'toggle', 'context-menu', 'number-field', 'otp-field', 'slider', 'preview-card', 'checkbox', 'fieldset', 'progress', 'checkbox-group', 'form'],
+    components: [
+      'combobox',
+      'drawer',
+      'toggle',
+      'context-menu',
+      'number-field',
+      'otp-field',
+      'slider',
+      'preview-card',
+      'checkbox',
+      'fieldset',
+      'progress',
+      'checkbox-group',
+      'form',
+    ],
     interact: null,
   },
   {
@@ -136,8 +203,14 @@ const SITES = [
 // (Kept in sync with the identical helper in capture.mjs / batch A.)
 async function dismissCookieBanners(page) {
   const patterns = [
-    /^accept( all)?( cookies)?$/i, /^allow all( cookies)?$/i, /^(i )?agree$/i,
-    /^got it!?$/i, /^ok(ay)?$/i, /^accept & close$/i, /^alle akzeptieren$/i, /^tout accepter$/i,
+    /^accept( all)?( cookies)?$/i,
+    /^allow all( cookies)?$/i,
+    /^(i )?agree$/i,
+    /^got it!?$/i,
+    /^ok(ay)?$/i,
+    /^accept & close$/i,
+    /^alle akzeptieren$/i,
+    /^tout accepter$/i,
   ];
   for (const re of patterns) {
     try {
@@ -250,7 +323,9 @@ async function captureSite(site) {
           entry.attempts.push(`saved open-state screenshot: ${entry.bytesOpen} bytes`);
         }
       } else {
-        entry.attempts.push(`viewport ${vp} produced ${result.baseBytes.length} bytes (>400KB), retrying smaller`);
+        entry.attempts.push(
+          `viewport ${vp} produced ${result.baseBytes.length} bytes (>400KB), retrying smaller`,
+        );
       }
     } catch (err) {
       lastErr = err;
@@ -263,7 +338,9 @@ async function captureSite(site) {
     if (lastErr) entry.attempts.push(`final: skipped after ${viewports.length} attempts`);
   }
 
-  console.log(`${entry.status === 'captured' ? '  -> captured' + (entry.fileOpen ? ' (+open state)' : '') : '  -> SKIPPED'}: ${site.url}`);
+  console.log(
+    `${entry.status === 'captured' ? '  -> captured' + (entry.fileOpen ? ' (+open state)' : '') : '  -> SKIPPED'}: ${site.url}`,
+  );
   return entry;
 }
 

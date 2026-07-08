@@ -53,13 +53,13 @@ import { Progress } from '@base-ui/react/progress';
 </Progress.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Progress.Root` | `<div role="progressbar">` | Owns all `aria-value*` attributes and context | required |
-| `Progress.Label` | `<span role="presentation">` | Visible label, auto-wired to Root's `aria-labelledby` | yes |
-| `Progress.Track` | `<div>` | Positioning/overflow context for the indicator | yes |
-| `Progress.Indicator` | `<div>` | The fill; the only part receiving inline style (`width: N%`) | yes |
-| `Progress.Value` | `<span aria-hidden>` | Visual mirror of the formatted value | yes |
+| Part                 | Renders                      | Purpose                                                      | Optional? |
+| -------------------- | ---------------------------- | ------------------------------------------------------------ | --------- |
+| `Progress.Root`      | `<div role="progressbar">`   | Owns all `aria-value*` attributes and context                | required  |
+| `Progress.Label`     | `<span role="presentation">` | Visible label, auto-wired to Root's `aria-labelledby`        | yes       |
+| `Progress.Track`     | `<div>`                      | Positioning/overflow context for the indicator               | yes       |
+| `Progress.Indicator` | `<div>`                      | The fill; the only part receiving inline style (`width: N%`) | yes       |
+| `Progress.Value`     | `<span aria-hidden>`         | Visual mirror of the formatted value                         | yes       |
 
 Root also renders a visually hidden `<span role="presentation">` sibling — the NVDA workaround ([#4200](https://github.com/mui/base-ui/pull/4200)), not a stylable part.
 
@@ -105,11 +105,11 @@ Default text is the percentage of the range via `Intl.NumberFormat(locale, { sty
 
 State attributes are identical on **every** part (shared `progressStateAttributesMapping`):
 
-| Attribute | Present when |
-|---|---|
-| `data-progressing` | value is between `min` and `max` |
-| `data-complete` | clamped value has reached `max` |
-| `data-indeterminate` | `value` is `null` or non-finite |
+| Attribute            | Present when                     |
+| -------------------- | -------------------------------- |
+| `data-progressing`   | value is between `min` and `max` |
+| `data-complete`      | clamped value has reached `max`  |
+| `data-indeterminate` | `value` is `null` or non-finite  |
 
 **No CSS variables.** The fill percentage is applied as plain inline `style.width` on the Indicator — a verified exception to the library's usual "CSS variables carry dynamic numeric values" principle (B-P14). You cannot key `calc()`/`transform` styling off a `--progress-percentage` variable; accept the width-based fill or replace `style`/`className` entirely.
 
@@ -134,15 +134,40 @@ State attributes are identical on **every** part (shared `progressStateAttribute
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/progress.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
+<WildCards component="progress">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/progress.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
     a Tailwind-styled Progress registry item, copy-paste distributed like the rest of the 9ui set.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/progress.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/progress.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
     the same wrapper pattern, published as both a package export and an installable registry file.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/progress.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
-    Cal.com's design system also ships a dedicated Progress wrapper as part of its near-complete registry.
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/progress.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+    image={cossComUiShot}
+  >
+    Cal.com's design system also ships a dedicated Progress wrapper as part of its near-complete
+    registry.
   </WildCard>
 </WildCards>
 
@@ -189,8 +214,8 @@ State attributes are identical on **every** part (shared `progressStateAttribute
 
 <ArgTypes of={Progress.Value} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/progress](https://base-ui.com/react/components/progress#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/progress](https://base-ui.com/react/components/progress#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+progress) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/progress).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+progress) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/progress)._

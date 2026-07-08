@@ -80,10 +80,16 @@ for (const entry of targets) {
       const found = [];
       const errDisplay = document.querySelector('.sb-errordisplay');
       if (errDisplay && errDisplay.offsetParent !== null) {
-        found.push({ kind: 'sb-errordisplay-visible', text: errDisplay.textContent?.slice(0, 300) });
+        found.push({
+          kind: 'sb-errordisplay-visible',
+          text: errDisplay.textContent?.slice(0, 300),
+        });
       }
       const bodyText = document.body.innerText || '';
-      if (bodyText.includes("couldn't be auto-generated") || bodyText.includes('could not be auto-generated')) {
+      if (
+        bodyText.includes("couldn't be auto-generated") ||
+        bodyText.includes('could not be auto-generated')
+      ) {
         found.push({ kind: 'auto-generate-failed-text' });
       }
       // "No Preview" visible check - must not be display:none/hidden and must be in viewport-relevant flow
@@ -94,7 +100,11 @@ for (const entry of targets) {
           const el = node.parentElement;
           if (el) {
             const style = window.getComputedStyle(el);
-            if (style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null) {
+            if (
+              style.display !== 'none' &&
+              style.visibility !== 'hidden' &&
+              el.offsetParent !== null
+            ) {
               found.push({ kind: 'no-preview-visible', text: node.textContent.trim() });
             }
           }
@@ -144,7 +154,9 @@ for (const entry of targets) {
   }
 
   results.push({ id: entry.id, title: entry.title, tags: entry.tags, problems });
-  console.log(`${problems.length === 0 ? 'OK ' : 'ISSUE'} ${entry.id} (${problems.length} problem groups)`);
+  console.log(
+    `${problems.length === 0 ? 'OK ' : 'ISSUE'} ${entry.id} (${problems.length} problem groups)`,
+  );
   await page.close();
 }
 

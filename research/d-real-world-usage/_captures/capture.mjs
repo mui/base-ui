@@ -34,13 +34,18 @@ async function tryGoto(page, url) {
   }
 }
 
-
 // Cookie/consent banners ruin docs screenshots (owner feedback). Two passes:
 // click a visible accept button if one exists, then CSS-hide the well-known CMP containers.
 async function dismissCookieBanners(page) {
   const patterns = [
-    /^accept( all)?( cookies)?$/i, /^allow all( cookies)?$/i, /^(i )?agree$/i,
-    /^got it!?$/i, /^ok(ay)?$/i, /^accept & close$/i, /^alle akzeptieren$/i, /^tout accepter$/i,
+    /^accept( all)?( cookies)?$/i,
+    /^allow all( cookies)?$/i,
+    /^(i )?agree$/i,
+    /^got it!?$/i,
+    /^ok(ay)?$/i,
+    /^accept & close$/i,
+    /^alle akzeptieren$/i,
+    /^tout accepter$/i,
   ];
   for (const re of patterns) {
     try {
@@ -80,16 +85,21 @@ async function screenshotAtViewport(browser, url, outPath, viewport) {
 }
 
 async function tryOpenInteraction(page, outPath) {
-  const selector = '[aria-haspopup]:visible, [role="combobox"]:visible, [aria-expanded="false"]:visible';
+  const selector =
+    '[aria-haspopup]:visible, [role="combobox"]:visible, [aria-expanded="false"]:visible';
   // Playwright doesn't support :visible pseudo directly in all versions; use locator filter instead.
-  const candidates = await page.locator('[aria-haspopup], [role="combobox"], [aria-expanded="false"]').all();
+  const candidates = await page
+    .locator('[aria-haspopup], [role="combobox"], [aria-expanded="false"]')
+    .all();
   for (const el of candidates) {
     try {
       if (!(await el.isVisible())) continue;
       await el.click({ timeout: 2000 });
       await page.waitForTimeout(600);
       // Check whether an overlay actually opened.
-      const opened = await page.locator('[role="menu"], [role="listbox"], [role="dialog"], [aria-expanded="true"]').count();
+      const opened = await page
+        .locator('[role="menu"], [role="listbox"], [role="dialog"], [aria-expanded="true"]')
+        .count();
       if (opened > 0) {
         await page.screenshot({ path: outPath });
         return { interacted: true, bytes: fs.statSync(outPath).size };
@@ -110,13 +120,19 @@ async function captureSite(browser, site) {
   let openBytes = null;
 
   try {
-    let result = await screenshotAtViewport(browser, site.url, outPath, { width: 1440, height: 900 });
+    let result = await screenshotAtViewport(browser, site.url, outPath, {
+      width: 1440,
+      height: 900,
+    });
     attempts.push(`viewport 1440x900, waitUntil=${result.strategy}: ok, ${result.bytes} bytes`);
     bytes = result.bytes;
 
     if (result.bytes > 400 * 1024) {
       await result.context.close();
-      const retry = await screenshotAtViewport(browser, site.url, outPath, { width: 1200, height: 750 });
+      const retry = await screenshotAtViewport(browser, site.url, outPath, {
+        width: 1200,
+        height: 750,
+      });
       attempts.push(`retry viewport 1200x750 (was >400KB): ok, ${retry.bytes} bytes`);
       bytes = retry.bytes;
       result = retry;
@@ -131,11 +147,15 @@ async function captureSite(browser, site) {
         const openOutPath = path.join(scriptDir, `${site.slug}-open.png`);
         const interactionResult = await tryOpenInteraction(result.page, openOutPath);
         if (interactionResult.interacted) {
-          attempts.push(`open-state interaction: clicked a trigger, overlay detected, captured ${openOutPath} (${interactionResult.bytes} bytes)`);
+          attempts.push(
+            `open-state interaction: clicked a trigger, overlay detected, captured ${openOutPath} (${interactionResult.bytes} bytes)`,
+          );
           openCaptured = true;
           openBytes = interactionResult.bytes;
         } else {
-          attempts.push('open-state interaction: no clickable trigger produced a detectable overlay, skipped');
+          attempts.push(
+            'open-state interaction: no clickable trigger produced a detectable overlay, skipped',
+          );
         }
       } catch (e) {
         attempts.push(`open-state interaction: failed (${e.message})`);

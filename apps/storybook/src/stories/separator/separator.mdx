@@ -61,14 +61,14 @@ Renders a single `<div>` with no sub-parts and no required children — the cons
 
 Six components re-export the standalone `Separator` unchanged (identical props/state shape):
 
-| Component | Source |
-|---|---|
-| Menu | `packages/react/src/menu/index.parts.ts` — `export { Separator } from '../separator/Separator';` |
-| Select | `packages/react/src/select/index.parts.ts` — same pattern |
-| Combobox | `packages/react/src/combobox/index.parts.ts` — same pattern |
-| Autocomplete | `packages/react/src/autocomplete/index.parts.ts` — same pattern |
-| ContextMenu | `packages/react/src/context-menu/index.parts.ts` — same pattern |
-| OTPField | `packages/react/src/otp-field/index.parts.ts` — same pattern |
+| Component    | Source                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| Menu         | `packages/react/src/menu/index.parts.ts` — `export { Separator } from '../separator/Separator';` |
+| Select       | `packages/react/src/select/index.parts.ts` — same pattern                                        |
+| Combobox     | `packages/react/src/combobox/index.parts.ts` — same pattern                                      |
+| Autocomplete | `packages/react/src/autocomplete/index.parts.ts` — same pattern                                  |
+| ContextMenu  | `packages/react/src/context-menu/index.parts.ts` — same pattern                                  |
+| OTPField     | `packages/react/src/otp-field/index.parts.ts` — same pattern                                     |
 
 Between two `Menu.Group`s, the plain re-export in action:
 
@@ -90,8 +90,8 @@ Flipping the toolbar's own orientation live shows the inversion is dynamic, not 
 
 ## Styling hooks
 
-| Attribute | Present when |
-|---|---|
+| Attribute          | Present when                                                                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
 | `data-orientation` | always — reflects the `orientation` prop (`'horizontal'` or `'vertical'`), auto-derived from state rather than hand-set |
 
 This attribute existed in code well before it was documented — [#4480](https://github.com/mui/base-ui/pull/4480) ("Add data attributes documentation") closed a real docs-lag gap in 2026-03, a reminder that the generated API tables can lag behind working source.
@@ -117,15 +117,39 @@ No `*CssVars.ts` file exists for Separator — a static divider has no dynamic n
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/separator.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
+<WildCards component="separator">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/separator.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
     a standalone Separator registry item, styled to match the rest of the 9ui component set.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/separator.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/separator.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
     the same wrapper pattern, published as both a package export and an installable registry file.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/menu/separator.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    uses it internally as `Menu.Separator` inside its own Menu implementation rather than exposing it as a standalone public component.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/menu/separator.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    uses it internally as `Menu.Separator` inside its own Menu implementation rather than exposing
+    it as a standalone public component.
   </WildCard>
 </WildCards>
 
@@ -156,4 +180,4 @@ Full JSDoc-driven reference: [base-ui.com/react/components/separator](https://ba
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+separator) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/separator).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+separator) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/separator)._

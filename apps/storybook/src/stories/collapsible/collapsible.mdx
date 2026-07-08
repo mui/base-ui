@@ -49,11 +49,11 @@ import { Collapsible } from '@base-ui/react/collapsible';
 </Collapsible.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Collapsible.Root` | `<div>` | Groups all parts; owns open/closed state | required |
-| `Collapsible.Trigger` | `<button>` | Opens and closes the panel | required |
-| `Collapsible.Panel` | `<div>` | The collapsible contents; owns height/width measurement | required |
+| Part                  | Renders    | Purpose                                                 | Optional? |
+| --------------------- | ---------- | ------------------------------------------------------- | --------- |
+| `Collapsible.Root`    | `<div>`    | Groups all parts; owns open/closed state                | required  |
+| `Collapsible.Trigger` | `<button>` | Opens and closes the panel                              | required  |
+| `Collapsible.Panel`   | `<div>`    | The collapsible contents; owns height/width measurement | required  |
 
 No Portal/Positioner layering — Collapsible renders inline in normal document flow, unlike popup components.
 
@@ -97,10 +97,10 @@ Root-level `disabled`: the Trigger never toggles the panel and `onOpenChange` ne
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Enter` / `Space` | Toggles the panel (native `<button>` activation) |
-| `Tab` | Ordinary single-tab-stop button focus — no composite/roving-tabindex behavior, since there is only one interactive element |
+| Key               | Action                                                                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `Enter` / `Space` | Toggles the panel (native `<button>` activation)                                                                           |
+| `Tab`             | Ordinary single-tab-stop button focus — no composite/roving-tabindex behavior, since there is only one interactive element |
 
 - **ARIA**: `aria-expanded` (always present) and `aria-controls` (present only while open) on `Trigger`; `Panel` gets the native `hidden` attribute (boolean, or the string `"until-found"`).
 - **You must provide**: an accessible trigger label (text content is enough — no `aria-label`/`Field.Label` wiring is required or provided).
@@ -108,12 +108,12 @@ Root-level `disabled`: the Trigger never toggles the panel and `onOpenChange` ne
 
 ## Styling hooks
 
-| Part | Attribute / variable | Present when |
-|---|---|---|
-| `Root`, `Panel` | `data-open` / `data-closed` | reflects open state |
-| `Trigger` | `data-panel-open` (not `data-open`) | the associated panel is open — deliberately named differently, since it describes the panel's state, not the trigger's own |
-| `Root`, `Panel` | `data-starting-style` / `data-ending-style` | one-frame/transition-duration animation boundary markers |
-| `Panel` | `--collapsible-panel-height`, `--collapsible-panel-width` | always, drives the height/width transition |
+| Part            | Attribute / variable                                      | Present when                                                                                                               |
+| --------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `Root`, `Panel` | `data-open` / `data-closed`                               | reflects open state                                                                                                        |
+| `Trigger`       | `data-panel-open` (not `data-open`)                       | the associated panel is open — deliberately named differently, since it describes the panel's state, not the trigger's own |
+| `Root`, `Panel` | `data-starting-style` / `data-ending-style`               | one-frame/transition-duration animation boundary markers                                                                   |
+| `Panel`         | `--collapsible-panel-height`, `--collapsible-panel-width` | always, drives the height/width transition                                                                                 |
 
 ## Choosing the right props
 
@@ -129,7 +129,7 @@ Root-level `disabled`: the Trigger never toggles the panel and `onOpenChange` ne
 
 **Don't**
 
-- Don't expect a JS animation library's exit sequencing to work from `keepMounted` alone — Motion/framer-motion-style libraries need the *element*, not just non-unmounting, to drive their own exit timing.
+- Don't expect a JS animation library's exit sequencing to work from `keepMounted` alone — Motion/framer-motion-style libraries need the _element_, not just non-unmounting, to drive their own exit timing.
 
 ## Examples
 
@@ -141,15 +141,41 @@ An independent, nested `Collapsible.Root` inside another's Panel, and a single C
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    one of Kumo's fully styled wrappers (versus the thin re-export `primitives/collapsible.ts` it also ships for design-tool parity).
+<WildCards component="collapsible">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/collapsible/collapsible.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    one of Kumo's fully styled wrappers (versus the thin re-export `primitives/collapsible.ts` it
+    also ships for design-tool parity).
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    one file per part (root/panel/trigger) with its own test suite and Storybook story in the `@wordpress/ui` package.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/collapsible/root.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    one file per part (root/panel/trigger) with its own test suite and Storybook story in the
+    `@wordpress/ui` package.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    a Tailwind-styled wrapper distributed as a copy-paste registry item, same pattern as the rest of the 9ui set.
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/collapsible.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    a Tailwind-styled wrapper distributed as a copy-paste registry item, same pattern as the rest of
+    the 9ui set.
   </WildCard>
 </WildCards>
 
@@ -178,8 +204,8 @@ An independent, nested `Collapsible.Root` inside another's Panel, and a single C
 
 <ArgTypes of={Collapsible.Panel} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/collapsible](https://base-ui.com/react/components/collapsible#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/collapsible](https://base-ui.com/react/components/collapsible#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+collapsible) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/collapsible).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+collapsible) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/collapsible)._

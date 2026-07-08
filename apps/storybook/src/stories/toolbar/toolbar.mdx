@@ -23,7 +23,7 @@ A container for grouping a set of buttons and controls.
 ## Features
 
 - **Single composite tab stop** — however many buttons, toggles, or inputs a toolbar contains, `Tab` moves focus in and out exactly once; arrow keys rove within.
-- **Integration host, not a closed widget** — the docs page devotes most of its examples to composing *other* Base UI popup/input components into it (Menu, Select, Tooltip, NumberField), not to Toolbar's own props.
+- **Integration host, not a closed widget** — the docs page devotes most of its examples to composing _other_ Base UI popup/input components into it (Menu, Select, Tooltip, NumberField), not to Toolbar's own props.
 - **Disabled cascade with a link exemption** — `disabled` on `Toolbar.Root` propagates to every Button/Input/Group, but never to `Toolbar.Link` (links can't be disabled).
 - **`focusableWhenDisabled` defaults to `true`** on `Toolbar.Button`/`Toolbar.Input` — the opposite default from standalone [Button](?path=/docs/actions-button--docs) — so disabled composite items stay discoverable.
 
@@ -56,20 +56,20 @@ import { Toolbar } from '@base-ui/react/toolbar';
 </Toolbar.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Toolbar.Root` | `<div role="toolbar">` | The single composite region | required |
-| `Toolbar.Button` | `<button>` | A button, or a trigger host via `render` | optional (one or more typically) |
-| `Toolbar.Link` | `<a>` | A link item; can never be disabled | optional |
-| `Toolbar.Input` | `<input>` | A native input integrating with toolbar keyboard nav | optional, at most one recommended, placed last |
-| `Toolbar.Group` | `<div role="group">` | Groups items with a shared disabled cascade | optional |
-| `Toolbar.Separator` | re-export of `Separator` | Visual divider, orientation auto-flipped | optional |
+| Part                | Renders                  | Purpose                                              | Optional?                                      |
+| ------------------- | ------------------------ | ---------------------------------------------------- | ---------------------------------------------- |
+| `Toolbar.Root`      | `<div role="toolbar">`   | The single composite region                          | required                                       |
+| `Toolbar.Button`    | `<button>`               | A button, or a trigger host via `render`             | optional (one or more typically)               |
+| `Toolbar.Link`      | `<a>`                    | A link item; can never be disabled                   | optional                                       |
+| `Toolbar.Input`     | `<input>`                | A native input integrating with toolbar keyboard nav | optional, at most one recommended, placed last |
+| `Toolbar.Group`     | `<div role="group">`     | Groups items with a shared disabled cascade          | optional                                       |
+| `Toolbar.Separator` | re-export of `Separator` | Visual divider, orientation auto-flipped             | optional                                       |
 
 ## How it works
 
 ### Composite keyboard navigation
 
-`Toolbar.Root` wraps a `CompositeRoot`: the toolbar is a single Tab stop, and arrow keys move roving focus across *all* item types (Button, Link, grouped Buttons, Input) in document order, wrapping at the ends if `loopFocus` (default `true`). Home/End are **not** wired — `enableHomeAndEndKeys` is never passed to Toolbar's `CompositeRoot`, unlike a standalone [Toggle Group](?path=/docs/actions-toggle-group--docs)'s own composite root.
+`Toolbar.Root` wraps a `CompositeRoot`: the toolbar is a single Tab stop, and arrow keys move roving focus across _all_ item types (Button, Link, grouped Buttons, Input) in document order, wrapping at the ends if `loopFocus` (default `true`). Home/End are **not** wired — `enableHomeAndEndKeys` is never passed to Toolbar's `CompositeRoot`, unlike a standalone [Toggle Group](?path=/docs/actions-toggle-group--docs)'s own composite root.
 
 <Canvas of={ToolbarStories.Hero} />
 
@@ -97,13 +97,13 @@ The non-inverted composition direction: `<Toolbar.Button render={<Menu.Trigger /
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Tab` | Moves focus to exactly one item — single tab stop for the entire toolbar |
+| Key                        | Action                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `Tab`                      | Moves focus to exactly one item — single tab stop for the entire toolbar                                             |
 | `ArrowRight` / `ArrowLeft` | `orientation="horizontal"`, LTR: move roving focus to next/previous item across all item types; wraps if `loopFocus` |
-| `ArrowDown` / `ArrowUp` | `orientation="vertical"`: move roving focus to next/previous item |
-| `Home` / `End` | **Not wired** — Toolbar never enables Home/End key navigation |
-| `Enter` / `Space` | Activates the focused item (Button/Input/Link/composed Trigger) per that item's own contract |
+| `ArrowDown` / `ArrowUp`    | `orientation="vertical"`: move roving focus to next/previous item                                                    |
+| `Home` / `End`             | **Not wired** — Toolbar never enables Home/End key navigation                                                        |
+| `Enter` / `Space`          | Activates the focused item (Button/Input/Link/composed Trigger) per that item's own contract                         |
 
 - **ARIA**: `role="toolbar"` and `aria-orientation={orientation}` on Root; each hosted item supplies its own semantics.
 - **You must provide**: an accessible name per icon-only Button (`aria-label`); a `Toolbar.Group`'s own accessible name via `aria-label` on the Group itself.
@@ -111,11 +111,11 @@ The non-inverted composition direction: `<Toolbar.Button render={<Menu.Trigger /
 
 ## Styling hooks
 
-| Attribute | Present on | Present when |
-|---|---|---|
-| `data-disabled` | Root, Button, Group, Input (not Link) | disabled |
-| `data-orientation` | Root, Button, Group, Link, Input, Separator | always, reflects `orientation` |
-| `data-focusable` | Button, Input | the item remains focusable-when-disabled |
+| Attribute          | Present on                                  | Present when                             |
+| ------------------ | ------------------------------------------- | ---------------------------------------- |
+| `data-disabled`    | Root, Button, Group, Input (not Link)       | disabled                                 |
+| `data-orientation` | Root, Button, Group, Link, Input, Separator | always, reflects `orientation`           |
+| `data-focusable`   | Button, Input                               | the item remains focusable-when-disabled |
 
 No CSS variables — no dynamic measurements to expose.
 
@@ -140,14 +140,39 @@ No CSS variables — no dynamic measurements to expose.
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toolbar/toolbar.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool parity.
+<WildCards component="toolbar">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/toolbar/toolbar.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool
+    parity.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toolbar.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toolbar.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
     a Tailwind-styled Toolbar registry item, copy-paste distributed like the rest of the 9ui set.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toolbar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toolbar.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
     the same wrapper pattern, published as both a package export and an installable registry file.
   </WildCard>
 </WildCards>
@@ -196,8 +221,8 @@ No CSS variables — no dynamic measurements to expose.
 
 <ArgTypes of={Toolbar.Separator} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/toolbar](https://base-ui.com/react/components/toolbar#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/toolbar](https://base-ui.com/react/components/toolbar#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toolbar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toolbar).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toolbar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toolbar)._

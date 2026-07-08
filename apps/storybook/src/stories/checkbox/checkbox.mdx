@@ -50,10 +50,10 @@ import { Checkbox } from '@base-ui/react/checkbox';
 </Checkbox.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Checkbox.Root` | `<span>` (or `<button>` via `render` + `nativeButton`) | The control: state, interaction, hidden native input(s) | required |
-| `Checkbox.Indicator` | `<span>` | The checked/indeterminate visual; conditionally rendered on `checked \|\| indeterminate` | yes — purely visual |
+| Part                 | Renders                                                | Purpose                                                                                  | Optional?           |
+| -------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------- |
+| `Checkbox.Root`      | `<span>` (or `<button>` via `render` + `nativeButton`) | The control: state, interaction, hidden native input(s)                                  | required            |
+| `Checkbox.Indicator` | `<span>`                                               | The checked/indeterminate visual; conditionally rendered on `checked \|\| indeterminate` | yes — purely visual |
 
 A third, separate hidden `<input type="hidden">` appears conditionally: when `uncheckedValue` is set, `name` is present, and the checkbox is unchecked and not part of a group.
 
@@ -105,12 +105,12 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 ## Keyboard & screen reader
 
-| Key | Context | Action |
-|---|---|---|
-| `Tab` | anywhere before the control | Moves focus to the checkbox — one Tab stop, no composite/roving-tabindex behavior |
-| `Space` | a focused checkbox | Toggles checked ↔ unchecked |
-| `Enter` | a focused checkbox | **Does not toggle**; submits the owning `<form>` instead (`#4713`) |
-| Click (label, span, or hidden input) | anywhere in the labeling chain | Toggles checked ↔ unchecked (unless `disabled`/`readOnly`) |
+| Key                                  | Context                        | Action                                                                            |
+| ------------------------------------ | ------------------------------ | --------------------------------------------------------------------------------- |
+| `Tab`                                | anywhere before the control    | Moves focus to the checkbox — one Tab stop, no composite/roving-tabindex behavior |
+| `Space`                              | a focused checkbox             | Toggles checked ↔ unchecked                                                       |
+| `Enter`                              | a focused checkbox             | **Does not toggle**; submits the owning `<form>` instead (`#4713`)                |
+| Click (label, span, or hidden input) | anywhere in the labeling chain | Toggles checked ↔ unchecked (unless `disabled`/`readOnly`)                        |
 
 - **ARIA**: `role="checkbox"`, `aria-checked` (`"mixed"` when `indeterminate`, else boolean); `aria-labelledby` auto-linked from `Field.Label` (`#4142`, shared fix with Radio/Switch).
 - **You must provide**: an accessible name and visible `:focus-visible` styling.
@@ -118,16 +118,16 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 ## Styling hooks
 
-| Attribute | Present when |
-|---|---|
-| `data-checked` / `data-unchecked` | mutually exclusive |
-| `data-indeterminate` | the distinguishing attribute vs. Radio/Switch — neither has an equivalent |
-| `data-disabled` | disabled |
-| `data-readonly` | read-only |
-| `data-required` | required in a Field |
-| `data-valid` / `data-invalid` | Field validation state |
-| `data-touched` / `data-dirty` / `data-filled` | Field interaction state |
-| `data-focused` | visibly focused |
+| Attribute                                     | Present when                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------- |
+| `data-checked` / `data-unchecked`             | mutually exclusive                                                        |
+| `data-indeterminate`                          | the distinguishing attribute vs. Radio/Switch — neither has an equivalent |
+| `data-disabled`                               | disabled                                                                  |
+| `data-readonly`                               | read-only                                                                 |
+| `data-required`                               | required in a Field                                                       |
+| `data-valid` / `data-invalid`                 | Field validation state                                                    |
+| `data-touched` / `data-dirty` / `data-filled` | Field interaction state                                                   |
+| `data-focused`                                | visibly focused                                                           |
 
 ## Choosing the right props
 
@@ -148,15 +148,42 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/checkbox/checkbox.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled wrapper (not a bare re-export) with its own size/variant Tailwind mapping and Figma generator.
+<WildCards component="checkbox">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/checkbox/checkbox.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    a fully styled wrapper (not a bare re-export) with its own size/variant Tailwind mapping and
+    Figma generator.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
-    Cal.com's design system wraps Checkbox with `class-variance-authority` variants, part of a near-complete one-file-per-component Base UI registry.
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+    image={cossComUiShot}
+  >
+    Cal.com's design system wraps Checkbox with `class-variance-authority` variants, part of a
+    near-complete one-file-per-component Base UI registry.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/checkbox.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
-    ships side-by-side with a Radix-backed twin of the same component, letting downstream apps swap primitive libraries without changing the public API.
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/checkbox.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+    image={reuiIoOpenShot}
+  >
+    ships side-by-side with a Radix-backed twin of the same component, letting downstream apps swap
+    primitive libraries without changing the public API.
   </WildCard>
 </WildCards>
 
@@ -185,8 +212,8 @@ By default (no `uncheckedValue`), an unchecked checkbox submits nothing — veri
 
 <ArgTypes of={Checkbox.Indicator} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/checkbox](https://base-ui.com/react/components/checkbox#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/checkbox](https://base-ui.com/react/components/checkbox#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+checkbox) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/checkbox).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+checkbox) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/checkbox)._

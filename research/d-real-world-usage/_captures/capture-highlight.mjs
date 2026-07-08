@@ -330,7 +330,23 @@ function mergeIntoIndex(entries) {
     manifest.push(await captureTarget(browser, target));
   }
   await browser.close();
-  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log(`\nWrote ${path.basename(manifestPath)}`);
-  mergeIntoIndex(manifest);
+
+  // Merge (upsert by slug) into any existing manifest so incremental/retry runs accumulate
+  // rather than clobber a prior batch.
+  let merged = manifest;
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+      if (Array.isArray(prev)) {
+        const bySlug = new Map(prev.map((e) => [e.slug, e]));
+        for (const entry of manifest) {
+          bySlug.set(entry.slug, entry);
+        }
+        merged = [...bySlug.values()];
+      }
+    } catch {}
+  }
+  fs.writeFileSync(manifestPath, `${JSON.stringify(merged, null, 2)}\n`);
+  console.log(`\nWrote ${path.basename(manifestPath)} (${merged.length} total)`);
+  mergeIntoIndex(merged);
 })();

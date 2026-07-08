@@ -46,10 +46,10 @@ import { Switch } from '@base-ui/react/switch';
 </Switch.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Switch.Root` | `<span>` (or `<button>` via `render` + `nativeButton`) | The control: state, interaction, hidden form input | required |
-| `Switch.Thumb` | `<span>` | The moving indicator; mirrors state attributes for styling | yes — purely visual |
+| Part           | Renders                                                | Purpose                                                    | Optional?           |
+| -------------- | ------------------------------------------------------ | ---------------------------------------------------------- | ------------------- |
+| `Switch.Root`  | `<span>` (or `<button>` via `render` + `nativeButton`) | The control: state, interaction, hidden form input         | required            |
+| `Switch.Thumb` | `<span>`                                               | The moving indicator; mirrors state attributes for styling | yes — purely visual |
 
 ## How it works
 
@@ -79,11 +79,11 @@ With a `name`, the switch submits via a hidden `<input>` (value `on` when checke
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Space` | Toggles the switch |
-| `Enter` | Toggles the switch |
-| `Tab` | Moves focus to/from the switch |
+| Key     | Action                         |
+| ------- | ------------------------------ |
+| `Space` | Toggles the switch             |
+| `Enter` | Toggles the switch             |
+| `Tab`   | Moves focus to/from the switch |
 
 - **ARIA**: `role="switch"`, `aria-checked` managed for you; `aria-disabled`/`aria-readonly` reflected as appropriate.
 - **You must provide**: an accessible name (label element, `Field.Label`, or `aria-label`), visible `:focus-visible` styling, and sufficient contrast.
@@ -93,15 +93,15 @@ With a `name`, the switch submits via a hidden `<input>` (value `on` when checke
 
 State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttributes.ts`):
 
-| Attribute | Present when |
-|---|---|
-| `data-checked` / `data-unchecked` | the switch is on / off |
-| `data-disabled` | disabled |
-| `data-readonly` | read-only |
-| `data-required` | required in a Field |
-| `data-valid` / `data-invalid` | Field validation state |
+| Attribute                                     | Present when            |
+| --------------------------------------------- | ----------------------- |
+| `data-checked` / `data-unchecked`             | the switch is on / off  |
+| `data-disabled`                               | disabled                |
+| `data-readonly`                               | read-only               |
+| `data-required`                               | required in a Field     |
+| `data-valid` / `data-invalid`                 | Field validation state  |
 | `data-touched` / `data-dirty` / `data-filled` | Field interaction state |
-| `data-focused` | visibly focused |
+| `data-focused`                                | visibly focused         |
 
 <Canvas of={SwitchStories.Disabled} />
 
@@ -123,11 +123,28 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings, composed with Field/Fieldset for form contexts.
+<WildCards component="switch">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/switch/switch.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    a fully styled wrapper with size (sm/base/lg) and variant (default/neutral) Tailwind mappings,
+    composed with Field/Fieldset for form contexts.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/switch.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+    image={reuiIoOpenShot}
+  >
     ships a Radix-backed twin of the same Switch API alongside the Base UI version.
   </WildCard>
 </WildCards>
@@ -154,8 +171,8 @@ State attributes present on **both** `Root` and `Thumb` (`SwitchRootDataAttribut
 
 <ArgTypes of={Switch.Thumb} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/switch](https://base-ui.com/react/components/switch#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/switch](https://base-ui.com/react/components/switch#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+switch) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/switch).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+switch) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/switch)._

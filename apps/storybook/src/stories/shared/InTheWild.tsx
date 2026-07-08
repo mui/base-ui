@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { lookupHighlight } from './wildHighlights';
 import styles from './InTheWild.module.css';
 
 export interface WildCardProps {
@@ -91,6 +92,8 @@ interface WildCardsContextValue {
   register: (entry: WildCardEntry) => void;
   unregister: (id: string) => void;
   open: (id: string) => void;
+  /** Base UI component this "In the wild" section documents; keys the highlight registry. */
+  component?: string;
 }
 
 const WildCardsContext = React.createContext<WildCardsContextValue | null>(null);
@@ -101,7 +104,17 @@ const WildCardsContext = React.createContext<WildCardsContextValue | null>(null)
  * registers itself here, and clicking a thumbnail opens a Base UI `Dialog` carousel
  * that can page through all registered entries in this grid.
  */
-export function WildCards({ children }: { children: React.ReactNode }) {
+export function WildCards({
+  children,
+  component,
+}: {
+  children: React.ReactNode;
+  /**
+   * The Base UI component this section documents (e.g. `"accordion"`). Lets each `WildCard`
+   * auto-attach the per-component highlight captured from the site's own component page.
+   */
+  component?: string;
+}) {
   const entriesRef = React.useRef(new Map<string, WildCardEntry>());
   const [order, setOrder] = React.useState<string[]>([]);
   const [openId, setOpenId] = React.useState<string | null>(null);
@@ -119,8 +132,8 @@ export function WildCards({ children }: { children: React.ReactNode }) {
   const open = useStableCallback((id: string) => setOpenId(id));
 
   const contextValue = React.useMemo<WildCardsContextValue>(
-    () => ({ register, unregister, open }),
-    [register, unregister, open],
+    () => ({ register, unregister, open, component }),
+    [register, unregister, open, component],
   );
 
   // Show entries backed by a real screenshot capture before those falling back to the
@@ -171,20 +184,33 @@ export function WildCard({
   children,
 }: WildCardProps) {
   const isCodeOk = reuse?.trim().toLowerCase() === 'code-ok';
-  const isCapture = Boolean(image);
-  const imageSrc = image ?? `https://opengraph.githubassets.com/1/${repo}`;
   const id = React.useId();
   const context = React.useContext(WildCardsContext);
+
+  // Auto-attach the per-component highlight captured from this site's own component page,
+  // keyed by the section's `component` + this card's domain. Explicit props still win.
+  const registryHit = lookupHighlight(context?.component, live ?? href);
+  const candidateImage = image ?? registryHit?.image;
+  const effectiveHighlight = highlightImage ?? registryHit?.highlightImage;
+  const effectivePageUrl = pageUrl ?? registryHit?.pageUrl ?? live;
+  const effectiveRoute = route ?? registryHit?.route;
+  const effectiveSelector = selector ?? registryHit?.selector;
+
+  // Every screenshot must have a component highlight: a bare capture (an image with no
+  // highlight) falls back to the GitHub OG card instead of showing a highlight-less shot.
+  const effectiveImage = effectiveHighlight ? candidateImage : undefined;
+  const isCapture = Boolean(effectiveImage);
+  const imageSrc = effectiveImage ?? `https://opengraph.githubassets.com/1/${repo}`;
 
   const entry = React.useMemo<WildCardEntry>(
     () => ({
       id,
       image: imageSrc,
       isCapture,
-      highlightImage,
-      pageUrl: pageUrl ?? live,
-      route,
-      selector,
+      highlightImage: effectiveHighlight,
+      pageUrl: effectivePageUrl,
+      route: effectiveRoute,
+      selector: effectiveSelector,
       title,
       repo,
       href,
@@ -196,10 +222,10 @@ export function WildCard({
       id,
       imageSrc,
       isCapture,
-      highlightImage,
-      pageUrl,
-      route,
-      selector,
+      effectiveHighlight,
+      effectivePageUrl,
+      effectiveRoute,
+      effectiveSelector,
       title,
       repo,
       href,
@@ -219,14 +245,14 @@ export function WildCard({
 
   // Prefer the component-highlighted frame for the thumbnail so the card leads with the
   // Base UI component itself, not just the page it lives on.
-  const thumbnailSrc = highlightImage ?? imageSrc;
+  const thumbnailSrc = effectiveHighlight ?? imageSrc;
   const previewImg = (
     <img
       className={styles.Preview}
       src={thumbnailSrc}
       loading="lazy"
       alt={
-        highlightImage
+        effectiveHighlight
           ? `${repo} — Base UI component highlighted on the page`
           : `${repo} repository card`
       }
@@ -265,7 +291,7 @@ export function WildCard({
               {reuse}
             </span>
           ) : null}
-          {highlightImage ? (
+          {effectiveHighlight ? (
             <span className={styles.Located} title="Component located on the page">
               ◎ located
             </span>

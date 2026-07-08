@@ -5,8 +5,10 @@ import { WildCards, WildCard } from './InTheWild';
 // Sample captures live in the research corpus outside this package; same relative-import
 // pattern as the MDX docs pages (e.g. select.mdx).
 /* eslint-disable import/no-relative-packages */
-import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com.png';
-import nextjsOrgShot from '../../../../../research/d-real-world-usage/_captures/nextjs-org.png';
+import kumoUiComShot from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com-hl.png';
+import kumoUiComHighlight from '../../../../../research/d-real-world-usage/_captures/kumo-ui-com-hl-highlight.png';
+import nextjsOrgShot from '../../../../../research/d-real-world-usage/_captures/nextjs-org-hl.png';
+import nextjsOrgHighlight from '../../../../../research/d-real-world-usage/_captures/nextjs-org-hl-highlight.png';
 import nineUiShot from '../../../../../research/d-real-world-usage/_captures/9ui-dev-hl.png';
 import nineUiHighlight from '../../../../../research/d-real-world-usage/_captures/9ui-dev-hl-highlight.png';
 import reuiShot from '../../../../../research/d-real-world-usage/_captures/reui-io-hl.png';
@@ -38,6 +40,7 @@ export const Viewer: Story = {
         license="MIT"
         reuse="code-ok"
         image={kumoUiComShot}
+        highlightImage={kumoUiComHighlight}
       >
         Sample entry one.
       </WildCard>
@@ -49,6 +52,7 @@ export const Viewer: Story = {
         license="MIT"
         reuse="code-ok"
         image={nextjsOrgShot}
+        highlightImage={nextjsOrgHighlight}
       >
         Sample entry two.
       </WildCard>

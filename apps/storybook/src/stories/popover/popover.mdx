@@ -32,7 +32,7 @@ An accessible popup anchored to a button — an anchored mini-dialog for interac
 - **A real dialog, anchored** — the popup is `role="dialog"` positioned against its trigger, with `aria-haspopup`/`aria-expanded`/`aria-controls` on the trigger and `aria-labelledby`/`aria-describedby` auto-wired from `Popover.Title`/`Popover.Description`.
 - **Non-modal by default, modal on demand** — the page stays interactive unless you opt into `modal` (scroll + pointer lock, [#1459](https://github.com/mui/base-ui/pull/1459)) or `modal="trap-focus"` (keyboard containment only, [#1571](https://github.com/mui/base-ui/pull/1571)).
 - **Detached triggers and typed payloads** — `Popover.createHandle<Payload>()` opens one popup from any number of triggers anywhere in the app, each carrying its own data ([#2336](https://github.com/mui/base-ui/pull/2336)).
-- **Hybrid hover** — `openOnHover` opens after a 300ms rest delay for mouse users but *always* keeps click working, so touch and keyboard users are never locked out ([#2623](https://github.com/mui/base-ui/issues/2623)).
+- **Hybrid hover** — `openOnHover` opens after a 300ms rest delay for mouse users but _always_ keeps click working, so touch and keyboard users are never locked out ([#2623](https://github.com/mui/base-ui/issues/2623)).
 - **Typed dismissal control** — every open/close request carries `eventDetails.reason` (`trigger-press`, `outside-press`, `escape-key`, `focus-out`, …) and `eventDetails.cancel()` vetoes it.
 - **Full positioning engine** — `side`/`align`/offsets/collision handling on the Positioner, an `anchor` prop to attach to any element, and anchor tracking on by default.
 - **Managed focus** — focus moves into the popup on open, returns on close, and tabbing out of a non-modal popup closes it and continues the natural tab order.
@@ -55,14 +55,14 @@ Full comparative guidance for the overlay cluster lives in [Overlays](?path=/doc
 
 Two questions decide it: **what is the trigger for**, and **may a touch user lose the content?** Tooltip and Preview Card are sighted-hover-only hints — they never show on touch (iOS has no OS tooltips; long-press conflicts with native context menus) and never receive focus. Popover is an anchored, non-modal-by-default mini-dialog: its content is essential or interactive, so every input modality can reach it and focus moves in.
 
-| | [Tooltip](?path=/docs/overlays-tooltip--docs) | [Preview Card](?path=/docs/overlays-preview-card--docs) | Popover | [Dialog](?path=/docs/overlays-dialog--docs) |
-|---|---|---|---|---|
-| Trigger's purpose | its own action — the hint is a label | navigation (`<a>`) | opening the popup itself | opening the dialog |
-| Opens on | hover/focus | link hover | click (+ optional hybrid hover) | click / imperative |
-| Shown on touch | **never** | never | yes | yes |
-| Focus moves into popup | never | never | yes (except hover-open) | yes |
-| Essential content allowed | **no** | no — must exist at the destination | yes | yes |
-| Placement / `modal` default | anchored / n/a | anchored / n/a | anchored / `false` | centered / `true` |
+|                             | [Tooltip](?path=/docs/overlays-tooltip--docs) | [Preview Card](?path=/docs/overlays-preview-card--docs) | Popover                         | [Dialog](?path=/docs/overlays-dialog--docs) |
+| --------------------------- | --------------------------------------------- | ------------------------------------------------------- | ------------------------------- | ------------------------------------------- |
+| Trigger's purpose           | its own action — the hint is a label          | navigation (`<a>`)                                      | opening the popup itself        | opening the dialog                          |
+| Opens on                    | hover/focus                                   | link hover                                              | click (+ optional hybrid hover) | click / imperative                          |
+| Shown on touch              | **never**                                     | never                                                   | yes                             | yes                                         |
+| Focus moves into popup      | never                                         | never                                                   | yes (except hover-open)         | yes                                         |
+| Essential content allowed   | **no**                                        | no — must exist at the destination                      | yes                             | yes                                         |
+| Placement / `modal` default | anchored / n/a                                | anchored / n/a                                          | anchored / `false`              | centered / `true`                           |
 
 - To show a **visual hint labeling a control that does something else**, use [Tooltip](?path=/docs/overlays-tooltip--docs), because tooltips are optional, sighted-only supplements ([#3530](https://github.com/mui/base-ui/issues/3530)).
 - To preview a **link's destination on hover**, use [Preview Card](?path=/docs/overlays-preview-card--docs), because its trigger renders an `<a>` and the content must also exist at the destination.
@@ -95,20 +95,20 @@ import { Popover } from '@base-ui/react/popover';
 </Popover.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Popover.Root` | no element | Groups all parts; owns open state; accepts children as a node or `({ payload }) => ReactNode` | required |
-| `Popover.Trigger` | `<button>` | Opens the popover; can live inside the Root or *outside* it via `handle`; carries `openOnHover`/`delay`/`payload` | required in practice (or drive open via handle/controlled state) |
-| `Popover.Portal` | portal | Moves the popup subtree to `<body>` (or `container`); `keepMounted` lives here | **required** — omitting it throws ([#1222](https://github.com/mui/base-ui/pull/1222)) |
-| `Popover.Backdrop` | `<div>` | Styleable overlay beneath the popover | yes |
-| `Popover.Positioner` | `<div>` | Positions the popup against the trigger; all position props (`side`, `align`, `anchor`, offsets) live here | required |
-| `Popover.Popup` | `<div>` | `role="dialog"` container; owns `initialFocus`/`finalFocus` | required |
-| `Popover.Arrow` | `<div>` | Anchor pointer; `aria-hidden`; rotate via `data-side` | yes |
-| `Popover.Title` | `<h2>` | Labels the popup — wired to `aria-labelledby` | yes — recommended |
-| `Popover.Description` | `<p>` | Supporting text — wired to `aria-describedby` | yes |
-| `Popover.Close` | `<button>` | Closes the popover; **required inside the Popup for modal focus trapping** (may be visually hidden, [#4084](https://github.com/mui/base-ui/pull/4084)) | yes otherwise |
-| `Popover.Viewport` | `<div>` | Content-transition container — only needed when one popup serves multiple triggers with animated content swaps | yes |
-| `Popover.createHandle<P>()` | — | Factory returning a `PopoverHandle`: connect detached triggers and Roots; imperative `open(triggerId)`/`close()` | yes |
+| Part                        | Renders    | Purpose                                                                                                                                                | Optional?                                                                             |
+| --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `Popover.Root`              | no element | Groups all parts; owns open state; accepts children as a node or `({ payload }) => ReactNode`                                                          | required                                                                              |
+| `Popover.Trigger`           | `<button>` | Opens the popover; can live inside the Root or _outside_ it via `handle`; carries `openOnHover`/`delay`/`payload`                                      | required in practice (or drive open via handle/controlled state)                      |
+| `Popover.Portal`            | portal     | Moves the popup subtree to `<body>` (or `container`); `keepMounted` lives here                                                                         | **required** — omitting it throws ([#1222](https://github.com/mui/base-ui/pull/1222)) |
+| `Popover.Backdrop`          | `<div>`    | Styleable overlay beneath the popover                                                                                                                  | yes                                                                                   |
+| `Popover.Positioner`        | `<div>`    | Positions the popup against the trigger; all position props (`side`, `align`, `anchor`, offsets) live here                                             | required                                                                              |
+| `Popover.Popup`             | `<div>`    | `role="dialog"` container; owns `initialFocus`/`finalFocus`                                                                                            | required                                                                              |
+| `Popover.Arrow`             | `<div>`    | Anchor pointer; `aria-hidden`; rotate via `data-side`                                                                                                  | yes                                                                                   |
+| `Popover.Title`             | `<h2>`     | Labels the popup — wired to `aria-labelledby`                                                                                                          | yes — recommended                                                                     |
+| `Popover.Description`       | `<p>`      | Supporting text — wired to `aria-describedby`                                                                                                          | yes                                                                                   |
+| `Popover.Close`             | `<button>` | Closes the popover; **required inside the Popup for modal focus trapping** (may be visually hidden, [#4084](https://github.com/mui/base-ui/pull/4084)) | yes otherwise                                                                         |
+| `Popover.Viewport`          | `<div>`    | Content-transition container — only needed when one popup serves multiple triggers with animated content swaps                                         | yes                                                                                   |
+| `Popover.createHandle<P>()` | —          | Factory returning a `PopoverHandle`: connect detached triggers and Roots; imperative `open(triggerId)`/`close()`                                       | yes                                                                                   |
 
 Notes: rendering without `Portal` was restricted deliberately — "It caused various bugs, so we restricted the API to require Portal"; the only loss is popup content in server-rendered HTML, which isn't supported ([#4750](https://github.com/mui/base-ui/issues/4750)). Nested popovers auto-join the parent's floating tree and portal — set a custom `container` only on the root Portal ([#1930](https://github.com/mui/base-ui/issues/1930)). When using `Viewport`, freeze the Positioner to `var(--positioner-width/height)` during transitions, because content-driven resizing can make the popup thrash or flip sides (docs, "Content transitions").
 
@@ -138,7 +138,7 @@ Imperative handle calls made while no Root is mounted are ignored, not replayed;
 
 ### Dismissal, and how to control it
 
-Every change request carries a typed `reason`: `trigger-hover | trigger-focus | trigger-press | outside-press | escape-key | close-press | focus-out | imperative-action | none`. There is **no `disablePointerDismissal` on Popover** (asked in [#3025](https://github.com/mui/base-ui/issues/3025)) — the sanctioned recipe is to filter `eventDetails.reason` and call `eventDetails.cancel()` ([#2314](https://github.com/mui/base-ui/issues/2314), [#3716](https://github.com/mui/base-ui/issues/3716), [#4466](https://github.com/mui/base-ui/issues/4466)). This is the top support pitfall, and it has a subtlety: an outside click on a focusable element arrives as `focus-out` *then* `outside-press` — veto both, or the first one still closes the popover. Non-modal popovers also close when focus moves out; right-clicks inside don't misfire outside-press ([#2508](https://github.com/mui/base-ui/pull/2508)), and touch scrolling on the popup doesn't dismiss ([#3011](https://github.com/mui/base-ui/pull/3011)).
+Every change request carries a typed `reason`: `trigger-hover | trigger-focus | trigger-press | outside-press | escape-key | close-press | focus-out | imperative-action | none`. There is **no `disablePointerDismissal` on Popover** (asked in [#3025](https://github.com/mui/base-ui/issues/3025)) — the sanctioned recipe is to filter `eventDetails.reason` and call `eventDetails.cancel()` ([#2314](https://github.com/mui/base-ui/issues/2314), [#3716](https://github.com/mui/base-ui/issues/3716), [#4466](https://github.com/mui/base-ui/issues/4466)). This is the top support pitfall, and it has a subtlety: an outside click on a focusable element arrives as `focus-out` _then_ `outside-press` — veto both, or the first one still closes the popover. Non-modal popovers also close when focus moves out; right-clicks inside don't misfire outside-press ([#2508](https://github.com/mui/base-ui/pull/2508)), and touch scrolling on the popup doesn't dismiss ([#3011](https://github.com/mui/base-ui/pull/3011)).
 
 <Canvas of={PopoverStories.CancelCloseOnOutsidePress} />
 
@@ -178,7 +178,7 @@ The **infotip** pattern is the documented alternative to a tooltip on an info ic
 
 ### Focus
 
-On open, focus moves to the first tabbable element inside the popup — except touch-opened popovers focus the popup itself, to avoid opening the virtual keyboard. On close, focus returns to the trigger. Tabbing past the last element of a *non-modal* popup closes it and continues the document tab order after the trigger:
+On open, focus moves to the first tabbable element inside the popup — except touch-opened popovers focus the popup itself, to avoid opening the virtual keyboard. On close, focus returns to the trigger. Tabbing past the last element of a _non-modal_ popup closes it and continues the document tab order after the trigger:
 
 <Canvas of={PopoverStories.KeyboardTabThrough} />
 
@@ -206,7 +206,7 @@ Inside sticky or fixed-positioned ancestors the default `absolute` strategy can 
 
 ### One popup, many triggers
 
-Multiple triggers share one popup through a typed handle; each trigger carries a `payload`, and the Root's function child renders it. Clicking another trigger *moves* the popup instead of closing it:
+Multiple triggers share one popup through a typed handle; each trigger carries a `payload`, and the Root's function child renders it. Clicking another trigger _moves_ the popup instead of closing it:
 
 <Canvas of={PopoverStories.MultipleTriggersPayload} />
 
@@ -246,14 +246,14 @@ A child Root detects the parent's floating tree and joins it; nested portals aut
 
 Pattern: no dedicated APG pattern exists for popovers. The [Dialog (Modal)](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) pattern covers the `role="dialog"` semantics (and the focus-trap expectations under `modal`/`trap-focus`); the [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) pattern covers the trigger's expanded/collapsed relationship in the plain non-modal case — which APG describes only in prose as a "non-modal dialog".
 
-| Key | Context | Result |
-|---|---|---|
-| `Enter` / `Space` | trigger focused | Toggles the popover (`trigger-press`) |
-| `Escape` | popover open | Closes; focus returns to the active trigger |
-| `Tab` | just opened | Focus is already inside (first tabbable) unless opened by touch or hover |
-| `Tab` (last element) | non-modal popup | Closes the popup; focus continues after the trigger in document order |
-| `Shift+Tab` (first element) | non-modal popup | Focus returns to the trigger; popup closes on focus-out |
-| `Tab` | `modal` with a rendered `Close`, or `trap-focus` | Focus loops inside the popup |
+| Key                         | Context                                          | Result                                                                   |
+| --------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------ |
+| `Enter` / `Space`           | trigger focused                                  | Toggles the popover (`trigger-press`)                                    |
+| `Escape`                    | popover open                                     | Closes; focus returns to the active trigger                              |
+| `Tab`                       | just opened                                      | Focus is already inside (first tabbable) unless opened by touch or hover |
+| `Tab` (last element)        | non-modal popup                                  | Closes the popup; focus continues after the trigger in document order    |
+| `Shift+Tab` (first element) | non-modal popup                                  | Focus returns to the trigger; popup closes on focus-out                  |
+| `Tab`                       | `modal` with a rendered `Close`, or `trap-focus` | Focus loops inside the popup                                             |
 
 - **ARIA managed for you**: Trigger — `aria-haspopup="dialog"`, `aria-expanded` (true only on the trigger that opened it), `aria-controls`. Popup — `role="dialog"`, `aria-labelledby` from `Popover.Title`, `aria-describedby` from `Popover.Description`. Arrow — `aria-hidden` ([#1196](https://github.com/mui/base-ui/pull/1196)). Hidden focus-guard `<span>`s render around triggers and the popup — required touch screen-reader escape machinery ([#3693](https://github.com/mui/base-ui/issues/3693)).
 - **Screen reader**: focus enters the dialog on open so SR users "can navigate and read its text/content" — the deliberate contrast with Tooltip, which is `aria-describedby`-only ([#3530](https://github.com/mui/base-ui/issues/3530)).
@@ -262,19 +262,19 @@ Pattern: no dedicated APG pattern exists for popovers. The [Dialog (Modal)](http
 
 ## Styling hooks
 
-| Part | Attribute / variable | Present when |
-|---|---|---|
-| Trigger | `data-popup-open` | its popup is open |
-| Trigger | `data-pressed` | pressed — kept distinct from `data-popup-open` deliberately ([#3036](https://github.com/mui/base-ui/issues/3036)) |
-| Popup / Positioner / Arrow | `data-open` / `data-closed` | open/close state |
-| Popup / Positioner | `data-starting-style` / `data-ending-style` | enter/exit transition frames |
-| Popup | `data-instant` (`click\|dismiss\|focus\|trigger-change`) | the change should not animate |
-| Popup / Positioner / Arrow | `data-side` / `data-align` | resolved placement |
-| Arrow | `data-uncentered` | arrow is offset from the anchor center |
-| Positioner | `data-anchor-hidden` | the anchor is scrolled out of view |
-| Viewport | `data-current` / `data-previous` / `data-activation-direction` / `data-transitioning` | content-swap transitions |
-| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin`, `--positioner-width/height` | while positioned |
-| Popup (CSS vars) | `--popup-width/height` | for trigger-to-trigger size morphing |
+| Part                       | Attribute / variable                                                                                   | Present when                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Trigger                    | `data-popup-open`                                                                                      | its popup is open                                                                                                 |
+| Trigger                    | `data-pressed`                                                                                         | pressed — kept distinct from `data-popup-open` deliberately ([#3036](https://github.com/mui/base-ui/issues/3036)) |
+| Popup / Positioner / Arrow | `data-open` / `data-closed`                                                                            | open/close state                                                                                                  |
+| Popup / Positioner         | `data-starting-style` / `data-ending-style`                                                            | enter/exit transition frames                                                                                      |
+| Popup                      | `data-instant` (`click\|dismiss\|focus\|trigger-change`)                                               | the change should not animate                                                                                     |
+| Popup / Positioner / Arrow | `data-side` / `data-align`                                                                             | resolved placement                                                                                                |
+| Arrow                      | `data-uncentered`                                                                                      | arrow is offset from the anchor center                                                                            |
+| Positioner                 | `data-anchor-hidden`                                                                                   | the anchor is scrolled out of view                                                                                |
+| Viewport                   | `data-current` / `data-previous` / `data-activation-direction` / `data-transitioning`                  | content-swap transitions                                                                                          |
+| Positioner (CSS vars)      | `--available-width/height`, `--anchor-width/height`, `--transform-origin`, `--positioner-width/height` | while positioned                                                                                                  |
+| Popup (CSS vars)           | `--popup-width/height`                                                                                 | for trigger-to-trigger size morphing                                                                              |
 
 If the popup is hidden under other stacked UI, set `z-index` on the **Positioner** — users expect a prop and dig through source before finding this ([#2486](https://github.com/mui/base-ui/issues/2486)).
 
@@ -310,21 +310,70 @@ If the popup is hidden under other stacked UI, set `z-index` on the **Positioner
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx" live="https://wordpress.org/gutenberg/" license="GPL dual-licensing / no SPDX detected" reuse="link-only, do not copy" image={wordpressOrgGutenbergOpenShot}>
-    the richest composition found anywhere: the new `@wordpress/ui` package wraps all ten parts one-file-per-part with slot-overridable Portal/Positioner for the iframed editor canvas, dev-time validation that a `Title` is present ("required for accessibility, can be visually hidden"), a Close-required-when-modal rule, and a `useDeprioritizedInitialFocus` hook that skips close buttons when resolving initial focus.
+<WildCards component="popover">
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/73d48b46f8caa925fbaffb4e97246f02a1b3ce80/packages/ui/src/popover/root.tsx"
+    live="https://wordpress.org/gutenberg/"
+    license="GPL dual-licensing / no SPDX detected"
+    reuse="link-only, do not copy"
+    image={wordpressOrgGutenbergOpenShot}
+  >
+    the richest composition found anywhere: the new `@wordpress/ui` package wraps all ten parts
+    one-file-per-part with slot-overridable Portal/Positioner for the iframed editor canvas,
+    dev-time validation that a `Title` is present ("required for accessibility, can be visually
+    hidden"), a Close-required-when-modal rule, and a `useDeprioritizedInitialFocus` hook that skips
+    close buttons when resolving initial focus.
   </WildCard>
-  <WildCard repo="martpie/museeks" title="museeks" href="https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx" live="https://museeks.io" license="MIT" reuse="code-ok">
-    real app-level usage in a Tauri music player: the play-queue popover composes the Trigger over a custom icon button via `render` and anchors to a wrapper div with `anchor={queueAnchorRef}`, decoupled from the trigger.
+  <WildCard
+    repo="martpie/museeks"
+    title="museeks"
+    href="https://github.com/martpie/museeks/blob/7163f6019a3184043c06352caeec0ed1bf6ccff5/src/components/Header.tsx"
+    live="https://museeks.io"
+    license="MIT"
+    reuse="code-ok"
+  >
+    real app-level usage in a Tauri music player: the play-queue popover composes the Trigger over a
+    custom icon button via `render` and anchors to a wrapper div with `anchor={queueAnchorRef}`,
+    decoupled from the trigger.
   </WildCard>
-  <WildCard repo="opral/flashtype" title="Flashtype" href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx" live="https://flashtype.com" license="MIT" reuse="code-ok">
-    the best cross-component composition example: the markdown editor's link editor is `Toolbar.Button render={<Popover.Trigger />}` inside a roving-tabindex toolbar, with `initialFocus` pointed at the URL input.
+  <WildCard
+    repo="opral/flashtype"
+    title="Flashtype"
+    href="https://github.com/opral/flashtype/blob/1bf2e8e8779b3458f3b892c24a1f2d5dfa42d9a6/src/extensions/markdown/components/formatting-toolbar.tsx"
+    live="https://flashtype.com"
+    license="MIT"
+    reuse="code-ok"
+  >
+    the best cross-component composition example: the markdown editor's link editor is
+    `Toolbar.Button render={<Popover.Trigger />}` inside a roving-tabindex toolbar, with
+    `initialFocus` pointed at the URL input.
   </WildCard>
-  <WildCard repo="langgenius/dify" title="Dify" href="https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx" live="https://dify.ai" license="custom license" reuse="link-only" image={difyAiShot}>
-    the highest-star adopter (147.9k): `dify-ui` compresses Positioner geometry behind a single `placement` prop parsed into `side`/`align`, re-exports `createHandle`, and shows the canonical `data-starting-style`/`data-ending-style` transition with a motion-reduce fallback.
+  <WildCard
+    repo="langgenius/dify"
+    title="Dify"
+    href="https://github.com/langgenius/dify/blob/fc01d112a06cc286f5b47d34112387c46503ddb2/packages/dify-ui/src/popover/index.tsx"
+    live="https://dify.ai"
+    license="custom license"
+    reuse="link-only"
+    image={difyAiShot}
+  >
+    the highest-star adopter (147.9k): `dify-ui` compresses Positioner geometry behind a single
+    `placement` prop parsed into `side`/`align`, re-exports `createHandle`, and shows the canonical
+    `data-starting-style`/`data-ending-style` transition with a motion-reduce fallback.
   </WildCard>
-  <WildCard repo="egoist/takopi" title="takopi" href="https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx" live="https://github.com/egoist/takopi" license="Apache-2.0" reuse="code-ok">
-    the cleanest triggerless popover: an @-mention file autocomplete fully controlled and anchored to a chat textarea, with `initialFocus={false}`/`finalFocus={false}` so keyboard focus never leaves the textarea.
+  <WildCard
+    repo="egoist/takopi"
+    title="takopi"
+    href="https://github.com/egoist/takopi/blob/027d2e142e24d7556cdbbb2b761948be5cb16662/src/components/mention-popover.tsx"
+    live="https://github.com/egoist/takopi"
+    license="Apache-2.0"
+    reuse="code-ok"
+  >
+    the cleanest triggerless popover: an @-mention file autocomplete fully controlled and anchored
+    to a chat textarea, with `initialFocus={false}`/`finalFocus={false}` so keyboard focus never
+    leaves the textarea.
   </WildCard>
 </WildCards>
 
@@ -451,8 +500,8 @@ Three recreations live in this Storybook — the museeks queue popover, the Flas
 
 <ArgTypes of={Popover.Viewport} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/popover](https://base-ui.com/react/components/popover#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/popover](https://base-ui.com/react/components/popover#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+popover) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/popover).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+popover) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/popover)._

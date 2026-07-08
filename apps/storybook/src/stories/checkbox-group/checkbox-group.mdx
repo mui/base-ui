@@ -36,7 +36,7 @@ Turns N independently-toggleable checkboxes into one array-valued, form-particip
 
 ## When not to use
 
-- **Large or filterable option sets that need to submit as an array** → prefer a Combobox in `multiple` mode. The closest evidence: a maintainer explicitly declined building a checkbox tree *inside* Combobox ("trees are out of combobox scope… can't marry CheckboxGroup with Combobox," `mui/base-ui#2695`), while providing a modified multiple-select Combobox demo with its own select-all item as the recommended alternative.
+- **Large or filterable option sets that need to submit as an array** → prefer a Combobox in `multiple` mode. The closest evidence: a maintainer explicitly declined building a checkbox tree _inside_ Combobox ("trees are out of combobox scope… can't marry CheckboxGroup with Combobox," `mui/base-ui#2695`), while providing a modified multiple-select Combobox demo with its own select-all item as the recommended alternative.
 - **A tree/hierarchical multi-select with nested select-all at arbitrary depth** → not built in anywhere; the closest first-party pattern is the app-composed two-instance nesting above, and the Combobox-tree request was declined (`#2695`).
 - **An exclusive, always-exactly-one choice** → [Radio Group](?path=/docs/form-inputs-radio--docs), not Checkbox Group.
 - **A single independent checkbox that never needs to coordinate with siblings** → standalone [Checkbox.Root](?path=/docs/form-inputs-checkbox--docs), no group wrapper needed.
@@ -53,11 +53,11 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 </CheckboxGroup>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `CheckboxGroup` | `<div role="group">` | Shared array-valued state for a series of checkboxes | required |
-| `Checkbox.Root` (child) | `<span role="checkbox">` | One independently-toggleable option, contributing its `value` to the group's array | required, one per option |
-| `Checkbox.Root parent` | `<span role="checkbox">` + `data-parent` | The "select all" coordinator; `name` is force-unset so it's excluded from submission | optional |
+| Part                    | Renders                                  | Purpose                                                                              | Optional?                |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------ |
+| `CheckboxGroup`         | `<div role="group">`                     | Shared array-valued state for a series of checkboxes                                 | required                 |
+| `Checkbox.Root` (child) | `<span role="checkbox">`                 | One independently-toggleable option, contributing its `value` to the group's array   | required, one per option |
+| `Checkbox.Root parent`  | `<span role="checkbox">` + `data-parent` | The "select all" coordinator; `name` is force-unset so it's excluded from submission | optional                 |
 
 A parent checkbox's `aria-controls` is a space-separated list of every child's id, derived from the group's id scheme — setting a custom `id` on a child breaks this (`mui/base-ui#2691`).
 
@@ -103,12 +103,12 @@ Setting `required` on individual group members means **every** `required` checkb
 
 ## Keyboard & screen reader
 
-| Key | Context | Action |
-|---|---|---|
-| `Tab` | anywhere in the group | Moves focus to the **next individual checkbox** — each is its own Tab stop, unlike Radio Group's single composite stop |
-| `Space` | a focused child checkbox | Toggles that checkbox, pushing/removing its `value` from the group array |
-| `Space` | a focused **parent** checkbox | Cycles the tri-state select-all/select-none/restore-mixed algorithm |
-| `Enter` | any focused checkbox | Submits the owning form, does not toggle — identical to standalone Checkbox |
+| Key     | Context                       | Action                                                                                                                 |
+| ------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Tab`   | anywhere in the group         | Moves focus to the **next individual checkbox** — each is its own Tab stop, unlike Radio Group's single composite stop |
+| `Space` | a focused child checkbox      | Toggles that checkbox, pushing/removing its `value` from the group array                                               |
+| `Space` | a focused **parent** checkbox | Cycles the tri-state select-all/select-none/restore-mixed algorithm                                                    |
+| `Enter` | any focused checkbox          | Submits the owning form, does not toggle — identical to standalone Checkbox                                            |
 
 - **ARIA**: `role="group"`, `aria-labelledby` from `Field.Label`/`Fieldset.Legend`. No `aria-required`/`aria-disabled` of its own — those cascade individually to children, unlike Radio Group which sets them on the group container itself.
 - **You must provide**: a group label (`Fieldset.Legend` or `aria-labelledby`) and a label for each option, identical to standalone Checkbox.
@@ -137,15 +137,42 @@ The group container itself carries only `data-disabled`, plus the full Field val
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/checkbox-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    a dedicated wrapper file separate from plain Checkbox, confirming CheckboxGroup is treated as its own registry item rather than folded into Checkbox.
+<WildCards component="checkbox-group">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/checkbox-group.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    a dedicated wrapper file separate from plain Checkbox, confirming CheckboxGroup is treated as
+    its own registry item rather than folded into Checkbox.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/checkbox-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
-    the same split — a standalone CheckboxGroup registry item alongside Checkbox — published as both a package export and an installable file.
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/checkbox-group.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
+    the same split — a standalone CheckboxGroup registry item alongside Checkbox — published as both
+    a package export and an installable file.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox-group.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
-    Cal.com's registry keeps CheckboxGroup separate from Checkbox as well, corroborating the pattern across two independent registries.
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/checkbox-group.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+    image={cossComUiShot}
+  >
+    Cal.com's registry keeps CheckboxGroup separate from Checkbox as well, corroborating the pattern
+    across two independent registries.
   </WildCard>
 </WildCards>
 
@@ -158,7 +185,7 @@ The group container itself carries only `data-disabled`, plus the full Field val
 - **2026 (`#4660`)** — "Remove `index.parts.ts` from Checkbox Group": confirms the single-part-component framing was a deliberate cleanup.
 - **2026 (`#4912`, `#4941`)** — Parent-checkbox hardening wave: "Fix parent checkbox with custom `validate` fn" and "Fix parent group cancellation and indeterminate state."
 - **2026 (`#4958`)** — "Fix validation with multiple required checkboxes": directly hardens the all-required-must-be-checked contract.
-- **`#2695` (declined)** — A user asked for a tree of grouped checkboxes with a "select all" root item *inside Combobox*; maintainers declined, scoping the parent-checkbox pattern deliberately to Checkbox Group's flat list rather than generalizing it into a tree widget.
+- **`#2695` (declined)** — A user asked for a tree of grouped checkboxes with a "select all" root item _inside Combobox_; maintainers declined, scoping the parent-checkbox pattern deliberately to Checkbox Group's flat list rather than generalizing it into a tree widget.
 
 ## Related
 
@@ -176,8 +203,8 @@ The group container itself carries only `data-disabled`, plus the full Field val
 
 <ArgTypes of={Checkbox.Root} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/checkbox-group](https://base-ui.com/react/components/checkbox-group#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/checkbox-group](https://base-ui.com/react/components/checkbox-group#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+checkbox-group) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/checkbox-group).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+checkbox-group) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/checkbox-group)._

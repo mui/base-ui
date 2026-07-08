@@ -53,13 +53,13 @@ import { Tabs } from '@base-ui/react/tabs';
 </Tabs.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Tabs.Root` | `<div>` | Groups the tabs and the corresponding panels | required |
-| `Tabs.List` | `<div>` | Groups the individual tab buttons; `role="tablist"` | required |
-| `Tabs.Tab` | `<button>` | An individual tab that toggles the corresponding panel | required, repeated |
-| `Tabs.Indicator` | `<span>` | A visual indicator that tracks the active tab's position | optional |
-| `Tabs.Panel` | `<div>` | Displayed when the corresponding tab is active | required, repeated |
+| Part             | Renders    | Purpose                                                  | Optional?          |
+| ---------------- | ---------- | -------------------------------------------------------- | ------------------ |
+| `Tabs.Root`      | `<div>`    | Groups the tabs and the corresponding panels             | required           |
+| `Tabs.List`      | `<div>`    | Groups the individual tab buttons; `role="tablist"`      | required           |
+| `Tabs.Tab`       | `<button>` | An individual tab that toggles the corresponding panel   | required, repeated |
+| `Tabs.Indicator` | `<span>`   | A visual indicator that tracks the active tab's position | optional           |
+| `Tabs.Panel`     | `<div>`    | Displayed when the corresponding tab is active           | required, repeated |
 
 Panels are **not** children of `List` — they are siblings of `List` under `Root`, matched to tabs purely by `value`, not DOM position. No Portal/Positioner/Popup — Tabs renders in normal document flow.
 
@@ -103,13 +103,13 @@ External `value`/`onValueChange` state can drive the active tab from anywhere, i
 
 ## Keyboard & screen reader
 
-| Key | Context | `activateOnFocus=false` (default) | `activateOnFocus=true` |
-|---|---|---|---|
-| Click | any tab | Activates the clicked tab | Same |
-| Enter / Space | focused tab | Activates via native button semantics | Same |
-| ArrowRight/Left (horizontal) or ArrowDown/Up (vertical) | focus inside List | Moves roving focus only | Moves focus **and** activates |
-| Home / End | focus inside List | Moves focus to first/last tab, no activation | Moves focus and activates |
-| Tab / Shift+Tab | — | Leaves the tablist as a single stop (roving tabindex) | Same |
+| Key                                                     | Context           | `activateOnFocus=false` (default)                     | `activateOnFocus=true`        |
+| ------------------------------------------------------- | ----------------- | ----------------------------------------------------- | ----------------------------- |
+| Click                                                   | any tab           | Activates the clicked tab                             | Same                          |
+| Enter / Space                                           | focused tab       | Activates via native button semantics                 | Same                          |
+| ArrowRight/Left (horizontal) or ArrowDown/Up (vertical) | focus inside List | Moves roving focus only                               | Moves focus **and** activates |
+| Home / End                                              | focus inside List | Moves focus to first/last tab, no activation          | Moves focus and activates     |
+| Tab / Shift+Tab                                         | —                 | Leaves the tablist as a single stop (roving tabindex) | Same                          |
 
 - **ARIA**: `List` gets `role="tablist"`; `Tab` gets `role="tab"`, `aria-selected`, `aria-controls`; `Panel` gets `role="tabpanel"`, `aria-labelledby`, `inert` when not active.
 - **You must provide**: nothing extra for the core contract — the id-linking chain is automatic.
@@ -117,11 +117,11 @@ External `value`/`onValueChange` state can drive the active tab from anywhere, i
 
 ## Styling hooks
 
-| Part | Attribute / variable | Present when |
-|---|---|---|
-| `Tab` | `data-active`, `data-disabled` | reflects tab state |
-| `Panel` | `data-hidden`, `data-starting-style`, `data-ending-style`, `data-index` | transition-status contract |
-| every part | `data-orientation`, `data-activation-direction` | layout/animation hooks |
+| Part        | Attribute / variable                                                                                                              | Present when                         |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `Tab`       | `data-active`, `data-disabled`                                                                                                    | reflects tab state                   |
+| `Panel`     | `data-hidden`, `data-starting-style`, `data-ending-style`, `data-index`                                                           | transition-status contract           |
+| every part  | `data-orientation`, `data-activation-direction`                                                                                   | layout/animation hooks               |
 | `Indicator` | `--active-tab-left`, `--active-tab-right`, `--active-tab-top`, `--active-tab-bottom`, `--active-tab-width`, `--active-tab-height` | present only while a tab is selected |
 
 An underline indicator typically uses `left`/`width` (horizontal) or `top`/`height` (vertical) with a CSS `transition`; a full-bleed "pill" background can use all four inset variables with `position: absolute; inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom) var(--active-tab-left)`.
@@ -155,14 +155,39 @@ Icon + label composition, a scrollable tablist wider than its container, and an 
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tabs/tabs.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool parity.
+<WildCards component="tabs">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/tabs/tabs.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    one of Kumo's fully styled wrappers, with a matching Figma-generator script for design-tool
+    parity.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/tabs/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    one file per part (root/list/tab/panel/context) in the `@wordpress/ui` package, with its own "best practices" MDX story alongside the implementation.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/tabs/root.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    one file per part (root/list/tab/panel/context) in the `@wordpress/ui` package, with its own
+    "best practices" MDX story alongside the implementation.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/tabs.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/tabs.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
     a Tailwind-styled Tabs registry item, copy-paste distributed like the rest of the 9ui set.
   </WildCard>
 </WildCards>
@@ -200,8 +225,8 @@ Icon + label composition, a scrollable tablist wider than its container, and an 
 
 <ArgTypes of={Tabs.Panel} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/tabs](https://base-ui.com/react/components/tabs#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/tabs](https://base-ui.com/react/components/tabs#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+tabs) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/tabs).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+tabs) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/tabs)._

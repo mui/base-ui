@@ -35,9 +35,9 @@ Provides a shared state to a series of toggle buttons.
 
 ## When not to use
 
-- **Exclusive choice that must always have exactly one selection and can't be cleared → [Radio Group](?path=/docs/form-inputs-radio--docs)**, not single-mode Toggle Group. "A single-select-you-can't-clear widget *is* a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert).
+- **Exclusive choice that must always have exactly one selection and can't be cleared → [Radio Group](?path=/docs/form-inputs-radio--docs)**, not single-mode Toggle Group. "A single-select-you-can't-clear widget _is_ a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert).
 
-  > "ToggleGroup implements the toggle-button pattern (`aria-pressed`, deselectable); a single-select-you-can't-clear widget *is* a RadioGroup; making a toggle announce as a radio is semantically wrong." — mj12albert, [#3525](https://github.com/mui/base-ui/issues/3525) (open, unresolved)
+  > "ToggleGroup implements the toggle-button pattern (`aria-pressed`, deselectable); a single-select-you-can't-clear widget _is_ a RadioGroup; making a toggle announce as a radio is semantically wrong." — mj12albert, [#3525](https://github.com/mui/base-ui/issues/3525) (open, unresolved)
 
 - **A single independent action bar with no shared pressed-state → [Toolbar](?path=/docs/actions-toolbar--docs)**, or no wrapper at all if the items are truly unrelated plain buttons ([#4008](https://github.com/mui/base-ui/issues/4008)).
 - **A binary immediate-effect setting, singular (not a row of related toggles) → [Switch](?path=/docs/form-inputs-switch--docs)** — Toggle Group's value is inherently an array; using it for a single boolean is the wrong cardinality.
@@ -54,16 +54,16 @@ import { ToggleGroup } from '@base-ui/react/toggle-group';
 </ToggleGroup>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `ToggleGroup` | `<div role="group">` | Shared pressed-state context provider | required |
-| `Toggle` (from the sibling package) | `<button>` | Each group item — not a dedicated `ToggleGroup.Item` | required (one or more) |
+| Part                                | Renders              | Purpose                                              | Optional?              |
+| ----------------------------------- | -------------------- | ---------------------------------------------------- | ---------------------- |
+| `ToggleGroup`                       | `<div role="group">` | Shared pressed-state context provider                | required               |
+| `Toggle` (from the sibling package) | `<button>`           | Each group item — not a dedicated `ToggleGroup.Item` | required (one or more) |
 
 ## How it works
 
 ### `multiple` and selection semantics
 
-In `multiple` mode, pressing an item toggles it independently of its siblings. In single mode (`multiple={false}`, the default), pressing an item replaces the whole selection with either `[value]` or `[]` — meaning single mode *is* deselectable to empty, the exact property that distinguishes it from RadioGroup.
+In `multiple` mode, pressing an item toggles it independently of its siblings. In single mode (`multiple={false}`, the default), pressing an item replaces the whole selection with either `[value]` or `[]` — meaning single mode _is_ deselectable to empty, the exact property that distinguishes it from RadioGroup.
 
 <Canvas of={ToggleGroupStories.Multiple} />
 
@@ -75,7 +75,7 @@ Single mode's clearable behavior in isolation: clicking the pressed item again e
 
 A standalone `ToggleGroup` wraps its own `CompositeRoot`: the group is a single Tab stop, arrow keys move roving focus among items (wrapping at the ends when `loopFocus`, the default), and Home/End jump to the first/last item.
 
-**Toolbar-hosted asymmetry:** when a `ToggleGroup` is nested inside a `Toolbar.Root`, it renders a plain `role="group"` div and defers its roving-focus behavior entirely to the *Toolbar's* own `CompositeRoot` — which never enables Home/End. This means Home/End work standalone (as shown below) but **not** when the same group is hosted inside a Toolbar ([#3971](https://github.com/mui/base-ui/pull/3971) added Home/End to ToggleGroup's own composite root; it could not retrofit Toolbar's separate one). See the [Toolbar](?path=/docs/actions-toolbar--docs) stories for the hosted case.
+**Toolbar-hosted asymmetry:** when a `ToggleGroup` is nested inside a `Toolbar.Root`, it renders a plain `role="group"` div and defers its roving-focus behavior entirely to the _Toolbar's_ own `CompositeRoot` — which never enables Home/End. This means Home/End work standalone (as shown below) but **not** when the same group is hosted inside a Toolbar ([#3971](https://github.com/mui/base-ui/pull/3971) added Home/End to ToggleGroup's own composite root; it could not retrofit Toolbar's separate one). See the [Toolbar](?path=/docs/actions-toolbar--docs) stories for the hosted case.
 
 <Canvas of={ToggleGroupStories.CompositeKeyboardNavigation} />
 
@@ -91,14 +91,14 @@ The Toolbar-hosted case, shown side by side with the standalone one above: arrow
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Tab` | Moves focus to exactly one item — a single tab stop for the whole group |
+| Key                        | Action                                                                                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Tab`                      | Moves focus to exactly one item — a single tab stop for the whole group                                         |
 | `ArrowRight` / `ArrowLeft` | `orientation="horizontal"`: move roving focus to next/previous item; wraps at the ends if `loopFocus` (default) |
-| `ArrowDown` / `ArrowUp` | `orientation="vertical"`: move roving focus to next/previous item |
-| `Home` | Standalone only — moves focus to the first item (not wired when Toolbar-hosted) |
-| `End` | Standalone only — moves focus to the last item (not wired when Toolbar-hosted) |
-| `Enter` / `Space` | Toggles the focused item's pressed state |
+| `ArrowDown` / `ArrowUp`    | `orientation="vertical"`: move roving focus to next/previous item                                               |
+| `Home`                     | Standalone only — moves focus to the first item (not wired when Toolbar-hosted)                                 |
+| `End`                      | Standalone only — moves focus to the last item (not wired when Toolbar-hosted)                                  |
+| `Enter` / `Space`          | Toggles the focused item's pressed state                                                                        |
 
 - **ARIA**: `role="group"` on the container (deliberately no `aria-orientation` — invalid on `role="group"`); each child Toggle supplies its own `aria-pressed`.
 - **You must provide**: a group-level accessible name via `aria-label`/`aria-labelledby` on `<ToggleGroup>`.
@@ -106,11 +106,11 @@ The Toolbar-hosted case, shown side by side with the standalone one above: arrow
 
 ## Styling hooks
 
-| Attribute | Present when |
-|---|---|
-| `data-disabled` | the group is disabled |
-| `data-orientation` | `horizontal` / `vertical` |
-| `data-multiple` | present only when `multiple` is `true` |
+| Attribute          | Present when                           |
+| ------------------ | -------------------------------------- |
+| `data-disabled`    | the group is disabled                  |
+| `data-orientation` | `horizontal` / `vertical`              |
+| `data-multiple`    | present only when `multiple` is `true` |
 
 Each child Toggle carries its own independent `data-pressed`/`data-disabled` — style selection state on the Toggle, not the group.
 
@@ -133,15 +133,39 @@ Each child Toggle carries its own independent `data-pressed`/`data-disabled` —
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
+<WildCards component="toggle-group">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/toggle-group.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
     a standalone ToggleGroup registry item, kept separate from plain Toggle as its own file.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/toggle-group.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
     the same split, published as both a package export and an installable registry file.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/dataviews/src/components/dataform-controls/toggle-group.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    uses it as a dataview filter control rather than a generic UI primitive — a concrete non-registry production usage.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/dataviews/src/components/dataform-controls/toggle-group.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    uses it as a dataview filter control rather than a generic UI primitive — a concrete
+    non-registry production usage.
   </WildCard>
 </WildCards>
 
@@ -168,8 +192,8 @@ Each child Toggle carries its own independent `data-pressed`/`data-disabled` —
 
 <ArgTypes of={Toggle} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/toggle-group](https://base-ui.com/react/components/toggle-group#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/toggle-group](https://base-ui.com/react/components/toggle-group#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toggle-group) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toggle-group).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toggle-group) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toggle-group)._

@@ -35,7 +35,7 @@ A two-state button that can be on or off.
 
 See the [Binary controls](?path=/docs/research-c-component-briefs-clusters-binary-controls--docs) research page for the full comparative table.
 
-- **A single-select-you-can't-clear semantic → [Radio Group](?path=/docs/form-inputs-radio--docs)**, not a single-mode Toggle Group. "A single-select-you-can't-clear widget *is* a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert — open, unresolved community concern).
+- **A single-select-you-can't-clear semantic → [Radio Group](?path=/docs/form-inputs-radio--docs)**, not a single-mode Toggle Group. "A single-select-you-can't-clear widget _is_ a radio group; making a toggle announce as a radio is semantically wrong" ([#3525](https://github.com/mui/base-ui/issues/3525), mj12albert — open, unresolved community concern).
 - **A value that must submit with a `<form>` or participate in native constraint validation → [Switch](?path=/docs/form-inputs-switch--docs)**. Toggle explicitly discards `form`/`type` (see below) — it has no hidden-input form-participation machinery.
 - **A binary immediate-effect setting with an on/off metaphor (not a "pressed button" metaphor) → Switch.**
 - **A single independent action, not a persisted state → [Button](?path=/docs/actions-button--docs)**, not Toggle.
@@ -48,9 +48,9 @@ import { Toggle } from '@base-ui/react/toggle';
 <Toggle />;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Toggle` | `<button>` (standalone) or via `CompositeItem` (grouped) | The single element: pressed state, `aria-pressed`, keyboard activation | required |
+| Part     | Renders                                                  | Purpose                                                                | Optional? |
+| -------- | -------------------------------------------------------- | ---------------------------------------------------------------------- | --------- |
+| `Toggle` | `<button>` (standalone) or via `CompositeItem` (grouped) | The single element: pressed state, `aria-pressed`, keyboard activation | required  |
 
 ## How it works
 
@@ -79,15 +79,15 @@ Controlled: external state (e.g. a checkbox) drives `pressed` directly.
 
 ### No native form participation
 
-`Toggle.tsx` destructures `form` and `type` from its props purely to *discard* them, with inline comments: `form, // never participates in form validation` and `type, // cannot change button type`. Toggle deliberately does not integrate with the Constraint Validation API or submit a value with a `<form>` the way Checkbox/Switch do — it is a UI-state control (e.g. bold/italic in a toolbar), not a form field. If a value must reach a form submission, reach for Switch or Checkbox instead.
+`Toggle.tsx` destructures `form` and `type` from its props purely to _discard_ them, with inline comments: `form, // never participates in form validation` and `type, // cannot change button type`. Toggle deliberately does not integrate with the Constraint Validation API or submit a value with a `<form>` the way Checkbox/Switch do — it is a UI-state control (e.g. bold/italic in a toolbar), not a form field. If a value must reach a form submission, reach for Switch or Checkbox instead.
 
 ## Keyboard & screen reader
 
-| Key | Action |
-|---|---|
-| `Enter` | Flips `pressed`/`aria-pressed` and fires `onPressedChange` |
-| `Space` | Same, on `keyup` when standalone, normalized to `keydown` when grouped (composite item) |
-| `Tab` | Moves focus to/from the toggle in normal document order when standalone; participates in the group's single-tab-stop roving-focus contract when grouped |
+| Key     | Action                                                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Enter` | Flips `pressed`/`aria-pressed` and fires `onPressedChange`                                                                                              |
+| `Space` | Same, on `keyup` when standalone, normalized to `keydown` when grouped (composite item)                                                                 |
+| `Tab`   | Moves focus to/from the toggle in normal document order when standalone; participates in the group's single-tab-stop roving-focus contract when grouped |
 
 - **ARIA**: `aria-pressed={pressed}` unconditionally set on the rendered button. No other ARIA is added by Toggle itself.
 - **You must provide**: an accessible name (`aria-label` or visible text) — no `Toggle.Label`-style part exists.
@@ -95,10 +95,10 @@ Controlled: external state (e.g. a checkbox) drives `pressed` directly.
 
 ## Styling hooks
 
-| Attribute | Present when |
-|---|---|
-| `data-pressed` | the toggle is pressed |
-| `data-disabled` | disabled |
+| Attribute       | Present when          |
+| --------------- | --------------------- |
+| `data-pressed`  | the toggle is pressed |
+| `data-disabled` | disabled              |
 
 No CSS variables — no dynamic measurements to expose.
 
@@ -121,12 +121,29 @@ No CSS variables — no dynamic measurements to expose.
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
+<WildCards component="toggle">
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/toggle.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+    image={reuiIoOpenShot}
+  >
     ships a Radix-backed twin of the same Toggle API alongside the Base UI version.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
-    a `cva()`-based variant system (size/variant) wrapping `@base-ui/react/toggle`'s `data-pressed` state, part of Cal.com's near-complete registry.
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/toggle.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+    image={cossComUiShot}
+  >
+    a `cva()`-based variant system (size/variant) wrapping `@base-ui/react/toggle`'s `data-pressed`
+    state, part of Cal.com's near-complete registry.
   </WildCard>
 </WildCards>
 
@@ -150,4 +167,4 @@ No CSS variables — no dynamic measurements to expose.
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toggle) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toggle).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+toggle) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/toggle)._

@@ -37,6 +37,12 @@ All story files carry `tags: ['ai-generated']` — every `needs-work` tag was st
 - Gesture interactions (drawer swipe, number-field scrub, toast swipe) are rendered and documented but not play-driven — pointer-capture gestures aren't reliably testable in this harness.
 
 
+## POLISH STATE (2026-07-08, rev. 6 — per-component docs highlights + TOC fix)
+
+- **Docs TOC now shows section headings.** `docs.toc.headingSelector` set to `h2` in `.storybook/preview.tsx` — components list up to 19 API-part h3s under "API reference" plus many behavior/recreation h3s, which overflowed the sticky TOC and pushed sections like **In the wild** below the fold. The TOC now lists the ~14 top-level sections.
+- **Every in-the-wild capture has a highlight.** Per-component pass across the four showcase sites (9ui, reui, coss, lumiui), targeting each component's OWN page + its live demo (`[data-slot=…]` / `[data-slot="preview"]` / `[data-slot="components-preview"]`, discovered per site): **57 per-component highlights**, plus **10 site-level (`*::domain`) landing fallbacks** (kumo covers its 13 cards, + graphql/mastra/nextjs/posthog/wordpress/docx/shadcn/9ui/reui). Total **67 highlights**. Wiring: a generated `shared/wildHighlights.ts` registry keyed by `component::domain` (+ `*::domain` fallback) and a `component` prop on `<WildCards>`; `WildCard` auto-attaches the highlight. **Enforcement:** a card with a screenshot but no highlight now falls back to the GitHub OG card — no bare captures remain. Pipeline: `_captures/gen-component-targets.mjs` → `capture-highlight.mjs` → `gen-wild-highlights.mjs`.
+- Verified: 474/474 storybook tests green, `pnpm build-storybook` green, browser-confirmed per-component (9ui accordion) + site-level (kumo on meter) highlights and the TOC.
+
 ## POLISH STATE (2026-07-08, rev. 5 — full component-highlight pass)
 
 - **Component highlights captured across the docs sites**: a 26-site batch pass (role-union selector, `capture-highlight.mjs`) produced **9 solid highlights** — Tabs/Combobox/Menubar/Radio-Group on 9ui, graphql.org, Cloudflare Kumo, Mastra, Next.js, PostHog, ReUI, WordPress Gutenberg, docx-template-system. 14 sites were `page-only` (component behind an interaction or on a subpage the landing URL doesn't show); 3 degenerate matches (<18px) culled by hand. Each highlight carries a concrete `[role="…"]` selector + `matchedRole` + `box` + `route` in `in-the-wild.json`.

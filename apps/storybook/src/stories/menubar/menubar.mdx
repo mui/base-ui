@@ -262,18 +262,50 @@ unverified upstream, not a guarantee:
 
 The corpus's 20 Menubar hits are overwhelmingly one shadcn-derived `components/ui/menubar.tsx` template, copied near-verbatim across small apps rather than diverse custom builds — an honest finding in itself:
 
-<WildCards>
-  <WildCard repo="x1xhlol/zero-calendar" title="zero-calendar" href="https://github.com/x1xhlol/zero-calendar/blob/HEAD/components/ui/menubar.tsx" live="https://zerocalendar.com" license="MIT" reuse="code-ok">
-    a 356-star calendar app using the near-canonical shadcn-style `components/ui/menubar.tsx` wrapper.
+<WildCards component="menubar">
+  <WildCard
+    repo="x1xhlol/zero-calendar"
+    title="zero-calendar"
+    href="https://github.com/x1xhlol/zero-calendar/blob/HEAD/components/ui/menubar.tsx"
+    live="https://zerocalendar.com"
+    license="MIT"
+    reuse="code-ok"
+  >
+    a 356-star calendar app using the near-canonical shadcn-style `components/ui/menubar.tsx`
+    wrapper.
   </WildCard>
-  <WildCard repo="pacekit/gsap" title="gsap" href="https://github.com/pacekit/gsap/blob/HEAD/src/components/ui/menubar.tsx" live="https://gsap.pacekit.dev" license="MIT" reuse="code-ok">
+  <WildCard
+    repo="pacekit/gsap"
+    title="gsap"
+    href="https://github.com/pacekit/gsap/blob/HEAD/src/components/ui/menubar.tsx"
+    live="https://gsap.pacekit.dev"
+    license="MIT"
+    reuse="code-ok"
+  >
     the same wrapper template, copied into a GSAP animation toolkit's app shell.
   </WildCard>
-  <WildCard repo="mathematic-inc/earl" title="earl" href="https://github.com/mathematic-inc/earl/blob/HEAD/web/src/components/ui/menubar.tsx" live="https://mathematic-inc.github.io/earl/" license="Apache-2.0" reuse="code-ok">
-    an Apache-2.0 app repeating the identical wrapper structure — by this point a strong signal that almost every corpus hit for Menubar is one shared template, not diverse custom builds.
+  <WildCard
+    repo="mathematic-inc/earl"
+    title="earl"
+    href="https://github.com/mathematic-inc/earl/blob/HEAD/web/src/components/ui/menubar.tsx"
+    live="https://mathematic-inc.github.io/earl/"
+    license="Apache-2.0"
+    reuse="code-ok"
+  >
+    an Apache-2.0 app repeating the identical wrapper structure — by this point a strong signal that
+    almost every corpus hit for Menubar is one shared template, not diverse custom builds.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
-    confirms the same lineage independently: even a from-scratch registry (not a shadcn fork) converges on the same menu/item/trigger structure.
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/apps/www/registry/ui/menubar.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
+    confirms the same lineage independently: even a from-scratch registry (not a shadcn fork)
+    converges on the same menu/item/trigger structure.
   </WildCard>
 </WildCards>
 

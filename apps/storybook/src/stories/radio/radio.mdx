@@ -24,7 +24,7 @@ A mutually-exclusive, always-visible option picker, treated as one research unit
 ## Features
 
 - **Exclusive, always-one-selected, form-native** — `RadioGroup` wraps a roving-tabindex `CompositeRoot`; every option is visible at once and reachable by a single Tab stop.
-- **Arrow keys both move focus *and* select** — the single most important behavioral fact for this component: pressing `ArrowDown`/`ArrowUp` moves focus to the next radio **and immediately selects it**, matching native `<input type="radio">` groups, unlike listbox-style composites (Select) where arrow keys only move a highlight.
+- **Arrow keys both move focus _and_ select** — the single most important behavioral fact for this component: pressing `ArrowDown`/`ArrowUp` moves focus to the next radio **and immediately selects it**, matching native `<input type="radio">` groups, unlike listbox-style composites (Select) where arrow keys only move a highlight.
 - **Native `<input type="radio">` semantics are the contract** — every radio ships a hidden native input that participates in real form submission, `FormData`, and native validation.
 - **Unselected state submits `null`**, not an empty string and not an omitted field — matching native radio-group behavior exactly (`#2473`).
 
@@ -37,7 +37,7 @@ A mutually-exclusive, always-visible option picker, treated as one research unit
 ## When not to use
 
 - **Many options, or options that should stay collapsed until interacted with** → prefer [Select](?path=/docs/form-inputs-select--docs). Once the option count grows past a handful, the always-visible layout becomes a liability.
-- **A single-select-you-can't-clear-back-to-nothing widget disguised as a toggle group** → use RadioGroup, not Toggle Group. A maintainer drew this line directly: "a single-select-you-can't-clear widget *is* a RadioGroup; making a toggle announce as a radio is semantically wrong" (`mui/base-ui#3525`).
+- **A single-select-you-can't-clear-back-to-nothing widget disguised as a toggle group** → use RadioGroup, not Toggle Group. A maintainer drew this line directly: "a single-select-you-can't-clear widget _is_ a RadioGroup; making a toggle announce as a radio is semantically wrong" (`mui/base-ui#3525`).
 - **A single on/off value, or a submit-time bulk boolean set** → use [Checkbox](?path=/docs/form-inputs-checkbox--docs) / [Checkbox Group](?path=/docs/form-inputs-checkbox-group--docs) instead — cardinality differs: Radio always resolves to "exactly one of N, or none," Checkbox resolves to "any independent subset."
 
 ## Anatomy
@@ -54,11 +54,11 @@ import { RadioGroup } from '@base-ui/react/radio-group';
 </RadioGroup>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `RadioGroup` | `<div role="radiogroup">` | Shared state + roving-tabindex composite for a series of radios | required |
-| `Radio.Root` | `<span role="radio">` (or `<button>` via `render` + `nativeButton`) | One option: state, interaction, hidden native input | required |
-| `Radio.Indicator` | `<span>` | The selected-state visual; conditionally rendered, transition-aware | yes — purely visual |
+| Part              | Renders                                                             | Purpose                                                             | Optional?           |
+| ----------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------- |
+| `RadioGroup`      | `<div role="radiogroup">`                                           | Shared state + roving-tabindex composite for a series of radios     | required            |
+| `Radio.Root`      | `<span role="radio">` (or `<button>` via `render` + `nativeButton`) | One option: state, interaction, hidden native input                 | required            |
+| `Radio.Indicator` | `<span>`                                                            | The selected-state visual; conditionally rendered, transition-aware | yes — purely visual |
 
 ## How it works
 
@@ -112,16 +112,16 @@ With `name` on `RadioGroup`, the selected value submits via each radio's hidden 
 
 <Canvas of={RadioStories.HomeEndHaveNoEffect} />
 
-| Key | Context | Action |
-|---|---|---|
-| `Tab` | anywhere before/in the group | Moves focus to the group as one stop — lands on the checked radio if one exists, otherwise the first enabled radio |
-| `ArrowDown` / `ArrowRight` (LTR) | focus in the group | Moves focus to the next radio **and selects it**, wraps last→first |
-| `ArrowUp` / `ArrowLeft` (LTR) | focus in the group | Moves focus to the previous radio **and selects it**, wraps first→last |
-| `Shift` + arrow keys | focus in the group | Moves focus **only** — suppresses the auto-select-on-focus behavior |
-| `Home` / `End` | focus in the group | **No effect, by design** — `enableHomeAndEndKeys={false}` is passed explicitly, a deliberate difference from listbox-style composites like Select, which does support Home/End |
-| `Space` | a focused, unchecked radio | Selects on **keyup**, not keydown |
-| `Enter` | a focused radio | No effect — radios never activate on Enter |
-| Click | the visible radio or its hidden input | Selects (unless `disabled`/`readOnly`) |
+| Key                              | Context                               | Action                                                                                                                                                                         |
+| -------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Tab`                            | anywhere before/in the group          | Moves focus to the group as one stop — lands on the checked radio if one exists, otherwise the first enabled radio                                                             |
+| `ArrowDown` / `ArrowRight` (LTR) | focus in the group                    | Moves focus to the next radio **and selects it**, wraps last→first                                                                                                             |
+| `ArrowUp` / `ArrowLeft` (LTR)    | focus in the group                    | Moves focus to the previous radio **and selects it**, wraps first→last                                                                                                         |
+| `Shift` + arrow keys             | focus in the group                    | Moves focus **only** — suppresses the auto-select-on-focus behavior                                                                                                            |
+| `Home` / `End`                   | focus in the group                    | **No effect, by design** — `enableHomeAndEndKeys={false}` is passed explicitly, a deliberate difference from listbox-style composites like Select, which does support Home/End |
+| `Space`                          | a focused, unchecked radio            | Selects on **keyup**, not keydown                                                                                                                                              |
+| `Enter`                          | a focused radio                       | No effect — radios never activate on Enter                                                                                                                                     |
+| Click                            | the visible radio or its hidden input | Selects (unless `disabled`/`readOnly`)                                                                                                                                         |
 
 - **ARIA**: `role="radiogroup"` on the container, `role="radio"` + `aria-checked` on each option; `aria-labelledby` auto-resolved from `Field.Label`/`Fieldset.Legend` (`#4142`).
 - **You must provide**: an accessible name for the group (label element, `Field`/`Fieldset`, or `aria-labelledby`) and for each option, plus visible `:focus-visible` styling.
@@ -131,21 +131,21 @@ With `name` on `RadioGroup`, the selected value submits via each radio's hidden 
 
 State attributes present on **both** `Root` and `Indicator`:
 
-| Attribute | Present when |
-|---|---|
-| `data-checked` / `data-unchecked` | the radio is selected / not selected |
-| `data-disabled` | disabled |
-| `data-readonly` | read-only |
-| `data-required` | required in a Field |
-| `data-valid` / `data-invalid` | Field validation state |
-| `data-touched` / `data-dirty` / `data-filled` | Field interaction state |
-| `data-focused` | visibly focused |
+| Attribute                                     | Present when                         |
+| --------------------------------------------- | ------------------------------------ |
+| `data-checked` / `data-unchecked`             | the radio is selected / not selected |
+| `data-disabled`                               | disabled                             |
+| `data-readonly`                               | read-only                            |
+| `data-required`                               | required in a Field                  |
+| `data-valid` / `data-invalid`                 | Field validation state               |
+| `data-touched` / `data-dirty` / `data-filled` | Field interaction state              |
+| `data-focused`                                | visibly focused                      |
 
 ## Choosing the right props
 
 - **`nativeButton` + `render`** — use for the sibling-label pattern (`htmlFor`/`id`); the default `<span>` supports enclosing labels without the invalid-HTML problem.
 - **`name`/`form` (RadioGroup)** — `name` (or the enclosing `Field.Root`'s `name`, which wins) identifies the submitted value; `form` targets an owning `<form>` when the group renders outside it.
-- **`inputRef` (RadioGroup)** — unusually, points to *the checked radio's* native input, re-pointed dynamically as selection changes.
+- **`inputRef` (RadioGroup)** — unusually, points to _the checked radio's_ native input, re-pointed dynamically as selection changes.
 
 ## Do / Don't
 
@@ -159,15 +159,41 @@ State attributes present on **both** `Root` and `Indicator`:
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/radio/radio.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled wrapper with a dedicated `radio.type-spec.tsx` file documenting its prop types — an unusually explicit contract for a copy-paste registry.
+<WildCards component="radio">
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/radio/radio.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    a fully styled wrapper with a dedicated `radio.type-spec.tsx` file documenting its prop types —
+    an unusually explicit contract for a copy-paste registry.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/radio-group.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    named `radio-group.tsx` (matching the shadcn/Radix convention) but wraps `@base-ui/react/radio`'s `Group`/`Root`/`Indicator` parts underneath.
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/radio-group.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    named `radio-group.tsx` (matching the shadcn/Radix convention) but wraps
+    `@base-ui/react/radio`'s `Group`/`Root`/`Indicator` parts underneath.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/radio-group/radio.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    the older `@wordpress/components` package (distinct from the newer `@wordpress/ui`) has its own Base UI-backed radio-group.tsx.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/components/src/radio-group/radio.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    the older `@wordpress/components` package (distinct from the newer `@wordpress/ui`) has its own
+    Base UI-backed radio-group.tsx.
   </WildCard>
 </WildCards>
 
@@ -199,8 +225,8 @@ State attributes present on **both** `Root` and `Indicator`:
 
 <ArgTypes of={Radio.Indicator} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/radio](https://base-ui.com/react/components/radio#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/radio](https://base-ui.com/react/components/radio#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+radio) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/radio).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+radio) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/radio)._

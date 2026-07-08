@@ -51,11 +51,11 @@ import { Avatar } from '@base-ui/react/avatar';
 </Avatar.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Avatar.Root` | `<span>` | Container; owns the shared `imageLoadingStatus` context | required |
-| `Avatar.Image` | `<img>` | The image; only mounts once loading resolves to `loaded` | yes — `Root` alone with text children is a valid "no photo" pattern |
-| `Avatar.Fallback` | `<span>` | Rendered when the image fails to load, is loading, or is absent | yes — nothing shows in its place if omitted |
+| Part              | Renders  | Purpose                                                         | Optional?                                                           |
+| ----------------- | -------- | --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `Avatar.Root`     | `<span>` | Container; owns the shared `imageLoadingStatus` context         | required                                                            |
+| `Avatar.Image`    | `<img>`  | The image; only mounts once loading resolves to `loaded`        | yes — `Root` alone with text children is a valid "no photo" pattern |
+| `Avatar.Fallback` | `<span>` | Rendered when the image fails to load, is loading, or is absent | yes — nothing shows in its place if omitted                         |
 
 ## How it works
 
@@ -118,15 +118,42 @@ Because layout effects don't run during SSR, server-rendered HTML always contain
 
 ## In the wild
 
-<WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/avatar.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    a Tailwind wrapper with dedicated `avatar-group-demo` and `avatar-with-fallback-demo` examples showing the fallback slot in use.
+<WildCards component="avatar">
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/avatar.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    a Tailwind wrapper with dedicated `avatar-group-demo` and `avatar-with-fallback-demo` examples
+    showing the fallback slot in use.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/avatar.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
-    the same registry-item pattern, published as both a package export and a standalone installable file.
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/avatar.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
+    the same registry-item pattern, published as both a package export and a standalone installable
+    file.
   </WildCard>
-  <WildCard repo="keenthemes/reui" title="reui" href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/avatar.tsx" live="https://reui.io" license="MIT" reuse="code-ok" image={reuiIoOpenShot}>
-    one of the components reui ships with interchangeable Base UI and Radix backends behind an identical public API.
+  <WildCard
+    repo="keenthemes/reui"
+    title="reui"
+    href="https://github.com/keenthemes/reui/blob/HEAD/registry/bases/base/ui/avatar.tsx"
+    live="https://reui.io"
+    license="MIT"
+    reuse="code-ok"
+    image={reuiIoOpenShot}
+  >
+    one of the components reui ships with interchangeable Base UI and Radix backends behind an
+    identical public API.
   </WildCard>
 </WildCards>
 
@@ -163,8 +190,8 @@ Because layout effects don't run during SSR, server-rendered HTML always contain
 
 <ArgTypes of={Avatar.Fallback} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/avatar](https://base-ui.com/react/components/avatar#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/avatar](https://base-ui.com/react/components/avatar#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+avatar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/avatar).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+avatar) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/avatar)._

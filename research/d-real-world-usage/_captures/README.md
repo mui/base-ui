@@ -90,6 +90,35 @@ a per-component `url` + `selector` (or an `interact`) to capture. Degenerate mat
 component under ~18px) were culled by hand. Every captured highlight is rendered in the
 `Utilities/InTheWild highlights (internal)` Storybook story.
 
+## Per-component docs highlights (the exact component per card)
+
+To highlight the *exact* component a given docs card documents (e.g. the accordion on 9ui's
+accordion card), target that component's OWN page on the site. The four showcase sites use a
+shadcn-style `data-slot` convention; the discovered patterns:
+
+| Site | Component page URL | Demo selector |
+|---|---|---|
+| 9ui.dev | `/docs/components/<slug>` | `[data-slot="<slug>"]` |
+| reui.io | `/components/<slug>` | `[data-slot="components-preview"]` |
+| coss.com | `/ui/docs/components/<slug>` | `[data-slot="preview"]` |
+| lumiui.dev | `/docs/components/<cat>/<slug>` | `[data-slot="<component>"]` |
+
+Pipeline:
+
+1. `gen-component-targets.mjs` — encodes the component→site matrix + per-site URL/slug/selector
+   rules and emits `highlight-targets.json` (one target per docs card).
+2. `capture-highlight.mjs` — captures them (its manifest **merges**, so broadened-selector
+   retries and site-level landing captures accumulate rather than clobber).
+3. `build-in-the-wild-index.mjs` — rebuilds `in-the-wild.json`.
+4. `gen-wild-highlights.mjs` — generates `apps/storybook/src/stories/shared/wildHighlights.ts`,
+   a registry keyed by `component::domain` (per-component) with a `*::domain` site-level
+   fallback.
+
+**Wiring into docs:** each `<WildCards>` section carries a `component` prop; `WildCard` looks
+the highlight up by that component + the card's domain (falling back to `*::domain`). A card
+with a screenshot but no highlight falls back to the GitHub OG card — so no docs card ever
+shows a highlight-less capture.
+
 ## The scripts
 
 | Script | Produces | Notes |
