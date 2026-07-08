@@ -13,8 +13,7 @@ This repository contains the source code and documentation for Base UI: a headl
 ## Agent skills
 
 - The shared `/base-ui-review` skill lives in `.agents/skills/base-ui-review/SKILL.md`. Update that file when the Base UI review workflow changes.
-- Claude Code users can install it personally without adding a repo-local `.claude/skills` folder:
-  `mkdir -p ~/.claude/skills && ln -s "$PWD/.agents/skills/base-ui-review" ~/.claude/skills/base-ui-review`.
+- Claude Code discovers the same shared skill through `.claude/skills/base-ui-review`, which is a symlink to the `.agents` copy.
 
 ## Code guidelines
 

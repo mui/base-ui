@@ -3,7 +3,7 @@ name: base-ui-review
 description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.'
 ---
 
-# Base UI Review
+# Base UI Review
 
 Review the current diff and report **regressions and correctness bugs** alongside
 **cleanup** (reuse / simplification / efficiency), scaling depth to the chosen effort
@@ -58,7 +58,7 @@ The core regression and correctness pass. Cover all of the following sub-angles:
   interactions, keyboard/focus flows, controlled/uncontrolled contracts, SSR,
   integrations between components, and public API examples.
 - **Repository/framework correctness lens.** Apply the invariants of the codebase
-  under review, not just generic language bugs. For Base UI / React component
+  under review, not just generic language bugs. For Base UI / React component
   changes, check controlled vs uncontrolled behavior, event ordering, ref
   forwarding/merging, context registration cleanup, nested component coordination,
   portals, focus management, keyboard navigation, ARIA attributes, disabled/read-only
@@ -82,10 +82,11 @@ The core regression and correctness pass. Cover all of the following sub-angles:
   instance the diff introduces.
 - **Wrapper/proxy correctness.** When the PR adds or modifies a type that wraps
   another (cache, proxy, decorator, adapter): check that every method routes to the
-  wrapped instance and not back through a registry/session/global - e.g. a caching
-  provider holding a `delegate` field that resolves IDs via `session.get(...)`
-  instead of `delegate.get(...)` will re-enter the cache or recurse. Also check that
-  the wrapper forwards all the methods the callers actually use.
+  wrapped instance and not back through a registry/session/global - for example, a
+  caching provider holding a `delegate` field that resolves IDs via
+  `session.get(...)` instead of `delegate.get(...)` will re-enter the cache or
+  recurse. Also check that the wrapper forwards all the methods the callers actually
+  use.
 
 ### Area 2 - Tests
 
