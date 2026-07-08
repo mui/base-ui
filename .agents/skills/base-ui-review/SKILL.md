@@ -6,11 +6,10 @@ description: 'Review the current diff for regressions, correctness bugs, tests, 
 # Base UI Review
 
 Review the current diff and report **regressions and correctness bugs** alongside
-**cleanup** (reuse / simplification / efficiency), scaling depth to the chosen effort
-level. The effort level (`low` / `medium` / `high` / `xhigh` / `max`, default
-`medium`) controls how many areas are reviewed, whether work fans out to subagents,
-and the precision/recall bias - see [Effort levels](#effort-levels) for the
-canonical behavior of each.
+**cleanup** (reuse / simplification / efficiency). Effort defaults to `medium`:
+`low` is bug-only, `medium` is the normal single-agent review, `high` splits the
+areas across subagents, `xhigh` adds a sweep, and `max` adds verifier subagents.
+See [Effort levels](#effort-levels).
 
 Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment] [<target>]`
 
@@ -29,12 +28,11 @@ that target instead.
 
 ## Phase 1 - Find candidates
 
-Review the four main areas below: Bugs, Tests, Simplifications, and Docs. At `low`,
-only Area 1 (Bugs) applies, and only its high-confidence runtime-correctness subset.
-At `medium` (default), do this locally in the main agent; if the change is large,
-risky, or touches fragile behavior, also spawn an independent bug/regression hunter
-subagent. At `high`, `xhigh`, and `max`, run the four areas as **independent
-subagents** - see [Effort levels](#effort-levels). Each area surfaces actionable
+Review the four main areas below: Bugs, Tests, Simplifications, and Docs. `low`
+reviews only high-confidence bug regressions. `medium` reviews all areas locally
+and may add one bug/regression subagent for large or risky diffs. `high` and above
+run the four areas as **independent subagents** - see
+[Effort levels](#effort-levels). Each area surfaces actionable
 candidate findings with `file`, `line`, a one-line `summary`, a `severity` (🟣 / 🔴 /
 🟠 / 🟡 / ℹ️ - see [Output](#output) for the rubric), and a concrete
 `failure_scenario`. Do NOT let one area's conclusions suppress another's - if two
@@ -318,22 +316,19 @@ these `##` sections, in order, when there are findings: `Bugs`, `Tests`,
 
 ### Effort levels
 
-- **low** -> single inline diff pass, no subagents, no verifier pass. Only the Bugs
-  area applies; skip Tests, Simplifications, Docs, and test/fixture hunks. Flag only
-  high-confidence runtime-correctness bugs visible from the hunk alone.
-- **medium** (default) -> main agent reviews Bugs, Tests, Simplifications, and Docs
-  locally, includes API design and runtime performance locally when the diff
-  warrants them, then verifies locally. Precision bias. If the change is large,
-  risky, or touches fragile behavior, also spawn an independent bug/regression hunter
-  subagent and merge its candidates into the local review before verification.
-- **high** -> run Bugs, Tests, Simplifications, and Docs as independent fan-out
-  subagents; trigger API design/perf specialist subagents when warranted; then dedup
-  and sanity-check locally. Do not run verifier subagents or the Phase 3 sweep.
-- **xhigh** -> same as `high`, plus the Phase 3 sweep re-check. Do not run verifier
+- **low** -> fastest: bug-only hunk pass. Skip Tests, Simplifications, Docs, and
+  test/fixture hunks. Flag only high-confidence runtime-correctness bugs visible
+  from the hunk alone.
+- **medium** (default) -> one agent reviews Bugs, Tests, Simplifications, Docs, and
+  any triggered API design/performance concerns, then verifies locally. Precision
+  bias. Add one bug/regression subagent only for large, risky, or fragile diffs.
+- **high** -> independent subagents review the four areas, plus triggered API
+  design/performance specialists. Main agent dedups and sanity-checks. No verifier
+  subagents or sweep.
+- **xhigh** -> `high` plus one fresh sweep for missed findings. No verifier
   subagents.
-- **max** -> current most expensive mode: run the independent fan-out subagents, run
-  verifier subagents for surviving candidates, trigger API design/perf specialist
-  subagents when warranted, and add the Phase 3 sweep. Strong recall bias.
+- **max** -> `xhigh` plus verifier subagents for surviving candidates. Highest cost,
+  strongest recall bias.
 
 ## Posting to GitHub (--comment)
 
