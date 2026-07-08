@@ -1,0 +1,39 @@
+name: Chromatic
+
+on:
+  push:
+    branches-ignore:
+      - 'renovate/**'
+      - 'dependabot/**'
+  pull_request:
+
+permissions: {}
+
+jobs:
+  chromatic:
+    # Requires the CHROMATIC_PROJECT_TOKEN repository secret. Until it's set, the publish step
+    # is skipped (so this workflow stays green rather than failing on a missing token).
+    if: ${{ github.actor != 'l10nbot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Chromatic needs the full git history to detect the correct baseline.
+          fetch-depth: 0
+      - name: Set up pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22.18'
+          cache: 'pnpm'
+      - run: pnpm install
+      # Uses the `chromatic` CLI (devDependency of apps/storybook); the token is read from the
+      # CHROMATIC_PROJECT_TOKEN env var. The `chromatic` script builds Storybook and publishes.
+      - name: Publish to Chromatic
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
+        run: pnpm --filter base-ui-storybook chromatic

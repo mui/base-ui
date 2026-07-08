@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",
@@ -29,6 +30,7 @@
     "@vitest/browser": "4.1.8",
     "@vitest/browser-playwright": "4.1.8",
     "@vitest/runner": "4.1.8",
+    "chromatic": "^18.0.1",
     "eslint-plugin-storybook": "^10.4.6",
     "playwright": "^1.61.1",
     "remark-gfm": "^4.0.1",
