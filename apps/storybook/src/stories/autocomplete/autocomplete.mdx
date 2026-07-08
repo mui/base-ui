@@ -10,6 +10,12 @@ import { MultiSkinAutocompleteExample } from './recreations/MultiSkinAutocomplet
 import fieldIntegratedAutocompleteSource from './recreations/FieldIntegratedAutocompleteExample.tsx?raw';
 import multiSkinAutocompleteSource from './recreations/MultiSkinAutocompleteExample.tsx?raw';
 import autocompleteRealWorldCss from './autocomplete-real-world.module.css?raw';
+import autocompleteCss from './autocomplete.module.css?raw';
+
+export const autocompleteFiles = [
+  { path: '../autocomplete.module.css', code: autocompleteCss },
+  { path: '../autocomplete-real-world.module.css', code: autocompleteRealWorldCss },
+];
 
 <Meta of={AutocompleteStories} />
 
@@ -27,7 +33,7 @@ An input that suggests options as you type — the typed string **is** the commi
 
 ## Features
 
-- **Free-form text as the value** — `value`/`onValueChange` control the *input text*; suggestions never restrict what can be submitted ([#2105](https://github.com/mui/base-ui/pull/2105) review: "for Autocomplete, `value` could refer to the `inputValue`").
+- **Free-form text as the value** — `value`/`onValueChange` control the _input text_; suggestions never restrict what can be submitted ([#2105](https://github.com/mui/base-ui/pull/2105) review: "for Autocomplete, `value` could refer to the `inputValue`").
 - **Four filtering modes in one prop** — `mode` drives both filtering and inline completion, and is forwarded verbatim as `aria-autocomplete`.
 - **Browser-omnibox ergonomics** — Escape on a closed popup clears the input ([#4245](https://github.com/mui/base-ui/issues/4245)), Enter with no highlight submits the owning form like Google Search ([#2700](https://github.com/mui/base-ui/pull/2700)), and the input ships `autoComplete="off"`, `spellCheck=false`, `autoCorrect="off"`, `autoCapitalize="none"`.
 - **Virtual focus** — DOM focus stays on the input; items are highlighted via `aria-activedescendant` + `data-highlighted`, with `autoHighlight`, `keepHighlight`, and `highlightItemOnHover` controls ([#2976](https://github.com/mui/base-ui/pull/2976)).
@@ -46,11 +52,11 @@ An input that suggests options as you type — the typed string **is** the commi
 
 ## When not to use
 
-The pickers boundary in one line: *free-form text → Autocomplete; visible filter input over a fixed set → [Combobox](?path=/docs/form-inputs-combobox--docs); button + predefined values → [Select](?path=/docs/form-inputs-select--docs); popup that performs actions without filtering → Menu* (full decision table with maintainer quotes: [Pickers](?path=/docs/research-c-component-briefs-clusters-pickers--docs)).
+The pickers boundary in one line: _free-form text → Autocomplete; visible filter input over a fixed set → [Combobox](?path=/docs/form-inputs-combobox--docs); button + predefined values → [Select](?path=/docs/form-inputs-select--docs); popup that performs actions without filtering → Menu_ (full decision table with maintainer quotes: [Pickers](?path=/docs/research-c-component-briefs-clusters-pickers--docs)).
 
 - **Selection must be remembered or restricted to the list → [Combobox](?path=/docs/form-inputs-combobox--docs)**: "Use Combobox instead of Autocomplete if the selection should be remembered and the input value cannot be custom" (docs usage guidelines — the page's own boundary statement). Autocomplete has no selection state at all; it is the shared `AriaCombobox` engine fixed to `selectionMode="none"`.
-- **No text input rendered → [Select](?path=/docs/form-inputs-select--docs)**: "Use Select instead of Combobox if no input is being rendered" (combobox docs guidelines) — applies transitively; Autocomplete without its Input is meaningless since the input *is* the control.
-- **Dropdown of actions without filtering → Menu**; a searchable menu *with submenus* fits no component yet — "it's more like Autocomplete needs `SubmenuRoot` parts… A separate component with different roles and behavior is probably 'cleanest'" (atomiks, [#4157](https://github.com/mui/base-ui/issues/4157), open). Filterable flat command lists belong here — that is the same issue's ruling and the command-palette recipe below.
+- **No text input rendered → [Select](?path=/docs/form-inputs-select--docs)**: "Use Select instead of Combobox if no input is being rendered" (combobox docs guidelines) — applies transitively; Autocomplete without its Input is meaningless since the input _is_ the control.
+- **Dropdown of actions without filtering → Menu**; a searchable menu _with submenus_ fits no component yet — "it's more like Autocomplete needs `SubmenuRoot` parts… A separate component with different roles and behavior is probably 'cleanest'" (atomiks, [#4157](https://github.com/mui/base-ui/issues/4157), open). Filterable flat command lists belong here — that is the same issue's ruling and the command-palette recipe below.
 - **Multi-value tokenized entry → Combobox `multiple` + Chips** — Autocomplete's value is one string; it has no `multiple`.
 - **Plain text field without suggestions → Input/Field** — the popup machinery is pure overhead then; no maintainer statement makes this comparison directly, but it follows from the component's stated purpose.
 
@@ -91,42 +97,42 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 </Autocomplete.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Autocomplete.Root` | no element | Groups all parts; owns the text value, filtering, and popup state | required |
-| `Autocomplete.Input` | `<input>` | The text input — **the interactive control**; wrap in a `<label>` or `Field` | required in practice |
-| `Autocomplete.InputGroup` | `<div>` | Wrapper for the input and its associated controls; carries the same state attributes as Trigger ([#3745](https://github.com/mui/base-ui/pull/3745)) | yes |
-| `Autocomplete.Trigger` | `<button>` | Opens the popup without typing; becomes the `role="combobox"` reference when the Input lives inside the popup ([#2973](https://github.com/mui/base-ui/pull/2973)) | yes |
-| `Autocomplete.Icon` | `<span>` | Decorative icon (chevron/magnifier) | yes |
-| `Autocomplete.Clear` | `<button>` | Clears the input; deliberately not tabbable — one tab stop per field ([#3630](https://github.com/mui/base-ui/pull/3630)) | yes |
-| `Autocomplete.Value` | no element | Render-prop access to the live input text (used by the fuzzy story's Empty message) | yes |
-| `Autocomplete.Portal` | `<div>` | Moves the popup subtree to `<body>` (or `container`) | required for popup |
-| `Autocomplete.Backdrop` | `<div>` | Styleable overlay beneath the popup | yes |
-| `Autocomplete.Positioner` | `<div>` | Anchors the popup; owns `side`/`align`/`sideOffset` | required for popup |
-| `Autocomplete.Popup` | `<div>` | Popup container — `role="presentation"`, or `role="dialog"` when the Input renders inside it ([#3213](https://github.com/mui/base-ui/pull/3213)) | required for popup |
-| `Autocomplete.List` | `<div>` | `role="listbox"` (or `"grid"`); function-child render mode fed by `items`; hosts the composite so the Input can join outer composites ([#2883](https://github.com/mui/base-ui/pull/2883)) | required |
-| `Autocomplete.Item` | `<div>` | `role="option"` (`gridcell` inside `Row`); **no `aria-selected`/`data-selected`** — nothing is ever selected ([#4409](https://github.com/mui/base-ui/pull/4409)) | required |
-| `Autocomplete.Row` | `<div>` | `role="row"` wrapper in `grid` mode; columns are inferred from it ([#2683](https://github.com/mui/base-ui/pull/2683)) | grid only |
-| `Autocomplete.Group` / `GroupLabel` | `<div>` | Groups related items with an auto-associated label | yes |
-| `Autocomplete.Collection` | no element | Re-renders the filtered subset inside each `Group` | with groups |
-| `Autocomplete.Status` | `<div>` | `role="status"` polite live region (async/limit feedback) — keep mounted, toggle its children | yes |
-| `Autocomplete.Empty` | `<div>` | Renders children only when the list is empty; also a polite live region — keep mounted | yes — recommended |
-| `Autocomplete.Separator` | `<div>` | Visual divider (re-exports the standalone `Separator`) | yes |
-| `Autocomplete.Arrow` | `<div>` | Arrow pointing at the anchor — rare for autocompletes | yes |
-| `Autocomplete.useFilter` | hook | `Intl.Collator`-based `contains`/`startsWith` matchers for your own filtering code | yes |
-| `Autocomplete.useFilteredItems` | hook | Reads the internally filtered items inside `Root` — the virtualization hook ([#3732](https://github.com/mui/base-ui/pull/3732)) | yes |
+| Part                                | Renders    | Purpose                                                                                                                                                                                   | Optional?            |
+| ----------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `Autocomplete.Root`                 | no element | Groups all parts; owns the text value, filtering, and popup state                                                                                                                         | required             |
+| `Autocomplete.Input`                | `<input>`  | The text input — **the interactive control**; wrap in a `<label>` or `Field`                                                                                                              | required in practice |
+| `Autocomplete.InputGroup`           | `<div>`    | Wrapper for the input and its associated controls; carries the same state attributes as Trigger ([#3745](https://github.com/mui/base-ui/pull/3745))                                       | yes                  |
+| `Autocomplete.Trigger`              | `<button>` | Opens the popup without typing; becomes the `role="combobox"` reference when the Input lives inside the popup ([#2973](https://github.com/mui/base-ui/pull/2973))                         | yes                  |
+| `Autocomplete.Icon`                 | `<span>`   | Decorative icon (chevron/magnifier)                                                                                                                                                       | yes                  |
+| `Autocomplete.Clear`                | `<button>` | Clears the input; deliberately not tabbable — one tab stop per field ([#3630](https://github.com/mui/base-ui/pull/3630))                                                                  | yes                  |
+| `Autocomplete.Value`                | no element | Render-prop access to the live input text (used by the fuzzy story's Empty message)                                                                                                       | yes                  |
+| `Autocomplete.Portal`               | `<div>`    | Moves the popup subtree to `<body>` (or `container`)                                                                                                                                      | required for popup   |
+| `Autocomplete.Backdrop`             | `<div>`    | Styleable overlay beneath the popup                                                                                                                                                       | yes                  |
+| `Autocomplete.Positioner`           | `<div>`    | Anchors the popup; owns `side`/`align`/`sideOffset`                                                                                                                                       | required for popup   |
+| `Autocomplete.Popup`                | `<div>`    | Popup container — `role="presentation"`, or `role="dialog"` when the Input renders inside it ([#3213](https://github.com/mui/base-ui/pull/3213))                                          | required for popup   |
+| `Autocomplete.List`                 | `<div>`    | `role="listbox"` (or `"grid"`); function-child render mode fed by `items`; hosts the composite so the Input can join outer composites ([#2883](https://github.com/mui/base-ui/pull/2883)) | required             |
+| `Autocomplete.Item`                 | `<div>`    | `role="option"` (`gridcell` inside `Row`); **no `aria-selected`/`data-selected`** — nothing is ever selected ([#4409](https://github.com/mui/base-ui/pull/4409))                          | required             |
+| `Autocomplete.Row`                  | `<div>`    | `role="row"` wrapper in `grid` mode; columns are inferred from it ([#2683](https://github.com/mui/base-ui/pull/2683))                                                                     | grid only            |
+| `Autocomplete.Group` / `GroupLabel` | `<div>`    | Groups related items with an auto-associated label                                                                                                                                        | yes                  |
+| `Autocomplete.Collection`           | no element | Re-renders the filtered subset inside each `Group`                                                                                                                                        | with groups          |
+| `Autocomplete.Status`               | `<div>`    | `role="status"` polite live region (async/limit feedback) — keep mounted, toggle its children                                                                                             | yes                  |
+| `Autocomplete.Empty`                | `<div>`    | Renders children only when the list is empty; also a polite live region — keep mounted                                                                                                    | yes — recommended    |
+| `Autocomplete.Separator`            | `<div>`    | Visual divider (re-exports the standalone `Separator`)                                                                                                                                    | yes                  |
+| `Autocomplete.Arrow`                | `<div>`    | Arrow pointing at the anchor — rare for autocompletes                                                                                                                                     | yes                  |
+| `Autocomplete.useFilter`            | hook       | `Intl.Collator`-based `contains`/`startsWith` matchers for your own filtering code                                                                                                        | yes                  |
+| `Autocomplete.useFilteredItems`     | hook       | Reads the internally filtered items inside `Root` — the virtualization hook ([#3732](https://github.com/mui/base-ui/pull/3732))                                                           | yes                  |
 
 ## How it works
 
 ### The full interaction
 
-Typing opens and filters the listbox; ArrowDown moves a *virtual* highlight (DOM focus stays on the input); Enter "presses" the highlighted item, which fills the input with the item's text (`fillInputOnItemPress`) and closes. `onValueChange` receives `(value, eventDetails)` for every change — typing (`input-change`), item press (`item-press`), clear (`clear-press`/`input-clear`), and Escape (`escape-key`).
+Typing opens and filters the listbox; ArrowDown moves a _virtual_ highlight (DOM focus stays on the input); Enter "presses" the highlighted item, which fills the input with the item's text (`fillInputOnItemPress`) and closes. `onValueChange` receives `(value, eventDetails)` for every change — typing (`input-change`), item press (`item-press`), clear (`clear-press`/`input-clear`), and Escape (`escape-key`).
 
 <Canvas of={AutocompleteStories.TypeSuggestSelect} />
 
 ### Filtering modes
 
-`mode` decides filtering *and* inline completion, and is passed straight through as `aria-autocomplete`: `list` (default) filters without touching the input; `both` filters and temporarily writes the highlighted item into the input; `inline` completes over a static list; `none` shows a static list — the "recent searches" pattern. In `both`, filtering uses only the *typed* query, never the temporary inline value.
+`mode` decides filtering _and_ inline completion, and is passed straight through as `aria-autocomplete`: `list` (default) filters without touching the input; `both` filters and temporarily writes the highlighted item into the input; `inline` completes over a static list; `none` shows a static list — the "recent searches" pattern. In `both`, filtering uses only the _typed_ query, never the temporary inline value.
 
 <Canvas of={AutocompleteStories.FilteringModePerVariant} />
 
@@ -136,7 +142,7 @@ Inline completion is keyboard-only by design — pointer highlights never overwr
 
 ### Empty and no results
 
-`Empty` renders its children only when nothing matches, as a polite live region. Keep it mounted and toggle its *children* — hiding the part with `display: none` or conditional rendering breaks screen-reader announcements (part JSDoc). Rendering `Empty` also keeps Escape contained inside surrounding dialogs ([#2935](https://github.com/mui/base-ui/pull/2935)).
+`Empty` renders its children only when nothing matches, as a polite live region. Keep it mounted and toggle its _children_ — hiding the part with `display: none` or conditional rendering breaks screen-reader announcements (part JSDoc). Rendering `Empty` also keeps Escape contained inside surrounding dialogs ([#2935](https://github.com/mui/base-ui/pull/2935)).
 
 <Canvas of={AutocompleteStories.EmptyNoResultsState} />
 
@@ -158,7 +164,7 @@ Typing opens the popup; clicking the input does **not** open it by default (`ope
 
 ### Escape semantics
 
-Escape on an open popup closes it and keeps the text (APG-conform, [#4240](https://github.com/mui/base-ui/issues/4240)). Escape on a *closed* popup clears the input — deliberate Chrome-omnibox parity ([#4245](https://github.com/mui/base-ui/issues/4245)):
+Escape on an open popup closes it and keeps the text (APG-conform, [#4240](https://github.com/mui/base-ui/issues/4240)). Escape on a _closed_ popup clears the input — deliberate Chrome-omnibox parity ([#4245](https://github.com/mui/base-ui/issues/4245)):
 
 <Canvas of={AutocompleteStories.EscapeClearsInputWhenClosed} />
 
@@ -172,7 +178,7 @@ The signature behavior versus Combobox: the typed text submits even when it matc
 
 <Canvas of={AutocompleteStories.FreeTextSubmit} />
 
-For single-field search forms, `submitOnItemClick` submits on item press (pointer *and* Enter). A submit button must be present inside the form because of the hidden input ([#3018](https://github.com/mui/base-ui/pull/3018)):
+For single-field search forms, `submitOnItemClick` submits on item press (pointer _and_ Enter). A submit button must be present inside the form because of the hidden input ([#3018](https://github.com/mui/base-ui/pull/3018)):
 
 <Canvas of={AutocompleteStories.SubmitOnItemClick} />
 
@@ -236,17 +242,17 @@ Standard popup contract: `data-open`/`data-closed`/`data-starting-style`/`data-e
 
 Pattern: [APG editable combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) with list/inline autocomplete per `mode`.
 
-| Key | Context | Action |
-|---|---|---|
-| Printable characters | any | Edits text; opens the popup; filters in `list`/`both` modes |
-| `ArrowDown` / `ArrowUp` | closed | Opens the popup; with `autoHighlight`, `ArrowDown` highlights the first item |
-| `ArrowDown` / `ArrowUp` | open | Moves the virtual highlight (loops per `loopFocus`, [#3592](https://github.com/mui/base-ui/pull/3592)); in `both`/`inline` modes temporarily writes the highlighted item into the input |
-| `Enter` | open, item highlighted | "Clicks" the item: fills the input, fires `Item.onClick`, closes; does **not** submit the form unless `submitOnItemClick` ([#3018](https://github.com/mui/base-ui/pull/3018)) |
-| `Enter` | open, no highlight | Closes the popup and allows native form submission of the typed text ([#2700](https://github.com/mui/base-ui/pull/2700)) |
-| `Escape` | open | Closes the popup; the input keeps focus and its text ([#4240](https://github.com/mui/base-ui/issues/4240)) |
-| `Escape` | closed | Clears the input (Chrome-omnibox parity); cancellable via `onValueChange` reason `escape-key` ([#4245](https://github.com/mui/base-ui/issues/4245)); bubbles to parent popups only if already clear, `inline`, or no `Empty` is rendered ([#2935](https://github.com/mui/base-ui/pull/2935)) |
-| `Home` / `End` | open | Moves the input **caret**, not the highlight — text editing wins ([#2928](https://github.com/mui/base-ui/pull/2928)) |
-| `Tab` | open | Closes the popup and moves focus on; `Clear`/`Trigger` are not tab stops ([#3630](https://github.com/mui/base-ui/pull/3630)) |
+| Key                     | Context                | Action                                                                                                                                                                                                                                                                                       |
+| ----------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Printable characters    | any                    | Edits text; opens the popup; filters in `list`/`both` modes                                                                                                                                                                                                                                  |
+| `ArrowDown` / `ArrowUp` | closed                 | Opens the popup; with `autoHighlight`, `ArrowDown` highlights the first item                                                                                                                                                                                                                 |
+| `ArrowDown` / `ArrowUp` | open                   | Moves the virtual highlight (loops per `loopFocus`, [#3592](https://github.com/mui/base-ui/pull/3592)); in `both`/`inline` modes temporarily writes the highlighted item into the input                                                                                                      |
+| `Enter`                 | open, item highlighted | "Clicks" the item: fills the input, fires `Item.onClick`, closes; does **not** submit the form unless `submitOnItemClick` ([#3018](https://github.com/mui/base-ui/pull/3018))                                                                                                                |
+| `Enter`                 | open, no highlight     | Closes the popup and allows native form submission of the typed text ([#2700](https://github.com/mui/base-ui/pull/2700))                                                                                                                                                                     |
+| `Escape`                | open                   | Closes the popup; the input keeps focus and its text ([#4240](https://github.com/mui/base-ui/issues/4240))                                                                                                                                                                                   |
+| `Escape`                | closed                 | Clears the input (Chrome-omnibox parity); cancellable via `onValueChange` reason `escape-key` ([#4245](https://github.com/mui/base-ui/issues/4245)); bubbles to parent popups only if already clear, `inline`, or no `Empty` is rendered ([#2935](https://github.com/mui/base-ui/pull/2935)) |
+| `Home` / `End`          | open                   | Moves the input **caret**, not the highlight — text editing wins ([#2928](https://github.com/mui/base-ui/pull/2928))                                                                                                                                                                         |
+| `Tab`                   | open                   | Closes the popup and moves focus on; `Clear`/`Trigger` are not tab stops ([#3630](https://github.com/mui/base-ui/pull/3630))                                                                                                                                                                 |
 
 - **ARIA managed for you**: Input — `role="combobox"`, `aria-expanded`, `aria-haspopup="listbox"` (`"grid"` in grid mode), `aria-controls` while open, `aria-autocomplete={mode}`, `aria-activedescendant` (virtual focus), plus DOM hygiene (`autoComplete="off"`, `spellCheck=false`, `autoCorrect="off"`, `autoCapitalize="none"`). Popup — `role="presentation"`, or `role="dialog"` when the Input is inside. List — `role="listbox"`/`role="grid"`. Item — `role="option"`/`gridcell`, **no `aria-selected`** ([#4409](https://github.com/mui/base-ui/pull/4409)). Status/Empty — `role="status"`, `aria-live="polite"`, `aria-atomic`, with the initial announcement handled via a mutation trick ([#4181](https://github.com/mui/base-ui/issues/4181)).
 - **Screen reader**: typing announces filtered results via the listbox and any `Status`/`Empty` text; arrowing announces options through `aria-activedescendant` without moving DOM focus.
@@ -255,20 +261,20 @@ Pattern: [APG editable combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combob
 
 ## Styling hooks
 
-| Part | Attribute / variable | Present when |
-|---|---|---|
-| Input / Trigger / InputGroup | `data-popup-open` | the popup is open |
-| Input / Trigger / InputGroup | `data-list-empty` | the filtered list is empty ([`7df1230`](https://github.com/mui/base-ui/commit/7df1230)) |
-| Input / Trigger | `data-popup-side` | popup open, mirrors its side ([#3491](https://github.com/mui/base-ui/pull/3491)) |
-| Trigger | `data-pressed` | pressed |
-| Input | `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-filled` / `data-focused` | Field validation/interaction state |
-| Input / Trigger | `data-disabled` / `data-readonly` / `data-required` | corresponding prop set |
-| Item | `data-highlighted` | virtually focused via keyboard or pointer |
-| Item | `data-disabled` | the item is disabled — style it; disabled items are still highlightable ([#4666](https://github.com/mui/base-ui/issues/4666)) |
-| Popup / Positioner | `data-open` / `data-closed` / `data-starting-style` / `data-ending-style` | open/close transition lifecycle |
-| Popup / Positioner | `data-side` / `data-align` | anchored positioning |
-| List | `data-empty` | no items match (used to drop padding) |
-| Positioner (CSS vars) | `--available-width/height`, `--anchor-width/height`, `--transform-origin` | while positioned |
+| Part                         | Attribute / variable                                                                           | Present when                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Input / Trigger / InputGroup | `data-popup-open`                                                                              | the popup is open                                                                                                             |
+| Input / Trigger / InputGroup | `data-list-empty`                                                                              | the filtered list is empty ([`7df1230`](https://github.com/mui/base-ui/commit/7df1230))                                       |
+| Input / Trigger              | `data-popup-side`                                                                              | popup open, mirrors its side ([#3491](https://github.com/mui/base-ui/pull/3491))                                              |
+| Trigger                      | `data-pressed`                                                                                 | pressed                                                                                                                       |
+| Input                        | `data-valid` / `data-invalid` / `data-touched` / `data-dirty` / `data-filled` / `data-focused` | Field validation/interaction state                                                                                            |
+| Input / Trigger              | `data-disabled` / `data-readonly` / `data-required`                                            | corresponding prop set                                                                                                        |
+| Item                         | `data-highlighted`                                                                             | virtually focused via keyboard or pointer                                                                                     |
+| Item                         | `data-disabled`                                                                                | the item is disabled — style it; disabled items are still highlightable ([#4666](https://github.com/mui/base-ui/issues/4666)) |
+| Popup / Positioner           | `data-open` / `data-closed` / `data-starting-style` / `data-ending-style`                      | open/close transition lifecycle                                                                                               |
+| Popup / Positioner           | `data-side` / `data-align`                                                                     | anchored positioning                                                                                                          |
+| List                         | `data-empty`                                                                                   | no items match (used to drop padding)                                                                                         |
+| Positioner (CSS vars)        | `--available-width/height`, `--anchor-width/height`, `--transform-origin`                      | while positioned                                                                                                              |
 
 There is **no `data-selected`** on Item (removed from the public contract in [#4409](https://github.com/mui/base-ui/pull/4409) — items are never "selected" in `selectionMode="none"`) and **no `data-placeholder`** (a test pins its absence).
 
@@ -308,23 +314,78 @@ There is **no `data-selected`** on Item (removed from the public contract in [#4
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive, unlike several other Kumo components), with its own Figma-generator script kept in sync with the code.
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/autocomplete/autocomplete.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    a fully styled wrapper over `@base-ui/react/autocomplete` (not just a re-exported primitive,
+    unlike several other Kumo components), with its own Figma-generator script kept in sync with the
+    code.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui` form primitives package, sharing structure with its sibling Combobox implementation — the 15-file family the corpus code search surfaced.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/autocomplete/root.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    one file per part (root/input/list/popup/group/value/clear/empty) inside the new `@wordpress/ui`
+    form primitives package, sharing structure with its sibling Combobox implementation — the
+    15-file family the corpus code search surfaced.
   </WildCard>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    the widest demo spread found for this component: dedicated async, virtualized, grouped, fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/demos/autocomplete/autocomplete-virtualized-demo.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    the widest demo spread found for this component: dedicated async, virtualized, grouped,
+    fuzzy-matcher, and inline-mode example files built on the same `ui/autocomplete.tsx` wrapper.
   </WildCard>
-  <WildCard repo="PostHog/posthog" title="PostHog (Quill)" href="https://github.com/PostHog/posthog/blob/c030bc35b420a6d8ec7930f46a82f4680f6bd42d/packages/quill/packages/primitives/src/autocomplete.tsx" live="https://posthog.com" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
-    PostHog's in-house "Quill" design-system primitive reuses `MenuEmpty`/`MenuLabel` from its Menu component inside Autocomplete's `Empty`/`GroupLabel`, and implements a live "N results" `Status` announcer by walking `useFilteredItems()` output.
+  <WildCard
+    repo="PostHog/posthog"
+    title="PostHog (Quill)"
+    href="https://github.com/PostHog/posthog/blob/c030bc35b420a6d8ec7930f46a82f4680f6bd42d/packages/quill/packages/primitives/src/autocomplete.tsx"
+    live="https://posthog.com"
+    license="custom (non-OSI, verify before reuse)"
+    reuse="link-only, do not copy"
+  >
+    PostHog's in-house "Quill" design-system primitive reuses `MenuEmpty`/`MenuLabel` from its Menu
+    component inside Autocomplete's `Empty`/`GroupLabel`, and implements a live "N results" `Status`
+    announcer by walking `useFilteredItems()` output.
   </WildCard>
-  <WildCard repo="baptisteArno/typebot.io" title="Typebot" href="https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Autocomplete.tsx" live="https://typebot.io" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
-    an open-source chatbot/form builder that exposes Autocomplete as a single namespace object (`Autocomplete.Root/Input/List/Item/Popup`) inside a product whose entire purpose is building forms.
+  <WildCard
+    repo="baptisteArno/typebot.io"
+    title="Typebot"
+    href="https://github.com/baptisteArno/typebot.io/blob/ef1b4c67c520ff00018db709620dc101f717e9ac/packages/ui/src/components/Autocomplete.tsx"
+    live="https://typebot.io"
+    license="custom (non-OSI, verify before reuse)"
+    reuse="link-only, do not copy"
+  >
+    an open-source chatbot/form builder that exposes Autocomplete as a single namespace object
+    (`Autocomplete.Root/Input/List/Item/Popup`) inside a product whose entire purpose is building
+    forms.
   </WildCard>
-  <WildCard repo="gitbutlerapp/gitbutler" title="GitButler" href="https://github.com/gitbutlerapp/gitbutler/blob/0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd/apps/lite/ui/src/components/PickerDialog.tsx" live="https://gitbutler.com" license="custom (non-OSI, verify before reuse)" reuse="link-only, do not copy">
-    a command-palette / quick-picker dialog composing Autocomplete inside a Dialog with ScrollArea for the list — the file header cites Base UI's own documented command-palette recipe, adopted in a well-known Git client.
+  <WildCard
+    repo="gitbutlerapp/gitbutler"
+    title="GitButler"
+    href="https://github.com/gitbutlerapp/gitbutler/blob/0a49043ed2eadf7bcae6f5a4ae4999c7346c93cd/apps/lite/ui/src/components/PickerDialog.tsx"
+    live="https://gitbutler.com"
+    license="custom (non-OSI, verify before reuse)"
+    reuse="link-only, do not copy"
+  >
+    a command-palette / quick-picker dialog composing Autocomplete inside a Dialog with ScrollArea
+    for the list — the file header cites Base UI's own documented command-palette recipe, adopted in
+    a well-known Git client.
   </WildCard>
 </WildCards>
 
@@ -338,6 +399,8 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
     license: 'MIT',
   }}
   code={fieldIntegratedAutocompleteSource}
+  css={autocompleteRealWorldCss}
+  dependencies={autocompleteFiles}
 >
   <FieldIntegratedAutocompleteExample />
 </MiniPlayground>
@@ -351,6 +414,7 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
   }}
   code={multiSkinAutocompleteSource}
   css={autocompleteRealWorldCss}
+  dependencies={autocompleteFiles}
 >
   <MultiSkinAutocompleteExample />
 </MiniPlayground>
@@ -360,7 +424,7 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 - **2025-09-03 — Autocomplete ships as its own component** ([#2105](https://github.com/mui/base-ui/pull/2105), closing [#222](https://github.com/mui/base-ui/issues/222)): a mid-PR pivot split the monolithic Combobox into Combobox (restricted input) / Autocomplete (`selectionMode="none"`, free text) / a deferred `FilterableMenu` — "Combobox in its current form is taking on too many roles to the point of becoming overly monolithic" (atomiks). The `value` semantics follow from the split: "for Autocomplete, `value` could refer to the `inputValue` instead?" (atomiks) — "Yes, this is what I'd intuitively expect" (michaldudak).
 - **2025-09 (beta.4) — Enter submits when nothing is highlighted** ([#2700](https://github.com/mui/base-ui/pull/2700), closing [#2686](https://github.com/mui/base-ui/issues/2686)): framed as a bug — "Google Search behaves the proposed way" (oliviertassinari).
 - **beta.4 — `cols` → `grid`** ([#2683](https://github.com/mui/base-ui/pull/2683), breaking): columns inferred from `Row`. **`CompositeList` moves onto `List`** ([#2883](https://github.com/mui/base-ui/pull/2883)) so the Input can join outer composite widgets.
-- **2025-10 (beta.5) — `alwaysSubmitOnEnter` → `submitOnItemClick`** ([#3018](https://github.com/mui/base-ui/pull/3018), breaking): submission belongs to item *click* (pointer + Enter); documents the hidden-input/submit-button constraint.
+- **2025-10 (beta.5) — `alwaysSubmitOnEnter` → `submitOnItemClick`** ([#3018](https://github.com/mui/base-ui/pull/3018), breaking): submission belongs to item _click_ (pointer + Enter); documents the hidden-input/submit-button constraint.
 - **beta.5 — highlight-control trio** `autoHighlight: 'always'`, `keepHighlight`, `highlightItemOnHover` ([#2976](https://github.com/mui/base-ui/pull/2976)) — the command-palette enablers.
 - **2025-11 — Escape bubbling rule** ([#2935](https://github.com/mui/base-ui/pull/2935)); **`role="dialog"` popup when the input is inside** ([#3213](https://github.com/mui/base-ui/pull/3213)); the outside trigger becomes the combobox reference ([#2973](https://github.com/mui/base-ui/pull/2973)).
 - **2026-01 (v1.1.0)** — `InputGroup` part ([#3745](https://github.com/mui/base-ui/pull/3745)); `loopFocus` ([#3592](https://github.com/mui/base-ui/pull/3592)); `useFilteredItems` hook ([#3732](https://github.com/mui/base-ui/pull/3732)).
@@ -415,10 +479,10 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 
 ### Autocomplete.Value
 
-| Prop | Type | Description |
-|---|---|---|
-| `children` | `ReactNode \| (value) => ReactNode` | Render the current value, or a function receiving the selected value |
-| `placeholder` | `ReactNode` | Shown when no value is selected (overridden by `children` or a null item's label) |
+| Prop          | Type                                | Description                                                                       |
+| ------------- | ----------------------------------- | --------------------------------------------------------------------------------- |
+| `children`    | `ReactNode \| (value) => ReactNode` | Render the current value, or a function receiving the selected value              |
+| `placeholder` | `ReactNode`                         | Shown when no value is selected (overridden by `children` or a null item's label) |
 
 ### Autocomplete.Portal
 
@@ -458,8 +522,8 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 
 ### Autocomplete.Collection
 
-| Prop | Type | Description |
-|---|---|---|
+| Prop       | Type                         | Description                                   |
+| ---------- | ---------------------------- | --------------------------------------------- |
 | `children` | `(item, index) => ReactNode` | Render function called for each filtered item |
 
 ### Autocomplete.Status
@@ -478,8 +542,8 @@ Two recreations live in this Storybook — a Field-integrated wrapper (Kumo) and
 
 <ArgTypes of={Autocomplete.Arrow} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/autocomplete](https://base-ui.com/react/components/autocomplete#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/autocomplete](https://base-ui.com/react/components/autocomplete#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+autocomplete) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/autocomplete).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+autocomplete) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/autocomplete)._

@@ -60,8 +60,10 @@ export const Basic: Story = {
     const htmlTab = canvas.getByRole('tab', { name: 'HTML' });
     await userEvent.click(htmlTab);
     await waitFor(() => expect(htmlTab).toHaveAttribute('aria-selected', 'true'));
-    const htmlPre = canvas.getByText(/<button/);
-    await expect(htmlPre).toBeVisible();
-    await expect(htmlPre.textContent).not.toBe('');
+    // The HTML tab now renders through the same `SyntaxHighlighter` (language "markup") as
+    // JSX/CSS, so the rendered markup is tokenized across many `<span>`s and mounts
+    // asynchronously — match on the panel's aggregate text content, not a single node.
+    const htmlPanel = canvas.getByRole('tabpanel', { name: 'HTML' });
+    await waitFor(() => expect(htmlPanel.textContent).toMatch(/<button/));
   },
 };

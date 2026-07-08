@@ -114,7 +114,7 @@
   padding-inline: 0.625rem;
   padding-block: 0;
   height: calc(2rem + 1px);
-  cursor: default;
+  cursor: pointer;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(87% 0 0deg);
@@ -221,26 +221,7 @@
   padding: 1.5rem;
 }
 
-.CodeToolbar {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.375rem 0.625rem;
-  border-bottom: 1px solid oklch(89.8% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    border-bottom-color: oklch(26.9% 0 0deg);
-  }
-}
-
-.Note {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  color: oklch(55.6% 0 0deg);
-}
-
+/* Header action button (e.g. "Open in StackBlitz"). */
 .ToolbarButton {
   box-sizing: border-box;
   padding: 0.1875rem 0.5rem;
@@ -250,12 +231,22 @@
   font-family: inherit;
   font-size: 0.75rem;
   line-height: 1rem;
-  cursor: default;
+  cursor: pointer;
 
   @media (prefers-color-scheme: dark) {
     border-color: white;
     background: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: oklch(96% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background: oklch(22% 0 0deg);
+      }
+    }
   }
 
   &:focus-visible {
@@ -268,17 +259,170 @@
   }
 }
 
-.Pre {
+.CodeToolbar {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0.75rem;
-  max-height: 20rem;
-  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+  background-color: oklch(98.5% 0 0deg);
+  border-bottom: 1px solid oklch(89.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(18% 0 0deg);
+    border-bottom-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.CodeToolbarStart {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.Filename {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(43.9% 0 0deg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(72% 0 0deg);
+  }
+}
+
+.Note {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+  white-space: nowrap;
+}
+
+/* Toolbar-embedded, low-emphasis control (the HTML "Refresh" action). */
+.InlineButton {
+  box-sizing: border-box;
+  padding: 0.125rem 0.4375rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  background: none;
+  color: oklch(43.9% 0 0deg);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(72% 0 0deg);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
+      border-color: oklch(89.8% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        color: white;
+        border-color: oklch(35% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+/* Right-aligned Copy button shared by every code tab. */
+.CopyButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  flex: none;
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid oklch(89.8% 0 0deg);
+  border-radius: 0.25rem;
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(35% 0 0deg);
+    background: oklch(22% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: oklch(70.8% 0 0deg);
+      background: oklch(96% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        border-color: oklch(50% 0 0deg);
+        background: oklch(27% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.CopyIcon {
   font-size: 0.8125rem;
-  line-height: 1.375rem;
-  white-space: pre;
+  line-height: 1;
+}
+
+.CodeScroll {
+  box-sizing: border-box;
+  max-height: 22rem;
+  overflow: auto;
+  font-size: 0.8125rem;
+  line-height: 1.5rem;
   tab-size: 2;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  /* The Storybook SyntaxHighlighter wraps its <pre> in its own scroll container and adds
+     default padding/margins; flatten those so our .CodeScroll owns scrolling + spacing and
+     the line-number gutter aligns to the left edge. */
+  & pre {
+    margin: 0 !important;
+    padding: 0.75rem 0.875rem !important;
+    background: transparent !important;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace !important;
+  }
+
+  & code {
+    font-family: inherit !important;
+  }
 }
 
 /* Token colors for the `SyntaxHighlighter` (from `storybook/internal/components`) used in

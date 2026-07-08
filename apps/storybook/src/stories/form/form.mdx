@@ -10,6 +10,12 @@ import { ZeroJSFieldsetFormExample } from './recreations/ZeroJSFieldsetFormExamp
 import multiControlQuoteFormSource from './recreations/MultiControlQuoteFormExample.tsx?raw';
 import zeroJsFieldsetFormSource from './recreations/ZeroJSFieldsetFormExample.tsx?raw';
 import formRealWorldCss from './form-real-world.module.css?raw';
+import formCss from './form.module.css?raw';
+
+export const formFiles = [
+  { path: '../form.module.css', code: formCss },
+  { path: '../form-real-world.module.css', code: formRealWorldCss },
+];
 
 <Meta of={FormStories} />
 
@@ -49,7 +55,7 @@ A native form element with consolidated error handling.
 - **vs plain `<form>`** — if you use no Base UI Fields, or your form library already provides validity gating, focus-on-error, and error state, Form only adds `noValidate` and its registry; a plain `<form>` suffices. Use Base UI `<Form>` exactly when Fields should drive gating, first-invalid focus, `errors` distribution, `onFormSubmit` assembly, or fleet-wide `validationMode`. (No explicit maintainer statement draws this exact boundary; the nearest is the TanStack line above.)
 - **Form-level schema validation** — not supported natively; Standard Schema support is an open request ([#4737](https://github.com/mui/base-ui/issues/4737)). Use per-field `validate` (which receives `formValues` for cross-field checks) or schema-at-submit mapped into `errors`.
 - **Resetting to initial values** — there is no `reset()` API yet ([#1346](https://github.com/mui/base-ui/issues/1346), open); remount via `key` or control values as a workaround.
-- For grouping related controls *within* a form with a shared legend, use [Fieldset](?path=/docs/form-inputs-fieldset--docs) — it handles labeling, not submission.
+- For grouping related controls _within_ a form with a shared legend, use [Fieldset](?path=/docs/form-inputs-fieldset--docs) — it handles labeling, not submission.
 
 ## Anatomy
 
@@ -69,9 +75,9 @@ import { Form } from '@base-ui/react/form';
 </Form>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Form` | `<form>` (with `noValidate` by default) | Field registry, aggregate validity gating, focus-on-error, `errors` distribution, value assembly | — |
+| Part   | Renders                                 | Purpose                                                                                          | Optional? |
+| ------ | --------------------------------------- | ------------------------------------------------------------------------------------------------ | --------- |
+| `Form` | `<form>` (with `noValidate` by default) | Field registry, aggregate validity gating, focus-on-error, `errors` distribution, value assembly | —         |
 
 - **The Field children contract**: each `Field.Root` registers `{ name, validate, getValue, controlRef, validityData }` into Form's fields Map and deregisters on unmount ([#2231](https://github.com/mui/base-ui/pull/2231)). The `name` on `Field.Root` is the key for both `errors` distribution and `onFormSubmit` value assembly.
 - Value assembly special cases pinned by tests: a checkbox group submits one field value ([#1948](https://github.com/mui/base-ui/pull/1948)); NumberField submits the raw number, not the formatted string ([#1957](https://github.com/mui/base-ui/pull/1957)); disabled fields are excluded.
@@ -123,7 +129,7 @@ Set `validationMode` once on Form (`'onSubmit'` default — native-like and the 
 
 ### The `noValidate` boundary
 
-Form ships `noValidate` by default: browser validation *bubbles* are suppressed while the constraint-validation *data* still drives `Field.Error`. Pass `noValidate={false}` to restore native bubbles (tested both ways). The inversion trap: a plain `<form>` around Base UI controls shows native bubbles unless you add `noValidate` yourself ([#3552](https://github.com/mui/base-ui/issues/3552) — a shadcn/react-hook-form user hit a `stepMismatch` bubble from NumberField).
+Form ships `noValidate` by default: browser validation _bubbles_ are suppressed while the constraint-validation _data_ still drives `Field.Error`. Pass `noValidate={false}` to restore native bubbles (tested both ways). The inversion trap: a plain `<form>` around Base UI controls shows native bubbles unless you add `noValidate` yourself ([#3552](https://github.com/mui/base-ui/issues/3552) — a shadcn/react-hook-form user hit a `stepMismatch` bubble from NumberField).
 
 <Canvas of={FormStories.NoValidateBoundary} />
 
@@ -137,12 +143,12 @@ With react-hook-form, the library owns state and validation while Base UI `<Form
 
 Form adds no widget semantics of its own — it is a native `<form>`, so native keyboard behavior is preserved.
 
-| Key | Action |
-|---|---|
+| Key                         | Action                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------- |
 | `Enter` (in a text control) | Implicit form submission — triggers the same validation gate as clicking submit |
-| `Tab` | Native focus order through the fields; Form never traps focus |
+| `Tab`                       | Native focus order through the fields; Form never traps focus                   |
 
-- **ARIA**: no role or `aria-*` attributes are added by Base UI. Error announcement happens at Field level: `Field.Error` joins the control's `aria-describedby` and the control gets `aria-invalid` when invalid — Form's contribution is *timing* (errors appear and focus moves on submit, matching the native mental model).
+- **ARIA**: no role or `aria-*` attributes are added by Base UI. Error announcement happens at Field level: `Field.Error` joins the control's `aria-describedby` and the control gets `aria-invalid` when invalid — Form's contribution is _timing_ (errors appear and focus moves on submit, matching the native mental model).
 - **Focus management**: on a failed submit — including one that returns server errors — the first invalid control is focused and its text selected, so keyboard and screen-reader users land directly on the problem.
 - **You must provide**: an accessible name for the form landmark itself (`aria-label`/`aria-labelledby` on Form) if the page has multiple forms — Base UI leaves this to you (no guidance found in the docs); plus the usual Field-level labels via `Field.Label`.
 - **Known issues**: none found against Form itself in an upstream search (2026-07); the closest is OTP-field autosubmit focus ([#5088](https://github.com/mui/base-ui/issues/5088)), owned by otp-field.
@@ -151,11 +157,11 @@ Form adds no widget semantics of its own — it is a native `<form>`, so native 
 
 Form exposes **no data attributes** of its own — its state interface is empty by design, and the form-level validity aggregate exists only inside the submit gate. Style form state through Field parts instead:
 
-| Part | Attribute | Present when |
-|---|---|---|
-| `Form` | — (none) | style via Field parts below |
-| Field parts | `data-invalid` / `data-valid` | field validity (including entries from Form's `errors`) |
-| Field parts | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | interaction state |
+| Part        | Attribute                                                      | Present when                                            |
+| ----------- | -------------------------------------------------------------- | ------------------------------------------------------- |
+| `Form`      | — (none)                                                       | style via Field parts below                             |
+| Field parts | `data-invalid` / `data-valid`                                  | field validity (including entries from Form's `errors`) |
+| Field parts | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | interaction state                                       |
 
 See the [Field styling contract](?path=/docs/form-inputs-field--docs) for the full table.
 
@@ -185,14 +191,40 @@ See the [Field styling contract](?path=/docs/form-inputs-field--docs) for the fu
 ## In the wild
 
 <WildCards>
-  <WildCard repo="borabaloglu/9ui" title="9ui" href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/form.tsx" live="https://www.9ui.dev" license="MIT" reuse="code-ok" image={nineUiDevShot}>
-    a copy-paste Form wrapper in the 9ui registry, styled to match its Field/Fieldset/Input siblings.
+  <WildCard
+    repo="borabaloglu/9ui"
+    title="9ui"
+    href="https://github.com/borabaloglu/9ui/blob/HEAD/apps/www/src/components/ui/form.tsx"
+    live="https://www.9ui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={nineUiDevShot}
+  >
+    a copy-paste Form wrapper in the 9ui registry, styled to match its Field/Fieldset/Input
+    siblings.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/form.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/form.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
     the same wrapper pattern, published as both a package export and an installable registry file.
   </WildCard>
-  <WildCard repo="cosscom/coss" title="coss" href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/form.tsx" live="https://coss.com/ui" license="AGPL-3.0" reuse="link-only, do not copy" image={cossComUiShot}>
-    Cal.com's design system registry also ships a dedicated Form wrapper alongside its Field/Fieldset files.
+  <WildCard
+    repo="cosscom/coss"
+    title="coss"
+    href="https://github.com/cosscom/coss/blob/HEAD/packages/ui/src/components/form.tsx"
+    live="https://coss.com/ui"
+    license="AGPL-3.0"
+    reuse="link-only, do not copy"
+    image={cossComUiShot}
+  >
+    Cal.com's design system registry also ships a dedicated Form wrapper alongside its
+    Field/Fieldset files.
   </WildCard>
 </WildCards>
 
@@ -207,6 +239,7 @@ Two recreations live in this Storybook — a multi-control "request a quote" for
   }}
   code={multiControlQuoteFormSource}
   css={formRealWorldCss}
+  dependencies={formFiles}
 >
   <MultiControlQuoteFormExample />
 </MiniPlayground>
@@ -219,6 +252,8 @@ Two recreations live in this Storybook — a multi-control "request a quote" for
     license: 'MIT',
   }}
   code={zeroJsFieldsetFormSource}
+  css={formRealWorldCss}
+  dependencies={formFiles}
 >
   <ZeroJSFieldsetFormExample />
 </MiniPlayground>
@@ -251,7 +286,7 @@ Two recreations live in this Storybook — a multi-control "request a quote" for
 
 <ArgTypes of={FormStories.Hero} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/form](https://base-ui.com/react/components/form#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/form](https://base-ui.com/react/components/form#api-reference)._
 
 ## Testing your composition
 
@@ -260,4 +295,4 @@ Two recreations live in this Storybook — a multi-control "request a quote" for
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+form) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/form).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+form) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/form)._

@@ -10,6 +10,12 @@ import { GridLayoutFieldExample } from './recreations/GridLayoutFieldExample';
 import flatPropFieldSource from './recreations/FlatPropFieldExample.tsx?raw';
 import gridLayoutFieldSource from './recreations/GridLayoutFieldExample.tsx?raw';
 import fieldRealWorldCss from './field-real-world.module.css?raw';
+import fieldCss from './field.module.css?raw';
+
+export const fieldFiles = [
+  { path: '../field.module.css', code: fieldCss },
+  { path: '../field-real-world.module.css', code: fieldRealWorldCss },
+];
 
 <Meta of={FieldStories} />
 
@@ -64,15 +70,15 @@ import { Field } from '@base-ui/react/field';
 </Field.Root>;
 ```
 
-| Part | Renders | Purpose | Optional? |
-|---|---|---|---|
-| `Field.Root` | `<div>` | Groups all parts; owns the state machine, validation, and `name` | required |
-| `Field.Label` | `<label>` | Accessible label, auto-associated with the control | yes — or a native `<label>`/`aria-label` |
-| `Field.Control` | `<input>` | The form control to label and validate | yes — any Base UI control (Input, Checkbox, Select…) works in its place, or use `render` for a custom element |
-| `Field.Description` | `<p>` | Additional information, always joined into `aria-describedby` | yes |
-| `Field.Error` | `<div>` | The error message, joined into `aria-describedby` only while rendered; animatable | yes |
-| `Field.Item` | `<div>` | Groups one option inside a checkbox/radio group with its own label and description | yes — only meaningful inside a group |
-| `Field.Validity` | no element | Render-prop window into the field's combined validity state | yes — the escape hatch for fully custom validity UI |
+| Part                | Renders    | Purpose                                                                            | Optional?                                                                                                     |
+| ------------------- | ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `Field.Root`        | `<div>`    | Groups all parts; owns the state machine, validation, and `name`                   | required                                                                                                      |
+| `Field.Label`       | `<label>`  | Accessible label, auto-associated with the control                                 | yes — or a native `<label>`/`aria-label`                                                                      |
+| `Field.Control`     | `<input>`  | The form control to label and validate                                             | yes — any Base UI control (Input, Checkbox, Select…) works in its place, or use `render` for a custom element |
+| `Field.Description` | `<p>`      | Additional information, always joined into `aria-describedby`                      | yes                                                                                                           |
+| `Field.Error`       | `<div>`    | The error message, joined into `aria-describedby` only while rendered; animatable  | yes                                                                                                           |
+| `Field.Item`        | `<div>`    | Groups one option inside a checkbox/radio group with its own label and description | yes — only meaningful inside a group                                                                          |
+| `Field.Validity`    | no element | Render-prop window into the field's combined validity state                        | yes — the escape hatch for fully custom validity UI                                                           |
 
 The control slot is polymorphic **by registration, not by prop**: `Field.Root` wraps its children in a `LabelableProvider`, and any control registers its id/ref/value with the shared context. That's why Input, Checkbox, or Select work with Field "out of the box" — there's no wiring prop to set.
 
@@ -96,13 +102,13 @@ Inside a checkbox or radio group, keep the group's own label in `Fieldset.Legend
 
 Every state is a data attribute, identical across Root/Control/Label/Description/Error/Item:
 
-| Attribute | Set when | Cleared when |
-|---|---|---|
-| `data-touched` | the control blurs (also on `Enter` inside an `<input>`) | never (per mount) |
-| `data-dirty` | the value differs from its initial value | the value returns to its initial value |
-| `data-filled` | the value is non-empty (tracks external/controlled changes too) | the value is emptied |
-| `data-focused` | the control has focus (including `autoFocus`, even in SSR) | the control blurs |
-| `data-valid` / `data-invalid` | validation runs and passes/fails | re-validation; **neither** attribute is present while `valid` is `null` (pristine, or disabled) |
+| Attribute                     | Set when                                                        | Cleared when                                                                                    |
+| ----------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `data-touched`                | the control blurs (also on `Enter` inside an `<input>`)         | never (per mount)                                                                               |
+| `data-dirty`                  | the value differs from its initial value                        | the value returns to its initial value                                                          |
+| `data-filled`                 | the value is non-empty (tracks external/controlled changes too) | the value is emptied                                                                            |
+| `data-focused`                | the control has focus (including `autoFocus`, even in SSR)      | the control blurs                                                                               |
+| `data-valid` / `data-invalid` | validation runs and passes/fails                                | re-validation; **neither** attribute is present while `valid` is `null` (pristine, or disabled) |
 
 The tri-state `valid` — not simply a boolean — is what makes "don't show errors before interaction" possible to style: a pristine field is neither valid nor invalid.
 
@@ -170,8 +176,8 @@ An entry in `<Form errors>` keyed by the field's `name` makes that field invalid
 
 Field itself adds only one keyboard binding — everything else belongs to whatever control it wraps.
 
-| Key | Action |
-|---|---|
+| Key                           | Action                                                               |
+| ----------------------------- | -------------------------------------------------------------------- |
 | `Enter` (inside an `<input>`) | Commits validation (marks touched) before the native submit proceeds |
 
 - **ARIA managed for you**: `Field.Label` → `htmlFor`/`id` (or `aria-labelledby` for span-based controls); `Field.Description`/`Field.Error` → merged, deduplicated into the control's `aria-describedby`; `aria-invalid` added when `valid === false` and the control isn't disabled.
@@ -180,12 +186,12 @@ Field itself adds only one keyboard binding — everything else belongs to whate
 
 ## Styling hooks
 
-| Part | Attribute | Present when |
-|---|---|---|
-| Root / Control / Label / Description / Error / Item | `data-disabled` | disabled (own prop, or cascaded from Root/Fieldset) |
-| Root / Control / Label / Description / Error / Item | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | see the state-machine table above |
-| Root / Control / Label / Description / Error / Item | `data-valid` / `data-invalid` | tri-state validity — neither present while pristine or disabled-computed |
-| Field.Error | `data-starting-style` / `data-ending-style` | during the enter/exit transition |
+| Part                                                | Attribute                                                      | Present when                                                             |
+| --------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Root / Control / Label / Description / Error / Item | `data-disabled`                                                | disabled (own prop, or cascaded from Root/Fieldset)                      |
+| Root / Control / Label / Description / Error / Item | `data-touched` / `data-dirty` / `data-filled` / `data-focused` | see the state-machine table above                                        |
+| Root / Control / Label / Description / Error / Item | `data-valid` / `data-invalid`                                  | tri-state validity — neither present while pristine or disabled-computed |
+| Field.Error                                         | `data-starting-style` / `data-ending-style`                    | during the enter/exit transition                                         |
 
 ## Choosing the right props
 
@@ -214,14 +220,40 @@ Field itself adds only one keyboard binding — everything else belongs to whate
 ## In the wild
 
 <WildCards>
-  <WildCard repo="cloudflare/kumo" title="kumo" href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx" live="https://kumo-ui.com" license="MIT" reuse="code-ok" image={kumoUiComShot}>
-    a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to compose label/description/error slots consistently.
+  <WildCard
+    repo="cloudflare/kumo"
+    title="kumo"
+    href="https://github.com/cloudflare/kumo/blob/HEAD/packages/kumo/src/components/field/field.tsx"
+    live="https://kumo-ui.com"
+    license="MIT"
+    reuse="code-ok"
+    image={kumoUiComShot}
+  >
+    a fully styled wrapper that other Kumo form components (Switch, Checkbox) import directly to
+    compose label/description/error slots consistently.
   </WildCard>
-  <WildCard repo="WordPress/gutenberg" title="WordPress Gutenberg" href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx" live="https://github.com/WordPress/gutenberg" license="no SPDX license detected" reuse="link-only, do not copy">
-    one file per part (root/label/control/description/details/item) inside the new form-primitives package that also backs its Combobox and Autocomplete.
+  <WildCard
+    repo="WordPress/gutenberg"
+    title="WordPress Gutenberg"
+    href="https://github.com/WordPress/gutenberg/blob/HEAD/packages/ui/src/form/primitives/field/root.tsx"
+    live="https://github.com/WordPress/gutenberg"
+    license="no SPDX license detected"
+    reuse="link-only, do not copy"
+  >
+    one file per part (root/label/control/description/details/item) inside the new form-primitives
+    package that also backs its Combobox and Autocomplete.
   </WildCard>
-  <WildCard repo="patrick-xin/lumi-ui" title="lumi-ui" href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx" live="https://www.lumiui.dev" license="MIT" reuse="code-ok" image={lumiuiDevOpenShot}>
-    a Tailwind wrapper published both as an installable registry item and inside the distributable package.
+  <WildCard
+    repo="patrick-xin/lumi-ui"
+    title="lumi-ui"
+    href="https://github.com/patrick-xin/lumi-ui/blob/HEAD/packages/ui/src/components/ui/field.tsx"
+    live="https://www.lumiui.dev"
+    license="MIT"
+    reuse="code-ok"
+    image={lumiuiDevOpenShot}
+  >
+    a Tailwind wrapper published both as an installable registry item and inside the distributable
+    package.
   </WildCard>
 </WildCards>
 
@@ -235,6 +267,8 @@ Two recreations live in this Storybook — a flat-prop wrapper (Kumo) and a grid
     license: 'MIT',
   }}
   code={flatPropFieldSource}
+  css={fieldCss}
+  dependencies={[{ path: '../field.module.css', code: fieldCss }]}
 >
   <FlatPropFieldExample />
 </MiniPlayground>
@@ -248,6 +282,7 @@ Two recreations live in this Storybook — a flat-prop wrapper (Kumo) and a grid
   }}
   code={gridLayoutFieldSource}
   css={fieldRealWorldCss}
+  dependencies={fieldFiles}
 >
   <GridLayoutFieldExample />
 </MiniPlayground>
@@ -305,8 +340,8 @@ Two recreations live in this Storybook — a flat-prop wrapper (Kumo) and a grid
 
 <ArgTypes of={Field.Validity} />
 
-*Full JSDoc-driven reference: [base-ui.com/react/components/field](https://base-ui.com/react/components/field#api-reference).*
+_Full JSDoc-driven reference: [base-ui.com/react/components/field](https://base-ui.com/react/components/field#api-reference)._
 
 ---
 
-*Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+field) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/field).*
+_Found a problem with this page? [Search or file an upstream issue](https://github.com/mui/base-ui/issues?q=is%3Aissue+field) · [Edit in the research repo](https://github.com/yannbf/base-ui/tree/research/apps/storybook/src/stories/field)._

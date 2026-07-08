@@ -40,10 +40,27 @@ export interface MiniPlaygroundProps {
    */
   css?: string;
   /**
+   * Extra local files the `code` snippet imports (beyond the single `css` prop), so the
+   * "Open in StackBlitz" export can bundle a self-contained, buildable project. Each entry's
+   * `path` is the import specifier exactly as written in the source (e.g. `'../icons'`,
+   * `'../autocomplete-real-world.module.css'`, `'../DemoSelect'`), and `code` is its `?raw`
+   * contents. Transitive imports are followed, so a bundled component that imports its own
+   * stylesheet just needs that stylesheet listed here too. Anything a demo imports that isn't
+   * provided is stubbed at export time so the project still builds.
+   */
+  dependencies?: MiniPlaygroundDependency[];
+  /**
    * The live component being recreated — rendered in the "Preview" tab and used as the
    * source for the live-captured "HTML" tab.
    */
   children: React.ReactNode;
+}
+
+export interface MiniPlaygroundDependency {
+  /** Import specifier exactly as written in the source, e.g. `'../icons'`. */
+  path: string;
+  /** The `?raw` contents of that module. */
+  code: string;
 }
 
 // The Storybook `SyntaxHighlighter` component is styled through `storybook/theming`'s
@@ -55,17 +72,109 @@ export interface MiniPlaygroundProps {
 // picked here doesn't matter much.
 const syntaxHighlighterTheme = ensure(themes.light);
 
+// Muted, non-selectable gutter for the left-hand line numbers. Uses `opacity` (not a
+// fixed color) so a single value reads correctly in both the light and dark themes.
+const lineNumberStyle: React.CSSProperties = {
+  minWidth: '2.25em',
+  paddingRight: '1em',
+  textAlign: 'right',
+  opacity: 0.4,
+  userSelect: 'none',
+};
+
+/**
+ * A single read-only code view: a header row (a filename-style label on the left, optional
+ * inline controls, and a right-aligned Copy button) above a syntax-highlighted, line-numbered
+ * source block. Matches the look of Storybook's own "Show code" source blocks while keeping
+ * the Copy affordance always visible and on the right, per the panel's own design.
+ */
+function CodePanel({
+  language,
+  filename,
+  value,
+  copyLabel,
+  toolbarStart,
+}: {
+  language: 'tsx' | 'html' | 'css';
+  filename: string;
+  value: string;
+  copyLabel: string;
+  /** Optional extra control(s) rendered next to the filename label (e.g. HTML "Refresh"). */
+  toolbarStart?: React.ReactNode;
+}) {
+  const [copied, setCopied] = React.useState(false);
+  const copiedTimeout = useTimeout();
+
+  const handleCopy = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(value).catch(() => {});
+    }
+    setCopied(true);
+    copiedTimeout.start(1500, () => setCopied(false));
+  };
+
+  return (
+    <React.Fragment>
+      <div className={styles.CodeToolbar}>
+        <div className={styles.CodeToolbarStart}>
+          <span className={styles.Filename}>{filename}</span>
+          {toolbarStart}
+        </div>
+        <button
+          type="button"
+          className={styles.CopyButton}
+          onClick={handleCopy}
+          aria-label={copied ? 'Copied to clipboard' : copyLabel}
+        >
+          <span aria-hidden="true" className={styles.CopyIcon}>
+            {copied ? '✓' : '⧉'}
+          </span>
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+      {/* Focusable + labelled so keyboard users can scroll long snippets and screen readers
+          announce the region. A scrollable container must be keyboard-reachable (WCAG 2.1.1). */}
+      <div
+        className={styles.CodeScroll}
+        role="region"
+        aria-label={`${filename} source`}
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable scroll region for keyboard access (WCAG 2.1.1)
+        tabIndex={0}
+      >
+        <ThemeProvider theme={syntaxHighlighterTheme}>
+          <SyntaxHighlighter
+            language={language}
+            copyable={false}
+            bordered={false}
+            padded={false}
+            format={false}
+            showLineNumbers
+            lineNumberStyle={lineNumberStyle}
+          >
+            {value}
+          </SyntaxHighlighter>
+        </ThemeProvider>
+      </div>
+    </React.Fragment>
+  );
+}
+
 /**
  * A tiny recreation-of-a-real-world-example harness for Storybook docs pages: shows the
  * LIVE component alongside its JSX snippet, its live-captured rendered HTML, and its CSS —
  * one tab at a time, via `@base-ui/react/tabs` (dogfooding Base UI's own Tabs component
  * for the tab UI).
  */
-export function MiniPlayground({ title, source, code, css, children }: MiniPlaygroundProps) {
+export function MiniPlayground({
+  title,
+  source,
+  code,
+  css,
+  dependencies,
+  children,
+}: MiniPlaygroundProps) {
   const stageRef = React.useRef<HTMLDivElement | null>(null);
   const [html, setHtml] = React.useState('');
-  const [copied, setCopied] = React.useState(false);
-  const copiedTimeout = useTimeout();
 
   const captureHtml = () => {
     const stage = stageRef.current;
@@ -79,16 +188,8 @@ export function MiniPlayground({ title, source, code, css, children }: MiniPlayg
   // "Refresh", per the panel's own note.
   useIsoLayoutEffect(captureHtml, []);
 
-  const handleCopy = () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(code).catch(() => {});
-    }
-    setCopied(true);
-    copiedTimeout.start(1500, () => setCopied(false));
-  };
-
   const handleOpenInStackBlitz = () => {
-    openInStackBlitz({ title, code, css });
+    openInStackBlitz({ title, code, css, dependencies });
   };
 
   return (
@@ -135,46 +236,39 @@ export function MiniPlayground({ title, source, code, css, children }: MiniPlayg
           </Tabs.Panel>
 
           <Tabs.Panel className={styles.Panel} value="jsx">
-            <div className={styles.CodeToolbar}>
-              <button type="button" className={styles.ToolbarButton} onClick={handleCopy}>
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
-            <div className={styles.Pre}>
-              <ThemeProvider theme={syntaxHighlighterTheme}>
-                <SyntaxHighlighter language="tsx" copyable={false} bordered={false} format={false}>
-                  {code}
-                </SyntaxHighlighter>
-              </ThemeProvider>
-            </div>
+            <CodePanel
+              language="tsx"
+              filename="index.tsx"
+              value={code}
+              copyLabel="Copy JSX to clipboard"
+            />
           </Tabs.Panel>
 
           <Tabs.Panel className={styles.Panel} value="html">
-            <div className={styles.CodeToolbar}>
-              <span className={styles.Note}>Reflects the DOM at last capture.</span>
-              <button type="button" className={styles.ToolbarButton} onClick={captureHtml}>
-                Refresh
-              </button>
-            </div>
-            <pre className={styles.Pre}>
-              <code>{html}</code>
-            </pre>
+            <CodePanel
+              language="html"
+              filename="rendered.html"
+              value={html}
+              copyLabel="Copy rendered HTML to clipboard"
+              toolbarStart={
+                <React.Fragment>
+                  <span className={styles.Note}>Rendered DOM at last capture</span>
+                  <button type="button" className={styles.InlineButton} onClick={captureHtml}>
+                    Refresh
+                  </button>
+                </React.Fragment>
+              }
+            />
           </Tabs.Panel>
 
           {css ? (
             <Tabs.Panel className={styles.Panel} value="css">
-              <div className={styles.Pre}>
-                <ThemeProvider theme={syntaxHighlighterTheme}>
-                  <SyntaxHighlighter
-                    language="css"
-                    copyable={false}
-                    bordered={false}
-                    format={false}
-                  >
-                    {css}
-                  </SyntaxHighlighter>
-                </ThemeProvider>
-              </div>
+              <CodePanel
+                language="css"
+                filename="styles.module.css"
+                value={css}
+                copyLabel="Copy CSS to clipboard"
+              />
             </Tabs.Panel>
           ) : null}
         </div>
@@ -252,20 +346,159 @@ function formatHtmlSnippet(html: string): string {
   return output.join('\n');
 }
 
-const MODULE_CSS_IMPORT_LINE_RE = /^.*import\s+\w+\s+from\s+(['"])[^'"]*\.module\.css\1;?.*$\n?/gm;
-const MODULE_CSS_IMPORT_SOURCE_RE = /(import\s+\w+\s+from\s+)(['"])[^'"]*\.module\.css\2(;?)/;
+const LOCAL_SPECIFIER_RE = /(?:\bfrom\s*|\bimport\s*)(['"])(\.[^'"]+)\1/g;
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isStyleSpecifier(specifier: string): boolean {
+  return /\.css$/.test(specifier);
+}
 
 /**
- * Rewrites a captured demo's `import styles from '...module.css'` line (whatever the
- * original relative path was) to point at the flattened `./styles.module.css` file the
- * StackBlitz project writes the `css` prop to. When there's no `css` prop there's no
- * stylesheet to import, so any such line is stripped instead (it would 404).
+ * Every local relative import (in the demo or any bundled dependency) is flattened into a
+ * single `src/` directory keyed by the module's basename, so the StackBlitz project is
+ * self-contained regardless of the original folder structure. `../icons` and `./icons`
+ * both collapse to `icons.tsx`; a `.module.css` keeps its extension so Vite still treats it
+ * as a CSS module.
  */
-function rewriteModuleCssImport(code: string, hasCss: boolean): string {
-  if (hasCss) {
-    return code.replace(MODULE_CSS_IMPORT_SOURCE_RE, `$1'./styles.module.css'$3`);
+function stackblitzBasename(specifier: string): string {
+  const raw = specifier.split('/').pop() || specifier;
+  return /\.(css|tsx?|jsx?)$/.test(raw) ? raw : `${raw}.tsx`;
+}
+
+/** The rewritten import string a flattened file should use to reach `specifier`. */
+function flatImportSpecifier(specifier: string): string {
+  const base = stackblitzBasename(specifier);
+  return isStyleSpecifier(base) ? `./${base}` : `./${base.replace(/\.(tsx?|jsx?)$/, '')}`;
+}
+
+function localSpecifiers(source: string): string[] {
+  const found: string[] = [];
+  for (const match of source.matchAll(LOCAL_SPECIFIER_RE)) {
+    found.push(match[2]);
   }
-  return code.replace(MODULE_CSS_IMPORT_LINE_RE, '');
+  return found;
+}
+
+function rewriteLocalImports(source: string): string {
+  return source.replace(LOCAL_SPECIFIER_RE, (_match, quote, specifier) => {
+    const prefix = _match.slice(0, _match.indexOf(quote));
+    return `${prefix}${quote}${flatImportSpecifier(specifier)}${quote}`;
+  });
+}
+
+/**
+ * Builds a best-effort stub for a local module the demo imports but that wasn't supplied via
+ * `dependencies`. Exports every binding the importing file references (default + named) as a
+ * children-passthrough component, so the project still builds (the bit that used the missing
+ * module just renders empty rather than crashing the whole preview).
+ */
+function buildStub(importingSource: string, specifier: string): string {
+  const clauseMatch = new RegExp(
+    `import\\s+([^;]*?)\\s+from\\s*['"]${escapeRegExp(specifier)}['"]`,
+  ).exec(importingSource);
+  const names = new Set<string>();
+  if (clauseMatch) {
+    const clause = clauseMatch[1].trim();
+    const namespace = /\*\s+as\s+(\w+)/.exec(clause);
+    if (namespace) {
+      names.add(namespace[1]);
+    }
+    const namedBlock = /\{([^}]*)\}/.exec(clause);
+    if (namedBlock) {
+      for (const part of namedBlock[1].split(',')) {
+        const local = part
+          .trim()
+          .split(/\s+as\s+/)
+          .pop()
+          ?.trim();
+        if (local) {
+          names.add(local);
+        }
+      }
+    }
+    const defaultMatch = /^(\w+)\s*(?:,|$)/.exec(clause);
+    if (defaultMatch && !clause.startsWith('{') && !clause.startsWith('*')) {
+      // Default import — represented by the module's default export below, not a named one.
+      names.delete(defaultMatch[1]);
+    }
+  }
+  const namedExports = [...names].map((name) => `export const ${name} = Stub;`).join('\n');
+  return `import * as React from 'react';
+const Stub = (props) => React.createElement(React.Fragment, null, props && props.children);
+export default Stub;
+${namedExports}
+`;
+}
+
+/**
+ * Assembles the flattened `src/` file set for the StackBlitz project: the demo as
+ * `src/Demo.tsx`, every dependency (and its transitive local imports) flattened alongside it,
+ * the `css` prop mapped onto the demo's lone unprovided stylesheet, unprovided stylesheets
+ * emitted empty, and anything else stubbed. The result always builds.
+ */
+function buildStackBlitzSrcFiles({
+  code,
+  css,
+  dependencies,
+}: {
+  code: string;
+  css?: string;
+  dependencies?: MiniPlaygroundDependency[];
+}): Record<string, string> {
+  const provided = new Map<string, string>();
+  for (const dependency of dependencies ?? []) {
+    provided.set(stackblitzBasename(dependency.path), dependency.code);
+  }
+
+  // Back-compat: a plain `css`-only demo (no `dependencies`) maps its single stylesheet
+  // import to the `css` prop.
+  if (css) {
+    const unprovidedCss = [
+      ...new Set(
+        localSpecifiers(code)
+          .filter(isStyleSpecifier)
+          .map(stackblitzBasename)
+          .filter((base) => !provided.has(base)),
+      ),
+    ];
+    if (unprovidedCss.length === 1) {
+      provided.set(unprovidedCss[0], css);
+    }
+  }
+
+  const emitted = new Map<string, string>();
+  const queue: Array<{ name: string; source: string }> = [{ name: 'Demo.tsx', source: code }];
+
+  while (queue.length > 0) {
+    const { name, source } = queue.shift()!;
+    if (emitted.has(name)) {
+      continue;
+    }
+    emitted.set(name, rewriteLocalImports(source));
+
+    for (const specifier of localSpecifiers(source)) {
+      const base = stackblitzBasename(specifier);
+      if (emitted.has(base) || base === name || queue.some((item) => item.name === base)) {
+        continue;
+      }
+      if (provided.has(base)) {
+        queue.push({ name: base, source: provided.get(base)! });
+      } else if (isStyleSpecifier(specifier)) {
+        emitted.set(base, ''); // resolves (unstyled) instead of 404-ing.
+      } else {
+        emitted.set(base, buildStub(source, specifier));
+      }
+    }
+  }
+
+  const files: Record<string, string> = {};
+  for (const [name, contents] of emitted) {
+    files[`src/${name}`] = contents;
+  }
+  return files;
 }
 
 const STACKBLITZ_PACKAGE_JSON = (title: string) =>
@@ -345,25 +578,20 @@ function openInStackBlitz({
   title,
   code,
   css,
+  dependencies,
 }: {
   title?: string;
   code: string;
   css?: string;
+  dependencies?: MiniPlaygroundDependency[];
 }): void {
-  const hasCss = Boolean(css);
-  const demoSource = rewriteModuleCssImport(code, hasCss);
-
   const files: Record<string, string> = {
     'package.json': STACKBLITZ_PACKAGE_JSON(title ?? ''),
     'vite.config.ts': STACKBLITZ_VITE_CONFIG,
     'index.html': STACKBLITZ_INDEX_HTML,
     'src/main.tsx': STACKBLITZ_MAIN_TSX,
-    'src/Demo.tsx': demoSource,
+    ...buildStackBlitzSrcFiles({ code, css, dependencies }),
   };
-
-  if (hasCss && css) {
-    files['src/styles.module.css'] = css;
-  }
 
   const form = document.createElement('form');
   form.method = 'POST';
