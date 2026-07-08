@@ -52,6 +52,98 @@ describe('<ScrollArea.Viewport />', () => {
       expect(viewport).not.toHaveAttribute('data-scrolling');
     });
 
+    it('ignores data-scrolling during programmatic scroll', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // No user interaction before the scroll event, as with `scrollTo()`.
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('adds [data-scrolling] in touch modality even when the gesture delivers no events', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // The initial touch is delivered normally and establishes touch modality.
+      fireEvent.pointerDown(viewport, { pointerType: 'touch' });
+
+      // A touch that catches an in-flight momentum scroll or rubber-band
+      // bounce is consumed natively by WebKit: no touch/pointer events fire
+      // for the whole gesture, only scroll events after an arbitrary pause.
+      await clock.tickAsync(200);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('keeps ignoring programmatic scrolls in mouse modality', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.pointerDown(viewport, { pointerType: 'mouse' });
+
+      await clock.tickAsync(200);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('restores programmatic scroll suppression after modality flips back to mouse', async () => {
+      await renderWithClock(
+        <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.pointerDown(viewport, { pointerType: 'touch' });
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(viewport).toHaveAttribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+
+      // A mouse pointer event on the root (not the viewport, whose own
+      // handlers mark user interaction) switches back to mouse modality.
+      fireEvent.pointerMove(root, { pointerType: 'mouse' });
+      fireEvent.scroll(viewport, { target: { scrollTop: 2 } });
+
+      expect(viewport).not.toHaveAttribute('data-scrolling');
+    });
+
     it('removes [data-scrolling] after timeout', async () => {
       await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
