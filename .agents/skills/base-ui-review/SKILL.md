@@ -6,10 +6,9 @@ description: 'Review the current diff for regressions, correctness bugs, tests, 
 # Base UI Review
 
 Review the current diff and report **regressions and correctness bugs** alongside
-**cleanup** (reuse / simplification / efficiency). Effort defaults to `medium`:
-`low` is bug-only, `medium` is the normal single-agent review, `high` splits the
-areas across subagents, `xhigh` adds a sweep, and `max` adds verifier subagents.
-See [Effort levels](#effort-levels).
+**cleanup** (reuse / simplification / efficiency). Effort defaults to `medium`; use
+[Effort levels](#effort-levels) to choose review depth, subagent fan-out, and
+precision/recall bias.
 
 Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline]] [<target>]`
 
@@ -26,17 +25,31 @@ fold in any uncommitted and untracked changes - the review often runs before the
 commit. If a PR link, branch name, or file path is passed as an argument, review
 that target instead.
 
+## Effort levels
+
+- **low** -> fastest: bug-only hunk pass. Skip Tests, Simplifications, Docs, and
+  test/fixture hunks. Flag only high-confidence runtime-correctness bugs visible
+  from the hunk alone.
+- **medium** (default) -> one agent reviews Bugs, Tests, Simplifications, Docs, and
+  any triggered API design/performance concerns, then verifies locally. Precision
+  bias. Add one bug/regression subagent only for large, risky, or fragile diffs.
+- **high** -> independent subagents review the four areas, plus triggered API
+  design/performance specialists. Main agent dedups and sanity-checks. No verifier
+  subagents or sweep.
+- **xhigh** -> `high` plus one fresh sweep for missed findings. No verifier
+  subagents.
+- **max** -> `xhigh` plus verifier subagents for surviving candidates. Highest cost,
+  strongest recall bias.
+
 ## Phase 1 - Find candidates
 
-Review the four main areas below: Bugs, Tests, Simplifications, and Docs. `low`
-reviews only high-confidence bug regressions. `medium` reviews all areas locally
-and may add one bug/regression subagent for large or risky diffs. `high` and above
-run the four areas as **independent subagents** - see
-[Effort levels](#effort-levels). Each area surfaces actionable
-candidate findings with `file`, `line`, a one-line `summary`, a `severity` (🟣 / 🔴 /
-🟠 / 🟡 / ℹ️ - see [Output](#output) for the rubric), and a concrete
-`failure_scenario`. Do NOT let one area's conclusions suppress another's - if two
-areas flag the same line for different reasons, record both.
+Use the selected [effort level](#effort-levels) to decide whether this phase runs
+locally or fans out to subagents. Except at `low`, review the four main areas below:
+Bugs, Tests, Simplifications, and Docs. Each area surfaces actionable candidate
+findings with `file`, `line`, a one-line `summary`, a `severity` (🟣 / 🔴 / 🟠 / 🟡 /
+ℹ️ - see [Output](#output) for the rubric), and a concrete `failure_scenario`. Do
+NOT let one area's conclusions suppress another's - if two areas flag the same line
+for different reasons, record both.
 
 Pass every candidate with a nameable failure scenario through - finders that
 silently drop half-believed candidates bypass the verify step and are the
@@ -162,13 +175,13 @@ untested, stale, or harder to maintain) instead of a crash. Regressions and
 correctness bugs always outrank simplification, test, and docs findings when the
 review is ordered.
 
-## Phase 2 - Verify (1-vote, 3-state)
+## Phase 2 - Verify candidates (local by default; max adds subagent votes)
 
 Dedup candidates that point at the same line/mechanism, keeping the one with the
-most concrete failure scenario. By default, verify candidates locally in the main
-agent. At `max` effort, run **one verifier** as a subagent for each remaining
-candidate when subagents are available and authorized: give it the diff, the
-relevant file(s), and the candidate, and have it return exactly one of:
+most concrete failure scenario. Verify candidates locally in the main agent by
+default. At `max` effort, also run **one verifier** as a subagent for each
+remaining candidate when subagents are available and authorized: give it the diff,
+the relevant file(s), and the candidate, and have it return exactly one of:
 
 - **CONFIRMED** - can name the inputs/state that trigger it and the wrong output or
   crash. Quote the line.
@@ -201,13 +214,19 @@ return an empty sweep - do not pad.
 
 ## Output
 
-Reply in Markdown using this structure. Do not wrap the main result in JSON or a
-code fence. Use sentence case for the `#` heading and all finding titles; do not
-use title case. Do not open with generic target/base filler such as "Reviewed
-`owner/repo#123` against `branch`." Only mention the target or base branch when it
-explains a specific finding or limitation.
+Reply in Markdown. Do not wrap the main result in JSON or a code fence. Use
+sentence case for the `#` heading and all finding titles; do not use title case. Do
+not open with generic target/base filler such as "Reviewed `owner/repo#123` against
+`branch`." Only mention the target or base branch when it explains a specific
+finding or limitation.
 
-Prefix every finding title with a severity marker:
+When there are findings, use exactly these `##` sections, in order: `Bugs`,
+`Tests`, `Simplifications`, `Docs`, `Verdict`. For any section whose count is
+`(0)`, write exactly `No findings.` under that heading.
+
+### Severity rubric
+
+Prefix every finding title with one severity marker:
 
 - 🟣 **critical - blocking.** A correctness issue that can crash common flows, lose
   user data, create a security/privacy problem, make a public component contract
@@ -236,8 +255,9 @@ consumer usage, accessibility behavior, form behavior, focus management, SSR, or
 public API contract or broken public docs example. Do not reserve 🔴 high only for
 outage-level failures.
 
-Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️. Include the same
-marker in each inline PR comment body when posting with `--comment inline`.
+Within each section, order findings 🟣 -> 🔴 -> 🟠 -> 🟡 -> ℹ️.
+
+### Verdict
 
 End the review with a `## Verdict` line derived from those markers:
 
@@ -248,19 +268,9 @@ End the review with a `## Verdict` line derived from those markers:
 
 Follow the verdict with one clause naming the deciding factor.
 
-Then close the review with a footer: a `---` horizontal rule, a blank line, then a
-single line of plain text:
+### Finding format
 
-```text
----
-
-🤖 Review generated with Claude Code
-```
-
-Use **Claude Code** when this skill is being executed by the Claude Code harness, or
-**Codex** when it is being executed by the Codex harness - pick the label for the
-harness you are actually running in. Always include this footer, including on the
-`No findings.` path below.
+Use this structure:
 
 ````md
 # PR review
@@ -306,47 +316,47 @@ make the failure scenario the missing case or weak assertion. For Simplification
 make it the concrete duplicated, heavier, or harder-to-maintain code path. For Docs,
 make it the stale or missing public/developer-facing information.
 
+### Finding quality
+
 Do not cap findings by count. Report every verified, actionable finding that a
 maintainer would reasonably fix before merging. Do not pad the review with weak,
 stylistic, speculative, or low-importance notes. If many findings survive, group
-related issues under one finding when they share the same root cause. If nothing
-survives verification, return `# PR review` followed by `No findings.`, a brief note
-of any residual test gaps or risk, a `## Verdict` of **Approve**, and the
-`🤖 Review generated with ...` footer. Use exactly
-these `##` sections, in order, when there are findings: `Bugs`, `Tests`,
-`Simplifications`, `Docs`, `Verdict`. For any section whose count is `(0)`, write exactly `No findings.` under that heading.
+related issues under one finding when they share the same root cause.
 
-### Effort levels
+### No findings
 
-- **low** -> fastest: bug-only hunk pass. Skip Tests, Simplifications, Docs, and
-  test/fixture hunks. Flag only high-confidence runtime-correctness bugs visible
-  from the hunk alone.
-- **medium** (default) -> one agent reviews Bugs, Tests, Simplifications, Docs, and
-  any triggered API design/performance concerns, then verifies locally. Precision
-  bias. Add one bug/regression subagent only for large, risky, or fragile diffs.
-- **high** -> independent subagents review the four areas, plus triggered API
-  design/performance specialists. Main agent dedups and sanity-checks. No verifier
-  subagents or sweep.
-- **xhigh** -> `high` plus one fresh sweep for missed findings. No verifier
-  subagents.
-- **max** -> `xhigh` plus verifier subagents for surviving candidates. Highest cost,
-  strongest recall bias.
+If nothing survives verification, return `# PR review` followed by `No findings.`,
+a brief note of any residual test gaps or risk, a `## Verdict` of **Approve**, and
+the `🤖 Review generated with ...` footer.
+
+Always close the review with a `---` horizontal rule, a blank line, then
+`🤖 Review generated with {Claude Code | Codex}`. Use **Claude Code** when this
+skill is being executed by the Claude Code harness, or **Codex** when it is being
+executed by the Codex harness.
 
 ## Posting to GitHub (--comment)
 
-If the `--comment` flag was passed in the arguments, then after producing the
-findings list, post to GitHub only when the review target is a GitHub PR. Plain
-`--comment` posts the Markdown review as one top-level PR comment via
-`gh pr comment`. `--comment inline` posts each finding as an inline PR comment via
-`gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`) only when the finding maps to
-a line present in the PR diff. Use the latest PR head `commit_id`, `path`, `line`,
-and `side` for each inline comment, one call per finding, including a suggestion
-block only when it fully fixes the issue. (If a GitHub inline-comment MCP tool is
-available in this session, use it instead.) Put findings outside the PR diff, such
-as unchanged lines in touched functions, in a top-level fallback comment via
-`gh pr comment`; do not drop them or stop posting the rest of the review because
-one inline comment is not commentable. If the target is not a PR, print the
-findings to the terminal and note that `--comment` was ignored.
+Post to GitHub only when the target is a GitHub PR and the arguments include a
+comment mode:
+
+- No `--comment` -> do not post to GitHub; if `--fix` is also absent, stop at the
+  Markdown review report.
+- `--comment` -> post the Markdown review as one top-level PR comment via
+  `gh pr comment`.
+- `--comment inline` -> post inline comments for findings that map to PR diff
+  lines, and include all non-diff findings in a top-level fallback comment.
+
+For `--comment inline`, include the same severity marker in each inline comment
+body. Use the latest PR head `commit_id`, `path`, `line`, and `side`, and post via
+`gh api` (`repos/{owner}/{repo}/pulls/{pr}/comments`), one call per finding. Include
+a suggestion block only when it fully fixes the issue. (If a GitHub inline-comment
+MCP tool is available in this session, use it instead.)
+
+Inline comments can only attach to lines present in the PR diff. Put findings
+outside the PR diff, such as unchanged lines in touched functions, in the top-level
+fallback comment via `gh pr comment`; do not drop them or stop posting the rest of
+the review because one inline comment is not commentable. If the target is not a
+PR, print the findings to the terminal and note that `--comment` was ignored.
 
 ## Applying fixes (--fix)
 
