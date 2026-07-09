@@ -14,7 +14,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { selectors } from '../store';
-import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
@@ -25,7 +25,6 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../utils/useAnchorPositioning';
 
-const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
@@ -202,14 +201,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          const bounds = getPseudoElementBounds(triggerRef.current);
-
-          if (
-            mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-            mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-            mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-            mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-          ) {
+          if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
             return;
           }
 

@@ -11,7 +11,7 @@ import {
 import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
   type PayloadChildRenderFunction,
@@ -45,14 +45,20 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     children,
   } = props;
 
-  const store = TooltipStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) =>
+      new TooltipStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
