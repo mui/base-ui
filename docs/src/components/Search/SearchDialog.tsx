@@ -96,7 +96,10 @@ export function SearchDialog({
 
   const handleCloseDialog = React.useCallback(() => {
     searchTracking.handleClose();
-  }, [searchTracking]);
+    // The dialog stays mounted after closing, so reset the results while it's
+    // hidden. Otherwise reopening would show the previous query's results.
+    void performSearch('');
+  }, [performSearch, searchTracking]);
 
   React.useEffect(() => {
     if (open !== wasOpenRef.current) {
