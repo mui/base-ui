@@ -20,6 +20,10 @@ const MobileNavDrawer = React.lazy(async () => ({
   default: (await import('./MobileNavDrawer')).MobileNavDrawer,
 }));
 
+function preloadSearchSitemap() {
+  void loadSearchSitemap().catch(() => undefined);
+}
+
 type OpenTarget = 'desktop' | 'mobile' | 'mobile-search';
 type DialogTriggerClickEvent = Parameters<NonNullable<Dialog.Trigger.Props['onClick']>>[0];
 type DrawerTriggerClickEvent = Parameters<NonNullable<Drawer.Trigger.Props['onClick']>>[0];
@@ -51,10 +55,6 @@ export function SearchControls({
     () => true,
   );
 
-  const preloadSearchSitemap = React.useCallback(() => {
-    void loadSearchSitemap().catch(() => undefined);
-  }, []);
-
   const closeMobileNav = React.useCallback(() => {
     scrollTopAfterMobileCloseRef.current = false;
     scrollTopAfterMobileNavigationRef.current = null;
@@ -81,32 +81,18 @@ export function SearchControls({
     [closeMobileNav, closeMobileNavAndScrollTop, closeMobileNavAndScrollTopAfterNavigation],
   );
 
-  const handleDesktopTriggerClick = React.useCallback(
-    (event: DialogTriggerClickEvent) => {
-      event?.preventBaseUIHandler();
-      preloadSearchSitemap();
-      setOpenTarget('desktop');
-    },
-    [preloadSearchSitemap],
-  );
-
-  const handleMobileTriggerClick = React.useCallback(
-    (event: DrawerTriggerClickEvent) => {
-      event?.preventBaseUIHandler();
-      preloadSearchSitemap();
-      scrollTopAfterMobileCloseRef.current = false;
-      setOpenTarget('mobile');
-    },
-    [preloadSearchSitemap],
-  );
-
-  const handleDesktopTriggerPointerDown = React.useCallback(() => {
+  const handleDesktopTriggerClick = React.useCallback((event: DialogTriggerClickEvent) => {
+    event?.preventBaseUIHandler();
     preloadSearchSitemap();
-  }, [preloadSearchSitemap]);
+    setOpenTarget('desktop');
+  }, []);
 
-  const handleMobileTriggerPointerDown = React.useCallback(() => {
+  const handleMobileTriggerClick = React.useCallback((event: DrawerTriggerClickEvent) => {
+    event?.preventBaseUIHandler();
     preloadSearchSitemap();
-  }, [preloadSearchSitemap]);
+    scrollTopAfterMobileCloseRef.current = false;
+    setOpenTarget('mobile');
+  }, []);
 
   const handleDesktopOpenChange = React.useCallback((open: boolean) => {
     if (open) {
@@ -151,7 +137,7 @@ export function SearchControls({
   React.useEffect(() => {
     preloadTimeout.start(250, preloadSearchSitemap);
     return preloadTimeout.clear;
-  }, [preloadSearchSitemap, preloadTimeout]);
+  }, [preloadTimeout]);
 
   React.useEffect(() => {
     if (scrollTopAfterMobileNavigationRef.current !== pathname) {
@@ -185,7 +171,7 @@ export function SearchControls({
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [preloadSearchSitemap]);
+  }, []);
 
   const desktopOpen = openTarget === 'desktop';
   const mobileOpen = openTarget === 'mobile' || openTarget === 'mobile-search';
@@ -198,7 +184,7 @@ export function SearchControls({
         ref={desktopTriggerRef}
         handle={desktopHandle}
         className={clsx('SearchTrigger', desktopTriggerClassName)}
-        onPointerDown={handleDesktopTriggerPointerDown}
+        onPointerDown={preloadSearchSitemap}
         onClick={handleDesktopTriggerClick}
       >
         Search
@@ -222,7 +208,7 @@ export function SearchControls({
           ref={mobileTriggerRef}
           handle={mobileHandle}
           className={clsx('SearchTrigger', mobileTriggerClassName)}
-          onPointerDown={handleMobileTriggerPointerDown}
+          onPointerDown={preloadSearchSitemap}
           onClick={handleMobileTriggerClick}
         >
           <MagnifyingGlassIcon className="MobileNavTriggerIcon" />

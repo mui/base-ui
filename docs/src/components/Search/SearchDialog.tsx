@@ -71,13 +71,6 @@ export function SearchDialog({
     results,
   });
 
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean) => {
-      onOpenChange(nextOpen);
-    },
-    [onOpenChange],
-  );
-
   const handleOpenChangeComplete = React.useCallback((nextOpen: boolean) => {
     setSearchIndexActive(nextOpen);
   }, []);
@@ -85,10 +78,10 @@ export function SearchDialog({
   const handleAutocompleteEscape = React.useCallback(
     (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
       if (!open && eventDetails.reason === 'escape-key') {
-        handleOpenChange(false);
+        onOpenChange(false);
       }
     },
-    [handleOpenChange],
+    [onOpenChange],
   );
 
   const handleValueChange = React.useCallback(
@@ -104,8 +97,8 @@ export function SearchDialog({
 
   const handleItemClick = React.useCallback(() => {
     searchTracking.setSelectedResult(highlightedResultRef.current ?? null);
-    handleOpenChange(false);
-  }, [handleOpenChange, searchTracking]);
+    onOpenChange(false);
+  }, [onOpenChange, searchTracking]);
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
@@ -118,22 +111,18 @@ export function SearchDialog({
     [buildResultUrl],
   );
 
-  // Memoized search input component
-  const searchInput = React.useMemo(
-    () => (
-      <div className="SearchInputRoot">
-        <MagnifyingGlassIcon className="SearchInputIcon" />
-        <Autocomplete.Input
-          id="search-input"
-          ref={inputRef}
-          aria-label="Search"
-          placeholder="Search"
-          className="SearchInput"
-          onKeyDownCapture={handleKeyDownCapture}
-        />
-      </div>
-    ),
-    [handleKeyDownCapture],
+  const searchInput = (
+    <div className="SearchInputRoot">
+      <MagnifyingGlassIcon className="SearchInputIcon" />
+      <Autocomplete.Input
+        id="search-input"
+        ref={inputRef}
+        aria-label="Search"
+        placeholder="Search"
+        className="SearchInput"
+        onKeyDownCapture={handleKeyDownCapture}
+      />
+    </div>
   );
 
   let searchResultsContent: React.ReactNode = null;
@@ -159,7 +148,7 @@ export function SearchDialog({
     <Dialog.Root
       handle={handle}
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={onOpenChange}
       onOpenChangeComplete={handleOpenChangeComplete}
       triggerId={triggerId}
     >

@@ -47,13 +47,6 @@ export function MobileNavDrawer({
   const searchTracking = useSearchTracking({ open });
   const onOpenChangeCompleteRef = React.useRef<((open: boolean) => void) | null>(null);
 
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean) => {
-      onOpenChange(nextOpen);
-    },
-    [onOpenChange],
-  );
-
   const handleOpenChangeComplete = React.useCallback((nextOpen: boolean) => {
     onOpenChangeCompleteRef.current?.(nextOpen);
   }, []);
@@ -64,7 +57,7 @@ export function MobileNavDrawer({
       {...props}
       handle={handle}
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={onOpenChange}
       onOpenChangeComplete={handleOpenChangeComplete}
       triggerId={triggerId}
     >
@@ -174,6 +167,10 @@ function MobileNavDrawerContent({
     };
   }, [handleOpenChangeComplete, onOpenChangeCompleteRef]);
 
+  const handleClose = React.useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   // `initialFocus` only runs when the drawer opens, so handle the shortcut
   // being pressed while the drawer is already open.
   React.useEffect(() => {
@@ -200,7 +197,7 @@ function MobileNavDrawerContent({
               isReady={isReady}
               isSearchPending={isSearchPending}
               navSitemap={navSitemap}
-              onClose={() => onOpenChange(false)}
+              onClose={handleClose}
               performSearch={performSearch}
               searchResults={searchResults}
               searchValue={searchValue}
