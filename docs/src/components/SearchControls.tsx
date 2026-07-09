@@ -7,12 +7,18 @@ import { Drawer } from '@base-ui/react/drawer';
 import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
-import { MobileNavDrawer } from './MobileNavDrawer';
-import { SearchDialog } from './Search/SearchDialog';
 import { loadSearchSitemap } from './Search/searchSitemap';
 import { MobileNavContext } from './MobileNavContext';
 import './MobileNav.css';
 import './SearchTrigger.css';
+
+const SearchDialog = React.lazy(async () => ({
+  default: (await import('./Search/SearchDialog')).SearchDialog,
+}));
+
+const MobileNavDrawer = React.lazy(async () => ({
+  default: (await import('./MobileNavDrawer')).MobileNavDrawer,
+}));
 
 type OpenTarget = 'desktop' | 'mobile' | 'mobile-search';
 type DialogTriggerClickEvent = Parameters<NonNullable<Dialog.Trigger.Props['onClick']>>[0];
@@ -201,13 +207,15 @@ export function SearchControls({
           <kbd>k</kbd>)
         </span>
       </Dialog.Trigger>
-      <SearchDialog
-        handle={desktopHandle}
-        open={desktopOpen}
-        onOpenChange={handleDesktopOpenChange}
-        sitemap={loadSearchSitemap}
-        triggerId={desktopOpen ? desktopTriggerId : null}
-      />
+      <React.Suspense fallback={null}>
+        <SearchDialog
+          handle={desktopHandle}
+          open={desktopOpen}
+          onOpenChange={handleDesktopOpenChange}
+          sitemap={loadSearchSitemap}
+          triggerId={desktopOpen ? desktopTriggerId : null}
+        />
+      </React.Suspense>
 
       <MobileNavContext.Provider value={mobileContextValue}>
         <Drawer.Trigger
@@ -221,15 +229,17 @@ export function SearchControls({
           <MagnifyingGlassIcon className="MobileNavTriggerIcon" />
           Navigation
         </Drawer.Trigger>
-        <MobileNavDrawer
-          handle={mobileHandle}
-          focusSearchOnOpen={focusMobileSearchOnOpen}
-          open={mobileOpen}
-          onOpenChange={handleMobileOpenChange}
-          onOpenChangeComplete={handleMobileOpenChangeComplete}
-          sitemap={loadSearchSitemap}
-          triggerId={mobileOpen ? mobileTriggerId : null}
-        />
+        <React.Suspense fallback={null}>
+          <MobileNavDrawer
+            handle={mobileHandle}
+            focusSearchOnOpen={focusMobileSearchOnOpen}
+            open={mobileOpen}
+            onOpenChange={handleMobileOpenChange}
+            onOpenChangeComplete={handleMobileOpenChangeComplete}
+            sitemap={loadSearchSitemap}
+            triggerId={mobileOpen ? mobileTriggerId : null}
+          />
+        </React.Suspense>
       </MobileNavContext.Provider>
     </React.Fragment>
   );
