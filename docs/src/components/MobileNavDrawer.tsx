@@ -257,6 +257,13 @@ function MobileNavPopupImpl({
 
   const handleKeyDownCapture = React.useCallback(
     (event: React.KeyboardEvent) => {
+      // Pressing Escape during IME composition only cancels the composition;
+      // it must not clear the committed query. `keyCode === 229` covers
+      // Safari, where `isComposing` is unreliable.
+      if (event.nativeEvent.isComposing || event.keyCode === 229) {
+        return;
+      }
+
       if (event.key === 'Escape' && searchValue) {
         event.preventDefault();
         event.stopPropagation();

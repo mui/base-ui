@@ -40,6 +40,12 @@ export function handleModifiedEnterNavigation(
   result: SearchResult | undefined,
   buildResultUrl: (result: SearchResult) => string,
 ) {
+  // Ignore key presses during IME composition. `keyCode === 229` covers
+  // Safari, where `isComposing` is unreliable.
+  if (event.nativeEvent.isComposing || event.keyCode === 229) {
+    return false;
+  }
+
   if (event.key !== 'Enter' || (!event.metaKey && !event.ctrlKey && !event.altKey)) {
     return false;
   }
