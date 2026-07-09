@@ -3,6 +3,8 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { loadSearchSitemap } from './searchSitemap';
 
+// `sitemapImport` must reset its rejected import cache, otherwise the retry
+// loop below would keep receiving the same rejected promise.
 export function useDeferredSearchSitemap(active: boolean, sitemapImport = loadSearchSitemap) {
   const activeRef = React.useRef(active);
   const sitemapImportRef = React.useRef(sitemapImport);

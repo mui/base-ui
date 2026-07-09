@@ -7,6 +7,7 @@ interface UseDeferredEmptySearchResultsParameters<Results extends GroupedSearchR
   active?: boolean;
   defaultResults: Results;
   onResultCountChange?: (resultCount: number) => void;
+  // Lets closing surfaces reset their hidden result state after exit animations.
   resetDelay?: number;
   results: Results;
 }
@@ -39,6 +40,7 @@ export function useDeferredEmptySearchResults<Results extends GroupedSearchResul
     onResultCountChange?.(getSearchResultCount(results));
 
     if (results.results.length === 0) {
+      // Avoid flashing "No results" while the user is still typing.
       emptyResultsTimeout.start(400, () => {
         setDelayedResults(results);
       });

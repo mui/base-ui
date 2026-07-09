@@ -135,6 +135,7 @@ export function SearchControls({
   }, []);
 
   React.useEffect(() => {
+    // Warm the search chunk shortly after mount without competing with initial hydration.
     preloadTimeout.start(250, preloadSearchSitemap);
     return preloadTimeout.clear;
   }, [preloadTimeout]);
