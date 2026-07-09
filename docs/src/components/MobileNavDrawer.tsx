@@ -261,13 +261,13 @@ function MobileNavPopupImpl({
         return;
       }
 
-      if (searchValue) {
+      if (hasQuery) {
         void handleValueChange('');
       } else {
         onClose();
       }
     },
-    [handleValueChange, onClose, searchValue],
+    [handleValueChange, hasQuery, onClose],
   );
 
   const handleKeyDownCapture = React.useCallback(
@@ -279,7 +279,7 @@ function MobileNavPopupImpl({
         return;
       }
 
-      if (event.key === 'Escape' && searchValue) {
+      if (event.key === 'Escape' && hasQuery) {
         event.preventDefault();
         event.stopPropagation();
         void handleValueChange('');
@@ -288,7 +288,7 @@ function MobileNavPopupImpl({
 
       handleModifiedEnterNavigation(event, highlightedResultRef.current, buildResultUrl);
     },
-    [buildResultUrl, handleValueChange, searchValue],
+    [buildResultUrl, handleValueChange, hasQuery],
   );
 
   const renderResultsList = React.useCallback(
@@ -377,9 +377,11 @@ function MobileNavPopupImpl({
             className="MobileNavSearchInput"
             onKeyDownCapture={handleKeyDownCapture}
           />
-          <Autocomplete.Clear aria-label="Clear search" className="MobileNavClearSearch">
-            <XIcon className="MobileNavClearSearchIcon" />
-          </Autocomplete.Clear>
+          {hasQuery && (
+            <Autocomplete.Clear aria-label="Clear search" className="MobileNavClearSearch">
+              <XIcon className="MobileNavClearSearchIcon" />
+            </Autocomplete.Clear>
+          )}
         </div>
       </div>
       <Drawer.Content className="MobileNavContent">
@@ -421,7 +423,7 @@ function SearchResultItem({ result }: { result: SearchResult }) {
     <React.Fragment>
       <span className="MobileNavSearchBreadcrumbText">
         {result.title?.split(' ‣ ').map((part, i, arr) => (
-          <React.Fragment key={part}>
+          <React.Fragment key={i}>
             <span className="MobileNavSearchBreadcrumbPart">{getDisplayTitle(part)}</span>
             {i !== arr.length - 1 && (
               <svg

@@ -25,7 +25,7 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
   return (
     <React.Fragment>
       {result.title?.split(' ‣ ').map((part, i, arr) => (
-        <React.Fragment key={part}>
+        <React.Fragment key={i}>
           <span className={clsx('SearchBreadcrumbPart', i === arr.length - 1 && 'last')}>
             {getDisplayTitle(part)}
           </span>
