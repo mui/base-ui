@@ -42,7 +42,6 @@ export function SearchDialog({
 }: SearchDialogProps) {
   const [searchValue, setSearchValue] = React.useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const popupRef = React.useRef<HTMLDivElement>(null);
 
   const searchSitemap = useDeferredSearchSitemap(open, sitemapImport);
   const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
@@ -156,12 +155,7 @@ export function SearchDialog({
       <Dialog.Portal>
         <Dialog.Backdrop className="SearchBackdrop" />
         <Dialog.Viewport className="SearchViewport">
-          <Dialog.Popup
-            ref={popupRef}
-            initialFocus={inputRef}
-            data-open={open}
-            className="SearchPopup"
-          >
+          <Dialog.Popup initialFocus={inputRef} className="SearchPopup">
             <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
             <Autocomplete.Root
               items={isSearchPending ? [] : searchResults.results}

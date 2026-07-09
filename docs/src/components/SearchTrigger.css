@@ -45,11 +45,6 @@
     }
   }
 
-  .SearchTriggerIcon {
-    width: 1rem;
-    height: 1rem;
-  }
-
   .SearchTriggerShortcut {
     color: var(--gray-t1);
   }

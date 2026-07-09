@@ -29,11 +29,19 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   external?: boolean;
 }
 
-export function Item({ href, external, ...props }: ItemProps) {
+export function Item({
+  active: activeProp,
+  children,
+  className,
+  external,
+  href,
+  rel,
+  ...props
+}: ItemProps) {
   const { closeAndScrollTop, closeAndScrollTopAfterNavigation } =
     React.useContext(MobileNavContext);
   const pathname = usePathname();
-  const active = props.active ?? pathname === href;
+  const active = activeProp ?? pathname === href;
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (href !== window.location.pathname || isModifiedEvent(event)) {
@@ -54,18 +62,18 @@ export function Item({ href, external, ...props }: ItemProps) {
     'data-active': active ? '' : undefined,
     className: 'MobileNavLink',
     href,
-    rel: props.rel,
+    rel,
     onClick: handleClick,
   };
 
   return (
-    <li {...props} className={clsx('MobileNavItem', props.className)}>
+    <li {...props} className={clsx('MobileNavItem', className)}>
       {external ? (
-        <a {...linkProps}>{props.children}</a>
+        <a {...linkProps}>{children}</a>
       ) : (
         // We handle scroll manually
         <NextLink {...linkProps} scroll={false} onNavigate={handleNavigate}>
-          {props.children}
+          {children}
         </NextLink>
       )}
     </li>
