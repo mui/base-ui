@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { usePathname } from 'next/navigation';
 import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
 import { platform } from '@base-ui/utils/platform';
@@ -33,8 +34,10 @@ export function SearchControls({
   const desktopTriggerRef = React.useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = React.useRef<HTMLButtonElement>(null);
   const scrollTopAfterMobileCloseRef = React.useRef(false);
+  const scrollTopAfterMobileNavigationRef = React.useRef<string | null>(null);
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
   const preloadTimeout = useTimeout();
+  const pathname = usePathname();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
@@ -48,17 +51,28 @@ export function SearchControls({
 
   const closeMobileNav = React.useCallback(() => {
     scrollTopAfterMobileCloseRef.current = false;
+    scrollTopAfterMobileNavigationRef.current = null;
     setOpenTarget(null);
   }, []);
 
   const closeMobileNavAndScrollTop = React.useCallback(() => {
     scrollTopAfterMobileCloseRef.current = true;
+    scrollTopAfterMobileNavigationRef.current = null;
     setOpenTarget(null);
   }, []);
 
+  const closeMobileNavAndScrollTopAfterNavigation = React.useCallback((nextPathname: string) => {
+    scrollTopAfterMobileCloseRef.current = false;
+    scrollTopAfterMobileNavigationRef.current = nextPathname;
+  }, []);
+
   const mobileContextValue = React.useMemo(
-    () => ({ close: closeMobileNav, closeAndScrollTop: closeMobileNavAndScrollTop }),
-    [closeMobileNav, closeMobileNavAndScrollTop],
+    () => ({
+      close: closeMobileNav,
+      closeAndScrollTop: closeMobileNavAndScrollTop,
+      closeAndScrollTopAfterNavigation: closeMobileNavAndScrollTopAfterNavigation,
+    }),
+    [closeMobileNav, closeMobileNavAndScrollTop, closeMobileNavAndScrollTopAfterNavigation],
   );
 
   const handleDesktopTriggerClick = React.useCallback(
@@ -132,6 +146,16 @@ export function SearchControls({
     preloadTimeout.start(250, preloadSearchSitemap);
     return preloadTimeout.clear;
   }, [preloadSearchSitemap, preloadTimeout]);
+
+  React.useEffect(() => {
+    if (scrollTopAfterMobileNavigationRef.current !== pathname) {
+      return;
+    }
+
+    scrollTopAfterMobileNavigationRef.current = null;
+    setOpenTarget(null);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

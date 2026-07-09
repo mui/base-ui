@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -31,7 +30,8 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
 }
 
 export function Item({ href, external, ...props }: ItemProps) {
-  const { close, closeAndScrollTop } = React.useContext(MobileNavContext);
+  const { closeAndScrollTop, closeAndScrollTopAfterNavigation } =
+    React.useContext(MobileNavContext);
   const pathname = usePathname();
   const active = props.active ?? pathname === href;
 
@@ -45,8 +45,8 @@ export function Item({ href, external, ...props }: ItemProps) {
   };
 
   const handleNavigate = () => {
-    ReactDOM.flushSync(close);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    const nextPathname = new URL(href, window.location.href).pathname;
+    closeAndScrollTopAfterNavigation(nextPathname);
   };
 
   const linkProps = {
