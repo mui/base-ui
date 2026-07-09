@@ -98,6 +98,14 @@ export function MobileNavDrawer({
     [onOpenChange],
   );
 
+  // `initialFocus` only runs when the drawer opens, so handle the shortcut
+  // being pressed while the drawer is already open.
+  React.useEffect(() => {
+    if (open && focusSearchOnOpen) {
+      inputRef.current?.focus();
+    }
+  }, [focusSearchOnOpen, open]);
+
   return (
     <Drawer.Root
       swipeDirection="down"
