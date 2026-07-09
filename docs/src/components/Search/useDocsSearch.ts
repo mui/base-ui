@@ -65,7 +65,10 @@ export function useDocsSearch(
     void performSearch(searchValue);
   }, [hasQuery, isReady, performSearch, searchValue]);
 
-  const isSearchPending = hasQuery && isReady && completedSearchId !== latestSearchIdRef.current;
+  // A query typed before the lazy index is ready is still pending: results have
+  // collapsed to the defaults, so treat not-ready-yet the same as in-flight to
+  // avoid rendering the default list under a real query.
+  const isSearchPending = hasQuery && (!isReady || completedSearchId !== latestSearchIdRef.current);
 
   return { ...searchApi, results: acceptedResults, hasQuery, isSearchPending, performSearch };
 }
