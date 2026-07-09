@@ -54,7 +54,6 @@
   }
 
   .MobileNavPopup {
-    /* Extends the sheet below the viewport so rounded corners and shadows exit cleanly. */
     --mobile-nav-bleed: 3rem;
     --mobile-nav-item-height: var(--space-40);
     --mobile-nav-item-padding-x: var(--space-28);
@@ -91,7 +90,6 @@
     }
 
     &[data-starting-style] {
-      /* Push the sheet just past the viewport to avoid a 1px sliver during entry. */
       transform: translateY(calc(100% - var(--mobile-nav-bleed) + 2px));
     }
 
