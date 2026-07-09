@@ -157,7 +157,6 @@ export function SearchDialog({
         buildResultUrl={buildResultUrl}
         className="SearchList"
         classes={searchResultClasses}
-        onKeyDownCapture={handleKeyDownCapture}
         onResultNavigate={handleItemClick}
         separatorVariant="filled"
       />

@@ -67,7 +67,7 @@ export function Item({
   };
 
   return (
-    <li {...props} className={clsx('MobileNavItem', className)}>
+    <li {...props} className={className}>
       {external ? (
         <a {...linkProps}>{children}</a>
       ) : (

@@ -121,12 +121,10 @@ export function useSearchTracking({ open, onOpen, onClose }: UseSearchTrackingOp
 
   return React.useMemo(
     () => ({
-      handleOpen,
-      handleClose,
       handleSearchValueChange,
       setResultCount,
       setSelectedResult,
     }),
-    [handleClose, handleOpen, handleSearchValueChange, setResultCount, setSelectedResult],
+    [handleSearchValueChange, setResultCount, setSelectedResult],
   );
 }

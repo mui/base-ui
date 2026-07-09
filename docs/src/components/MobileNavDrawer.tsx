@@ -335,7 +335,6 @@ function MobileNavPopupImpl({
             buildResultUrl={buildResultUrl}
             className="MobileNavSearchList"
             classes={searchResultClasses}
-            onKeyDownCapture={handleKeyDownCapture}
             onResultNavigate={handleResultNavigate}
             separatorVariant="stroked"
           />
@@ -378,7 +377,7 @@ function MobileNavPopupImpl({
           />
           {hasQuery && (
             <Autocomplete.Clear aria-label="Clear search" className="MobileNavClearSearch">
-              <XIcon className="MobileNavClearSearchIcon" />
+              <XIcon />
             </Autocomplete.Clear>
           )}
         </div>

@@ -21,7 +21,6 @@ interface SearchResultsListProps {
   buildResultUrl: (result: SearchResult) => string;
   className: string;
   classes: SearchResultsListClasses;
-  onKeyDownCapture: React.KeyboardEventHandler;
   onResultNavigate: (result: SearchResult) => void;
   separatorVariant: 'filled' | 'stroked';
 }
@@ -30,7 +29,6 @@ export function SearchResultsList({
   buildResultUrl,
   className,
   classes,
-  onKeyDownCapture,
   onResultNavigate,
   separatorVariant,
 }: SearchResultsListProps) {
@@ -69,11 +67,7 @@ export function SearchResultsList({
     [buildResultUrl, classes, onResultNavigate, separatorVariant],
   );
 
-  return (
-    <Autocomplete.List className={className} onKeyDownCapture={onKeyDownCapture}>
-      {renderGroup}
-    </Autocomplete.List>
-  );
+  return <Autocomplete.List className={className}>{renderGroup}</Autocomplete.List>;
 }
 
 function SearchResultItem({
