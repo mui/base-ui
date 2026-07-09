@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { BaseUIComponentProps } from '../../internals/types';
 import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
@@ -26,7 +27,7 @@ import {
 } from '../../internals/composite/composite';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
@@ -39,7 +40,6 @@ import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
-import { script as prehydrationScript } from './prehydrationScript.min';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
@@ -116,7 +116,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
-  const { nonce } = useCSPContext();
   const id = useBaseUiId(idProp);
 
   const {
@@ -490,19 +489,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           <React.Fragment>
             {childrenProp}
             <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
-            {inset &&
-              isHydrating &&
-              renderBeforeHydration &&
-              // this must be rendered with the last thumb to ensure all
-              // preceding thumbs are already rendered in the DOM
-              last && (
-                <script
-                  nonce={nonce}
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: prehydrationScript }}
-                  suppressHydrationWarning
-                />
-              )}
+            {/* Rendered with the last thumb to ensure all preceding thumbs are already in the DOM. */}
+            {inset && last && renderBeforeHydration && (
+              <PrehydrationScript script={prehydrationScript} />
+            )}
           </React.Fragment>
         ),
         id,

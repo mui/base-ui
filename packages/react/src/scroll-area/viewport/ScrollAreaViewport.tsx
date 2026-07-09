@@ -90,6 +90,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     hiddenState,
     setHasMeasuredScrollbar,
     handleScroll,
+    touchModality,
     setHovering,
     setOverflowEdges,
     overflowEdges,
@@ -396,7 +397,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       computeThumbPosition();
 
-      if (!programmaticScrollRef.current) {
+      // WebKit consumes a touch that catches an in-flight momentum scroll or
+      // rubber-band bounce without dispatching any DOM events for the whole
+      // gesture (not even `touchstart`), so scrolls cannot be attributed to
+      // the user through events. Treat every scroll in touch modality as
+      // user-driven instead.
+      if (touchModality || !programmaticScrollRef.current) {
         handleScroll({
           x: viewportRef.current.scrollLeft,
           y: viewportRef.current.scrollTop,
@@ -414,7 +420,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       });
     },
     onWheel: handleUserInteraction,
-    onTouchMove: handleUserInteraction,
     onPointerMove: handleUserInteraction,
     onPointerEnter: handleUserInteraction,
     onKeyDown: handleUserInteraction,
