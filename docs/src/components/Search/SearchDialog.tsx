@@ -4,6 +4,7 @@ import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CornerDownLeft } from 'lucide-react';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { handleModifiedEnterNavigation, searchResultToString } from './searchUtils';
@@ -43,6 +44,17 @@ export function SearchDialog({
   const [searchValue, setSearchValue] = React.useState('');
   const [searchIndexActive, setSearchIndexActive] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const indexWarmupTimeout = useTimeout();
+
+  // Build the search index shortly after mount so the default results are ready
+  // before the first open, instead of popping in once the open transition
+  // completes. The delay keeps the index build from competing with hydration.
+  React.useEffect(() => {
+    indexWarmupTimeout.start(250, () => {
+      setSearchIndexActive(true);
+    });
+    return indexWarmupTimeout.clear;
+  }, [indexWarmupTimeout]);
 
   const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
   const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
@@ -72,7 +84,11 @@ export function SearchDialog({
   });
 
   const handleOpenChangeComplete = React.useCallback((nextOpen: boolean) => {
-    setSearchIndexActive(nextOpen);
+    // Fallback in case the dialog is opened before the warmup timeout fires.
+    // Never deactivate: the built index persists and must stay ready for reopens.
+    if (nextOpen) {
+      setSearchIndexActive(true);
+    }
   }, []);
 
   const handleAutocompleteEscape = React.useCallback(
