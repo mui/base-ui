@@ -20,6 +20,7 @@
     transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
     @supports (-webkit-touch-callout: none) {
+      /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
       position: absolute;
     }
 
@@ -388,6 +389,7 @@
   }
 
   @supports not (-webkit-tap-highlight-color: black) {
+    /* Applying background-color on :active shows it when touching items while scrolling. */
     .MobileNavLink:active,
     .MobileNavSearchOption:active {
       background-color: var(--gray-c1);
