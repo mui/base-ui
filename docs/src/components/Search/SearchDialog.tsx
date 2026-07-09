@@ -41,9 +41,10 @@ export function SearchDialog({
   triggerId,
 }: SearchDialogProps) {
   const [searchValue, setSearchValue] = React.useState('');
+  const [searchIndexActive, setSearchIndexActive] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const searchSitemap = useDeferredSearchSitemap(open, sitemapImport);
+  const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
   const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
     searchSitemap,
     searchValue,
@@ -76,6 +77,10 @@ export function SearchDialog({
     },
     [onOpenChange],
   );
+
+  const handleOpenChangeComplete = React.useCallback((nextOpen: boolean) => {
+    setSearchIndexActive(nextOpen);
+  }, []);
 
   const handleAutocompleteEscape = React.useCallback(
     (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
@@ -151,7 +156,13 @@ export function SearchDialog({
   }
 
   return (
-    <Dialog.Root handle={handle} open={open} onOpenChange={handleOpenChange} triggerId={triggerId}>
+    <Dialog.Root
+      handle={handle}
+      open={open}
+      onOpenChange={handleOpenChange}
+      onOpenChangeComplete={handleOpenChangeComplete}
+      triggerId={triggerId}
+    >
       <Dialog.Portal>
         <Dialog.Backdrop className="SearchBackdrop" />
         <Dialog.Viewport className="SearchViewport">
