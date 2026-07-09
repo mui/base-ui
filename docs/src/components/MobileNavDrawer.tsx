@@ -45,6 +45,7 @@ export function MobileNavDrawer({
 }: MobileNavDrawerProps) {
   const [searchValue, setSearchValue] = React.useState('');
   const [searchIndexActive, setSearchIndexActive] = React.useState(false);
+  const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
   const searchTracking = useSearchTracking();
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -68,6 +69,27 @@ export function MobileNavDrawer({
     onResultCountChange: searchTracking.setResultCount,
     results,
   });
+
+  React.useEffect(() => {
+    let ignore = false;
+
+    void sitemapImport().then(
+      ({ sitemap: nextSitemap }) => {
+        if (!ignore) {
+          setNavSitemap(nextSitemap ?? null);
+        }
+      },
+      () => {
+        if (!ignore) {
+          setNavSitemap(null);
+        }
+      },
+    );
+
+    return () => {
+      ignore = true;
+    };
+  }, [sitemapImport]);
 
   const handleOpenDrawer = React.useCallback(() => {
     searchTracking.handleOpen();
@@ -143,13 +165,13 @@ export function MobileNavDrawer({
                 hasQuery={hasQuery}
                 inputRef={inputRef}
                 isReady={isReady}
+                navSitemap={navSitemap}
                 onClose={() => onOpenChange(false)}
                 performSearch={performSearch}
                 searchResults={searchResults}
                 searchValue={searchValue}
                 onResultSelect={searchTracking.setSelectedResult}
                 onSearchValueChange={searchTracking.handleSearchValueChange}
-                sitemapImport={sitemapImport}
                 setSearchValue={setSearchValue}
               />
             </Drawer.Popup>
@@ -165,13 +187,13 @@ interface MobileNavPopupImplProps {
   hasQuery: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   isReady: boolean;
+  navSitemap: Sitemap | null;
   onClose: () => void;
   performSearch: (value: string) => Promise<void>;
   searchResults: ReturnType<typeof useDocsSearch>['results'];
   searchValue: string;
   onResultSelect: (result: SearchResult | null) => void;
   onSearchValueChange: (value: string) => void;
-  sitemapImport: SearchSitemapLoader;
   setSearchValue: (value: string) => void;
 }
 
@@ -180,19 +202,18 @@ function MobileNavPopupImpl({
   hasQuery,
   inputRef,
   isReady,
+  navSitemap,
   onClose,
   performSearch,
   searchResults,
   searchValue,
   onResultSelect,
   onSearchValueChange,
-  sitemapImport,
   setSearchValue,
 }: MobileNavPopupImplProps) {
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
-  const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
 
   useIsoLayoutEffect(() => {
     if (hadQueryRef.current && !hasQuery) {
@@ -205,31 +226,6 @@ function MobileNavPopupImpl({
 
     hadQueryRef.current = hasQuery;
   }, [hasQuery]);
-
-  React.useEffect(() => {
-    if (hasQuery) {
-      return undefined;
-    }
-
-    let ignore = false;
-
-    void sitemapImport().then(
-      ({ sitemap: nextSitemap }) => {
-        if (!ignore) {
-          setNavSitemap(nextSitemap ?? null);
-        }
-      },
-      () => {
-        if (!ignore) {
-          setNavSitemap(null);
-        }
-      },
-    );
-
-    return () => {
-      ignore = true;
-    };
-  }, [hasQuery, sitemapImport]);
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
