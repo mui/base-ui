@@ -39,8 +39,7 @@
     }
 
     &[data-ending-style] {
-      transition-duration: clamp(90ms, calc(var(--drawer-swipe-strength, 1) * 160ms), 160ms);
-      transition-timing-function: linear;
+      transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
     }
   }
 
