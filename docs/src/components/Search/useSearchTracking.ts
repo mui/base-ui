@@ -1,16 +1,24 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 
-export function useSearchTracking() {
+interface UseSearchTrackingOptions {
+  open?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
+}
+
+export function useSearchTracking({ open, onOpen, onClose }: UseSearchTrackingOptions = {}) {
   const ga = useGoogleAnalytics();
   const searchQueryRef = React.useRef('');
   const resultCountRef = React.useRef(0);
   const attemptRef = React.useRef(0);
   const selectedResultRef = React.useRef<SearchResult | null>(null);
   const lastTrackedQueryRef = React.useRef('');
+  const wasOpenRef = React.useRef(open ?? false);
   const queryDebounceTimeout = useTimeout();
 
   const handleOpen = React.useCallback(() => {
@@ -88,6 +96,28 @@ export function useSearchTracking() {
   const setSelectedResult = React.useCallback((result: SearchResult | null) => {
     selectedResultRef.current = result;
   }, []);
+
+  const handleTrackedOpenChange = useStableCallback((nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpen?.();
+      handleOpen();
+    } else {
+      handleClose();
+      onClose?.();
+    }
+  });
+
+  React.useEffect(() => {
+    if (open === undefined) {
+      return;
+    }
+
+    if (open !== wasOpenRef.current) {
+      handleTrackedOpenChange(open);
+    }
+
+    wasOpenRef.current = open;
+  }, [handleTrackedOpenChange, open]);
 
   return React.useMemo(
     () => ({

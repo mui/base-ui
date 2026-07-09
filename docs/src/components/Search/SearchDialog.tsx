@@ -43,8 +43,6 @@ export function SearchDialog({
   const [searchValue, setSearchValue] = React.useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
-  const searchTracking = useSearchTracking();
-  const wasOpenRef = React.useRef(false);
 
   const searchSitemap = useDeferredSearchSitemap(open, sitemapImport);
   const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
@@ -53,6 +51,17 @@ export function SearchDialog({
   );
   const hasSearchValue = searchValue.trim() !== '';
   const isSearchPending = hasSearchValue && isReady && results === defaultResults;
+  const searchTracking = useSearchTracking({
+    open,
+    onOpen: () => {
+      setSearchValue('');
+    },
+    onClose: () => {
+      // The dialog stays mounted after closing, so reset the results while it's
+      // hidden. Otherwise reopening would show the previous query's results.
+      void performSearch('');
+    },
+  });
 
   const searchResults = useDeferredEmptySearchResults({
     active: open && isReady && !isSearchPending,
@@ -61,30 +70,6 @@ export function SearchDialog({
     resetDelay: 200,
     results,
   });
-
-  const handleOpenDialog = React.useCallback(() => {
-    setSearchValue('');
-    searchTracking.handleOpen();
-  }, [searchTracking]);
-
-  const handleCloseDialog = React.useCallback(() => {
-    searchTracking.handleClose();
-    // The dialog stays mounted after closing, so reset the results while it's
-    // hidden. Otherwise reopening would show the previous query's results.
-    void performSearch('');
-  }, [performSearch, searchTracking]);
-
-  React.useEffect(() => {
-    if (open !== wasOpenRef.current) {
-      if (open) {
-        handleOpenDialog();
-      } else {
-        handleCloseDialog();
-      }
-    }
-
-    wasOpenRef.current = open;
-  }, [handleCloseDialog, handleOpenDialog, open]);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {

@@ -47,10 +47,9 @@ export function MobileNavDrawer({
   const [searchValue, setSearchValue] = React.useState('');
   const [searchIndexActive, setSearchIndexActive] = React.useState(false);
   const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
-  const searchTracking = useSearchTracking();
+  const searchTracking = useSearchTracking({ open });
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const wasOpenRef = React.useRef(false);
 
   // The search hooks live here rather than in MobileNavPopupImpl so that the
   // search index survives the popup unmounting when the drawer closes. Activate
@@ -93,14 +92,6 @@ export function MobileNavDrawer({
     };
   }, [sitemapImport]);
 
-  const handleOpenDrawer = React.useCallback(() => {
-    searchTracking.handleOpen();
-  }, [searchTracking]);
-
-  const handleCloseDrawer = React.useCallback(() => {
-    searchTracking.handleClose();
-  }, [searchTracking]);
-
   const handleOpenChangeComplete = React.useCallback(
     (nextOpen: boolean) => {
       setSearchIndexActive(nextOpen);
@@ -117,18 +108,6 @@ export function MobileNavDrawer({
     },
     [onOpenChangeComplete, performSearch],
   );
-
-  React.useEffect(() => {
-    if (open !== wasOpenRef.current) {
-      if (open) {
-        handleOpenDrawer();
-      } else {
-        handleCloseDrawer();
-      }
-    }
-
-    wasOpenRef.current = open;
-  }, [handleCloseDrawer, handleOpenDrawer, open]);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
