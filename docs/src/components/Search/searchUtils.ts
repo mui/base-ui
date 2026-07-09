@@ -9,7 +9,7 @@ export interface GroupedSearchResults {
 }
 
 // Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0).
-// Matches the search slug behavior used by the desktop search dialog.
+// Prefix child slugs with a parent semver version to match release heading IDs.
 const SEMVER_PATTERN =
   /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
