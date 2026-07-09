@@ -95,8 +95,7 @@
       transform: translateY(
         calc(100% - var(--mobile-nav-bleed) + var(--mobile-nav-shadow-clearance))
       );
-      transition-duration: clamp(140ms, calc(var(--drawer-swipe-strength, 1) * 220ms), 220ms);
-      transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+      transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
     }
 
     @media (--sm) {
