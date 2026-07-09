@@ -57,12 +57,15 @@ export function SearchDialog({
   }, [indexWarmupTimeout]);
 
   const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
-  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
-    searchSitemap,
-    searchValue,
-  );
-  const hasSearchValue = searchValue.trim() !== '';
-  const isSearchPending = hasSearchValue && isReady && results === defaultResults;
+  const {
+    results,
+    defaultResults,
+    buildResultUrl,
+    hasQuery,
+    isReady,
+    isSearchPending,
+    performSearch,
+  } = useDocsSearch(searchSitemap, searchValue);
   const searchTracking = useSearchTracking({
     open,
     onOpen: () => {
@@ -144,7 +147,7 @@ export function SearchDialog({
 
   let searchResultsContent: React.ReactNode = null;
 
-  if (searchResults.results.length === 0 && hasSearchValue && isReady && !isSearchPending) {
+  if (searchResults.results.length === 0 && hasQuery && isReady && !isSearchPending) {
     searchResultsContent = (
       <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>
     );

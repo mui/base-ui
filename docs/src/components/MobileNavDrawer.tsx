@@ -103,14 +103,17 @@ function MobileNavDrawerContent({
   // the popup unmounting when the drawer closes. Activate the deferred loader
   // after opening completes so indexing doesn't land on the first keystroke or
   // during the drawer transition.
-  const hasQuery = searchValue.trim() !== '';
   const sitemapImport = sitemap ?? loadSearchSitemap;
   const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
-  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
-    searchSitemap,
-    searchValue,
-  );
-  const isSearchPending = hasQuery && isReady && results === defaultResults;
+  const {
+    results,
+    defaultResults,
+    buildResultUrl,
+    hasQuery,
+    isReady,
+    isSearchPending,
+    performSearch,
+  } = useDocsSearch(searchSitemap, searchValue);
 
   const searchResults = useDeferredEmptySearchResults({
     active: hasQuery && isReady && !isSearchPending,
