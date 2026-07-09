@@ -36,6 +36,7 @@ interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'han
 export function MobileNavDrawer({
   focusSearchOnOpen,
   handle,
+  onOpenChangeComplete,
   open,
   onOpenChange,
   sitemap,
@@ -43,17 +44,19 @@ export function MobileNavDrawer({
   ...props
 }: MobileNavDrawerProps) {
   const [searchValue, setSearchValue] = React.useState('');
+  const [searchIndexActive, setSearchIndexActive] = React.useState(false);
   const searchTracking = useSearchTracking();
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const wasOpenRef = React.useRef(false);
 
   // The search hooks live here rather than in MobileNavPopupImpl so that the
-  // search index survives the popup unmounting when the drawer closes.
-  // Otherwise it would be rebuilt from scratch on every open-then-type.
+  // search index survives the popup unmounting when the drawer closes. Activate
+  // the deferred loader after opening completes so indexing doesn't land on the
+  // first keystroke or during the drawer transition.
   const hasQuery = searchValue.trim() !== '';
   const sitemapImport = sitemap ?? loadSearchSitemap;
-  const searchSitemap = useDeferredSearchSitemap(hasQuery, sitemapImport);
+  const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
   const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
     searchSitemap,
     searchValue,
@@ -72,12 +75,21 @@ export function MobileNavDrawer({
 
   const handleCloseDrawer = React.useCallback(() => {
     searchTracking.handleClose();
+    setSearchIndexActive(false);
     setSearchValue('');
     // The search state also survives closing now, so reset the results while
     // the drawer is hidden. Otherwise the previous query's results would
     // briefly show when a new query is typed after reopening.
     void performSearch('');
   }, [performSearch, searchTracking]);
+
+  const handleOpenChangeComplete = React.useCallback(
+    (nextOpen: boolean) => {
+      setSearchIndexActive(nextOpen);
+      onOpenChangeComplete?.(nextOpen);
+    },
+    [onOpenChangeComplete],
+  );
 
   React.useEffect(() => {
     if (open !== wasOpenRef.current) {
@@ -113,6 +125,7 @@ export function MobileNavDrawer({
       handle={handle}
       open={open}
       onOpenChange={handleOpenChange}
+      onOpenChangeComplete={handleOpenChangeComplete}
       triggerId={triggerId}
     >
       <Drawer.VirtualKeyboardProvider>
