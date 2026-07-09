@@ -34,8 +34,6 @@ const withMdx = nextMdx({
               'src/app/playground',
             ],
             baseDir,
-            indexFileName: 'index.mdx',
-            onlyUpdateIndexes: true,
             useVisibleDescription: true,
           },
         },
@@ -76,7 +74,6 @@ const typesGenerationOptions = {
   updateParentIndex: {
     baseDir,
     onlyUpdateIndexes: true,
-    indexFileName: 'index.mdx',
   },
   ordering,
   descriptionReplacements: [

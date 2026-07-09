@@ -11,6 +11,7 @@ import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
+import { getNavSections } from 'docs/src/utils/navSections';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { NpmIcon } from 'docs/src/icons/NpmIcon';
 import { getDisplayTitle } from 'docs/src/utils/getDisplayTitle';
@@ -60,9 +61,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     <Header />
                     <SideNav.Root>
                       {sitemap &&
-                        Object.entries(sitemap.data).map(([name, section]) => (
-                          <SideNav.Section key={name}>
-                            <SideNav.Heading>{name}</SideNav.Heading>
+                        getNavSections(sitemap).map((section) => (
+                          <SideNav.Section key={section.name}>
+                            <SideNav.Heading>{section.name}</SideNav.Heading>
                             <SideNav.List>
                               {section.pages.filter(isSitemapPageVisible).map((page) => {
                                 const pageInfo = getSitemapPageInfo(section, page);
