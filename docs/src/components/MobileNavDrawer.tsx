@@ -223,7 +223,7 @@ function MobileNavPopupImpl({
   const hadQueryRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
-    if (hadQueryRef.current && !hasQuery) {
+    if (hadQueryRef.current !== hasQuery) {
       scrollAreaViewportRef.current?.scrollTo({ top: 0, left: 0 });
     }
 
