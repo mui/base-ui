@@ -153,8 +153,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.5)
       '@mui/internal-docs-infra':
-        specifier: 0.12.1-canary.26
-        version: 0.12.1-canary.26(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
       '@next/mdx':
         specifier: ^16.2.10
         version: 16.2.10(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.106.2(esbuild@0.27.7)(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))
@@ -2259,8 +2259,9 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.12.1-canary.26':
-    resolution: {integrity: sha512-7olHhvR5tDbyRx+y3yVG0lmAApFk7h+JdkmyZDph3x+Bf6YwwbSE1ZTtkU64PLCgBKoP7AukbxP8YkDiz/rHOg==}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136':
+    resolution: {integrity: sha512-A4f6OdnEBl1+H5xa0J6QHrCEA/AhgjuwO8XZLLgJUGMlIlYRjsKQChRrxAyHorFa+MSgFKPCyyE2lF579PXPlw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136}
+    version: 0.12.0
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -9326,11 +9327,11 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-beta.4:
-    resolution: {integrity: sha512-tVSlm5uZ3/cIWe1Rjg0ehVa7VdbwFECHm6HHc9d+dyWmcDiuHGQXOKRYADFatc9tqgIPodZ4tvJJbCyYG807JQ==}
+  typescript-api-extractor@1.0.0-beta.3:
+    resolution: {integrity: sha512-kniM+MhKK2egY8Vs6etsX8oWdBtjDOoSSPI0p7p5zlGtEuYfdozS5aCyJReLSTpLP+c2886oJ2c/6Nw7cTyJEQ==}
     engines: {node: '>=22'}
     peerDependencies:
-      typescript: ^5.8 || ^6.0
+      typescript: ^5.8
 
   typescript-eslint@8.59.2:
     resolution: {integrity: sha512-pJw051uomb3ZeCzGTpRb8RbEqB5Y4WWet8gl/GcTlU35BSx0PVdZ86/bqkQCyKKuraVQEK7r6kBHQXF+fBhkoQ==}
@@ -11774,7 +11775,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.12.1-canary.26(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@csstools/postcss-light-dark-function': 3.0.2(postcss@8.5.23)
@@ -11814,7 +11815,7 @@ snapshots:
       remark-typography: 0.7.3
       sucrase: 3.35.1
       typescript: 6.0.3
-      typescript-api-extractor: 1.0.0-beta.4(typescript@6.0.3)
+      typescript-api-extractor: 1.0.0-beta.3(typescript@6.0.3)
       uint8-to-base64: 0.2.1
       unified: 11.0.5
       unist-util-visit: 5.1.0
@@ -19994,7 +19995,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-beta.4(typescript@6.0.3):
+  typescript-api-extractor@1.0.0-beta.3(typescript@6.0.3):
     dependencies:
       es-toolkit: 1.46.1
       typescript: 6.0.3
