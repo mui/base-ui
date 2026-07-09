@@ -44,17 +44,72 @@ export function MobileNavDrawer({
   triggerId,
   ...props
 }: MobileNavDrawerProps) {
+  const searchTracking = useSearchTracking({ open });
+  const onOpenChangeCompleteRef = React.useRef<((open: boolean) => void) | null>(null);
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange],
+  );
+
+  const handleOpenChangeComplete = React.useCallback((nextOpen: boolean) => {
+    onOpenChangeCompleteRef.current?.(nextOpen);
+  }, []);
+
+  return (
+    <Drawer.Root
+      swipeDirection="down"
+      {...props}
+      handle={handle}
+      open={open}
+      onOpenChange={handleOpenChange}
+      onOpenChangeComplete={handleOpenChangeComplete}
+      triggerId={triggerId}
+    >
+      <MobileNavDrawerContent
+        focusSearchOnOpen={focusSearchOnOpen}
+        onOpenChange={onOpenChange}
+        onOpenChangeComplete={onOpenChangeComplete}
+        onOpenChangeCompleteRef={onOpenChangeCompleteRef}
+        open={open}
+        searchTracking={searchTracking}
+        sitemap={sitemap}
+      />
+    </Drawer.Root>
+  );
+}
+
+interface MobileNavDrawerContentProps {
+  focusSearchOnOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onOpenChangeComplete: Drawer.Root.Props['onOpenChangeComplete'];
+  onOpenChangeCompleteRef: React.MutableRefObject<((open: boolean) => void) | null>;
+  open: boolean;
+  searchTracking: ReturnType<typeof useSearchTracking>;
+  sitemap: SearchSitemapLoader | undefined;
+}
+
+function MobileNavDrawerContent({
+  focusSearchOnOpen,
+  onOpenChange,
+  onOpenChangeComplete,
+  onOpenChangeCompleteRef,
+  open,
+  searchTracking,
+  sitemap,
+}: MobileNavDrawerContentProps) {
   const [searchValue, setSearchValue] = React.useState('');
   const [searchIndexActive, setSearchIndexActive] = React.useState(false);
   const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
-  const searchTracking = useSearchTracking({ open });
   const popupRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // The search hooks live here rather than in MobileNavPopupImpl so that the
-  // search index survives the popup unmounting when the drawer closes. Activate
-  // the deferred loader after opening completes so indexing doesn't land on the
-  // first keystroke or during the drawer transition.
+  // These hooks live outside MobileNavPopupImpl so the search index survives
+  // the popup unmounting when the drawer closes. Activate the deferred loader
+  // after opening completes so indexing doesn't land on the first keystroke or
+  // during the drawer transition.
   const hasQuery = searchValue.trim() !== '';
   const sitemapImport = sitemap ?? loadSearchSitemap;
   const searchSitemap = useDeferredSearchSitemap(searchIndexActive, sitemapImport);
@@ -109,12 +164,15 @@ export function MobileNavDrawer({
     [onOpenChangeComplete, performSearch],
   );
 
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean) => {
-      onOpenChange(nextOpen);
-    },
-    [onOpenChange],
-  );
+  React.useEffect(() => {
+    onOpenChangeCompleteRef.current = handleOpenChangeComplete;
+
+    return () => {
+      if (onOpenChangeCompleteRef.current === handleOpenChangeComplete) {
+        onOpenChangeCompleteRef.current = null;
+      }
+    };
+  }, [handleOpenChangeComplete, onOpenChangeCompleteRef]);
 
   // `initialFocus` only runs when the drawer opens, so handle the shortcut
   // being pressed while the drawer is already open.
@@ -125,45 +183,35 @@ export function MobileNavDrawer({
   }, [focusSearchOnOpen, open]);
 
   return (
-    <Drawer.Root
-      swipeDirection="down"
-      {...props}
-      handle={handle}
-      open={open}
-      onOpenChange={handleOpenChange}
-      onOpenChangeComplete={handleOpenChangeComplete}
-      triggerId={triggerId}
-    >
-      <Drawer.VirtualKeyboardProvider>
-        <Drawer.Portal>
-          <Drawer.Backdrop className="MobileNavBackdrop" />
-          <Drawer.Viewport className="MobileNavViewport">
-            <Drawer.Popup
-              ref={popupRef}
-              className="MobileNavPopup"
-              initialFocus={() => (focusSearchOnOpen ? inputRef.current : popupRef.current)}
-            >
-              <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
-              <MobileNavPopupImpl
-                buildResultUrl={buildResultUrl}
-                hasQuery={hasQuery}
-                inputRef={inputRef}
-                isReady={isReady}
-                isSearchPending={isSearchPending}
-                navSitemap={navSitemap}
-                onClose={() => onOpenChange(false)}
-                performSearch={performSearch}
-                searchResults={searchResults}
-                searchValue={searchValue}
-                onResultSelect={searchTracking.setSelectedResult}
-                onSearchValueChange={searchTracking.handleSearchValueChange}
-                setSearchValue={setSearchValue}
-              />
-            </Drawer.Popup>
-          </Drawer.Viewport>
-        </Drawer.Portal>
-      </Drawer.VirtualKeyboardProvider>
-    </Drawer.Root>
+    <Drawer.VirtualKeyboardProvider>
+      <Drawer.Portal>
+        <Drawer.Backdrop className="MobileNavBackdrop" />
+        <Drawer.Viewport className="MobileNavViewport">
+          <Drawer.Popup
+            ref={popupRef}
+            className="MobileNavPopup"
+            initialFocus={() => (focusSearchOnOpen ? inputRef.current : popupRef.current)}
+          >
+            <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
+            <MobileNavPopupImpl
+              buildResultUrl={buildResultUrl}
+              hasQuery={hasQuery}
+              inputRef={inputRef}
+              isReady={isReady}
+              isSearchPending={isSearchPending}
+              navSitemap={navSitemap}
+              onClose={() => onOpenChange(false)}
+              performSearch={performSearch}
+              searchResults={searchResults}
+              searchValue={searchValue}
+              onResultSelect={searchTracking.setSelectedResult}
+              onSearchValueChange={searchTracking.handleSearchValueChange}
+              setSearchValue={setSearchValue}
+            />
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.VirtualKeyboardProvider>
   );
 }
 
