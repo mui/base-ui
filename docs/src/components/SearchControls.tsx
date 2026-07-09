@@ -212,7 +212,6 @@ export function SearchControls({
           handle={desktopHandle}
           open={desktopOpen}
           onOpenChange={handleDesktopOpenChange}
-          sitemap={loadSearchSitemap}
           triggerId={desktopOpen ? desktopTriggerId : null}
         />
       </React.Suspense>
@@ -236,7 +235,6 @@ export function SearchControls({
             open={mobileOpen}
             onOpenChange={handleMobileOpenChange}
             onOpenChangeComplete={handleMobileOpenChangeComplete}
-            sitemap={loadSearchSitemap}
             triggerId={mobileOpen ? mobileTriggerId : null}
           />
         </React.Suspense>
