@@ -14,8 +14,7 @@ import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { NpmIcon } from 'docs/src/icons/NpmIcon';
 import { getDisplayTitle } from 'docs/src/utils/getDisplayTitle';
-
-const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+import { getSitemapPageInfo, isSitemapPageVisible } from 'docs/src/utils/sitemapPage';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -65,34 +64,22 @@ export default function Layout({ children }: React.PropsWithChildren) {
                           <SideNav.Section key={name}>
                             <SideNav.Heading>{name}</SideNav.Heading>
                             <SideNav.List>
-                              {section.pages
-                                .filter((page) =>
-                                  page.audience === 'private' ? showPrivatePages : true,
-                                )
-                                .map((page) => {
-                                  const isNewPage = page.tags?.includes('New');
-                                  const isPreviewPage = page.tags?.includes('Preview');
-                                  const isPrivatePage = page.audience === 'private';
+                              {section.pages.filter(isSitemapPageVisible).map((page) => {
+                                const pageInfo = getSitemapPageInfo(section, page);
 
-                                  return (
-                                    <SideNav.Item
-                                      key={page.title}
-                                      href={
-                                        page.path.startsWith('./')
-                                          ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                          : page.path
-                                      }
-                                      external={page.tags?.includes('External')}
-                                    >
-                                      {getDisplayTitle(page.title)}
-                                      {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
-                                      {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
-                                      {isNewPage && !isPreviewPage && !isPrivatePage && (
-                                        <SideNav.Badge>New</SideNav.Badge>
-                                      )}
-                                    </SideNav.Item>
-                                  );
-                                })}
+                                return (
+                                  <SideNav.Item
+                                    key={page.title}
+                                    href={pageInfo.href}
+                                    external={pageInfo.external}
+                                  >
+                                    {getDisplayTitle(page.title)}
+                                    {pageInfo.badges.map((badge) => (
+                                      <SideNav.Badge key={badge}>{badge}</SideNav.Badge>
+                                    ))}
+                                  </SideNav.Item>
+                                );
+                              })}
                             </SideNav.List>
                           </SideNav.Section>
                         ))}
