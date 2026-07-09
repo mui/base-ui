@@ -80,9 +80,11 @@ export function SearchDialog({
     searchSitemap,
     searchValue,
   );
+  const hasSearchValue = searchValue.trim() !== '';
+  const isSearchPending = hasSearchValue && isReady && results === defaultResults;
 
   const searchResults = useDeferredEmptySearchResults({
-    active: open && isReady,
+    active: open && isReady && !isSearchPending,
     defaultResults,
     onResultCountChange: searchTracking.setResultCount,
     resetDelay: 200,
@@ -202,14 +204,13 @@ export function SearchDialog({
     [buildResultUrl, handleItemClick],
   );
 
-  const hasSearchValue = searchValue.trim() !== '';
   let searchResultsContent: React.ReactNode = null;
 
-  if (searchResults.results.length === 0 && hasSearchValue && isReady) {
+  if (searchResults.results.length === 0 && hasSearchValue && isReady && !isSearchPending) {
     searchResultsContent = (
       <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>
     );
-  } else if (searchResults.results.length > 0) {
+  } else if (searchResults.results.length > 0 && !isSearchPending) {
     searchResultsContent = (
       <Autocomplete.List className="SearchList" onKeyDownCapture={handleKeyDownCapture}>
         {renderResultsList}
@@ -230,7 +231,7 @@ export function SearchDialog({
           >
             <Dialog.Title className="bui-sr-only">Search documentation</Dialog.Title>
             <Autocomplete.Root
-              items={searchResults.results}
+              items={isSearchPending ? [] : searchResults.results}
               onValueChange={handleValueChange}
               onOpenChange={handleAutocompleteEscape}
               onItemHighlighted={handleItemHighlighted}

@@ -62,9 +62,10 @@ export function MobileNavDrawer({
     searchSitemap,
     searchValue,
   );
+  const isSearchPending = hasQuery && isReady && results === defaultResults;
 
   const searchResults = useDeferredEmptySearchResults({
-    active: hasQuery && isReady,
+    active: hasQuery && isReady && !isSearchPending,
     defaultResults,
     onResultCountChange: searchTracking.setResultCount,
     results,
@@ -168,6 +169,7 @@ export function MobileNavDrawer({
                 hasQuery={hasQuery}
                 inputRef={inputRef}
                 isReady={isReady}
+                isSearchPending={isSearchPending}
                 navSitemap={navSitemap}
                 onClose={() => onOpenChange(false)}
                 performSearch={performSearch}
@@ -190,6 +192,7 @@ interface MobileNavPopupImplProps {
   hasQuery: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   isReady: boolean;
+  isSearchPending: boolean;
   navSitemap: Sitemap | null;
   onClose: () => void;
   performSearch: (value: string) => Promise<void>;
@@ -205,6 +208,7 @@ function MobileNavPopupImpl({
   hasQuery,
   inputRef,
   isReady,
+  isSearchPending,
   navSitemap,
   onClose,
   performSearch,
@@ -321,9 +325,11 @@ function MobileNavPopupImpl({
   let mobileNavContent: React.ReactNode = null;
 
   if (hasQuery) {
-    mobileNavContent = (
-      <div className="MobileNavSearchResults">
-        {searchResults.results.length === 0 && isReady ? (
+    let mobileSearchResultsContent: React.ReactNode = null;
+
+    if (!isSearchPending) {
+      mobileSearchResultsContent =
+        searchResults.results.length === 0 && isReady ? (
           <Autocomplete.Status className="MobileNavEmptyState">
             No results found.
           </Autocomplete.Status>
@@ -334,9 +340,10 @@ function MobileNavPopupImpl({
           >
             {renderResultsList}
           </Autocomplete.List>
-        )}
-      </div>
-    );
+        );
+    }
+
+    mobileNavContent = <div className="MobileNavSearchResults">{mobileSearchResultsContent}</div>;
   } else {
     mobileNavContent = (
       <nav aria-label="Docs navigation" className="MobileNavPanel">
@@ -347,7 +354,7 @@ function MobileNavPopupImpl({
 
   return (
     <Autocomplete.Root
-      items={searchResults.results}
+      items={isSearchPending ? [] : searchResults.results}
       value={searchValue}
       onValueChange={handleValueChange}
       onOpenChange={handleAutocompleteOpenChange}
