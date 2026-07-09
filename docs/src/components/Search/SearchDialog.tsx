@@ -69,6 +69,7 @@ export function SearchDialog({
       setSearchValue('');
     },
     onClose: () => {
+      setSearchValue('');
       // The dialog stays mounted after closing, so reset the results while it's
       // hidden. Otherwise reopening would show the previous query's results.
       void performSearch('');
