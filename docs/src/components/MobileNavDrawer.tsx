@@ -48,6 +48,24 @@ export function MobileNavDrawer({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const wasOpenRef = React.useRef(false);
 
+  // The search hooks live here rather than in MobileNavPopupImpl so that the
+  // search index survives the popup unmounting when the drawer closes.
+  // Otherwise it would be rebuilt from scratch on every open-then-type.
+  const hasQuery = searchValue.trim() !== '';
+  const sitemapImport = sitemap ?? loadSearchSitemap;
+  const searchSitemap = useDeferredSearchSitemap(hasQuery, sitemapImport);
+  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
+    searchSitemap,
+    searchValue,
+  );
+
+  const searchResults = useDeferredEmptySearchResults({
+    active: hasQuery && isReady,
+    defaultResults,
+    onResultCountChange: searchTracking.setResultCount,
+    results,
+  });
+
   const handleOpenDrawer = React.useCallback(() => {
     searchTracking.handleOpen();
   }, [searchTracking]);
@@ -55,7 +73,11 @@ export function MobileNavDrawer({
   const handleCloseDrawer = React.useCallback(() => {
     searchTracking.handleClose();
     setSearchValue('');
-  }, [searchTracking]);
+    // The search state also survives closing now, so reset the results while
+    // the drawer is hidden. Otherwise the previous query's results would
+    // briefly show when a new query is typed after reopening.
+    void performSearch('');
+  }, [performSearch, searchTracking]);
 
   React.useEffect(() => {
     if (open !== wasOpenRef.current) {
@@ -96,13 +118,17 @@ export function MobileNavDrawer({
             >
               <Drawer.Title className="bui-sr-only">Docs navigation</Drawer.Title>
               <MobileNavPopupImpl
+                buildResultUrl={buildResultUrl}
+                hasQuery={hasQuery}
                 inputRef={inputRef}
+                isReady={isReady}
                 onClose={() => onOpenChange(false)}
+                performSearch={performSearch}
+                searchResults={searchResults}
                 searchValue={searchValue}
-                onResultCountChange={searchTracking.setResultCount}
                 onResultSelect={searchTracking.setSelectedResult}
                 onSearchValueChange={searchTracking.handleSearchValueChange}
-                sitemap={sitemap}
+                sitemapImport={sitemapImport}
                 setSearchValue={setSearchValue}
               />
             </Drawer.Popup>
@@ -114,44 +140,38 @@ export function MobileNavDrawer({
 }
 
 interface MobileNavPopupImplProps {
+  buildResultUrl: (result: SearchResult) => string;
+  hasQuery: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  isReady: boolean;
   onClose: () => void;
+  performSearch: (value: string) => Promise<void>;
+  searchResults: ReturnType<typeof useDocsSearch>['results'];
   searchValue: string;
-  onResultCountChange: (resultCount: number) => void;
   onResultSelect: (result: SearchResult | null) => void;
   onSearchValueChange: (value: string) => void;
-  sitemap?: SearchSitemapLoader;
+  sitemapImport: SearchSitemapLoader;
   setSearchValue: (value: string) => void;
 }
 
 function MobileNavPopupImpl({
+  buildResultUrl,
+  hasQuery,
   inputRef,
+  isReady,
   onClose,
+  performSearch,
+  searchResults,
   searchValue,
-  onResultCountChange,
   onResultSelect,
   onSearchValueChange,
-  sitemap,
+  sitemapImport,
   setSearchValue,
 }: MobileNavPopupImplProps) {
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
   const scrollAreaViewportRef = React.useRef<HTMLDivElement>(null);
   const hadQueryRef = React.useRef(false);
   const [navSitemap, setNavSitemap] = React.useState<Sitemap | null>(null);
-  const hasQuery = searchValue.trim() !== '';
-  const sitemapImport = sitemap ?? loadSearchSitemap;
-  const searchSitemap = useDeferredSearchSitemap(hasQuery, sitemapImport);
-  const { results, defaultResults, buildResultUrl, isReady, performSearch } = useDocsSearch(
-    searchSitemap,
-    searchValue,
-  );
-
-  const searchResults = useDeferredEmptySearchResults({
-    active: hasQuery && isReady,
-    defaultResults,
-    onResultCountChange,
-    results,
-  });
 
   useIsoLayoutEffect(() => {
     if (hadQueryRef.current && !hasQuery) {
