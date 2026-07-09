@@ -1,28 +1,29 @@
 'use client';
 import * as React from 'react';
-import NextLink from 'next/link';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type {
-  SearchResult,
-  SearchResults,
-  Sitemap,
-} from '@mui/internal-docs-infra/useSearch/types';
+import type { SearchResult, Sitemap } from '@mui/internal-docs-infra/useSearch/types';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
-import { getDisplayTitle } from '../utils/getDisplayTitle';
 import { MobileNavContent } from './MobileNavContent';
-import {
-  handleModifiedEnterNavigation,
-  normalizeSearchGroup,
-  searchResultToString,
-} from './Search/searchUtils';
+import { handleModifiedEnterNavigation, searchResultToString } from './Search/searchUtils';
 import { loadSearchSitemap, type SearchSitemapLoader } from './Search/searchSitemap';
+import { SearchResultsList } from './Search/SearchResultsList';
 import { useDeferredSearchSitemap } from './Search/useDeferredSearchSitemap';
 import { useDeferredEmptySearchResults } from './Search/useDeferredEmptySearchResults';
 import { useDocsSearch } from './Search/useDocsSearch';
 import { useSearchTracking } from './Search/useSearchTracking';
+
+const searchResultClasses = {
+  group: 'MobileNavSection',
+  groupLabel: 'MobileNavHeading',
+  item: 'MobileNavSearchOption',
+  breadcrumbText: 'MobileNavSearchBreadcrumbText',
+  breadcrumbPart: 'MobileNavSearchBreadcrumbPart',
+  separator: 'MobileNavSearchBreadcrumbSeparator',
+  score: 'MobileNavSearchScore',
+};
 
 interface MobileNavDrawerProps extends Omit<Drawer.Root.Props, 'children' | 'handle'> {
   focusSearchOnOpen: boolean;
@@ -291,37 +292,6 @@ function MobileNavPopupImpl({
     [buildResultUrl, handleValueChange, hasQuery],
   );
 
-  const renderResultsList = React.useCallback(
-    (group: SearchResults[number]) => (
-      <Autocomplete.Group key={group.group} items={group.items} className="MobileNavSection">
-        {group.group !== 'Default' && (
-          <Autocomplete.GroupLabel className="MobileNavHeading">
-            {normalizeSearchGroup(group.group)}
-          </Autocomplete.GroupLabel>
-        )}
-        <Autocomplete.Collection>
-          {(result: SearchResult, i) => (
-            <Autocomplete.Item
-              key={result.id || i}
-              value={result}
-              render={
-                <NextLink
-                  href={buildResultUrl(result)}
-                  onNavigate={() => handleResultNavigate(result)}
-                  tabIndex={-1}
-                />
-              }
-              className="MobileNavSearchOption"
-            >
-              <SearchResultItem result={result} />
-            </Autocomplete.Item>
-          )}
-        </Autocomplete.Collection>
-      </Autocomplete.Group>
-    ),
-    [buildResultUrl, handleResultNavigate],
-  );
-
   let mobileNavContent: React.ReactNode = null;
 
   if (hasQuery) {
@@ -334,12 +304,14 @@ function MobileNavPopupImpl({
             No results found.
           </Autocomplete.Status>
         ) : (
-          <Autocomplete.List
+          <SearchResultsList
+            buildResultUrl={buildResultUrl}
             className="MobileNavSearchList"
+            classes={searchResultClasses}
             onKeyDownCapture={handleKeyDownCapture}
-          >
-            {renderResultsList}
-          </Autocomplete.List>
+            onResultNavigate={handleResultNavigate}
+            separatorVariant="stroked"
+          />
         );
     }
 
@@ -415,39 +387,5 @@ function XIcon(props: React.ComponentProps<'svg'>) {
     >
       <path d="m2.5 2.5 11 11m-11 0 11-11" />
     </svg>
-  );
-}
-
-function SearchResultItem({ result }: { result: SearchResult }) {
-  return (
-    <React.Fragment>
-      <span className="MobileNavSearchBreadcrumbText">
-        {result.title?.split(' ‣ ').map((part, i, arr) => (
-          <React.Fragment key={i}>
-            <span className="MobileNavSearchBreadcrumbPart">{getDisplayTitle(part)}</span>
-            {i !== arr.length - 1 && (
-              <svg
-                className="MobileNavSearchBreadcrumbSeparator"
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  d="M6.5 3.5 11 8l-4.5 4.5"
-                  strokeWidth="1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </React.Fragment>
-        ))}
-      </span>
-      {process.env.NODE_ENV !== 'production' && result.score && (
-        <span className="MobileNavSearchScore">{result.score.toFixed(2)}</span>
-      )}
-    </React.Fragment>
   );
 }
