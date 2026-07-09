@@ -97,20 +97,23 @@ export function MobileNavDrawer({
 
   const handleCloseDrawer = React.useCallback(() => {
     searchTracking.handleClose();
-    setSearchIndexActive(false);
-    setSearchValue('');
-    // The search state also survives closing now, so reset the results while
-    // the drawer is hidden. Otherwise the previous query's results would
-    // briefly show when a new query is typed after reopening.
-    void performSearch('');
-  }, [performSearch, searchTracking]);
+  }, [searchTracking]);
 
   const handleOpenChangeComplete = React.useCallback(
     (nextOpen: boolean) => {
       setSearchIndexActive(nextOpen);
+
+      if (!nextOpen) {
+        setSearchValue('');
+        // The search state survives closing, so reset the results once the
+        // drawer is hidden. Otherwise the closing animation would swap back to
+        // the nav tree and reopening could show the previous query's results.
+        void performSearch('');
+      }
+
       onOpenChangeComplete?.(nextOpen);
     },
-    [onOpenChangeComplete],
+    [onOpenChangeComplete, performSearch],
   );
 
   React.useEffect(() => {
@@ -244,9 +247,8 @@ function MobileNavPopupImpl({
     (result: SearchResult) => {
       onResultSelect(result);
       onClose();
-      setSearchValue('');
     },
-    [onClose, onResultSelect, setSearchValue],
+    [onClose, onResultSelect],
   );
 
   const handleAutocompleteOpenChange = React.useCallback(
