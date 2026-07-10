@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -55,6 +56,10 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
+  // `safePolygon()` captures a per-instance timer, so it must not be shared across
+  // triggers; keep one stable instance per trigger rather than allocating per render.
+  const handleCloseSafePolygon = useRefWithInit(safePolygon).current;
+
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
@@ -76,7 +81,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,
     move: false,
-    handleClose: safePolygon(),
+    handleClose: handleCloseSafePolygon,
     delay: () => ({ open: delayWithDefault, close: closeDelayWithDefault }),
     triggerElementRef,
     isActiveTrigger: isTriggerActive,

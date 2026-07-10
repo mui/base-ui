@@ -67,10 +67,8 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   });
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    if (open && activeTriggerId == null) {
+      store.set('payload', undefined);
     }
   }, [store, activeTriggerId, open]);
 

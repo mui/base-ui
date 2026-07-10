@@ -43,7 +43,7 @@ export interface FloatingDelayGroupProps {
   /**
    * The delay to use for the group when it's not in the instant phase.
    */
-  delay: Delay;
+  delay: { openDelay: number | undefined; closeDelay: number | undefined };
   /**
    * An optional explicit timeout to use for the group, which represents when
    * grouping logic will no longer be active after the close delay completes.
@@ -64,7 +64,14 @@ export interface FloatingDelayGroupProps {
  * @internal
  */
 export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
-  const { children, delay, timeoutMs = 0 } = props;
+  const { children, timeoutMs = 0 } = props;
+
+  // Map the `openDelay`/`closeDelay` prop to the `open`/`close` shape the
+  // grouping logic uses internally.
+  const delay = React.useMemo<Delay>(
+    () => ({ open: props.delay.openDelay, close: props.delay.closeDelay }),
+    [props.delay],
+  );
 
   const delayRef = React.useRef(delay);
   const initialDelayRef = React.useRef(delay);

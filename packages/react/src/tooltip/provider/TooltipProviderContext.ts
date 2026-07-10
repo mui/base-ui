@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 export interface TooltipProviderContext {
-  delay: number | undefined;
+  openDelay: number | undefined;
   closeDelay: number | undefined;
 }
 
