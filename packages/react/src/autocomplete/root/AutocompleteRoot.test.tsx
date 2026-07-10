@@ -669,6 +669,32 @@ describe('<Autocomplete.Root />', () => {
       expect(screen.getAllByRole('option')).toHaveLength(2);
     });
 
+    it('honors locale when filtering in mode="list"', async () => {
+      const { user } = await render(
+        <Autocomplete.Root mode="list" locale="tr" items={['I', 'İ']}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'i');
+
+      expect(screen.queryByRole('option', { name: 'I' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'İ' })).not.toBe(null);
+    });
+
     it('mode="both": inline overlay + autocomplete handles filtering', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
