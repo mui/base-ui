@@ -321,10 +321,6 @@
     .AdditionalTypeBackLink {
       color: var(--gray-p2);
     }
-
-    .AdditionalTypeBackLink:hover {
-      color: var(--gray-c2);
-    }
   }
 
   .AdditionalTypeReExport {

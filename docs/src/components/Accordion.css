@@ -1,10 +1,9 @@
 @layer components {
   .AccordionRoot {
-    --color-trigger-hover: hsl(0deg 0 99);
+    --color-trigger-hover: var(--gray-s2);
     --color-open-trigger-shadow: var(--gray-c3);
 
     @media (prefers-color-scheme: dark) {
-      --color-trigger-hover: hsl(0deg 0 9);
       --color-open-trigger-shadow: hsl(0deg 0 5);
     }
 

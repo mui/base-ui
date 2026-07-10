@@ -178,7 +178,7 @@
     max-height: min(29.5rem, calc(100vh - 6rem));
     width: min(34rem, calc(100vw - 2rem));
     border-radius: 1rem;
-    background: var(--gray-s1);
+    background: var(--color-popup);
     color: var(--gray-t3);
     outline: 1px solid var(--color-border);
     box-shadow:
@@ -197,13 +197,6 @@
   .SearchPopup[data-starting-style] {
     transform: translateY(-1rem) scale(0.9);
     opacity: 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .SearchPopup {
-      background: oklch(20% 0.5% 264deg);
-      outline-color: hsl(0deg 0% 100% / 25%);
-    }
   }
 
   .SearchHead {
