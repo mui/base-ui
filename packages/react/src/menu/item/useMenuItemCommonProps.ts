@@ -5,6 +5,7 @@ import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 export interface UseMenuItemCommonPropsParameters {
@@ -111,7 +112,9 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
           // We trigger the click and override the `closeOnClick` preference to always close the menu.
           if (!itemMetadata || itemMetadata.type === 'regular-item') {
-            itemRef.current.click();
+            // `detail: 1` marks this as a mouse-gesture click so MenuRoot doesn't
+            // treat it as a keyboard activation (`detail === 0` → `data-instant`).
+            dispatchClickWithModifiers(itemRef.current, event, { detail: 1 });
           }
         }
       },
