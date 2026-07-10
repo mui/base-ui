@@ -89,6 +89,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
     }
   }, [autoFocus, setFocused]);
 
+  // Disabling a focused control doesn't always fire a blur event, so the focused
+  // state must be cleared manually to avoid a lingering `data-focused` attribute.
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
+
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
