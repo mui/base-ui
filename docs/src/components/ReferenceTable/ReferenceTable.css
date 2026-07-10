@@ -13,12 +13,16 @@
    * the browser because `contain-intrinsic-height` sizes the content box.
    * The placeholder may be approximate when type cells wrap.
    *
+   * `--rows` is set inline by the reference components. The fallback only keeps the
+   * calc valid if it ever goes missing: without it the whole declaration would be
+   * invalid and the placeholder would collapse to zero.
+   *
    * The `auto` keyword makes the browser track the real size once rendered
    * (e.g. with expanded items).
    */
   .ReferenceAccordionRoot {
     content-visibility: auto;
-    contain-intrinsic-height: auto calc((var(--rows) + 1) * (2.5rem + 1px) - 1px);
+    contain-intrinsic-height: auto calc((var(--rows, 8) + 1) * (2.5rem + 1px) - 1px);
   }
 
   /*
@@ -27,7 +31,7 @@
    */
   .ReferenceTableRoot {
     content-visibility: auto;
-    contain-intrinsic-height: auto calc((var(--rows) + 1) * (2.5rem + 1px) - 1px);
+    contain-intrinsic-height: auto calc((var(--rows, 8) + 1) * (2.5rem + 1px) - 1px);
   }
 
   .ReferenceHeaderRow {

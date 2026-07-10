@@ -55,6 +55,7 @@
     position: relative;
     display: flex;
     width: 100%;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     align-items: center;
     /* use padding to match TableCell height in CSS vars or data attributes table */
@@ -79,7 +80,9 @@
     }
 
     &:focus-visible {
+      /* Inset so the ring isn't clipped by the root's paint containment (`content-visibility`). */
       outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
       z-index: 1;
     }
 
@@ -189,6 +192,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     padding-block: 0.5rem;
     padding-right: 1rem;
