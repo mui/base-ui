@@ -62,14 +62,21 @@
     background-clip: padding-box;
     display: flex;
     align-items: end;
-    /* Tab row (2.25rem) plus the top border. Without the extra 1px the tab would
-       overflow into the border strip that `overflow: hidden` clips, cutting the
-       top 1px of the tab's focus ring. */
-    height: calc(2.25rem + 1px);
-    border-top: 1px solid var(--color-border);
+    height: 2.25rem;
     -webkit-user-select: none;
     user-select: none;
     overflow: hidden;
+
+    /* Draw the separator without taking space from the 2.25rem toolbar row. */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 1;
+      height: 1px;
+      background-color: var(--color-border);
+      pointer-events: none;
+    }
   }
 
   /* The single horizontal scroller for the toolbar. On mobile it holds the tabs
@@ -224,8 +231,15 @@
     }
 
     &[data-active] {
-      border-color: var(--color-border);
       background-color: var(--gray-s1);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 1px -1px 0;
+        border-inline: 1px solid var(--color-border);
+        pointer-events: none;
+      }
 
       &::after {
         content: '';
