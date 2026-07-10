@@ -66,43 +66,62 @@ describe('getGitHubDemoUrl', () => {
     expect(getGitHubDemoUrl('file:///home/user/other-project/src/index.ts')).toBeNull();
   });
 
-  it('returns null when source code repo metadata is unavailable', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.stubEnv('SOURCE_CODE_REPO', '');
+  describe('warnings', () => {
+    // Warnings are deduplicated via module state, so each test needs a fresh module instance.
+    let getGitHubDemoUrlFresh: typeof getGitHubDemoUrl;
 
-    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
-    );
-  });
+    beforeEach(async () => {
+      vi.resetModules();
+      ({ getGitHubDemoUrl: getGitHubDemoUrlFresh } = await import('./getGitHubDemoUrl'));
+    });
 
-  it('returns null when library version metadata is unavailable', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.stubEnv('LIB_VERSION', '');
+    it('returns null when source code repo metadata is unavailable', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('SOURCE_CODE_REPO', '');
 
-    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
-    );
-  });
+      expect(getGitHubDemoUrlFresh(unixUrl)).toBeNull();
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
+      );
+    });
 
-  it('returns null and warns in development when the file URL cannot be decoded', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('returns null when library version metadata is unavailable', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('LIB_VERSION', '');
 
-    expect(getGitHubDemoUrl('file:///home/user/base-ui/docs/%E0%A4%A/index.ts')).toBeNull();
-    expect(warn).toHaveBeenCalledWith(
-      'Base UI: Demo source link could not be generated.',
-      expect.any(URIError),
-    );
-  });
+      expect(getGitHubDemoUrlFresh(unixUrl)).toBeNull();
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('SOURCE_CODE_REPO or LIB_VERSION is missing'),
+      );
+    });
 
-  it('does not warn in production when source metadata is unavailable', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.stubEnv('SOURCE_CODE_REPO', '');
-    vi.stubEnv('NODE_ENV', 'production');
+    it('warns only once when metadata is missing across repeated calls', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('SOURCE_CODE_REPO', '');
 
-    expect(getGitHubDemoUrl(unixUrl)).toBeNull();
-    expect(warn).not.toHaveBeenCalled();
+      expect(getGitHubDemoUrlFresh(unixUrl)).toBeNull();
+      expect(getGitHubDemoUrlFresh(unixUrl)).toBeNull();
+      expect(warn).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns null and warns in development when the file URL cannot be decoded', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      expect(getGitHubDemoUrlFresh('file:///home/user/base-ui/docs/%E0%A4%A/index.ts')).toBeNull();
+      expect(warn).toHaveBeenCalledWith(
+        'Base UI: Demo source link could not be generated.',
+        expect.any(URIError),
+      );
+    });
+
+    it('does not warn in production when source metadata is unavailable', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('SOURCE_CODE_REPO', '');
+      vi.stubEnv('NODE_ENV', 'production');
+
+      expect(getGitHubDemoUrlFresh(unixUrl)).toBeNull();
+      expect(warn).not.toHaveBeenCalled();
+    });
   });
 
   it('handles encoded URI components', () => {

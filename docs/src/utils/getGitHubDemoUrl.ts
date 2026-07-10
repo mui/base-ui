@@ -1,7 +1,13 @@
 import kebabCase from 'es-toolkit/compat/kebabCase';
 
+let warned: Set<string>;
+if (process.env.NODE_ENV !== 'production') {
+  warned = new Set();
+}
+
 function warnInDevelopment(message: string, error?: unknown) {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && !warned.has(message)) {
+    warned.add(message);
     if (error == null) {
       console.warn(message);
     } else {
