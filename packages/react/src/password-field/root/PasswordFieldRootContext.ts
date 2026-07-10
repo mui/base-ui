@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { PasswordToggleFieldRoot } from './PasswordToggleFieldRoot';
+import type { PasswordFieldRoot } from './PasswordFieldRoot';
 
-export interface PasswordToggleFieldRootContext {
+export interface PasswordFieldRootContext {
   /**
    * Whether the password is currently revealed as plain text.
    */
@@ -10,7 +10,7 @@ export interface PasswordToggleFieldRootContext {
   /**
    * Updates the visibility, running `onVisibleChange` and respecting cancelation.
    */
-  setVisible: (visible: boolean, eventDetails: PasswordToggleFieldRoot.ChangeEventDetails) => void;
+  setVisible: (visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**
    * Whether the field should ignore user interaction.
    */
@@ -29,16 +29,16 @@ export interface PasswordToggleFieldRootContext {
   setInputId: (id: string | undefined) => void;
 }
 
-export const PasswordToggleFieldRootContext = React.createContext<
-  PasswordToggleFieldRootContext | undefined
->(undefined);
+export const PasswordFieldRootContext = React.createContext<PasswordFieldRootContext | undefined>(
+  undefined,
+);
 
-export function usePasswordToggleFieldRootContext() {
-  const context = React.useContext(PasswordToggleFieldRootContext);
+export function usePasswordFieldRootContext() {
+  const context = React.useContext(PasswordFieldRootContext);
 
   if (context === undefined) {
     throw new Error(
-      'Base UI: PasswordToggleFieldRootContext is missing. PasswordToggleField parts must be placed within <PasswordToggleField.Root>.',
+      'Base UI: PasswordFieldRootContext is missing. PasswordField parts must be placed within <PasswordField.Root>.',
     );
   }
 

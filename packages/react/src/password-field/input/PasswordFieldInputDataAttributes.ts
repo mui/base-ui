@@ -1,4 +1,4 @@
-export enum PasswordToggleFieldInputDataAttributes {
+export enum PasswordFieldInputDataAttributes {
   /**
    * Present when the field is disabled.
    */

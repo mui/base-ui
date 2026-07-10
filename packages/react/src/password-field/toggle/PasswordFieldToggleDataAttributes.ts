@@ -1,4 +1,4 @@
-export enum PasswordToggleFieldToggleDataAttributes {
+export enum PasswordFieldToggleDataAttributes {
   /**
    * Present when the toggle is pressed (the password is revealed as plain text).
    */

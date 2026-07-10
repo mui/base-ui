@@ -1,22 +1,18 @@
 'use client';
 import * as React from 'react';
-import { PasswordToggleFieldPreview as PasswordToggleField } from '@base-ui/react/password-toggle-field';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import styles from './index.module.css';
 
-export default function ExamplePasswordToggleField() {
+export default function ExamplePasswordField() {
   const id = React.useId();
   return (
     <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
         Password
       </label>
-      <PasswordToggleField.Root className={styles.Root}>
-        <PasswordToggleField.Input
-          id={id}
-          className={styles.Input}
-          placeholder="Enter your password"
-        />
-        <PasswordToggleField.Toggle
+      <PasswordField.Root className={styles.Root}>
+        <PasswordField.Input id={id} className={styles.Input} placeholder="Enter your password" />
+        <PasswordField.Toggle
           className={styles.Toggle}
           aria-label="Show password"
           render={(props, state) => (
@@ -25,7 +21,7 @@ export default function ExamplePasswordToggleField() {
             </button>
           )}
         />
-      </PasswordToggleField.Root>
+      </PasswordField.Root>
     </div>
   );
 }

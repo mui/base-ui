@@ -97,5 +97,5 @@
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
   "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.",
   "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
-  "100": "Base UI: PasswordToggleFieldRootContext is missing. PasswordToggleField parts must be placed within <PasswordToggleField.Root>."
+  "100": "Base UI: PasswordFieldRootContext is missing. PasswordField parts must be placed within <PasswordField.Root>."
 }
