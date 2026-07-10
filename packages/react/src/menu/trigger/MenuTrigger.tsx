@@ -22,11 +22,11 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
-import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
@@ -38,8 +38,6 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
-
-const BOUNDARY_OFFSET = 2;
 
 /**
  * A button that opens the menu.
@@ -67,7 +65,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
@@ -148,14 +147,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    const bounds = getPseudoElementBounds(triggerRef.current);
-
-    if (
-      mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-      mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-      mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-      mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-    ) {
+    if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
       return;
     }
 
@@ -348,7 +340,7 @@ export interface MenuTriggerProps<Payload = unknown>
 
 export interface MenuTriggerState {
   /**
-   * Whether the menu is currently open.
+   * Whether the menu is currently open and was opened by this trigger.
    */
   open: boolean;
   /**

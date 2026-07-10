@@ -5,11 +5,12 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui/utils/store';
+import { useStore, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
@@ -120,7 +121,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
-  const keyboardActiveRef = React.useRef(false);
   const firstItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
@@ -135,7 +135,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const store = useRefWithInit(
     () =>
-      new Store<StoreState>({
+      new ReactStore<StoreState>({
         id: generatedId,
         labelId: undefined,
         modal,
@@ -170,10 +170,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const previousOpenMethod = usePreviousValue(openMethod);
-  const renderedOpenMethod = openMethod ?? previousOpenMethod ?? null;
+  const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const serializedValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value) && value.length === 0) {
+    // In multiple mode the shared input is nameless; per-value entries are submitted via
+    // `hiddenInputs`. Its value is therefore irrelevant, and passing the whole array to
+    // `stringifyAsValue` would invoke a user `itemToStringValue` with an array it doesn't expect.
+    if (multiple) {
       return '';
     }
     return stringifyAsValue(value, itemToStringValue);
@@ -186,7 +189,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
-  const controlRef = useValueAsRef(store.state.triggerElement);
+  const controlRef = useValueAsRef(triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
   useRegisterFieldControl(
@@ -203,14 +206,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
   const hasSelectedValue = multiple
     ? Array.isArray(value) && value.length > 0
-    : value != null && stringifyAsValue(value, itemToStringValue) !== '';
-
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
+    : value != null && serializedValue !== '';
 
   useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
@@ -218,22 +214,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      const registry = valuesRef.current;
-      let nextIndex: number | null;
+      let target: unknown = value;
+      let empty = false;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
-        if (currentValue.length === 0) {
-          nextIndex = null;
-        } else {
-          const lastValue = currentValue[currentValue.length - 1];
-          const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-          nextIndex = lastIndex === -1 ? null : lastIndex;
-        }
-      } else {
-        const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-        nextIndex = index === -1 ? null : index;
+        empty = currentValue.length === 0;
+        target = currentValue[currentValue.length - 1];
       }
+
+      const index = empty
+        ? -1
+        : findItemIndex(valuesRef.current, target as Value, isItemEqualToValue);
+      const nextIndex = index === -1 ? null : index;
 
       if (nextIndex === null) {
         selectedItemTextRef.current = null;
@@ -245,16 +238,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('selectedIndex', nextIndex);
     },
-    [
-      hasSelectedValue,
-      multiple,
-      open,
-      value,
-      valuesRef,
-      isItemEqualToValue,
-      store,
-      selectedItemTextRef,
-    ],
+    [multiple, open, value, isItemEqualToValue, store],
   );
 
   function isSelectedValueDirty(currentValue: unknown) {
@@ -342,12 +326,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     const shouldShowUp = scrollTop > 0;
     const shouldShowDown = scrollTop < maxScrollTop;
 
-    if (store.state.scrollUpArrowVisible !== shouldShowUp) {
-      store.set('scrollUpArrowVisible', shouldShowUp);
-    }
-    if (store.state.scrollDownArrowVisible !== shouldShowDown) {
-      store.set('scrollDownArrowVisible', shouldShowDown);
-    }
+    store.set('scrollUpArrowVisible', shouldShowUp);
+    store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
   const floatingContext = useFloatingRootContext({
@@ -388,6 +368,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
+    // Skip disabled items while matching so typeahead advances to the next selectable item
+    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
+    // the disabled state from the element via the attribute-only `isElementDisabled` so the
+    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
+    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
+    disabledIndices: (index) => isElementDisabled(listRef.current[index]),
     onMatch(index) {
       if (open) {
         store.set('activeIndex', index);
@@ -444,26 +430,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   });
 
-  useIsoLayoutEffect(() => {
-    store.update({
-      id: generatedId,
-      modal,
-      multiple,
-      value,
-      open,
-      mounted,
-      transitionStatus,
-      popupProps,
-      triggerProps: mergedTriggerProps,
-      items,
-      itemToStringLabel,
-      itemToStringValue,
-      isItemEqualToValue,
-      openMethod: renderedOpenMethod,
-    });
-  }, [
-    store,
-    generatedId,
+  store.useSyncedValues({
+    id: generatedId,
     modal,
     multiple,
     value,
@@ -471,18 +439,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     mounted,
     transitionStatus,
     popupProps,
-    mergedTriggerProps,
+    triggerProps: mergedTriggerProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    renderedOpenMethod,
-  ]);
+    openMethod: renderedOpenMethod,
+  });
 
   const contextValue: SelectRootContext = React.useMemo(
     () => ({
       store,
-      name,
       required,
       disabled,
       readOnly,
@@ -496,7 +463,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       handleScrollArrowVisibility,
       scrollArrowsMountedCountRef,
       itemProps,
-      events: floatingContext.context.events,
       valueRef,
       valuesRef,
       labelsRef,
@@ -506,13 +472,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectedItemTextRef,
       validation,
       onOpenChangeComplete,
-      keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       initialValueRef,
     }),
     [
       store,
-      name,
       required,
       disabled,
       readOnly,
@@ -521,7 +485,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       setValue,
       setOpen,
       itemProps,
-      floatingContext.context.events,
       validation,
       onOpenChangeComplete,
       handleScrollArrowVisibility,
@@ -530,7 +493,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
-  const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
   const hiddenInputName = multiple ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
@@ -568,7 +530,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {
-              // Workaround for https://github.com/facebook/react/issues/9023
+              // Workaround for https://github.com/react/react/issues/9023
               if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                 return;
               }
@@ -599,8 +561,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   });
                 }
 
-                const matchingValue =
-                  matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
+                const matchingValue = valuesRef.current[matchingIndex];
                 if (matchingValue != null) {
                   // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                   // mark the field dirty and run validation only when the value actually changes.
@@ -618,7 +579,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}
-          required={required && !hasMultipleSelection}
+          required={required && !(multiple && hasSelectedValue)}
           readOnly={readOnly}
           ref={ref}
           style={name ? visuallyHiddenInput : visuallyHidden}
@@ -709,14 +670,15 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Determines if the select enters a modal state when open.
    * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    * @default true
    */
   modal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the select will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the select manually.
-   * Useful when the select's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the select.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**

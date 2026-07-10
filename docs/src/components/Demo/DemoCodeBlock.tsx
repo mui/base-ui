@@ -4,14 +4,12 @@ import * as ScrollArea from '../ScrollArea';
 
 interface DemoCodeBlockProps {
   selectedFile: React.ReactNode;
-  selectedFileName: string | undefined;
   selectedFileLines: number;
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
-  collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
-  /** When compact, we don't show a preview of the collapse code */
-  compact: boolean;
+  collapsibleTriggerRef: React.Ref<HTMLSpanElement>;
+  copyButton: React.ReactNode;
 }
 
 function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
@@ -38,10 +36,10 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 export function DemoCodeBlock({
   selectedFile,
   selectedFileLines,
-  compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
   collapsibleTriggerRef,
+  copyButton,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
@@ -52,28 +50,28 @@ export function DemoCodeBlock({
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
         <ScrollArea.Scrollbar orientation="horizontal" />
+        {copyButton}
       </Root>
     );
   }
 
   return (
-    <React.Fragment>
-      <Root
-        render={
-          <Collapsible.Panel
-            keepMounted={compact ? undefined : true}
-            hidden={compact ? undefined : false}
-          />
-        }
-      >
-        <ScrollArea.Viewport
-          aria-hidden={!collapsibleOpen}
-          data-closed={collapsibleOpen ? undefined : ''}
-          className="DemoCodeBlockViewport"
-          {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+    <div className="DemoCodeBlockCollapsible">
+      <Root data-closed={collapsibleOpen ? undefined : ''}>
+        <Collapsible.Panel
+          keepMounted
+          hidden={false}
+          render={
+            <ScrollArea.Viewport
+              aria-hidden={!collapsibleOpen}
+              data-closed={collapsibleOpen ? undefined : ''}
+              className="DemoCodeBlockViewport"
+              {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+            />
+          }
         >
           <div className="DemoSourceBrowser">{selectedFile}</div>
-        </ScrollArea.Viewport>
+        </Collapsible.Panel>
 
         {collapsibleOpen && (
           <React.Fragment>
@@ -82,15 +80,17 @@ export function DemoCodeBlock({
             <ScrollArea.Scrollbar orientation="horizontal" />
           </React.Fragment>
         )}
-      </Root>
+        {copyButton}
 
-      <Collapsible.Trigger
-        ref={collapsibleTriggerRef}
-        className="DemoCollapseButton"
-        data-sticky={collapsibleOpen ? '' : undefined}
-      >
-        {collapsibleOpen ? 'Hide' : 'Show'} code
-      </Collapsible.Trigger>
-    </React.Fragment>
+        <Collapsible.Trigger
+          className="DemoCollapseButton"
+          data-sticky={collapsibleOpen ? '' : undefined}
+        >
+          <span ref={collapsibleTriggerRef} className="DemoCollapseButtonVisual">
+            {collapsibleOpen ? 'Hide code' : 'Show code'}
+          </span>
+        </Collapsible.Trigger>
+      </Root>
+    </div>
   );
 }

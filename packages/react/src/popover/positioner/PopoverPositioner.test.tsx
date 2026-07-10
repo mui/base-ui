@@ -292,6 +292,47 @@ describe('<Popover.Positioner />', () => {
     });
   });
 
+  // https://github.com/mui/base-ui/issues/5131
+  it.skipIf(isJSDOM)('rests exactly at collisionPadding from the colliding edge', async () => {
+    const collisionPadding = 12;
+
+    await render(
+      // Anchor pinned near the bottom so the bottom-side popup flips to the top and
+      // collides with the top viewport edge.
+      <div style={{ position: 'fixed', bottom: 8, left: 16 }}>
+        <Popover.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              side="bottom"
+              sideOffset={8}
+              collisionPadding={collisionPadding}
+              collisionAvoidance={{ fallbackAxisSide: 'none' }}
+            >
+              <Popover.Popup
+                style={{ width: 200, height: 1000, maxHeight: 'var(--available-height)' }}
+              >
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </div>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'top');
+    });
+
+    // The preferred-side bias used by flip() must not leak into the resting position:
+    // the popup should sit exactly `collisionPadding` away from the top edge, not +1px.
+    expect(Math.round(screen.getByTestId('positioner').getBoundingClientRect().top)).toBe(
+      collisionPadding,
+    );
+  });
+
   it.skipIf(isJSDOM)('remains anchored if keepMounted=false', async () => {
     function App({ top }: { top: number }) {
       return (

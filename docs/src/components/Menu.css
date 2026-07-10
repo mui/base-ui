@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .MenuPositioner {
     /* The outline is sometimes seen in Safari when the positioner is focused intermittently */
@@ -82,6 +85,6 @@
     height: 1px;
     margin-block: 0.25rem;
     margin-inline: 0.25rem;
-    background-color: var(--gray-c2);
+    background-color: var(--color-border);
   }
 }

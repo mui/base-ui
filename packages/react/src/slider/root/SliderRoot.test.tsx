@@ -722,6 +722,14 @@ describe('<Slider.Root />', () => {
       await user.keyboard(`[${ARROW_LEFT}]`);
       expect(slider).toHaveAttribute('aria-valuenow', '0');
     });
+
+    it('clamps range values that fall outside the min and max bounds', async () => {
+      await render(<TestRangeSlider defaultValue={[19, 41]} min={20} max={40} />);
+
+      const thumbs = screen.getAllByRole('slider');
+
+      expect(thumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(['20', '40']);
+    });
   });
 
   describe('prop: minStepsBetweenValues', () => {
@@ -1332,6 +1340,105 @@ describe('<Slider.Root />', () => {
         expect(handleValueChange.mock.calls.length).toBe(1);
         expect(handleValueCommitted.mock.calls.length).toBe(1);
         expect(handleValueCommitted.mock.calls[0][1].reason).toBe('drag');
+      },
+    );
+
+    it.skipIf(isJSDOM || isWebKit)(
+      'does not call onValueCommitted on outside taps after a touch interaction',
+      async () => {
+        const handleValueCommitted = vi.fn();
+
+        await render(<TestSlider defaultValue={0} onValueCommitted={handleValueCommitted} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        // Drag the slider with touch.
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
+        );
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
+        );
+        fireEvent.touchEnd(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+        );
+
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+
+        // Tapping elsewhere on the page must not commit again.
+        fireEvent.touchStart(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 80, clientY: 50 }]),
+        );
+        fireEvent.touchEnd(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 80, clientY: 50 }]),
+        );
+
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+
+    it.skipIf(isJSDOM || isWebKit)(
+      'removes the document touchend listener after a touch interaction',
+      async () => {
+        await render(<TestSlider defaultValue={0} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const addedListeners: EventListenerOrEventListenerObject[] = [];
+        const removedListeners: EventListenerOrEventListenerObject[] = [];
+        const originalAdd = document.addEventListener.bind(document);
+        const originalRemove = document.removeEventListener.bind(document);
+        const addEventListenerSpy = vi
+          .spyOn(document, 'addEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              addedListeners.push(listener);
+            }
+            return originalAdd(type, listener, options);
+          });
+        const removeEventListenerSpy = vi
+          .spyOn(document, 'removeEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              removedListeners.push(listener);
+            }
+            return originalRemove(type, listener, options);
+          });
+
+        try {
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+          );
+
+          // Every `touchend` listener that was added must have been removed.
+          expect(addedListeners.length).toBeGreaterThan(0);
+          expect(addedListeners.every((listener) => removedListeners.includes(listener))).toBe(
+            true,
+          );
+        } finally {
+          addEventListenerSpy.mockRestore();
+          removeEventListenerSpy.mockRestore();
+        }
       },
     );
 
@@ -2569,6 +2676,21 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
     });
 
+    it('recomputes the thumb aria text when the format option changes', async () => {
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+      }
+
+      const { setProps } = await render(<TestSlider defaultValue={50} />);
+
+      const slider = screen.getByRole('slider');
+      expect(slider).not.toHaveAttribute('aria-valuetext');
+
+      await setProps({ format: USD_NUMBER_FORMAT });
+
+      expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
+    });
+
     it('formats range values', async () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
@@ -2691,6 +2813,57 @@ describe('<Slider.Root />', () => {
 
         const submit = screen.getByRole('button');
         fireEvent.click(submit);
+      });
+
+      it('submits clamped range slider values to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={[19, 41]} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: [20, 40] },
+          expect.objectContaining({ reason: 'none' }),
+        );
+      });
+
+      it('submits a clamped single-thumb slider value to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={5} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: 20 },
+          expect.objectContaining({ reason: 'none' }),
+        );
       });
 
       it('submits to an external form when `form` is provided', async () => {

@@ -196,7 +196,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     required,
     readOnly,
     onChange(event) {
-      // Workaround for https://github.com/facebook/react/issues/9023
+      // Workaround for https://github.com/react/react/issues/9023
       if (event.nativeEvent.defaultPrevented) {
         return;
       }
@@ -214,6 +214,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       }
 
       setFieldTouched(true);
+    },
+    onClick(event) {
+      // Clicks dispatched on the input from the root's `onClick` and `onFocus` are an
+      // implementation detail and must not reach ancestors.
+      event.stopPropagation();
     },
     onFocus() {
       radioRef.current?.focus();

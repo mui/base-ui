@@ -9,6 +9,18 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.6.0',
+    versionSlug: 'v1-6-0',
+    date: '2026-06-18',
+    highlights: [
+      '`OTPField` is now stable.',
+      'Align `Accordion` keyboard navigation with APG.',
+      '`Combobox` performance improvement.',
+      'Add new `Drawer.VirtualKeyboardProvider` part for mobile drawers.',
+      '`Drawer` swipe gesture performance improvements.',
+    ],
+  },
+  {
     version: 'v1.5.0',
     versionSlug: 'v1-5-0',
     date: '2026-05-19',

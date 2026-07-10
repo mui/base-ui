@@ -178,7 +178,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       'aria-hidden': true,
       ref: handleInputRef,
       onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
+        // Workaround for https://github.com/react/react/issues/9023
         if (event.nativeEvent.defaultPrevented) {
           return;
         }
@@ -198,6 +198,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         }
 
         setCheckedState(nextChecked);
+      },
+      onClick(event) {
+        // The click dispatched from the root's `onClick` is an implementation detail
+        // and must not reach ancestors, which already receive the original click.
+        event.stopPropagation();
       },
       onFocus() {
         switchRef.current?.focus();

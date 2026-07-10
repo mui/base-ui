@@ -14,6 +14,11 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
+   * Whether `Drawer.SwipeArea` is currently driving an open gesture (writing the popup's
+   * swipe-movement vars imperatively). The viewport reads this to skip resetting them on open.
+   */
+  swipeAreaActiveRef: React.MutableRefObject<boolean>;
+  /**
    * Whether to disable velocity-based snap skipping.
    */
   snapToSequentialPoints: boolean;

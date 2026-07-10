@@ -9,20 +9,21 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 
-export type PopupViewportCssVars = {
-  /**
-   * CSS variable name storing the popup width for the previous content snapshot.
-   */
-  popupWidth: string;
-  /**
-   * CSS variable name storing the popup height for the previous content snapshot.
-   */
-  popupHeight: string;
+export const popupViewportStateMapping: StateAttributesMapping<{
+  activationDirection: string | undefined;
+}> = {
+  activationDirection: (value) =>
+    value
+      ? {
+          'data-activation-direction': value,
+        }
+      : null,
 };
 
 export interface PopupViewportState {
@@ -48,10 +49,6 @@ export interface UsePopupViewportParameters {
    */
   side: Side;
   /**
-   * CSS variable names used for sizing the previous content snapshot.
-   */
-  cssVars: PopupViewportCssVars;
-  /**
    * Viewport children to render in the current container.
    */
   children?: React.ReactNode;
@@ -73,7 +70,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, cssVars, children } = parameters;
+  const { store, side, children } = parameters;
 
   const direction = useDirection();
 
@@ -134,6 +131,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
+
+  useIsoLayoutEffect(() => {
+    if (!open || !mounted) {
+      lastHandledTriggerRef.current = null;
+    }
+  }, [open, mounted]);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -215,8 +218,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
             {
               ...(previousContentDimensions
                 ? {
-                    [cssVars.popupWidth]: `${previousContentDimensions.width}px`,
-                    [cssVars.popupHeight]: `${previousContentDimensions.height}px`,
+                    '--popup-width': `${previousContentDimensions.width}px`,
+                    '--popup-height': `${previousContentDimensions.height}px`,
                   }
                 : null),
               position: 'absolute',

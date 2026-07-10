@@ -14,15 +14,16 @@
     justify-content: center;
     color: var(--gray-t1);
 
-    border: 1px solid var(--gray-c2);
+    border: 1px solid var(--color-border);
     border-collapse: separate;
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
-    border-radius: var(--radius-6) var(--radius-6) 0 0;
-    border-bottom: 1px solid var(--gray-c2);
+    border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
+    border-bottom: 1px solid var(--color-border);
     background-color: var(--gray-s2);
+    background-clip: padding-box;
   }
 
   .AccordionHeaderCell {
@@ -33,7 +34,7 @@
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--gray-c2);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .AccordionTrigger {
@@ -76,8 +77,8 @@
     }
 
     .AccordionItem:not([open]):last-child & {
-      border-bottom-left-radius: var(--radius-6);
-      border-bottom-right-radius: var(--radius-6);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
@@ -110,13 +111,29 @@
     }
 
     .AccordionItem:last-child & {
-      border-bottom-left-radius: var(--radius-6);
-      border-bottom-right-radius: var(--radius-6);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
   .AccordionScrollable {
     overflow-x: hidden;
+
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(.AccordionScrollableInner:focus-visible) {
+      position: relative;
+      z-index: 1;
+
+      &::before {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -1px;
+      }
+    }
 
     &[data-scrollable] {
       position: relative;
@@ -170,8 +187,13 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
+    &:focus-visible {
+      outline: 0;
+    }
   }
 
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
   .AccordionScrollable:has(pre) .AccordionScrollableInner {
     min-height: unset;
     padding: 0;

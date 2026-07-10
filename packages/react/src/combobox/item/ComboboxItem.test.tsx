@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -388,6 +389,131 @@ describe('<Combobox.Item />', () => {
 
       await waitFor(() => expect(input.value).toBe('one'));
       expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
+
+  // Virtualized items without an explicit `index` resolve their index from the filtered set
+  // (via the dedicated `ComboboxItemVirtualizedIndex` subscriber). Filtering must keep that
+  // index fresh, otherwise keyboard highlight/Enter selection targets the wrong filtered item.
+  describe('virtualized without explicit index', () => {
+    function VirtualizedItems() {
+      const items = Combobox.useFilteredItems<string>();
+      return items.map((item) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+    }
+
+    function VirtualizedCombobox() {
+      return (
+        <Combobox.Root virtualized items={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <VirtualizedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('selects the highlighted filtered item with the keyboard after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      // Narrows the list to items containing "f" ("four", "five"), which sat at full-list
+      // indices 3 and 4. The first filtered item is now "four", not "one".
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+      expect(screen.getByRole('option', { name: 'four' })).not.toBe(null);
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(input).toHaveValue('four'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('selects the clicked filtered item after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+
+      await user.click(screen.getByRole('option', { name: 'five' }));
+
+      await waitFor(() => expect(input).toHaveValue('five'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
+
+  // A keystroke that doesn't change which items match must not re-render the items that stay
+  // mounted. Items used to re-render on every keystroke because they subscribed to the
+  // derived-items context, whose identity changes per keystroke. This guards the split that keeps
+  // the common (non-virtualized) path off that context so `React.memo` on `<Combobox.Item>` can
+  // bail.
+  describe('item re-renders on keystroke', () => {
+    it('does not re-render still-mounted items when filtering keeps the same membership', async () => {
+      const items = ['apple', 'apricot', 'avocado'];
+      const renderSpy = vi.fn();
+
+      const LoggingItem = React.forwardRef(function LoggingItem(
+        props: any,
+        ref: React.ForwardedRef<HTMLDivElement>,
+      ) {
+        const { state, ...other } = props;
+        renderSpy();
+        return <div {...other} ref={ref} />;
+      });
+
+      // Stable `render` element per item so `React.memo` can bail: a fresh element each render
+      // would change the `render` prop identity and force a re-render regardless of the
+      // optimization under test (`value` and the string children are already stable).
+      const renderByItem = new Map(items.map((item) => [item, <LoggingItem />] as const));
+
+      await render(
+        <Combobox.Root items={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} render={renderByItem.get(item)}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      renderSpy.mockClear();
+
+      // "a" matches all three items, so the filtered set is unchanged and every item stays mounted.
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'a' } });
+
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveValue('a'));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      expect(renderSpy).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,5 +1,5 @@
 import { vi, test, expect } from 'vitest';
-/* eslint-disable @typescript-eslint/no-shadow */
+
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';

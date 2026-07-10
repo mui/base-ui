@@ -1,12 +1,13 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { NOOP } from '@base-ui/utils/empty';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
+import { NullStore } from '../../utils/NullStore';
 import {
   attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
@@ -15,8 +16,8 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  type PopupTriggerStoreKeys,
   setPopupOpenState,
-  usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -28,7 +29,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
-  nested: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   openOnHover: boolean;
@@ -38,31 +38,10 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
 };
-
-function createInitialState<Payload>(): State<Payload> {
-  return {
-    ...createInitialPopupStoreState(),
-    disabled: false,
-    modal: false,
-    focusManagerModal: false,
-    instantType: undefined,
-    openMethod: null,
-    openChangeReason: null,
-    titleElementId: undefined,
-    descriptionElementId: undefined,
-    stickIfOpen: true,
-    nested: false,
-    openOnHover: false,
-    closeDelay: 0,
-    hasViewport: false,
-  };
-}
 
 const selectors = {
   ...popupStoreSelectors,
@@ -80,6 +59,20 @@ const selectors = {
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
+type Selectors = typeof selectors;
+
+/**
+ * The store view that detached handle-backed triggers read from. Both the real `PopoverStore` and
+ * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
+ * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
+ * `setOpen` (called by the focus guards) — so the exposed surface can't bypass the open-change
+ * pipeline; on the detached fallback store every one of these mutations is a no-op.
+ */
+export type PopoverHandleStore<Payload> = Pick<
+  PopoverStore<Payload>,
+  PopupTriggerStoreKeys | 'setOpen'
+>;
+
 export class PopoverStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
   Context,
@@ -90,32 +83,10 @@ export class PopoverStore<Payload> extends ReactStore<
     floatingId?: string | undefined,
     nested = false,
   ) {
-    const initial = { ...createInitialState<Payload>(), ...initialState };
     const triggerElements = new PopupTriggerMap();
-
-    if (initial.open && initialState?.mounted === undefined) {
-      initial.mounted = true;
-    }
-
-    initial.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingId,
-      nested,
-    );
-
     super(
-      initial,
-      {
-        popupRef: React.createRef<HTMLElement>(),
-        backdropRef: React.createRef<HTMLDivElement>(),
-        internalBackdropRef: React.createRef<HTMLDivElement>(),
-        onOpenChange: undefined,
-        onOpenChangeComplete: undefined,
-        triggerFocusTargetRef: React.createRef<HTMLElement>(),
-        beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-        stickIfOpenTimeout: new Timeout(),
-        triggerElements,
-      },
+      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
+      createInitialContext(triggerElements),
       selectors,
     );
   }
@@ -186,31 +157,76 @@ export class PopoverStore<Payload> extends ReactStore<
       changeState();
     }
 
-    if (isKeyboardClick || isDismissClose) {
-      this.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+    let instantType: State<Payload>['instantType'];
+    if (isKeyboardClick) {
+      instantType = 'click';
+    } else if (isDismissClose) {
+      instantType = 'dismiss';
     } else if (eventDetails.reason === REASONS.focusOut) {
-      this.set('instantType', 'focus');
-    } else {
-      this.set('instantType', undefined);
+      instantType = 'focus';
     }
-  };
-
-  public static useStore<Payload>(
-    externalStore: PopoverStore<Payload> | undefined,
-    initialState: Partial<State<Payload>>,
-  ) {
-    const { store, internalStore } = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
-    );
-
-    React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
-    return store;
-  }
-
-  private disposeEffect = () => {
-    return this.context.stickIfOpenTimeout.disposeEffect();
+    this.set('instantType', instantType);
   };
 }
 
-type Selectors = typeof selectors;
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no
+ * `Popover.Root` is attached. It preserves a popover-specific trigger registry in context so
+ * detached triggers can register before migrating to the live root store. `setOpen` is a no-op
+ * (matching the inert reads/writes of `NullStore`), so a trigger can hand the store to focus-guard
+ * helpers that expect `setOpen` without it ever taking effect while detached.
+ */
+export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
+
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
+    selectors,
+  );
+  return Object.assign(store, { setOpen: NOOP });
+}
+
+function createInitialState<Payload>(
+  initialState: Partial<State<Payload>> | undefined,
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+): State<Payload> {
+  const state: State<Payload> = {
+    ...createInitialPopupStoreState<Payload>(),
+    disabled: false,
+    modal: false,
+    focusManagerModal: false,
+    instantType: undefined,
+    openMethod: null,
+    openChangeReason: null,
+    titleElementId: undefined,
+    descriptionElementId: undefined,
+    stickIfOpen: true,
+    openOnHover: false,
+    closeDelay: 0,
+    hasViewport: false,
+    ...initialState,
+  };
+
+  if (state.open && initialState?.mounted === undefined) {
+    state.mounted = true;
+  }
+
+  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
+  return state;
+}
+
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
+  return {
+    popupRef: React.createRef<HTMLElement>(),
+    onOpenChange: undefined,
+    onOpenChangeComplete: undefined,
+    triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
+    stickIfOpenTimeout: new Timeout(),
+    triggerElements,
+  };
+}

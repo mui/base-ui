@@ -19,6 +19,18 @@ describe('<Dialog.Popup />', () => {
     },
   }));
 
+  it('throws a descriptive error when rendered outside <Dialog.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Dialog.Popup />)).rejects.toThrow(
+        'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   describe('prop: keepMounted', () => {
     [
       [true, true],
@@ -220,6 +232,29 @@ describe('<Dialog.Popup />', () => {
       await waitFor(() => {
         expect(initialFocus).toHaveBeenLastCalledWith('touch');
       });
+    });
+
+    it('focuses the popup itself rather than inner content when opened by touch', async () => {
+      await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="input" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      // On touch the default focuses the popup to avoid opening the virtual keyboard.
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toHaveFocus();
+      });
+      expect(screen.getByTestId('input')).not.toHaveFocus();
     });
 
     it('should not move focus when initialFocus is false', async () => {

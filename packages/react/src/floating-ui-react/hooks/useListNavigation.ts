@@ -290,7 +290,6 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousOnNavigateRef = React.useRef(onNavigate);
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
@@ -371,11 +370,11 @@ export function useListNavigation(
         onNavigate();
       }
     } else if (previousMountedRef.current) {
-      // Since the user can specify `onNavigate` conditionally
-      // (onNavigate: open ? setActiveIndex : setSelectedIndex),
-      // we store and call the previous function.
+      // Reset the active index when the list is no longer open and mounted (closing or
+      // unmounting). `onNavigate` is a stable callback that always forwards to the latest
+      // `onNavigate` prop.
       indexRef.current = -1;
-      previousOnNavigateRef.current();
+      onNavigate();
     }
   }, [enabled, open, floatingElement, selectedIndex, onNavigate]);
 
@@ -426,7 +425,10 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
-            // initially focus the first non-disabled item
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
+            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
+            // would regress that behavior (see mui/base-ui#2604).
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
@@ -469,7 +471,10 @@ export function useListNavigation(
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    const activeEl = activeElement(ownerDocument(floatingElement));
+    // `floatingElement` is null here (see the guard above), so resolve the owner document from an
+    // in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling back to
+    // the parent floating element when the reference is virtual (`domReferenceElement` is null).
+    const activeEl = activeElement(ownerDocument(domReferenceElement ?? parent ?? null));
     const treeContainsActiveEl = nodes.some(
       (node) => node.context && contains(node.context.elements.floating, activeEl),
     );
@@ -477,10 +482,9 @@ export function useListNavigation(
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, floatingElement, tree, parentId, virtual]);
+  }, [enabled, floatingElement, domReferenceElement, tree, parentId, virtual]);
 
   useIsoLayoutEffect(() => {
-    previousOnNavigateRef.current = onNavigate;
     previousOpenRef.current = open;
     previousMountedRef.current = !!floatingElement;
   });

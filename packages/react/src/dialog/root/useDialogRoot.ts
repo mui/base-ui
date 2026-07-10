@@ -2,67 +2,20 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { mergeProps } from '../../merge-props';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
-import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
-import {
-  FOCUSABLE_POPUP_PROPS,
-  useImplicitActiveTrigger,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-  usePopupRootSync,
-} from '../../utils/popups';
-
-export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
-  const { store, parentContext, actionsRef, isDrawer } = params;
-
-  const open = store.useState('open');
-  usePopupRootSync(store, open);
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
-
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
-
-  return { parentContext, isDrawer };
-}
-
-export interface UseDialogRootSharedParameters {}
-
-export interface UseDialogRootParameters {
-  store: DialogStore<any>;
-  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
-  parentContext?: DialogStore<unknown>['context'] | undefined;
-  isDrawer: boolean;
-}
-
-export interface UseDialogRootReturnValue {
-  parentContext: DialogStore<unknown>['context'] | undefined;
-  isDrawer: boolean;
-}
-
-export interface UseDialogRootState {}
+import { usePopupInteractionProps } from '../../utils/popups';
 
 export function DialogInteractions({
   store,
-  dialogRoot,
+  parentContext,
+  isDrawer,
 }: {
   store: DialogStore<any>;
-  dialogRoot: UseDialogRootReturnValue;
+  parentContext: DialogStore<unknown>['context'] | undefined;
+  isDrawer: boolean;
 }) {
-  const { parentContext, isDrawer } = dialogRoot;
-
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
@@ -95,22 +48,32 @@ export function DialogInteractions({
       if ('button' in event && event.button !== 0) {
         return false;
       }
-      if ('touches' in event && event.touches.length !== 1) {
-        return false;
+      if ('touches' in event) {
+        // Outside press can be handled on `touchend`, where the lifted point is
+        // reported in `changedTouches` and `touches` contains any remaining
+        // active points. Treat it as a single-finger tap only when exactly one
+        // touch ended and no other fingers are still down.
+        if (event.type === 'touchend') {
+          if (event.changedTouches.length !== 1 || event.touches.length !== 0) {
+            return false;
+          }
+        } else if (event.touches.length !== 1) {
+          return false;
+        }
       }
 
       const target = getTarget(event) as Element | null;
       if (isTopmost && !disablePointerDismissal) {
-        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return store.context.internalBackdropRef.current || store.context.backdropRef.current
-            ? store.context.internalBackdropRef.current === eventTarget ||
-                store.context.backdropRef.current === eventTarget ||
-                (contains(eventTarget, popupElement) &&
-                  !eventTarget?.hasAttribute('data-base-ui-portal'))
+          const internalBackdrop = store.context.internalBackdropRef.current;
+          const backdrop = store.context.backdropRef.current;
+          return internalBackdrop || backdrop
+            ? internalBackdrop === target ||
+                backdrop === target ||
+                (contains(target, popupElement) && !target?.hasAttribute('data-base-ui-portal'))
             : true;
         }
         return true;
@@ -123,44 +86,40 @@ export function DialogInteractions({
   useScrollLock(open && modal === true, popupElement);
 
   // Listen for nested open/close events on this store to maintain the counts.
+  // A close notification is an open notification with zeroed counts.
   store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
     setOwnNestedOpenDialogs(dialogCount);
     setOwnNestedOpenDrawers(drawerCount);
   });
 
-  store.useContextCallback('onNestedDialogClose', () => {
-    setOwnNestedOpenDialogs(0);
-    setOwnNestedOpenDrawers(0);
-  });
-
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
-    if (parentContext?.onNestedDialogOpen && open) {
-      parentContext.onNestedDialogOpen(
-        ownNestedOpenDialogs + 1,
-        ownNestedOpenDrawers + (isDrawer ? 1 : 0),
-      );
-    }
-    if (parentContext?.onNestedDialogClose && !open) {
-      parentContext.onNestedDialogClose();
+    if (parentContext?.onNestedDialogOpen) {
+      if (open) {
+        parentContext.onNestedDialogOpen(
+          ownNestedOpenDialogs + 1,
+          ownNestedOpenDrawers + (isDrawer ? 1 : 0),
+        );
+      } else {
+        parentContext.onNestedDialogOpen(0, 0);
+      }
     }
     return () => {
-      if (parentContext?.onNestedDialogClose && open) {
-        parentContext.onNestedDialogClose();
+      if (parentContext?.onNestedDialogOpen && open) {
+        parentContext.onNestedDialogOpen(0, 0);
       }
     };
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
+  // `dismiss.trigger` is always the same object as `dismiss.reference`.
+  const triggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  // Consumers (DialogPopup/DrawerPopup) already spread `FOCUSABLE_POPUP_PROPS`
+  // directly, so the popup props only need to carry the dismiss handlers.
+  const popupProps = dismiss.floating ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
+    activeTriggerProps: triggerProps,
+    inactiveTriggerProps: triggerProps,
     popupProps,
     nestedOpenDialogCount: ownNestedOpenDialogs,
     nestedOpenDrawerCount: ownNestedOpenDrawers,

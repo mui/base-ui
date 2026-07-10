@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
+import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../store/PopoverStore';
+import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
@@ -11,15 +11,13 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
-import { mergeProps } from '../../merge-props';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -34,7 +32,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const store = PopoverStore.useStore(handle?.store, {
+  const store = usePopoverRootStore(handle, {
     modal,
     open: defaultOpen,
     openProp,
@@ -42,15 +40,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     triggerIdProp,
   });
 
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
-
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
-  const nested = useFloatingParentNodeId() != null;
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -63,7 +58,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   store.useSyncedValues({
     modal,
-    nested,
   });
 
   React.useEffect(() => {
@@ -72,27 +66,19 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
   React.useImperativeHandle(
     props.actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
   );
 
   const shouldRenderInteractions = open || mounted;
 
-  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
-    () => ({
-      store,
-    }),
-    [store],
-  );
-
   return (
-    <PopoverRootContext.Provider value={popoverContext as PopoverRootContext<unknown>}>
+    <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
       {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
@@ -115,6 +101,24 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
       <PopoverRootComponent props={props} />
     </FloatingTree>
   );
+}
+
+function usePopoverRootStore<Payload>(
+  handle: PopoverHandle<Payload> | undefined,
+  initialState: Partial<PopoverStoreState<Payload>>,
+) {
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
+  );
+
+  // Popover-specific: dispose the patient-click timeout held in the store's context on unmount.
+  React.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
+
+  return store;
 }
 
 export interface PopoverRootState {}
@@ -143,9 +147,8 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the popover will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the popover manually.
-   * Useful when the popover's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the popover.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
@@ -154,6 +157,8 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    *
    * When `modal` is `true`, focus trapping is enabled only if `<Popover.Close>` is rendered
    * inside `<Popover.Popup>`. It can be visually hidden with your own CSS if needed, such as
@@ -233,16 +238,15 @@ function PopoverInteractions({
     },
   });
 
-  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
+  // `dismiss.trigger` is always the same object as `dismiss.reference`.
+  const triggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  // PopoverPopup already spreads `FOCUSABLE_POPUP_PROPS` directly, so the popup
+  // props only need to carry the dismiss handlers.
+  const popupProps = dismiss.floating ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
+    activeTriggerProps: triggerProps,
+    inactiveTriggerProps: triggerProps,
     popupProps,
   });
 

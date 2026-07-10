@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
+import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
@@ -8,7 +8,6 @@ import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
-  name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
@@ -22,7 +21,6 @@ export interface SelectRootContext {
   handleScrollArrowVisibility: () => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
   itemProps: HTMLProps;
-  events: FloatingEvents;
   valueRef: React.RefObject<HTMLSpanElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
@@ -36,7 +34,6 @@ export interface SelectRootContext {
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
-  keyboardActiveRef: React.RefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   initialValueRef: React.RefObject<any>;
 }

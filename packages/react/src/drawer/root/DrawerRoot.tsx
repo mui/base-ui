@@ -21,7 +21,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
@@ -76,6 +76,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   });
 
   const isNestedDrawerOpenRef = React.useRef(false);
+  const swipeAreaActiveRef = React.useRef(false);
 
   const setActiveSnapPoint = useStableCallback(
     (
@@ -172,6 +173,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      swipeAreaActiveRef,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -210,6 +212,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       setActiveSnapPoint,
       snapPoints,
       snapToSequentialPoints,
+      swipeAreaActiveRef,
       swipeDirection,
     ],
   );
@@ -282,15 +285,15 @@ export interface DrawerRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * Determines whether the drawer should close on outside clicks.
+   * Whether to prevent the drawer from closing on outside presses.
+   * For non-modal drawers, this also prevents the drawer from closing when focus moves outside of it.
    * @default false
    */
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the drawer will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the drawer manually.
-   * Useful when the drawer's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the drawer.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;
@@ -299,7 +302,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * If specified, allows detached triggers to control the drawer's open state.
    * Can be created with the Drawer.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: DrawerHandle<Payload> | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
@@ -422,7 +425,7 @@ function DrawerProviderReporter() {
   const drawerId = useId();
 
   const providerContext = useDrawerProviderContext(true);
-  const { store } = useDialogRootContext(false);
+  const store = useDialogRootContext(false);
 
   const open = store.useState('open');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');

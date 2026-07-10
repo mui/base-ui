@@ -6,14 +6,12 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
+import { useListEmpty, usePopupSide } from '../utils/parts';
 import { contains } from '../../floating-ui-react/utils/element';
 
 /**
@@ -30,20 +28,16 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
 
   const { state: fieldState } = useFieldRootContext();
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const popupSideValue = useStore(store, selectors.popupSide);
-  const positionerElement = useStore(store, selectors.positionerElement);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const selectionMode = useStore(store, selectors.selectionMode);
 
-  const popupSide = mounted && positionerElement ? popupSideValue : null;
+  const popupSide = usePopupSide(store);
   const disabled = comboboxDisabled;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = useListEmpty();
   const placeholder = selectionMode === 'none' ? false : !hasSelectedValue;
 
   const state: ComboboxInputGroup.State = {

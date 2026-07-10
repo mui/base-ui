@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { isElementVisible } from '../utils/composite';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { isElementVisible, isListIndexDisabled, type DisabledIndices } from '../utils/composite';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
@@ -27,10 +28,19 @@ export interface UseTypeaheadProps {
   /**
    * Optional list of item elements that correspond to `listRef` indices.
    * When an element exists for an index, typeahead skips it if it is hidden by
-   * `display: none`, `visibility: hidden|collapse`, or other
-   * browser-reported visibility checks.
+   * `display: none`, `visibility: hidden|collapse`, other browser-reported
+   * visibility checks, or native disabled state.
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
+  /**
+   * Indices that are disabled, either as an array or a predicate (the same shape as
+   * `useListNavigation`'s `disabledIndices`). Disabled items are skipped while matching,
+   * so a single keypress advances to the next selectable item (matching native `<select>`
+   * and arrow-key navigation). The explicit disabled check doesn't read `elementsRef`, so
+   * consumers whose items stay mounted-but-hidden while closed can still skip disabled items
+   * without passing `elementsRef`.
+   */
+  disabledIndices?: DisabledIndices | undefined;
   /**
    * Callback invoked with the current typing activity as the user types.
    */
@@ -67,6 +77,7 @@ export function useTypeahead(
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
+    disabledIndices,
     onTyping,
     enabled = true,
     resetMs = 750,
@@ -83,9 +94,21 @@ export function useTypeahead(
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    function isVisible(index: number) {
-      const element = elementsRef?.current[index];
-      return !element || isElementVisible(element);
+    function getElement(index: number) {
+      return elementsRef?.current[index];
+    }
+
+    function isItemAvailable(index: number) {
+      const element = getElement(index);
+      if ((element && !isElementVisible(element)) || element?.matches(':disabled')) {
+        return false;
+      }
+      // Visibility and native disabled state are handled above; pass an empty
+      // element list so `isListIndexDisabled` resolves only the explicit
+      // `disabledIndices` (array/predicate) and skips its own fallbacks.
+      // Consumers that don't pass `disabledIndices` keep matching every visible
+      // item except native disabled elements provided through `elementsRef`.
+      return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
     function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
@@ -94,12 +117,12 @@ export function useTypeahead(
       }
 
       const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
-      const lowerString = string.toLocaleLowerCase();
+      const lowerString = string.toLowerCase();
 
       for (let offset = 0; offset < list.length; offset += 1) {
         const index = (normalizedStartIndex + offset) % list.length;
         const text = list[index];
-        if (!text?.toLocaleLowerCase().startsWith(lowerString) || !isVisible(index)) {
+        if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
           continue;
         }
         return index;
@@ -145,9 +168,11 @@ export function useTypeahead(
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
-    // allow it in this case, too.
-    const allowRapidSuccessionOfFirstLetter = listContent.every((text) =>
-      text ? text[0]?.toLocaleLowerCase() !== text[1]?.toLocaleLowerCase() : true,
+    // allow it in this case, too. Unavailable items are skipped while matching, so
+    // they must be ignored here as well — otherwise a hidden or disabled double-letter
+    // label would block rapid cycling through the available items.
+    const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
+      text && isItemAvailable(index) ? text[0]?.toLowerCase() !== text[1]?.toLowerCase() : true,
     );
 
     // Allows the user to cycle through items that start with the same letter

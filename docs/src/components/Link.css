@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .Link {
     display: inline;
@@ -15,15 +18,18 @@
       color: var(--gray-s1);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code) {
       text-decoration-color: var(--color-blue);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active {
       color: var(--color-background);
       background-color: var(--color-blue);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active * {
       color: var(--color-background) !important;
     }

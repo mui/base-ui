@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .GhostButton {
     font-size: var(--font-size-13);
@@ -31,12 +34,12 @@
     &:not(:focus-visible) {
       @media (hover: hover) {
         &:hover {
-          background-color: var(--gray-c2);
+          background-color: var(--gray-c1);
         }
       }
 
       &[data-popup-open] {
-        background-color: var(--gray-c2);
+        background-color: var(--gray-c1);
       }
     }
   }

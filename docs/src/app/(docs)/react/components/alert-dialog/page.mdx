@@ -89,7 +89,7 @@ Use the `[data-nested-dialog-open]` selector and the `var(--nested-dialogs)` CSS
 
 import { DemoDialogCloseConfirmation } from '../dialog/demos/close-confirmation';
 
-<DemoDialogCloseConfirmation compact />
+<DemoDialogCloseConfirmation />
 
 ### Detached triggers
 
@@ -98,6 +98,9 @@ For simple, one-off interactions, place the `<AlertDialog.Trigger>` inside `<Ale
 
 However, if defining the alert dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<AlertDialog.Trigger>` outside of `<AlertDialog.Root>` and linking them with a `handle` created by the `AlertDialog.createHandle()` function.
+
+The imperative methods on the handle, such as `open()` and `openWithPayload()`, require an `<AlertDialog.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
 
 ```jsx title="Detached triggers"
 const demoAlertDialog = AlertDialog.createHandle();

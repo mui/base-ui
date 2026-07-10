@@ -4,12 +4,9 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import {
-  useComboboxFloatingContext,
-  useComboboxRootContext,
-  useComboboxDerivedItemsContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
+import { useListEmpty } from '../utils/parts';
 import {
   type Side,
   type Align,
@@ -38,15 +35,17 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     render,
     className,
     anchor,
-    positionMethod = 'absolute',
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
+    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
+    // remain destructured to exclude the props from `elementProps`.
+    positionMethod,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
+    collisionPadding,
+    arrowPadding,
+    sticky,
     disableAnchorTracking = false,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style: styleProp,
@@ -54,7 +53,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
@@ -69,7 +67,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const empty = filteredItems.length === 0;
+  const empty = useListEmpty();
   const resolvedAnchor =
     anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 

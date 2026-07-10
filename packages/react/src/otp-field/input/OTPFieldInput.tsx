@@ -348,7 +348,11 @@ export interface OTPFieldInputState extends Omit<OTPFieldRootState, 'filled' | '
   value: string;
 }
 
-export interface OTPFieldInputProps extends BaseUIComponentProps<'input', OTPFieldInputState> {}
+export interface OTPFieldInputProps extends BaseUIComponentProps<
+  'input',
+  OTPFieldInputState,
+  React.ComponentPropsWithRef<'input'>
+> {}
 
 export namespace OTPFieldInput {
   export type State = OTPFieldInputState;

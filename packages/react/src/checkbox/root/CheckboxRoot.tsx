@@ -178,12 +178,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(
-    inputRefProp,
-    inputRef,
-    validation.inputRef,
-    validation.registerInput,
-  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.registerInput);
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -230,7 +225,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       type: 'checkbox',
       'aria-hidden': true,
       onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
+        // Workaround for https://github.com/react/react/issues/9023
         if (event.nativeEvent.defaultPrevented) {
           return;
         }
@@ -264,6 +259,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           setGroupValue(nextGroupValue, details);
         }
+      },
+      onClick(event) {
+        // The click dispatched from the root's `onClick` is an implementation detail
+        // and must not reach ancestors, which already receive the original click.
+        event.stopPropagation();
       },
       onFocus() {
         controlRef.current?.focus();
@@ -511,7 +511,8 @@ export interface CheckboxRootProps
    */
   uncheckedValue?: string | undefined;
   /**
-   * The value of the selected checkbox.
+   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.
+   * When submitting a form, a checked box submits `value`; with no `value`, it submits the native "on".
    */
   value?: string | undefined;
 }

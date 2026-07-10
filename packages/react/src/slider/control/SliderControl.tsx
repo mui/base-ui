@@ -176,7 +176,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const control = controlRef.current;
     const thumbIndex = pressedThumbIndexRef.current;
 
-    if (!control || (!range && (thumbIndex < 0 || thumbIndex >= values.length))) {
+    if (!control || thumbIndex < 0 || thumbIndex >= values.length) {
+      if (thumbIndex >= values.length) {
+        currentInteractionValueRef.current = null;
+      }
       return null;
     }
 
@@ -206,10 +209,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
         thumbIndex,
         didSwap: false,
       };
-    }
-
-    if (thumbIndex < 0) {
-      return null;
     }
 
     const collisionResult = resolveThumbCollision({
@@ -336,6 +335,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
     if (nativeEvent.type === 'pointermove' && (nativeEvent as PointerEvent).buttons === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       handleTouchEnd(nativeEvent);
       return;
     }
@@ -359,12 +359,20 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   });
 
-  function handleTouchEnd(nativeEvent: TouchEvent | PointerEvent) {
+  const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     setActive(-1);
     setDragging(false);
 
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
+
+    // If the value array shrank or grew mid-drag, the cached interaction value no longer
+    // matches the current thumbs (the pressed index can still be in range), so dropping it
+    // keeps a stale or malformed array from being committed on release.
+    const interactionValue = currentInteractionValueRef.current;
+    if (Array.isArray(interactionValue) && interactionValue.length !== values.length) {
+      currentInteractionValueRef.current = null;
+    }
 
     if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
@@ -387,7 +395,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     currentInteractionValueRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
-  }
+  });
 
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
