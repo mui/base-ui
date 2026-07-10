@@ -1566,6 +1566,109 @@ describe('<Field.Root />', () => {
         expect(label).not.toHaveAttribute('data-focused');
         expect(description).not.toHaveAttribute('data-focused');
       });
+
+      it('removes [data-focused] when the field becomes disabled while focused', async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <div>
+              <Field.Root disabled={disabled} data-testid="root">
+                <Field.Control data-testid="control" />
+                <Field.Label data-testid="label" />
+                <Field.Description data-testid="description" />
+              </Field.Root>
+              <button onClick={() => setDisabled(true)}>disable</button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+
+        fireEvent.focus(control);
+
+        expect(root).toHaveAttribute('data-focused', '');
+        expect(control).toHaveAttribute('data-focused', '');
+        expect(label).toHaveAttribute('data-focused', '');
+        expect(description).toHaveAttribute('data-focused', '');
+
+        // Disabling a focused control doesn't fire a blur event.
+        fireEvent.click(screen.getByRole('button', { name: 'disable' }));
+
+        expect(root).toHaveAttribute('data-disabled', '');
+        expect(root).not.toHaveAttribute('data-focused');
+        expect(control).not.toHaveAttribute('data-focused');
+        expect(label).not.toHaveAttribute('data-focused');
+        expect(description).not.toHaveAttribute('data-focused');
+      });
+
+      it('removes [data-focused] when the control becomes disabled while focused', async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Field.Control disabled={disabled} data-testid="control" />
+                <Field.Label data-testid="label" />
+              </Field.Root>
+              <button onClick={() => setDisabled(true)}>disable</button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        const label = screen.getByTestId('label');
+
+        fireEvent.focus(control);
+
+        expect(root).toHaveAttribute('data-focused', '');
+        expect(control).toHaveAttribute('data-focused', '');
+        expect(label).toHaveAttribute('data-focused', '');
+
+        fireEvent.click(screen.getByRole('button', { name: 'disable' }));
+
+        expect(control).toHaveAttribute('data-disabled', '');
+        expect(root).not.toHaveAttribute('data-focused');
+        expect(control).not.toHaveAttribute('data-focused');
+        expect(label).not.toHaveAttribute('data-focused');
+      });
+
+      it('removes [data-focused] from a focused Checkbox when the field becomes disabled', async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <div>
+              <Field.Root disabled={disabled} data-testid="root">
+                <Checkbox.Root data-testid="checkbox" />
+              </Field.Root>
+              <button onClick={() => setDisabled(true)}>disable</button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        const checkbox = screen.getByTestId('checkbox');
+
+        fireEvent.focus(checkbox);
+
+        expect(root).toHaveAttribute('data-focused', '');
+        expect(checkbox).toHaveAttribute('data-focused', '');
+
+        fireEvent.click(screen.getByRole('button', { name: 'disable' }));
+
+        expect(root).toHaveAttribute('data-disabled', '');
+        expect(root).not.toHaveAttribute('data-focused');
+        expect(checkbox).not.toHaveAttribute('data-focused');
+      });
     });
   });
 
