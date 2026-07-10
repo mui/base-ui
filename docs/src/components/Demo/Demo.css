@@ -67,8 +67,8 @@
     user-select: none;
     overflow: hidden;
 
-    /* Draw both separators behind the tab layer without taking space from the
-       2.25rem toolbar row. Tab fills bridge the bottom separator when active. */
+    /* Draw both separators behind the tabs without affecting toolbar layout.
+       Active tab fills cover the bottom separator. */
     &::before {
       content: '';
       position: absolute;
