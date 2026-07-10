@@ -17,6 +17,18 @@ export class PopupTriggerMap {
    * Note: The provided element is assumed to not be registered under multiple IDs.
    */
   public add(id: string, element: Element) {
+    if (process.env.NODE_ENV !== 'production') {
+      for (const [existingId, existingElement] of this.idMap) {
+        if (existingElement === element && existingId !== id) {
+          // TODO: fix mui/no-guarded-throw
+          // eslint-disable-next-line mui/no-guarded-throw
+          throw new Error(
+            'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
+          );
+        }
+      }
+    }
+
     this.idMap.set(id, element);
   }
 
