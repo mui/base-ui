@@ -56,7 +56,6 @@ export type State = {
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
-  allValuesRef: React.RefObject<Array<any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;

@@ -161,13 +161,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
    * Contains the currently visible list of item values post-filtering.
    */
   const valuesRef = React.useRef<any[]>([]);
-  /**
-   * Contains all item values in a stable, unfiltered order.
-   * This is only used when `items` prop is not provided.
-   * It accumulates values on first mount and does not remove them on unmount due to
-   * filtering, providing a stable index for selected value tracking.
-   */
-  const allValuesRef = React.useRef<any[]>([]);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -364,7 +357,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         chipsContainerRef,
         clearRef,
         valuesRef,
-        allValuesRef,
         selectionEventRef,
         name,
         form,
@@ -812,27 +804,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      if (open || selectionMode === 'none') {
+      if (!hasItems || open || selectionMode === 'none') {
         return;
       }
-
-      const registry = items ? flatItems : allValuesRef.current;
 
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+        const lastIndex = findItemIndex(flatItems, lastValue, isItemEqualToValue);
         setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
       } else {
-        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
+        const index = findItemIndex(flatItems, selectedValue, isItemEqualToValue);
         setIndices({ selectedIndex: index === -1 ? null : index });
       }
     },
     [
       open,
       selectedValue,
-      items,
       selectionMode,
+      hasItems,
       flatItems,
       multiple,
       isItemEqualToValue,

@@ -102,17 +102,10 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     const visibleMap = store.state.valuesRef.current;
     visibleMap[index] = itemValue;
 
-    // Stable registry that doesn't depend on filtering. Assume that no
-    // filtering had occurred at this point; otherwise, an `items` prop is
-    // required.
-    if (selectionMode !== 'none') {
-      store.state.allValuesRef.current.push(itemValue);
-    }
-
     return () => {
       delete visibleMap[index];
     };
-  }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+  }, [hasRegistered, hasItems, index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
     if (!open) {
