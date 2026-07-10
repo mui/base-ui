@@ -19,36 +19,50 @@
 }
 
 .Root {
-  position: relative;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   width: 100%;
-}
-
-.Input {
-  box-sizing: border-box;
-  width: 100%;
   height: 2rem;
-  margin: 0;
-  padding: 0 2rem 0 0.5rem;
   border: 1px solid oklch(14.5% 0 0deg);
-  border-radius: 0;
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
   background-color: white;
   color: oklch(14.5% 0 0deg);
-
-  @media (any-pointer: coarse) {
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  &:focus-within {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Input {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: none;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: transparent;
+  color: inherit;
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   &::placeholder {
@@ -60,37 +74,26 @@
   }
 
   &:focus {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
+    outline: none;
   }
 }
 
 .Toggle {
   box-sizing: border-box;
-  position: absolute;
-  top: 1px;
-  right: 1px;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  height: calc(100% - 2px);
+  height: 100%;
   aspect-ratio: 1;
   padding: 0;
   margin: 0;
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: oklch(14.5% 0 0deg);
+  color: inherit;
   -webkit-user-select: none;
   user-select: none;
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {

@@ -9,17 +9,17 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { Field, type FieldControlState } from '../../field';
-import { usePasswordToggleFieldRootContext } from '../root/PasswordToggleFieldRootContext';
+import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 
 /**
  * The password input. Its `type` toggles between `password` and `text`, and it works with
  * [Field](https://base-ui.com/react/components/field) for labeling and validation.
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Password Toggle Field](https://base-ui.com/react/components/password-toggle-field)
+ * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
-export const PasswordToggleFieldInput = React.forwardRef(function PasswordToggleFieldInput(
-  componentProps: PasswordToggleFieldInput.Props,
+export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
+  componentProps: PasswordFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { id: idProp, disabled: disabledProp = false, ...elementProps } = componentProps;
@@ -30,7 +30,7 @@ export const PasswordToggleFieldInput = React.forwardRef(function PasswordToggle
     disabled: rootDisabled,
     inputRef,
     setInputId,
-  } = usePasswordToggleFieldRootContext();
+  } = usePasswordFieldRootContext();
 
   const mergedRef = useMergedRefs(forwardedRef, inputRef);
   // Resolve (or generate) the input id and register it so the toggle's `aria-controls`
@@ -77,11 +77,11 @@ export const PasswordToggleFieldInput = React.forwardRef(function PasswordToggle
   );
 });
 
-export interface PasswordToggleFieldInputState extends FieldControlState {}
+export interface PasswordFieldInputState extends FieldControlState {}
 
-export interface PasswordToggleFieldInputProps extends BaseUIComponentProps<
+export interface PasswordFieldInputProps extends BaseUIComponentProps<
   'input',
-  PasswordToggleFieldInputState
+  PasswordFieldInputState
 > {
   /**
    * The default value of the input. Use when uncontrolled.
@@ -89,7 +89,7 @@ export interface PasswordToggleFieldInputProps extends BaseUIComponentProps<
   defaultValue?: Field.Control.Props['defaultValue'] | undefined;
 }
 
-export namespace PasswordToggleFieldInput {
-  export type State = PasswordToggleFieldInputState;
-  export type Props = PasswordToggleFieldInputProps;
+export namespace PasswordFieldInput {
+  export type State = PasswordFieldInputState;
+  export type Props = PasswordFieldInputProps;
 }

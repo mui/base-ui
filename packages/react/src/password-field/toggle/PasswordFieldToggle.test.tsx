@@ -2,26 +2,26 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, screen } from '@mui/internal-test-utils';
-import { PasswordToggleFieldPreview as PasswordToggleField } from '@base-ui/react/password-toggle-field';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
-describe('<PasswordToggleField.Toggle />', () => {
+describe('<PasswordField.Toggle />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PasswordToggleField.Toggle />, () => ({
+  describeConformance(<PasswordField.Toggle />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
     render(node) {
-      return render(<PasswordToggleField.Root>{node}</PasswordToggleField.Root>);
+      return render(<PasswordField.Root>{node}</PasswordField.Root>);
     },
   }));
 
   it('toggles the password visibility when clicked', async () => {
     await render(
-      <PasswordToggleField.Root>
-        <PasswordToggleField.Input />
-        <PasswordToggleField.Toggle />
-      </PasswordToggleField.Root>,
+      <PasswordField.Root>
+        <PasswordField.Input />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
     );
 
     const input = document.querySelector('input')!;
@@ -42,10 +42,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
   it('reflects the visibility through aria-pressed and data-pressed', async () => {
     await render(
-      <PasswordToggleField.Root>
-        <PasswordToggleField.Input />
-        <PasswordToggleField.Toggle />
-      </PasswordToggleField.Root>,
+      <PasswordField.Root>
+        <PasswordField.Input />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
     );
 
     const button = screen.getByRole('button');
@@ -61,10 +61,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
   it('stays a non-submitting button even if a consumer passes type="submit"', async () => {
     await render(
-      <PasswordToggleField.Root>
-        <PasswordToggleField.Input />
-        <PasswordToggleField.Toggle type="submit" />
-      </PasswordToggleField.Root>,
+      <PasswordField.Root>
+        <PasswordField.Input />
+        <PasswordField.Toggle type="submit" />
+      </PasswordField.Root>,
     );
 
     expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
@@ -73,9 +73,9 @@ describe('<PasswordToggleField.Toggle />', () => {
   describe('aria-controls', () => {
     it('omits aria-controls until an input is registered', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-controls');
@@ -83,10 +83,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
     it('points aria-controls at the input', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input id="pwd" />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input id="pwd" />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'pwd');
@@ -96,10 +96,10 @@ describe('<PasswordToggleField.Toggle />', () => {
   describe('accessible label', () => {
     it('does not set a default aria-label (the consumer provides a localized one)', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-label');
@@ -107,10 +107,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
     it('forwards an explicit aria-label', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle aria-label="Reveal password" />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle aria-label="Reveal password" />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Reveal password');
@@ -120,10 +120,10 @@ describe('<PasswordToggleField.Toggle />', () => {
   describe('prop: disabled', () => {
     it('does not toggle when disabled', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle disabled />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle disabled />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -142,10 +142,10 @@ describe('<PasswordToggleField.Toggle />', () => {
   describe('prop: nativeButton', () => {
     it('toggles the password visibility when rendered as a non-native button', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle nativeButton={false} render={<span />} />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle nativeButton={false} render={<span />} />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -159,10 +159,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
     it('expresses disabled via aria-disabled and does not toggle when disabled', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle nativeButton={false} render={<span />} disabled />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle nativeButton={false} render={<span />} disabled />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -181,10 +181,10 @@ describe('<PasswordToggleField.Toggle />', () => {
   describe.skipIf(isJSDOM)('focus management', () => {
     it('keeps focus on the input when toggled with a pointer', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -202,10 +202,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
     it('keeps focus on the toggle when activated with the keyboard', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -223,10 +223,10 @@ describe('<PasswordToggleField.Toggle />', () => {
 
   it.skipIf(isJSDOM)('preserves the caret position after toggling with a pointer', async () => {
     await render(
-      <PasswordToggleField.Root>
-        <PasswordToggleField.Input defaultValue="hunter2" />
-        <PasswordToggleField.Toggle />
-      </PasswordToggleField.Root>,
+      <PasswordField.Root>
+        <PasswordField.Input defaultValue="hunter2" />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
     );
 
     const input = document.querySelector('input')!;
@@ -248,10 +248,10 @@ describe('<PasswordToggleField.Toggle />', () => {
   it('forwards the click handler', async () => {
     const onClick = vi.fn();
     await render(
-      <PasswordToggleField.Root>
-        <PasswordToggleField.Input />
-        <PasswordToggleField.Toggle onClick={onClick} />
-      </PasswordToggleField.Root>,
+      <PasswordField.Root>
+        <PasswordField.Input />
+        <PasswordField.Toggle onClick={onClick} />
+      </PasswordField.Root>,
     );
 
     await act(async () => {

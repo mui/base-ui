@@ -1,15 +1,15 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { PasswordToggleFieldPreview as PasswordToggleField } from '@base-ui/react/password-toggle-field';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<PasswordToggleField.Root />', () => {
+describe('<PasswordField.Root />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PasswordToggleField.Root />, () => ({
+  describeConformance(<PasswordField.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
@@ -17,10 +17,10 @@ describe('<PasswordToggleField.Root />', () => {
   describe('visibility state', () => {
     it('is hidden by default', async () => {
       await render(
-        <PasswordToggleField.Root>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByRole('button')).toBeInTheDocument();
@@ -29,10 +29,10 @@ describe('<PasswordToggleField.Root />', () => {
 
     it('respects defaultVisible (uncontrolled)', async () => {
       await render(
-        <PasswordToggleField.Root defaultVisible>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root defaultVisible>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(document.querySelector('input')).toHaveAttribute('type', 'text');
@@ -40,10 +40,10 @@ describe('<PasswordToggleField.Root />', () => {
 
     it('respects visible (controlled)', async () => {
       const { setProps } = await render(
-        <PasswordToggleField.Root visible={false}>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root visible={false}>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -56,10 +56,10 @@ describe('<PasswordToggleField.Root />', () => {
     it('does not flip the type locally when controlled (click only notifies)', async () => {
       const onVisibleChange = vi.fn();
       await render(
-        <PasswordToggleField.Root visible={false} onVisibleChange={onVisibleChange}>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root visible={false} onVisibleChange={onVisibleChange}>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -76,10 +76,10 @@ describe('<PasswordToggleField.Root />', () => {
 
     it('does not emit data-visible on the root (reserved for element visibility)', async () => {
       await render(
-        <PasswordToggleField.Root data-testid="root" defaultVisible>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root data-testid="root" defaultVisible>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-visible');
@@ -90,10 +90,10 @@ describe('<PasswordToggleField.Root />', () => {
     it('fires when the toggle is pressed', async () => {
       const onVisibleChange = vi.fn();
       await render(
-        <PasswordToggleField.Root onVisibleChange={onVisibleChange}>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root onVisibleChange={onVisibleChange}>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       await act(async () => {
@@ -111,10 +111,10 @@ describe('<PasswordToggleField.Root />', () => {
         eventDetails.cancel();
       });
       await render(
-        <PasswordToggleField.Root onVisibleChange={onVisibleChange}>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root onVisibleChange={onVisibleChange}>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       await act(async () => {
@@ -131,10 +131,10 @@ describe('<PasswordToggleField.Root />', () => {
     it('disables the input and the toggle', async () => {
       const onVisibleChange = vi.fn();
       await render(
-        <PasswordToggleField.Root disabled onVisibleChange={onVisibleChange}>
-          <PasswordToggleField.Input />
-          <PasswordToggleField.Toggle />
-        </PasswordToggleField.Root>,
+        <PasswordField.Root disabled onVisibleChange={onVisibleChange}>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
       );
 
       const input = document.querySelector('input')!;
@@ -153,10 +153,10 @@ describe('<PasswordToggleField.Root />', () => {
     it('is disabled by a surrounding Field.Root', async () => {
       await render(
         <Field.Root disabled>
-          <PasswordToggleField.Root>
-            <PasswordToggleField.Input />
-            <PasswordToggleField.Toggle />
-          </PasswordToggleField.Root>
+          <PasswordField.Root>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
         </Field.Root>,
       );
 
@@ -170,10 +170,10 @@ describe('<PasswordToggleField.Root />', () => {
       const onVisibleChange = vi.fn();
       await render(
         <form>
-          <PasswordToggleField.Root defaultVisible onVisibleChange={onVisibleChange}>
-            <PasswordToggleField.Input />
-            <PasswordToggleField.Toggle />
-          </PasswordToggleField.Root>
+          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
         </form>,
       );
 
@@ -190,10 +190,10 @@ describe('<PasswordToggleField.Root />', () => {
     it('does not hide when the reset is canceled', async () => {
       await render(
         <form>
-          <PasswordToggleField.Root defaultVisible>
-            <PasswordToggleField.Input />
-            <PasswordToggleField.Toggle />
-          </PasswordToggleField.Root>
+          <PasswordField.Root defaultVisible>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
         </form>,
       );
 
@@ -210,10 +210,10 @@ describe('<PasswordToggleField.Root />', () => {
       const onVisibleChange = vi.fn();
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordToggleField.Root defaultVisible onVisibleChange={onVisibleChange}>
-            <PasswordToggleField.Input />
-            <PasswordToggleField.Toggle />
-          </PasswordToggleField.Root>
+          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
         </form>,
       );
 

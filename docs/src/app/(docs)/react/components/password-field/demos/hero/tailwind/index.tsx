@@ -1,30 +1,30 @@
 'use client';
 import * as React from 'react';
-import { PasswordToggleFieldPreview as PasswordToggleField } from '@base-ui/react/password-toggle-field';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
-export default function ExamplePasswordToggleField() {
+export default function ExamplePasswordField() {
   const id = React.useId();
   return (
     <div className="flex w-full max-w-64 flex-col items-start gap-1">
       <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Password
       </label>
-      <PasswordToggleField.Root className="relative flex w-full items-center">
-        <PasswordToggleField.Input
+      <PasswordField.Root className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-within:outline-white">
+        <PasswordField.Input
           id={id}
           placeholder="Enter your password"
-          className="box-border h-8 w-full border border-neutral-950 bg-white py-0 pr-8 pl-2 text-sm font-normal any-pointer-coarse:text-base text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400 dark:focus:outline-white"
+          className="box-border h-full min-w-0 flex-1 rounded-none border-none bg-transparent px-2 py-0 text-sm font-normal any-pointer-coarse:text-base text-inherit placeholder:text-neutral-500 focus:outline-none dark:placeholder:text-neutral-400"
         />
-        <PasswordToggleField.Toggle
+        <PasswordField.Toggle
           aria-label="Show password"
-          className="absolute top-px right-px flex h-[calc(100%-2px)] aspect-square items-center justify-center rounded-none border-none bg-transparent text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
+          className="flex h-full aspect-square shrink-0 items-center justify-center rounded-none border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
           render={(props, state) => (
             <button type="button" {...props}>
               {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           )}
         />
-      </PasswordToggleField.Root>
+      </PasswordField.Root>
     </div>
   );
 }

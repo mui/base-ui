@@ -5,16 +5,16 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { usePasswordToggleFieldRootContext } from '../root/PasswordToggleFieldRootContext';
+import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 
 /**
  * A button that toggles the password's visibility.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Password Toggle Field](https://base-ui.com/react/components/password-toggle-field)
+ * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
-export const PasswordToggleFieldToggle = React.forwardRef(function PasswordToggleFieldToggle(
-  componentProps: PasswordToggleFieldToggle.Props,
+export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle(
+  componentProps: PasswordFieldToggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -27,18 +27,13 @@ export const PasswordToggleFieldToggle = React.forwardRef(function PasswordToggl
     ...elementProps
   } = componentProps;
 
-  const {
-    visible,
-    setVisible,
-    disabled: rootDisabled,
-    inputId,
-  } = usePasswordToggleFieldRootContext();
+  const { visible, setVisible, disabled: rootDisabled, inputId } = usePasswordFieldRootContext();
 
   const disabled = rootDisabled || disabledProp;
 
   const { getButtonProps, buttonRef } = useButton({ disabled, native: nativeButton });
 
-  const state: PasswordToggleFieldToggle.State = { pressed: visible, disabled };
+  const state: PasswordFieldToggle.State = { pressed: visible, disabled };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -67,7 +62,7 @@ export const PasswordToggleFieldToggle = React.forwardRef(function PasswordToggl
   return element;
 });
 
-export interface PasswordToggleFieldToggleState {
+export interface PasswordFieldToggleState {
   /**
    * Whether the toggle is pressed (the password is revealed as plain text).
    */
@@ -78,10 +73,10 @@ export interface PasswordToggleFieldToggleState {
   disabled: boolean;
 }
 
-export interface PasswordToggleFieldToggleProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PasswordToggleFieldToggleState> {}
+export interface PasswordFieldToggleProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', PasswordFieldToggleState> {}
 
-export namespace PasswordToggleFieldToggle {
-  export type State = PasswordToggleFieldToggleState;
-  export type Props = PasswordToggleFieldToggleProps;
+export namespace PasswordFieldToggle {
+  export type State = PasswordFieldToggleState;
+  export type Props = PasswordFieldToggleProps;
 }

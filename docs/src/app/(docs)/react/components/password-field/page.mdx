@@ -1,4 +1,4 @@
-# Password Toggle Field
+# Password Field
 
 <Subtitle>A password input with a button to reveal or hide its value.</Subtitle>
 
@@ -7,11 +7,11 @@
   content="A high-quality, unstyled React password field component with a button to reveal or hide the entered password."
 />
 
-> **Note:** Password Toggle Field is currently in preview. Its API may change before it becomes stable.
+> **Note:** Password Field is currently in preview. Its API may change before it becomes stable.
 
-import { DemoPasswordToggleFieldHero } from './demos/hero';
+import { DemoPasswordFieldHero } from './demos/hero';
 
-<DemoPasswordToggleFieldHero />
+<DemoPasswordFieldHero />
 
 ## Usage guidelines
 
@@ -23,12 +23,12 @@ import { DemoPasswordToggleFieldHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { PasswordToggleFieldPreview as PasswordToggleField } from '@base-ui/react/password-toggle-field';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
-<PasswordToggleField.Root>
-  <PasswordToggleField.Input />
-  <PasswordToggleField.Toggle />
-</PasswordToggleField.Root>;
+<PasswordField.Root>
+  <PasswordField.Input />
+  <PasswordField.Toggle />
+</PasswordField.Root>;
 ```
 
 ## Examples
@@ -39,7 +39,7 @@ The toggle button's `aria-pressed` state reflects whether the password is reveal
 `aria-label` constant and read the `pressed` state to swap the icon.
 
 ```tsx title="Swapping the icon based on state"
-<PasswordToggleField.Toggle
+<PasswordField.Toggle
   aria-label="Show password"
   render={(props, state) => (
     <button type="button" {...props}>
@@ -57,32 +57,32 @@ the owning form is reset or submitted.
 The input defaults to `autoComplete="current-password"`. On signup or change-password forms, pass
 `autoComplete="new-password"` to override it.
 
-```tsx title="Using Password Toggle Field with Field"
+```tsx title="Using Password Field with Field"
 <Field.Root name="password">
   <Field.Label>Password</Field.Label>
-  <PasswordToggleField.Root>
-    <PasswordToggleField.Input required />
-    <PasswordToggleField.Toggle aria-label="Show password" />
-  </PasswordToggleField.Root>
+  <PasswordField.Root>
+    <PasswordField.Input required />
+    <PasswordField.Toggle aria-label="Show password" />
+  </PasswordField.Root>
   <Field.Error />
 </Field.Root>
 ```
 
 ## API reference
 
-import { TypesPasswordToggleField } from './types';
+import { TypesPasswordField } from './types';
 
 ### Root
 
-<TypesPasswordToggleField.Root />
+<TypesPasswordField.Root />
 
 ### Input
 
-<TypesPasswordToggleField.Input />
+<TypesPasswordField.Input />
 
 ### Toggle
 
-<TypesPasswordToggleField.Toggle />
+<TypesPasswordField.Toggle />
 
 export const metadata = {
   keywords: [
