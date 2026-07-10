@@ -144,7 +144,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               // Only a native-mode item that isn't a real <button> is excluded.
               if (!isNativeButton || isButton) {
-                activateElement(event, currentTarget);
+                event.preventBaseUIHandler();
+                dispatchClickWithModifiers(currentTarget, event);
               }
 
               return;
@@ -169,7 +170,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             event.preventDefault();
 
             if (isEnterKey) {
-              activateElement(event, currentTarget);
+              event.preventBaseUIHandler();
+              dispatchClickWithModifiers(currentTarget, event);
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -209,7 +211,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               !event.defaultPrevented &&
               event.key === ' '
             ) {
-              activateElement(event, event.currentTarget as Element);
+              event.preventBaseUIHandler();
+              dispatchClickWithModifiers(event.currentTarget as Element, event);
             }
           },
           onPointerDown(event: React.PointerEvent) {
@@ -237,11 +240,6 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     getButtonProps,
     buttonRef,
   };
-}
-
-function activateElement(event: BaseUIEvent<React.KeyboardEvent>, element: Element) {
-  event.preventBaseUIHandler();
-  dispatchClickWithModifiers(element, event);
 }
 
 function isButtonElement(elem: Element | null): elem is HTMLButtonElement {
