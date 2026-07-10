@@ -7,16 +7,16 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import type { BaseUIComponentProps } from '../../internals/types';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { PasswordToggleFieldRootContext } from './PasswordToggleFieldRootContext';
+import { PasswordFieldRootContext } from './PasswordFieldRootContext';
 
 /**
  * Groups the password input and its visibility toggle.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Password Toggle Field](https://base-ui.com/react/components/password-toggle-field)
+ * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
-export const PasswordToggleFieldRoot = React.forwardRef(function PasswordToggleFieldRoot(
-  componentProps: PasswordToggleFieldRoot.Props,
+export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
+  componentProps: PasswordFieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -37,7 +37,7 @@ export const PasswordToggleFieldRoot = React.forwardRef(function PasswordToggleF
   const [visible, setVisibleState] = useControlled({
     controlled: visibleProp,
     default: defaultVisible,
-    name: 'PasswordToggleField',
+    name: 'PasswordField',
     state: 'visible',
   });
 
@@ -48,7 +48,7 @@ export const PasswordToggleFieldRoot = React.forwardRef(function PasswordToggleF
   const [inputId, setInputId] = React.useState<string | undefined>(undefined);
 
   const setVisible = useStableCallback(
-    (nextVisible: boolean, eventDetails: PasswordToggleFieldRoot.ChangeEventDetails) => {
+    (nextVisible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => {
       onVisibleChange?.(nextVisible, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -61,9 +61,9 @@ export const PasswordToggleFieldRoot = React.forwardRef(function PasswordToggleF
 
   // Visibility lives on the toggle (`data-pressed`/`aria-pressed`) and the input's native
   // `type`; the root only exposes whether the whole field is disabled.
-  const state: PasswordToggleFieldRoot.State = React.useMemo(() => ({ disabled }), [disabled]);
+  const state: PasswordFieldRoot.State = React.useMemo(() => ({ disabled }), [disabled]);
 
-  const contextValue: PasswordToggleFieldRootContext = React.useMemo(
+  const contextValue: PasswordFieldRootContext = React.useMemo(
     () => ({
       visible,
       setVisible,
@@ -82,33 +82,33 @@ export const PasswordToggleFieldRoot = React.forwardRef(function PasswordToggleF
   });
 
   return (
-    <PasswordToggleFieldRootContext.Provider value={contextValue}>
+    <PasswordFieldRootContext.Provider value={contextValue}>
       {element}
-    </PasswordToggleFieldRootContext.Provider>
+    </PasswordFieldRootContext.Provider>
   );
 });
 
-export interface PasswordToggleFieldRootState {
+export interface PasswordFieldRootState {
   /**
    * Whether the field should ignore user interaction.
    */
   disabled: boolean;
 }
 
-export interface PasswordToggleFieldRootProps extends BaseUIComponentProps<
+export interface PasswordFieldRootProps extends BaseUIComponentProps<
   'div',
-  PasswordToggleFieldRootState
+  PasswordFieldRootState
 > {
   /**
    * Whether the password is currently revealed as plain text.
    *
-   * To render an uncontrolled password toggle field, use the `defaultVisible` prop instead.
+   * To render an uncontrolled password field, use the `defaultVisible` prop instead.
    */
   visible?: boolean | undefined;
   /**
    * Whether the password is initially revealed as plain text.
    *
-   * To render a controlled password toggle field, use the `visible` prop instead.
+   * To render a controlled password field, use the `visible` prop instead.
    * @default false
    */
   defaultVisible?: boolean | undefined;
@@ -116,7 +116,7 @@ export interface PasswordToggleFieldRootProps extends BaseUIComponentProps<
    * Callback fired when the password visibility changes.
    */
   onVisibleChange?:
-    | ((visible: boolean, eventDetails: PasswordToggleFieldRoot.ChangeEventDetails) => void)
+    | ((visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void)
     | undefined;
   /**
    * Whether the component should ignore user interaction.
@@ -126,13 +126,13 @@ export interface PasswordToggleFieldRootProps extends BaseUIComponentProps<
   disabled?: boolean | undefined;
 }
 
-export type PasswordToggleFieldRootChangeEventReason = typeof REASONS.none;
-export type PasswordToggleFieldRootChangeEventDetails =
-  BaseUIChangeEventDetails<PasswordToggleFieldRoot.ChangeEventReason>;
+export type PasswordFieldRootChangeEventReason = typeof REASONS.none;
+export type PasswordFieldRootChangeEventDetails =
+  BaseUIChangeEventDetails<PasswordFieldRoot.ChangeEventReason>;
 
-export namespace PasswordToggleFieldRoot {
-  export type State = PasswordToggleFieldRootState;
-  export type Props = PasswordToggleFieldRootProps;
-  export type ChangeEventReason = PasswordToggleFieldRootChangeEventReason;
-  export type ChangeEventDetails = PasswordToggleFieldRootChangeEventDetails;
+export namespace PasswordFieldRoot {
+  export type State = PasswordFieldRootState;
+  export type Props = PasswordFieldRootProps;
+  export type ChangeEventReason = PasswordFieldRootChangeEventReason;
+  export type ChangeEventDetails = PasswordFieldRootChangeEventDetails;
 }
