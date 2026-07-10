@@ -12,6 +12,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../internals/clamp';
+import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
@@ -221,13 +222,16 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     if (scrollbarYEl && thumbYEl) {
       const maxThumbOffsetY =
         scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset;
-      const scrollRangeY = scrollableContentHeight - viewportHeight;
-      const scrollRatioY = scrollRangeY === 0 ? 0 : scrollTop / scrollRangeY;
 
-      // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
-      // band effect.
-      const thumbOffsetY = Math.min(maxThumbOffsetY, Math.max(0, scrollRatioY * maxThumbOffsetY));
-
+      const thumbOffsetY = applyOverscrollThumb(
+        thumbYEl,
+        ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
+        scrollTop,
+        maxScrollTop,
+        scrollableContentHeight,
+        clampedNextHeight,
+        maxThumbOffsetY,
+      );
       thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
     }
 
@@ -235,17 +239,20 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     if (scrollbarXEl && thumbXEl) {
       const maxThumbOffsetX =
         scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset;
-      const scrollRangeX = scrollableContentWidth - viewportWidth;
-      const scrollRatioX = scrollRangeX === 0 ? 0 : scrollLeft / scrollRangeX;
+      // RTL scrolls from 0 down to `-maxScrollLeft`; measure from the inline start edge so the
+      // overscroll math is direction-agnostic, then flip the resulting offset back below.
+      const scrollFromStart = direction === 'rtl' ? -scrollLeft : scrollLeft;
 
-      // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
-      // band effect.
-      const thumbOffsetX =
-        direction === 'rtl'
-          ? clamp(scrollRatioX * maxThumbOffsetX, -maxThumbOffsetX, 0)
-          : clamp(scrollRatioX * maxThumbOffsetX, 0, maxThumbOffsetX);
-
-      thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+      const offsetX = applyOverscrollThumb(
+        thumbXEl,
+        ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
+        scrollFromStart,
+        maxScrollLeft,
+        scrollableContentWidth,
+        clampedNextWidth,
+        maxThumbOffsetX,
+      );
+      thumbXEl.style.transform = `translate3d(${direction === 'rtl' ? -offsetX : offsetX}px,0,0)`;
     }
 
     const overflowMetricsPx: Array<[ScrollAreaViewportCssVars, number]> = [
@@ -493,4 +500,31 @@ function mergeHiddenState(prevState: HiddenState, nextState: HiddenState) {
   }
 
   return nextState;
+}
+
+/**
+ * Sizes the thumb and returns its axis offset. On overscroll (Safari rubber-band only) it shrinks
+ * against the pinned edge, damped by `content / (content + overscroll)` to match native feedback;
+ * the size flows through the thumb-size variable so the resting `var(...)` still applies.
+ */
+function applyOverscrollThumb(
+  thumbEl: HTMLElement,
+  sizeVar: ScrollAreaScrollbarCssVars,
+  scrollFromStart: number,
+  maxScroll: number,
+  content: number,
+  size: number,
+  maxThumbOffset: number,
+): number {
+  const clamped = clamp(scrollFromStart, 0, maxScroll);
+  const overscroll = scrollFromStart - clamped;
+  const nextSize = Math.max(MIN_THUMB_SIZE, (size * content) / (content + Math.abs(overscroll)));
+
+  // Passing an empty string removes the override, restoring the resting `var(...)` size.
+  thumbEl.style.setProperty(sizeVar, overscroll ? `${nextSize}px` : '');
+
+  // Slide proportionally; at the end edge push down by the shrink so the thumb stays pinned to
+  // it, while a start overscroll pins to offset 0.
+  const offset = maxScroll ? (clamped / maxScroll) * maxThumbOffset : 0;
+  return offset + (overscroll > 0 ? size - nextSize : 0);
 }
