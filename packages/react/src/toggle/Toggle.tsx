@@ -65,7 +65,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 
   const [pressed, setPressedState] = useControlled({
     controlled: groupContext ? value !== undefined && groupValue.indexOf(value) > -1 : pressedProp,
-    default: defaultPressed,
+    default: defaultPressed ?? false,
     name: 'Toggle',
     state: 'pressed',
   });

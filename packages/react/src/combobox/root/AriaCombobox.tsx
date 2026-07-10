@@ -217,7 +217,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: initialDefaultInputValue,
+    default: initialDefaultInputValue ?? '',
     name: 'Combobox',
     state: 'inputValue',
   });

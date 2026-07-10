@@ -66,7 +66,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValue,
+    default: defaultValue ?? [],
     name: 'Accordion',
     state: 'value',
   });

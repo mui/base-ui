@@ -45,7 +45,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
 
   const [groupValue, setValueState] = useControlled({
     controlled: valueProp,
-    default: valueProp === undefined ? (defaultValueProp ?? EMPTY_ARRAY) : undefined,
+    default: defaultValueProp ?? EMPTY_ARRAY,
     name: 'ToggleGroup',
     state: 'value',
   });

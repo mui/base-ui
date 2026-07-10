@@ -15,7 +15,7 @@ export function useCollapsibleRoot(
 
   const [open, setOpen] = useControlled({
     controlled: openParam,
-    default: defaultOpen,
+    default: defaultOpen ?? false,
     name: 'Collapsible',
     state: 'open',
   });
