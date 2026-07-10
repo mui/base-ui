@@ -49,7 +49,7 @@
     line-height: 1;
     white-space: nowrap;
     z-index: 0;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     text-decoration: none;
 
     &[data-highlighted] {
@@ -67,7 +67,7 @@
         inset-block: 0;
         z-index: -1;
         border-radius: var(--radius-4);
-        background-color: var(--gray-t2);
+        background-color: var(--gray-t3);
 
         @media (prefers-color-scheme: dark) {
           background-color: white;

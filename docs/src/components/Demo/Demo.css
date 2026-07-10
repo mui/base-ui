@@ -31,7 +31,7 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -58,7 +58,7 @@
     font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     background-clip: padding-box;
     display: flex;
     align-items: end;
@@ -108,7 +108,7 @@
     position: absolute;
     inset: 0;
     z-index: 2;
-    outline: 2px solid var(--gray-t2);
+    outline: 2px solid var(--gray-t3);
     outline-offset: -2px;
     pointer-events: none;
   }
@@ -254,7 +254,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
 
       &::after {
@@ -420,7 +420,7 @@
     }
 
     &:focus-visible .DemoCollapseButtonVisual {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
 

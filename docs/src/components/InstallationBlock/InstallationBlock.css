@@ -80,7 +80,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
 
       &::after {
@@ -99,7 +99,7 @@
     outline: 0;
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
       position: relative;
       z-index: 1;

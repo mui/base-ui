@@ -14,7 +14,7 @@
     text-underline-offset: 4px;
 
     &:active {
-      background-color: var(--gray-t2);
+      background-color: var(--gray-t3);
       color: var(--gray-s1);
     }
 

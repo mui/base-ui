@@ -127,6 +127,7 @@
     --gray-p2: hsl(0deg 0% 51%);
     --gray-t1: hsl(0deg 0% 46.4%);
     --gray-t2: hsl(0deg 0% 18%);
+    --gray-t3: hsl(0deg 0% 18%);
 
     --indigo-s1: hsl(204deg 100% 98.75%);
     --indigo-s2: hsl(198deg 100% 97.5%);
@@ -167,17 +168,16 @@
     /* Functional colors */
     --color-content: white;
     --color-background: var(--gray-s2);
-    --color-foreground: var(--gray-t2);
+    --color-foreground: var(--gray-t3);
     --color-border: var(--blackA-2);
     --color-popup: white;
-    --color-gridline: var(--gray-c3);
     --color-selection: hsl(0deg 0% 92%);
     --color-line-highlight: hsl(205deg 100% 96%);
     --color-line-highlight-strong: hsl(205deg 100% 90%);
     --color-line-highlight-strong-mark: hsl(205deg 100% 80%);
 
-    /* Syntax highlighting */
-    --color-gray: var(--gray-t1);
+    /* Syntax highlighting (pinned literals so code colors stay independent of the UI gray scale) */
+    --color-gray: hsl(0deg 0% 46.4%);
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
     --color-violet: oklch(40% 60% 300deg);
@@ -268,6 +268,7 @@
       --gray-p2: hsl(0deg 0% 64%);
       --gray-t1: hsl(0deg 0% 70%);
       --gray-t2: hsl(0deg 0% 90%);
+      --gray-t3: hsl(0deg 0% 90%);
 
       --indigo-s1: hsl(223deg 38% 10%);
       --indigo-s2: hsl(223deg 42% 12%);
@@ -295,13 +296,13 @@
       --color-background: black;
       --color-border: var(--whiteA-5);
       --color-popup: var(--gray-s1);
-      --color-gridline: var(--gray-c1);
       --color-selection: hsl(0deg 0% 18%);
       --color-line-highlight: hsl(205deg 45% 12%);
       --color-line-highlight-strong: hsl(205deg 55% 16%);
       --color-line-highlight-strong-mark: hsl(205deg 65% 20%);
 
       /* Syntax highlighting */
+      --color-gray: hsl(0deg 0% 70%);
       --color-green: oklch(75% 25% 150deg);
       --color-navy: oklch(85% 25% 264deg);
       --color-violet: oklch(80% 60% 280deg);
@@ -328,6 +329,7 @@
     --gray-p2: initial;
     --gray-t1: initial;
     --gray-t2: initial;
+    --gray-t3: initial;
 
     --indigo-s1: initial;
     --indigo-s2: initial;
@@ -390,8 +392,6 @@
     --color-foreground: initial;
     --color-border: initial;
     --color-popup: initial;
-    --color-gridline: initial;
-    --color-highlight: initial;
     --color-line-highlight: initial;
     --color-line-highlight-strong: initial;
     --color-line-highlight-strong-mark: initial;

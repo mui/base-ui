@@ -47,7 +47,7 @@
   }
 
   .SubtitleLink:focus-visible .SubtitleLinkText {
-    outline: 2px solid var(--gray-t2);
+    outline: 2px solid var(--gray-t3);
     outline-offset: -2px;
     border-radius: var(--radius-4);
   }

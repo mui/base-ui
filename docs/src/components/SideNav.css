@@ -64,7 +64,7 @@
       inset: 0 -2px;
       pointer-events: none;
       position: absolute;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
     }
   }
@@ -146,7 +146,7 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
-        text-decoration-color: var(--gray-t2);
+        text-decoration-color: var(--gray-t3);
       }
     }
 
@@ -164,7 +164,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       /* Fully inset (>= outline width) so the ring isn't clipped by the
          scroll viewport's overflow where the pill bleeds to its edge */
       outline-offset: -2px;

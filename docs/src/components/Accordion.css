@@ -66,7 +66,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       z-index: 1;
     }
 
@@ -130,7 +130,7 @@
         pointer-events: none;
         inset: 0;
         z-index: 1;
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -1px;
       }
     }

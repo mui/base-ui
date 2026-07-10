@@ -87,7 +87,7 @@
     background: transparent;
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
   }
 
@@ -124,7 +124,7 @@
     font-size: 0.9375rem;
     font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     cursor: default;
     -webkit-user-select: none;
     user-select: none;
@@ -179,7 +179,7 @@
     width: min(34rem, calc(100vw - 2rem));
     border-radius: 1rem;
     background: var(--gray-s1);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 1px solid var(--color-border);
     box-shadow:
       0 0.5px 1px hsl(0deg 0% 0% / 12%),
@@ -227,7 +227,7 @@
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(.SearchScrollAreaViewport:focus-visible) {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
   }

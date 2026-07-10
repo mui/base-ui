@@ -19,10 +19,11 @@
     --color-prettylights-syntax-sublimelinter-gutter-mark: var(--color-gray);
 
     /* Invalid/error states */
+    /* Text colors pinned so code colors stay independent of the UI theme */
     --color-prettylights-syntax-invalid-illegal-bg: var(--color-red);
-    --color-prettylights-syntax-invalid-illegal-text: var(--color-content);
+    --color-prettylights-syntax-invalid-illegal-text: white;
     --color-prettylights-syntax-carriage-return-bg: var(--color-red);
-    --color-prettylights-syntax-carriage-return-text: var(--color-content);
+    --color-prettylights-syntax-carriage-return-text: white;
 
     /* Markup/markdown (unused in code demos but included for completeness) */
     --color-prettylights-syntax-markup-heading: var(--color-blue);
@@ -54,6 +55,13 @@
     --color-docs-infra-syntax-jsx: var(--color-blue);
     --color-docs-infra-syntax-html-tag: var(--color-green);
     --color-docs-infra-syntax-jsx-tag: var(--color-blue);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-prettylights-syntax-invalid-illegal-text: black;
+      --color-prettylights-syntax-carriage-return-text: black;
+    }
   }
 }
 

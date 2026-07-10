@@ -180,7 +180,7 @@
 
     &:focus-visible {
       border-radius: 0.125rem;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       text-decoration-line: none;
     }
   }

@@ -314,7 +314,7 @@
   }
 
   .AdditionalTypeBackLink:hover {
-    color: var(--gray-t2);
+    color: var(--gray-t3);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -353,7 +353,7 @@
     font-size: var(--font-size-16);
     line-height: 1.5rem;
     font-weight: var(--font-weight-700);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
   }
 
   @media (prefers-color-scheme: dark) {

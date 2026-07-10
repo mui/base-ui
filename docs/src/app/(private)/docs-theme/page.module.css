@@ -1,6 +1,6 @@
 .page {
   padding: var(--space-40);
-  color: var(--gray-t2);
+  color: var(--gray-t3);
   font-family: var(--font-sans);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .swatch:hover {
-  outline: 2px solid var(--gray-t2);
+  outline: 2px solid var(--gray-t3);
 }
 
 .swatchTokenName {
@@ -209,12 +209,12 @@
 .spaceBar {
   min-width: 1px;
   height: 0.75rem;
-  background: var(--gray-t2);
+  background: var(--gray-t3);
 }
 
 .radiusShape {
   margin-top: var(--space-12);
-  background: var(--gray-t2);
+  background: var(--gray-t3);
 }
 
 .radiusShapeSquare {

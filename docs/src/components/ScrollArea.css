@@ -8,7 +8,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
       z-index: 1;
     }
