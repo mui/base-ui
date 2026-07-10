@@ -2,17 +2,10 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
-
-const stateAttributesMapping: StateAttributesMapping<PopoverBackdropState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * An overlay displayed beneath the popover.
@@ -53,7 +46,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
       },
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return element;

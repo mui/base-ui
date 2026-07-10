@@ -76,9 +76,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   store.useSyncedValues({
     trackCursorAxis,
     disableHoverablePopup,
+    disabled,
   });
-
-  store.useSyncedValue('disabled', disabled);
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
@@ -125,14 +124,13 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
   );
 
   const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
@@ -264,22 +262,20 @@ function TooltipInteractions<Payload>({
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const activeTriggerProps = React.useMemo(
+  // Both hooks return `trigger: reference` (same object identity), so the active and
+  // inactive trigger props can never differ. `useClientPoint` has no floating-side props.
+  const triggerProps = React.useMemo(
     () => mergeProps(clientPoint.reference, dismiss.reference),
     [clientPoint.reference, dismiss.reference],
   );
-  const inactiveTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.trigger, dismiss.trigger),
-    [clientPoint.trigger, dismiss.trigger],
-  );
   const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, clientPoint.floating, dismiss.floating),
-    [clientPoint.floating, dismiss.floating],
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
   );
 
   usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
+    activeTriggerProps: triggerProps,
+    inactiveTriggerProps: triggerProps,
     popupProps,
   });
 
