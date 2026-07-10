@@ -174,7 +174,7 @@ export const viewport: Viewport = {
     // Safari header background: match the page background (--color-content)
     {
       media: '(prefers-color-scheme: light)',
-      color: 'oklch(99% 0 0deg)',
+      color: 'white',
     },
     {
       media: '(prefers-color-scheme: dark)',
