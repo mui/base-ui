@@ -39,7 +39,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
+import { createCollatorItemFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -198,11 +198,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterProp !== undefined) {
       return filterProp;
     }
-    if (single && !queryChangedAfterOpen) {
-      return createSingleSelectionCollatorFilter(collatorFilter, itemToStringLabel, selectedValue);
-    }
+    // `shouldBypassFiltering` already empties the query whenever a single selection's label
+    // matches it exactly, so the filter never needs a selection-aware variant here.
     return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [filterProp, single, selectedValue, queryChangedAfterOpen, collatorFilter, itemToStringLabel]);
+  }, [filterProp, collatorFilter, itemToStringLabel]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -233,7 +232,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const isGrouped = isGroupedItems(items);
-  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
+  const query = closeQuery ?? String(inputValue).trim();
 
   const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
 
@@ -241,7 +240,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     single &&
     !queryChangedAfterOpen &&
     query !== '' &&
-    selectedLabelString !== '' &&
     selectedLabelString.length === query.length &&
     collatorFilter.contains(selectedLabelString, query);
 
@@ -353,8 +351,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         labelId: undefined,
         selectedValue,
         open,
-        filter,
-        query,
         items,
         selectionMode,
         listRef,
@@ -376,7 +372,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         readOnly,
         required,
         grid,
-        isGrouped,
         virtualized,
         openOnInputClick,
         itemToStringLabel,
@@ -407,13 +402,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
         // until after hydration, so the hidden input takes over then if needed.
         inputOwnsFormValue: selectionMode === 'none',
-        onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
         // Placeholder callbacks replaced on first render
+        onOpenChangeComplete: NOOP,
         setOpen: NOOP,
         setInputValue: NOOP,
         setSelectedValue: NOOP,
         setIndices: NOOP,
-        onItemHighlighted: NOOP,
         handleSelection: NOOP,
         forceMount: NOOP,
         requestSubmit: NOOP,
@@ -480,6 +474,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [forceMount, selectedValue]);
 
+  /**
+   * Emits `onItemHighlighted` for the item at `index`, or clears the highlight when `index` is `-1`
+   * (a no-op if nothing was highlighted). Keeps `lastHighlightRef` in sync with what was emitted.
+   */
+  const emitHighlight = useStableCallback(
+    (value: any, index: number, type: AriaCombobox.HighlightEventReason) => {
+      if (index === -1) {
+        if (lastHighlightRef.current === INITIAL_LAST_HIGHLIGHT) {
+          return;
+        }
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+      } else {
+        lastHighlightRef.current = { value, index };
+      }
+
+      onItemHighlighted(value, createGenericEventDetails(type, undefined, { index }));
+    },
+  );
+
   const setIndices = useStableCallback(
     (options: {
       activeIndex?: number | null | undefined;
@@ -487,25 +500,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       type?: 'none' | 'keyboard' | 'pointer' | undefined;
     }) => {
       store.update(options);
-      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
-      if (options.activeIndex === undefined) {
+      const activeIndexOption = options.activeIndex;
+      if (activeIndexOption === undefined) {
         return;
       }
 
-      if (options.activeIndex === null) {
-        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-          onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
-        }
+      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
+
+      if (activeIndexOption === null) {
+        emitHighlight(undefined, -1, type);
       } else {
-        const activeValue = valuesRef.current[options.activeIndex];
-        lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
-        onItemHighlighted(
-          activeValue,
-          createGenericEventDetails(type, undefined, {
-            index: options.activeIndex,
-          }),
-        );
+        emitHighlight(valuesRef.current[activeIndexOption], activeIndexOption, type);
       }
     },
   );
@@ -561,7 +566,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         eventDetails.reason === 'escape-key' &&
         hasItems &&
         flatFilteredItems.length === 0 &&
-        !store.state.emptyRef.current
+        !emptyRef.current
       ) {
         eventDetails.allowPropagation();
       }
@@ -693,10 +698,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         const isCurrentlySelected = selectedValueIncludes(
           currentSelectedValue,
           itemValue,
-          store.state.isItemEqualToValue,
+          isItemEqualToValue,
         );
         const nextValue = isCurrentlySelected
-          ? removeItem(currentSelectedValue, itemValue, store.state.isItemEqualToValue)
+          ? removeItem(currentSelectedValue, itemValue, isItemEqualToValue)
           : [...currentSelectedValue, itemValue];
 
         setSelectedValue(nextValue, eventDetails);
@@ -728,7 +733,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const requestSubmit = useStableCallback(() => {
-    if (!store.state.submitOnItemClick) {
+    if (!submitOnItemClick) {
       return;
     }
 
@@ -868,24 +873,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         store.set('activeIndex', 0);
         return;
       }
-      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        store.state.onItemHighlighted(
-          undefined,
-          createGenericEventDetails(REASONS.none, undefined, { index: -1 }),
-        );
-      }
+      emitHighlight(undefined, -1, REASONS.none);
       return;
     }
 
     if (storeActiveIndex >= candidateItems.length) {
-      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        store.state.onItemHighlighted(
-          undefined,
-          createGenericEventDetails(REASONS.none, undefined, { index: -1 }),
-        );
-      }
+      emitHighlight(undefined, -1, REASONS.none);
       store.set('activeIndex', null);
       return;
     }
@@ -901,15 +894,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       );
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-      lastHighlightRef.current = { value: itemValue, index: storeActiveIndex };
-      store.state.onItemHighlighted(
-        itemValue,
-        createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
-      );
+      emitHighlight(itemValue, storeActiveIndex, REASONS.none);
     }
   }, [
     activeIndex,
     autoHighlightMode,
+    emitHighlight,
     hasFilteredItemsProp,
     hasItems,
     flatFilteredItems,
@@ -955,6 +945,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setQueryChangedAfterOpen(true);
   });
 
+  function syncInputToSelectedLabel() {
+    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+
+    if (inputValue !== nextInputValue) {
+      setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
+    }
+  }
+
   useValueChanged(selectedValue, () => {
     if (selectionMode === 'none') {
       return;
@@ -966,11 +964,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation.change(selectedValue);
 
     if (single && !hasInputValue && !inputInsidePopup) {
-      const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
-
-      if (inputValue !== nextInputValue) {
-        setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
-      }
+      syncInputToSelectedLabel();
     }
   });
 
@@ -990,11 +984,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
-
-    if (inputValue !== nextInputValue) {
-      setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
-    }
+    syncInputToSelectedLabel();
   });
 
   const floatingRootContext = useFloatingRootContext({
@@ -1164,10 +1154,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       setInputValue,
       setSelectedValue,
       setIndices,
-      onItemHighlighted,
       handleSelection,
       forceMount,
       requestSubmit,
+      onOpenChangeComplete,
     });
   });
 
@@ -1192,9 +1182,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       readOnly,
       required,
       grid,
-      isGrouped,
       virtualized,
-      onOpenChangeComplete,
       openOnInputClick,
       itemToStringLabel,
       modal,
@@ -1202,7 +1190,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       isItemEqualToValue,
       submitOnItemClick,
       hasInputValue,
-      requestSubmit,
       inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
     });
   }, [
@@ -1223,11 +1210,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabled,
     readOnly,
     required,
-    validation,
     grid,
-    isGrouped,
     virtualized,
-    onOpenChangeComplete,
     openOnInputClick,
     itemToStringLabel,
     modal,
@@ -1235,7 +1219,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     submitOnItemClick,
     hasInputValue,
     inlineProp,
-    requestSubmit,
     autoHighlightMode,
     form,
   ]);

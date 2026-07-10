@@ -14,6 +14,7 @@ import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { clickHighlightedItem } from '../utils/parts';
 
 /**
  * A list container for the items.
@@ -91,15 +92,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
             }
 
             stopEvent(event);
-
-            const nativeEvent = event.nativeEvent;
-            const listItem = store.state.listRef.current[activeIndex];
-
-            if (listItem) {
-              store.state.selectionEventRef.current = nativeEvent;
-              listItem.click();
-              store.state.selectionEventRef.current = null;
-            }
+            clickHighlightedItem(store, activeIndex, event.nativeEvent);
           }
         },
         onKeyDownCapture() {

@@ -188,15 +188,12 @@ export const SelectItem = React.memo(
 
         allowMouseSelectionRef.current = false;
 
-        // Prevent double commit on {Enter}
-        if (event.type === 'keydown' && lastKeyRef.current === null) {
-          return;
-        }
-
         if (
           disabled ||
-          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
-          isInvalidMouseClick
+          isInvalidMouseClick ||
+          (event.type === 'keydown' &&
+            // Prevent double commit on {Enter}
+            (lastKeyRef.current === null || (lastKeyRef.current === ' ' && typingRef.current)))
         ) {
           return;
         }

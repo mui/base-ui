@@ -11,10 +11,6 @@ export type State = {
   id: string | undefined;
   labelId: string | undefined;
 
-  query: string;
-
-  filter: (item: any, query: string) => boolean;
-
   items: readonly any[] | undefined;
 
   selectedValue: any;
@@ -71,7 +67,6 @@ export type State = {
     selectedIndex?: number | null | undefined;
     type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
-  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   requestSubmit: () => void;
@@ -82,7 +77,6 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   grid: boolean;
-  isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
@@ -176,5 +170,4 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
-  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };

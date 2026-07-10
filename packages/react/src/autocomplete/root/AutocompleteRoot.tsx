@@ -83,9 +83,11 @@ export function AutocompleteRoot<ItemValue>(
     if (mode !== 'both') {
       return staticItems ? null : baseFilter;
     }
+
     if (baseFilter === null) {
       return null;
     }
+
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
     };
@@ -109,15 +111,11 @@ export function AutocompleteRoot<ItemValue>(
       return;
     }
 
-    if (enableInline) {
-      if (highlightedValue == null) {
-        setInlineInputValue('');
-      } else {
-        setInlineInputValue(stringifyAsLabel(highlightedValue, itemToStringValue));
-      }
-    } else {
-      setInlineInputValue('');
-    }
+    setInlineInputValue(
+      enableInline && highlightedValue != null
+        ? stringifyAsLabel(highlightedValue, itemToStringValue)
+        : '',
+    );
   }
 
   return (
