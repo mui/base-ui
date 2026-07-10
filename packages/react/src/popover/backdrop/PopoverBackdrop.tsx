@@ -26,7 +26,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 ) {
   const { render, className, style, ...elementProps } = props;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -40,7 +40,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const element = useRenderElement('div', props, {
     state,
-    ref: [store.context.backdropRef, forwardedRef],
+    ref: forwardedRef,
     props: [
       {
         role: 'presentation',

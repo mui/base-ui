@@ -45,25 +45,27 @@ export enum CommonTriggerDataAttributes {
   pressed = 'data-pressed',
 }
 
+// Literal keys (instead of enum member references) keep the docs-only enums above
+// tree-shakeable: a runtime reference would retain the whole enum IIFE in every bundle.
 const TRIGGER_HOOK = {
-  [CommonTriggerDataAttributes.popupOpen]: '',
+  'data-popup-open': '',
 };
 
 const PRESSABLE_TRIGGER_HOOK = {
-  [CommonTriggerDataAttributes.popupOpen]: '',
-  [CommonTriggerDataAttributes.pressed]: '',
+  'data-popup-open': '',
+  'data-pressed': '',
 };
 
 const POPUP_OPEN_HOOK = {
-  [CommonPopupDataAttributes.open]: '',
+  'data-open': '',
 };
 
 const POPUP_CLOSED_HOOK = {
-  [CommonPopupDataAttributes.closed]: '',
+  'data-closed': '',
 };
 
 const ANCHOR_HIDDEN_HOOK = {
-  [CommonPopupDataAttributes.anchorHidden]: '',
+  'data-anchor-hidden': '',
 };
 
 export const triggerOpenStateMapping = {

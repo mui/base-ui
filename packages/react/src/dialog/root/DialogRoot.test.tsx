@@ -1737,7 +1737,7 @@ function DialogOpenChangeSpy(props: {
   onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;
 }) {
   const { onOpenChange } = props;
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const floatingRootContext = store.useState('floatingRootContext');
 
   React.useEffect(() => {

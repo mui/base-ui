@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
+import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
@@ -37,7 +37,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -60,8 +60,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
 
-  const popupId = elementProps.id ?? floatingId;
-
   useOpenChangeComplete({
     open,
     ref: store.context.popupRef,
@@ -80,12 +78,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const focusManagerModal = modal !== false && hasClosePart;
   store.useSyncedValue('focusManagerModal', focusManagerModal);
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: PopoverPopupState = {
     open,
@@ -101,7 +94,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       {
-        id: popupId,
+        id: floatingId,
         role: 'dialog',
         ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': titleId,
@@ -133,7 +126,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       nextFocusableElement={store.context.triggerFocusTargetRef}
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
-      <ClosePartProvider value={closePartContext}>{element}</ClosePartProvider>
+      <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
     </FloatingFocusManager>
   );
 });

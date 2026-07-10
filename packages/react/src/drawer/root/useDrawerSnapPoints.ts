@@ -82,7 +82,7 @@ export function closestSnapPointIndex(values: number[], target: number): number 
 }
 
 export function useDrawerSnapPoints() {
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const { snapPoints, activeSnapPoint, setActiveSnapPoint, popupHeight } = useDrawerRootContext();
   const viewportElement = store.useState('viewportElement');
 

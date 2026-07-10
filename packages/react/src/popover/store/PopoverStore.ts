@@ -29,7 +29,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
-  nested: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   openOnHover: boolean;
@@ -39,8 +38,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
@@ -160,13 +157,15 @@ export class PopoverStore<Payload> extends ReactStore<
       changeState();
     }
 
-    if (isKeyboardClick || isDismissClose) {
-      this.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+    let instantType: State<Payload>['instantType'];
+    if (isKeyboardClick) {
+      instantType = 'click';
+    } else if (isDismissClose) {
+      instantType = 'dismiss';
     } else if (eventDetails.reason === REASONS.focusOut) {
-      this.set('instantType', 'focus');
-    } else {
-      this.set('instantType', undefined);
+      instantType = 'focus';
     }
+    this.set('instantType', instantType);
   };
 }
 
@@ -205,7 +204,6 @@ function createInitialState<Payload>(
     titleElementId: undefined,
     descriptionElementId: undefined,
     stickIfOpen: true,
-    nested: false,
     openOnHover: false,
     closeDelay: 0,
     hasViewport: false,
@@ -224,8 +222,6 @@ function createInitialState<Payload>(
 function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
-    backdropRef: React.createRef<HTMLDivElement>(),
-    internalBackdropRef: React.createRef<HTMLDivElement>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
