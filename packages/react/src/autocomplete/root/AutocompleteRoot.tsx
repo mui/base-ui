@@ -67,7 +67,7 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const collator = useCoreFilter();
+  const collator = useCoreFilter({ locale: other.locale });
 
   const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
     if (other.filter !== undefined) {
