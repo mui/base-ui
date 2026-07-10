@@ -14,7 +14,7 @@ import { useFieldItemContext } from '../item/FieldItemContext';
  * A paragraph with additional information about the field.
  * Renders a `<p>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldDescription = React.forwardRef(function FieldDescription(
   componentProps: FieldDescription.Props,

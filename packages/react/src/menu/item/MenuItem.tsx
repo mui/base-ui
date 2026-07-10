@@ -12,7 +12,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
  * An individual interactive item in the menu.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,

@@ -70,7 +70,7 @@ const KEYBOARD_TAP_BLOCKED = Symbol('KeyboardTapBlocked');
 /**
  * Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */
 export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvider.Props) {
   const { children } = props;

@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Visualizes the position of the value along the range.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Meter](https://base-ui.com/react/meter)
+ * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,

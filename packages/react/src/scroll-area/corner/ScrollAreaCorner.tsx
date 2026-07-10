@@ -8,7 +8,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Scroll Area](https://base-ui.com/react/scroll-area)
+ * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   componentProps: ScrollAreaCorner.Props,

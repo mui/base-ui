@@ -10,7 +10,7 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
  * The movable part of the switch that indicates whether the switch is on or off.
  * Renders a `<span>`.
  *
- * Documentation: [Base UI Switch](https://base-ui.com/react/switch)
+ * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
 export const SwitchThumb = React.forwardRef(function SwitchThumb(
   componentProps: SwitchThumb.Props,

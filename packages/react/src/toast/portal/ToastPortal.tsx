@@ -6,7 +6,7 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastPortal = FloatingPortalLite;
 

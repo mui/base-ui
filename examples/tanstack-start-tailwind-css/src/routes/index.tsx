@@ -88,7 +88,7 @@ function App() {
                       <li>
                         <NavigationMenu.Link
                           variant="card"
-                          href="https://base-ui.com/react/forms#tanstack-form"
+                          href="https://base-ui.com/react/handbook/forms#tanstack-form"
                           target="_blank"
                         >
                           <h3 className="mb-1 text-sm font-medium">TanStack Form Example</h3>

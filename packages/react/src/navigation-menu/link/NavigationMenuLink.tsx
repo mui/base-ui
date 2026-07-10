@@ -15,7 +15,7 @@ import { REASONS } from '../../internals/reasons';
  * A link in the navigation menu that can be used to navigate to a different page or section.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
 export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   componentProps: NavigationMenuLink.Props,

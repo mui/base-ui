@@ -9,7 +9,7 @@ import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
 export const NavigationMenuPortal = React.forwardRef(function NavigationMenuPortal(
   props: NavigationMenuPortal.Props,

@@ -31,7 +31,7 @@ import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLo
  * Positions the menu popup against the trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuPositioner = React.forwardRef(function MenuPositioner(
   componentProps: MenuPositioner.Props,

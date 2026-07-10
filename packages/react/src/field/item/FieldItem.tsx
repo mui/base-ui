@@ -13,7 +13,7 @@ import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupConte
  * Groups individual items in a checkbox group or radio group with a label and description.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldItem = React.forwardRef(function FieldItem(
   componentProps: FieldItem.Props,

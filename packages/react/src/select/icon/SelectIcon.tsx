@@ -11,7 +11,7 @@ import { selectors } from '../store';
  * An icon that indicates that the trigger button opens a select popup.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,

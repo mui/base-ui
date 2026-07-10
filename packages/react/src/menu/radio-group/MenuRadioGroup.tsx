@@ -12,7 +12,7 @@ import type { MenuRoot } from '../root/MenuRoot';
  * Groups related radio items.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(

@@ -23,7 +23,7 @@ const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
  * An error message displayed if the field control fails validation.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldError = React.forwardRef(function FieldError(
   componentProps: FieldError.Props,

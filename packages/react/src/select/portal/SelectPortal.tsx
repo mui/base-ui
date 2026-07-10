@@ -10,7 +10,7 @@ import { selectors } from '../store';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectPortal = React.forwardRef(function SelectPortal(
   portalProps: SelectPortal.Props,

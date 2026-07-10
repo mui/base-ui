@@ -11,6 +11,9 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
+// Node ESM requires the extension; this script runs with --experimental-strip-types.
+// eslint-disable-next-line import/extensions
+import { getCanonicalReactDocsUrl } from '../../src/utils/canonicalReactDocsUrl.ts';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
@@ -23,41 +26,6 @@ const NETLIFY_DEPLOYMENT_URL =
   process.env.PULL_REQUEST === 'true' ? process.env.DEPLOY_PRIME_URL : process.env.URL;
 // Use the deployment URL if available, just root relative otherwise
 const BASE_URL = NETLIFY_DEPLOYMENT_URL || '/';
-const REACT_DOCS_ROUTE_MAPPINGS = [
-  [/^\/react\/overview$/, '/react/quick-start'],
-  [/^\/react\/handbook$/, '/react/styling'],
-  [/^\/react\/components$/, '/react'],
-  [/^\/react\/utils$/, '/react'],
-  [/^\/react\/\(overview\)\/releases$/, '/react/releases'],
-  [/^\/react\/\(overview\)\/releases\/([^/]+)$/, '/react/releases/$1'],
-  [/^\/react\/\(overview\)\/(quick-start|accessibility|community|about)$/, '/react/$1'],
-  [
-    /^\/react\/\(handbook\)\/(styling|animation|composition|customization|forms|typescript)$/,
-    '/react/$1',
-  ],
-  [/^\/react\/\(components\)\/([^/]+)$/, '/react/$1'],
-  [/^\/react\/\(utils\)\/([^/]+)$/, '/react/$1'],
-  [/^\/react\/overview\/releases$/, '/react/releases'],
-  [/^\/react\/overview\/releases\/([^/]+)$/, '/react/releases/$1'],
-  [/^\/react\/overview\/(quick-start|accessibility|community|about)$/, '/react/$1'],
-  [
-    /^\/react\/handbook\/(styling|animation|composition|customization|forms|typescript)$/,
-    '/react/$1',
-  ],
-  [/^\/react\/components\/([^/]+)$/, '/react/$1'],
-  [/^\/react\/utils\/([^/]+)$/, '/react/$1'],
-];
-
-function getCanonicalReactDocsUrl(url) {
-  for (const [pattern, replacement] of REACT_DOCS_ROUTE_MAPPINGS) {
-    if (pattern.test(url)) {
-      return url.replace(pattern, replacement);
-    }
-  }
-
-  return url;
-}
-
 function getMarkdownOutputPath(urlPath) {
   const relativePath = urlPath.replace(/^\/react\/?/, '');
   return path.join(OUTPUT_REACT_DIR, `${relativePath}.md`);

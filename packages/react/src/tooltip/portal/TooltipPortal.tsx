@@ -9,7 +9,7 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 export const TooltipPortal = React.forwardRef(function TooltipPortal(
   props: TooltipPortal.Props,
