@@ -8,6 +8,7 @@ export interface ComboboxDerivedItemsContext {
   hasItems: boolean;
   filteredItems: any[];
   flatFilteredItems: any[];
+  shouldShowCreate: boolean;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);

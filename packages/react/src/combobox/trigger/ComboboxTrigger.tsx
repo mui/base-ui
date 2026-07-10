@@ -58,7 +58,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, shouldShowCreate } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
@@ -86,7 +86,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const focusTimeout = useTimeout();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = filteredItems.length === 0 && !shouldShowCreate;
   const popupSide = mounted && positionerElement ? popupSideValue : null;
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });

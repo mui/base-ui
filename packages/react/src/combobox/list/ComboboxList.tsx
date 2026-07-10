@@ -12,6 +12,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
+import type { ComboboxCollectionItemMeta } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 
@@ -30,7 +31,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, hasItems, shouldShowCreate } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
@@ -39,7 +40,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const forceMounted = useStore(store, selectors.forceMounted);
 
   const multiple = selectionMode === 'multiple';
-  const empty = filteredItems.length === 0;
+  const empty = filteredItems.length === 0 && !shouldShowCreate;
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -140,7 +141,9 @@ export interface ComboboxListProps extends Omit<
   BaseUIComponentProps<'div', ComboboxListState>,
   'children'
 > {
-  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+  children?:
+    | React.ReactNode
+    | ((item: any, index: number, meta: ComboboxCollectionItemMeta) => React.ReactNode);
 }
 
 export namespace ComboboxList {

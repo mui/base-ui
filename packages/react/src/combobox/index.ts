@@ -9,6 +9,7 @@ export type * from './popup/ComboboxPopup';
 export type * from './positioner/ComboboxPositioner';
 export type * from './list/ComboboxList';
 export type * from './item/ComboboxItem';
+export type * from './create-item/ComboboxCreateItem';
 export type * from './item-indicator/ComboboxItemIndicator';
 export type * from './value/ComboboxValue';
 export type * from './icon/ComboboxIcon';
