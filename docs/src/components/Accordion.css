@@ -146,8 +146,9 @@
         pointer-events: none;
         inset: 0;
         z-index: 1;
+        /* The cell clips its own overflow, so the ring must sit fully inside it. */
         outline: 2px solid var(--gray-t2);
-        outline-offset: -1px;
+        outline-offset: -2px;
       }
     }
 
