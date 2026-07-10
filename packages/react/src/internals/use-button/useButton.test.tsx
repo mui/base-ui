@@ -658,6 +658,33 @@ describe('useButton', () => {
       expect(handleClick).toHaveBeenCalledTimes(0);
     });
 
+    it('key: Space does not click non-native buttons when keyup calls preventDefault', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.HTMLAttributes<HTMLSpanElement>) {
+        const { getButtonProps } = useButton({ native: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      const { user } = await render(
+        <TestButton
+          tabIndex={0}
+          onKeyUp={(event) => event.preventDefault()}
+          onClick={handleClick}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      // Match native buttons: preventing the keyup's default cancels Space activation.
+      await user.keyboard('[Space]');
+      expect(handleClick).toHaveBeenCalledTimes(0);
+    });
+
     it('key: Space fires keydown then click when in composite root context', async () => {
       const handleKeyDown = vi.fn();
       const handleKeyUp = vi.fn();
@@ -753,33 +780,6 @@ describe('useButton', () => {
 
       fireEvent.keyUp(button, { key: ' ' });
       expect(handleKeyUp).toHaveBeenCalledTimes(1);
-      expect(handleClick).toHaveBeenCalledTimes(1);
-    });
-
-    // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
-    // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-    it('key: Space fires a click event even if preventDefault was called on keyUp', async () => {
-      const handleClick = vi.fn();
-
-      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { getButtonProps } = useButton({ native: false });
-
-        return <span {...getButtonProps(props)} />;
-      }
-
-      const { user } = await render(
-        <TestButton
-          onKeyUp={(event: React.KeyboardEvent<HTMLButtonElement>) => event.preventDefault()}
-          onClick={handleClick}
-        />,
-      );
-
-      const button = screen.getByRole('button');
-
-      await user.keyboard('[Tab]');
-      expect(button).toHaveFocus();
-
-      await user.keyboard('[Space]');
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
 

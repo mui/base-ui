@@ -17,7 +17,7 @@ interface ModifierState {
  * off `detail === 0` don't classify it as a keyboard activation.
  */
 export function dispatchClickWithModifiers(
-  target: HTMLElement,
+  target: Element,
   sourceEvent: ModifierState,
   { detail = 0 }: { detail?: number | undefined } = {},
 ) {

@@ -144,7 +144,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               // Only a native-mode item that isn't a real <button> is excluded.
               if (!isNativeButton || isButton) {
-                activateElement(event, currentTarget, externalOnClick);
+                activateElement(event, currentTarget);
               }
 
               return;
@@ -169,7 +169,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             event.preventDefault();
 
             if (isEnterKey) {
-              activateElement(event, currentTarget, externalOnClick);
+              activateElement(event, currentTarget);
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -198,17 +198,18 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             }
 
             // Keyboard accessibility for non interactive elements.
-            // Limitation: unlike a native <button> (and Enter activation on keydown), Space
-            // activation here cannot be canceled with `preventDefault()` — no state is kept
-            // between keydown and keyup, so we can't tell whether the keydown was prevented
-            // or even happened on this element.
+            // Match native buttons: preventing the keyup's default cancels Space activation.
+            // Limitation: unlike a native <button>, a prevented *keydown* cannot cancel the
+            // activation — no state is kept between keydown and keyup, so we can't tell
+            // whether the keydown was prevented or even happened on this element.
             if (
               event.target === event.currentTarget &&
               !isNativeButton &&
               !isCompositeItem &&
+              !event.defaultPrevented &&
               event.key === ' '
             ) {
-              activateElement(event, event.currentTarget as Element, externalOnClick);
+              activateElement(event, event.currentTarget as Element);
             }
           },
           onPointerDown(event: React.PointerEvent) {
@@ -238,19 +239,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   };
 }
 
-function activateElement(
-  event: BaseUIEvent<React.KeyboardEvent>,
-  element: Element,
-  fallback: ((event: React.SyntheticEvent) => void) | undefined,
-) {
+function activateElement(event: BaseUIEvent<React.KeyboardEvent>, element: Element) {
   event.preventBaseUIHandler();
-
-  if (!isHTMLElement(element)) {
-    // Preserve the previous direct-handler behavior for non-HTML render roots.
-    fallback?.(event);
-    return;
-  }
-
   dispatchClickWithModifiers(element, event);
 }
 
