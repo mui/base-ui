@@ -31,7 +31,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const { side } = usePopoverPositionerContext();
 
   const instantType = store.useState('instantType');

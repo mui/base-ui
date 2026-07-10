@@ -91,7 +91,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     ...elementProps
   } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const { swipeDirection, frontmostHeight, swipeAreaActiveRef } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
 

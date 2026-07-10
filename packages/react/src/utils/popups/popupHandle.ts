@@ -64,14 +64,6 @@ export class BasePopupHandle<
   Store extends HandleStore & PopupHandleStoreWithOpen,
 > implements PopupHandleStoreProvider<HandleStore> {
   /**
-   * Inert, closed store handed to detached triggers while no root is attached, so they can render
-   * and register without a mounted root. Triggers register into whichever store `store` currently
-   * resolves to, so while detached they live in this store's trigger map and migrate themselves to
-   * the root's store (and back) as it attaches/detaches.
-   */
-  private readonly fallbackStoreValue: HandleStore;
-
-  /**
    * Stores of every root currently using this handle, in attach order. A handle is meant to be used
    * by a single mounted root, but roots can transiently overlap (e.g. during an animated route
    * transition), so this stack lets `attachStore`'s cleanup restore the previous root instead of
@@ -93,7 +85,10 @@ export class BasePopupHandle<
   /**
    * Creates a handle backed by the store used while no root is attached.
    *
-   * @param fallbackStore Inert store exposed to detached triggers before a root mounts.
+   * @param fallbackStore Inert, closed store handed to detached triggers while no root is attached,
+   * so they can render and register without a mounted root. Triggers register into whichever store
+   * `store` currently resolves to, so while detached they live in this store's trigger map and
+   * migrate themselves to the root's store (and back) as it attaches/detaches.
    * @param componentName Component name used to prefix dev warnings, e.g. `'Menu'` produces
    * `MenuHandle.open()` in warning text.
    * @param throwOnMissingTrigger Whether `open(triggerId)` throws when no trigger with that id is
@@ -101,19 +96,13 @@ export class BasePopupHandle<
    * so they throw; Dialog is not anchored and instead opens unassociated with a dev warning.
    */
   constructor(
-    fallbackStore: HandleStore,
+    protected readonly fallbackStore: HandleStore,
     private readonly componentName: string,
     private readonly throwOnMissingTrigger: boolean = true,
-  ) {
-    this.fallbackStoreValue = fallbackStore;
-  }
+  ) {}
 
   protected get attachedStore() {
     return this.attachedStoreValue;
-  }
-
-  protected get fallbackStore() {
-    return this.fallbackStoreValue;
   }
 
   /**
@@ -122,7 +111,7 @@ export class BasePopupHandle<
    * @internal
    */
   get store(): HandleStore {
-    return this.attachedStoreValue ?? this.fallbackStoreValue;
+    return this.attachedStoreValue ?? this.fallbackStore;
   }
 
   /**
@@ -189,17 +178,10 @@ export class BasePopupHandle<
   private setActiveStore(store: Store | null) {
     if (this.attachedStoreValue !== store) {
       this.attachedStoreValue = store;
-      this.notifyStoreListeners();
+      this.storeListeners.forEach((listener) => {
+        listener();
+      });
     }
-  }
-
-  /**
-   * Notifies subscribers that the attached store pointer changed.
-   */
-  private notifyStoreListeners() {
-    this.storeListeners.forEach((listener) => {
-      listener();
-    });
   }
 
   /**
@@ -286,9 +268,6 @@ export class BasePopupHandle<
       return;
     }
 
-    attachedStore.setOpen(
-      false,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
-    );
+    attachedStore.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }
 }

@@ -120,7 +120,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 ) {
   const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const popupRef = store.context.popupRef;
 
   const {
