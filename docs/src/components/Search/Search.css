@@ -41,7 +41,7 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--gray-c3);
+    color: var(--gray-p1);
   }
 
   .SearchScore {
@@ -183,13 +183,13 @@
     /* Alpha outline stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
     outline: 1px solid var(--blackA-2);
     box-shadow:
-      0 0.5px 1px hsl(0deg 0% 0% / 12%),
-      0 1px 3px -1px hsl(0deg 0% 0% / 4%),
-      0 2px 4px -1px hsl(0deg 0% 0% / 4%),
-      0 4px 8px -2px hsl(0deg 0% 0% / 4%),
-      0 12px 14px -4px hsl(0deg 0% 0% / 4%),
-      0 24px 64px -8px hsl(0deg 0% 0% / 4%),
-      0 40px 48px -32px hsl(0deg 0% 0% / 4%);
+      0 0.5px 1px var(--blackA-3),
+      0 1px 3px -1px var(--blackA-1),
+      0 2px 4px -1px var(--blackA-1),
+      0 4px 8px -2px var(--blackA-1),
+      0 12px 14px -4px var(--blackA-1),
+      0 24px 64px -8px var(--blackA-1),
+      0 40px 48px -32px var(--blackA-1);
     transition:
       transform 150ms ease,
       opacity 150ms ease;

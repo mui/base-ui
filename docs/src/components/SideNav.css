@@ -155,7 +155,7 @@
       padding-block: var(--side-nav-item-padding-y);
       padding-inline: var(--side-nav-link-padding-x);
       background-color: var(--gray-s2);
-      outline: 1px solid var(--gray-c2);
+      outline: 1px solid var(--color-border);
       outline-offset: -1px;
       font-weight: var(--font-weight-400);
       word-spacing: -0.005em;

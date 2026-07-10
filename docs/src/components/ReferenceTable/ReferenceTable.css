@@ -352,12 +352,6 @@
     color: var(--gray-t3);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .ReferenceSectionHeading {
-      color: white;
-    }
-  }
-
   .ReferenceSectionSubtext {
     margin-bottom: 0.5rem;
     font-size: var(--font-size-14);

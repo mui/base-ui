@@ -25,13 +25,13 @@
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active {
-      color: var(--color-background);
+      color: var(--gray-s1);
       background-color: var(--color-blue);
     }
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active * {
-      color: var(--color-background) !important;
+      color: var(--gray-s1) !important;
     }
 
     &:focus-visible {

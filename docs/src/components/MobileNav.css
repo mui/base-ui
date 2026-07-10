@@ -144,7 +144,7 @@
     transform: translateY(-50%);
     width: var(--space-16);
     height: var(--space-16);
-    color: var(--gray-t1);
+    color: var(--gray-p1);
     pointer-events: none;
   }
 
@@ -165,7 +165,7 @@
   }
 
   .MobileNavSearchInput::placeholder {
-    color: var(--gray-t1);
+    color: var(--gray-p1);
   }
 
   .MobileNavClearSearch {
@@ -197,7 +197,7 @@
 
     @media not (hover: hover) {
       &:active {
-        background-color: var(--gray-c2);
+        background-color: var(--gray-c3);
       }
     }
 
@@ -454,7 +454,7 @@
     margin-inline: var(--space-4);
     vertical-align: middle;
     flex-shrink: 0;
-    color: var(--gray-t1);
+    color: var(--gray-p1);
   }
 
   .MobileNavSearchScore {
