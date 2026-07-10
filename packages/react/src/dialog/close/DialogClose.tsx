@@ -11,7 +11,7 @@ import { REASONS } from '../../internals/reasons';
  * A button that closes the dialog.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogClose = React.forwardRef(function DialogClose(
   componentProps: DialogClose.Props,

@@ -12,7 +12,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
  * A button that can be used as-is or as a trigger for other components.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarButton = React.forwardRef(function ToolbarButton(
   componentProps: ToolbarButton.Props,

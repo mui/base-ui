@@ -9,7 +9,7 @@ import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
  * An accessible label that is automatically associated with the fieldset.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Fieldset](https://base-ui.com/react/fieldset)
+ * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   componentProps: FieldsetLegend.Props,

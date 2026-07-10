@@ -15,7 +15,7 @@ import { REASONS } from '../internals/reasons';
 /**
  * Provides a shared state to a series of toggle buttons.
  *
- * Documentation: [Base UI Toggle Group](https://base-ui.com/react/toggle-group)
+ * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
 export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends string>(
   componentProps: ToggleGroup.Props<Value>,

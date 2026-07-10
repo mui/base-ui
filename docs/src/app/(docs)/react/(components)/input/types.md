@@ -6,7 +6,7 @@
 
 ### Input
 
-A native input element that automatically works with [Field](https://base-ui.com/react/field).
+A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
 Renders an `<input>` element.
 
 **Input Props:**

@@ -26,7 +26,7 @@ const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
  * A menu item that opens a submenu.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/menu)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   componentProps: MenuSubmenuTrigger.Props,

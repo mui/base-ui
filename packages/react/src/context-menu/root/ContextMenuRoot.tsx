@@ -11,7 +11,7 @@ import type { MenuRoot } from '../../menu/root/MenuRoot';
  * A component that creates a context menu activated by right clicking or long pressing.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Context Menu](https://base-ui.com/react/context-menu)
+ * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({

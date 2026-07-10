@@ -18,7 +18,7 @@ const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
  * A button that opens and closes the collapsible panel.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Collapsible](https://base-ui.com/react/collapsible)
+ * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
 export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   componentProps: CollapsibleTrigger.Props,

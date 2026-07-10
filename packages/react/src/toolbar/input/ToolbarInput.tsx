@@ -11,7 +11,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
  * A native input element that integrates with Toolbar keyboard navigation.
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarInput = React.forwardRef(function ToolbarInput(
   componentProps: ToolbarInput.Props,

@@ -10,7 +10,7 @@ import { accordionStateAttributesMapping } from '../item/stateAttributesMapping'
  * A heading that labels the corresponding panel.
  * Renders an `<h3>` element.
  *
- * Documentation: [Base UI Accordion](https://base-ui.com/react/accordion)
+ * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 export const AccordionHeader = React.forwardRef(function AccordionHeader(
   componentProps: AccordionHeader.Props,

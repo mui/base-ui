@@ -10,7 +10,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A presentational overlay displayed beneath the popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   componentProps: PreviewCardBackdrop.Props,

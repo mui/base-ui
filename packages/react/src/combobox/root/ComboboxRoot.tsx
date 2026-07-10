@@ -6,7 +6,7 @@ import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,

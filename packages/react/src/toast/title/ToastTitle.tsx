@@ -8,7 +8,7 @@ import { useToastLabelElement, useToastLabelPart } from '../utils/useToastLabelP
  * A title that labels the toast.
  * Renders an `<h2>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,

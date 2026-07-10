@@ -21,7 +21,7 @@ import { REASONS } from '../../internals/reasons';
  * Groups the tabs and the corresponding panels.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tabs](https://base-ui.com/react/tabs)
+ * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
 export const TabsRoot = React.forwardRef(function TabsRoot(
   componentProps: TabsRoot.Props,

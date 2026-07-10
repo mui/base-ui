@@ -13,7 +13,7 @@ import { selectors } from '../store';
  * Displays an element positioned against the select popup anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/select)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectArrow = React.forwardRef(function SelectArrow(
   componentProps: SelectArrow.Props,

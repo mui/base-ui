@@ -19,7 +19,7 @@ import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../float
  * A link that opens the preview card.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   componentProps: PreviewCardTrigger.Props,

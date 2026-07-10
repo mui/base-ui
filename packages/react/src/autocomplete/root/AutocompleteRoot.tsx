@@ -9,7 +9,7 @@ import { REASONS } from '../../internals/reasons';
  * Groups all parts of the autocomplete.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/autocomplete)
+ * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
 export function AutocompleteRoot<Items extends readonly { items: readonly any[] }[]>(
   props: Omit<AutocompleteRoot.Props<Items[number]['items'][number]>, 'items'> & {

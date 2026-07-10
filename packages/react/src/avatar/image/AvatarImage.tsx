@@ -22,7 +22,7 @@ const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
  * The image to be displayed in the avatar.
  * Renders an `<img>` element.
  *
- * Documentation: [Base UI Avatar](https://base-ui.com/react/avatar)
+ * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
 export const AvatarImage = React.forwardRef(function AvatarImage(
   componentProps: AvatarImage.Props,

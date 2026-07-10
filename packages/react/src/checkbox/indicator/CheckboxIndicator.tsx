@@ -14,7 +14,7 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
  * Indicates whether the checkbox is ticked.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Checkbox](https://base-ui.com/react/checkbox)
+ * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   componentProps: CheckboxIndicator.Props,

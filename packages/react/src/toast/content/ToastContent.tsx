@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A container for the contents of a toast.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastContent = React.forwardRef(function ToastContent(
   componentProps: ToastContent.Props,

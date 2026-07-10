@@ -8,7 +8,7 @@ import { type BaseUIComponentProps } from '../../internals/types';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/toast)
+ * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastPortal = React.forwardRef(function ToastPortal(
   props: ToastPortal.Props,
