@@ -37,5 +37,3 @@ trustPolicyIgnoreAfter: 525600
 # TODO: drop once the resolved nanoid is >= 3.3.15.
 trustPolicyExclude:
   - 'nanoid@3.3.14'
-patchedDependencies:
-  '@mui/internal-docs-infra@0.11.1-canary.22': patches/@mui__internal-docs-infra@0.11.1-canary.22.patch
