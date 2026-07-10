@@ -4,18 +4,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { TooltipViewportCssVars } from './TooltipViewportCssVars';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-
-const stateAttributesMapping: StateAttributesMapping<TooltipViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -39,7 +28,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    cssVars: TooltipViewportCssVars,
     children,
   });
 
@@ -53,7 +41,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

@@ -1,5 +1,9 @@
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { TransitionStatusDataAttributes } from '../internals/stateAttributesMapping';
+import {
+  TransitionStatusDataAttributes,
+  transitionStatusMapping,
+} from '../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
 
 export enum CommonPopupDataAttributes {
   /**
@@ -100,3 +104,12 @@ export const popupStateMapping = {
     return null;
   },
 } satisfies StateAttributesMapping<{ open: boolean; anchorHidden: boolean }>;
+
+export const popupTransitionStateMapping = {
+  ...popupStateMapping,
+  ...transitionStatusMapping,
+} satisfies StateAttributesMapping<{
+  open: boolean;
+  anchorHidden: boolean;
+  transitionStatus: TransitionStatus;
+}>;

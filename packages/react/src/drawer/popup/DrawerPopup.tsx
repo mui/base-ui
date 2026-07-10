@@ -12,8 +12,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DrawerPopupCssVars } from './DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from './DrawerPopupDataAttributes';
@@ -89,8 +88,7 @@ function removeCSSVariableInheritance() {
 }
 
 const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
+  ...popupTransitionStateMapping,
   expanded(value) {
     return value ? { [DrawerPopupDataAttributes.expanded]: '' } : null;
   },

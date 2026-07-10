@@ -4,18 +4,7 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { PopoverViewportCssVars } from './PopoverViewportCssVars';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-
-const stateAttributesMapping: StateAttributesMapping<PopoverViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -39,7 +28,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side,
-    cssVars: PopoverViewportCssVars,
     children,
   });
 
@@ -53,7 +41,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

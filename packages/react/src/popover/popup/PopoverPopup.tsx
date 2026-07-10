@@ -7,10 +7,8 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
@@ -19,11 +17,6 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
-
-const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the popover contents.
@@ -108,7 +101,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return (
