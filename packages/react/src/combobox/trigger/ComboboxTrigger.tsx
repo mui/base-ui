@@ -9,7 +9,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import {
   useComboboxFloatingContext,
-  useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
@@ -27,6 +26,7 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
+import { useListEmpty, usePopupSide } from '../utils/parts';
 
 /**
  * A button that opens the popup.
@@ -58,14 +58,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const required = useStore(store, selectors.required);
-  const mounted = useStore(store, selectors.mounted);
-  const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const storedPopupId = useStore(store, selectors.popupId);
@@ -86,8 +83,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const focusTimeout = useTimeout();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
-  const popupSide = mounted && positionerElement ? popupSideValue : null;
+  const listEmpty = useListEmpty();
+  const popupSide = usePopupSide(store);
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
@@ -169,7 +166,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         id,
         tabIndex: inputInsidePopup ? 0 : -1,
         role: inputInsidePopup ? 'combobox' : undefined,
-        'aria-expanded': open ? 'true' : 'false',
+        'aria-expanded': open,
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': ariaControls,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
@@ -237,8 +234,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             if (
               contains(triggerElement, mouseUpTarget) ||
               contains(positioner, mouseUpTarget) ||
-              contains(list, mouseUpTarget) ||
-              mouseUpTarget === triggerElement
+              contains(list, mouseUpTarget)
             ) {
               return;
             }
@@ -269,7 +265,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
       },
-      validation ? validation.getValidationProps(disabled, elementProps) : elementProps,
+      validation.getValidationProps(disabled, elementProps),
       getButtonProps,
     ],
     stateAttributesMapping: triggerStateAttributesMapping,
