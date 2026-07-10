@@ -80,10 +80,22 @@
     }
 
     &:focus-visible {
-      /* Inset so the ring isn't clipped by the root's paint containment (`content-visibility`). */
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -2px;
       z-index: 1;
+
+      /*
+       * The ring is inset so the root's paint containment (`content-visibility`)
+       * doesn't clip it, which puts it underneath the cells' overscroll overlays.
+       * Draw it as a stacked pseudo-element so it paints above them.
+       */
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -2px;
+      }
     }
 
     [open] & {
