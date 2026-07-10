@@ -63,22 +63,22 @@ function resolveSnapPointValue(
   return null;
 }
 
-function findClosestSnapPoint(
-  height: number,
-  points: ResolvedDrawerSnapPoint[],
-): ResolvedDrawerSnapPoint | null {
-  let closest: ResolvedDrawerSnapPoint | null = null;
+/**
+ * Returns the index of the value closest to `target`, or `-1` if `values` is empty.
+ */
+export function closestSnapPointIndex(values: number[], target: number): number {
+  let closestIndex = -1;
   let closestDistance = Infinity;
 
-  for (const point of points) {
-    const distance = Math.abs(point.height - height);
+  for (let index = 0; index < values.length; index += 1) {
+    const distance = Math.abs(values[index] - target);
     if (distance < closestDistance) {
       closestDistance = distance;
-      closest = point;
+      closestIndex = index;
     }
   }
 
-  return closest;
+  return closestIndex;
 }
 
 export function useDrawerSnapPoints() {
@@ -93,13 +93,7 @@ export function useDrawerSnapPoints() {
     const doc = ownerDocument(viewportElement);
     const html = doc.documentElement;
 
-    if (viewportElement) {
-      setViewportHeight(viewportElement.offsetHeight);
-    }
-
-    if (!viewportElement) {
-      setViewportHeight(html.clientHeight);
-    }
+    setViewportHeight(viewportElement ? viewportElement.offsetHeight : html.clientHeight);
 
     const fontSize = parseFloat(getComputedStyle(html).fontSize);
     if (Number.isFinite(fontSize)) {
@@ -190,7 +184,12 @@ export function useDrawerSnapPoints() {
     }
 
     const clampedHeight = clamp(resolvedHeight, 0, maxHeight);
-    return findClosestSnapPoint(clampedHeight, resolvedSnapPoints) ?? undefined;
+    return resolvedSnapPoints[
+      closestSnapPointIndex(
+        resolvedSnapPoints.map((point) => point.height),
+        clampedHeight,
+      )
+    ];
   }, [activeSnapPoint, popupHeight, resolvedSnapPoints, rootFontSize, viewportHeight]);
 
   return {
