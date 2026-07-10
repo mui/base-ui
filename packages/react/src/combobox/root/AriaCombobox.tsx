@@ -435,8 +435,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
-  // Only the root writes `store.state.inline`, so read the prop directly instead of subscribing.
-  const inline = inlineProp;
+  const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
 
@@ -1146,6 +1145,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useOnFirstRender(() => {
     store.update({
+      inline: inlineProp,
       popupProps,
       inputProps,
       triggerProps,
