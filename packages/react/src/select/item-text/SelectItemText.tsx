@@ -23,14 +23,14 @@ export const SelectItemText = React.memo(
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
-        if (!node) {
+        if (!node || !hasRegistered) {
           return;
         }
 
-        if (hasRegistered && index === 0) {
+        if (index === 0) {
           firstItemTextRef.current = node;
         }
-        if (hasRegistered && selectedByFocus) {
+        if (selectedByFocus) {
           selectedItemTextRef.current = node;
         }
       },

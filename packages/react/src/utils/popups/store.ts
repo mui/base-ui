@@ -224,12 +224,19 @@ export const popupStoreSelectors = {
 export type PopupStoreSelectors = typeof popupStoreSelectors;
 
 /**
+ * Store members a detached handle-backed trigger reads or invokes for trigger registration and data
+ * forwarding. `set`/`update` are included only for trigger-count and trigger-data bookkeeping; on a
+ * detached (inert) store they are intentionally no-ops, so a write through them is not guaranteed to
+ * be durable. Component handle-store views Pick these from their concrete store (preserving its
+ * context and selectors) and add any component-specific trigger-invoked members such as `setOpen`.
+ */
+export type PopupTriggerStoreKeys = 'context' | 'select' | 'set' | 'state' | 'update' | 'useState';
+
+/**
  * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
- * that an inert store can be passed while detached. `set`/`update` are included only for
- * trigger-count and trigger-data bookkeeping; on a detached (inert) store they are intentionally
- * no-ops, so a write through this type is not guaranteed to be durable.
+ * that an inert store can be passed while detached.
  */
 export type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
   ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
-  'context' | 'select' | 'set' | 'state' | 'update' | 'useState'
+  PopupTriggerStoreKeys
 >;

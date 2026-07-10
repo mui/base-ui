@@ -618,6 +618,69 @@ describe('<Dialog.Root />', () => {
         expect(overlapWarned(consoleWarn)).toBe(true);
         consoleWarn.mockRestore();
       });
+
+      it('resolves a trigger still registered to the previous root during a transient overlap', async () => {
+        const handle = Dialog.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        function OpenOnMount() {
+          React.useLayoutEffect(() => {
+            handle.open('trigger');
+          }, []);
+          return null;
+        }
+
+        function App({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              <Dialog.Trigger handle={handle} id="trigger">
+                Trigger
+              </Dialog.Trigger>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Dialog.Root key="outgoing" handle={handle} modal={false}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Outgoing</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <React.Fragment>
+                  <Dialog.Root key="incoming" handle={handle} modal={false}>
+                    <Dialog.Portal>
+                      <Dialog.Popup>Incoming</Dialog.Popup>
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                  <OpenOnMount />
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        // The detached trigger settles into the outgoing root's store (it is no longer in the
+        // fallback map). The incoming root then attaches while the outgoing one is still mounted,
+        // and a layout effect in that same commit opens by trigger id — before the trigger has
+        // migrated to the incoming root's store. The dialog must open associated with the trigger
+        // rather than falling back to an unassociated open with a "No trigger found" warning.
+        const { setProps } = await render(<App phase="outgoing" />);
+        await setProps({ phase: 'overlap' });
+
+        const missingTriggerWarned = consoleWarn.mock.calls.some(
+          ([message]: unknown[]) =>
+            typeof message === 'string' && message.includes('No trigger found'),
+        );
+        expect(missingTriggerWarned).toBe(false);
+        expect(handle.isOpen).toBe(true);
+        expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+          'aria-expanded',
+          'true',
+        );
+
+        // Completing the handoff (the outgoing root unmounts) keeps the dialog open and associated.
+        await setProps({ phase: 'incoming' });
+        expect(handle.isOpen).toBe(true);
+        consoleWarn.mockRestore();
+      });
     });
   });
 

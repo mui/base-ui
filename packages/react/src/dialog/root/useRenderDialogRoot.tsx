@@ -1,15 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useId } from '@base-ui/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { DialogInteractions, useDialogRoot } from './useDialogRoot';
+import { DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, IsDrawerContext, useDialogRootContext } from './DialogRootContext';
-import { DialogStore, type State as DialogStoreState } from '../store/DialogStore';
+import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
-import type { DialogHandle } from '../store/DialogHandle';
-import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import {
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+  usePopupRootStore,
+  usePopupRootSync,
+} from '../../utils/popups';
 
 export function useRenderDialogRoot<Payload>(
   props: DialogRootProps<Payload>,
@@ -35,17 +37,30 @@ export function useRenderDialogRoot<Payload>(
   const disablePointerDismissal = isAlertDialog || disablePointerDismissalProp;
   const role: 'dialog' | 'alertdialog' = isAlertDialog ? 'alertdialog' : 'dialog';
 
-  const parentDialogRootContext = useDialogRootContext(true);
-  const nested = Boolean(parentDialogRootContext);
+  const parentStore = useDialogRootContext(true);
+  const nested = parentStore != null;
   const rootState = { modal, disablePointerDismissal, nested, role };
 
-  const store = useDialogRootStore(handle, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-    ...rootState,
-  });
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  // Dialogs pass the popup element to Floating UI as the floating element (`treatPopupAsFloatingElement`).
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, floatingNested) =>
+      new DialogStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+          ...rootState,
+        },
+        floatingId,
+        floatingNested,
+      ),
+    true,
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -58,19 +73,28 @@ export function useRenderDialogRoot<Payload>(
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({ store, actionsRef });
+  usePopupRootSync(store, open);
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store);
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
+  );
 
   const shouldRenderInteractions = open || mounted;
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
   return (
     <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      <DialogRootContext.Provider value={store as DialogStore<unknown>}>
         {shouldRenderInteractions && (
           <DialogInteractions
             store={store}
-            parentContext={parentDialogRootContext?.store.context}
+            parentContext={parentStore?.context}
             isDrawer={isDrawer}
           />
         )}
@@ -81,37 +105,3 @@ export function useRenderDialogRoot<Payload>(
 }
 
 type DialogRootMode = 'dialog' | 'drawer' | 'alert-dialog';
-
-function useDialogRootStore<Payload>(
-  handle: DialogHandle<Payload> | undefined,
-  initialState: Partial<DialogStoreState<Payload>>,
-) {
-  const floatingId = useId();
-  const floatingNested = useFloatingParentNodeId() != null;
-
-  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
-  // the handle attaches to it below, so swapping the handle re-attaches rather than recreating state.
-  // Default values are only initial values; controlled values and root state are synced after creation.
-  const store = useRefWithInit(
-    () => new DialogStore<Payload>(initialState, floatingId, floatingNested),
-  ).current;
-
-  useSyncedFloatingRootContext({
-    popupStore: store,
-    treatPopupAsFloatingElement: true,
-    floatingRootContext: store.state.floatingRootContext,
-    floatingId,
-    nested: floatingNested,
-    onOpenChange: store.setOpen,
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!handle) {
-      return undefined;
-    }
-
-    return handle.attachStore(store);
-  }, [handle, store]);
-
-  return store;
-}

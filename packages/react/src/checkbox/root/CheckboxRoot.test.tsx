@@ -35,6 +35,69 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
+  describe('prop: onClick', () => {
+    it('propagates a single click event to ancestors per user click', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root data-testid="checkbox" />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root data-testid="checkbox" onClick={(event) => event.stopPropagation()} />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root nativeButton render={<button />} data-testid="checkbox" />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root
+            nativeButton
+            render={<button />}
+            data-testid="checkbox"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+  });
+
   describe('interactions', () => {
     it('should change its state when clicked', async () => {
       await render(<Checkbox.Root />);

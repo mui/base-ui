@@ -36,21 +36,23 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     className,
     style,
     anchor,
-    positionMethod = 'absolute',
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
+    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
+    // remain destructured to exclude the props from `elementProps`.
+    positionMethod,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
+    collisionPadding,
+    arrowPadding,
+    sticky,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
@@ -121,19 +123,16 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
+  const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
+
   useAnchoredPopupScrollLock(
-    open && modal === true && openReason !== REASONS.triggerHover,
+    open && trueModalNonHover,
     openMethod === 'touch',
     positionerElement,
     triggerElement,
   );
 
-  const setPositionerElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('positionerElement', element);
-    },
-    [store],
-  );
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   const state: PopoverPositionerState = {
     open,
@@ -154,12 +153,8 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioning}>
-      {mounted && modal === true && openReason !== REASONS.triggerHover && (
-        <InternalBackdrop
-          ref={store.context.internalBackdropRef}
-          inert={inertValue(!open)}
-          cutout={triggerElement}
-        />
+      {mounted && trueModalNonHover && (
+        <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>

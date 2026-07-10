@@ -75,7 +75,7 @@ const KEYBOARD_TAP_BLOCKED = Symbol('KeyboardTapBlocked');
 export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvider.Props) {
   const { children } = props;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');

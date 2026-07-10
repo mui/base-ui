@@ -80,7 +80,28 @@ class Scheduler {
   }
 }
 
-const scheduler = new Scheduler();
+let scheduler = new Scheduler();
+
+/**
+ * Replaces the shared scheduler and drops all pending animation frame callbacks.
+ *
+ * For test environments only. The scheduler is process-global, so a callback scheduled in one test
+ * but never run (e.g. requested under fake timers that were torn down before the frame fired) would
+ * otherwise survive into a later test and run there against stale state. Call between tests to drop
+ * such leftovers.
+ */
+export function resetAnimationFrameScheduler() {
+  const previous = scheduler;
+  scheduler = new Scheduler();
+  // Continue the id sequence so `cancel()` calls from `AnimationFrame` instances created before the
+  // reset cannot cancel callbacks scheduled after it.
+  scheduler.nextId = previous.nextId;
+  scheduler.startId = previous.nextId;
+  // A frame requested before the reset may still be pending and holds the previous scheduler's
+  // `tick`; empty its queue in place so that frame runs nothing when it eventually fires.
+  previous.callbacks = [];
+  previous.callbacksCount = 0;
+}
 
 export class AnimationFrame {
   static create() {

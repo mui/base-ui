@@ -1,4 +1,4 @@
-import { Store, createSelector } from '@base-ui/utils/store';
+import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -45,17 +45,15 @@ export type State = {
   hasScrollArrows: boolean;
 };
 
-export type SelectStore = Store<State>;
+export type SelectStore = ReactStore<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
   modal: createSelector((state: State) => state.modal),
-  multiple: createSelector((state: State) => state.multiple),
 
   items: createSelector((state: State) => state.items),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  itemToStringValue: createSelector((state: State) => state.itemToStringValue),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
