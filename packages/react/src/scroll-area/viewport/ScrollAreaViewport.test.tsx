@@ -113,6 +113,8 @@ describe('<ScrollArea.Viewport />', () => {
       await clock.tickAsync(200);
       fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
       expect(viewport).not.toHaveAttribute('data-scrolling');
     });
 
