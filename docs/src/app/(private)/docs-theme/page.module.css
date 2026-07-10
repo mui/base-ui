@@ -44,7 +44,7 @@
 
 .colorMatrixGrid {
   display: grid;
-  grid-template-columns: 7rem repeat(9, 6.5rem);
+  grid-template-columns: 7rem repeat(10, 6.5rem);
   row-gap: 2px;
   align-items: start;
   width: max-content;
