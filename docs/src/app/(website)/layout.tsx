@@ -161,11 +161,11 @@ export const viewport: Viewport = {
     // Mobile Safari header background (match the page content)
     {
       media: '(prefers-color-scheme: light)',
-      color: '#FFF',
+      color: 'oklch(99% 0 0deg)',
     },
     {
       media: '(prefers-color-scheme: dark)',
-      color: 'hsl(0deg 0% 6%)',
+      color: 'oklch(18.5% 0 0deg)',
     },
   ],
 };
