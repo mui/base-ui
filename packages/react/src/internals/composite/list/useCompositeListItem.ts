@@ -50,24 +50,31 @@ export function useCompositeListItem<Metadata>(
         : -1),
   );
 
-  const componentRef = React.useRef<Element | null>(null);
+  const componentRef = React.useRef<HTMLElement | null>(null);
+
+  const syncRefs = React.useCallback(
+    (node: HTMLElement, i: number) => {
+      elementsRef.current[i] = node;
+
+      if (labelsRef) {
+        const isLabelDefined = label !== undefined;
+        labelsRef.current[i] = isLabelDefined
+          ? label
+          : (textRef?.current?.textContent ?? node.textContent);
+      }
+    },
+    [elementsRef, labelsRef, label, textRef],
+  );
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 
       if (index !== -1 && node !== null) {
-        elementsRef.current[index] = node;
-
-        if (labelsRef) {
-          const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined
-            ? label
-            : (textRef?.current?.textContent ?? node.textContent);
-        }
+        syncRefs(node, index);
       }
     },
-    [index, elementsRef, labelsRef, label, textRef],
+    [index, syncRefs],
   );
 
   useIsoLayoutEffect(() => {
@@ -91,13 +98,21 @@ export function useCompositeListItem<Metadata>(
     }
 
     return subscribeMapChange((map) => {
-      const i = componentRef.current ? map.get(componentRef.current)?.index : null;
+      const node = componentRef.current;
+      const i = node ? map.get(node)?.index : null;
 
-      if (i != null) {
+      if (node && i != null) {
         setIndex(i);
+        // Write the refs even when the index didn't change and the item won't
+        // re-render: a React StrictMode dev remount re-runs `CompositeList`'s
+        // cleanup (which empties the ref arrays) without re-invoking the item
+        // ref callbacks that originally filled them.
+        if (elementsRef.current[i] !== node) {
+          syncRefs(node, i);
+        }
       }
     });
-  }, [externalIndex, subscribeMapChange, setIndex]);
+  }, [externalIndex, subscribeMapChange, setIndex, syncRefs, elementsRef]);
 
   return { ref, index };
 }
