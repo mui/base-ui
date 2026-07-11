@@ -804,17 +804,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      if (!hasItems || open || selectionMode === 'none') {
+      if (open || selectionMode === 'none') {
         return;
       }
+
+      // Without `items`, look the selection up in the live registry of mounted item
+      // values. Items stay mounted while closed whenever closed-state features need
+      // them (trigger focus and programmatic value changes force-mount the list), so
+      // the index resolves to the current composite order; when nothing is mounted it
+      // resolves to `null`, and each item re-registers it on the next open.
+      const registry = hasItems ? flatItems : valuesRef.current;
 
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(flatItems, lastValue, isItemEqualToValue);
+        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
         setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
       } else {
-        const index = findItemIndex(flatItems, selectedValue, isItemEqualToValue);
+        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
         setIndices({ selectedIndex: index === -1 ? null : index });
       }
     },

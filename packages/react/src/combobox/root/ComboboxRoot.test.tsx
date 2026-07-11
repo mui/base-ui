@@ -748,6 +748,274 @@ describe('<Combobox.Root />', () => {
 
         expect(screen.getByRole('listbox')).not.toBe(null);
       });
+
+      it('clears selectedIndex when the value is cleared externally while closed (no items prop)', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>('banana');
+
+          return (
+            <div>
+              <Combobox.Root value={value} onValueChange={setValue}>
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        <Combobox.Item value="cherry">cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <button type="button" data-testid="external-clear" onClick={() => setValue(null)}>
+                Clear
+              </button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        await user.click(screen.getByTestId('external-clear'));
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it('clears selectedIndex when the value is set to an unmatched value while closed (no items prop)', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>('banana');
+
+          return (
+            <div>
+              <Combobox.Root value={value} onValueChange={setValue}>
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        <Combobox.Item value="cherry">cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <button
+                type="button"
+                data-testid="external-set"
+                onClick={() => setValue('dragonfruit')}
+              >
+                Set
+              </button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        await user.click(screen.getByTestId('external-set'));
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it('does not highlight the previous item after the value changes while open (no items prop)', async () => {
+        const onItemHighlighted = vi.fn();
+
+        function App() {
+          const [value, setValue] = React.useState<string | null>('banana');
+
+          return (
+            <div>
+              <Combobox.Root
+                value={value}
+                onValueChange={setValue}
+                onItemHighlighted={onItemHighlighted}
+              >
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        <Combobox.Item value="cherry">cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <button type="button" data-testid="external-set" onClick={() => setValue('cherry')}>
+                Set
+              </button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+
+        // Change the value externally while the popup is open. `fireEvent` avoids the
+        // outside-press dismiss a real pointer interaction would trigger.
+        fireEvent.click(screen.getByTestId('external-set'));
+        await flushMicrotasks();
+        expect(screen.getByRole('listbox')).not.toBe(null);
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        // Closing reconciles the index to the new selection (cherry).
+        expect(screen.getByTestId('selected-index').textContent).toBe('2');
+
+        onItemHighlighted.mockClear();
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'cherry' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(
+          onItemHighlighted.mock.calls.some(([highlightedValue]) => highlightedValue === 'banana'),
+        ).toBe(false);
+      });
+
+      it('re-highlights the selection on reopen when the value object is recreated with equal contents (no items prop)', async () => {
+        const onItemHighlighted = vi.fn();
+        const apple = { id: 1, label: 'apple' };
+        const banana = { id: 2, label: 'banana' };
+        const cherry = { id: 3, label: 'cherry' };
+        const isItemEqualToValue = (a: any, b: any) => a.id === b.id;
+
+        function App() {
+          const [, force] = React.useReducer((x) => x + 1, 0);
+          // Recreate the controlled value object identity on each render (same id).
+          const value = { id: 2, label: 'banana' };
+          (App as any).force = force;
+
+          return (
+            <div>
+              <Combobox.Root
+                value={value}
+                isItemEqualToValue={isItemEqualToValue}
+                onItemHighlighted={onItemHighlighted}
+                itemToStringLabel={(v: any) => v.label}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value={apple}>apple</Combobox.Item>
+                        <Combobox.Item value={banana}>banana</Combobox.Item>
+                        <Combobox.Item value={cherry}>cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <button type="button" data-testid="force" onClick={() => (App as any).force()}>
+                force
+              </button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        // Rerender while closed so the value object is recreated with the same id.
+        fireEvent.click(screen.getByTestId('force'));
+        await flushMicrotasks();
+
+        onItemHighlighted.mockClear();
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+        expect(
+          onItemHighlighted.mock.calls.some(([v]) => v && v.id !== undefined && v.id !== 2),
+        ).toBe(false);
+      });
     });
 
     describe('multiple', () => {
@@ -876,6 +1144,64 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(screen.getByTestId('selected-index').textContent).toBe('2');
         });
+      });
+
+      it('clears selectedIndex when all values are removed externally while closed (no items prop)', async () => {
+        const items = ['apple', 'banana', 'cherry'];
+
+        function App() {
+          const [value, setValue] = React.useState(items.slice(0, 2));
+
+          return (
+            <Combobox.Root multiple value={value} onValueChange={setValue}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <button type="button" data-testid="external-clear" onClick={() => setValue([])}>
+                Clear
+              </button>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {items.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        await user.click(screen.getByTestId('external-clear'));
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
       });
 
       it('should create multiple hidden inputs for form submission', async () => {

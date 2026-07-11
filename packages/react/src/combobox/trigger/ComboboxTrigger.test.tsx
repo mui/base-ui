@@ -667,6 +667,48 @@ describe('<Combobox.Trigger />', () => {
         expect(trigger).toHaveTextContent('banana');
       });
     });
+
+    it.each([false, true])(
+      'cycles to the next matching item when typing after open/close (no items prop, keepMounted %s)',
+      async (keepMounted) => {
+        const { user } = await render(
+          <Combobox.Root defaultValue="apple">
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value data-testid="value" />
+            </Combobox.Trigger>
+            <Combobox.Portal keepMounted={keepMounted}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="apricot">apricot</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await screen.findByRole('listbox');
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        // Typeahead starts matching after the selected item, like a native select.
+        await user.keyboard('a');
+        await waitFor(() => {
+          expect(trigger).toHaveTextContent('apricot');
+        });
+      },
+    );
   });
 
   describe('data state attributes', () => {
