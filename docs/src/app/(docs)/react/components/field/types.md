@@ -310,17 +310,17 @@ Renders a `<div>` element.
 
 **Error Data Attributes:**
 
-| Attribute           | Type | Description                                      |
-| :------------------ | :--- | :----------------------------------------------- |
-| data-disabled       | -    | Present when the field is disabled.              |
-| data-valid          | -    | Present when the field is in a valid state.      |
-| data-invalid        | -    | Present when the field is in an invalid state.   |
-| data-dirty          | -    | Present when the field's value has changed.      |
-| data-touched        | -    | Present when the field has been touched.         |
-| data-filled         | -    | Present when the field is filled.                |
-| data-focused        | -    | Present when the field control is focused.       |
-| data-starting-style | -    | Present when the error message is animating in.  |
-| data-ending-style   | -    | Present when the error message is animating out. |
+| Attribute           | Type | Description                                         |
+| :------------------ | :--- | :-------------------------------------------------- |
+| data-disabled       | -    | Present when the field is disabled.                 |
+| data-valid          | -    | Present when the field is in a valid state.         |
+| data-invalid        | -    | Present when the field is in an invalid state.      |
+| data-dirty          | -    | Present when the field's value has changed.         |
+| data-touched        | -    | Present when the field has been touched.            |
+| data-filled         | -    | Present when the field is filled.                   |
+| data-focused        | -    | Present when the field control is focused.          |
+| data-starting-style | -    | Present when the error message begins animating in. |
+| data-ending-style   | -    | Present when the error message is animating out.    |
 
 ### Error.Props
 

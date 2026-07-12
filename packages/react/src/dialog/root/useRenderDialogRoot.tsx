@@ -1,10 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { DialogInteractions, useDialogRoot } from './useDialogRoot';
+import { DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, IsDrawerContext, useDialogRootContext } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import {
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+  usePopupRootStore,
+  usePopupRootSync,
+} from '../../utils/popups';
 
 export function useRenderDialogRoot<Payload>(
   props: DialogRootProps<Payload>,
@@ -30,32 +37,30 @@ export function useRenderDialogRoot<Payload>(
   const disablePointerDismissal = isAlertDialog || disablePointerDismissalProp;
   const role: 'dialog' | 'alertdialog' = isAlertDialog ? 'alertdialog' : 'dialog';
 
-  const parentDialogRootContext = useDialogRootContext(true);
-  const nested = Boolean(parentDialogRootContext);
+  const parentStore = useDialogRootContext(true);
+  const nested = parentStore != null;
   const rootState = { modal, disablePointerDismissal, nested, role };
 
-  const store = DialogStore.useStore(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-    ...rootState,
-  });
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    const nextState =
-      openProp === undefined && store.state.open === false && defaultOpen === true
-        ? { open: true, activeTriggerId: defaultTriggerIdProp }
-        : null;
-
-    if (isAlertDialog) {
-      // Handles can reuse plain Dialog stores; alert dialog invariants must exist immediately.
-      store.update(nextState ? { ...rootState, ...nextState } : rootState);
-    } else if (nextState) {
-      store.update(nextState);
-    }
-  });
+  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
+  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
+  // Default values are only initial values; controlled values and root state are synced after creation.
+  // Dialogs pass the popup element to Floating UI as the floating element (`treatPopupAsFloatingElement`).
+  const store = usePopupRootStore(
+    handle,
+    (floatingId, floatingNested) =>
+      new DialogStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+          ...rootState,
+        },
+        floatingId,
+        floatingNested,
+      ),
+    true,
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -68,19 +73,28 @@ export function useRenderDialogRoot<Payload>(
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({ store, actionsRef });
+  usePopupRootSync(store, open);
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store);
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
+  );
 
   const shouldRenderInteractions = open || mounted;
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
   return (
     <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      <DialogRootContext.Provider value={store as DialogStore<unknown>}>
         {shouldRenderInteractions && (
           <DialogInteractions
             store={store}
-            parentContext={parentDialogRootContext?.store.context}
+            parentContext={parentStore?.context}
             isDrawer={isDrawer}
           />
         )}

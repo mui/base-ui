@@ -10,7 +10,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui/utils/store';
+import { useStore, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
@@ -140,7 +140,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const store = useRefWithInit(
     () =>
-      new Store<StoreState>({
+      new ReactStore<StoreState>({
         id: generatedId,
         labelId: undefined,
         modal,
@@ -175,7 +175,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const previousOpenMethod = usePreviousValue(openMethod);
-  const renderedOpenMethod = openMethod ?? previousOpenMethod ?? null;
+  const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const serializedValue = React.useMemo(() => {
     // In multiple mode the shared input is nameless; per-value entries are submitted via
@@ -194,7 +194,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
-  const controlRef = useValueAsRef(store.state.triggerElement);
+  const controlRef = useValueAsRef(triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
   useRegisterFieldControl(
@@ -211,14 +211,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
   const hasSelectedValue = multiple
     ? Array.isArray(value) && value.length > 0
-    : value != null && stringifyAsValue(value, itemToStringValue) !== '';
-
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
+    : value != null && serializedValue !== '';
 
   useIsoLayoutEffect(() => {
     setFilled(hasSelectedValue);
@@ -226,22 +219,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      const registry = valuesRef.current;
-      let nextIndex: number | null;
+      let target: unknown = value;
+      let empty = false;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
-        if (currentValue.length === 0) {
-          nextIndex = null;
-        } else {
-          const lastValue = currentValue[currentValue.length - 1];
-          const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-          nextIndex = lastIndex === -1 ? null : lastIndex;
-        }
-      } else {
-        const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-        nextIndex = index === -1 ? null : index;
+        empty = currentValue.length === 0;
+        target = currentValue[currentValue.length - 1];
       }
+
+      const index = empty
+        ? -1
+        : findItemIndex(valuesRef.current, target as Value, isItemEqualToValue);
+      const nextIndex = index === -1 ? null : index;
 
       if (nextIndex === null) {
         selectedItemTextRef.current = null;
@@ -253,16 +243,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('selectedIndex', nextIndex);
     },
-    [
-      hasSelectedValue,
-      multiple,
-      open,
-      value,
-      valuesRef,
-      isItemEqualToValue,
-      store,
-      selectedItemTextRef,
-    ],
+    [multiple, open, value, isItemEqualToValue, store],
   );
 
   function isSelectedValueDirty(currentValue: unknown) {
@@ -357,12 +338,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     const shouldShowUp = scrollTop > 0;
     const shouldShowDown = scrollTop < maxScrollTop;
 
-    if (store.state.scrollUpArrowVisible !== shouldShowUp) {
-      store.set('scrollUpArrowVisible', shouldShowUp);
-    }
-    if (store.state.scrollDownArrowVisible !== shouldShowDown) {
-      store.set('scrollDownArrowVisible', shouldShowDown);
-    }
+    store.set('scrollUpArrowVisible', shouldShowUp);
+    store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
   const floatingContext = useFloatingRootContext({
@@ -465,26 +442,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   });
 
-  useIsoLayoutEffect(() => {
-    store.update({
-      id: generatedId,
-      modal,
-      multiple,
-      value,
-      open,
-      mounted,
-      transitionStatus,
-      popupProps,
-      triggerProps: mergedTriggerProps,
-      items,
-      itemToStringLabel,
-      itemToStringValue,
-      isItemEqualToValue,
-      openMethod: renderedOpenMethod,
-    });
-  }, [
-    store,
-    generatedId,
+  store.useSyncedValues({
+    id: generatedId,
     modal,
     multiple,
     value,
@@ -492,18 +451,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     mounted,
     transitionStatus,
     popupProps,
-    mergedTriggerProps,
+    triggerProps: mergedTriggerProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    renderedOpenMethod,
-  ]);
+    openMethod: renderedOpenMethod,
+  });
 
   const contextValue: SelectRootContext = React.useMemo(
     () => ({
       store,
-      name,
       required,
       disabled,
       readOnly,
@@ -531,7 +489,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }),
     [
       store,
-      name,
       required,
       disabled,
       readOnly,
@@ -548,7 +505,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
-  const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
   const hiddenInputName = multiple ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
@@ -617,8 +573,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   });
                 }
 
-                const matchingValue =
-                  matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
+                const matchingValue = valuesRef.current[matchingIndex];
                 if (matchingValue != null) {
                   // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                   // mark the field dirty and run validation only when the value actually changes.
@@ -636,7 +591,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}
-          required={required && !hasMultipleSelection}
+          required={required && !(multiple && hasSelectedValue)}
           readOnly={readOnly}
           ref={ref}
           style={name ? visuallyHiddenInput : visuallyHidden}

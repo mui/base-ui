@@ -84,6 +84,35 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('closes with a `detail === 0` click event on keyboard item activation', async () => {
+        const openChangeSpy = vi.fn();
+
+        await render(<TestMenu rootProps={{ onOpenChange: openChangeSpy }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        const item1 = screen.getByTestId('item-1');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        await waitFor(() => {
+          expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
+        });
+
+        expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // Keyboard activation clicks carry `detail === 0`, which MenuRoot classifies
+        // as a keyboard (instant) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(0);
+      });
+
       it('changes the highlighted item using the Home and End keys', async () => {
         await render(<TestMenu />);
 
@@ -255,6 +284,43 @@ describe('<Menu.Root />', () => {
           });
 
           expect(hiddenItem).toHaveAttribute('tabindex', '-1');
+        });
+
+        it.skipIf(isJSDOM)('skips natively disabled items in text navigation', async () => {
+          const itemElements = [
+            <Menu.Item key="apple">Apple</Menu.Item>,
+            <Menu.Item
+              key="banana"
+              data-testid="item-banana"
+              nativeButton
+              render={<button type="button" disabled />}
+            >
+              Banana
+            </Menu.Item>,
+            <Menu.Item key="blueberry" data-testid="item-blueberry">
+              Blueberry
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const appleItem = screen.getByText('Apple');
+          const bananaItem = screen.getByTestId('item-banana');
+          const blueberryItem = screen.getByTestId('item-blueberry');
+
+          await act(async () => {
+            appleItem.focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(blueberryItem).toHaveFocus();
+          });
+
+          expect(bananaItem).toHaveAttribute('tabindex', '-1');
+          expect(bananaItem).not.toHaveAttribute('data-highlighted');
         });
 
         it.skipIf(!isJSDOM)(
@@ -2222,6 +2288,58 @@ describe('<Menu.Root />', () => {
 
         expect(screen.queryByTestId('submenu')).not.toBe(null);
       });
+
+      it('cancels a pending submenu hover-open when the pointer leaves via mouseout', async () => {
+        // Chrome can drop a submenu trigger's non-bubbling `mouseleave` during a
+        // fast pointer sweep across adjacent triggers, but the bubbling
+        // `mouseout` still fires. The pending delayed open must be cancelled from
+        // that `mouseout`, otherwise a stale submenu opens for a trigger the
+        // pointer has already left (stranding the parent at
+        // `pointer-events: none`). See #5152.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        const otherItem = screen.getByTestId('item-1');
+
+        // Arm the submenu's delayed open, then leave the trigger via `mouseout`
+        // (with `relatedTarget` outside it) but without delivering `mouseleave`.
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseOut(submenuTrigger, { relatedTarget: otherItem });
+
+        // Let the open delay elapse.
+        clock.tick(200);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).toBe(null);
+      });
+
+      it('keeps a pending submenu hover-open when mouseout stays within the trigger', async () => {
+        // `mouseout` bubbles and fires as the pointer moves between elements
+        // inside the trigger's own subtree. Those crossings (where
+        // `relatedTarget` is still inside the trigger) must not cancel the
+        // pending open, otherwise a plain hover would never open the submenu.
+        // See #5152.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        // Arm the submenu's delayed open, then fire a `mouseout` whose
+        // `relatedTarget` is still inside the trigger (the trigger itself).
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseOut(submenuTrigger, { relatedTarget: submenuTrigger });
+
+        // Let the open delay elapse.
+        clock.tick(200);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.toBe(null);
+      });
     });
 
     describe.skipIf(isJSDOM)('mouse interaction', () => {
@@ -2279,6 +2397,9 @@ describe('<Menu.Root />', () => {
         expect(openChangeSpy.mock.calls[0][0]).toBe(true);
         expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
         expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // The synthesized drag-release click must carry `detail: 1` so MenuRoot does
+        // not classify it as a keyboard (`detail === 0`) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
       });
 
       it('closes the menu on click, drag outside, release', async () => {

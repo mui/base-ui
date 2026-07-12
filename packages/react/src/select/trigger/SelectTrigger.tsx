@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -14,7 +13,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { selectors } from '../store';
-import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
@@ -25,7 +24,6 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../utils/useAnchorPositioning';
 
-const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
@@ -102,9 +100,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useStableCallback((element) => {
-    store.set('triggerElement', element);
-  });
+  const setTriggerElement = store.useStateSetter('triggerElement');
 
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
@@ -142,7 +138,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     {
       id,
       role: 'combobox',
-      'aria-expanded': open ? 'true' : 'false',
+      'aria-expanded': open,
       'aria-haspopup': 'listbox',
       'aria-controls': open
         ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
@@ -202,14 +198,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          const bounds = getPseudoElementBounds(triggerRef.current);
-
-          if (
-            mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-            mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-            mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-            mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-          ) {
+          if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
             return;
           }
 

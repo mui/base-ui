@@ -17,11 +17,9 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
   componentProps: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const keepMounted = componentProps.keepMounted ?? false;
-
   const { selected } = useSelectItemContext();
 
-  const shouldRender = keepMounted || selected;
+  const shouldRender = componentProps.keepMounted || selected;
   if (!shouldRender) {
     return null;
   }

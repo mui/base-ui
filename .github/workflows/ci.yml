@@ -34,13 +34,13 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '22.18'
+          node-version: '22.22.3'
           cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
       - run: pnpm install
       - run: pnpm release:build
       - name: Publish packages
         if: matrix.os == 'ubuntu-latest'
-        uses: mui/mui-public/.github/actions/ci-publish@00cd0db0b3f3e2bc38ac8fb6af4edbfb2d5f88f6 # master
+        uses: mui/mui-public/.github/actions/ci-publish@76639fa2eabf73261070fa2a6a964209de10688d # master
         with:
           pr-comment: true
       - name: Extract Vale version
@@ -61,3 +61,22 @@ jobs:
           # Required, set by GitHub actions automatically:
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret
           token: ${{secrets.GITHUB_TOKEN}}
+
+  # Mirrors the real publish workflow environment (`publish.yml`) so an env
+  # mismatch — e.g. the Node version pinned by `publish-prepare` violating our
+  # engineStrict `engines` range — is caught here instead of during publishing.
+  publish-dry-run:
+    name: Publish Dry Run
+
+    if: ${{ github.repository_owner == 'mui' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare for publishing
+        uses: mui/mui-public/.github/actions/publish-prepare@5a12855e473909291f8782c324f2c48983054337 # master
+        with:
+          node-version: '22.22.3'
+      - name: Dry run npm publishing
+        env:
+          IS_PUBLISH_TEST: 'true'
+        run: pnpm code-infra publish --ci --dry-run

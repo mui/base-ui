@@ -6,6 +6,7 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
+import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 
 const VIEWPORT_SIZE = 200;
 const SCROLLABLE_CONTENT_SIZE = 1000;
@@ -878,6 +879,57 @@ describe('<ScrollArea.Root />', () => {
 
       await waitFor(() => expect(root).toHaveAttribute('data-overflow-x-start'));
       expect(root).not.toHaveAttribute('data-overflow-x-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('context stability', () => {
+    it('does not re-render parts on scroll when the corner size is unchanged', async () => {
+      let commitCount = 0;
+      function ContextProbe() {
+        React.useContext(ScrollAreaRootContext);
+        // Count committed renders in an effect rather than in the render body:
+        // under StrictMode/concurrent rendering the render function can run
+        // multiple times or be discarded without committing.
+        React.useEffect(() => {
+          commitCount += 1;
+        });
+        return null;
+      }
+
+      await render(
+        <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" style={{ width: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" style={{ height: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner data-testid="corner" />
+          <ContextProbe />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // Wait until both scrollbars are visible and the corner has been measured,
+      // which is the precondition for the corner-size setter to run on scroll.
+      await waitFor(() => expect(screen.getByTestId('corner').style.width).toBe('10px'));
+      await flushMicrotasks();
+
+      const countBeforeScroll = commitCount;
+
+      // Scrolling does not change the corner size, so no scroll-area part should
+      // re-render. Previously the corner-size setter built a fresh object on every
+      // scroll frame, rebuilding the root context and re-rendering every part.
+      for (let i = 0; i < 3; i += 1) {
+        fireEvent.scroll(viewport, { target: { scrollTop: 0, scrollLeft: 0 } });
+      }
+      await flushMicrotasks();
+
+      expect(commitCount).toBe(countBeforeScroll);
     });
   });
 });

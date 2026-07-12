@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
@@ -227,6 +228,60 @@ describe('<Slider.Thumb />', () => {
 
         expect(focusSpy).toHaveBeenCalledTimes(1);
         expect(blurSpy).not.toHaveBeenCalled();
+      });
+
+      it('forwards focus and blur to the input so `currentTarget` is the input', async () => {
+        const focusSpy = vi.fn();
+        const blurSpy = vi.fn();
+        const { user } = await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb
+                onFocus={(event) => focusSpy(event.currentTarget)}
+                onBlur={(event) => blurSpy(event.currentTarget)}
+              />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        await user.keyboard('[Tab]');
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(focusSpy.mock.calls[0][0]).toHaveProperty('tagName', 'INPUT');
+
+        await user.keyboard('[Tab]');
+        expect(blurSpy).toHaveBeenCalledTimes(1);
+        expect(blurSpy.mock.calls[0][0]).toHaveProperty('tagName', 'INPUT');
+      });
+
+      it('does not commit field validation when moving focus between range thumbs', async () => {
+        const validateSpy = vi.fn(() => null);
+        const { user } = await render(
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Slider.Root defaultValue={[20, 50]}>
+              <Slider.Control>
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const [thumb0, thumb1] = screen.getAllByRole('slider');
+
+        await user.keyboard('[Tab]');
+        expect(thumb0).toHaveFocus();
+
+        validateSpy.mockClear();
+
+        await user.keyboard('[Tab]');
+        expect(thumb1).toHaveFocus();
+        expect(validateSpy).not.toHaveBeenCalled();
+
+        await user.keyboard('[Tab]');
+        expect(thumb1).not.toHaveFocus();
+        await waitFor(() => {
+          expect(validateSpy).toHaveBeenCalledTimes(1);
+        });
       });
     });
 
@@ -1025,6 +1080,34 @@ describe('<Slider.Thumb />', () => {
       );
 
       expect(document.querySelector('script')).not.toBe(null);
+    });
+
+    it('renders a single pre-hydration script with the last thumb', async () => {
+      const { container } = await renderToString(
+        <Slider.Root
+          defaultValue={[30, 40]}
+          thumbAlignment="edge"
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb index={0} data-testid="thumb" />
+              <Slider.Thumb index={1} data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
+      const scripts = container.querySelectorAll('script');
+      expect(scripts).toHaveLength(1);
+
+      // The script must render with the last thumb so all preceding thumbs are already in the DOM.
+      const thumbs = await screen.findAllByTestId('thumb');
+      expect(thumbs[thumbs.length - 1].contains(scripts[0])).toBe(true);
     });
 
     it('multiple thumbs', async () => {

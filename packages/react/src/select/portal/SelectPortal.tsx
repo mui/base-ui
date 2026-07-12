@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
-import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
 
@@ -26,11 +25,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
     return null;
   }
 
-  return (
-    <SelectPortalContext.Provider value>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
-    </SelectPortalContext.Provider>
-  );
+  return <FloatingPortal ref={forwardedRef} {...portalProps} />;
 });
 
 export interface SelectPortalState {}

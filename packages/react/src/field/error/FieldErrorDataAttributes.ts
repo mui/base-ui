@@ -30,7 +30,7 @@ export enum FieldErrorDataAttributes {
    */
   focused = 'data-focused',
   /**
-   * Present when the error message is animating in.
+   * Present when the error message begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

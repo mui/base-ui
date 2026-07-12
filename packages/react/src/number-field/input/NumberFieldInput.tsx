@@ -18,6 +18,7 @@ import {
   ANY_PLUS_RE,
   ANY_MINUS_DETECT_RE,
   ANY_PLUS_DETECT_RE,
+  FORMAT_CONTROL_DETECT_RE,
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -262,7 +263,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // composition/partial input while still providing live numeric updates when possible.
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
       const isValidCharacterString = Array.from(targetValue).every(
-        (ch) => isNumeralChar(ch) || ANY_MINUS_DETECT_RE.test(ch) || allowedNonNumericKeys.has(ch),
+        (ch) =>
+          isNumeralChar(ch) ||
+          ANY_MINUS_DETECT_RE.test(ch) ||
+          allowedNonNumericKeys.has(ch) ||
+          // Bidi/format controls are stripped by `parseNumber`; don't let them reject the string
+          // (RTL locales insert them around exponent/currency signs, e.g. scientific notation).
+          FORMAT_CONTROL_DETECT_RE.test(ch),
       );
 
       if (!isValidCharacterString) {
@@ -469,7 +476,8 @@ export interface NumberFieldInputState extends NumberFieldRootState {}
 
 export interface NumberFieldInputProps extends BaseUIComponentProps<
   'input',
-  NumberFieldInputState
+  NumberFieldInputState,
+  React.ComponentPropsWithRef<'input'>
 > {
   /**
    * A user-friendly description of the input's role for assistive tech. This is a role
