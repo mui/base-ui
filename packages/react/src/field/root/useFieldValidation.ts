@@ -144,7 +144,17 @@ export function useFieldValidation(
         return;
       }
 
-      // Value is still missing: fall through to the main validation logic below.
+      // Avoid surfacing another error during change revalidation while the required value is
+      // still missing. The full validity state is published at the configured blur or submit
+      // boundary instead.
+      for (const key of validityKeys) {
+        if (key !== 'valid' && key !== 'valueMissing' && currentNativeValidity[key]) {
+          return;
+        }
+      }
+
+      // Value is still missing and it is the only native error: fall through to the main
+      // validation logic below.
     }
 
     function getState(el: HTMLInputElement) {
