@@ -78,7 +78,7 @@ The 0th index toast appears at the front.
 ```css title="z-index stacking"
 .Toast {
   z-index: calc(1000 - var(--toast-index));
-  transform: scale(1 - calc(0.1 * var(--toast-index)));
+  transform: scale(calc(1 - 0.1 * var(--toast-index)));
 }
 ```
 
