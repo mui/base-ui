@@ -147,4 +147,18 @@ describe('<Toast.Title />', () => {
 
     expect(screen.queryByTestId('title-render')).toBe(null);
   });
+
+  it('renders a numeric render prop child such as 0', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={<div>{0}</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('0')).not.toBe(null);
+  });
 });

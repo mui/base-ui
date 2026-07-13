@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { isRenderableNode } from '../utils/isRenderableNode';
 
 /**
  * A description that describes the toast.
@@ -48,7 +49,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const shouldRender =
     React.isValidElement(element) &&
-    Boolean((element.props as { children?: React.ReactNode }).children);
+    isRenderableNode((element.props as { children?: React.ReactNode }).children);
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {

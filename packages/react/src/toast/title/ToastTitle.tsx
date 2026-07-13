@@ -5,6 +5,7 @@ import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { isRenderableNode } from '../utils/isRenderableNode';
 
 /**
  * A title that labels the toast.
@@ -47,7 +48,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
 
   const shouldRender =
     React.isValidElement(element) &&
-    Boolean((element.props as { children?: React.ReactNode }).children);
+    isRenderableNode((element.props as { children?: React.ReactNode }).children);
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
