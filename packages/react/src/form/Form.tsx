@@ -10,6 +10,7 @@ import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
 import { useRenderElement } from '../internals/useRenderElement';
+import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -53,11 +54,10 @@ export const Form = React.forwardRef(function Form<
   });
 
   const [errors, setErrors] = React.useState(externalErrors);
-  const [prevExternalErrors, setPrevExternalErrors] = React.useState(externalErrors);
-  if (prevExternalErrors !== externalErrors) {
-    setPrevExternalErrors(externalErrors);
+
+  useValueChanged(externalErrors, () => {
     setErrors(externalErrors);
-  }
+  });
 
   React.useEffect(() => {
     if (!submittedRef.current) {
