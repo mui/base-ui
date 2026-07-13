@@ -808,17 +808,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  useIsoLayoutEffect(() => {
-    // State-driven (not tied to the internal event path) so controlled closes
-    // also clear a pointerdown that never received a matching item mouseup.
-    if (!open) {
-      pointerDownItemRef.current = null;
-    }
-  }, [open]);
-
   useIsoLayoutEffect(
-    function syncSelectedIndex() {
-      if (open || selectionMode === 'none') {
+    function syncClosedState() {
+      if (open) {
+        return;
+      }
+
+      // State-driven (not tied to the internal event path) so controlled closes
+      // also clear a pointerdown that never received a matching item mouseup.
+      pointerDownItemRef.current = null;
+
+      if (selectionMode === 'none') {
         return;
       }
 
