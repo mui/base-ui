@@ -614,10 +614,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
       }
 
-      if (!nextOpen) {
-        pointerDownItemRef.current = null;
-      }
-
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -750,7 +746,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
-    pointerDownItemRef.current = null;
 
     if (selectionMode === 'none') {
       setIndices({ activeIndex: null, selectedIndex: null });
@@ -812,6 +807,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  useIsoLayoutEffect(() => {
+    // State-driven (not tied to the internal event path) so controlled closes
+    // also clear a pointerdown that never received a matching item mouseup.
+    if (!open) {
+      pointerDownItemRef.current = null;
+    }
+  }, [open]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
