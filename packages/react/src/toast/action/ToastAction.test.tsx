@@ -140,4 +140,47 @@ describe('<Toast.Action />', () => {
 
     expect(screen.getByText('0')).not.toBe(null);
   });
+
+  it('renders a numeric zero child', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action>{0}</Toast.Action>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('0')).not.toBe(null);
+  });
+
+  it('does not render an empty-array child', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action data-testid="action-render">{[]}</Toast.Action>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('action-render')).toBe(null);
+  });
+
+  it('does not render when a render function returns no element', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast} data-testid="root">
+            <Toast.Action data-testid="action-render" render={(() => null) as any} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByTestId('root')).not.toBe(null);
+    expect(screen.queryByTestId('action-render')).toBe(null);
+  });
 });
