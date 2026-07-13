@@ -63,6 +63,25 @@ describe('ToastStore', () => {
     expectToastMetadataToMatchToasts(store);
   });
 
+  it('ignores height recalculations while a toast is transitioning out', () => {
+    const store = createStore([{ id: 'a', height: 40 }]);
+
+    store.closeToast('a');
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+
+    // Mirrors the write `recalculateHeight` makes when a content observer fires:
+    // it always includes `transitionStatus: undefined`. The ending toast must stay
+    // ending so `useOpenChangeComplete` still removes it.
+    store.updateToastInternal('a', { height: 80, transitionStatus: undefined });
+
+    const toast = selectors.toast(store.state, 'a');
+    expect(toast?.transitionStatus).toBe('ending');
+    expect(toast?.height).toBe(0);
+
+    store.removeToast('a', true);
+    expect(selectors.toast(store.state, 'a')).toBe(undefined);
+  });
+
   describe('limit', () => {
     it('recomputes limited flags when the limit changes', () => {
       // Ordered newest-first, matching how `addToast` prepends.
