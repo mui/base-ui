@@ -89,4 +89,62 @@ describe('<Toast.Description />', () => {
     expect(titleElement).not.toBe(null);
     expect(titleElement.textContent).toBe('description');
   });
+
+  it('renders content passed through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Description render={<div>render prop description</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render prop description')).not.toBe(null);
+  });
+
+  it('renders content passed through a render function', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Description render={(props) => <div {...props}>render fn description</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render fn description')).not.toBe(null);
+  });
+
+  it('wires aria-describedby to a description rendered through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast} data-testid="root">
+            <Toast.Description render={<div>render prop description</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    const descriptionElement = screen.getByText('render prop description');
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-describedby')).toBe(descriptionElement.id);
+  });
+
+  it('does not render a childless render prop when there is no content', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Description render={<div data-testid="description-render" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('description-render')).toBe(null);
+  });
 });

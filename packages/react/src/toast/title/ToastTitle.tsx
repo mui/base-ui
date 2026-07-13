@@ -29,21 +29,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
 
   const children = childrenProp ?? toast.title;
 
-  const shouldRender = Boolean(children);
-
   const id = useId(idProp);
-
-  useIsoLayoutEffect(() => {
-    if (!shouldRender) {
-      return undefined;
-    }
-
-    setTitleId(id);
-
-    return () => {
-      setTitleId(undefined);
-    };
-  }, [shouldRender, id, setTitleId]);
 
   const state: ToastTitleState = {
     type: toast.type,
@@ -58,6 +44,22 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
       children,
     },
   });
+
+  const shouldRender =
+    React.isValidElement(element) &&
+    Boolean((element.props as { children?: React.ReactNode }).children);
+
+  useIsoLayoutEffect(() => {
+    if (!shouldRender) {
+      return undefined;
+    }
+
+    setTitleId(id);
+
+    return () => {
+      setTitleId(undefined);
+    };
+  }, [shouldRender, id, setTitleId]);
 
   if (!shouldRender) {
     return null;

@@ -89,4 +89,62 @@ describe('<Toast.Title />', () => {
     expect(titleElement).not.toBe(null);
     expect(titleElement.textContent).toBe('title');
   });
+
+  it('renders content passed through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={<div>render prop title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render prop title')).not.toBe(null);
+  });
+
+  it('renders content passed through a render function', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={(props) => <div {...props}>render fn title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render fn title')).not.toBe(null);
+  });
+
+  it('wires aria-labelledby to a title rendered through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }} data-testid="root">
+            <Toast.Title render={<div>render prop title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    const titleElement = screen.getByText('render prop title');
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
+  });
+
+  it('does not render a childless render prop when there is no content', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={<div data-testid="title-render" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('title-render')).toBe(null);
+  });
 });

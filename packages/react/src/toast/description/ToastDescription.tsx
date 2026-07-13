@@ -30,21 +30,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const children = childrenProp ?? toast.description;
 
-  const shouldRender = Boolean(children);
-
   const id = useId(idProp);
-
-  useIsoLayoutEffect(() => {
-    if (!shouldRender) {
-      return undefined;
-    }
-
-    setDescriptionId(id);
-
-    return () => {
-      setDescriptionId(undefined);
-    };
-  }, [shouldRender, id, setDescriptionId]);
 
   const state: ToastDescriptionState = {
     type: toast.type,
@@ -59,6 +45,22 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
       children,
     },
   });
+
+  const shouldRender =
+    React.isValidElement(element) &&
+    Boolean((element.props as { children?: React.ReactNode }).children);
+
+  useIsoLayoutEffect(() => {
+    if (!shouldRender) {
+      return undefined;
+    }
+
+    setDescriptionId(id);
+
+    return () => {
+      setDescriptionId(undefined);
+    };
+  }, [shouldRender, id, setDescriptionId]);
 
   if (!shouldRender) {
     return null;
