@@ -25,12 +25,12 @@
 
     @media (prefers-color-scheme: light) {
       box-shadow:
-        0 0 1px var(--blackA-4),
-        0 0.5px 1px var(--blackA-3),
-        0 1px 3px var(--blackA-1),
-        0 2px 4px -1px var(--blackA-1),
-        0 4px 12px -2px var(--blackA-1),
-        0 4px 16px -4px var(--blackA-1);
+        0 0 1px var(--gray-a4),
+        0 0.5px 1px var(--gray-a3),
+        0 1px 3px var(--gray-a1),
+        0 2px 4px -1px var(--gray-a1),
+        0 4px 12px -2px var(--gray-a1),
+        0 4px 16px -4px var(--gray-a1);
     }
 
     @media (prefers-color-scheme: dark) {

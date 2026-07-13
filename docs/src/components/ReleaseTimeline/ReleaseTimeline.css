@@ -78,7 +78,7 @@
       height: var(--dot-size);
       border-radius: 50%;
       background: var(--color-content);
-      border: 1px solid var(--blackA-3);
+      border: 1px solid var(--gray-a3);
       box-shadow: 0 0 0 4px var(--color-content);
 
       @media (prefers-color-scheme: dark) {
@@ -141,8 +141,8 @@
     inset: 1px;
     border-radius: calc(var(--radius-8) - 1px);
     box-shadow:
-      0 1px 3px 0 var(--blackA-2),
-      0 1px 2px -1px var(--blackA-2);
+      0 1px 3px 0 var(--gray-a2),
+      0 1px 2px -1px var(--gray-a2);
     z-index: -1;
   }
 

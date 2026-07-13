@@ -319,7 +319,7 @@
 
   @media (prefers-color-scheme: dark) {
     .AdditionalTypeBackLink {
-      color: var(--gray-p2);
+      color: var(--gray-p3);
     }
   }
 
@@ -361,7 +361,7 @@
 
   @media (prefers-color-scheme: dark) {
     .ReferenceSectionSubtext {
-      color: var(--gray-p2);
+      color: var(--gray-p3);
     }
   }
 

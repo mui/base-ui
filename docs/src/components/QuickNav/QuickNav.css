@@ -98,7 +98,7 @@
       /* Visible thumb width */
       width: var(--quick-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p3);
     }
   }
 

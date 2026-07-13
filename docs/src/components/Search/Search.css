@@ -24,7 +24,7 @@
       /* Visible thumb width */
       width: 0.25rem;
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p3);
     }
   }
 
@@ -181,15 +181,15 @@
     background: var(--color-popup);
     color: var(--gray-t3);
     /* Alpha outline stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
-    outline: 1px solid var(--blackA-2);
+    outline: 1px solid var(--gray-a2);
     box-shadow:
-      0 0.5px 1px var(--blackA-3),
-      0 1px 3px -1px var(--blackA-1),
-      0 2px 4px -1px var(--blackA-1),
-      0 4px 8px -2px var(--blackA-1),
-      0 12px 14px -4px var(--blackA-1),
-      0 24px 64px -8px var(--blackA-1),
-      0 40px 48px -32px var(--blackA-1);
+      0 0.5px 1px var(--gray-a3),
+      0 1px 3px -1px var(--gray-a1),
+      0 2px 4px -1px var(--gray-a1),
+      0 4px 8px -2px var(--gray-a1),
+      0 12px 14px -4px var(--gray-a1),
+      0 24px 64px -8px var(--gray-a1),
+      0 40px 48px -32px var(--gray-a1);
     transition:
       transform 150ms ease,
       opacity 150ms ease;
