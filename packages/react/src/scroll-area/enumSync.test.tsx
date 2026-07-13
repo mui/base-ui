@@ -10,12 +10,9 @@ import { ScrollAreaRootCssVars } from './root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './scrollbar/ScrollAreaScrollbarCssVars';
 import { ScrollAreaViewportCssVars } from './viewport/ScrollAreaViewportCssVars';
 
-// The parts inline these enums' string values at runtime (instead of referencing
-// the members) so the enum objects stay tree-shakeable — the win that motivated
-// the bundle-size pass. That splits the source of truth: the enums feed generated
-// public documentation while the literals drive behavior, and TypeScript no longer
-// links the two. These tests re-establish the link so a rename applied to only one
-// side fails CI. They import the enums but ship no production bytes.
+// The parts inline these enums' values instead of referencing the members, so
+// nothing links the docs enums to runtime behavior. These tests re-link them so a
+// rename to only one side fails CI. Test-only imports ship no production bytes.
 describe('ScrollArea docs enum / runtime sync', () => {
   const { render } = createRenderer();
 
