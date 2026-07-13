@@ -161,4 +161,47 @@ describe('<Toast.Title />', () => {
 
     expect(screen.getByText('0')).not.toBe(null);
   });
+
+  it('renders a numeric zero child', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title>{0}</Toast.Title>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('0')).not.toBe(null);
+  });
+
+  it('does not render an empty-array child', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title data-testid="title-render">{[]}</Toast.Title>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('title-render')).toBe(null);
+  });
+
+  it('does not render when a render function returns no element', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }} data-testid="root">
+            <Toast.Title data-testid="title-render" render={(() => null) as any} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByTestId('root')).not.toBe(null);
+    expect(screen.queryByTestId('title-render')).toBe(null);
+  });
 });

@@ -21,5 +21,7 @@ describe('isRenderableNode', () => {
     expect(isRenderableNode([])).toBe(false);
     expect(isRenderableNode([null, undefined, false])).toBe(false);
     expect(isRenderableNode([null, 0])).toBe(true);
+    expect(isRenderableNode([[null]])).toBe(false);
+    expect(isRenderableNode([[0]])).toBe(true);
   });
 });
