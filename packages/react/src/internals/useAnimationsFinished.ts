@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from '../utils/resolveRef';
-import { TransitionStatusDataAttributes } from './stateAttributesMapping';
 
 /**
  * Executes a function once all animations have finished on the provided element.
@@ -89,7 +88,7 @@ export function useAnimationsFinished(
       }
 
       if (waitForStartingStyleRemoved) {
-        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
+        const startingStyleAttribute = 'data-starting-style';
 
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame
         // to give "open" animations a chance to be registered.

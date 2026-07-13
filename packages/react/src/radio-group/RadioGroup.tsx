@@ -173,7 +173,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
-  const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
+  const ariaLabelledby = labelId ?? fieldsetContext?.legendId;
 
   const state: RadioGroupState = {
     ...fieldState,
@@ -184,7 +184,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const contextValue: RadioGroupContext<Value> = React.useMemo(
     () => ({
-      ...fieldState,
       checkedValue,
       disabled,
       form,
@@ -203,7 +202,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       disabled,
       form,
       validation,
-      fieldState,
       name,
       readOnly,
       registerControlRef,
