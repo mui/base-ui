@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { StoreInspector } from '@base-ui/utils/store';
-import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/detached-triggers-full/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/(components)/preview-card/demos/detached-triggers-full/css-modules/index.module.css';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './triggers.module.css';
 

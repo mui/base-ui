@@ -4,9 +4,9 @@ import { getGitHubDemoUrl } from './getGitHubDemoUrl';
 describe('getGitHubDemoUrl', () => {
   const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/v1.6.0';
   const unixUrl =
-    'file:///home/user/base-ui/docs/src/app/(docs)/react/components/accordion/demos/hero/index.ts';
+    'file:///home/user/base-ui/docs/src/app/(docs)/react/(components)/accordion/demos/hero/index.ts';
   const windowsUrl =
-    'file:///C:/Users/Dev/base-ui/docs/src/app/(docs)/react/components/accordion/demos/hero/index.ts';
+    'file:///C:/Users/Dev/base-ui/docs/src/app/(docs)/react/(components)/accordion/demos/hero/index.ts';
 
   beforeEach(() => {
     vi.stubEnv('SOURCE_CODE_REPO', 'https://github.com/mui/base-ui');
@@ -20,31 +20,31 @@ describe('getGitHubDemoUrl', () => {
 
   it('converts a Unix file URL to a GitHub directory URL', () => {
     expect(getGitHubDemoUrl(unixUrl)).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero`,
     );
   });
 
   it('converts a Windows file URL to a GitHub directory URL', () => {
     expect(getGitHubDemoUrl(windowsUrl)).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero`,
     );
   });
 
   it('appends the kebab-cased variant subdirectory for CssModules', () => {
     expect(getGitHubDemoUrl(unixUrl, 'CssModules')).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero/css-modules`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero/css-modules`,
     );
   });
 
   it('appends the variant subdirectory for Tailwind', () => {
     expect(getGitHubDemoUrl(unixUrl, 'Tailwind')).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero/tailwind`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero/tailwind`,
     );
   });
 
   it('does not append a subdirectory for the Default variant', () => {
     expect(getGitHubDemoUrl(unixUrl, 'Default')).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero`,
     );
   });
 
@@ -127,7 +127,7 @@ describe('getGitHubDemoUrl', () => {
   it('handles encoded URI components', () => {
     const encoded = unixUrl.replace(/\(/g, '%28').replace(/\)/g, '%29');
     expect(getGitHubDemoUrl(encoded)).toBe(
-      `${GITHUB_BASE}/docs/src/app/(docs)/react/components/accordion/demos/hero`,
+      `${GITHUB_BASE}/docs/src/app/(docs)/react/(components)/accordion/demos/hero`,
     );
   });
 });

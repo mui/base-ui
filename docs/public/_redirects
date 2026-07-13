@@ -11,7 +11,7 @@
 
 # For links that we can't edit later on, for example hosted in the code published on npm
 /r/discord https://discord.com/invite/g6C3hUtuxz 302
-/r/invalid-render-prop /react/handbook/composition 302
+/r/invalid-render-prop /react/composition 302
 
 # Legacy redirection
 # Added in chronological order (the last line is the most recent one)
@@ -24,3 +24,15 @@
 # At the time of adding this rule, there was requirement of at max only a single args[] param
 /production-error/:code args\[\]=:args /production-error?code=:code&args[]=:args 301
 /production-error/:code /production-error?code=:code 301
+
+# 2026
+
+# React docs URL migration
+/react/overview /react/quick-start 301
+/react/handbook /react/styling 301
+/react/components /react/accordion 301
+/react/utils /react/csp-provider 301
+/react/overview/* /react/:splat 301
+/react/handbook/* /react/:splat 301
+/react/components/* /react/:splat 301
+/react/utils/* /react/:splat 301

@@ -5,6 +5,12 @@ import sharedConfig from '../vitest.shared.mts';
 export default mergeConfig(
   sharedConfig,
   defineProject({
+    // Next.js preserves JSX for its compiler, but Vitest executes docs TSX components directly.
+    oxc: {
+      jsx: {
+        runtime: 'automatic',
+      },
+    },
     test: {
       environment: 'node',
       browser: {
