@@ -18,7 +18,7 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
 }
 
 export function PropertiesReferenceAccordion({ data, name: partName, ...props }: Props) {
-  const captionId = `${partName}-properties-caption`;
+  const captionId = React.useId();
 
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>
