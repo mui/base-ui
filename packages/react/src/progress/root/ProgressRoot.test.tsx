@@ -55,6 +55,23 @@ describe('<Progress.Root />', () => {
     });
   });
 
+  describe('data attributes', () => {
+    it('sets the status data attribute', async () => {
+      const { setProps } = await render(<TestProgress value={null} />);
+      const progressbar = screen.getByRole('progressbar');
+
+      expect(progressbar).toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+
+      await setProps({ value: 50 });
+      expect(progressbar).toHaveAttribute('data-progressing');
+
+      await setProps({ value: 100 });
+      expect(progressbar).toHaveAttribute('data-complete');
+    });
+  });
+
   describe('range', () => {
     it('normalizes the formatted value, aria-valuetext, and indicator within a custom range', async () => {
       const expected = (0.5).toLocaleString(undefined, { style: 'percent' });

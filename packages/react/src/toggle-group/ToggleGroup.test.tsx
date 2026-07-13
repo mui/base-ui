@@ -223,6 +223,23 @@ describe('<ToggleGroup />', () => {
   });
 
   describe('prop: multiple', () => {
+    it('sets data-multiple only when true', async () => {
+      const { setProps } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+        </ToggleGroup>,
+      );
+
+      const group = screen.getByRole('group');
+      expect(group).not.toHaveAttribute('data-multiple');
+
+      await setProps({ multiple: true });
+      expect(group).toHaveAttribute('data-multiple');
+
+      await setProps({ multiple: false });
+      expect(group).not.toHaveAttribute('data-multiple');
+    });
+
     it('multiple items can be pressed when true', async () => {
       const { user } = await render(
         <ToggleGroup multiple defaultValue={['one']}>

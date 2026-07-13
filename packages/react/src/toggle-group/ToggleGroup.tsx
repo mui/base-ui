@@ -9,18 +9,8 @@ import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
-import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
-
-const stateAttributesMapping = {
-  multiple(value: boolean) {
-    if (value) {
-      return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
-    }
-    return null;
-  },
-};
 
 /**
  * Provides a shared state to a series of toggle buttons.
@@ -48,10 +38,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   const toolbarContext = useToolbarRootContext(true);
   const toolbarGroupContext = useToolbarGroupContext();
 
-  const isValueInitialized = React.useMemo(
-    () => valueProp !== undefined || defaultValueProp !== undefined,
-    [valueProp, defaultValueProp],
-  );
+  const isValueInitialized = valueProp !== undefined || defaultValueProp !== undefined;
 
   const disabled =
     (toolbarContext?.disabled ?? false) || (toolbarGroupContext?.disabled ?? false) || disabledProp;
@@ -96,12 +83,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
       disabled,
-      orientation,
       setGroupValue,
       value: groupValue,
       isValueInitialized,
     }),
-    [disabled, orientation, setGroupValue, groupValue, isValueInitialized],
+    [disabled, setGroupValue, groupValue, isValueInitialized],
   );
 
   const defaultProps: HTMLProps = {
@@ -113,7 +99,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    stateAttributesMapping,
   });
 
   return (
@@ -128,7 +113,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
-          stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
           enableHomeAndEndKeys
           orientation={orientation}
