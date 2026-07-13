@@ -56,7 +56,7 @@ describe('<Progress.Root />', () => {
   });
 
   describe('data attributes', () => {
-    it('sets the status data attribute', async () => {
+    it('keeps exactly one status data attribute through the state cycle', async () => {
       const { setProps } = await render(<TestProgress value={null} />);
       const progressbar = screen.getByRole('progressbar');
 
@@ -65,10 +65,19 @@ describe('<Progress.Root />', () => {
       expect(progressbar).not.toHaveAttribute('data-complete');
 
       await setProps({ value: 50 });
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
       expect(progressbar).toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
 
       await setProps({ value: 100 });
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
       expect(progressbar).toHaveAttribute('data-complete');
+
+      await setProps({ value: null });
+      expect(progressbar).toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
     });
   });
 
