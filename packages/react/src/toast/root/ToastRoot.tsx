@@ -22,7 +22,7 @@ import {
 } from '../../internals/constants';
 import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
 
-const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
+export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
@@ -482,7 +482,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, rootRef],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: toastRootStateAttributesMapping,
     props: [defaultProps, elementProps],
   });
 

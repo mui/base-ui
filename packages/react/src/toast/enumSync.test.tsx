@@ -4,7 +4,9 @@ import { Toast } from '@base-ui/react/toast';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { ToastRootCssVars } from './root/ToastRootCssVars';
+import { ToastRootDataAttributes } from './root/ToastRootDataAttributes';
 import { ToastViewportCssVars } from './viewport/ToastViewportCssVars';
+import { toastRootStateAttributesMapping } from './root/ToastRoot';
 import { List, Button } from './utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -18,6 +20,11 @@ const toast: Toast.Root.ToastObject = {
 // no production bytes.
 describe('Toast enum sync', () => {
   const { render } = createRenderer();
+
+  it('names the swipe direction attribute per ToastRootDataAttributes', () => {
+    const emitted = toastRootStateAttributesMapping.swipeDirection!('left');
+    expect(Object.keys(emitted!)[0]).toBe(ToastRootDataAttributes.swipeDirection);
+  });
 
   it('names the root CSS variables per ToastRootCssVars', async () => {
     const { user } = await render(
