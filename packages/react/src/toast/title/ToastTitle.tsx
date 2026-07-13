@@ -47,8 +47,8 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   });
 
   const shouldRender =
-    React.isValidElement(element) &&
-    isRenderableNode((element.props as { children?: React.ReactNode }).children);
+    React.isValidElement<{ children?: React.ReactNode }>(element) &&
+    isRenderableNode(element.props.children);
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
