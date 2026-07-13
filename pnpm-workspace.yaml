@@ -18,6 +18,10 @@ blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
+  - '@floating-ui/core@1.8.0'
+  - '@floating-ui/dom@1.8.0'
+  - '@floating-ui/react-dom@2.1.9'
+  - '@floating-ui/utils@0.2.12'
   - '@mui/internal-*'
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
