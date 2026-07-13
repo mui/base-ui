@@ -271,7 +271,7 @@ async function generateLlmsTxt() {
           pages: mapOrderToMetadata(componentsOrder, metadataBySection.components),
         },
         {
-          title: 'Utilities',
+          title: 'Utils',
           pages: mapOrderToMetadata(utilsOrder, metadataBySection.utils),
         },
       ],

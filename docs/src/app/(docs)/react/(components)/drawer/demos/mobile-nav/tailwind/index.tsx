@@ -3,51 +3,80 @@ import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 
-const ITEMS = [
-  { href: '/react/quick-start', label: 'Overview' },
-  { href: '/react', label: 'Components' },
-  { href: '/react', label: 'Utilities' },
-  { href: '/react/releases', label: 'Releases' },
-] as const;
-
-const LONG_LIST = [
-  { href: '/react/accordion', label: 'Accordion' },
-  { href: '/react/alert-dialog', label: 'Alert Dialog' },
-  { href: '/react/autocomplete', label: 'Autocomplete' },
-  { href: '/react/avatar', label: 'Avatar' },
-  { href: '/react/button', label: 'Button' },
-  { href: '/react/checkbox', label: 'Checkbox' },
-  { href: '/react/checkbox-group', label: 'Checkbox Group' },
-  { href: '/react/collapsible', label: 'Collapsible' },
-  { href: '/react/combobox', label: 'Combobox' },
-  { href: '/react/context-menu', label: 'Context Menu' },
-  { href: '/react/dialog', label: 'Dialog' },
-  { href: '/react/drawer', label: 'Drawer' },
-  { href: '/react/field', label: 'Field' },
-  { href: '/react/fieldset', label: 'Fieldset' },
-  { href: '/react/form', label: 'Form' },
-  { href: '/react/input', label: 'Input' },
-  { href: '/react/menu', label: 'Menu' },
-  { href: '/react/menubar', label: 'Menubar' },
-  { href: '/react/meter', label: 'Meter' },
-  { href: '/react/navigation-menu', label: 'Navigation Menu' },
-  { href: '/react/number-field', label: 'Number Field' },
-  { href: '/react/otp-field', label: 'OTP Field' },
-  { href: '/react/popover', label: 'Popover' },
-  { href: '/react/preview-card', label: 'Preview Card' },
-  { href: '/react/progress', label: 'Progress' },
-  { href: '/react/radio', label: 'Radio' },
-  { href: '/react/scroll-area', label: 'Scroll Area' },
-  { href: '/react/select', label: 'Select' },
-  { href: '/react/separator', label: 'Separator' },
-  { href: '/react/slider', label: 'Slider' },
-  { href: '/react/switch', label: 'Switch' },
-  { href: '/react/tabs', label: 'Tabs' },
-  { href: '/react/toast', label: 'Toast' },
-  { href: '/react/toggle', label: 'Toggle' },
-  { href: '/react/toggle-group', label: 'Toggle Group' },
-  { href: '/react/toolbar', label: 'Toolbar' },
-  { href: '/react/tooltip', label: 'Tooltip' },
+const SECTIONS = [
+  {
+    label: 'Overview',
+    links: [
+      { href: '/react/quick-start', label: 'Quick start' },
+      { href: '/react/accessibility', label: 'Accessibility' },
+      { href: '/react/releases', label: 'Releases' },
+      { href: '/react/community', label: 'Community' },
+      { href: '/react/about', label: 'About' },
+    ],
+  },
+  {
+    label: 'Handbook',
+    links: [
+      { href: '/react/styling', label: 'Styling' },
+      { href: '/react/animation', label: 'Animation' },
+      { href: '/react/composition', label: 'Composition' },
+      { href: '/react/customization', label: 'Customization' },
+      { href: '/react/forms', label: 'Forms' },
+      { href: '/react/typescript', label: 'TypeScript' },
+      { href: '/llms.txt', label: 'llms.txt' },
+    ],
+  },
+  {
+    label: 'Components',
+    links: [
+      { href: '/react/accordion', label: 'Accordion' },
+      { href: '/react/alert-dialog', label: 'Alert Dialog' },
+      { href: '/react/autocomplete', label: 'Autocomplete' },
+      { href: '/react/avatar', label: 'Avatar' },
+      { href: '/react/button', label: 'Button' },
+      { href: '/react/checkbox', label: 'Checkbox' },
+      { href: '/react/checkbox-group', label: 'Checkbox Group' },
+      { href: '/react/collapsible', label: 'Collapsible' },
+      { href: '/react/combobox', label: 'Combobox' },
+      { href: '/react/context-menu', label: 'Context Menu' },
+      { href: '/react/dialog', label: 'Dialog' },
+      { href: '/react/drawer', label: 'Drawer' },
+      { href: '/react/field', label: 'Field' },
+      { href: '/react/fieldset', label: 'Fieldset' },
+      { href: '/react/form', label: 'Form' },
+      { href: '/react/input', label: 'Input' },
+      { href: '/react/menu', label: 'Menu' },
+      { href: '/react/menubar', label: 'Menubar' },
+      { href: '/react/meter', label: 'Meter' },
+      { href: '/react/navigation-menu', label: 'Navigation Menu' },
+      { href: '/react/number-field', label: 'Number Field' },
+      { href: '/react/otp-field', label: 'OTP Field' },
+      { href: '/react/popover', label: 'Popover' },
+      { href: '/react/preview-card', label: 'Preview Card' },
+      { href: '/react/progress', label: 'Progress' },
+      { href: '/react/radio', label: 'Radio' },
+      { href: '/react/scroll-area', label: 'Scroll Area' },
+      { href: '/react/select', label: 'Select' },
+      { href: '/react/separator', label: 'Separator' },
+      { href: '/react/slider', label: 'Slider' },
+      { href: '/react/switch', label: 'Switch' },
+      { href: '/react/tabs', label: 'Tabs' },
+      { href: '/react/toast', label: 'Toast' },
+      { href: '/react/toggle', label: 'Toggle' },
+      { href: '/react/toggle-group', label: 'Toggle Group' },
+      { href: '/react/toolbar', label: 'Toolbar' },
+      { href: '/react/tooltip', label: 'Tooltip' },
+    ],
+  },
+  {
+    label: 'Utils',
+    links: [
+      { href: '/react/csp-provider', label: 'CSP Provider' },
+      { href: '/react/direction-provider', label: 'Direction Provider' },
+      { href: '/react/merge-props', label: 'mergeProps' },
+      { href: '/react/use-render', label: 'useRender' },
+    ],
+  },
 ] as const;
 
 export default function ExampleDrawerMobileNav() {
@@ -87,35 +116,26 @@ export default function ExampleDrawerMobileNav() {
                         Scroll the long list. Flick down from the top to dismiss.
                       </Drawer.Description>
 
-                      <div className="pb-8">
-                        <ul className="grid list-none gap-1 p-0 m-0">
-                          {ITEMS.map((item) => (
-                            <li key={item.label} className="flex">
-                              <a
-                                className="flex h-12 w-full items-center border border-neutral-950 bg-white px-4 text-sm text-neutral-950 no-underline hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-                                href={item.href}
-                              >
-                                {item.label}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-
-                        <ul
-                          aria-label="Component links"
-                          className="mt-6 grid list-none gap-1 p-0 m-0"
-                        >
-                          {LONG_LIST.map((item) => (
-                            <li key={item.label} className="flex">
-                              <a
-                                className="flex h-12 w-full items-center border border-neutral-950 bg-white px-4 text-sm text-neutral-950 no-underline hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-                                href={item.href}
-                              >
-                                {item.label}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="grid gap-6 pb-8">
+                        {SECTIONS.map((section) => (
+                          <section key={section.label}>
+                            <h3 className="m-0 mb-2 text-sm leading-5 font-bold">
+                              {section.label}
+                            </h3>
+                            <ul className="grid list-none gap-1 p-0 m-0">
+                              {section.links.map((item) => (
+                                <li key={item.href} className="flex">
+                                  <a
+                                    className="flex h-12 w-full items-center border border-neutral-950 bg-white px-4 text-sm text-neutral-950 no-underline hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                                    href={item.href}
+                                  >
+                                    {item.label}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
                       </div>
                     </Drawer.Content>
                   </nav>
