@@ -952,7 +952,6 @@ describe('<Combobox.Root />', () => {
           const [, force] = React.useReducer((x) => x + 1, 0);
           // Recreate the controlled value object identity on each render (same id).
           const value = { id: 2, label: 'banana' };
-          (App as any).force = force;
 
           return (
             <div>
@@ -975,7 +974,7 @@ describe('<Combobox.Root />', () => {
                   </Combobox.Positioner>
                 </Combobox.Portal>
               </Combobox.Root>
-              <button type="button" data-testid="force" onClick={() => (App as any).force()}>
+              <button type="button" data-testid="force" onClick={force}>
                 force
               </button>
             </div>
