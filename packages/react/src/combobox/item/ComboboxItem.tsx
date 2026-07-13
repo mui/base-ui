@@ -158,7 +158,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // as it should be a `<div>` instead.
     tabIndex: undefined,
     onPointerDownCapture(event) {
-      store.state.pointerDownItemRef.current = event.currentTarget;
+      // The compat `mouseup` only fires for the primary pointer, so a non-primary
+      // touch must not overwrite the shared ref — a mismatch would make the primary
+      // pointer's release read as a drag-select and commit a second time after `click`.
+      if (event.isPrimary) {
+        store.state.pointerDownItemRef.current = event.currentTarget;
+      }
       event.preventDefault();
     },
     onMouseDown(event) {
