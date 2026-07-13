@@ -66,6 +66,14 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     }
   }, [dirtyProp]);
 
+  // Disabling a focused control doesn't always fire a blur event, so the focused
+  // state must be cleared manually to avoid a lingering `data-focused` attribute.
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled]);
+
   const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
   const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
     registeredFieldIdRef.current = id;
