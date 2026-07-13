@@ -170,7 +170,7 @@ export function useAnchorPositioningWithHook(
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
   const shiftCrossAxis = shiftFlags === 1 || shiftFlags === 3;
-  const shiftLayout = shiftFlags >= 2;
+  const shiftLayoutViewport = shiftFlags >= 2;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -300,46 +300,36 @@ export function useAnchorPositioningWithHook(
   const shiftMiddleware = shiftDisabled
     ? null
     : floatingShift(
-        (data) => {
-          const win = ownerWindow(data.elements.floating);
-          const html = ownerDocument(data.elements.floating).documentElement;
-          const useLayoutViewport =
-            shiftCrossAxis || (shiftLayout && (win.visualViewport?.scale ?? 1) !== 1);
-          return {
-            ...commonCollisionProps,
-            // Use the Layout Viewport to avoid shifting around when pinch-zooming.
-            // TODO: Floating UI should ideally have a `layoutViewport` string option
-            // (not just `viewport`) that accounts for `scrollbar-gutter`.
-            rootBoundary: useLayoutViewport
-              ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
-              : undefined,
-            mainAxis: collisionAvoidanceAlign !== 'none',
-            crossAxis: crossAxisShiftEnabled,
-            limiter:
-              sticky || shiftCrossAxis
-                ? undefined
-                : limitShift((limitData) => {
-                    if (!arrowRef.current) {
-                      return {};
-                    }
-                    const { width, height } = arrowRef.current.getBoundingClientRect();
-                    const sideAxis = getSideAxis(getSide(limitData.placement));
-                    const arrowSize = sideAxis === 'y' ? width : height;
-                    const offsetAmount =
-                      sideAxis === 'y'
-                        ? collisionPadding.left + collisionPadding.right
-                        : collisionPadding.top + collisionPadding.bottom;
-                    return {
-                      offset: arrowSize / 2 + offsetAmount / 2,
-                    };
-                  }),
-          };
+        {
+          ...commonCollisionProps,
+          // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+          rootBoundary: shiftLayoutViewport ? 'layoutViewport' : undefined,
+          mainAxis: collisionAvoidanceAlign !== 'none',
+          crossAxis: crossAxisShiftEnabled,
+          limiter:
+            sticky || shiftCrossAxis
+              ? undefined
+              : limitShift((limitData) => {
+                  if (!arrowRef.current) {
+                    return {};
+                  }
+                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const sideAxis = getSideAxis(getSide(limitData.placement));
+                  const arrowSize = sideAxis === 'y' ? width : height;
+                  const offsetAmount =
+                    sideAxis === 'y'
+                      ? collisionPadding.left + collisionPadding.right
+                      : collisionPadding.top + collisionPadding.bottom;
+                  return {
+                    offset: arrowSize / 2 + offsetAmount / 2,
+                  };
+                }),
         },
         [
           commonCollisionProps,
           sticky,
           shiftCrossAxis,
-          shiftLayout,
+          shiftLayoutViewport,
           collisionPadding,
           collisionAvoidanceAlign,
         ],
