@@ -17,6 +17,9 @@ import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
 
+// CSS variable names are inlined instead of read from `ScrollAreaViewportCssVars`
+// to keep that enum docs-only and tree-shakeable; `enumSync.test.tsx` guards the
+// literals here (and in the sibling parts) against drifting from the enum.
 const OVERFLOW_EDGE_VARS = [
   '--scroll-area-overflow-x-start',
   '--scroll-area-overflow-x-end',

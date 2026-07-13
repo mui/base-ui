@@ -76,14 +76,15 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
   const scrollPositionRef = React.useRef(DEFAULT_COORDS);
 
-  const startScrolling = (vertical: boolean) => {
+  function startScrolling(vertical: boolean) {
     const setScrolling = vertical ? setScrollingY : setScrollingX;
     const timeout = vertical ? scrollYTimeout : scrollXTimeout;
+
     setScrolling(true);
     timeout.start(SCROLL_TIMEOUT, () => {
       setScrolling(false);
     });
-  };
+  }
 
   const handleScroll = useStableCallback((scrollPosition: Coords) => {
     const offsetX = scrollPosition.x - scrollPositionRef.current.x;
