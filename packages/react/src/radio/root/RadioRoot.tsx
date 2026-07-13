@@ -138,8 +138,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
-    'aria-required': required || undefined,
-    'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
