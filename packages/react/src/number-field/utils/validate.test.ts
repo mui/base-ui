@@ -26,6 +26,7 @@ type ValidateOptions = {
   small: boolean;
   clamp: boolean;
 };
+
 const toValidatedNumber = (value: number | null, options: ValidateOptions) =>
   toValidatedNumberImpl(
     value,
