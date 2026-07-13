@@ -15,7 +15,7 @@ const SCROLLBAR_HEIGHT = 10;
 
 async function withMockResizeObserver(test: (notifyResizeObserver: () => void) => Promise<void>) {
   const originalResizeObserver = window.ResizeObserver;
-  let notifyResizeObserver: (() => void) | null = null;
+  const observers = new Set<ResizeObserverMock>();
 
   class ResizeObserverMock implements ResizeObserver {
     callback: ResizeObserverCallback;
@@ -25,14 +25,14 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
     }
 
     observe() {
-      notifyResizeObserver = () => {
-        this.callback([], this);
-      };
+      observers.add(this);
     }
 
     unobserve() {}
 
-    disconnect() {}
+    disconnect() {
+      observers.delete(this);
+    }
 
     takeRecords() {
       return [];
@@ -43,8 +43,8 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
 
   try {
     await test(() => {
-      expect(notifyResizeObserver).not.toBe(null);
-      notifyResizeObserver?.();
+      expect(observers.size).toBeGreaterThan(0);
+      observers.forEach((observer) => observer.callback([], observer));
     });
   } finally {
     window.ResizeObserver = originalResizeObserver;
@@ -254,60 +254,68 @@ describe('<ScrollArea.Root />', () => {
     });
 
     it('clears corner, overflow attributes, and metrics when content stops overflowing', async () => {
-      function App() {
-        const [contentSize, setContentSize] = React.useState(SCROLLABLE_CONTENT_SIZE);
+      await withMockResizeObserver(async (notifyResizeObserver) => {
+        function App() {
+          const [contentSize, setContentSize] = React.useState(SCROLLABLE_CONTENT_SIZE);
 
-        return (
-          <React.Fragment>
-            <button type="button" onClick={() => setContentSize(VIEWPORT_SIZE / 2)}>
-              shrink
-            </button>
-            <ScrollArea.Root
-              data-testid="root"
-              style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
-            >
-              <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-                <div style={{ width: contentSize, height: contentSize }} />
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar
-                orientation="vertical"
-                keepMounted
-                style={{ width: SCROLLBAR_WIDTH }}
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setContentSize(VIEWPORT_SIZE / 2)}>
+                shrink
+              </button>
+              <ScrollArea.Root
+                data-testid="root"
+                style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
               >
-                <ScrollArea.Thumb />
-              </ScrollArea.Scrollbar>
-              <ScrollArea.Scrollbar
-                orientation="horizontal"
-                keepMounted
-                style={{ height: SCROLLBAR_HEIGHT }}
-              >
-                <ScrollArea.Thumb />
-              </ScrollArea.Scrollbar>
-              <ScrollArea.Corner data-testid="corner" />
-            </ScrollArea.Root>
-          </React.Fragment>
-        );
-      }
+                <ScrollArea.Viewport
+                  data-testid="viewport"
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <div style={{ width: contentSize, height: contentSize }} />
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar
+                  orientation="vertical"
+                  keepMounted
+                  style={{ width: SCROLLBAR_WIDTH }}
+                >
+                  <ScrollArea.Thumb />
+                </ScrollArea.Scrollbar>
+                <ScrollArea.Scrollbar
+                  orientation="horizontal"
+                  keepMounted
+                  style={{ height: SCROLLBAR_HEIGHT }}
+                >
+                  <ScrollArea.Thumb />
+                </ScrollArea.Scrollbar>
+                <ScrollArea.Corner data-testid="corner" />
+              </ScrollArea.Root>
+            </React.Fragment>
+          );
+        }
 
-      const { user } = await render(<App />);
-      const root = screen.getByTestId('root');
-      const viewport = screen.getByTestId('viewport');
+        const { user } = await render(<App />);
+        const root = screen.getByTestId('root');
+        const viewport = screen.getByTestId('viewport');
 
-      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
-      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-y'));
-      expect(screen.getByTestId('corner')).toBeInTheDocument();
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).not.toBe('0px');
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).not.toBe('0px');
+        await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+        await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-y'));
+        expect(screen.getByTestId('corner')).toBeInTheDocument();
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).not.toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).not.toBe('0px');
 
-      await user.click(screen.getByRole('button', { name: 'shrink' }));
+        await user.click(screen.getByRole('button', { name: 'shrink' }));
+        await act(async () => {
+          notifyResizeObserver();
+        });
 
-      await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-x'));
-      await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-y'));
-      expect(screen.queryByTestId('corner')).toBe(null);
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-start')).toBe('0px');
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).toBe('0px');
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-start')).toBe('0px');
-      expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).toBe('0px');
+        await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-x'));
+        await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-y'));
+        expect(screen.queryByTestId('corner')).toBe(null);
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-start')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-start')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).toBe('0px');
+      });
     });
 
     it('should correctly set thumb height and width based on scrollable content', async () => {
