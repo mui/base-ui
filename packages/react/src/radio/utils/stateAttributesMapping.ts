@@ -5,8 +5,6 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 
 export const stateAttributesMapping = {
   checked(value): Record<string, string> {
-    // Literals inlined so `RadioRootDataAttributes` tree-shakes out of the
-    // bundle; `radio/enumSync.test.ts` guards against drift from the enum.
     if (value) {
       return { 'data-checked': '' };
     }

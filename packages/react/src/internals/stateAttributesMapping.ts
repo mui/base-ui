@@ -12,8 +12,6 @@ export enum TransitionStatusDataAttributes {
   endingStyle = 'data-ending-style',
 }
 
-// Literals inlined so `TransitionStatusDataAttributes` tree-shakes out of
-// consumer bundles; `stateAttributesMapping.test.ts` guards against drift.
 const STARTING_HOOK = { 'data-starting-style': '' };
 const ENDING_HOOK = { 'data-ending-style': '' };
 
