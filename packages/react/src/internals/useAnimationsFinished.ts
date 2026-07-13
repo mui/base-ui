@@ -88,6 +88,8 @@ export function useAnimationsFinished(
       }
 
       if (waitForStartingStyleRemoved) {
+        // Matches the attribute emitted by `transitionStatusMapping`; inlined so
+        // `TransitionStatusDataAttributes` tree-shakes. Pinned in that mapping's test.
         const startingStyleAttribute = 'data-starting-style';
 
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame

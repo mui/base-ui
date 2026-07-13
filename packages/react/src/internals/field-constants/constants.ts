@@ -35,6 +35,8 @@ export const fieldValidityMapping = {
     if (value === null) {
       return null;
     }
+    // Literals inlined so `FieldControlDataAttributes` tree-shakes out of every
+    // consumer bundle; `internals/stateAttributesMapping.test.ts` guards drift.
     if (value) {
       return { 'data-valid': '' };
     }

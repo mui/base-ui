@@ -12,6 +12,8 @@ export function getCheckboxStateAttributesMapping(
         return {};
       }
 
+      // Literals inlined so `CheckboxRootDataAttributes` tree-shakes out of the
+      // bundle; `checkbox/enumSync.test.ts` guards against drift from the enum.
       if (value) {
         return { 'data-checked': '' };
       }
