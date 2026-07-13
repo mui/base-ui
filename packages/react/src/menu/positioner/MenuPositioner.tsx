@@ -108,12 +108,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }
 
   const contextMenu = parent.type === 'context-menu';
-  const shiftCrossAxis = contextMenu && (collisionAvoidance as CollisionAvoidance).side !== 'flip';
-  let shift: 2 | 3 | undefined;
-
-  if (contextMenu) {
-    shift = shiftCrossAxis ? 3 : 2;
-  }
 
   const positioner = useAnchorPositioning({
     anchor,
@@ -132,7 +126,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     disableAnchorTracking,
     collisionAvoidance,
-    shift,
+    shift: contextMenu
+      ? {
+          crossAxis: (collisionAvoidance as CollisionAvoidance).side !== 'flip',
+          rootBoundary: 'layoutViewport',
+        }
+      : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
   });

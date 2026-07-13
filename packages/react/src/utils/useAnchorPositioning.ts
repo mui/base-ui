@@ -153,7 +153,7 @@ export function useAnchorPositioningWithHook(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shift: shiftFlags = 0,
+    shift,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -169,8 +169,8 @@ export function useAnchorPositioningWithHook(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
-  const shiftCrossAxis = shiftFlags === 1 || shiftFlags === 3;
-  const shiftLayoutViewport = shiftFlags >= 2;
+  const shiftCrossAxis = shift?.crossAxis ?? false;
+  const shiftRootBoundary = shift?.rootBoundary;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -303,7 +303,7 @@ export function useAnchorPositioningWithHook(
         {
           ...commonCollisionProps,
           // Use the Layout Viewport to avoid shifting around when pinch-zooming.
-          rootBoundary: shiftLayoutViewport ? 'layoutViewport' : undefined,
+          rootBoundary: shiftRootBoundary,
           mainAxis: collisionAvoidanceAlign !== 'none',
           crossAxis: crossAxisShiftEnabled,
           limiter:
@@ -329,7 +329,7 @@ export function useAnchorPositioningWithHook(
           commonCollisionProps,
           sticky,
           shiftCrossAxis,
-          shiftLayoutViewport,
+          shiftRootBoundary,
           collisionPadding,
           collisionAvoidanceAlign,
         ],
@@ -760,7 +760,12 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shift?: 0 | 1 | 2 | 3 | undefined;
+  shift?:
+    | {
+        crossAxis?: boolean | undefined;
+        rootBoundary?: 'layoutViewport' | undefined;
+      }
+    | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**

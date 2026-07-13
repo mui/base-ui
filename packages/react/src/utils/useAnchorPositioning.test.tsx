@@ -1,7 +1,11 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { useAnchorPositioning } from './useAnchorPositioning';
+import { useFloating } from '../floating-ui-react';
+import {
+  useAnchorPositioningWithHook,
+  type UseAnchorPositioningParameters,
+} from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
 
@@ -18,26 +22,29 @@ vi.mock('../floating-ui-react', async () => {
   };
 });
 
-function TestUseAnchorPositioning(props: { shift?: 0 | 1 | 2 | 3 }) {
+function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameters['shift'] }) {
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
-  const positioning = useAnchorPositioning({
-    anchor: anchorRef,
-    mounted: true,
-    positionMethod: 'absolute',
-    side: 'bottom',
-    align: 'center',
-    sideOffset: 0,
-    alignOffset: 0,
-    collisionBoundary: 'clipping-ancestors',
-    collisionPadding: 5,
-    sticky: false,
-    arrowPadding: 5,
-    disableAnchorTracking: false,
-    keepMounted: false,
-    collisionAvoidance: { fallbackAxisSide: 'none' },
-    shift: props.shift,
-  });
+  const positioning = useAnchorPositioningWithHook(
+    {
+      anchor: anchorRef,
+      mounted: true,
+      positionMethod: 'absolute',
+      side: 'bottom',
+      align: 'center',
+      sideOffset: 0,
+      alignOffset: 0,
+      collisionBoundary: 'clipping-ancestors',
+      collisionPadding: 5,
+      sticky: false,
+      arrowPadding: 5,
+      disableAnchorTracking: false,
+      keepMounted: false,
+      collisionAvoidance: { fallbackAxisSide: 'none' },
+      shift: props.shift,
+    },
+    useFloating,
+  );
 
   return (
     <React.Fragment>
@@ -60,12 +67,13 @@ describe('useAnchorPositioning', () => {
     expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe(undefined);
   });
 
-  it.each([2, 3] as const)(
-    'uses the layout viewport for shift when the shift flags are %s',
-    async (shift) => {
-      await render(<TestUseAnchorPositioning shift={shift} />);
+  it.each([
+    { shift: { rootBoundary: 'layoutViewport' } as const, crossAxis: false },
+    { shift: { crossAxis: true, rootBoundary: 'layoutViewport' } as const, crossAxis: true },
+  ])('uses the configured shift options', async ({ shift, crossAxis }) => {
+    await render(<TestUseAnchorPositioning shift={shift} />);
 
-      expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe('layoutViewport');
-    },
-  );
+    expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe('layoutViewport');
+    expect(shiftSpy.mock.calls[0]?.[0].crossAxis).toBe(crossAxis);
+  });
 });
