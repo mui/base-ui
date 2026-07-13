@@ -17,7 +17,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
   const controlIdForEffect = implicit ? controlId : undefined;
 
-  const controlSourceRef = useRefWithInit(() => Symbol('labelable-control'));
+  const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
   const hadExplicitIdRef = React.useRef(id != null);
 

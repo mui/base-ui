@@ -23,7 +23,6 @@ export interface ScrollAreaRootContext {
   scrollingY: boolean;
   setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
-  rootRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
   scrollbarXRef: React.RefObject<HTMLDivElement | null>;

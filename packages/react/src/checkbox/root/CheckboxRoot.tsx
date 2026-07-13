@@ -9,7 +9,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
-import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -127,7 +127,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const defaultGroupValue = groupContext?.defaultValue;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const controlSourceRef = useRefWithInit(() => Symbol('checkbox-control'));
+  const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -303,7 +303,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const stateAttributesMapping = useStateAttributesMapping(state);
+  const stateAttributesMapping = getCheckboxStateAttributesMapping(state);
 
   const element = useRenderElement('span', componentProps, {
     state,

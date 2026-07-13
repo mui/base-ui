@@ -62,11 +62,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     touched = false,
     validation,
     name,
+    setCheckedValue = NOOP,
+    setTouched = NOOP,
+    registerControlRef = NOOP,
+    registerInputRef = NOOP,
   } = groupContext ?? {};
-  const setCheckedValue = groupContext?.setCheckedValue ?? NOOP;
-  const setTouched = groupContext?.setTouched ?? NOOP;
-  const registerControlRef = groupContext?.registerControlRef ?? NOOP;
-  const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
     setTouched: setFieldTouched,

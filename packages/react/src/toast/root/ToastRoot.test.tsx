@@ -86,6 +86,66 @@ describe('<Toast.Root />', () => {
     },
   }));
 
+  it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
+    function App() {
+      const [mode, setMode] = React.useState<'fallback' | 'explicit' | 'none' | 'restored'>(
+        'fallback',
+      );
+      const showLabels = mode !== 'none';
+      const explicit = mode === 'explicit';
+
+      return (
+        <Toast.Provider>
+          <button type="button" onClick={() => setMode('explicit')}>
+            explicit
+          </button>
+          <button type="button" onClick={() => setMode('none')}>
+            none
+          </button>
+          <button type="button" onClick={() => setMode('restored')}>
+            restore
+          </button>
+          <Toast.Viewport>
+            <Toast.Root toast={{ ...toast, description: 'Toast description' }} data-testid="root">
+              {showLabels && (
+                <React.Fragment>
+                  <Toast.Title data-testid="title">
+                    {explicit ? 'Explicit title' : undefined}
+                  </Toast.Title>
+                  <Toast.Description data-testid="description">
+                    {explicit ? 'Explicit description' : undefined}
+                  </Toast.Description>
+                </React.Fragment>
+              )}
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const root = screen.getByTestId('root');
+
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+
+    await user.click(screen.getByRole('button', { name: 'explicit' }));
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+    expect(screen.getByTestId('title')).toHaveTextContent('Explicit title');
+    expect(screen.getByTestId('description')).toHaveTextContent('Explicit description');
+
+    await user.click(screen.getByRole('button', { name: 'none' }));
+    expect(root).not.toHaveAttribute('aria-labelledby');
+    expect(root).not.toHaveAttribute('aria-describedby');
+
+    await user.click(screen.getByRole('button', { name: 'restore' }));
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+    expect(screen.getByTestId('title')).toHaveTextContent('Toast title');
+    expect(screen.getByTestId('description')).toHaveTextContent('Toast description');
+  });
+
   it.skipIf(isJSDOM)('recalculates height when content mutates', async () => {
     function ToastList() {
       return Toast.useToastManager().toasts.map((toastItem) => (
@@ -232,6 +292,58 @@ describe('<Toast.Root />', () => {
         </Toast.Root>
       ));
     }
+
+    it.each([
+      ['left', -60, 0],
+      ['right', 60, 0],
+      ['up', 0, -60],
+      ['down', 0, 60],
+    ] as const)('dismisses with a real %s pointer swipe', async (direction, deltaX, deltaY) => {
+      const { user } = await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={direction} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add toast' }));
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastElement, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      const rect = toastElement.getBoundingClientRect();
+      const start = {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+      };
+
+      await user.pointer([
+        { target: toastElement, coords: start, keys: '[TouchA>]' },
+        {
+          target: toastElement,
+          pointerName: 'TouchA',
+          coords: {
+            clientX: start.clientX + Math.sign(deltaX),
+            clientY: start.clientY + Math.sign(deltaY),
+          },
+        },
+        {
+          target: toastElement,
+          pointerName: 'TouchA',
+          coords: { clientX: start.clientX + deltaX, clientY: start.clientY + deltaY },
+        },
+        { keys: '[/TouchA]' },
+      ]);
+
+      await waitFor(() => expect(screen.queryByTestId('toast-root')).toBe(null));
+    });
 
     it('closes toast when swiping in the specified direction beyond threshold', async () => {
       await render(
