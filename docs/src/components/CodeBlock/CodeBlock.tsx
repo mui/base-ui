@@ -148,6 +148,6 @@ export function Pre(props: React.ComponentProps<'pre'>) {
  * this only supplies the inline wrapper and code styling; horizontal overflow
  * is handled by the enclosing `Accordion.Scrollable`.
  */
-export function TypeInline({ children }: { children?: React.ReactNode }) {
-  return <span className="Code TableCode">{children}</span>;
+export function TypeInline({ className, ...props }: React.ComponentProps<'span'>) {
+  return <span {...props} className={clsx('Code TableCode', className)} />;
 }
