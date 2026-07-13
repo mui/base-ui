@@ -4,6 +4,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { isRenderableNode } from '../utils/isRenderableNode';
 
 /**
  * Performs an action when clicked.
@@ -51,8 +52,8 @@ export const ToastAction = React.forwardRef(function ToastAction(
   });
 
   const shouldRender =
-    React.isValidElement(element) &&
-    Boolean((element.props as { children?: React.ReactNode }).children);
+    React.isValidElement<{ children?: React.ReactNode }>(element) &&
+    isRenderableNode(element.props.children);
 
   if (!shouldRender) {
     return null;

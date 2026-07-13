@@ -126,4 +126,18 @@ describe('<Toast.Action />', () => {
 
     expect(screen.queryByTestId('action-render')).toBe(null);
   });
+
+  it('renders a numeric render prop child such as 0', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action render={<button type="button">{0}</button>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('0')).not.toBe(null);
+  });
 });
