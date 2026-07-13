@@ -375,6 +375,56 @@ describe('<Combobox.Trigger />', () => {
       expect(handleValueChange.mock.calls[0][0]).toBe('beta');
     });
 
+    it.skipIf(isJSDOM)(
+      'does not double-commit when a non-primary touch lands on another item',
+      async () => {
+        const handleValueChange = vi.fn();
+
+        await render(
+          <Combobox.Root onValueChange={handleValueChange}>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                    <Combobox.Item value="beta">Beta</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(trigger, { button: 0 });
+
+        await screen.findByRole('listbox');
+        const alpha = await screen.findByRole('option', { name: 'Alpha' });
+        const beta = await screen.findByRole('option', { name: 'Beta' });
+
+        // Highlight Alpha so a stray drag-select would be able to commit it.
+        fireEvent.mouseMove(alpha, { pointerType: 'mouse' });
+        await waitFor(() => expect(alpha).toHaveAttribute('data-highlighted'));
+
+        // Primary touch presses Alpha; a second, non-primary touch lands on Beta.
+        // Without the `isPrimary` guard the shared ref would flip to Beta, making
+        // Alpha's release read as a drag-select and commit once on `mouseup` and
+        // again on the following `click`.
+        fireEvent.pointerDown(alpha, { pointerType: 'touch', isPrimary: true, button: 0 });
+        fireEvent.pointerDown(beta, { pointerType: 'touch', isPrimary: false, button: 0 });
+        fireEvent.mouseUp(alpha, { button: 0 });
+        fireEvent.click(alpha, { button: 0 });
+
+        await waitFor(() => {
+          expect(handleValueChange.mock.calls.length).toBe(1);
+        });
+        expect(handleValueChange.mock.calls[0][0]).toBe('alpha');
+      },
+    );
+
     it('does not commit selection if the pointer never hovers the item', async () => {
       const handleValueChange = vi.fn();
 

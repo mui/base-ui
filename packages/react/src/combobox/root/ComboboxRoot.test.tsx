@@ -906,6 +906,36 @@ describe('<Combobox.Root />', () => {
         expect(input).not.toHaveAttribute('aria-activedescendant');
       });
 
+      it('registers selectedIndex before opening with a keepMounted portal (no items prop)', async () => {
+        function App() {
+          return (
+            <Combobox.Root defaultValue="banana">
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <Combobox.Portal keepMounted>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                      <Combobox.Item value="cherry">cherry</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        await render(<App />);
+
+        // The portal mounts its children in a second commit, so the index is
+        // asserted by the mounted item itself while still closed.
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+      });
+
       it('does not highlight the previous item after the value changes while open (no items prop)', async () => {
         const onItemHighlighted = vi.fn();
 
