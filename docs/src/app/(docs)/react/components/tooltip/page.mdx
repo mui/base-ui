@@ -246,7 +246,7 @@ import { TypesTooltip } from './types';
 
 <TypesTooltip.Viewport />
 
-The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
+Use the `Viewport` when the popup's content changes while open and the change should be animated, whether the content switches between triggers or changes in place with `transitionKey`. For same-trigger content swaps, pass a stable key such as `transitionKey={view}` and update it when the view changes. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
 
 ## createHandle
 

@@ -8,8 +8,7 @@ import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopu
 
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content
- * changes based on the trigger, and switching between them is animated.
+ * Use this component when the popup's content changes while open and the change should be animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
@@ -18,7 +17,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   componentProps: PreviewCardViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, ...elementProps } = componentProps;
+  const { render, className, style, children, transitionKey, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const positioner = usePreviewCardPositionerContext();
@@ -29,6 +28,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     store,
     side: positioner.side,
     children,
+    transitionKey,
   });
 
   const state: PreviewCardViewportState = {
@@ -68,6 +68,11 @@ export interface PreviewCardViewportProps extends BaseUIComponentProps<
    * The content to render inside the transition container.
    */
   children?: React.ReactNode;
+  /**
+   * A key that identifies the current content. When it changes, the viewport animates to the new
+   * content and moves focus to the first tabbable element if focus was inside the previous content.
+   */
+  transitionKey?: React.Key | undefined;
 }
 
 export namespace PreviewCardViewport {

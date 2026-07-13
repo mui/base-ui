@@ -445,18 +445,18 @@ type MenuItemState = {
 ### Viewport
 
 A viewport for displaying content transitions.
-This component is only required if one popup can be opened by multiple triggers, its content
-changes based on the trigger, and switching between them is animated.
+Use this component when the popup's content changes while open and the change should be animated.
 Renders a `<div>` element.
 
 **Viewport Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `React.ReactNode`                                                                           | -       | The content to render inside the transition container.                                                                                                                                        |
-| className | `string \| ((state: Menu.Viewport.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.Viewport.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.Viewport.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                                        | Default | Description                                                                                                                                                                                      |
+| :------------ | :------------------------------------------------------------------------------------------ | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| transitionKey | `React.Key`                                                                                 | -       | A key that identifies the current content. When it changes, the viewport animates to the new&#xA;content and moves focus to the first tabbable element if focus was inside the previous content. |
+| children      | `React.ReactNode`                                                                           | -       | The content to render inside the transition container.                                                                                                                                           |
+| className     | `string \| ((state: Menu.Viewport.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                         |
+| style         | `React.CSSProperties \| ((state: Menu.Viewport.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                      |
+| render        | `ReactElement \| ((props: HTMLProps, state: Menu.Viewport.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.    |
 
 **Viewport Data Attributes:**
 

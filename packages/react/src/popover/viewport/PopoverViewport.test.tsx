@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Popover.Viewport />', () => {
@@ -91,6 +91,288 @@ describe('<Popover.Viewport />', () => {
       expect(secondContainer).not.toBe(null);
       expect(secondContainer).not.toBe(firstContainer);
     });
+  });
+
+  it('should remount the `current` container when the transition key changes', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<React.Key | undefined>('initial');
+
+      return (
+        <Popover.Root open>
+          <button type="button" onClick={() => setView(undefined)}>
+            Change view
+          </button>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey={view}>
+                  <div data-testid="content">Content {String(view)}</div>
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const firstContainer = screen.getByTestId('content').closest('[data-current]');
+
+    await user.click(screen.getByRole('button', { name: 'Change view' }));
+
+    const secondContainer = document.querySelector('[data-current]');
+    expect(secondContainer).not.toBe(firstContainer);
+    expect(secondContainer).toHaveTextContent('Content undefined');
+  });
+
+  it('should remount the `current` container when the transition key changes from undefined to an empty string', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<React.Key | undefined>(undefined);
+
+      return (
+        <Popover.Root open>
+          <button type="button" onClick={() => setView('')}>
+            Change view
+          </button>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey={view}>
+                  <div data-testid="content">Content</div>
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const firstContainer = screen.getByTestId('content').closest('[data-current]');
+
+    await user.click(screen.getByRole('button', { name: 'Change view' }));
+
+    expect(document.querySelector('[data-current]')).not.toBe(firstContainer);
+  });
+
+  it('should not remount the `current` container when the transition key is unchanged', async () => {
+    function TestComponent() {
+      const [content, setContent] = React.useState('first');
+
+      return (
+        <Popover.Root open>
+          <button type="button" onClick={() => setContent('second')}>
+            Change content
+          </button>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey="unchanged">
+                  <div data-testid="content">{content}</div>
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const firstContainer = screen.getByTestId('content').closest('[data-current]');
+
+    await user.click(screen.getByRole('button', { name: 'Change content' }));
+
+    expect(screen.getByTestId('content').closest('[data-current]')).toBe(firstContainer);
+    expect(document.querySelector('[data-previous]')).toBe(null);
+  });
+
+  it('should hand focus to the first tabbable element when the transition key changes', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState(0);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey={view}>
+                  {view === 0 ? (
+                    <button type="button" onClick={() => setView(1)}>
+                      Change view
+                    </button>
+                  ) : (
+                    <React.Fragment>
+                      <button type="button">First control</button>
+                      <button type="button">Second control</button>
+                    </React.Fragment>
+                  )}
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const changeViewButton = screen.getByRole('button', { name: 'Change view' });
+    await act(async () => changeViewButton.focus());
+    await user.click(changeViewButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'First control' })).toHaveFocus();
+    });
+  });
+
+  it('should hand focus to the popup when the new content has no tabbable elements', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState(0);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">
+                <Popover.Viewport transitionKey={view}>
+                  {view === 0 ? (
+                    <button type="button" onClick={() => setView(1)}>
+                      Change view
+                    </button>
+                  ) : (
+                    <p>Next view</p>
+                  )}
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const changeViewButton = screen.getByRole('button', { name: 'Change view' });
+    await act(async () => changeViewButton.focus());
+    await user.click(changeViewButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+  });
+
+  it('should preserve focus placed by the new content', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState(0);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey={view}>
+                  {view === 0 ? (
+                    <button type="button" onClick={() => setView(1)}>
+                      Change view
+                    </button>
+                  ) : (
+                    <React.Fragment>
+                      <button type="button">First control</button>
+                      <input aria-label="Focused control" autoFocus />
+                    </React.Fragment>
+                  )}
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    await user.click(screen.getByRole('button', { name: 'Change view' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Focused control' })).toHaveFocus();
+    });
+  });
+
+  it('should not steal focus after focus moves from the popup to outside', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState(0);
+
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setView(2)}>
+            Change view externally
+          </button>
+          <Popover.Root open>
+            <Popover.Trigger>Trigger</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">
+                  <Popover.Viewport transitionKey={view}>
+                    {view === 0 ? (
+                      <button type="button" onClick={() => setView(1)}>
+                        Change view
+                      </button>
+                    ) : (
+                      <p>View {view}</p>
+                    )}
+                  </Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    await user.click(screen.getByRole('button', { name: 'Change view' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+
+    const externalButton = screen.getByRole('button', { name: 'Change view externally' });
+    await user.click(externalButton);
+
+    expect(externalButton).toHaveFocus();
+  });
+
+  it('should not move focus into the viewport when focus was outside before the transition', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState(0);
+
+      return (
+        <Popover.Root open>
+          <button type="button" onClick={() => setView(1)}>
+            Change view externally
+          </button>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Viewport transitionKey={view}>
+                  <button type="button">View {view}</button>
+                </Popover.Viewport>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const externalButton = screen.getByRole('button', { name: 'Change view externally' });
+
+    await user.click(externalButton);
+
+    expect(externalButton).toHaveFocus();
   });
 
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
@@ -201,6 +483,117 @@ describe('<Popover.Viewport />', () => {
       expect(screen.getByText('Content 1')).toBeVisible();
     });
 
+    it('should create morphing containers and resize when the transition key changes', async () => {
+      function TestComponent() {
+        const [view, setView] = React.useState(0);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous],
+                [data-transitioning] [data-current] {
+                  transition: opacity 0.3s linear;
+                }
+                [data-previous][data-ending-style],
+                [data-current][data-starting-style] {
+                  opacity: 0;
+                }
+              `}
+            </style>
+            <Popover.Root open>
+              <button type="button" onClick={() => setView(1)}>
+                Change view
+              </button>
+              <Popover.Trigger>Trigger</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <Popover.Viewport data-testid="viewport" transitionKey={view}>
+                      <div style={{ width: view === 0 ? 100 : 200 }}>Content {view}</div>
+                    </Popover.Viewport>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+      act(() => screen.getByRole('button', { name: 'Change view' }).click());
+
+      const previousContainer = document.querySelector('[data-previous]');
+      const currentContainer = document.querySelector('[data-current]');
+      expect(previousContainer).not.toBe(null);
+      expect(previousContainer).toHaveAttribute('inert');
+      expect(previousContainer).toHaveTextContent('Content 0');
+      expect(currentContainer).toHaveTextContent('Content 1');
+      expect(currentContainer).toHaveAttribute('data-starting-style');
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-activation-direction');
+      expect(screen.getByTestId('popup').style.getPropertyValue('--popup-width')).not.toBe('');
+
+      await waitFor(() => {
+        expect(previousContainer).toHaveAttribute('data-ending-style');
+      });
+    });
+
+    it('should capture the latest previous content during rapid transition key changes', async () => {
+      function TestComponent() {
+        const [view, setView] = React.useState(0);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous] {
+                  animation: fade-out 0.5s linear forwards;
+                }
+                [data-transitioning] [data-current] {
+                  animation: fade-in 0.5s linear forwards;
+                }
+                @keyframes fade-out {
+                  from { opacity: 1; }
+                  to { opacity: 0; }
+                }
+                @keyframes fade-in {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+              `}
+            </style>
+            <button type="button" onClick={() => setView(1)}>
+              View 1
+            </button>
+            <button type="button" onClick={() => setView(2)}>
+              View 2
+            </button>
+            <Popover.Root open>
+              <Popover.Trigger>Trigger</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <Popover.Viewport transitionKey={view}>Content {view}</Popover.Viewport>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByRole('button', { name: 'View 1' }));
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).toHaveTextContent('Content 0');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'View 2' }));
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).toHaveTextContent('Content 1');
+      });
+    });
+
     it('should create morphing containers after a kept-mounted popup closes and reopens', async () => {
       function TestComponent() {
         const [open, setOpen] = React.useState(false);
@@ -289,6 +682,104 @@ describe('<Popover.Viewport />', () => {
 
       expect(previousContainer!.textContent).toBe('Content 0');
       expect(screen.getByText('Content 1')).toBeVisible();
+    });
+
+    it('should clear an interrupted transition when a kept-mounted popup closes and reopens', async () => {
+      function TestComponent() {
+        const [open, setOpen] = React.useState(true);
+        const [view, setView] = React.useState(0);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous],
+                [data-transitioning] [data-current] {
+                  transition: opacity 0.5s linear;
+                }
+                [data-previous][data-ending-style],
+                [data-current][data-starting-style] {
+                  opacity: 0;
+                }
+              `}
+            </style>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+            <Popover.Root open={open} onOpenChange={setOpen}>
+              <Popover.Trigger>Trigger</Popover.Trigger>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <Popover.Viewport transitionKey={view}>
+                      {view === 0 ? (
+                        <button type="button" onClick={() => setView(1)}>
+                          Change view
+                        </button>
+                      ) : (
+                        <React.Fragment>Content {view}</React.Fragment>
+                      )}
+                    </Popover.Viewport>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByRole('button', { name: 'Change view' }));
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).not.toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toBeVisible();
+      });
+      expect(document.querySelector('[data-previous]')).toBe(null);
+      expect(document.querySelector('[data-transitioning]')).toBe(null);
+    });
+
+    it('should not morph when the transition key changes while closed', async () => {
+      function TestComponent() {
+        const [open, setOpen] = React.useState(false);
+        const [view, setView] = React.useState(0);
+
+        return (
+          <div>
+            <button type="button" onClick={() => setView(1)}>
+              Change view
+            </button>
+            <button type="button" onClick={() => setOpen(true)}>
+              Open
+            </button>
+            <Popover.Root open={open} onOpenChange={setOpen}>
+              <Popover.Trigger>Trigger</Popover.Trigger>
+              <Popover.Portal keepMounted>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <Popover.Viewport transitionKey={view}>Content {view}</Popover.Viewport>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByRole('button', { name: 'Change view' }));
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toBeVisible();
+      });
+      expect(document.querySelector('[data-previous]')).toBe(null);
+      expect(document.querySelector('[data-transitioning]')).toBe(null);
     });
 
     it('should handle rapid trigger changes', async () => {

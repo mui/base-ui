@@ -8,7 +8,9 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
+import { activeElement, contains } from '../internals/shadowDom';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
+import { tabbable } from '../floating-ui-react/utils/tabbable';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
@@ -53,6 +55,10 @@ export interface UsePopupViewportParameters {
    * Viewport children to render in the current container.
    */
   children?: React.ReactNode;
+  /**
+   * A key that identifies the current content and triggers a transition when it changes.
+   */
+  transitionKey?: React.Key | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -71,7 +77,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children } = parameters;
+  const { store, side, children, transitionKey } = parameters;
 
   const direction = useDirection();
 
@@ -86,7 +92,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
   // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
   // The key bumps immediately on trigger switches, then again if the payload arrives on a later render.
-  const currentContentKey = usePopupContentKey(activeTriggerId, payload);
+  // `transitionKey` is appended directly since it always changes in the same render as its content;
+  // it is only appended when present so that an empty string remains distinct from no key at all.
+  const contentKey = usePopupContentKey(activeTriggerId, payload);
+  const currentContentKey = transitionKey == null ? contentKey : `${contentKey}-${transitionKey}`;
 
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
   const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
@@ -95,6 +104,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
+  const focusWasInsideRef = React.useRef(false);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupFrame = useAnimationFrame();
@@ -105,6 +115,17 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   } | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+
+  const handleFocusCapture = useStableCallback(() => {
+    focusWasInsideRef.current = true;
+  });
+
+  const handleBlurCapture = useStableCallback((event: React.FocusEvent<HTMLDivElement>) => {
+    focusWasInsideRef.current = contains(
+      event.currentTarget,
+      event.relatedTarget as Element | null,
+    );
+  });
 
   useIsoLayoutEffect(() => {
     store.set('adaptiveOrigin', adaptiveOrigin);
@@ -132,51 +153,94 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
+  const lastTransitionKeyRef = React.useRef(transitionKey);
+  const transitionGenerationRef = React.useRef(0);
 
   useIsoLayoutEffect(() => {
     if (!open || !mounted) {
       lastHandledTriggerRef.current = null;
+      focusWasInsideRef.current = false;
     }
-  }, [open, mounted]);
+    if (!mounted) {
+      // A transition interrupted by closing cannot finish once the popup is hidden; reset it.
+      cleanupFrame.cancel();
+      setPreviousContentNode(null);
+      setPreviousContentDimensions(null);
+      setShowStartingStyleAttribute(false);
+      capturedNodeRef.current = null;
+    }
+  }, [open, mounted, cleanupFrame]);
 
   useIsoLayoutEffect(() => {
-    // When a trigger changes, set the captured children HTML to state,
-    // so we can render both new and old content.
-    if (
-      activeTrigger &&
-      previousActiveTrigger &&
+    const triggerChanged =
+      activeTrigger != null &&
+      previousActiveTrigger != null &&
       activeTrigger !== previousActiveTrigger &&
-      lastHandledTriggerRef.current !== activeTrigger &&
-      capturedNodeRef.current
-    ) {
+      lastHandledTriggerRef.current !== activeTrigger;
+    // Only while open, so a key change committed together with closing doesn't morph during exit.
+    const transitionKeyChanged =
+      open && !triggerChanged && transitionKey !== lastTransitionKeyRef.current;
+
+    lastTransitionKeyRef.current = transitionKey;
+
+    // When a trigger or the transition key changes, set the captured children HTML to state,
+    // so we can render both new and old content.
+    if ((triggerChanged || transitionKeyChanged) && capturedNodeRef.current) {
       setPreviousContentNode(capturedNodeRef.current);
       setShowStartingStyleAttribute(true);
 
       // Calculate the relative position between the previous and new trigger,
       // so we can pass it to the style hook for animation purposes.
-      const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
-      setNewTriggerOffset(offset);
+      setNewTriggerOffset(
+        triggerChanged ? calculateRelativePosition(previousActiveTrigger, activeTrigger) : null,
+      );
+
+      // Invalidate the cleanup of any transition this one interrupts: its container is already
+      // detached, so its animations resolve immediately and would clear this transition early.
+      transitionGenerationRef.current += 1;
+      const generation = transitionGenerationRef.current;
 
       cleanupFrame.request(() => {
         ReactDOM.flushSync(() => {
           setShowStartingStyleAttribute(false);
         });
         onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
+          if (generation === transitionGenerationRef.current) {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          }
         });
       });
 
-      lastHandledTriggerRef.current = activeTrigger;
+      if (triggerChanged) {
+        lastHandledTriggerRef.current = activeTrigger;
+      }
     }
   }, [
     activeTrigger,
     previousActiveTrigger,
+    open,
+    transitionKey,
     previousContentNode,
     onAnimationsFinished,
     cleanupFrame,
   ]);
+
+  // Remounting the current container drops focus to `<body>` when it was inside the previous
+  // content. Move it to the new content (or the popup itself) in that case; if focus is alive
+  // elsewhere (e.g. placed by the new content via `autoFocus`), leave it alone.
+  useIsoLayoutEffect(() => {
+    const container = currentContainerRef.current;
+    if (!container || !focusWasInsideRef.current) {
+      return;
+    }
+
+    const focusedElement = activeElement(ownerDocument(container));
+    if (focusedElement == null || focusedElement === ownerDocument(container).body) {
+      (tabbable(container)[0] ?? popupElement)?.focus();
+    }
+  }, [currentContentKey, popupElement]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -204,7 +268,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   let childrenToRender: React.ReactNode;
   if (!isTransitioning) {
     childrenToRender = (
-      <div data-current ref={currentContainerRef} key={currentContentKey}>
+      <div
+        data-current
+        ref={currentContainerRef}
+        key={currentContentKey}
+        onFocusCapture={handleFocusCapture}
+        onBlurCapture={handleBlurCapture}
+      >
         {children}
       </div>
     );
@@ -234,6 +304,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
           ref={currentContainerRef}
           key={currentContentKey}
           data-starting-style={showStartingStyleAttribute ? '' : undefined}
+          onFocusCapture={handleFocusCapture}
+          onBlurCapture={handleBlurCapture}
         >
           {children}
         </div>
@@ -251,11 +323,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
+  const resizeContent = React.useMemo(() => ({ payload, transitionKey }), [payload, transitionKey]);
+
   usePopupAutoResize({
     popupElement,
     positionerElement,
     mounted,
-    content: payload,
+    content: resizeContent,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
     side,
