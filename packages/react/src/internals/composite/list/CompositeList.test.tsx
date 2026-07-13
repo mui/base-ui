@@ -3,7 +3,7 @@ import * as React from 'react';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { CompositeList } from './CompositeList';
-import { useCompositeListItem } from './useCompositeListItem';
+import { IndexGuessBehavior, useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
   const { render } = createRenderer();
@@ -39,6 +39,46 @@ describe('<CompositeList />', () => {
       unmount();
       expect(elementsRef.current).toHaveLength(0);
       expect(labelsRef.current).toHaveLength(0);
+    });
+
+    it('keeps refs populated for items whose guessed index is already correct', async () => {
+      function GuessedItem(props: { label: string }) {
+        const { ref } = useCompositeListItem({
+          label: props.label,
+          indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
+        });
+        return (
+          <div ref={ref} data-testid={props.label}>
+            {props.label}
+          </div>
+        );
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+          <GuessedItem label="a" />
+          <GuessedItem label="b" />
+          <GuessedItem label="c" />
+        </CompositeList>,
+      );
+
+      // A StrictMode dev remount runs the cleanup that empties the ref arrays,
+      // but items whose index is unchanged don't re-render, so their ref
+      // callbacks can't refill the arrays. The map change subscription must
+      // write the refs back (https://github.com/mui/base-ui/issues/4698).
+      await waitFor(() => {
+        expect(elementsRef.current[0]).toBe(screen.getByTestId('a'));
+      });
+      expect(elementsRef.current[1]).toBe(screen.getByTestId('b'));
+      expect(elementsRef.current[2]).toBe(screen.getByTestId('c'));
+      expect(labelsRef.current).toEqual(['a', 'b', 'c']);
     });
 
     it('updates indexes when keyed groups reorder', async () => {
