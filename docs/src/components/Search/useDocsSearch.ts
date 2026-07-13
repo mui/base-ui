@@ -4,7 +4,7 @@ import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getCanonicalReactDocsUrl } from 'docs/src/utils/canonicalReactDocsUrl';
-import { type SearchSitemapLoader } from './searchSitemap';
+import { groupSearchSitemapBySection, type SearchSitemapLoader } from './searchSitemap';
 import { slugifyWithParentContext } from './searchUtils';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
@@ -19,8 +19,16 @@ export function useDocsSearch(
   isSearchPending: boolean;
   performSearch: (value: string) => Promise<void>;
 } {
+  const groupedSitemap = React.useCallback(async () => {
+    const { sitemap: loadedSitemap } = await sitemap();
+
+    return {
+      sitemap: loadedSitemap ? groupSearchSitemapBySection(loadedSitemap) : undefined,
+    };
+  }, [sitemap]);
+
   const searchApi = useSearch({
-    sitemap,
+    sitemap: groupedSitemap,
     generateSlug: slugifyWithParentContext,
     tolerance: 0,
     limit: 20,

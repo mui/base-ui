@@ -5,6 +5,7 @@ import * as MobileNav from './MobileNav';
 import { GitHubIcon } from '../icons/GitHubIcon';
 import { NpmIcon } from '../icons/NpmIcon';
 import { getDisplayTitle } from '../utils/getDisplayTitle';
+import { getNavSections } from '../utils/navSections';
 import { getSitemapPageInfo, isSitemapPageVisible } from '../utils/sitemapPage';
 
 interface MobileNavContentProps {
@@ -18,9 +19,9 @@ export function MobileNavContent({ sitemap }: MobileNavContentProps) {
 
   return (
     <React.Fragment>
-      {Object.entries(sitemap.data).map(([name, section]) => (
-        <MobileNav.Section key={name}>
-          <MobileNav.Heading>{name}</MobileNav.Heading>
+      {getNavSections(sitemap).map((section) => (
+        <MobileNav.Section key={section.name}>
+          <MobileNav.Heading>{section.name}</MobileNav.Heading>
           <MobileNav.List>
             {section.pages.filter(isSitemapPageVisible).map((page) => {
               const pageInfo = getSitemapPageInfo(section, page);
