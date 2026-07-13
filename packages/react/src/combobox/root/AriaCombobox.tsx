@@ -161,6 +161,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
    * Contains the currently visible list of item values post-filtering.
    */
   const valuesRef = React.useRef<any[]>([]);
+  /**
+   * The item element that received the last `pointerdown`, used to detect whether a
+   * `mouseup` on an item belongs to a drag-select gesture that started elsewhere.
+   */
+  const pointerDownItemRef = React.useRef<Element | null>(null);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -357,6 +362,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         chipsContainerRef,
         clearRef,
         valuesRef,
+        pointerDownItemRef,
         selectionEventRef,
         name,
         form,
@@ -608,6 +614,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
       }
 
+      if (!nextOpen) {
+        pointerDownItemRef.current = null;
+      }
+
       setOpenUnwrapped(nextOpen);
 
       if (
@@ -740,6 +750,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
+    pointerDownItemRef.current = null;
 
     if (selectionMode === 'none') {
       setIndices({ activeIndex: null, selectedIndex: null });

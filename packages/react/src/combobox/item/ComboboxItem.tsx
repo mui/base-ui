@@ -49,7 +49,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     ...elementProps
   } = componentProps;
 
-  const didPointerDownRef = React.useRef(false);
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
     index: indexProp,
@@ -61,7 +60,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
 
-  const open = useStore(store, selectors.open);
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
@@ -108,10 +106,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   }, [hasRegistered, hasItems, index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
-    if (!open) {
-      didPointerDownRef.current = false;
-    }
-
     if (!hasRegistered || hasItems) {
       return;
     }
@@ -127,7 +121,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
       store.set('selectedIndex', index);
     }
-  }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+  }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -164,7 +158,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // as it should be a `<div>` instead.
     tabIndex: undefined,
     onPointerDownCapture(event) {
-      didPointerDownRef.current = true;
+      store.state.pointerDownItemRef.current = event.currentTarget;
       event.preventDefault();
     },
     onMouseDown(event) {
@@ -180,8 +174,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       commitSelection(event.nativeEvent);
     },
     onMouseUp(event) {
-      const pointerStartedOnItem = didPointerDownRef.current;
-      didPointerDownRef.current = false;
+      const pointerStartedOnItem = store.state.pointerDownItemRef.current === event.currentTarget;
+      store.state.pointerDownItemRef.current = null;
 
       if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
         return;
