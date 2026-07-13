@@ -8,13 +8,11 @@ import { TabsRootDataAttributes } from './root/TabsRootDataAttributes';
 import { TabsPanelDataAttributes } from './panel/TabsPanelDataAttributes';
 import { TabsIndicatorCssVars } from './indicator/TabsIndicatorCssVars';
 
-// The parts inline these enums' string values at runtime (instead of referencing
-// the members) so the enum objects stay tree-shakeable — the win that motivated
-// the bundle-size pass. That splits the source of truth: the enums feed generated
-// public documentation while the literals drive behavior, and TypeScript no longer
-// links the two. These tests re-establish the link so a rename applied to only one
-// side fails CI. They import the enums but ship no production bytes.
-describe('Tabs docs enum / runtime sync', () => {
+// The parts inline these enums' values instead of referencing the members, so
+// nothing links the docs enums to runtime behavior. These tests re-link every
+// inlined member so a rename to only one side fails CI. Test-only imports ship no
+// production bytes.
+describe('Tabs enum sync', () => {
   const { render } = createRenderer();
 
   it('names the activation-direction attribute per TabsRootDataAttributes', () => {
