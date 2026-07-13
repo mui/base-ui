@@ -19,10 +19,13 @@ interface UseCompositeListItemReturnValue {
   index: number;
 }
 
-export enum IndexGuessBehavior {
-  None,
-  GuessFromOrder,
-}
+const GUESS_FROM_ORDER = 1;
+
+export const IndexGuessBehavior = {
+  None: 0,
+  GuessFromOrder: GUESS_FROM_ORDER,
+} as const;
+export type IndexGuessBehavior = (typeof IndexGuessBehavior)[keyof typeof IndexGuessBehavior];
 
 /**
  * Used to register a list item and its index (DOM position) in the `CompositeList`.
@@ -38,7 +41,7 @@ export function useCompositeListItem<Metadata>(
   const indexRef = React.useRef(-1);
   const [index, setIndex] = React.useState<number>(
     externalIndex ??
-      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
+      (indexGuessBehavior === GUESS_FROM_ORDER
         ? () => {
             if (indexRef.current === -1) {
               const newIndex = nextIndexRef.current;

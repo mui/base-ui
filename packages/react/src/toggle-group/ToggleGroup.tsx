@@ -46,7 +46,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   } = componentProps;
 
   const toolbarContext = useToolbarRootContext(true);
-  const toolbarGroupContext = useToolbarGroupContext(true);
+  const toolbarGroupContext = useToolbarGroupContext();
 
   const isValueInitialized = React.useMemo(
     () => valueProp !== undefined || defaultValueProp !== undefined,
