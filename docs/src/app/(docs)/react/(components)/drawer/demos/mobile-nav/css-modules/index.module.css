@@ -279,18 +279,23 @@
   }
 }
 
+.Sections {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.SectionTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+}
+
 .List {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  gap: 0.25rem;
-}
-
-.LongList {
-  list-style: none;
-  padding: 0;
-  margin: 1.5rem 0 0;
   display: grid;
   gap: 0.25rem;
 }

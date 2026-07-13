@@ -7,15 +7,11 @@ import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
 import * as SideNav from 'docs/src/components/SideNav';
+import { SideNavContent } from 'docs/src/components/SideNavContent';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
-import { getNavSections } from 'docs/src/utils/navSections';
-import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
-import { NpmIcon } from 'docs/src/icons/NpmIcon';
-import { getDisplayTitle } from 'docs/src/utils/getDisplayTitle';
-import { getSitemapPageInfo, isSitemapPageVisible } from 'docs/src/utils/sitemapPage';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -60,52 +56,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                   <div className="ContentLayoutRoot">
                     <Header />
                     <SideNav.Root>
-                      {sitemap &&
-                        getNavSections(sitemap).map((section) => (
-                          <SideNav.Section key={section.name}>
-                            <SideNav.Heading>{section.name}</SideNav.Heading>
-                            <SideNav.List>
-                              {section.pages.filter(isSitemapPageVisible).map((page) => {
-                                const pageInfo = getSitemapPageInfo(section, page);
-
-                                return (
-                                  <SideNav.Item
-                                    key={page.title}
-                                    href={pageInfo.href}
-                                    external={pageInfo.external}
-                                  >
-                                    {getDisplayTitle(page.title)}
-                                    {pageInfo.badges.map((badge) => (
-                                      <SideNav.Badge key={badge}>{badge}</SideNav.Badge>
-                                    ))}
-                                  </SideNav.Item>
-                                );
-                              })}
-                            </SideNav.List>
-                          </SideNav.Section>
-                        ))}
-                      <SideNav.Separator />
-                      <SideNav.Section>
-                        <SideNav.List>
-                          <SideNav.Item
-                            href="https://github.com/mui/base-ui"
-                            icon={<GitHubIcon />}
-                            external
-                          >
-                            GitHub
-                          </SideNav.Item>
-                          <SideNav.Item
-                            href="https://www.npmjs.com/package/@base-ui/react"
-                            icon={<NpmIcon />}
-                            external
-                          >
-                            <span>
-                              npm
-                              <span className="SideNavVersion">{process.env.LIB_VERSION}</span>
-                            </span>
-                          </SideNav.Item>
-                        </SideNav.List>
-                      </SideNav.Section>
+                      <SideNavContent sitemap={sitemap} />
                     </SideNav.Root>
 
                     <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>

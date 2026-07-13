@@ -10,7 +10,7 @@ export interface NavSection {
  * Flattens the sitemap into the list of nav groups to render.
  *
  * The React docs use a single combined index (`react/page.mdx`) whose `##` headings define the
- * sections (Overview, Handbook, Components, Utilities). `createSitemap` therefore returns a single
+ * sections (Overview, Handbook, Components, Utils). `createSitemap` therefore returns a single
  * entry with a `sections` array; split it into one nav group per section, bucketing pages by the
  * `section` the loader assigned each of them. Falls back to one group per data entry for a flat
  * (ungrouped) index.
