@@ -87,7 +87,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue: defaultInputValueProp,
+    defaultInputValue,
     inputValue: inputValueProp,
     open: openProp,
     defaultOpen = false,
@@ -171,7 +171,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const single = selectionMode === 'single';
-  const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
+  const hasInputValue = inputValueProp !== undefined || defaultInputValue !== undefined;
   const hasItems = items !== undefined;
   const hasFilteredItemsProp = filteredItemsProp !== undefined;
 
@@ -203,21 +203,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
-  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
-    () => {
-      if (hasInputValue) {
-        return defaultInputValueProp ?? '';
-      }
-      if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
-      }
-      return '';
-    },
-  ).current;
+  const initialDefaultInputValue = useRefWithInit(() => {
+    if (hasInputValue) {
+      return defaultInputValue ?? '';
+    }
+    if (single) {
+      return stringifyAsLabel(selectedValue, itemToStringLabel);
+    }
+    return '';
+  }).current;
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: initialDefaultInputValue ?? '',
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'inputValue',
   });

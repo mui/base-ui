@@ -23,18 +23,20 @@ export interface UseControlledProps<T = unknown> {
   state?: string | undefined;
 }
 
+// A defined default guarantees a defined value. Otherwise, preserve `undefined`,
+// including when callers pass an explicit generic argument.
 export function useControlled<T = unknown>(
   props: Omit<UseControlledProps<T>, 'default'> & { default: T },
 ): [T, React.Dispatch<React.SetStateAction<T>>];
 export function useControlled<T = unknown>(
   props: UseControlledProps<T>,
-): [T, React.Dispatch<React.SetStateAction<T>>];
+): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>];
 export function useControlled<T = unknown>({
   controlled,
   default: defaultProp,
   name,
   state = 'value',
-}: UseControlledProps<T>): [T, React.Dispatch<React.SetStateAction<T>>] {
+}: UseControlledProps<T>): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>] {
   // isControlled is ignored in the hook dependency lists as it should never change.
   const { current: isControlled } = React.useRef(controlled !== undefined);
   const [valueState, setValue] = React.useState(defaultProp);
@@ -75,13 +77,16 @@ export function useControlled<T = unknown>({
     }, [defaultProp]);
   }
 
-  const setValueIfUncontrolled = React.useCallback((newValue: React.SetStateAction<T>) => {
-    if (!isControlled) {
-      setValue(newValue as T);
-    }
-  }, []);
+  const setValueIfUncontrolled = React.useCallback(
+    (newValue: React.SetStateAction<T | undefined>) => {
+      if (!isControlled) {
+        setValue(newValue);
+      }
+    },
+    [],
+  );
 
-  return [value as T, setValueIfUncontrolled];
+  return [value, setValueIfUncontrolled];
 }
 
 function serializeToDevModeString(input: unknown) {

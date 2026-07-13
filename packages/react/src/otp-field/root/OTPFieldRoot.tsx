@@ -51,7 +51,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     autoComplete = 'one-time-code',
-    defaultValue,
+    defaultValue = '',
     value: valueProp,
     onValueChange,
     onValueComplete: onValueCompleteProp,
