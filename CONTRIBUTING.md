@@ -71,7 +71,7 @@ There are, however, a few differences:
    <TypesCheckbox.Indicator />
    ```
 
-4. Start the dev server with `pnpm docs:dev` and visit the page (for example, `http://localhost:3005/react/toggle`). The `types.md` file is generated automatically. If you prefer not to open the browser, run `pnpm docs:build` to generate all files.
+4. Start the dev server with `pnpm docs:dev` and visit the page (for example, `http://localhost:3005/react/button`). The `types.md` file is generated automatically. If you prefer not to open the browser, run `pnpm docs:build` to generate all files.
 
 ### Adding a demo
 
