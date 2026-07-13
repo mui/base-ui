@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { AccordionRootContext } from './AccordionRootContext';
@@ -36,7 +37,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     multiple = false,
     orientation = 'vertical',
     value: valueProp,
-    defaultValue: defaultValueProp,
+    defaultValue = EMPTY_ARRAY,
     style,
     ...elementProps
   } = componentProps;
@@ -52,21 +53,11 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  // memoized to allow omitting both defaultValue and value
-  // which would otherwise trigger a warning in useControlled
-  const defaultValue = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return defaultValueProp ?? [];
-    }
-
-    return undefined;
-  }, [valueProp, defaultValueProp]);
-
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValue ?? [],
+    default: defaultValue,
     name: 'Accordion',
     state: 'value',
   });

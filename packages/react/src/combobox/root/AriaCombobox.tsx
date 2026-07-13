@@ -262,7 +262,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (!items) {
-      return EMPTY_ARRAY as Value[];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
@@ -1092,7 +1092,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.

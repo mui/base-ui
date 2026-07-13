@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -74,8 +75,6 @@ export interface UseCompositeRootParameters {
    */
   modifierKeys?: ModifierKey[] | undefined;
 }
-
-const EMPTY_ARRAY: never[] = [];
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
