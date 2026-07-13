@@ -115,8 +115,8 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 ```css title="Swipe offset"
 .Toast {
   /* @highlight-text "--toast-swipe-movement-x" */
-  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1)))) translateX(var(--toast-swipe-movement-x))
-    /* @highlight-text "--toast-swipe-movement-y" */
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))))
+    translateX(var(--toast-swipe-movement-x)) /* @highlight-text "--toast-swipe-movement-y" */
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
 ```
