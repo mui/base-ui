@@ -1,8 +1,7 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { ScrollAreaRootState } from './ScrollAreaRoot';
 
-// Data-attribute strings inlined so `ScrollAreaRootDataAttributes` tree-shakes out;
-// `enumSync.test.tsx` guards against drift.
+// Data-attribute strings inlined so `ScrollAreaRootDataAttributes` tree-shakes out.
 const attr = (name: string) => (value: boolean) => (value ? { [name]: '' } : null);
 
 export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollAreaRootState> = {

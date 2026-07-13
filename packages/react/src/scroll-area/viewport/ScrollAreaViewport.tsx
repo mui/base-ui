@@ -17,8 +17,7 @@ import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
 
-// CSS variable names inlined so `ScrollAreaViewportCssVars` tree-shakes out;
-// `enumSync.test.tsx` guards against drift.
+// CSS variable names inlined so `ScrollAreaViewportCssVars` tree-shakes out.
 const OVERFLOW_EDGE_VARS = [
   '--scroll-area-overflow-x-start',
   '--scroll-area-overflow-x-end',

@@ -111,7 +111,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     startXRef.current = event.clientX;
     // Literal instead of `ScrollAreaScrollbarDataAttributes.orientation`: referencing an
     // enum member retains its whole object in the bundle, so the strings are inlined and
-    // the enums kept for docs only. `enumSync.test.tsx` guards against drift.
+    // the enums kept for docs only.
     currentOrientationRef.current = event.currentTarget.getAttribute('data-orientation') as
       | 'vertical'
       | 'horizontal';
