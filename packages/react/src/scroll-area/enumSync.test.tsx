@@ -11,9 +11,11 @@ import { ScrollAreaScrollbarCssVars } from './scrollbar/ScrollAreaScrollbarCssVa
 import { ScrollAreaViewportCssVars } from './viewport/ScrollAreaViewportCssVars';
 
 // The parts inline these enums' values instead of referencing the members, so
-// nothing links the docs enums to runtime behavior. These tests re-link them so a
-// rename to only one side fails CI. Test-only imports ship no production bytes.
-describe('ScrollArea docs enum / runtime sync', () => {
+// nothing links the docs enums to runtime behavior. These tests re-link every
+// inlined member so a rename to only one side fails CI. Members that are not
+// inlined (emitted by the default state serializer) are out of scope. Test-only
+// imports ship no production bytes.
+describe('Scroll Area enum sync', () => {
   const { render } = createRenderer();
 
   it('names the overflow data-attributes per ScrollAreaRootDataAttributes', () => {
@@ -48,19 +50,24 @@ describe('ScrollArea docs enum / runtime sync', () => {
   it('names the corner and thumb CSS variables per the *CssVars enums', async () => {
     await render(
       <ScrollArea.Root data-testid="root">
-        <ScrollArea.Scrollbar orientation="vertical" keepMounted data-testid="scrollbar" />
+        <ScrollArea.Scrollbar orientation="vertical" keepMounted data-testid="scrollbar-y" />
+        <ScrollArea.Scrollbar orientation="horizontal" keepMounted data-testid="scrollbar-x" />
       </ScrollArea.Root>,
     );
 
     const root = screen.getByTestId('root');
-    const scrollbar = screen.getByTestId('scrollbar');
+    const scrollbarY = screen.getByTestId('scrollbar-y');
+    const scrollbarX = screen.getByTestId('scrollbar-x');
 
     // Both parts write these variables unconditionally through the `style` prop, so
     // the inline style carries them even without layout measurement.
     expect(root.style.getPropertyValue(ScrollAreaRootCssVars.scrollAreaCornerHeight)).not.toBe('');
     expect(root.style.getPropertyValue(ScrollAreaRootCssVars.scrollAreaCornerWidth)).not.toBe('');
     expect(
-      scrollbar.style.getPropertyValue(ScrollAreaScrollbarCssVars.scrollAreaThumbHeight),
+      scrollbarY.style.getPropertyValue(ScrollAreaScrollbarCssVars.scrollAreaThumbHeight),
+    ).not.toBe('');
+    expect(
+      scrollbarX.style.getPropertyValue(ScrollAreaScrollbarCssVars.scrollAreaThumbWidth),
     ).not.toBe('');
   });
 
