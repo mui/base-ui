@@ -1,7 +1,8 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
 
@@ -709,6 +710,66 @@ describe('<Combobox.Trigger />', () => {
         });
       },
     );
+
+    it('cycles from the selected item after reordering items while closed (no items prop)', async () => {
+      function App() {
+        const [order, setOrder] = React.useState(['apple', 'apricot', 'banana']);
+
+        return (
+          <div>
+            <Combobox.Root defaultValue="apple">
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value data-testid="value" />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {order.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <button
+              type="button"
+              data-testid="reorder"
+              onClick={() => setOrder(['apricot', 'apple', 'banana'])}
+            >
+              reorder
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      // Open and close so the trigger path force-mounts the list.
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      // Reorder while closed: apple moves from index 0 to index 1.
+      fireEvent.click(screen.getByTestId('reorder'));
+      await flushMicrotasks();
+
+      // Typeahead starts after the selected item; from apple it wraps to apricot.
+      await user.keyboard('a');
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('apricot');
+      });
+    });
   });
 
   describe('data state attributes', () => {

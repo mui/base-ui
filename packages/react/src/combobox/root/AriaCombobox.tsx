@@ -809,10 +809,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       // Without `items`, look the selection up in the live registry of mounted item
-      // values. Items stay mounted while closed whenever closed-state features need
-      // them (trigger focus and programmatic value changes force-mount the list), so
-      // the index resolves to the current composite order; when nothing is mounted it
-      // resolves to `null`, and each item re-registers it on the next open.
+      // values (the list stays mounted while closed when closed-state features need
+      // it — trigger focus and programmatic value changes force-mount it). Mounted
+      // items re-assert the index themselves when their registration moves; when
+      // nothing is mounted the lookup resolves to `null` and each item re-registers
+      // the index on the next open.
       const registry = hasItems ? flatItems : valuesRef.current;
 
       if (multiple) {

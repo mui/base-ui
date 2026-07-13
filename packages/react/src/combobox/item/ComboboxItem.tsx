@@ -110,13 +110,15 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   useIsoLayoutEffect(() => {
     if (!open) {
       didPointerDownRef.current = false;
-      return;
     }
 
     if (!hasRegistered || hasItems) {
       return;
     }
 
+    // Runs while closed as well (the list can stay mounted via `keepMounted` or a
+    // force-mount) so the index tracks the item's composite position, keeping features
+    // like closed-trigger typeahead in sync when the rendered order changes.
     const selectedValue = store.state.selectedValue;
     const lastSelectedValue = Array.isArray(selectedValue)
       ? selectedValue[selectedValue.length - 1]
