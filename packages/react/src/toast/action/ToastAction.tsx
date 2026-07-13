@@ -27,7 +27,6 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const { toast } = useToastRootContext();
 
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
-  const shouldRender = Boolean(computedChildren);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -50,6 +49,10 @@ export const ToastAction = React.forwardRef(function ToastAction(
       },
     ],
   });
+
+  const shouldRender =
+    React.isValidElement(element) &&
+    Boolean((element.props as { children?: React.ReactNode }).children);
 
   if (!shouldRender) {
     return null;

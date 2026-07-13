@@ -78,4 +78,52 @@ describe('<Toast.Action />', () => {
     const actionElement = screen.queryByTestId('action');
     expect(actionElement).toBe(null);
   });
+
+  it('renders content passed through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action render={<button type="button">render prop action</button>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render prop action')).not.toBe(null);
+  });
+
+  it('renders content passed through a render function', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action
+              render={(props) => (
+                <button type="button" {...props}>
+                  render fn action
+                </button>
+              )}
+            />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render fn action')).not.toBe(null);
+  });
+
+  it('does not render a childless render prop when there is no action content', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action render={<button type="button" data-testid="action-render" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('action-render')).toBe(null);
+  });
 });
