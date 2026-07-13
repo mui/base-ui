@@ -15,27 +15,6 @@ import type { FieldValidityData, FieldRootState } from './FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
-function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefined) {
-  if (!state || state.valid || !state.valueMissing) {
-    return false;
-  }
-
-  let onlyValueMissing = false;
-
-  for (const key of validityKeys) {
-    if (key === 'valid') {
-      continue;
-    }
-    if (key === 'valueMissing') {
-      onlyValueMissing = state[key];
-    } else if (state[key]) {
-      onlyValueMissing = false;
-    }
-  }
-
-  return onlyValueMissing;
-}
-
 /**
  * Picks the input whose native validity should represent a field that owns several inputs (such as a
  * checkbox group). Prefers the first enabled currently-invalid input, where "first" follows Set
@@ -57,16 +36,10 @@ function findRepresentativeInput(inputs: Set<HTMLInputElement>): HTMLInputElemen
 }
 
 function clearCustomValidity(element: HTMLInputElement, inputs: Set<HTMLInputElement>) {
-  let didClearElement = false;
-
   for (const input of inputs) {
     input.setCustomValidity('');
-    didClearElement ||= input === element;
   }
-
-  if (!didClearElement) {
-    element.setCustomValidity('');
-  }
+  element.setCustomValidity('');
 }
 
 export function useFieldValidation(
@@ -83,7 +56,7 @@ export function useFieldValidation(
     markedDirtyRef,
     state,
     shouldValidateOnChange,
-    getRegisteredFieldId,
+    registeredFieldIdRef,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -124,7 +97,7 @@ export function useFieldValidation(
       nextValidityData: FieldValidityData,
       externalInvalid = invalid,
     ) {
-      const fieldId = getRegisteredFieldId() ?? controlId;
+      const fieldId = registeredFieldIdRef.current ?? controlId;
       if (fieldId == null) {
         return;
       }
@@ -171,24 +144,7 @@ export function useFieldValidation(
         return;
       }
 
-      // Value is still missing, or other conditions apply.
-      // Let's use a representation of current validity for isOnlyValueMissing.
-      const currentNativeValidityObject = validityKeys.reduce(
-        (acc, key) => {
-          acc[key] = currentNativeValidity[key];
-          return acc;
-        },
-        {} as Record<keyof ValidityState, boolean>,
-      );
-
-      // If it's (still) natively invalid due to something other than just valueMissing,
-      // then bail from this revalidation on change to avoid "scolding" for other errors.
-      if (!currentNativeValidityObject.valid && !isOnlyValueMissing(currentNativeValidityObject)) {
-        return;
-      }
-
-      // If valueMissing is still true AND it's the only issue, or if the field is now natively valid,
-      // let it fall through to the main validation logic below.
+      // Value is still missing: fall through to the main validation logic below.
     }
 
     function getState(el: HTMLInputElement) {
@@ -351,7 +307,7 @@ export interface UseFieldValidationParameters {
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
   shouldValidateOnChange: () => boolean;
-  getRegisteredFieldId: () => string | undefined;
+  registeredFieldIdRef: React.RefObject<string | undefined>;
 }
 
 export interface UseFieldValidationReturnValue {

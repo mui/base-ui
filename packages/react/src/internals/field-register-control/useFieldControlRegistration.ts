@@ -21,7 +21,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     markedDirtyRef,
     name,
     setRegisteredFieldName,
-    setRegisteredFieldId,
+    registeredFieldIdRef,
     setValidityData,
     validityData,
   } = params;
@@ -30,7 +30,6 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
-  const fallbackControlRef = React.useRef<any>(null);
 
   const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
@@ -70,7 +69,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     formRef.current.fields.set(registration.id, {
       getValue: getValueForForm,
       name: name ?? registration.name,
-      controlRef: registration.controlRef ?? fallbackControlRef,
+      controlRef: registration.controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
@@ -106,7 +105,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     formRef.current.fields.set(registration.id, {
       getValue: getValueForForm,
       name: name ?? registration.name,
-      controlRef: registration.controlRef ?? fallbackControlRef,
+      controlRef: registration.controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
@@ -131,7 +130,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
           deleteRegistration();
           registrationRef.current = null;
           setRegisteredFieldName(undefined);
-          setRegisteredFieldId(undefined);
+          registeredFieldIdRef.current = undefined;
         }
         return;
       }
@@ -143,7 +142,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       if (!name) {
         setRegisteredFieldName(registration.name);
       }
-      setRegisteredFieldId(registration.id);
+      registeredFieldIdRef.current = registration.id;
 
       if (previousId && previousId !== registration.id) {
         deleteRegistration(previousId);
@@ -163,7 +162,7 @@ export interface UseFieldControlRegistrationParameters {
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
   setRegisteredFieldName: (name: string | undefined) => void;
-  setRegisteredFieldId: (id: string | undefined) => void;
+  registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;
 }
