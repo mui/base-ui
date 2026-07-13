@@ -1827,6 +1827,122 @@ describe('<Slider.Root />', () => {
       expect(newValue[2]).not.toBe(60);
     });
 
+    it.skipIf(isJSDOM).each(['thumb drag', 'track press'])(
+      'keeps focus and the active index on the logical thumb after a swap from a %s',
+      async (interaction) => {
+        const handleValueChange = vi.fn();
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            defaultValue={[20, 40]}
+            thumbCollisionBehavior="swap"
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        const control = screen.getByTestId('control');
+        const thumbs = screen.getAllByTestId('thumb');
+        const inputs = screen.getAllByRole('slider');
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        vi.spyOn(thumbs[0], 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 20,
+          right: 20,
+          top: 0,
+          x: 20,
+          y: 0,
+          toJSON() {},
+        }));
+        vi.spyOn(thumbs[1], 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 40,
+          right: 40,
+          top: 0,
+          x: 40,
+          y: 0,
+          toJSON() {},
+        }));
+
+        fireEvent.pointerDown(interaction === 'thumb drag' ? thumbs[0] : control, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 20,
+        });
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 70 });
+
+        expect(inputs[1]).toHaveFocus();
+        expect(handleValueChange.mock.lastCall?.[0]).toEqual([40, 70]);
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(1);
+
+        fireEvent.pointerUp(document.body, { pointerId: 1, buttons: 0, clientX: 70 });
+
+        expect(handleValueCommitted).toHaveBeenCalledWith(
+          [40, 70],
+          expect.objectContaining({ reason: REASONS.drag }),
+        );
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps the original pressed thumb after a canceled swap and commits the next accepted move',
+      async () => {
+        const handleValueChange = vi.fn((value, details) => {
+          if (Array.isArray(value) && value[1] === 70) {
+            details.cancel();
+          }
+        });
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            defaultValue={[20, 40]}
+            thumbCollisionBehavior="swap"
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        const control = screen.getByTestId('control');
+        const firstThumb = screen.getAllByTestId('thumb')[0];
+        const firstInput = screen.getAllByRole('slider')[0];
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        vi.spyOn(firstThumb, 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 20,
+          right: 20,
+          top: 0,
+          x: 20,
+          y: 0,
+          toJSON() {},
+        }));
+
+        await act(async () => firstInput.focus());
+        fireEvent.pointerDown(firstThumb, { pointerId: 1, buttons: 1, clientX: 20 });
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 70 });
+
+        expect(firstInput).toHaveFocus();
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(1);
+
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 30 });
+        fireEvent.pointerUp(document.body, { pointerId: 1, buttons: 0, clientX: 30 });
+
+        expect(handleValueChange.mock.lastCall?.[0]).toEqual([30, 40]);
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(0);
+        expect(handleValueCommitted).toHaveBeenCalledWith(
+          [30, 40],
+          expect.objectContaining({ reason: REASONS.drag }),
+        );
+      },
+    );
+
     it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
       const handleValueChange = vi.fn();
       await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
