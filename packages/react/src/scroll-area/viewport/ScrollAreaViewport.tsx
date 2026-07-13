@@ -12,12 +12,17 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../internals/clamp';
-import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
-import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
+
+const OVERFLOW_EDGE_VARS = [
+  '--scroll-area-overflow-x-start',
+  '--scroll-area-overflow-x-end',
+  '--scroll-area-overflow-y-start',
+  '--scroll-area-overflow-y-end',
+];
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
@@ -42,12 +47,7 @@ function removeCSSVariableInheritance() {
   }
 
   if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
-    [
-      ScrollAreaViewportCssVars.scrollAreaOverflowXStart,
-      ScrollAreaViewportCssVars.scrollAreaOverflowXEnd,
-      ScrollAreaViewportCssVars.scrollAreaOverflowYStart,
-      ScrollAreaViewportCssVars.scrollAreaOverflowYEnd,
-    ].forEach((name) => {
+    OVERFLOW_EDGE_VARS.forEach((name) => {
       try {
         CSS.registerProperty({
           name,
@@ -94,10 +94,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     touchModality,
     setHovering,
     setOverflowEdges,
-    overflowEdges,
     overflowEdgeThreshold,
-    scrollingX,
-    scrollingY,
+    viewportState,
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
@@ -158,21 +156,18 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     let scrollLeftFromStart = 0;
     let scrollLeftFromEnd = 0;
     if (!scrollbarXHidden) {
-      let rawScrollLeftFromStart = 0;
-      if (direction === 'rtl') {
-        rawScrollLeftFromStart = clamp(-scrollLeft, 0, maxScrollLeft);
-      } else {
-        rawScrollLeftFromStart = clamp(scrollLeft, 0, maxScrollLeft);
-      }
-      scrollLeftFromStart = normalizeScrollOffset(rawScrollLeftFromStart, maxScrollLeft);
+      // `normalizeScrollOffset` clamps internally.
+      scrollLeftFromStart = normalizeScrollOffset(
+        direction === 'rtl' ? -scrollLeft : scrollLeft,
+        maxScrollLeft,
+      );
       scrollLeftFromEnd = maxScrollLeft - scrollLeftFromStart;
     }
 
-    const rawScrollTopFromStart = !scrollbarYHidden ? clamp(scrollTop, 0, maxScrollTop) : 0;
-    const scrollTopFromStart = !scrollbarYHidden
-      ? normalizeScrollOffset(rawScrollTopFromStart, maxScrollTop)
-      : 0;
-    const scrollTopFromEnd = !scrollbarYHidden ? maxScrollTop - scrollTopFromStart : 0;
+    const scrollTopFromStart = scrollbarYHidden
+      ? 0
+      : normalizeScrollOffset(scrollTop, maxScrollTop);
+    const scrollTopFromEnd = scrollbarYHidden ? 0 : maxScrollTop - scrollTopFromStart;
     const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
     const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
 
@@ -207,16 +202,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const clampedNextWidth = Math.max(MIN_THUMB_SIZE, maxNextWidth * ratioX);
     const clampedNextHeight = Math.max(MIN_THUMB_SIZE, maxNextHeight * ratioY);
 
-    setThumbSize((prevSize) => {
-      if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
-        return prevSize;
-      }
-
-      return {
-        width: clampedNextWidth,
-        height: clampedNextHeight,
-      };
-    });
+    setThumbSize((prevSize) =>
+      pickState(prevSize, { width: clampedNextWidth, height: clampedNextHeight }),
+    );
 
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
@@ -225,7 +213,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const thumbOffsetY = applyOverscrollThumb(
         thumbYEl,
-        ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
+        '--scroll-area-thumb-height',
         scrollTop,
         maxScrollTop,
         scrollableContentHeight,
@@ -245,7 +233,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const offsetX = applyOverscrollThumb(
         thumbXEl,
-        ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
+        '--scroll-area-thumb-width',
         scrollFromStart,
         maxScrollLeft,
         scrollableContentWidth,
@@ -255,35 +243,28 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       thumbXEl.style.transform = `translate3d(${direction === 'rtl' ? -offsetX : offsetX}px,0,0)`;
     }
 
-    const overflowMetricsPx: Array<[ScrollAreaViewportCssVars, number]> = [
-      [ScrollAreaViewportCssVars.scrollAreaOverflowXStart, scrollLeftFromStart],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowXEnd, scrollLeftFromEnd],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowYStart, scrollTopFromStart],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowYEnd, scrollTopFromEnd],
+    const overflowMetricsPx = [
+      scrollLeftFromStart,
+      scrollLeftFromEnd,
+      scrollTopFromStart,
+      scrollTopFromEnd,
     ];
 
-    for (const [cssVar, value] of overflowMetricsPx) {
-      viewportEl.style.setProperty(cssVar, `${value}px`);
-    }
+    OVERFLOW_EDGE_VARS.forEach((cssVar, index) => {
+      viewportEl.style.setProperty(cssVar, `${overflowMetricsPx[index]}px`);
+    });
 
     if (cornerEl) {
       // Bail when the size is unchanged (like `setThumbSize` above); otherwise a
       // fresh object literal on every scroll frame rebuilds the root context and
       // re-renders every scroll-area part.
-      if (scrollbarXHidden || scrollbarYHidden) {
-        setCornerSize((prevSize) =>
-          prevSize.width === 0 && prevSize.height === 0 ? prevSize : { width: 0, height: 0 },
-        );
-      } else if (!scrollbarXHidden && !scrollbarYHidden) {
-        setCornerSize((prevSize) =>
-          prevSize.width === nextCornerWidth && prevSize.height === nextCornerHeight
-            ? prevSize
-            : { width: nextCornerWidth, height: nextCornerHeight },
-        );
-      }
+      // `nextCornerWidth`/`nextCornerHeight` stay 0 when either scrollbar is hidden.
+      setCornerSize((prevSize) =>
+        pickState(prevSize, { width: nextCornerWidth, height: nextCornerHeight }),
+      );
     }
 
-    setHiddenState((prevState) => mergeHiddenState(prevState, nextHiddenState));
+    setHiddenState((prevState) => pickState(prevState, nextHiddenState));
 
     const nextOverflowEdges = {
       xStart: !scrollbarXHidden && scrollLeftFromStart > overflowEdgeThreshold.xStart,
@@ -292,17 +273,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       yEnd: !scrollbarYHidden && scrollTopFromEnd > overflowEdgeThreshold.yEnd,
     };
 
-    setOverflowEdges((prev) => {
-      if (
-        prev.xStart === nextOverflowEdges.xStart &&
-        prev.xEnd === nextOverflowEdges.xEnd &&
-        prev.yStart === nextOverflowEdges.yStart &&
-        prev.yEnd === nextOverflowEdges.yEnd
-      ) {
-        return prev;
-      }
-      return nextOverflowEdges;
-    });
+    setOverflowEdges((prev) => pickState(prev, nextOverflowEdges));
   });
 
   useIsoLayoutEffect(() => {
@@ -432,20 +403,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     onKeyDown: handleUserInteraction,
   };
 
-  const viewportState: ScrollAreaViewportState = React.useMemo(
-    () => ({
-      scrolling: scrollingX || scrollingY,
-      hasOverflowX: !hiddenState.x,
-      hasOverflowY: !hiddenState.y,
-      overflowXStart: overflowEdges.xStart,
-      overflowXEnd: overflowEdges.xEnd,
-      overflowYStart: overflowEdges.yStart,
-      overflowYEnd: overflowEdges.yEnd,
-      cornerHidden: hiddenState.corner,
-    }),
-    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
-  );
-
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, viewportRef],
     state: viewportState,
@@ -490,16 +447,18 @@ function getHiddenState(viewport: HTMLElement): HiddenState {
   };
 }
 
-function mergeHiddenState(prevState: HiddenState, nextState: HiddenState) {
-  if (
-    prevState.y === nextState.y &&
-    prevState.x === nextState.x &&
-    prevState.corner === nextState.corner
-  ) {
-    return prevState;
+/**
+ * Returns `prev` when `next` is shallow-equal to it so setState bails out and
+ * scroll-frame updates don't rebuild the root context.
+ */
+function pickState<T extends object>(prev: T, next: T): T {
+  for (const key in next) {
+    if (prev[key as keyof T] !== next[key as keyof T]) {
+      return next;
+    }
   }
 
-  return nextState;
+  return prev;
 }
 
 /**
@@ -509,7 +468,7 @@ function mergeHiddenState(prevState: HiddenState, nextState: HiddenState) {
  */
 function applyOverscrollThumb(
   thumbEl: HTMLElement,
-  sizeVar: ScrollAreaScrollbarCssVars,
+  sizeVar: string,
   scrollFromStart: number,
   maxScroll: number,
   content: number,

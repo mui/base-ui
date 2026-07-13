@@ -1,13 +1,14 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { ScrollAreaRootState } from './ScrollAreaRoot';
-import { ScrollAreaRootDataAttributes } from './ScrollAreaRootDataAttributes';
+
+const attr = (name: string) => (value: boolean) => (value ? { [name]: '' } : null);
 
 export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollAreaRootState> = {
-  hasOverflowX: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowX]: '' } : null),
-  hasOverflowY: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowY]: '' } : null),
-  overflowXStart: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowXStart]: '' } : null),
-  overflowXEnd: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowXEnd]: '' } : null),
-  overflowYStart: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowYStart]: '' } : null),
-  overflowYEnd: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowYEnd]: '' } : null),
+  hasOverflowX: attr('data-has-overflow-x'),
+  hasOverflowY: attr('data-has-overflow-y'),
+  overflowXStart: attr('data-overflow-x-start'),
+  overflowXEnd: attr('data-overflow-x-end'),
+  overflowYStart: attr('data-overflow-y-start'),
+  overflowYEnd: attr('data-overflow-y-end'),
   cornerHidden: () => null,
 };

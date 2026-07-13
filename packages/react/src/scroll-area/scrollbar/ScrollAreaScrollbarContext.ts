@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
 
-export interface ScrollAreaScrollbarContext {
-  orientation: 'horizontal' | 'vertical';
-}
+export type ScrollAreaScrollbarContext = 'horizontal' | 'vertical';
 
 export const ScrollAreaScrollbarContext = React.createContext<
   ScrollAreaScrollbarContext | undefined
