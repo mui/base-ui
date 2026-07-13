@@ -16,7 +16,6 @@ import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { ToastRootCssVars } from './ToastRootCssVars';
 import {
   BASE_UI_SWIPE_IGNORE_SELECTOR,
   LEGACY_SWIPE_IGNORE_SELECTOR,
@@ -71,7 +70,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   >(undefined);
   const [isSwiping, setIsSwiping] = React.useState(false);
   const [isRealSwipe, setIsRealSwipe] = React.useState(false);
-  const [dragDismissed, setDragDismissed] = React.useState(false);
   const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
   const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
   const [titleId, setTitleId] = React.useState<string | undefined>();
@@ -129,7 +127,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       store.updateToastInternal(toast.id, {
         ref: rootRef,
         height,
-        ...(toast.transitionStatus === 'starting' ? { transitionStatus: undefined } : {}),
+        transitionStatus: undefined,
       });
     }
 
@@ -154,40 +152,22 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }, []);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
-    let newDeltaX = deltaX;
-    let newDeltaY = deltaY;
+    const damp = (delta: number) =>
+      delta > 0
+        ? delta ** OPPOSITE_DIRECTION_DAMPING_FACTOR
+        : -(Math.abs(delta) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
 
-    if (!swipeDirections.includes('left') && !swipeDirections.includes('right')) {
-      newDeltaX =
-        deltaX > 0
-          ? deltaX ** OPPOSITE_DIRECTION_DAMPING_FACTOR
-          : -(Math.abs(deltaX) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
-    } else {
-      if (!swipeDirections.includes('right') && deltaX > 0) {
-        newDeltaX = deltaX ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
-      }
+    const dampX =
+      (deltaX > 0 && !swipeDirections.includes('right')) ||
+      (deltaX < 0 && !swipeDirections.includes('left'));
+    const dampY =
+      (deltaY > 0 && !swipeDirections.includes('down')) ||
+      (deltaY < 0 && !swipeDirections.includes('up'));
 
-      if (!swipeDirections.includes('left') && deltaX < 0) {
-        newDeltaX = -(Math.abs(deltaX) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
-      }
-    }
-
-    if (!swipeDirections.includes('up') && !swipeDirections.includes('down')) {
-      newDeltaY =
-        deltaY > 0
-          ? deltaY ** OPPOSITE_DIRECTION_DAMPING_FACTOR
-          : -(Math.abs(deltaY) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
-    } else {
-      if (!swipeDirections.includes('down') && deltaY > 0) {
-        newDeltaY = deltaY ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
-      }
-
-      if (!swipeDirections.includes('up') && deltaY < 0) {
-        newDeltaY = -(Math.abs(deltaY) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
-      }
-    }
-
-    return { x: newDeltaX, y: newDeltaY };
+    return {
+      x: dampX ? damp(deltaX) : deltaX,
+      y: dampY ? damp(deltaY) : deltaY,
+    };
   }
 
   const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
@@ -210,50 +190,20 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    let shouldClose = false;
     const resolvedDragOffset = dragOffsetRef.current;
     const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
     const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
     let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 
     for (const direction of swipeDirections) {
-      switch (direction) {
-        case 'right':
-          if (deltaX > SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'right';
-          }
-          break;
-        case 'left':
-          if (deltaX < -SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'left';
-          }
-          break;
-        case 'down':
-          if (deltaY > SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'down';
-          }
-          break;
-        case 'up':
-          if (deltaY < -SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'up';
-          }
-          break;
-        default:
-          break;
-      }
-
-      if (shouldClose) {
+      if (getDisplacement(direction, deltaX, deltaY) > SWIPE_THRESHOLD) {
+        dismissDirection = direction;
         break;
       }
     }
 
-    if (shouldClose) {
+    if (dismissDirection) {
       setCurrentSwipeDirection(dismissDirection);
-      setDragDismissed(true);
       store.closeToast(toast.id);
     } else {
       setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
@@ -272,9 +222,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
-    const isInteractiveElement = target
-      ? target.closest(`button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`)
-      : false;
+    const isInteractiveElement = target?.closest(
+      `button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`,
+    );
 
     if (isInteractiveElement) {
       return;
@@ -297,7 +247,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
-    store.setHovering(true);
+    store.set('hovering', true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -416,22 +366,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     let newOffsetX = initialTransformRef.current.x;
     let newOffsetY = initialTransformRef.current.y;
 
-    if (lockedDirection === 'horizontal') {
-      if (swipeDirections.includes('left') || swipeDirections.includes('right')) {
-        newOffsetX += dampedDelta.x;
-      }
-    } else if (lockedDirection === 'vertical') {
-      if (swipeDirections.includes('up') || swipeDirections.includes('down')) {
-        newOffsetY += dampedDelta.y;
-      }
-    } else {
-      if (swipeDirections.includes('left') || swipeDirections.includes('right')) {
-        newOffsetX += dampedDelta.x;
-      }
+    const hasHorizontalDir = swipeDirections.includes('left') || swipeDirections.includes('right');
+    const hasVerticalDir = swipeDirections.includes('up') || swipeDirections.includes('down');
 
-      if (swipeDirections.includes('up') || swipeDirections.includes('down')) {
-        newOffsetY += dampedDelta.y;
-      }
+    if (lockedDirection !== 'vertical' && hasHorizontalDir) {
+      newOffsetX += dampedDelta.x;
+    }
+
+    if (lockedDirection !== 'horizontal' && hasVerticalDir) {
+      newOffsetY += dampedDelta.y;
     }
 
     setResolvedDragOffset({ x: newOffsetX, y: newOffsetY });
@@ -477,18 +420,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }, [swipeEnabled]);
 
   function getDragStyles() {
-    if (
-      !isSwiping &&
-      dragOffset.x === initialTransform.x &&
-      dragOffset.y === initialTransform.y &&
-      !dragDismissed
-    ) {
-      return {
-        [ToastRootCssVars.swipeMovementX]: '0px',
-        [ToastRootCssVars.swipeMovementY]: '0px',
-      };
-    }
-
     const deltaX = dragOffset.x - initialTransform.x;
     const deltaY = dragOffset.y - initialTransform.y;
 
@@ -499,8 +430,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       transform: isSwiping
         ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
-      [ToastRootCssVars.swipeMovementX]: `${deltaX}px`,
-      [ToastRootCssVars.swipeMovementY]: `${deltaY}px`,
+      ['--toast-swipe-movement-x']: `${deltaX}px`,
+      ['--toast-swipe-movement-y']: `${deltaY}px`,
     };
   }
 
@@ -521,39 +452,22 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
-      [ToastRootCssVars.index as string]:
-        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
-      [ToastRootCssVars.height as string]: toast.height ? `${toast.height}px` : undefined,
+      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      ['--toast-offset-y' as string]: `${offsetY}px`,
+      ['--toast-height' as string]: toast.height ? `${toast.height}px` : undefined,
     },
   };
 
   const toastRoot: ToastRootContext = React.useMemo(
     () => ({
-      rootRef,
       toast,
-      titleId,
       setTitleId,
-      descriptionId,
       setDescriptionId,
-      swiping: isSwiping,
-      swipeDirection: currentSwipeDirection,
       recalculateHeight,
-      index: domIndex,
       visibleIndex,
       expanded,
     }),
-    [
-      toast,
-      titleId,
-      descriptionId,
-      isSwiping,
-      currentSwipeDirection,
-      recalculateHeight,
-      domIndex,
-      visibleIndex,
-      expanded,
-    ],
+    [toast, setTitleId, setDescriptionId, recalculateHeight, visibleIndex, expanded],
   );
 
   const state: ToastRootState = {
@@ -561,12 +475,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     expanded,
     limited: toast.limited || false,
     type: toast.type,
-    swiping: toastRoot.swiping,
-    swipeDirection: toastRoot.swipeDirection,
+    swiping: isSwiping,
+    swipeDirection: currentSwipeDirection,
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, toastRoot.rootRef],
+    ref: [forwardedRef, rootRef],
     state,
     stateAttributesMapping,
     props: [defaultProps, elementProps],

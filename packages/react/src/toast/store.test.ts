@@ -54,7 +54,7 @@ describe('ToastStore', () => {
     expectToastMetadataToMatchToasts(store);
     expect(selectors.toast(store.state, 'middle')?.transitionStatus).toBe('ending');
 
-    store.removeToast('middle', { skipOnRemove: true });
+    store.removeToast('middle', true);
 
     expectToastMetadataToMatchToasts(store);
 
@@ -68,12 +68,12 @@ describe('ToastStore', () => {
       // Ordered newest-first, matching how `addToast` prepends.
       const store = createStore([{ id: 'c' }, { id: 'b' }, { id: 'a' }]);
 
-      store.syncProviderProps({ timeout: 0, limit: 1 });
+      store.syncProviderProps(0, 1);
       expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'b')?.limited).toBe(true);
       expect(selectors.toast(store.state, 'a')?.limited).toBe(true);
 
-      store.syncProviderProps({ timeout: 0, limit: 3 });
+      store.syncProviderProps(0, 3);
       expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'b')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'a')?.limited).toBe(false);
