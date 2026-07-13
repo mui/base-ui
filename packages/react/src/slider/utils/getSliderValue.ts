@@ -1,5 +1,5 @@
 import { clamp } from '../../internals/clamp';
-import { replaceArrayItemAtIndex } from './replaceArrayItemAtIndex';
+import { asc } from './asc';
 
 export function getSliderValue(
   valueInput: number,
@@ -9,18 +9,14 @@ export function getSliderValue(
   range: boolean,
   values: readonly number[],
 ) {
-  let newValue: number | number[] = valueInput;
+  const clamped = clamp(valueInput, min, max);
 
-  newValue = clamp(newValue, min, max);
-
-  if (range) {
-    newValue = replaceArrayItemAtIndex(
-      values,
-      index,
-      // Bound the new value to the thumb's neighbours.
-      clamp(newValue, values[index - 1] ?? -Infinity, values[index + 1] ?? Infinity),
-    );
+  if (!range) {
+    return clamped;
   }
 
-  return newValue;
+  const output = values.slice();
+  // Bound the new value to the thumb's neighbours.
+  output[index] = clamp(clamped, values[index - 1] ?? -Infinity, values[index + 1] ?? Infinity);
+  return output.sort(asc);
 }

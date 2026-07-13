@@ -70,7 +70,6 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
-  pressedInputRef: React.RefObject<HTMLInputElement | null>;
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   pressedValuesRef: React.RefObject<readonly number[] | null>;
