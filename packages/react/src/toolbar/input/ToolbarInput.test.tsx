@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../internals/noop';
@@ -51,6 +52,53 @@ describe('<Toolbar.Input />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard navigation', () => {
+    it.each([
+      ['ltr', ARROW_RIGHT, ARROW_LEFT],
+      ['rtl', ARROW_LEFT, ARROW_RIGHT],
+    ] as const)(
+      'respects caret and selection boundaries in horizontal %s toolbars',
+      async (direction, nextKey, previousKey) => {
+        const { user } = await render(
+          <DirectionProvider direction={direction}>
+            <Toolbar.Root orientation="horizontal">
+              <Toolbar.Button data-testid="before" />
+              <Toolbar.Input defaultValue="abcd" />
+              <Toolbar.Button data-testid="after" />
+            </Toolbar.Root>
+          </DirectionProvider>,
+        );
+        const input = screen.getByRole('textbox') as HTMLInputElement;
+        const before = screen.getByTestId('before');
+        const after = screen.getByTestId('after');
+
+        await user.keyboard('[Tab]');
+        await user.keyboard(`[${nextKey}]`);
+        expect(input).toHaveFocus();
+
+        input.setSelectionRange(1, 3);
+        await user.keyboard(`[${nextKey}]`);
+        expect(input).toHaveFocus();
+
+        input.setSelectionRange(2, 2);
+        await user.keyboard(`[ShiftLeft>][${nextKey}][/ShiftLeft]`);
+        expect(input).toHaveFocus();
+
+        const nextBoundary =
+          direction === 'rtl' || nextKey === ARROW_RIGHT ? input.value.length : 0;
+        input.setSelectionRange(nextBoundary, nextBoundary);
+        await user.keyboard(`[${nextKey}]`);
+        expect(after).toHaveFocus();
+
+        await user.keyboard(`[${previousKey}]`);
+        expect(input).toHaveFocus();
+        const previousBoundary =
+          direction === 'rtl' || previousKey === ARROW_LEFT ? 0 : input.value.length;
+        input.setSelectionRange(previousBoundary, previousBoundary);
+        await user.keyboard(`[${previousKey}]`);
+        expect(before).toHaveFocus();
+      },
+    );
+
     // when navigating through RTL text in real browsers the arrow keys for
     // moving the text insertion cursor is also reversed from LTR but this doesn't
     // work with testing library
