@@ -749,6 +749,45 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByRole('listbox')).not.toBe(null);
       });
 
+      it.skipIf(isJSDOM)(
+        'highlights and scrolls the selected item into view on first open (no items prop)',
+        async ({ onTestFinished }) => {
+          const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+          onTestFinished(() => scrollIntoView.mockRestore());
+
+          const { user } = await render(
+            <Combobox.Root defaultValue="banana">
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                      <Combobox.Item value="cherry">cherry</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          await user.click(input);
+
+          const selectedItem = await screen.findByRole('option', { name: 'banana' });
+          await waitFor(() => {
+            expect(selectedItem).toHaveAttribute('data-highlighted');
+          });
+          await waitFor(() => {
+            expect(input).toHaveAttribute('aria-activedescendant', selectedItem.id);
+          });
+          await waitFor(() => {
+            expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+          });
+        },
+      );
+
       it('clears selectedIndex when the value is cleared externally while closed (no items prop)', async () => {
         function App() {
           const [value, setValue] = React.useState<string | null>('banana');
