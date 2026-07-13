@@ -41,23 +41,27 @@ describe('<Form />', () => {
     const onFormSubmit = vi.fn();
     const select = vi.spyOn(HTMLInputElement.prototype, 'select');
 
-    const { user } = render(
-      <Form onFormSubmit={onFormSubmit}>
-        <Field.Root name="custom" validate={() => 'custom error'}>
-          <Field.Control data-testid="custom" />
-        </Field.Root>
-        <Field.Root name="native">
-          <Field.Control data-testid="native" required />
-        </Field.Root>
-        <button type="submit">Submit</button>
-      </Form>,
-    );
+    try {
+      const { user } = render(
+        <Form onFormSubmit={onFormSubmit}>
+          <Field.Root name="custom" validate={() => 'custom error'}>
+            <Field.Control data-testid="custom" />
+          </Field.Root>
+          <Field.Root name="native">
+            <Field.Control data-testid="native" required />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
 
-    await user.click(screen.getByRole('button', { name: 'Submit' }));
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
 
-    expect(onFormSubmit).not.toHaveBeenCalled();
-    expect(screen.getByTestId('custom')).toHaveFocus();
-    expect(select).toHaveBeenCalledTimes(1);
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('custom')).toHaveFocus();
+      expect(select).toHaveBeenCalledTimes(1);
+    } finally {
+      select.mockRestore();
+    }
   });
 
   it('submits when a valid async validator is pending', async () => {
