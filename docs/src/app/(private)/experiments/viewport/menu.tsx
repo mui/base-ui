@@ -24,7 +24,6 @@ export default function Experiment() {
               <Menu.Viewport
                 className={styles.Viewport}
                 transitionKey={view}
-                style={{ '--direction': view === 'more' ? 1 : -1 } as React.CSSProperties}
                 onKeyDown={(event) => {
                   if (event.key === 'ArrowLeft' && view === 'more') {
                     setView('main');

@@ -35,10 +35,16 @@ export interface PopupViewportState {
    */
   activationDirection: string | undefined;
   /**
+   * Whether a transition-key change entered new content or returned to prior content.
+   */
+  transitionDirection: PopupViewportTransitionDirection | undefined;
+  /**
    * Whether the viewport is currently transitioning between contents.
    */
   transitioning: boolean;
 }
+
+export type PopupViewportTransitionDirection = 'forward' | 'back';
 
 type PopupViewportStore = Pick<ReactStore<any, any, any>, 'useState' | 'set'>;
 
@@ -65,7 +71,12 @@ export interface UsePopupViewportParameters {
    * element of the new content when focus was inside the previous content).
    * Must be a stable function reference.
    */
-  onContentSwap?: ((details: { focusWasInside: boolean }) => void) | undefined;
+  onContentSwap?:
+    | ((details: {
+        focusWasInside: boolean;
+        direction: PopupViewportTransitionDirection | undefined;
+      }) => void)
+    | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -161,12 +172,17 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
   const lastTransitionKeyRef = React.useRef(transitionKey);
+  const transitionKeyStackRef = React.useRef<Array<React.Key | undefined>>([transitionKey]);
   const transitionGenerationRef = React.useRef(0);
+  const [transitionDirection, setTransitionDirection] =
+    React.useState<PopupViewportTransitionDirection>();
 
   useIsoLayoutEffect(() => {
     if (!open || !mounted) {
       lastHandledTriggerRef.current = null;
       focusWasInsideRef.current = false;
+      transitionKeyStackRef.current = [transitionKey];
+      setTransitionDirection(undefined);
     }
     if (!mounted) {
       // A transition interrupted by closing cannot finish once the popup is hidden; reset it.
@@ -176,7 +192,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       setShowStartingStyleAttribute(false);
       capturedNodeRef.current = null;
     }
-  }, [open, mounted, cleanupFrame]);
+  }, [open, mounted, cleanupFrame, transitionKey]);
 
   useIsoLayoutEffect(() => {
     const triggerChanged =
@@ -190,8 +206,26 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
     lastTransitionKeyRef.current = transitionKey;
 
+    let contentSwapDirection: PopupViewportTransitionDirection | undefined;
+    if (transitionKeyChanged) {
+      const existingIndex = transitionKeyStackRef.current.findIndex((key) => key === transitionKey);
+      if (existingIndex === -1) {
+        transitionKeyStackRef.current.push(transitionKey);
+        contentSwapDirection = 'forward';
+      } else {
+        transitionKeyStackRef.current.length = existingIndex + 1;
+        contentSwapDirection = 'back';
+      }
+      setTransitionDirection(contentSwapDirection);
+    } else if (triggerChanged) {
+      setTransitionDirection(undefined);
+    }
+
     if (triggerChanged || transitionKeyChanged) {
-      onContentSwap?.({ focusWasInside: focusWasInsideRef.current });
+      onContentSwap?.({
+        focusWasInside: focusWasInsideRef.current,
+        direction: contentSwapDirection,
+      });
     }
 
     // When a trigger or the transition key changes, set the captured children HTML to state,
@@ -347,6 +381,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const state: PopupViewportState = {
     activationDirection: getActivationDirection(newTriggerOffset),
+    transitionDirection,
     transitioning: isTransitioning,
   };
 

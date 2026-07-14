@@ -93,7 +93,7 @@ describe('<Menu.Viewport />', () => {
     });
   });
 
-  it('should highlight and focus the first item of the new content when the transition key changes with focus inside', async () => {
+  it('should focus the first item when navigating forward with the keyboard and restore the originating item when navigating back', async () => {
     function TestComponent() {
       const [view, setView] = React.useState<'main' | 'more'>('main');
 
@@ -103,7 +103,15 @@ describe('<Menu.Viewport />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Menu.Viewport transitionKey={view}>
+                <Menu.Viewport
+                  data-testid="viewport"
+                  transitionKey={view}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowLeft' && view === 'more') {
+                      setView('main');
+                    }
+                  }}
+                >
                   {view === 'main' ? (
                     <React.Fragment>
                       <Menu.Item>New window</Menu.Item>
@@ -133,9 +141,10 @@ describe('<Menu.Viewport />', () => {
 
     const moreToolsItem = screen.getByRole('menuitem', { name: 'More tools' });
     await act(async () => moreToolsItem.focus());
-    await user.click(moreToolsItem);
+    await user.keyboard('{Enter}');
 
     const backItem = await screen.findByRole('menuitem', { name: 'Back' });
+    expect(screen.getByTestId('viewport')).toHaveAttribute('data-activation-direction', 'forward');
     await waitFor(() => {
       expect(backItem).toHaveFocus();
     });
@@ -147,6 +156,70 @@ describe('<Menu.Viewport />', () => {
     expect(screen.getByRole('menuitem', { name: 'Task manager' })).not.toHaveAttribute(
       'data-highlighted',
     );
+
+    await user.keyboard('{ArrowLeft}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveFocus();
+    });
+    expect(screen.getByTestId('viewport')).toHaveAttribute('data-activation-direction', 'back');
+    expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveAttribute(
+      'data-highlighted',
+    );
+  });
+
+  it('should focus the popup without highlighting an item when navigating with the pointer', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<'main' | 'more'>('main');
+
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="popup">
+                <Menu.Viewport transitionKey={view}>
+                  {view === 'main' ? (
+                    <React.Fragment>
+                      <Menu.Item>New window</Menu.Item>
+                      <Menu.Item closeOnClick={false} onClick={() => setView('more')}>
+                        More tools
+                      </Menu.Item>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Menu.Item closeOnClick={false} onClick={() => setView('main')}>
+                        Back
+                      </Menu.Item>
+                      <Menu.Item>Developer tools</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const popup = screen.getByTestId('popup');
+
+    await user.click(screen.getByRole('menuitem', { name: 'More tools' }));
+
+    const backItem = await screen.findByRole('menuitem', { name: 'Back' });
+    await waitFor(() => {
+      expect(popup).toHaveFocus();
+    });
+    expect(backItem).not.toHaveAttribute('data-highlighted');
+
+    await user.click(backItem);
+
+    const moreToolsItem = await screen.findByRole('menuitem', { name: 'More tools' });
+    await waitFor(() => {
+      expect(popup).toHaveFocus();
+    });
+    expect(moreToolsItem).not.toHaveAttribute('data-highlighted');
   });
 
   it('should keep list navigation in sync after the content swaps', async () => {
@@ -188,7 +261,7 @@ describe('<Menu.Viewport />', () => {
 
     const moreToolsItem = screen.getByRole('menuitem', { name: 'More tools' });
     await act(async () => moreToolsItem.focus());
-    await user.click(moreToolsItem);
+    await user.keyboard('{Enter}');
 
     const backItem = await screen.findByRole('menuitem', { name: 'Back' });
     await waitFor(() => {

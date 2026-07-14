@@ -1,12 +1,17 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getMinListIndex, isIndexOutOfListBounds } from '../../internals/composite/composite';
-import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
+import {
+  popupViewportStateMapping,
+  type PopupViewportTransitionDirection,
+  usePopupViewport,
+} from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -25,28 +30,86 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   const { side } = useMenuPositionerContext();
 
   const instantType = store.useState('instantType');
+  const open = store.useState('open');
+  const interactionTypeRef = React.useRef<{
+    type: 'keyboard' | 'pointer';
+  } | null>(null);
+  const returnIndexesRef = React.useRef<Array<number | null>>([]);
 
-  // The item list is rebuilt when the content swaps, so the previous highlight index points
-  // at an arbitrary item of the new content. Clear it, and when focus was inside the swapped
-  // content, highlight and focus the first item of the new content.
-  const handleContentSwap = useStableCallback(({ focusWasInside }: { focusWasInside: boolean }) => {
-    store.set('activeIndex', null);
-    if (!focusWasInside) {
-      return;
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      returnIndexesRef.current = [];
     }
-    store.select('popupElement')?.focus({ preventScroll: true });
-    // The new items commit their list registrations after this effect; highlight the first
-    // item once the list has settled so `useListNavigation` moves focus to it.
+  }, [open]);
+
+  const setInteractionType = useStableCallback((type: 'keyboard' | 'pointer') => {
+    const interaction = { type };
+    interactionTypeRef.current = interaction;
     queueMicrotask(() => {
-      if (!store.select('open')) {
-        return;
-      }
-      const firstIndex = getMinListIndex(store.context.itemDomElements);
-      if (!isIndexOutOfListBounds(store.context.itemDomElements.current, firstIndex)) {
-        store.set('activeIndex', firstIndex);
+      if (interactionTypeRef.current === interaction) {
+        interactionTypeRef.current = null;
       }
     });
   });
+
+  const handleKeyDownCapture = useStableCallback(() => {
+    setInteractionType('keyboard');
+  });
+
+  const handleClickCapture = useStableCallback((event: React.MouseEvent) => {
+    setInteractionType(event.detail === 0 ? 'keyboard' : 'pointer');
+  });
+
+  // The item list is rebuilt when the content swaps, so clear the previous highlight index.
+  // Keyboard navigation moves focus into the new view or back to the originating item, while
+  // pointer navigation keeps focus on the popup and leaves all items unhighlighted.
+  const handleContentSwap = useStableCallback(
+    ({
+      focusWasInside,
+      direction,
+    }: {
+      focusWasInside: boolean;
+      direction: PopupViewportTransitionDirection | undefined;
+    }) => {
+      const activeIndex = store.select('activeIndex');
+      let returnIndex: number | null = null;
+
+      if (direction === 'forward') {
+        returnIndexesRef.current.push(activeIndex);
+      } else if (direction === 'back') {
+        returnIndex = returnIndexesRef.current.pop() ?? null;
+      }
+
+      store.set('activeIndex', null);
+      if (!focusWasInside) {
+        interactionTypeRef.current = null;
+        return;
+      }
+
+      store.select('popupElement')?.focus({ preventScroll: true });
+      if (interactionTypeRef.current?.type !== 'keyboard') {
+        interactionTypeRef.current = null;
+        return;
+      }
+
+      interactionTypeRef.current = null;
+      // The new items commit their list registrations after this effect. Once the list has
+      // settled, focus either the originating item when returning or the first item when entering.
+      queueMicrotask(() => {
+        if (!store.select('open')) {
+          return;
+        }
+        const nextIndex =
+          direction === 'back' ? returnIndex : getMinListIndex(store.context.itemDomElements);
+        if (
+          nextIndex != null &&
+          !isIndexOutOfListBounds(store.context.itemDomElements.current, nextIndex)
+        ) {
+          store.set('activeIndex', nextIndex);
+        }
+      });
+    },
+  );
 
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
@@ -57,7 +120,7 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   });
 
   const state: MenuViewportState = {
-    activationDirection: viewportState.activationDirection,
+    activationDirection: viewportState.transitionDirection ?? viewportState.activationDirection,
     transitioning: viewportState.transitioning,
     instant: instantType,
   };
@@ -65,7 +128,14 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   return useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [elementProps, { children: childrenToRender }],
+    props: [
+      elementProps,
+      {
+        children: childrenToRender,
+        onKeyDownCapture: handleKeyDownCapture,
+        onClickCapture: handleClickCapture,
+      },
+    ],
     stateAttributesMapping: popupViewportStateMapping,
   });
 });
@@ -92,7 +162,8 @@ export interface MenuViewportProps extends BaseUIComponentProps<'div', MenuViewp
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content and highlights and focuses its first item if focus was inside the previous content.
+   * content. Keyboard navigation focuses the first item when entering and restores the originating
+   * item when returning. Pointer navigation focuses the popup without highlighting an item.
    */
   transitionKey?: React.Key | undefined;
 }

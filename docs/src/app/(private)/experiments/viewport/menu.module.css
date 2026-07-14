@@ -15,17 +15,15 @@
   transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
   transition-duration: var(--duration);
-
-  &[data-instant] {
-    transition: none;
-  }
 }
 
 .Popup {
+  --popup-border-width: 1px;
+
   box-sizing: border-box;
   position: relative;
   outline: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
+  border: var(--popup-border-width) solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -50,10 +48,6 @@
     opacity: 0;
     transform: scale(0.98);
   }
-
-  &[data-instant] {
-    transition: none;
-  }
 }
 
 .Viewport {
@@ -65,10 +59,15 @@
   height: 100%;
   padding-block: 0.25rem;
 
-  /* `--direction` is set by the demo: 1 when entering a subview, -1 when going back */
+  --direction: 1;
+
+  &[data-activation-direction='back'] {
+    --direction: -1;
+  }
+
   [data-previous],
   [data-current] {
-    width: var(--popup-width);
+    width: calc(var(--popup-width) - var(--popup-border-width) - var(--popup-border-width));
     transition: transform var(--duration) var(--easing);
   }
 
