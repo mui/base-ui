@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { toValidatedNumber, removeFloatingPointErrors } from './validate';
+import { toValidatedNumber as toValidatedNumberImpl, removeFloatingPointErrors } from './validate';
 
 const min = Number.MIN_SAFE_INTEGER;
 const max = Number.MAX_SAFE_INTEGER;
@@ -14,6 +14,31 @@ const defaultOptions = {
   small: false,
   clamp: true,
 } as const;
+
+// Adapter over the positional signature so fixtures can spread option objects.
+type ValidateOptions = {
+  step: number | undefined;
+  minWithDefault: number;
+  maxWithDefault: number;
+  minWithZeroDefault: number;
+  format: Parameters<typeof toValidatedNumberImpl>[5];
+  snapOnStep: boolean;
+  small: boolean;
+  clamp: boolean;
+};
+
+const toValidatedNumber = (value: number | null, options: ValidateOptions) =>
+  toValidatedNumberImpl(
+    value,
+    options.step,
+    options.minWithDefault,
+    options.maxWithDefault,
+    options.minWithZeroDefault,
+    options.format,
+    options.snapOnStep,
+    options.small,
+    options.clamp,
+  );
 
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {

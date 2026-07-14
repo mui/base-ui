@@ -62,11 +62,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     touched = false,
     validation,
     name,
+    setCheckedValue = NOOP,
+    setTouched = NOOP,
+    registerControlRef = NOOP,
+    registerInputRef = NOOP,
   } = groupContext ?? {};
-  const setCheckedValue = groupContext?.setCheckedValue ?? NOOP;
-  const setTouched = groupContext?.setTouched ?? NOOP;
-  const registerControlRef = groupContext?.registerControlRef ?? NOOP;
-  const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
     setTouched: setFieldTouched,
@@ -138,8 +138,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
-    'aria-required': required || undefined,
-    'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,

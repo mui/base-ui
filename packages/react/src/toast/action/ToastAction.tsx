@@ -38,7 +38,8 @@ export const ToastAction = React.forwardRef(function ToastAction(
     type: toast.type,
   };
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
+    enabled: shouldRender,
     ref: [forwardedRef, buttonRef],
     state,
     props: [
@@ -50,12 +51,6 @@ export const ToastAction = React.forwardRef(function ToastAction(
       },
     ],
   });
-
-  if (!shouldRender) {
-    return null;
-  }
-
-  return element;
 });
 
 export interface ToastActionState {

@@ -28,7 +28,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
-  const groupContext = useToolbarGroupContext(true);
+  const groupContext = useToolbarGroupContext();
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
@@ -50,17 +50,15 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     focusable: focusableWhenDisabled,
   };
 
+  const preventWhenDisabled = (event: React.SyntheticEvent) => {
+    if (disabled) {
+      event.preventDefault();
+    }
+  };
+
   const defaultProps: HTMLProps = {
-    onClick(event) {
-      if (disabled) {
-        event.preventDefault();
-      }
-    },
-    onPointerDown(event) {
-      if (disabled) {
-        event.preventDefault();
-      }
-    },
+    onClick: preventWhenDisabled,
+    onPointerDown: preventWhenDisabled,
   };
 
   return (

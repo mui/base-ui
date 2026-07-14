@@ -8,6 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useButton } from '../../internals/use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
+import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -40,18 +41,15 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const {
     value: activeTabValue,
     getTabPanelIdByValue,
+    onValueChange,
     orientation,
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const {
-    activateOnFocus,
-    highlightedTabIndex,
-    onTabActivation,
-    registerTabResizeObserverElement,
-    setHighlightedTabIndex,
-    tabsListElement,
-  } = useTabsListContext();
+  const { activateOnFocus, registerTabResizeObserverElement, tabsListElement } =
+    useTabsListContext();
+
+  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
 
   const id = useBaseUiId(idProp);
 
@@ -89,7 +87,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (!(active && index > -1 && highlightedTabIndex !== index)) {
+    if (!(active && index > -1 && highlightedIndex !== index)) {
       return;
     }
 
@@ -107,9 +105,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
     // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
     // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
     if (!disabled) {
-      setHighlightedTabIndex(index);
+      onHighlightedIndexChange(index);
     }
-  }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
+  }, [active, index, highlightedIndex, onHighlightedIndexChange, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -122,12 +120,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
-  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (active || disabled) {
-      return;
-    }
-
-    onTabActivation(
+  // Both callers guard on `!active`, so the current value is never re-committed.
+  function activate(event: React.SyntheticEvent) {
+    onValueChange(
       value,
       createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
@@ -135,17 +130,16 @@ export const TabsTab = React.forwardRef(function TabsTab(
     );
   }
 
-  function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-    if (active) {
+  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
+    if (active || disabled) {
       return;
     }
 
-    // Only highlight enabled tabs when focused (disabled tabs remain focusable via focusableWhenDisabled).
-    if (index > -1 && !disabled) {
-      setHighlightedTabIndex(index);
-    }
+    activate(event);
+  }
 
-    if (disabled) {
+  function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
+    if (active || disabled) {
       return;
     }
 
@@ -154,12 +148,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       (!isPressingRef.current || // keyboard or touch focus
         (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
-      onTabActivation(
-        value,
-        createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
-          activationDirection: 'none',
-        }),
-      );
+      activate(event);
     }
   }
 
@@ -175,7 +164,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       isMainButtonRef.current = false;
     }
 
-    if (!event.button || event.button === 0) {
+    if (!event.button) {
       isMainButtonRef.current = true;
 
       const doc = ownerDocument(event.currentTarget);

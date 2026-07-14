@@ -59,7 +59,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   // `limit` needs custom syncing because changing it must also recompute each
   // toast's `limited` flag; `useSyncedValues` would only update the raw value.
   useIsoLayoutEffect(() => {
-    store.syncProviderProps({ timeout, limit });
+    store.syncProviderProps(timeout, limit);
   }, [store, timeout, limit]);
 
   return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;

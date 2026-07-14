@@ -306,6 +306,39 @@ describe('<NumberField.Increment />', () => {
       expect(input).toHaveValue('4');
     });
 
+    it('removes the global release listener when unmounted during a hold', async () => {
+      const addEventListener = vi.spyOn(window, 'addEventListener');
+      const removeEventListener = vi.spyOn(window, 'removeEventListener');
+
+      function App(props: { mounted: boolean }) {
+        return props.mounted ? (
+          <NumberField.Root defaultValue={0}>
+            <NumberField.Increment />
+            <NumberField.Input />
+          </NumberField.Root>
+        ) : null;
+      }
+
+      try {
+        const { setProps } = await render(<App mounted />);
+        fireEvent.pointerDown(screen.getByRole('button'));
+
+        const pointerUpListener = addEventListener.mock.calls.find(
+          ([type]) => type === 'pointerup',
+        );
+        expect(pointerUpListener).toBeDefined();
+
+        await setProps({ mounted: false });
+
+        expect(removeEventListener).toHaveBeenCalledWith('pointerup', pointerUpListener?.[1], {
+          once: true,
+        });
+      } finally {
+        addEventListener.mockRestore();
+        removeEventListener.mockRestore();
+      }
+    });
+
     it('stops calling onValueChange once max is reached', async () => {
       const handleValueChange = vi.fn();
       await render(

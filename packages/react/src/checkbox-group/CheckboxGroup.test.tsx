@@ -189,6 +189,51 @@ describe('<CheckboxGroup />', () => {
       expect(green).toHaveAttribute('aria-checked', 'true');
       expect(blue).toHaveAttribute('aria-checked', 'false');
     });
+
+    it('keeps omitted defaults isolated between groups in Strict Mode', async () => {
+      const { user } = render(
+        <React.StrictMode>
+          <CheckboxGroup allValues={['a-1', 'a-2']}>
+            <Checkbox.Root parent data-testid="a-parent" />
+            <Checkbox.Root value="a-1" data-testid="a-1" />
+            <Checkbox.Root value="a-2" data-testid="a-2" />
+          </CheckboxGroup>
+          <CheckboxGroup allValues={['b-1', 'b-2']}>
+            <Checkbox.Root parent data-testid="b-parent" />
+            <Checkbox.Root value="b-1" data-testid="b-1" />
+            <Checkbox.Root value="b-2" data-testid="b-2" />
+          </CheckboxGroup>
+        </React.StrictMode>,
+      );
+
+      const aParent = screen.getByTestId('a-parent');
+      const a1 = screen.getByTestId('a-1');
+      const a2 = screen.getByTestId('a-2');
+      const bParent = screen.getByTestId('b-parent');
+      const b1 = screen.getByTestId('b-1');
+      const b2 = screen.getByTestId('b-2');
+
+      await user.click(a1);
+      expect(aParent).toHaveAttribute('aria-checked', 'mixed');
+      expect(bParent).toHaveAttribute('aria-checked', 'false');
+      expect(b1).toHaveAttribute('aria-checked', 'false');
+      expect(b2).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(bParent);
+      expect(b1).toHaveAttribute('aria-checked', 'true');
+      expect(b2).toHaveAttribute('aria-checked', 'true');
+      expect(a1).toHaveAttribute('aria-checked', 'true');
+      expect(a2).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(aParent);
+      expect(a1).toHaveAttribute('aria-checked', 'true');
+      expect(a2).toHaveAttribute('aria-checked', 'true');
+      expect(bParent).toHaveAttribute('aria-checked', 'true');
+
+      await user.click(b1);
+      expect(bParent).toHaveAttribute('aria-checked', 'mixed');
+      expect(aParent).toHaveAttribute('aria-checked', 'true');
+    });
   });
 
   describe('prop: disabled', () => {

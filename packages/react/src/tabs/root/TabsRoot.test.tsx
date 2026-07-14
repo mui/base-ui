@@ -161,6 +161,73 @@ describe('<Tabs.Root />', () => {
         expect(tabs[1]).toHaveAttribute('aria-controls', secondTabPanel.id);
       });
     });
+
+    it('cleans and replaces panel registrations in Strict Mode', async () => {
+      function App() {
+        const [panel, setPanel] = React.useState({ id: 'panel-a', mounted: true, value: 'a' });
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => setPanel({ id: 'panel-b', mounted: true, value: 'b' })}
+            >
+              replace
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel((current) => ({ ...current, mounted: false }))}
+            >
+              unmount
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel({ id: 'panel-c', mounted: true, value: 'b' })}
+            >
+              remount
+            </button>
+            <Tabs.Root value="a">
+              <Tabs.List>
+                <Tabs.Tab value="a">A</Tabs.Tab>
+                <Tabs.Tab value="b">B</Tabs.Tab>
+              </Tabs.List>
+              {panel.mounted && <Tabs.Panel key={panel.id} value={panel.value} keepMounted />}
+            </Tabs.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>,
+      );
+      const [tabA, tabB] = screen.getAllByRole('tab');
+
+      expect(tabA).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
+      expect(tabB).not.toHaveAttribute('aria-controls');
+
+      await user.click(screen.getByRole('button', { name: 'replace' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'unmount' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).not.toHaveAttribute('aria-controls');
+
+      await user.click(screen.getByRole('button', { name: 'remount' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
+    });
   });
 
   describe('prop: value', () => {
@@ -2254,6 +2321,54 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('highlight synchronization on external value change relative to focus', () => {
+    it.each([true, false])(
+      'keeps controlled async activation and focus aligned with activateOnFocus=%s',
+      async (activateOnFocus) => {
+        const onValueChange = vi.fn();
+
+        function App() {
+          const [value, setValue] = React.useState(0);
+          return (
+            <Tabs.Root
+              value={value}
+              onValueChange={(nextValue) => {
+                onValueChange(nextValue);
+                Promise.resolve().then(() => setValue(nextValue));
+              }}
+            >
+              <Tabs.List activateOnFocus={activateOnFocus}>
+                <Tabs.Tab value={0}>First</Tabs.Tab>
+                <Tabs.Tab value={1} disabled>
+                  Disabled
+                </Tabs.Tab>
+                <Tabs.Tab value={2}>Third</Tabs.Tab>
+              </Tabs.List>
+            </Tabs.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const [firstTab, disabledTab, thirdTab] = screen.getAllByRole('tab');
+
+        await act(async () => firstTab.focus());
+        await user.keyboard('{ArrowRight}');
+        expect(disabledTab).toHaveFocus();
+        expect(firstTab).toHaveAttribute('aria-selected', 'true');
+
+        await user.keyboard('{ArrowRight}');
+        expect(thirdTab).toHaveFocus();
+
+        if (!activateOnFocus) {
+          expect(onValueChange).not.toHaveBeenCalled();
+          await user.keyboard('{Enter}');
+        }
+
+        await waitFor(() => expect(thirdTab).toHaveAttribute('aria-selected', 'true'));
+        expect(thirdTab).toHaveFocus();
+        expect(onValueChange).toHaveBeenCalledWith(2);
+      },
+    );
+
     it('when focus is outside the tablist, highlight follows the new active tab (tabIndex=0 moves)', async () => {
       const { setProps } = await render(
         <Tabs.Root value={0}>
