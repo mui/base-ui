@@ -93,6 +93,7 @@
         pointer-events: none;
         inset: 0;
         z-index: 1;
+        border-radius: inherit;
         outline: 2px solid var(--gray-t2);
         outline-offset: -2px;
       }

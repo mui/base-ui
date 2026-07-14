@@ -4,14 +4,15 @@
    * content that makes every repaint-driven re-composite of the page ("Layerize")
    * more expensive.
    *
-   * The placeholder height is exact for closed accordions/tables when these 2.5rem
-   * row-height selectors stay in sync: .AccordionHeaderCellInner, .AccordionTrigger,
-   * .AccordionScrollableInner, and .TableCellInner.
+   * The placeholder is the minimum closed height for accordions/tables. Keep the
+   * row heights from .AccordionHeaderCellInner, .AccordionTrigger,
+   * .AccordionScrollableInner, and .TableCellInner in sync with the formula below.
    *
    * The calc is the content-box height: 1 header row + var(--rows) body rows, plus
    * the var(--rows) inter-row borders. The root's own top/bottom border is added by
    * the browser because `contain-intrinsic-height` sizes the content box.
-   * The placeholder may be approximate when type cells wrap.
+   * Wrapped row content, including type cells and method signatures, can make the
+   * placeholder approximate until the browser records the rendered size.
    *
    * `--rows` is set inline by the reference components. The fallback only keeps the
    * calc valid if it ever goes missing: without it the whole declaration would be

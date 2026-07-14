@@ -15,7 +15,8 @@ export function AttributesReferenceTable({
   name: partName,
   ...props
 }: AttributesReferenceTableProps) {
-  // Lets CSS compute the exact placeholder height for `contain-intrinsic-height`
+  // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+  // wrapped row content may be taller.
   const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
 
   return (

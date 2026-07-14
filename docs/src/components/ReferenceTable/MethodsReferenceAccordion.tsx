@@ -26,7 +26,8 @@ export function MethodsReferenceAccordion({
       aria-describedby={captionId}
       {...props}
       className={clsx('ReferenceAccordionRoot', props.className)}
-      // Lets CSS compute the exact placeholder height for `contain-intrinsic-height`
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
       style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
