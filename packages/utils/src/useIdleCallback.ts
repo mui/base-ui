@@ -1,7 +1,6 @@
 'use client';
 import { useRefWithInit } from './useRefWithInit';
 import { useOnMount } from './useOnMount';
-import { Timeout } from './useTimeout';
 
 const supportsIdleCallback = typeof requestIdleCallback === 'function';
 
@@ -14,7 +13,7 @@ export class IdleCallback {
 
   // Macrotask fallback for environments without `requestIdleCallback` (e.g. Safari),
   // which still runs after the current commit and paint.
-  timeout = new Timeout();
+  timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Schedules `fn` to run during idle time, after the current commit and paint, clearing any
@@ -28,7 +27,10 @@ export class IdleCallback {
         fn();
       });
     } else {
-      this.timeout.start(0, fn);
+      this.timeoutId = setTimeout(() => {
+        this.timeoutId = null;
+        fn();
+      }, 0);
     }
   }
 
@@ -37,7 +39,10 @@ export class IdleCallback {
       cancelIdleCallback(this.currentId);
       this.currentId = null;
     }
-    this.timeout.clear();
+    if (this.timeoutId !== null) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
   };
 
   disposeEffect = () => {
