@@ -150,8 +150,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.5)
       '@mui/internal-docs-infra':
-        specifier: 0.11.1-canary.22
-        version: 0.11.1-canary.22(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
+        specifier: 0.12.1-canary.1
+        version: 0.12.1-canary.1(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       '@next/mdx':
         specifier: ^16.1.6
         version: 16.2.2(@mdx-js/loader@3.1.1(webpack@5.106.2(esbuild@0.27.7)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))
@@ -2056,8 +2056,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.11.1-canary.22':
-    resolution: {integrity: sha512-WNoOuSkt50mVQsxfm9jywD6O1MtDL5lp/W/dqmjORaYGivOhehfAncB2v0UKE7dJEYpjjlSTCvJqIgnL5n3H1Q==}
+  '@mui/internal-docs-infra@0.12.1-canary.1':
+    resolution: {integrity: sha512-rLiTeGf3o+YwUNPAuUDYEP3/A0jw8wP0Zqy/ENiAVL6a636JgRT4Xs/XHyY7hQ5U5fKH+4z8+lFc60koVlNTFA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -11237,7 +11237,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.11.1-canary.22(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)':
+  '@mui/internal-docs-infra@0.12.1-canary.1(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@orama/orama': 3.1.18
