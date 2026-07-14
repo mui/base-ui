@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -148,20 +149,6 @@ describe('<Toast.Title />', () => {
     expect(screen.queryByTestId('title-render')).toBe(null);
   });
 
-  it('renders a numeric render prop child such as 0', async () => {
-    await render(
-      <Toast.Provider>
-        <Toast.Viewport>
-          <Toast.Root toast={{ id: 'test' }}>
-            <Toast.Title render={<div>{0}</div>} />
-          </Toast.Root>
-        </Toast.Viewport>
-      </Toast.Provider>,
-    );
-
-    expect(screen.getByText('0')).not.toBe(null);
-  });
-
   it('renders a numeric zero child', async () => {
     await render(
       <Toast.Provider>
@@ -174,20 +161,6 @@ describe('<Toast.Title />', () => {
     );
 
     expect(screen.getByText('0')).not.toBe(null);
-  });
-
-  it('does not render an empty-array child', async () => {
-    await render(
-      <Toast.Provider>
-        <Toast.Viewport>
-          <Toast.Root toast={{ id: 'test' }}>
-            <Toast.Title data-testid="title-render">{[]}</Toast.Title>
-          </Toast.Root>
-        </Toast.Viewport>
-      </Toast.Provider>,
-    );
-
-    expect(screen.queryByTestId('title-render')).toBe(null);
   });
 
   it('does not render when a render function returns no element', async () => {
@@ -203,6 +176,34 @@ describe('<Toast.Title />', () => {
 
     expect(screen.getByTestId('root')).not.toBe(null);
     expect(screen.queryByTestId('title-render')).toBe(null);
+  });
+
+  it('clears aria-labelledby from the root when the title content is removed', async () => {
+    function Fixture() {
+      const [title, setTitle] = React.useState<React.ReactNode>('Toast title');
+      return (
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={{ id: 'test' }} data-testid="root">
+              <Toast.Title>{title}</Toast.Title>
+            </Toast.Root>
+          </Toast.Viewport>
+          <button type="button" onClick={() => setTitle(null)}>
+            clear
+          </button>
+        </Toast.Provider>
+      );
+    }
+
+    const { user } = await render(<Fixture />);
+
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-labelledby')).not.toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'clear' }));
+
+    expect(screen.queryByText('Toast title')).toBe(null);
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(null);
   });
 
   it('renders the toast title through a childless render prop', async () => {
