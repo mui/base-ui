@@ -33,7 +33,6 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
   readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
-  readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {
@@ -130,7 +129,6 @@ function createInitialState<Payload>(
     ...createInitialPopupStoreState<Payload>(),
     modal: true,
     disablePointerDismissal: false,
-    popupElement: null,
     viewportElement: null,
     descriptionElementId: undefined,
     titleElementId: undefined,

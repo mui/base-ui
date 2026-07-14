@@ -19,7 +19,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const open = store.useState('open');
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 

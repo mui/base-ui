@@ -25,7 +25,6 @@ const testCompositeContext: CompositeRootContext = {
 const testToolbarContext: ToolbarRootContext = {
   disabled: false,
   orientation: 'horizontal',
-  setItemMap: NOOP,
 };
 
 describe('<Toolbar.Button />', () => {
@@ -55,6 +54,74 @@ describe('<Toolbar.Button />', () => {
       );
 
       expect(screen.getByTestId('button')).toBe(screen.getByRole('button'));
+    });
+  });
+
+  describe('prop: nativeButton', () => {
+    it('custom element: dispatches real clicks from Space keyboard activation', async () => {
+      const handleClick = vi.fn();
+      const handleRenderClick = vi.fn();
+      const handleCaptureClick = vi.fn();
+      const handleAncestorClick = vi.fn();
+
+      const { user } = await render(
+        <div onClick={handleAncestorClick}>
+          <Toolbar.Root>
+            <Toolbar.Button
+              nativeButton={false}
+              render={<span onClick={handleRenderClick} onClickCapture={handleCaptureClick} />}
+              onClick={handleClick}
+            >
+              Save
+            </Toolbar.Button>
+          </Toolbar.Root>
+        </div>,
+      );
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard('[Space]');
+
+      expect(handleCaptureClick).toHaveBeenCalledTimes(1);
+      expect(handleRenderClick).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleAncestorClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('custom element: dispatches real clicks from Enter keyboard activation', async () => {
+      const handleClick = vi.fn();
+      const handleRenderClick = vi.fn();
+      const handleCaptureClick = vi.fn();
+      const handleAncestorClick = vi.fn();
+
+      const { user } = await render(
+        <div onClick={handleAncestorClick}>
+          <Toolbar.Root>
+            <Toolbar.Button
+              nativeButton={false}
+              render={<span onClick={handleRenderClick} onClickCapture={handleCaptureClick} />}
+              onClick={handleClick}
+            >
+              Save
+            </Toolbar.Button>
+          </Toolbar.Root>
+        </div>,
+      );
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard('[Enter]');
+
+      expect(handleCaptureClick).toHaveBeenCalledTimes(1);
+      expect(handleRenderClick).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleAncestorClick).toHaveBeenCalledTimes(1);
     });
   });
 

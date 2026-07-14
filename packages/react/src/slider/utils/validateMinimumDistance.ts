@@ -7,15 +7,11 @@ export function validateMinimumDistance(
     return true;
   }
 
-  const distances = values.reduce((acc: number[], val, index, vals) => {
-    if (index === vals.length - 1) {
-      return acc;
+  const minDistance = step * minStepsBetweenValues;
+  for (let i = 0; i < values.length - 1; i += 1) {
+    if (Math.abs(values[i] - values[i + 1]) < minDistance) {
+      return false;
     }
-
-    acc.push(Math.abs(val - vals[index + 1]));
-
-    return acc;
-  }, []);
-
-  return Math.min(...distances) >= step * minStepsBetweenValues;
+  }
+  return true;
 }
