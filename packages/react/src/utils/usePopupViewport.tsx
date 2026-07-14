@@ -201,6 +201,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       const generation = transitionGenerationRef.current;
 
       cleanupFrame.request(() => {
+        // The containers mounted after the last paint, so they have no computed style yet.
+        // Force a style recalc to commit their starting styles before the flip below;
+        // otherwise their first computed style is the final state and no transition starts.
+        currentContainerRef.current?.getBoundingClientRect();
         ReactDOM.flushSync(() => {
           setShowStartingStyleAttribute(false);
         });
@@ -265,22 +269,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const isTransitioning = previousContentNode != null;
-  let childrenToRender: React.ReactNode;
-  if (!isTransitioning) {
-    childrenToRender = (
-      <div
-        data-current
-        ref={currentContainerRef}
-        key={currentContentKey}
-        onFocusCapture={handleFocusCapture}
-        onBlurCapture={handleBlurCapture}
-      >
-        {children}
-      </div>
-    );
-  } else {
-    childrenToRender = (
-      <React.Fragment>
+  // `showStartingStyleAttribute` is only ever true while transitioning.
+  const childrenToRender = (
+    <React.Fragment>
+      {isTransitioning && (
         <div
           data-previous
           inert={inertValue(true)}
@@ -299,19 +291,23 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
           key="previous"
           data-ending-style={showStartingStyleAttribute ? undefined : ''}
         />
-        <div
-          data-current
-          ref={currentContainerRef}
-          key={currentContentKey}
-          data-starting-style={showStartingStyleAttribute ? '' : undefined}
-          onFocusCapture={handleFocusCapture}
-          onBlurCapture={handleBlurCapture}
-        >
-          {children}
-        </div>
-      </React.Fragment>
-    );
-  }
+      )}
+      <div
+        data-current
+        ref={currentContainerRef}
+        key={currentContentKey}
+        data-starting-style={showStartingStyleAttribute ? '' : undefined}
+        // Suppress transitions while the starting styles are applied: the container mounts a
+        // commit before they are, so its baseline style is computed without them, and applying
+        // them would start an inverse transition that the flip then reverses almost instantly.
+        style={showStartingStyleAttribute ? { transition: 'none' } : undefined}
+        onFocusCapture={handleFocusCapture}
+        onBlurCapture={handleBlurCapture}
+      >
+        {children}
+      </div>
+    </React.Fragment>
+  );
 
   // When previousContentNode is present, imperatively populate the previous container with the cloned children.
   useIsoLayoutEffect(() => {

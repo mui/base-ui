@@ -536,6 +536,11 @@ describe('<Popover.Viewport />', () => {
       await waitFor(() => {
         expect(previousContainer).toHaveAttribute('data-ending-style');
       });
+
+      // The starting styles must be committed before they flip so an actual
+      // cross-fade transition runs instead of snapping to the final state.
+      expect(previousContainer!.getAnimations().length).toBeGreaterThan(0);
+      expect(currentContainer!.getAnimations().length).toBeGreaterThan(0);
     });
 
     it('should capture the latest previous content during rapid transition key changes', async () => {
