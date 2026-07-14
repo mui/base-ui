@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { expect } from 'vitest';
-import { isRenderableNode } from './isRenderableNode';
+import { hasRenderableChildren, isRenderableNode } from './isRenderableNode';
 
 describe('isRenderableNode', () => {
   it('treats renderable primitives as content', () => {
@@ -23,5 +24,16 @@ describe('isRenderableNode', () => {
     expect(isRenderableNode([null, 0])).toBe(true);
     expect(isRenderableNode([[null]])).toBe(false);
     expect(isRenderableNode([[0]])).toBe(true);
+  });
+});
+
+describe('hasRenderableChildren', () => {
+  it('requires an element whose children are renderable', () => {
+    expect(hasRenderableChildren(React.createElement('div', null, 'text'))).toBe(true);
+    expect(hasRenderableChildren(React.createElement('div', null, 0))).toBe(true);
+    expect(hasRenderableChildren(React.createElement('div'))).toBe(false);
+    expect(hasRenderableChildren(React.createElement('div', null, []))).toBe(false);
+    expect(hasRenderableChildren(null)).toBe(false);
+    expect(hasRenderableChildren('text')).toBe(false);
   });
 });

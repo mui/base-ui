@@ -9,3 +9,10 @@ export function isRenderableNode(node: React.ReactNode): boolean {
   }
   return true;
 }
+
+export function hasRenderableChildren(element: React.ReactNode): boolean {
+  return (
+    React.isValidElement<{ children?: React.ReactNode }>(element) &&
+    isRenderableNode(element.props.children)
+  );
+}

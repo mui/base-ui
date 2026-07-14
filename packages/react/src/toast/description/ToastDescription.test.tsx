@@ -204,4 +204,18 @@ describe('<Toast.Description />', () => {
     expect(screen.getByTestId('root')).not.toBe(null);
     expect(screen.queryByTestId('description-render')).toBe(null);
   });
+
+  it('renders the toast description through a childless render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test', description: 'Toast description' }}>
+            <Toast.Description render={<div />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('Toast description')).not.toBe(null);
+  });
 });
