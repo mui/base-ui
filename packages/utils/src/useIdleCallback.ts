@@ -4,6 +4,13 @@ import { useOnMount } from './useOnMount';
 
 const supportsIdleCallback = typeof requestIdleCallback === 'function';
 
+// Macrotask fallback for environments without `requestIdleCallback` (e.g. Safari),
+// which still runs after the current commit and paint.
+const requestCallback = supportsIdleCallback
+  ? requestIdleCallback
+  : (fn: () => void) => setTimeout(fn, 0);
+const cancelCallback = supportsIdleCallback ? cancelIdleCallback : clearTimeout;
+
 export class IdleCallback {
   static create() {
     return new IdleCallback();
@@ -11,37 +18,19 @@ export class IdleCallback {
 
   currentId: number | null = null;
 
-  // Macrotask fallback for environments without `requestIdleCallback` (e.g. Safari),
-  // which still runs after the current commit and paint.
-  timeoutId: ReturnType<typeof setTimeout> | null = null;
-
   /**
    * Schedules `fn` to run during idle time, after the current commit and paint, clearing any
    * previously scheduled call.
    */
   start(fn: () => void) {
     this.clear();
-    if (supportsIdleCallback) {
-      this.currentId = requestIdleCallback(() => {
-        this.currentId = null;
-        fn();
-      });
-    } else {
-      this.timeoutId = setTimeout(() => {
-        this.timeoutId = null;
-        fn();
-      }, 0);
-    }
+    this.currentId = requestCallback(fn);
   }
 
   clear = () => {
     if (this.currentId !== null) {
-      cancelIdleCallback(this.currentId);
+      cancelCallback(this.currentId);
       this.currentId = null;
-    }
-    if (this.timeoutId !== null) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
     }
   };
 
