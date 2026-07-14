@@ -11,6 +11,7 @@
   width: var(--positioner-width);
   height: var(--positioner-height);
   max-width: var(--available-width);
+  outline: 0;
   transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
   transition-duration: var(--duration);
@@ -23,7 +24,7 @@
 .Popup {
   box-sizing: border-box;
   position: relative;
-  outline: none;
+  outline: 0;
   border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
@@ -56,22 +57,17 @@
 }
 
 .Viewport {
-  --viewport-padding: 1rem;
-
   box-sizing: border-box;
   /* Required to clip the overflowing content during the cross-fade */
   position: relative;
   overflow: clip;
   width: 100%;
   height: 100%;
-  padding: var(--viewport-padding);
+  padding-block: 0.25rem;
 
   [data-previous],
   [data-current] {
-    /* Freeze each container to its own content width while transitioning.
-       The `previous` container carries the previous dimensions via its inline
-       custom properties, while the `current` container uses the new ones. */
-    width: calc(var(--popup-width) - 2 * var(--viewport-padding));
+    width: var(--popup-width);
     opacity: 1;
     transition: opacity calc(var(--duration) / 2) var(--easing);
   }
@@ -82,76 +78,61 @@
   }
 }
 
-.Summary,
-.Shipping {
+.List {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
 }
 
-.Summary {
-  width: 14rem;
-}
-
-.Shipping {
-  width: 22rem;
-}
-
-.Title {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 700;
-}
-
-.Description {
-  margin: 0;
-}
-
-.Description,
-.Label {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(43.9% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
-.Label {
+.Item {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
   display: flex;
-  flex-direction: column;
-  align-self: stretch;
-  gap: 0.25rem;
-}
-
-.Input {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  background-color: white;
-  color: oklch(14.5% 0 0deg);
-  padding: 0.375rem 0.5rem;
-  font-family: inherit;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1rem;
+  color: inherit;
 
-  @media (prefers-color-scheme: dark) {
-    border-color: white;
-    background-color: oklch(14.5% 0 0deg);
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
     color: white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
-      outline-color: white;
+      color: oklch(14.5% 0 0deg);
     }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+}
+
+.Caret {
+  flex: none;
+}
+
+.Separator {
+  margin: 0.25rem;
+  height: 1px;
+  background-color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
   }
 }
 
