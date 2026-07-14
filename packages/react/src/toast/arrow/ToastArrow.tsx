@@ -25,13 +25,11 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
     uncentered: arrowUncentered,
   };
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
   });
-
-  return element;
 });
 
 export interface ToastArrowState {

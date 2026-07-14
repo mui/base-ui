@@ -21,7 +21,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 ) {
   const {
     disabled = false,
-    loopFocus = true,
+    loopFocus,
     orientation = 'horizontal',
     className,
     render,
@@ -53,9 +53,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     () => ({
       disabled,
       orientation,
-      setItemMap,
     }),
-    [disabled, orientation, setItemMap],
+    [disabled, orientation],
   );
 
   const state: ToolbarRootState = { disabled, orientation };

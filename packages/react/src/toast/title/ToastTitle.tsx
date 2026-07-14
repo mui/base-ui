@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { isRenderableNode } from '../utils/isRenderableNode';
+import { useToastLabelPart } from '../utils/useToastLabelPart';
 
 /**
  * A title that labels the toast.
@@ -26,47 +23,17 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     ...elementProps
   } = componentProps;
 
-  const { toast, setTitleId } = useToastRootContext();
+  const { id, children, shouldRender, type } = useToastLabelPart(idProp, childrenProp, 'title');
 
-  const children = childrenProp ?? toast.title;
-
-  const id = useId(idProp);
-
-  const state: ToastTitleState = {
-    type: toast.type,
-  };
+  const state: ToastTitleState = { type };
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
     state,
-    props: {
-      ...elementProps,
-      id,
-      children,
-    },
+    props: { ...elementProps, id, children },
   });
 
-  const shouldRender =
-    React.isValidElement<{ children?: React.ReactNode }>(element) &&
-    isRenderableNode(element.props.children);
-
-  useIsoLayoutEffect(() => {
-    if (!shouldRender) {
-      return undefined;
-    }
-
-    setTitleId(id);
-
-    return () => {
-      setTitleId(undefined);
-    };
-  }, [shouldRender, id, setTitleId]);
-
-  if (!shouldRender) {
-    return null;
-  }
-
-  return element;
+  return shouldRender ? element : null;
 });
 
 export interface ToastTitleState {
