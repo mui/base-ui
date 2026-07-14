@@ -16,10 +16,11 @@ import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import { CLOSE_DELAY } from '../utils/constants';
+import type { Middleware } from '../../floating-ui-react';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: Middleware | undefined;
   closeDelay: number;
 };
 
@@ -30,7 +31,7 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector((state: State<unknown>) => state.adaptiveOrigin),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
@@ -125,7 +126,7 @@ function createInitialState<Payload>(
   const state: State<Payload> = {
     ...createInitialPopupStoreState<Payload>(),
     instantType: undefined,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
     ...initialState,
   };

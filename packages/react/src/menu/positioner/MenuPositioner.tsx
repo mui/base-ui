@@ -22,7 +22,6 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
@@ -72,7 +71,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -129,7 +128,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
     externalTree: floatingTreeRoot,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
   });
 
   React.useEffect(() => {

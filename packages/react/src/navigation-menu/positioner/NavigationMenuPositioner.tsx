@@ -18,11 +18,11 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import {
-  useAnchorPositioning,
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioningFallback } from '../../utils/useAnchorPositioningFallback';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
@@ -80,9 +80,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const [instant, setInstant] = React.useState(open);
   const needsInitialInstantResetRef = React.useRef(open);
 
-  const positionerRef = React.useRef<HTMLDivElement | null>(null);
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
-
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
     if (!positionerElement) {
@@ -110,8 +107,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
-  const positioning = useAnchorPositioning({
-    anchor: anchor ?? domReference ?? prevTriggerElementRef,
+  const positioning = useAnchorPositioningFallback({
+    anchor: anchor ?? domReference,
     positionMethod,
     mounted,
     side,
@@ -173,7 +170,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
-    refs: [forwardedRef, setPositionerElement, positionerRef],
+    refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
     inert: !open,
   });
