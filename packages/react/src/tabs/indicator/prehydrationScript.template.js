@@ -33,7 +33,7 @@
     };
   }
 
-  function position() {
+  function updatePosition() {
     let left = 0;
     let right = 0;
     let top = 0;
@@ -76,39 +76,42 @@
 
     if (width > 0 && height > 0) {
       indicator.removeAttribute('hidden');
+      return true;
     }
+
+    return false;
   }
 
-  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
-    if (typeof ResizeObserver === 'undefined') {
-      return;
-    }
-
-    let timeout, observer;
-    function stop() {
-      observer.disconnect();
-      clearTimeout(timeout);
-    }
-
-    observer = new ResizeObserver(() => {
-      if (!indicator.isConnected || !indicator.hasAttribute('hidden')) {
-        // Hydration got there first.
-        stop();
-        return;
-      }
-
-      if (activeTab.offsetWidth > 0 && tabsList.offsetWidth > 0) {
-        stop();
-        position();
-      }
-    });
-
-    observer.observe(tabsList);
-    // Bounded lifetime so the observer can't retain the subtree forever if it's
-    // removed while still 0×0 (no resize fires to trigger self-disconnect).
-    timeout = setTimeout(stop, 10000);
+  if (updatePosition() || typeof ResizeObserver === 'undefined') {
     return;
   }
 
-  position();
+  let timeout, observer;
+  function stop() {
+    observer.disconnect();
+    clearTimeout(timeout);
+  }
+
+  observer = new ResizeObserver(() => {
+    if (
+      // Hydration got there first
+      !indicator.isConnected ||
+      !indicator.hasAttribute('hidden') ||
+      // selection moved off the captured tab.
+      !activeTab.hasAttribute('data-active')
+    ) {
+      stop();
+      return;
+    }
+
+    if (updatePosition()) {
+      stop();
+    }
+  });
+
+  observer.observe(tabsList);
+  observer.observe(activeTab);
+  // Bounded lifetime so the observer can't retain the subtree forever if it's
+  // removed while still 0×0 (no resize fires to trigger self-disconnect).
+  timeout = setTimeout(stop, 10000);
 })();
