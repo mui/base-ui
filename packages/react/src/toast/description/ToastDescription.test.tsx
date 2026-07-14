@@ -103,4 +103,34 @@ describe('<Toast.Description />', () => {
 
     expect(screen.getByText('render prop description')).not.toBe(null);
   });
+
+  it('wires aria-describedby to a description rendered through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }} data-testid="root">
+            <Toast.Description render={<div>render prop description</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    const descriptionElement = screen.getByText('render prop description');
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-describedby')).toBe(descriptionElement.id);
+  });
+
+  it('renders the toast description through a childless render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test', description: 'Toast description' }}>
+            <Toast.Description render={<div />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('Toast description')).not.toBe(null);
+  });
 });
