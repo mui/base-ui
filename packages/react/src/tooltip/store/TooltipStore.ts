@@ -5,7 +5,7 @@ import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
-import type { Middleware } from '../../floating-ui-react';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   applyPopupOpenChange,
   createPopupFloatingRootContext,
@@ -26,7 +26,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeOnClick: boolean;
   closeDelay: number;
-  adaptiveOrigin: Middleware | undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -43,7 +43,9 @@ const selectors = {
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  adaptiveOrigin: createSelector((state: State<unknown>) => state.adaptiveOrigin),
+  adaptiveOrigin: createSelector(
+    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
+  ),
 };
 
 type Selectors = typeof selectors;
