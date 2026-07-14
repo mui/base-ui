@@ -24,7 +24,10 @@ export class IdleCallback {
    */
   start(fn: () => void) {
     this.clear();
-    this.currentId = requestCallback(fn);
+    this.currentId = requestCallback(() => {
+      this.currentId = null;
+      fn();
+    });
   }
 
   clear = () => {
