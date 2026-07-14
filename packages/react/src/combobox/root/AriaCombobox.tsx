@@ -867,7 +867,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // rewriting the input during navigation doesn't reset the scroll. `block: 'nearest'` scrolls
       // only the overflowing ancestor, not the page. Virtualized lists own their scroller, so skip.
       if (!store.state.virtualized) {
-        store.state.listRef.current[0]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        // `scrollIntoView` is optional-called because JSDOM doesn't implement it.
+        store.state.listRef.current[0]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
       }
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode) {
