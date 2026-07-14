@@ -4497,11 +4497,11 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'resets a scrollable wrapper up to the surrounding dialog when composed inline',
+      'resets only the nearest scrollable wrapper when composed in a scrollable dialog',
       async () => {
         const { user } = await render(
           <Combobox.Root items={manyItems} inline open>
-            <div role="dialog">
+            <div role="dialog" data-testid="dialog" style={{ maxHeight: 80, overflowY: 'auto' }}>
               <Combobox.Input data-testid="input" />
               <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
                 <Combobox.List>
@@ -4517,15 +4517,20 @@ describe('<Combobox.Root />', () => {
         );
 
         const input = screen.getByTestId('input');
+        const dialog = screen.getByTestId('dialog');
         const viewport = screen.getByTestId('viewport');
+        await user.click(input);
+        dialog.scrollTop = 20;
         viewport.scrollTop = 40;
+        expect(dialog.scrollTop).toBeGreaterThan(0);
         expect(viewport.scrollTop).toBeGreaterThan(0);
 
-        await user.type(input, 'item-1');
+        await user.keyboard('item-1');
 
         await waitFor(() => {
           expect(viewport.scrollTop).toBe(0);
         });
+        expect(dialog.scrollTop).toBe(20);
       },
     );
   });

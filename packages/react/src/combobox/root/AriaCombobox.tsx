@@ -864,8 +864,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (pendingHighlight) {
       // The user typed, so the list was re-filtered: bring the first item into view so it starts at
       // the top. Keyed on the typed-input signal, not `query`/`inputValue`, so inline autocompletion
-      // rewriting the input during navigation doesn't reset the scroll. `block: 'nearest'` scrolls
-      // only the overflowing ancestor, not the page. Virtualized lists own their scroller, so skip.
+      // rewriting the input during navigation doesn't reset the scroll. Nearest-edge alignment
+      // avoids moving outer scroll containers when the list is already visible within them.
+      // Virtualized lists own their scroller, so skip.
       if (!store.state.virtualized) {
         // `scrollIntoView` is optional-called because JSDOM doesn't implement it.
         store.state.listRef.current[0]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
