@@ -4,8 +4,9 @@ import { useOnMount } from './useOnMount';
 
 const supportsIdleCallback = typeof requestIdleCallback === 'function';
 
-// Macrotask fallback for environments without `requestIdleCallback` (e.g. Safari),
-// which still runs after the current commit and paint.
+// Macrotask fallback for environments without `requestIdleCallback` (e.g. older Safari).
+// It runs after the current task (and thus the current commit), but — unlike
+// `requestIdleCallback` — is not guaranteed to run after the next paint.
 const requestCallback = supportsIdleCallback
   ? requestIdleCallback
   : (fn: () => void) => setTimeout(fn, 0);
@@ -47,7 +48,8 @@ export class IdleCallback {
  *
  * Returns an imperative scheduler that runs a callback during idle time, after the current commit
  * and paint. In environments without `requestIdleCallback` it falls back to a macrotask
- * (`setTimeout(0)`), which also runs after the current commit and paint.
+ * (`setTimeout(0)`), which runs after the current commit but is not guaranteed to run after the
+ * next paint.
  */
 export function useIdleCallback() {
   const idleCallback = useRefWithInit(IdleCallback.create).current;
