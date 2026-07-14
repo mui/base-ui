@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useToastLabelPart } from '../utils/useToastLabelPart';
+import { useToastLabelElement, useToastLabelPart } from '../utils/useToastLabelPart';
 
 /**
  * A description that describes the toast.
@@ -24,11 +24,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     ...elementProps
   } = componentProps;
 
-  const { id, children, shouldRender, type } = useToastLabelPart(
-    idProp,
-    childrenProp,
-    'description',
-  );
+  const { id, children, type, setId } = useToastLabelPart(idProp, childrenProp, 'description');
 
   const state: ToastDescriptionState = { type };
 
@@ -38,7 +34,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     props: { ...elementProps, id, children },
   });
 
-  return shouldRender ? element : null;
+  return useToastLabelElement(element, id, setId);
 });
 
 export interface ToastDescriptionState {
