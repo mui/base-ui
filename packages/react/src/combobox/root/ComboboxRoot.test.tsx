@@ -4381,6 +4381,155 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('scroll reset on input value change', () => {
+    const manyItems = Array.from({ length: 50 }, (_, index) => `item-${index}`);
+
+    it.skipIf(isJSDOM)(
+      'resets the list scroll position to the top when the query changes',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets the scroll position of a scrollable wrapper around the list',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </div>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const viewport = screen.getByTestId('viewport');
+        viewport.scrollTop = 40;
+        expect(viewport.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(viewport.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps the auto-highlighted first item in view after the query changes',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems} autoHighlight>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets a scrollable wrapper up to the surrounding dialog when composed inline',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems} inline open>
+            <div role="dialog">
+              <Combobox.Input data-testid="input" />
+              <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </div>
+            </div>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        const viewport = screen.getByTestId('viewport');
+        viewport.scrollTop = 40;
+        expect(viewport.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(viewport.scrollTop).toBe(0);
+        });
+      },
+    );
+  });
+
   describe('prop: autoHighlight', () => {
     it('does not auto-highlight on initial open when no selection', async () => {
       await render(

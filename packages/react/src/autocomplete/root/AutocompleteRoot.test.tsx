@@ -841,6 +841,87 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
+  describe('scroll reset on input value change', () => {
+    const manyItems = Array.from({ length: 50 }, (_, index) => `item-${index}`);
+
+    it.skipIf(isJSDOM)('resets the list scroll position to the top when typing', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={manyItems}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      // Open and keep every item so the list is scrollable.
+      await user.type(input, 'item');
+
+      const list = screen.getByRole('listbox');
+      list.scrollTop = 40;
+      expect(list.scrollTop).toBeGreaterThan(0);
+
+      await user.type(input, '-1');
+
+      await waitFor(() => {
+        expect(list.scrollTop).toBe(0);
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'mode="both": inline navigation does not reset the scroll to the top',
+      async () => {
+        const { user } = await render(
+          <Autocomplete.Root mode="both" items={manyItems}>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {(item: string) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>,
+        );
+
+        const input = screen.getByTestId<HTMLInputElement>('input');
+        await user.click(input);
+        // Keep every item in the filtered list so navigation can scroll far down.
+        await user.type(input, 'item');
+
+        // Navigate to an item that sits below the visible viewport. Inline autocompletion
+        // rewrites the input value on each step, but that must not reset the scroll to the top.
+        for (let i = 0; i < 20; i += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await user.keyboard('{ArrowDown}');
+        }
+
+        const list = screen.getByRole('listbox');
+        await waitFor(() => {
+          expect(list.scrollTop).toBeGreaterThan(0);
+        });
+      },
+    );
+  });
+
   describe('prop: filter', () => {
     it.each(['list', 'both'] as const)(
       'mode="%s": uses a custom filter instead of the locale-aware default',

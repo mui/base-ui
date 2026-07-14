@@ -862,6 +862,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
+      // The user typed, so the list was re-filtered: bring the first item into view so it starts at
+      // the top. Keyed on the typed-input signal, not `query`/`inputValue`, so inline autocompletion
+      // rewriting the input during navigation doesn't reset the scroll. `block: 'nearest'` scrolls
+      // only the overflowing ancestor, not the page. Virtualized lists own their scroller, so skip.
+      if (!store.state.virtualized) {
+        store.state.listRef.current[0]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode) {
           store.set('activeIndex', 0);
