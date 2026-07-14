@@ -62,7 +62,7 @@ export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
 export class BasePopupHandle<
   HandleStore extends PopupHandleStoreWithTriggers,
   Store extends HandleStore & PopupHandleStoreWithOpen,
-> implements PopupHandleStoreProvider<HandleStore> {
+> {
   /**
    * Stores of every root currently using this handle, in attach order. A handle is meant to be used
    * by a single mounted root, but roots can transiently overlap (e.g. during an animated route
