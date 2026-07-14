@@ -66,11 +66,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     }
   }, [dirtyProp]);
 
-  const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
-  const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
-    registeredFieldIdRef.current = id;
-  }, []);
-
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
       return;
@@ -134,7 +129,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     markedDirtyRef,
     state,
     shouldValidateOnChange,
-    getRegisteredFieldId,
+    registeredFieldIdRef,
   });
 
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
@@ -143,7 +138,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     markedDirtyRef,
     name,
     setRegisteredFieldName,
-    setRegisteredFieldId,
+    registeredFieldIdRef,
     setValidityData,
     validityData,
   });
@@ -159,20 +154,13 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validityData,
       setValidityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
-      markedDirtyRef,
       registerFieldControl,
       validation,
     }),
@@ -181,17 +169,11 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       effectiveName,
       validityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
       registerFieldControl,

@@ -152,4 +152,69 @@ describe('<Slider.Control />', () => {
       expect(onValueCommitted).not.toHaveBeenCalled();
     },
   );
+
+  // Requires layout: the range drag relies on real thumb measurements.
+  it.skipIf(isJSDOM)(
+    'clears cached interaction state when the controlled range grows mid-drag',
+    async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState<number[]>([10, 20]);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setValue([10, 20, 30])}>
+              grow
+            </button>
+            <Slider.Root
+              value={value}
+              min={0}
+              max={100}
+              onValueChange={(nextValue, details) => {
+                onValueChange(nextValue, details);
+                setValue(nextValue as number[]);
+              }}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                {value.map((_, index) => (
+                  <Slider.Thumb key={index} index={index} data-testid={`thumb-${index}`} />
+                ))}
+              </Slider.Control>
+            </Slider.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(screen.getByTestId('thumb-1'), { buttons: 1, clientX: 20 });
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+      fireEvent.click(screen.getByRole('button', { name: 'grow' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('slider')).toHaveLength(3);
+      });
+
+      onValueChange.mockClear();
+      onValueCommitted.mockClear();
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 40 });
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.pointerDown(screen.getByTestId('thumb-2'), { buttons: 1, clientX: 30 });
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 80 });
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 80 });
+
+      const nextValue = onValueChange.mock.lastCall?.[0];
+      expect(nextValue).toEqual([10, 20, 100]);
+      expect(onValueCommitted).toHaveBeenCalledWith(
+        nextValue,
+        expect.objectContaining({ reason: 'drag' }),
+      );
+    },
+  );
 });
