@@ -28,7 +28,7 @@ describe('IdleCallback', () => {
 
       idleCallback.start(fn);
 
-      // The callback runs after the current commit and paint, not synchronously.
+      // The callback runs asynchronously after the current task, not synchronously.
       expect(fn).not.toHaveBeenCalled();
 
       await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
@@ -63,6 +63,9 @@ describe('IdleCallback', () => {
 
       idleCallback.start(fn);
       await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+
+      // The completed handle must be reset so a later `clear()` cannot cancel an unrelated callback.
+      expect(idleCallback.currentId).toBe(null);
 
       idleCallback.start(fn);
       await waitFor(() => expect(fn).toHaveBeenCalledTimes(2));

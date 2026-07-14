@@ -20,8 +20,10 @@ export class IdleCallback {
   currentId: number | null = null;
 
   /**
-   * Schedules `fn` to run during idle time, after the current commit and paint, clearing any
-   * previously scheduled call.
+   * Schedules `fn` to run asynchronously after the current task (and thus the current commit),
+   * clearing any previously scheduled call. With native `requestIdleCallback` the callback runs
+   * during idle time after the next paint; the `setTimeout(0)` fallback runs after the current task
+   * but is not guaranteed to run after the next paint.
    */
   start(fn: () => void) {
     this.clear();
