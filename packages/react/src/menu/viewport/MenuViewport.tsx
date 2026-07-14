@@ -38,18 +38,13 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      interactionTypeRef.current = null;
       returnIndexesRef.current = [];
     }
   }, [open]);
 
   const setInteractionType = useStableCallback((type: 'keyboard' | 'pointer') => {
-    const interaction = { type };
-    interactionTypeRef.current = interaction;
-    queueMicrotask(() => {
-      if (interactionTypeRef.current === interaction) {
-        interactionTypeRef.current = null;
-      }
-    });
+    interactionTypeRef.current = { type };
   });
 
   const handleKeyDownCapture = useStableCallback(() => {

@@ -108,7 +108,7 @@ describe('<Menu.Viewport />', () => {
                   transitionKey={view}
                   onKeyDown={(event) => {
                     if (event.key === 'ArrowLeft' && view === 'more') {
-                      setView('main');
+                      queueMicrotask(() => setView('main'));
                     }
                   }}
                 >
@@ -116,7 +116,15 @@ describe('<Menu.Viewport />', () => {
                     <React.Fragment>
                       <Menu.Item>New window</Menu.Item>
                       <Menu.Item>Open file</Menu.Item>
-                      <Menu.Item closeOnClick={false} onClick={() => setView('more')}>
+                      <Menu.Item
+                        closeOnClick={false}
+                        onClick={() => queueMicrotask(() => setView('more'))}
+                        onKeyDown={(event) => {
+                          if (event.key === 'ArrowRight') {
+                            queueMicrotask(() => setView('more'));
+                          }
+                        }}
+                      >
                         More tools
                       </Menu.Item>
                     </React.Fragment>
@@ -141,7 +149,7 @@ describe('<Menu.Viewport />', () => {
 
     const moreToolsItem = screen.getByRole('menuitem', { name: 'More tools' });
     await act(async () => moreToolsItem.focus());
-    await user.keyboard('{Enter}');
+    await user.keyboard('{ArrowRight}');
 
     const backItem = await screen.findByRole('menuitem', { name: 'Back' });
     expect(screen.getByTestId('viewport')).toHaveAttribute('data-activation-direction', 'forward');
@@ -166,6 +174,24 @@ describe('<Menu.Viewport />', () => {
     expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveAttribute(
       'data-highlighted',
     );
+
+    await user.keyboard('{Enter}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Back' })).toHaveFocus();
+    });
+    await user.keyboard('{ArrowLeft}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveFocus();
+    });
+
+    await user.keyboard(' ');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Back' })).toHaveFocus();
+    });
+    await user.keyboard('{ArrowLeft}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveFocus();
+    });
   });
 
   it('should focus the popup without highlighting an item when navigating with the pointer', async () => {
