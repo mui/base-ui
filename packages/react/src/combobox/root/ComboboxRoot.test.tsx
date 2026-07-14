@@ -826,7 +826,7 @@ describe('<Combobox.Root />', () => {
         'does not restore the initial highlight after focus leaves an inline input (items prop)',
         async () => {
           function App() {
-            const [value, setValue] = React.useState('banana');
+            const [value, setValue] = React.useState<string | null>('banana');
 
             return (
               <Combobox.Root
