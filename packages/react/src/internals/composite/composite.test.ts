@@ -10,10 +10,14 @@ describe('Composite', () => {
 
       element.style.scrollMarginLeft = '20px';
       scrollContainer.appendChild(element);
+      // `getComputedStyle` only resolves styles for elements attached to the document.
+      document.body.appendChild(scrollContainer);
 
       Object.defineProperties(scrollContainer, {
         clientWidth: { value: 100 },
         scrollWidth: { value: 200 },
+        scrollLeft: { value: 0 },
+        scrollTop: { value: 0 },
         scrollTo: { value: scrollTo },
       });
       Object.defineProperties(element, {
@@ -30,6 +34,8 @@ describe('Composite', () => {
         top: 0,
         behavior: 'auto',
       });
+
+      scrollContainer.remove();
     });
   });
 });
