@@ -813,11 +813,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // An always-open inline list never closes, so `items`-prop selections (which don't
       // self-register their index like `<Combobox.Item>`s do) get their initial highlight
       // computed here while open. Gated to the initial highlight only: before the query
-      // changes (a filtered list has different indices) and while nothing is highlighted
-      // (so toggling a selection doesn't move the highlight and scroll the list away).
+      // changes (a filtered list has different indices) and before the selected index has
+      // been initialized (so blur or toggling a selection doesn't move the highlight and
+      // scroll the list away).
       if (open) {
         const isInlineInitialHighlight =
-          inline && hasItems && !queryChangedAfterOpen && store.state.activeIndex == null;
+          inline && hasItems && !queryChangedAfterOpen && store.state.selectedIndex == null;
 
         if (!isInlineInitialHighlight) {
           return;

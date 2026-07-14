@@ -823,6 +823,55 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
+        'does not restore the initial highlight after focus leaves an inline input (items prop)',
+        async () => {
+          function App() {
+            const [value, setValue] = React.useState('banana');
+
+            return (
+              <Combobox.Root
+                items={['apple', 'banana', 'cherry']}
+                inline
+                open
+                value={value}
+                onValueChange={setValue}
+              >
+                <Combobox.Input data-testid="input" />
+                <button type="button" onClick={() => setValue('cherry')}>
+                  Change value
+                </button>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Root>
+            );
+          }
+
+          const { user } = await render(<App />);
+          const input = screen.getByTestId('input');
+          const banana = await screen.findByRole('option', { name: 'banana' });
+
+          await waitFor(() => {
+            expect(banana).toHaveAttribute('data-highlighted');
+          });
+
+          await user.click(input);
+          await user.click(screen.getByRole('button', { name: 'Change value' }));
+
+          await waitFor(() => {
+            expect(input).not.toHaveAttribute('aria-activedescendant');
+          });
+          expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'does not snap the highlight to a stale index while filtering an inline list (items prop)',
         async () => {
           // The selected item survives filtering but shifts index: `banana` is at unfiltered
