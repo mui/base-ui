@@ -915,6 +915,42 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
+        'does not highlight a non-selected item when an initial input value pre-filters the inline list (items prop)',
+        async () => {
+          // The selected value is filtered out by the initial input value, but its unfiltered
+          // index stays in range of the filtered list. Resolving that index against the
+          // unfiltered list would highlight whichever item now occupies that slot.
+          await render(
+            <Combobox.Root
+              items={['b0', 'sel', 'b1', 'b2', 'b3']}
+              inline
+              open
+              defaultValue="sel"
+              defaultInputValue="b"
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          const b1 = await screen.findByRole('option', { name: 'b1' });
+          await waitFor(() => {
+            expect(screen.queryByRole('option', { name: 'sel' })).toBe(null);
+          });
+
+          expect(b1).not.toHaveAttribute('data-highlighted');
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'emits the selected item index to onItemHighlighted on mount when inline and virtualized (items prop)',
         async () => {
           const onItemHighlighted = vi.fn();

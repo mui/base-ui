@@ -837,8 +837,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // it — trigger focus and programmatic value changes force-mount it). Mounted
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
-      // the index on the next open.
-      const registry = hasItems ? flatItems : valuesRef.current;
+      // the index on the next open. While open the highlight indexes into the filtered
+      // list, so resolve against `flatFilteredItems` (a filtered-out selection then
+      // yields `-1` and no highlight); while closed the list is unfiltered.
+      const itemsRegistry = open ? flatFilteredItems : flatItems;
+      const registry = hasItems ? itemsRegistry : valuesRef.current;
 
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
@@ -859,6 +862,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectionMode,
       hasItems,
       flatItems,
+      flatFilteredItems,
       multiple,
       isItemEqualToValue,
       setIndices,
