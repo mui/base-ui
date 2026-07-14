@@ -788,6 +788,167 @@ describe('<Combobox.Root />', () => {
         },
       );
 
+      it.skipIf(isJSDOM)(
+        'highlights and scrolls the selected item into view on mount when inline (items prop)',
+        async ({ onTestFinished }) => {
+          const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+          onTestFinished(() => scrollIntoView.mockRestore());
+
+          await render(
+            <Combobox.Root items={['apple', 'banana', 'cherry']} inline open defaultValue="banana">
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          const selectedItem = await screen.findByRole('option', { name: 'banana' });
+
+          await waitFor(() => {
+            expect(selectedItem).toHaveAttribute('data-highlighted');
+          });
+          await waitFor(() => {
+            expect(input).toHaveAttribute('aria-activedescendant', selectedItem.id);
+          });
+          await waitFor(() => {
+            expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+          });
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'does not snap the highlight to a stale index while filtering an inline list (items prop)',
+        async () => {
+          // The selected item survives filtering but shifts index: `banana` is at unfiltered
+          // index 1, but after typing `b` the visible list is `[banana, blueberry]` so index 1
+          // is `blueberry`. Recomputing the frozen selected index against the unfiltered list
+          // would highlight `blueberry`.
+          const { user } = await render(
+            <Combobox.Root
+              items={['apple', 'banana', 'blueberry', 'cherry']}
+              inline
+              open
+              defaultValue="banana"
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          const banana = await screen.findByRole('option', { name: 'banana' });
+          await waitFor(() => {
+            expect(banana).toHaveAttribute('data-highlighted');
+          });
+
+          await user.click(input);
+          await user.keyboard('b');
+
+          await waitFor(() => {
+            expect(screen.queryByRole('option', { name: 'cherry' })).toBe(null);
+          });
+
+          // Typing without `autoHighlight` clears the highlight; it must not be re-derived from
+          // a stale unfiltered index onto a different item.
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+          expect(screen.getByRole('option', { name: 'blueberry' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'highlights the last selected item on mount and keeps the highlight when toggling in a multiple inline list (items prop)',
+        async () => {
+          const { user } = await render(
+            <Combobox.Root
+              items={['apple', 'banana', 'cherry', 'date', 'elderberry']}
+              inline
+              open
+              multiple
+              defaultValue={['apple', 'date']}
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          const date = await screen.findByRole('option', { name: 'date' });
+          const apple = screen.getByRole('option', { name: 'apple' });
+
+          // Initial highlight follows the last selected value.
+          await waitFor(() => {
+            expect(date).toHaveAttribute('data-highlighted');
+          });
+          await waitFor(() => {
+            expect(input).toHaveAttribute('aria-activedescendant', date.id);
+          });
+
+          // Deselecting must not jump the highlight (and scroll) to the other selected item.
+          await user.click(date);
+
+          await waitFor(() => {
+            expect(date).toHaveAttribute('aria-selected', 'false');
+          });
+          expect(apple).not.toHaveAttribute('data-highlighted');
+          expect(input).not.toHaveAttribute('aria-activedescendant', apple.id);
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'emits the selected item index to onItemHighlighted on mount when inline and virtualized (items prop)',
+        async () => {
+          const onItemHighlighted = vi.fn();
+          const items = Array.from({ length: 50 }, (_, index) => `item-${index}`);
+
+          await render(
+            <Combobox.Root
+              items={items}
+              inline
+              open
+              virtualized
+              defaultValue="item-30"
+              onItemHighlighted={onItemHighlighted}
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {items.map((item, index) => (
+                  <Combobox.Item key={item} value={item} index={index}>
+                    {item}
+                  </Combobox.Item>
+                ))}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          await waitFor(() => {
+            expect(onItemHighlighted).toHaveBeenCalledWith(
+              'item-30',
+              expect.objectContaining({ index: 30 }),
+            );
+          });
+        },
+      );
+
       it('clears selectedIndex when the value is cleared externally while closed (no items prop)', async () => {
         function App() {
           const [value, setValue] = React.useState<string | null>('banana');

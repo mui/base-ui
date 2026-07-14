@@ -809,14 +809,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useIsoLayoutEffect(
-    function syncClosedState() {
+    function syncSelectedIndex() {
+      // An always-open inline list never closes, so `items`-prop selections (which don't
+      // self-register their index like `<Combobox.Item>`s do) get their initial highlight
+      // computed here while open. Gated to the initial highlight only: before the query
+      // changes (a filtered list has different indices) and while nothing is highlighted
+      // (so toggling a selection doesn't move the highlight and scroll the list away).
       if (open) {
-        return;
-      }
+        const isInlineInitialHighlight =
+          inline && hasItems && !queryChangedAfterOpen && store.state.activeIndex == null;
 
-      // State-driven (not tied to the internal event path) so controlled closes
-      // also clear a pointerdown that never received a matching item mouseup.
-      pointerDownItemRef.current = null;
+        if (!isInlineInitialHighlight) {
+          return;
+        }
+      } else {
+        // State-driven (not tied to the internal event path) so controlled closes
+        // also clear a pointerdown that never received a matching item mouseup.
+        pointerDownItemRef.current = null;
+      }
 
       if (selectionMode === 'none') {
         return;
@@ -841,7 +851,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     },
     [
+      store,
       open,
+      inline,
+      queryChangedAfterOpen,
       selectedValue,
       selectionMode,
       hasItems,
