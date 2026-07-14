@@ -9,7 +9,8 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
-import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type {
@@ -126,7 +127,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const defaultGroupValue = groupContext?.defaultValue;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const controlSourceRef = useRefWithInit(() => Symbol('checkbox-control'));
+  const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -177,12 +178,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(
-    inputRefProp,
-    inputRef,
-    validation.inputRef,
-    validation.registerInput,
-  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.registerInput);
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -264,6 +260,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           setGroupValue(nextGroupValue, details);
         }
       },
+      onClick(event) {
+        // The click dispatched from the root's `onClick` is an implementation detail
+        // and must not reach ancestors, which already receive the original click.
+        event.stopPropagation();
+      },
       onFocus() {
         controlRef.current?.focus();
       },
@@ -302,7 +303,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const stateAttributesMapping = useStateAttributesMapping(state);
+  const stateAttributesMapping = getCheckboxStateAttributesMapping(state);
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -389,15 +390,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
-          input.dispatchEvent(
-            new (ownerWindow(input).PointerEvent)('click', {
-              bubbles: true,
-              shiftKey: event.shiftKey,
-              ctrlKey: event.ctrlKey,
-              altKey: event.altKey,
-              metaKey: event.metaKey,
-            }),
-          );
+          dispatchClickWithModifiers(input, event);
         },
       },
       elementProps,

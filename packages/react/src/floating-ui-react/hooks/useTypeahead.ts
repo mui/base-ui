@@ -28,17 +28,17 @@ export interface UseTypeaheadProps {
   /**
    * Optional list of item elements that correspond to `listRef` indices.
    * When an element exists for an index, typeahead skips it if it is hidden by
-   * `display: none`, `visibility: hidden|collapse`, or other
-   * browser-reported visibility checks.
+   * `display: none`, `visibility: hidden|collapse`, other browser-reported
+   * visibility checks, or native disabled state.
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
    * Indices that are disabled, either as an array or a predicate (the same shape as
    * `useListNavigation`'s `disabledIndices`). Disabled items are skipped while matching,
    * so a single keypress advances to the next selectable item (matching native `<select>`
-   * and arrow-key navigation). The disabled check doesn't read `elementsRef`, so consumers
-   * whose items stay mounted-but-hidden while closed can still skip disabled items without
-   * passing `elementsRef`.
+   * and arrow-key navigation). The explicit disabled check doesn't read `elementsRef`, so
+   * consumers whose items stay mounted-but-hidden while closed can still skip disabled items
+   * without passing `elementsRef`.
    */
   disabledIndices?: DisabledIndices | undefined;
   /**
@@ -94,19 +94,20 @@ export function useTypeahead(
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    function isVisible(index: number) {
-      const element = elementsRef?.current[index];
-      return !element || isElementVisible(element);
+    function getElement(index: number) {
+      return elementsRef?.current[index];
     }
 
     function isItemAvailable(index: number) {
-      if (!isVisible(index)) {
+      const element = getElement(index);
+      if ((element && !isElementVisible(element)) || element?.matches(':disabled')) {
         return false;
       }
-      // Visibility is handled above; pass an empty element list so `isListIndexDisabled`
-      // resolves only the explicit `disabledIndices` (array/predicate) and skips its own
-      // visibility/attribute fallbacks. Consumers that don't opt in keep matching every
-      // visible item.
+      // Visibility and native disabled state are handled above; pass an empty
+      // element list so `isListIndexDisabled` resolves only the explicit
+      // `disabledIndices` (array/predicate) and skips its own fallbacks.
+      // Consumers that don't pass `disabledIndices` keep matching every visible
+      // item except native disabled elements provided through `elementsRef`.
       return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 

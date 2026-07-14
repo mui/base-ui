@@ -4,16 +4,9 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../internals/types';
-import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerBackdropCssVars } from './DrawerBackdropCssVars';
-
-const stateAttributesMapping: StateAttributesMapping<DrawerBackdropState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * An overlay displayed beneath the popup.
@@ -27,7 +20,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
 ) {
   const { render, className, style, forceRender = false, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const open = store.useState('open');
   const nested = store.useState('nested');
@@ -42,7 +35,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   return useRenderElement('div', componentProps, {
     state,
     ref: [store.context.backdropRef, forwardedRef],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
     props: [
       {
         role: 'presentation',

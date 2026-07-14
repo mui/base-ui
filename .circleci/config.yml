@@ -29,7 +29,9 @@ default-job: &default-job
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
-  executor: code-infra/mui-node
+  executor:
+    name: code-infra/mui-node
+    node-version: '22.22.3'
 
 default-context: &default-context
   context:

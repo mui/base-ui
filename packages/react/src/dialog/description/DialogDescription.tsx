@@ -17,7 +17,7 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
