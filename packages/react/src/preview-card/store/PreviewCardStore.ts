@@ -20,10 +20,10 @@ import { CLOSE_DELAY } from '../utils/constants';
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
   hasViewport: boolean;
+  closeDelay: number;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
-  closeDelayRef: React.RefObject<number>;
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
@@ -31,6 +31,7 @@ const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
 type Selectors = typeof selectors;
@@ -125,6 +126,7 @@ function createInitialState<Payload>(
     ...createInitialPopupStoreState<Payload>(),
     instantType: undefined,
     hasViewport: false,
+    closeDelay: CLOSE_DELAY,
     ...initialState,
   };
 
@@ -139,7 +141,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    closeDelayRef: { current: CLOSE_DELAY },
     inlineRectCoordsRef: { current: undefined },
   };
 }

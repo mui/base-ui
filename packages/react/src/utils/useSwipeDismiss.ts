@@ -489,12 +489,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   }
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
-    const exponent = (value: number) => (value >= 0 ? value ** 0.5 : -(Math.abs(value) ** 0.5));
+    const exponent = (value: number) => Math.sign(value) * Math.abs(value) ** 0.5;
     const dampAxis = (delta: number, allowNegative: boolean, allowPositive: boolean) => {
-      if (!allowNegative && delta < 0) {
-        return exponent(delta);
-      }
-      if (!allowPositive && delta > 0) {
+      if ((!allowNegative && delta < 0) || (!allowPositive && delta > 0)) {
         return exponent(delta);
       }
       return delta;
@@ -511,33 +508,39 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     deltaX: number,
     deltaY: number,
   ): boolean | null {
+    // Swiping toward the axis start edge (down/right) is allowed when scrolled to the start;
+    // toward the end edge (up/left) when scrolled to the end.
+    const canSwipeOnAxis = (
+      delta: number,
+      scrollOffset: number,
+      maxScrollOffset: number,
+      allowTowardStart: boolean,
+      allowTowardEnd: boolean,
+    ) =>
+      (delta > 0 && scrollOffset <= 0 && allowTowardStart) ||
+      (delta < 0 && scrollOffset >= Math.max(0, maxScrollOffset) && allowTowardEnd);
+
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
-    const useVerticalAxis =
-      hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX);
 
-    if (useVerticalAxis) {
-      const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
-      const atTop = scrollTarget.scrollTop <= 0;
-      const atBottom = scrollTarget.scrollTop >= maxScrollTop;
-      const movingDown = deltaY > 0;
-      const movingUp = deltaY < 0;
-      const canSwipeDown = movingDown && atTop && allowDown;
-      const canSwipeUp = movingUp && atBottom && allowUp;
-      return canSwipeDown || canSwipeUp;
+    if (hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX)) {
+      return canSwipeOnAxis(
+        deltaY,
+        scrollTarget.scrollTop,
+        scrollTarget.scrollHeight - scrollTarget.clientHeight,
+        allowDown,
+        allowUp,
+      );
     }
 
-    const useHorizontalAxis =
-      hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY);
-    if (useHorizontalAxis) {
-      const maxScrollLeft = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
-      const atLeft = scrollTarget.scrollLeft <= 0;
-      const atRight = scrollTarget.scrollLeft >= maxScrollLeft;
-      const movingRight = deltaX > 0;
-      const movingLeft = deltaX < 0;
-      const canSwipeRight = movingRight && atLeft && allowRight;
-      const canSwipeLeft = movingLeft && atRight && allowLeft;
-      return canSwipeRight || canSwipeLeft;
+    if (hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY)) {
+      return canSwipeOnAxis(
+        deltaX,
+        scrollTarget.scrollLeft,
+        scrollTarget.scrollWidth - scrollTarget.clientWidth,
+        allowRight,
+        allowLeft,
+      );
     }
 
     return null;
@@ -729,51 +732,27 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     recordDragSample({ x: newOffsetX, y: newOffsetY }, getValidTimeStamp(event.timeStamp));
     const dragDeltaX = newOffsetX - initialTransformRef.current.x;
     const dragDeltaY = newOffsetY - initialTransformRef.current.y;
-    const swipeDirectionDetails = intendedSwipeDirectionRef.current;
-
-    const progressDirection = primaryDirection ?? intendedSwipeDirectionRef.current;
-    if (!progressDirection) {
-      updateSwipeProgress(0, {
-        deltaX: dragDeltaX,
-        deltaY: dragDeltaY,
-        direction: swipeDirectionDetails,
-      });
-      return;
-    }
-
-    const size =
-      progressDirection === 'left' || progressDirection === 'right'
-        ? elementSizeRef.current.width
-        : elementSizeRef.current.height;
-    const scale = initialTransformRef.current.scale || 1;
-    if (size <= 0 || scale <= 0) {
-      updateSwipeProgress(0, {
-        deltaX: dragDeltaX,
-        deltaY: dragDeltaY,
-        direction: swipeDirectionDetails,
-      });
-      return;
-    }
-
-    const progressDisplacement = getDisplacement(
-      progressDirection,
-      newOffsetX - initialTransformRef.current.x,
-      newOffsetY - initialTransformRef.current.y,
-    );
-    if (progressDisplacement <= 0) {
-      updateSwipeProgress(0, {
-        deltaX: dragDeltaX,
-        deltaY: dragDeltaY,
-        direction: swipeDirectionDetails,
-      });
-      return;
-    }
-
-    updateSwipeProgress(progressDisplacement / (size * scale), {
+    const progressDetails: SwipeProgressDetailsInternal = {
       deltaX: dragDeltaX,
       deltaY: dragDeltaY,
-      direction: swipeDirectionDetails,
-    });
+      direction: intendedSwipeDirectionRef.current,
+    };
+
+    let progress = 0;
+    const progressDirection = primaryDirection ?? intendedSwipeDirectionRef.current;
+    if (progressDirection) {
+      const size =
+        progressDirection === 'left' || progressDirection === 'right'
+          ? elementSizeRef.current.width
+          : elementSizeRef.current.height;
+      const scale = initialTransformRef.current.scale || 1;
+      const progressDisplacement = getDisplacement(progressDirection, dragDeltaX, dragDeltaY);
+      if (size > 0 && scale > 0 && progressDisplacement > 0) {
+        progress = progressDisplacement / (size * scale);
+      }
+    }
+
+    updateSwipeProgress(progress, progressDetails);
   }
 
   const handleEnd = useStableCallback((event: SwipeDismissEndEvent) => {
@@ -869,35 +848,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       dismissDirection = intendedSwipeDirectionRef.current ?? primaryDirection;
     } else {
       for (const direction of directions) {
-        switch (direction) {
-          case 'right':
-            if (deltaX > swipeThresholdRef.current) {
-              shouldClose = true;
-              dismissDirection = 'right';
-            }
-            break;
-          case 'left':
-            if (deltaX < -swipeThresholdRef.current) {
-              shouldClose = true;
-              dismissDirection = 'left';
-            }
-            break;
-          case 'down':
-            if (deltaY > swipeThresholdRef.current) {
-              shouldClose = true;
-              dismissDirection = 'down';
-            }
-            break;
-          case 'up':
-            if (deltaY < -swipeThresholdRef.current) {
-              shouldClose = true;
-              dismissDirection = 'up';
-            }
-            break;
-          default:
-            break;
-        }
-        if (shouldClose) {
+        if (getDisplacement(direction, deltaX, deltaY) > swipeThresholdRef.current) {
+          shouldClose = true;
+          dismissDirection = direction;
           break;
         }
       }

@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { Separator, type SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
 
 /**
  * A separator element accessible to screen readers.
@@ -17,12 +16,7 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
 ) {
   const context = useToolbarRootContext();
 
-  const orientation = (
-    {
-      vertical: 'horizontal',
-      horizontal: 'vertical',
-    } as Record<ToolbarRoot.Orientation, ToolbarRoot.Orientation>
-  )[context.orientation];
+  const orientation = context.orientation === 'vertical' ? 'horizontal' : 'vertical';
 
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
 });

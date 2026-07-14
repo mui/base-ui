@@ -1228,7 +1228,7 @@ describe('<AlertDialog.Root />', () => {
 });
 
 function AlertDialogState(props: React.HTMLAttributes<HTMLDivElement>) {
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const modal = store.useState('modal');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const role = store.useState('role');

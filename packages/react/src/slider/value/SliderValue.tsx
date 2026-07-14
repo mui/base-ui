@@ -35,17 +35,14 @@ export const SliderValue = React.forwardRef(function SliderValue(
     }
   }
 
-  const outputFor = htmlFor.trim() === '' ? undefined : htmlFor.trim();
+  const outputFor = htmlFor.trim() || undefined;
 
-  const formattedValues = React.useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < values.length; i += 1) {
-      arr.push(formatNumber(values[i], locale, format));
-    }
-    return arr;
-  }, [format, locale, values]);
+  const formattedValues = React.useMemo(
+    () => values.map((v) => formatNumber(v, locale, format)),
+    [format, locale, values],
+  );
 
-  const defaultDisplayValue = values.map((v, i) => formattedValues[i] || v).join(' – ');
+  const defaultDisplayValue = formattedValues.join(' – ');
 
   const element = useRenderElement('output', componentProps, {
     state,

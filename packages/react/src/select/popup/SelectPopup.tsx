@@ -99,15 +99,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
-    if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
-      handleScrollArrowVisibility();
-      return;
-    }
-
     const isTopPositioned = positionerElement.style.top === '0px';
     const isBottomPositioned = positionerElement.style.bottom === '0px';
 
-    if (!isTopPositioned && !isBottomPositioned) {
+    if (
+      reachedMaxHeightRef.current ||
+      !alignItemWithTriggerActive ||
+      (!isTopPositioned && !isBottomPositioned)
+    ) {
       handleScrollArrowVisibility();
       return;
     }
@@ -132,64 +131,46 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const scrollTop = scroller.scrollTop;
     const maxScrollTop = getMaxScrollTop(scroller);
 
-    let nextPositionerHeight = 0;
+    // `Infinity` requests a scroll to the recomputed maximum offset.
     let nextScrollTop: number | null = null;
-    let setReachedMax = false;
-    let scrollToMax = false;
 
     const setHeight = (height: number) => {
       positionerElement.style.height = `${height}px`;
     };
 
-    const handleSmallDiff = (diff: number, targetScrollTop: number) => {
+    const diff = isTopPositioned ? maxScrollTop - scrollTop : scrollTop;
+    const nextHeight = Math.min(currentHeight + diff, maxAvailableHeight);
+
+    if (diff <= SCROLL_EDGE_TOLERANCE_PX) {
       const heightDelta = clamp(diff, 0, maxAvailableHeight - currentHeight);
       if (heightDelta > 0) {
         // Consume the remaining scroll in height.
         setHeight(currentHeight + heightDelta);
       }
-      scroller.scrollTop = targetScrollTop;
+      scroller.scrollTop = isTopPositioned ? maxScrollTop : 0;
       if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EDGE_TOLERANCE_PX) {
         reachedMaxHeightRef.current = true;
       }
       handleScrollArrowVisibility();
-    };
-
-    const diff = isTopPositioned ? maxScrollTop - scrollTop : scrollTop;
-    const nextHeight = Math.min(currentHeight + diff, maxAvailableHeight);
-
-    nextPositionerHeight = nextHeight;
-
-    if (diff <= SCROLL_EDGE_TOLERANCE_PX) {
-      handleSmallDiff(diff, isTopPositioned ? maxScrollTop : 0);
       return;
     }
 
     if (maxAvailableHeight - nextHeight > SCROLL_EDGE_TOLERANCE_PX) {
-      if (isTopPositioned) {
-        scrollToMax = true;
-      } else {
-        nextScrollTop = 0;
-      }
-    } else {
-      setReachedMax = true;
-
-      if (isBottomPositioned && scrollTop < maxScrollTop) {
-        const overshoot = currentHeight + diff - maxAvailableHeight;
-        nextScrollTop = scrollTop - (diff - overshoot);
-      }
+      nextScrollTop = isTopPositioned ? Infinity : 0;
+    } else if (isBottomPositioned && scrollTop < maxScrollTop) {
+      const overshoot = currentHeight + diff - maxAvailableHeight;
+      nextScrollTop = scrollTop - (diff - overshoot);
     }
 
-    nextPositionerHeight = Math.ceil(nextPositionerHeight);
+    const nextPositionerHeight = Math.ceil(nextHeight);
 
     if (nextPositionerHeight !== 0) {
       setHeight(nextPositionerHeight);
     }
 
-    if (scrollToMax || nextScrollTop != null) {
+    if (nextScrollTop != null) {
       // Recompute bounds after resizing (clientHeight likely changed).
-      const nextMaxScrollTop = getMaxScrollTop(scroller);
-
-      const target = scrollToMax ? nextMaxScrollTop : clamp(nextScrollTop!, 0, nextMaxScrollTop);
+      const target = clamp(nextScrollTop, 0, getMaxScrollTop(scroller));
 
       // Avoid adjustments that re-trigger scroll events forever.
       if (Math.abs(scroller.scrollTop - target) > SCROLL_EDGE_TOLERANCE_PX) {
@@ -197,7 +178,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       }
     }
 
-    if (setReachedMax || nextPositionerHeight >= maxAvailableHeight - SCROLL_EDGE_TOLERANCE_PX) {
+    if (nextPositionerHeight >= maxAvailableHeight - SCROLL_EDGE_TOLERANCE_PX) {
       reachedMaxHeightRef.current = true;
     }
 
@@ -272,17 +253,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
+    initialPlacedRef.current = true;
+    popupElement.style.removeProperty('--transform-origin');
+
     if (!alignItemWithTriggerActive) {
-      initialPlacedRef.current = true;
       scrollArrowFrame.request(handleScrollArrowVisibility);
-      popupElement.style.removeProperty('--transform-origin');
       return;
     }
 
     // Ensure we remove any transforms that can affect the location of the popup
     // and therefore the calculations.
     const restoreTransformStyles = unsetTransformStyles(popupElement);
-    popupElement.style.removeProperty('--transform-origin');
 
     try {
       let textElement = selectedItemTextRef.current;
@@ -383,7 +364,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && platform.engine.webkit;
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
-        initialPlacedRef.current = true;
         clearStyles(positionerElement, originalPositionerStylesRef.current);
         setControlledAlignItemWithTrigger(false);
         return;
@@ -406,10 +386,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const popupHeight = positionerRect.height;
         const textCenterY = textRect.top + textRect.height / 2;
 
-        const transformOriginY =
-          popupHeight > 0 ? ((textCenterY - popupTop) / popupHeight) * 100 : 50;
-
-        const clampedY = clamp(transformOriginY, 0, 100);
+        const clampedY = clamp(
+          popupHeight > 0 ? ((textCenterY - popupTop) / popupHeight) * 100 : 50,
+          0,
+          100,
+        );
 
         popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
       }
@@ -428,8 +409,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       ) {
         store.set('activeIndex', 0);
       }
-
-      initialPlacedRef.current = true;
     } finally {
       restoreTransformStyles();
     }
@@ -492,6 +471,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     ...(alignItemWithTriggerActive && {
       style: listElement ? { height: '100%' } : LIST_FUNCTIONAL_STYLES,
     }),
+    className:
+      !listElement && alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
   };
 
   const element = useRenderElement('div', componentProps, {
@@ -502,10 +483,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       popupProps,
       defaultProps,
       getDisabledMountTransitionStyles(transitionStatus),
-      {
-        className:
-          !listElement && alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
-      },
       elementProps,
     ],
   });
@@ -570,7 +547,7 @@ export namespace SelectPopup {
 }
 
 function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
-  const maxHeightStyle = popupStyles.maxHeight || '';
+  const maxHeightStyle = popupStyles.maxHeight;
   return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 

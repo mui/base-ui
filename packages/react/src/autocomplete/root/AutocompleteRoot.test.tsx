@@ -634,6 +634,38 @@ describe('<Autocomplete.Root />', () => {
   });
 
   describe('prop: mode', () => {
+    it.each(['list', 'both'] as const)(
+      'mode="%s": uses the locale when applying the default filter',
+      async (mode) => {
+        const items = ['Isparta', 'İzmir'];
+
+        const { user } = await render(
+          <Autocomplete.Root mode={mode} items={items} locale="tr">
+            <Autocomplete.Input />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(item) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, 'i');
+
+        expect(screen.queryByRole('option', { name: 'Isparta' })).toBe(null);
+        expect(screen.getByRole('option', { name: 'İzmir' })).not.toBe(null);
+      },
+    );
+
     it('mode="list" (default): no inline overlay, consumer handles filtering', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
@@ -810,52 +842,89 @@ describe('<Autocomplete.Root />', () => {
   });
 
   describe('prop: filter', () => {
-    it('does not apply default filtering when filter is null', async () => {
-      interface Movie {
-        id: string;
-        title: string;
-        year: number;
-      }
+    it.each(['list', 'both'] as const)(
+      'mode="%s": uses a custom filter instead of the locale-aware default',
+      async (mode) => {
+        const items = ['Isparta', 'İzmir'];
+        const filter = (item: string, query: string) => item[0] === query.toUpperCase();
 
-      const asyncResults: Movie[] = [
-        { id: '1', title: 'Pulp Fiction', year: 1994 },
-        { id: '2', title: 'The Godfather', year: 1972 },
-        { id: '3', title: 'The Dark Knight', year: 2008 },
-      ];
+        const { user } = await render(
+          <Autocomplete.Root mode={mode} items={items} locale="tr" filter={filter}>
+            <Autocomplete.Input />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(item) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>,
+        );
 
-      const { user } = await render(
-        <Autocomplete.Root
-          items={asyncResults}
-          filter={null}
-          itemToStringValue={(movie: Movie) => movie.title}
-        >
-          <Autocomplete.Input data-testid="input" />
-          <Autocomplete.Portal>
-            <Autocomplete.Positioner>
-              <Autocomplete.Popup>
-                <Autocomplete.List>
-                  {(movie: Movie) => (
-                    <Autocomplete.Item key={movie.id} value={movie}>
-                      {movie.title}
-                    </Autocomplete.Item>
-                  )}
-                </Autocomplete.List>
-              </Autocomplete.Popup>
-            </Autocomplete.Positioner>
-          </Autocomplete.Portal>
-        </Autocomplete.Root>,
-      );
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, 'i');
 
-      const input = screen.getByTestId<HTMLInputElement>('input');
-      await user.type(input, '1994');
+        expect(screen.getByRole('option', { name: 'Isparta' })).not.toBe(null);
+        expect(screen.queryByRole('option', { name: 'İzmir' })).toBe(null);
+      },
+    );
 
-      await waitFor(() => {
-        expect(screen.getAllByRole('option')).toHaveLength(3);
-      });
-      expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.toBe(null);
-      expect(screen.getByRole('option', { name: 'The Godfather' })).not.toBe(null);
-      expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.toBe(null);
-    });
+    it.each(['list', 'both'] as const)(
+      'mode="%s": does not apply default filtering when filter is null',
+      async (mode) => {
+        interface Movie {
+          id: string;
+          title: string;
+          year: number;
+        }
+
+        const asyncResults: Movie[] = [
+          { id: '1', title: 'Pulp Fiction', year: 1994 },
+          { id: '2', title: 'The Godfather', year: 1972 },
+          { id: '3', title: 'The Dark Knight', year: 2008 },
+        ];
+
+        const { user } = await render(
+          <Autocomplete.Root
+            mode={mode}
+            items={asyncResults}
+            filter={null}
+            itemToStringValue={(movie: Movie) => movie.title}
+          >
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(movie: Movie) => (
+                      <Autocomplete.Item key={movie.id} value={movie}>
+                        {movie.title}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>,
+        );
+
+        const input = screen.getByTestId<HTMLInputElement>('input');
+        await user.type(input, '1994');
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(3);
+        });
+        expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.toBe(null);
+        expect(screen.getByRole('option', { name: 'The Godfather' })).not.toBe(null);
+        expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.toBe(null);
+      },
+    );
   });
 
   describe('prop: submitOnItemClick', () => {
