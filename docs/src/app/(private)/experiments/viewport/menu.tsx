@@ -21,7 +21,16 @@ export default function Experiment() {
         <Menu.Portal>
           <Menu.Positioner sideOffset={8} className={styles.Positioner}>
             <Menu.Popup className={styles.Popup}>
-              <Menu.Viewport className={styles.Viewport} transitionKey={view}>
+              <Menu.Viewport
+                className={styles.Viewport}
+                transitionKey={view}
+                style={{ '--direction': view === 'more' ? 1 : -1 } as React.CSSProperties}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowLeft' && view === 'more') {
+                    setView('main');
+                  }
+                }}
+              >
                 {view === 'main' ? (
                   <div className={styles.List}>
                     <Menu.Item className={styles.Item}>New window</Menu.Item>
@@ -31,6 +40,11 @@ export default function Experiment() {
                       className={styles.Item}
                       closeOnClick={false}
                       onClick={() => setView('more')}
+                      onKeyDown={(event) => {
+                        if (event.key === 'ArrowRight') {
+                          setView('more');
+                        }
+                      }}
                     >
                       More tools
                       <CaretRightIcon className={styles.Caret} />

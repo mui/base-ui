@@ -59,6 +59,13 @@ export interface UsePopupViewportParameters {
    * A key that identifies the current content and triggers a transition when it changes.
    */
   transitionKey?: React.Key | undefined;
+  /**
+   * Called when the rendered content is swapped for different content.
+   * When provided, it replaces the default focus recovery (focusing the first tabbable
+   * element of the new content when focus was inside the previous content).
+   * Must be a stable function reference.
+   */
+  onContentSwap?: ((details: { focusWasInside: boolean }) => void) | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -77,7 +84,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children, transitionKey } = parameters;
+  const { store, side, children, transitionKey, onContentSwap } = parameters;
 
   const direction = useDirection();
 
@@ -183,6 +190,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
     lastTransitionKeyRef.current = transitionKey;
 
+    if (triggerChanged || transitionKeyChanged) {
+      onContentSwap?.({ focusWasInside: focusWasInsideRef.current });
+    }
+
     // When a trigger or the transition key changes, set the captured children HTML to state,
     // so we can render both new and old content.
     if ((triggerChanged || transitionKeyChanged) && capturedNodeRef.current) {
@@ -229,14 +240,16 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     previousContentNode,
     onAnimationsFinished,
     cleanupFrame,
+    onContentSwap,
   ]);
 
   // Remounting the current container drops focus to `<body>` when it was inside the previous
   // content. Move it to the new content (or the popup itself) in that case; if focus is alive
   // elsewhere (e.g. placed by the new content via `autoFocus`), leave it alone.
+  // Skipped when `onContentSwap` is provided, as it owns focus recovery.
   useIsoLayoutEffect(() => {
     const container = currentContainerRef.current;
-    if (!container || !focusWasInsideRef.current) {
+    if (onContentSwap || !container || !focusWasInsideRef.current) {
       return;
     }
 
@@ -244,7 +257,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     if (focusedElement == null || focusedElement === ownerDocument(container).body) {
       (tabbable(container)[0] ?? popupElement)?.focus();
     }
-  }, [currentContentKey, popupElement]);
+  }, [currentContentKey, popupElement, onContentSwap]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
