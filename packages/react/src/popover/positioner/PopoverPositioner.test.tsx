@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -36,6 +36,52 @@ describe('<Popover.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
+
+  it.skipIf(isJSDOM)('does not transition from the viewport origin on first open', async () => {
+    let transitionRuns = 0;
+
+    await render(
+      <React.Fragment>
+        <style>{`
+          .initial-position-transition-test {
+            transition: transform 200ms linear;
+          }
+        `}</style>
+        <Popover.Root>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              ref={(element) => {
+                element?.addEventListener('transitionrun', (event) => {
+                  if (event.propertyName === 'transform') {
+                    transitionRuns += 1;
+                  }
+                });
+              }}
+              className="initial-position-transition-test"
+              data-testid="positioner"
+            >
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </React.Fragment>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.opacity).toBe('');
+    });
+
+    await act(async () => {
+      await waitSingleFrame();
+    });
+
+    expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
+    expect(transitionRuns).toBe(0);
+  });
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
