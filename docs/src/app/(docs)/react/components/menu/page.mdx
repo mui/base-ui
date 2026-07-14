@@ -372,7 +372,9 @@ import { TypesMenu } from './types';
 
 <TypesMenu.Viewport />
 
-Use the `Viewport` when the popup's content changes while open and the change should be animated, whether the content switches between triggers or changes in place with `transitionKey`. For same-trigger content swaps, pass a stable key such as `transitionKey={view}` and update it when the view changes. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
+Use the `Viewport` to animate the popup's content when it changes while open. When one popup is opened by several triggers, it morphs between each trigger's content automatically.
+
+To animate content that changes in place under a single trigger, pass a `transitionKey` and update it whenever the content changes, such as `transitionKey={view}`. Either way, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box stays fixed during the transition; without it, resizing can make the popup thrash or flip to another side.
 
 ### Arrow
 
