@@ -39,7 +39,6 @@ import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
@@ -54,11 +53,7 @@ function getDefaultAriaValueText(
   }
 
   if (values.length === 2) {
-    if (index === 0) {
-      return `${formatNumber(values[index], locale, format)} start range`;
-    }
-
-    return `${formatNumber(values[index], locale, format)} end range`;
+    return `${formatNumber(values[index], locale, format)} ${index === 0 ? 'start' : 'end'} range`;
   }
 
   return format ? formatNumber(values[index], locale, format) : undefined;
@@ -67,11 +62,11 @@ function getDefaultAriaValueText(
 function getNewValue(
   thumbValue: number,
   increment: number,
-  direction: 1 | -1,
+  direction: number,
   min: number,
   max: number,
 ): number {
-  const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
+  const value = thumbValue + increment * direction;
   const roundedValue = Number(
     value.toFixed(
       Math.max(
@@ -136,7 +131,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     form,
     name,
     orientation,
-    pressedInputRef,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     renderBeforeHydration,
@@ -287,33 +281,27 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }
 
   let thumbStyle: React.CSSProperties;
-  if (inset) {
+  if (!inset && !Number.isFinite(thumbValuePercent)) {
+    thumbStyle = visuallyHidden;
+  } else {
     thumbStyle = {
-      ['--position' as string]: `${positionPercent ?? 0}%`,
-      visibility:
-        (renderBeforeHydration && isHydrating) || positionPercent === undefined
-          ? 'hidden'
-          : undefined,
       position: 'absolute',
-      [startEdge]: 'var(--position)',
+      [startEdge]: inset ? 'var(--position)' : `${thumbValuePercent}%`,
       [crossOffsetProperty]: '50%',
       translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
       zIndex,
+      ...(inset && {
+        ['--position' as string]: `${positionPercent ?? 0}%`,
+        visibility:
+          (renderBeforeHydration && isHydrating) || positionPercent === undefined
+            ? ('hidden' as const)
+            : undefined,
+      }),
     };
-  } else {
-    thumbStyle = !Number.isFinite(thumbValuePercent)
-      ? visuallyHidden
-      : {
-          position: 'absolute',
-          [startEdge]: `${thumbValuePercent}%`,
-          [crossOffsetProperty]: '50%',
-          translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-          zIndex,
-        };
   }
 
   let cssWritingMode: React.CSSProperties['writingMode'];
-  if (orientation === 'vertical') {
+  if (vertical) {
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
@@ -389,58 +377,48 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         let newValue = null;
+        let direction = 0;
+        let increment = event.shiftKey ? largeStep : step;
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
-            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, 1, min, max);
+            direction = 1;
             break;
           case ARROW_RIGHT:
-            newValue = getNewValue(
-              roundedValue,
-              event.shiftKey ? largeStep : step,
-              rtl ? -1 : 1,
-              min,
-              max,
-            );
+            direction = rtl ? -1 : 1;
             break;
           case ARROW_DOWN:
-            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, -1, min, max);
+            direction = -1;
             break;
           case ARROW_LEFT:
-            newValue = getNewValue(
-              roundedValue,
-              event.shiftKey ? largeStep : step,
-              rtl ? 1 : -1,
-              min,
-              max,
-            );
+            direction = rtl ? 1 : -1;
             break;
           case PAGE_UP:
-            newValue = getNewValue(roundedValue, largeStep, 1, min, max);
+            increment = largeStep;
+            direction = 1;
             break;
           case PAGE_DOWN:
-            newValue = getNewValue(roundedValue, largeStep, -1, min, max);
+            increment = largeStep;
+            direction = -1;
             break;
           case END:
-            newValue = max;
-
-            if (range) {
-              newValue = Number.isFinite(sliderValues[index + 1])
+            newValue =
+              range && Number.isFinite(sliderValues[index + 1])
                 ? sliderValues[index + 1] - step * minStepsBetweenValues
                 : max;
-            }
             break;
           case HOME:
-            newValue = min;
-
-            if (range) {
-              newValue = Number.isFinite(sliderValues[index - 1])
+            newValue =
+              range && Number.isFinite(sliderValues[index - 1])
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
-            }
             break;
           default:
             break;
+        }
+
+        if (direction !== 0) {
+          newValue = getNewValue(roundedValue, increment, direction, min, max);
         }
 
         if (newValue !== null) {
@@ -469,7 +447,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         height: '100%',
         writingMode: cssWritingMode,
       },
-      tabIndex: tabIndexProp ?? undefined,
+      tabIndex: tabIndexProp,
       type: 'range',
       value: thumbValue ?? '',
     },
@@ -484,7 +462,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
-        [SliderThumbDataAttributes.index as string]: index,
+        ['data-index' as string]: index,
         children: (
           <React.Fragment>
             {childrenProp}
@@ -505,15 +483,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           pressedThumbIndexRef.current = index;
 
           if (thumbRef.current != null) {
-            const axis = orientation === 'horizontal' ? 'x' : 'y';
-            const midpoint = getMidpoint(thumbRef.current);
-            const offset =
-              (orientation === 'horizontal' ? event.clientX : event.clientY) - midpoint[axis];
-            pressedThumbCenterOffsetRef.current = offset;
-          }
-
-          if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
-            pressedInputRef.current = inputRef.current;
+            const midpoint = getMidpoint(thumbRef.current, vertical);
+            pressedThumbCenterOffsetRef.current =
+              (vertical ? event.clientY : event.clientX) - midpoint;
           }
         },
         style: thumbStyle,

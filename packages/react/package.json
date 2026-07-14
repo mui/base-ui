@@ -125,6 +125,7 @@
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
+    "types:check": "api-extractor run --config api-extractor.json --typescript-compiler-folder ../../node_modules/typescript",
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {

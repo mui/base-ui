@@ -2298,6 +2298,38 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(123);
     });
 
+    it.each([
+      ['Persian', '۱۲۳', 123],
+      ['Arabic-Indic', '١٢٣', 123],
+      ['fullwidth', '１２３', 123],
+      ['Han', '一二三', 123],
+    ] as const)('pastes %s numerals through the input contract', async (_label, text, value) => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={0} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, text);
+
+      expect(input).toHaveValue(text);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(value);
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.inputPaste);
+    });
+
+    it('rejects invalid pasted characters without changing the value contract', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={12} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('12');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('parses Persian digits and separators via change events', async () => {
       const onValueChange = vi.fn();
       function App() {

@@ -494,6 +494,68 @@ describe('<Switch.Root />', () => {
   });
 
   describe('Form', () => {
+    it.skipIf(isJSDOM)(
+      'preserves Field validation props through canceled changes, submit, and reset',
+      async () => {
+        let cancelChanges = true;
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="notifications">
+              <Switch.Root
+                required
+                aria-describedby="external-description"
+                onCheckedChange={(_, details) => {
+                  if (cancelChanges) {
+                    details.cancel();
+                  }
+                }}
+              />
+              <Field.Description data-testid="description">Choose a setting</Field.Description>
+              <Field.Error match="valueMissing" data-testid="error">
+                required
+              </Field.Error>
+            </Field.Root>
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const description = screen.getByTestId('description');
+        expect(switchElement).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${description.id}`,
+        );
+
+        await user.click(switchElement);
+        expect(switchElement).toHaveAttribute('aria-checked', 'false');
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+        expect(submitSpy).not.toHaveBeenCalled();
+        expect(switchElement).toHaveAttribute('aria-invalid', 'true');
+        expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+        cancelChanges = false;
+        await user.click(switchElement);
+        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+        expect(switchElement).not.toHaveAttribute('aria-invalid');
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+        expect(submitSpy).toHaveBeenCalledTimes(1);
+
+        await user.click(screen.getByRole('button', { name: 'Reset' }));
+        // Switch state is React-managed, so a native form reset does not change it.
+        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+        expect(switchElement).not.toHaveAttribute('aria-invalid');
+        expect(switchElement).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${description.id}`,
+        );
+      },
+    );
+
     // FormData is not available in JSDOM
     it.skipIf(isJSDOM)(
       'should include the switch value in form submission, matching native checkbox behavior',
