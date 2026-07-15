@@ -4521,6 +4521,44 @@ describe('<Combobox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)('skips clipping ancestors when finding the scroll container', async () => {
+      const { user } = await render(
+        <Combobox.Root items={manyItems}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <div data-testid="viewport" style={{ height: 100, overflowY: 'auto' }}>
+                  <div style={{ overflowY: 'clip' }}>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </div>
+                </div>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      const viewport = screen.getByTestId('viewport');
+      viewport.scrollTop = 40;
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+
+      await user.type(input, 'item-1');
+
+      await waitFor(() => {
+        expect(viewport.scrollTop).toBe(0);
+      });
+    });
+
     it.skipIf(isJSDOM)(
       'keeps the auto-highlighted first item in view after the query changes',
       async () => {

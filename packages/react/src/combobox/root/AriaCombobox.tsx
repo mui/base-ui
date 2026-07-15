@@ -10,7 +10,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
   getOverflowAncestors,
@@ -870,9 +870,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const list = store.state.listElement;
     if (!store.state.virtualized && list) {
       const dialog = inline ? list.closest<HTMLElement>('[role="dialog"]') : null;
-      const scrollContainer = getOverflowAncestors(list.firstElementChild ?? list)[0];
+      let scrollContainer: HTMLElement | null = null;
 
-      if (isHTMLElement(scrollContainer) && scrollContainer !== dialog) {
+      for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+        if (!isHTMLElement(ancestor) || ancestor === dialog) {
+          break;
+        }
+
+        const { overflowY } = getComputedStyle(ancestor);
+        if ((overflowY === 'auto' || overflowY === 'scroll') && ancestor.clientHeight > 0) {
+          scrollContainer = ancestor;
+          break;
+        }
+      }
+
+      if (scrollContainer) {
         scrollContainer.scrollTop = 0;
       }
     }
