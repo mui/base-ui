@@ -7,15 +7,14 @@ import {
 
 export type ScrollAxis = 'horizontal' | 'vertical';
 
-// When `allowOverflowIntent` is true, a container that overflows only once extra space is
-// added (e.g. drawer keyboard scroll slack) still counts, as long as it has layout size on
-// the axis.
-
 export function isScrollableY(element: HTMLElement, allowOverflowIntent = false): boolean {
   const { overflowY } = getComputedStyle(element);
   if (overflowY !== 'auto' && overflowY !== 'scroll') {
     return false;
   }
+  // When `allowOverflowIntent` is true, a container that overflows only once extra space is
+  // added (e.g. drawer keyboard scroll slack) still counts, as long as it has layout size on
+  // the axis.
   return allowOverflowIntent
     ? element.clientHeight > 0
     : element.scrollHeight > element.clientHeight;
