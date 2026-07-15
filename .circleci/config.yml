@@ -168,6 +168,21 @@ jobs:
           command: pnpm test:chromium
       - store_test_results:
           path: test-results
+  test_browser_react_17:
+    <<: *default-job
+    resource_class: large
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.59.1-noble
+    steps:
+      - checkout
+      - code-infra/install-deps:
+          package-overrides: react@17.0.2
+      - run:
+          name: Run anchored Positioner regressions with React 17
+          command: pnpm test:chromium PopoverPositioner TooltipPositioner --no-watch
+      - store_test_results:
+          path: test-results
   test_regressions:
     <<: *default-job
     resource_class: medium+
@@ -333,6 +348,13 @@ workflows:
       - test_browser_compiler:
           <<: *default-context
           name: 'Browser tests (React Compiler)'
+  react-17:
+    when:
+      equal: [pipeline, << pipeline.parameters.workflow >>]
+    jobs:
+      - test_browser_react_17:
+          <<: *default-context
+          name: 'Browser tests (React 17)'
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]

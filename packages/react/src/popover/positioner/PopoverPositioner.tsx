@@ -92,33 +92,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const initialPositioningCompleteRef = React.useRef(false);
-  const initialTransitionPropertyRef = React.useRef<string | null>(null);
-
-  const setInitialTransitionElement = React.useCallback((element: HTMLDivElement | null) => {
-    if (!element || initialPositioningCompleteRef.current) {
-      return;
-    }
-
-    if (initialTransitionPropertyRef.current === null) {
-      initialTransitionPropertyRef.current = element.style.transitionProperty;
-    }
-    element.style.transitionProperty = 'none';
-  }, []);
-
-  // In React 17, the floating element can reach the positioning hook after the one-frame mount
-  // transition guard has ended. Keep transitions disabled through the first positioned render,
-  // flush its layout, then restore them so the positioner does not animate from (0, 0).
-  useIsoLayoutEffect(() => {
-    if (!positioning.isPositioned || initialPositioningCompleteRef.current || !positionerElement) {
-      return;
-    }
-
-    positionerElement.getBoundingClientRect();
-    initialPositioningCompleteRef.current = true;
-    positionerElement.style.transitionProperty = initialTransitionPropertyRef.current ?? '';
-  }, [positioning.isPositioned, positionerElement]);
-
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   // When the current trigger element changes, enable transitions on the
@@ -171,9 +144,10 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
+    isPositioned: positioning.isPositioned,
     transitionStatus,
     props: elementProps,
-    refs: [forwardedRef, setPositionerElement, setInitialTransitionElement],
+    refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
     inert: !open,
   });
