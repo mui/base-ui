@@ -1916,6 +1916,188 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'stops the delayed realign passes once the user starts scrolling',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <Drawer.Content
+                      data-testid="scroll"
+                      style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
+                    >
+                      <input data-testid="first" type="text" />
+                      <div style={{ height: 900 }} />
+                      <input data-testid="second" type="text" />
+                    </Drawer.Content>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        const first = screen.getByTestId('first');
+        const second = screen.getByTestId('second');
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 1200 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+        first.getBoundingClientRect = () => {
+          const top = 380 - scroll.scrollTop;
+          return {
+            top,
+            bottom: top + 40,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: top,
+            toJSON: () => {},
+          } as DOMRect;
+        };
+        second.getBoundingClientRect = () => {
+          const top = 650 - scroll.scrollTop;
+          return {
+            top,
+            bottom: top + 40,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: top,
+            toJSON: () => {},
+          } as DOMRect;
+        };
+        // The mock never moves, standing in for a smooth scroll canceled by WebKit's native
+        // reveal resolution — the exact stall a delayed pass would re-issue. A user scroll
+        // stops at a stationary position the same way, so a pointer going down must cancel the
+        // passes rather than let one mistake the manual scroll for a canceled reveal and yank
+        // the drawer back to center.
+        const scrollToSpy = vi.fn();
+        scroll.scrollTo = scrollToSpy as unknown as typeof scroll.scrollTo;
+
+        await act(async () => {
+          first.focus();
+          visualViewport.resize(500);
+        });
+
+        scrollToSpy.mockClear();
+
+        await act(async () => {
+          second.focus();
+          // The user immediately puts a finger down on the drawer body to scroll it.
+          scroll.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        });
+
+        // Wait out all delayed realign passes (4 × 150ms).
+        await act(async () => {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 750);
+          });
+        });
+
+        // Only the initial alignment scroll was issued; the passes stayed cancelled.
+        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('clears keyboard state when a tapped input redirects focus away', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(500);
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup>
+                  <input data-testid="input" type="text" />
+                  <button data-testid="other" type="button" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const input = screen.getByTestId('input');
+      const other = screen.getByTestId('other');
+
+      // A consumer redirects focus off the field the moment it focuses (validation,
+      // auto-advance, composite focus). Listening on `focusin` at the target matches React's
+      // `onFocus`: it runs after the provider's capture-phase `focusin` has already recorded
+      // the input, so the provider must reconcile when focus lands on a non-keyboard element.
+      input.addEventListener('focusin', () => {
+        other.focus();
+      });
+
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [createTouch(input, { clientX: 12, clientY: 34 })],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, { clientX: 12, clientY: 34 });
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(other).toHaveFocus();
+
+        // Wait past any alignment frame and delayed realign passes that a stale target would
+        // have kept alive.
+        await act(async () => {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 300);
+          });
+        });
+
+        // Focus stays on the redirected element and the drawer left no keyboard inset
+        // behind for the abandoned input.
+        expect(other).toHaveFocus();
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
   it.skipIf(isJSDOM)('defers the alignment scroll until the destination stops moving', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);

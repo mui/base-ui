@@ -424,6 +424,14 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       consumePreemptedFocus();
 
       if (!captureFocusedKeyboardTarget(getTarget(event))) {
+        // Focus landed outside any drawer keyboard input. The `focusout` on the previous
+        // field normally clears the tracked target, but the tap path suppresses that
+        // `focusout` via `programmaticKeyboardFocusRef`, so a consumer `onFocus` handler that
+        // redirects focus out of the drawer would otherwise leave a stale target holding its
+        // inset, slack, and pending realign. Reconcile against the real focus here.
+        if (focusedKeyboardTargetRef.current) {
+          clearFocusedKeyboardTarget();
+        }
         return;
       }
 
@@ -482,10 +490,19 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
     };
 
+    // Once the user puts a finger down they own the scroll position. The delayed realign
+    // passes can't tell a user scroll from a reveal scroll WebKit canceled, so stop them
+    // rather than risk pulling the drawer back to center under the user; a later focus or
+    // viewport change reschedules alignment if it's still needed.
+    const cancelDelayedRealignOnPointerDown = () => {
+      keyboardRealignTimeout.clear();
+    };
+
     cleanupListeners.push(
       addEventListener(doc, 'focusin', handleFocusIn, true),
       addEventListener(doc, 'focusout', handleFocusOut, true),
       addEventListener(win, 'scroll', handleWindowScroll),
+      addEventListener(doc, 'pointerdown', cancelDelayedRealignOnPointerDown, true),
     );
 
     if (captureFocusedKeyboardTarget(activeElement(doc))) {
@@ -604,8 +621,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       // iOS only opens the software keyboard when focus happens synchronously
-      // inside the touch gesture. The flag stops the `focusin` handler from
-      // re-running the same blur/re-focus trick a second time.
+      // inside the touch gesture. The flag suppresses the `focusout` cleanup the
+      // intermediate blur would otherwise trigger, so the keyboard inset isn't
+      // dropped for a frame between the blur and the re-focus.
       event.preventDefault();
       programmaticKeyboardFocusRef.current = true;
       try {
