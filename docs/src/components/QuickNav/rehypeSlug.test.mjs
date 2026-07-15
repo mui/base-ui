@@ -57,6 +57,12 @@ describe('rehypeSlug', () => {
     expect(slugIds([custom])).toEqual(['custom-id']);
   });
 
+  it('suffixes a later heading that collides with a pre-existing id', () => {
+    const explicit = heading(2, 'Something');
+    explicit.properties.id = 'props';
+    expect(slugIds([explicit, heading(2, 'Props')])).toEqual(['props', 'props-1']);
+  });
+
   it('ignores non-heading elements', () => {
     const paragraph = { type: 'element', tagName: 'p', properties: {}, children: [] };
     const tree = { type: 'root', children: [paragraph] };

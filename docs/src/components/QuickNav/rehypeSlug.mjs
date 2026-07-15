@@ -44,15 +44,22 @@ export default function rehypeSlug(options) {
     const occurrences = new Map();
 
     visit(tree, 'element', (node) => {
-      if (headingRank(node) && !node.properties.id) {
-        const base = prefix + stringToUrl(toString(node));
-        let id = base;
-        while (occurrences.has(id)) {
-          occurrences.set(base, occurrences.get(base) + 1);
-          id = `${base}-${occurrences.get(base)}`;
+      if (headingRank(node)) {
+        if (node.properties.id) {
+          // Seed pre-existing ids (set by an author or an earlier plugin) so a
+          // later heading whose text slugs to the same value gets suffixed
+          // instead of colliding.
+          occurrences.set(String(node.properties.id), 0);
+        } else {
+          const base = prefix + stringToUrl(toString(node));
+          let id = base;
+          while (occurrences.has(id)) {
+            occurrences.set(base, occurrences.get(base) + 1);
+            id = `${base}-${occurrences.get(base)}`;
+          }
+          occurrences.set(id, 0);
+          node.properties.id = id;
         }
-        occurrences.set(id, 0);
-        node.properties.id = id;
       }
 
       return undefined;
