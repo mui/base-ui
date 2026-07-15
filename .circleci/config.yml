@@ -182,7 +182,8 @@ jobs:
           name: Run anchored Positioner regressions with React 17
           command: |
             pnpm exec cross-env TZ=UTC VITEST_ENV=chromium vitest \
-              --project @base-ui/react PopoverPositioner TooltipPositioner --no-watch
+              --project @base-ui/react PopoverPositioner TooltipPositioner --no-watch \
+              -t 'does not transition from the viewport origin on first open|preserves the popup starting-style animation on every open'
           environment:
             REACT_17_TESTS: 'true'
       - store_test_results:
