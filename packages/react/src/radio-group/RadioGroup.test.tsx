@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Radio } from '@base-ui/react/radio';
 import { Field } from '@base-ui/react/field';
@@ -1529,6 +1530,36 @@ describe('<RadioGroup />', () => {
 
       expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
     });
+
+    it.skipIf(isJSDOM)(
+      'omits a context-portaled radio without native form association',
+      async () => {
+        const handleSubmit = vi.fn();
+        const portalContainer = document.createElement('div');
+        document.body.append(portalContainer);
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                {ReactDOM.createPortal(<Radio.Root value="a" />, portalContainer)}
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // The radio is portaled out of the form with no `form` association, so its value is not
+        // submitted, matching native successful-control semantics.
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+        portalContainer.remove();
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'submits null when the selected radio in a required group is disabled, matching native validity',
