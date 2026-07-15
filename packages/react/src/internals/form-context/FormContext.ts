@@ -9,6 +9,7 @@ export type Errors = Record<string, string | string[]>;
 export interface FormContext {
   errors: Errors;
   clearErrors: (name: string | undefined) => void;
+  elementRef: React.RefObject<HTMLFormElement | null>;
   formRef: React.RefObject<{
     fields: Map<
       string,
@@ -30,6 +31,7 @@ export interface FormContext {
 }
 
 export const FormContext = React.createContext<FormContext>({
+  elementRef: { current: null },
   formRef: {
     current: {
       fields: new Map(),
