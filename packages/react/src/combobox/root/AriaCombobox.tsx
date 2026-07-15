@@ -156,6 +156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const pendingQueryScrollRef = React.useRef(false);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -541,6 +542,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // Defer index updates until after the filtered items have been derived to ensure
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
+          pendingQueryScrollRef.current = true;
           if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
             store.set('activeIndex', 0);
           }
@@ -852,6 +854,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ],
   );
 
+  // Consume the reset before the registry sync below truncates entries that still use their
+  // pre-filter indexes in this commit.
+  useIsoLayoutEffect(() => {
+    if (!pendingQueryScrollRef.current) {
+      return;
+    }
+
+    pendingQueryScrollRef.current = false;
+
+    // Virtualized lists own their scroller. For regular lists, the registry can still contain
+    // detached items until the composite list recomputes its map, so skip stale entries.
+    if (!store.state.virtualized) {
+      const firstConnectedItem = store.state.listRef.current.find((item) => item?.isConnected);
+      // `scrollIntoView` is optional-called because JSDOM doesn't implement it.
+      firstConnectedItem?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    }
+  }, [inputValue, store]);
+
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
@@ -862,15 +882,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
-      // The user typed, so the list was re-filtered: bring the first item into view so it starts at
-      // the top. Keyed on the typed-input signal, not `query`/`inputValue`, so inline autocompletion
-      // rewriting the input during navigation doesn't reset the scroll. Nearest-edge alignment
-      // avoids moving outer scroll containers when the list is already visible within them.
-      // Virtualized lists own their scroller, so skip.
-      if (!store.state.virtualized) {
-        // `scrollIntoView` is optional-called because JSDOM doesn't implement it.
-        store.state.listRef.current[0]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-      }
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode) {
           store.set('activeIndex', 0);

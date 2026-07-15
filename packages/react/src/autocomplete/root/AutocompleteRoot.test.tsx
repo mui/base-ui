@@ -845,8 +845,12 @@ describe('<Autocomplete.Root />', () => {
     const manyItems = Array.from({ length: 50 }, (_, index) => `item-${index}`);
 
     it.skipIf(isJSDOM)('resets the list scroll position to the top when typing', async () => {
+      const filteringItems = Array.from({ length: 50 }, (_, index) =>
+        index < 25 ? `alpha-${index}` : `beta-${index - 25}`,
+      );
+
       const { user } = await render(
-        <Autocomplete.Root items={manyItems}>
+        <Autocomplete.Root items={filteringItems} openOnInputClick>
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -866,14 +870,13 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      // Open and keep every item so the list is scrollable.
-      await user.type(input, 'item');
 
       const list = screen.getByRole('listbox');
       list.scrollTop = 40;
       expect(list.scrollTop).toBeGreaterThan(0);
 
-      await user.type(input, '-1');
+      // Remove the current first item while keeping enough matches for the list to scroll.
+      await user.type(input, 'b');
 
       await waitFor(() => {
         expect(list.scrollTop).toBe(0);

@@ -4387,8 +4387,12 @@ describe('<Combobox.Root />', () => {
     it.skipIf(isJSDOM)(
       'resets the list scroll position to the top when the query changes',
       async () => {
+        const filteringItems = Array.from({ length: 50 }, (_, index) =>
+          index < 25 ? `alpha-${index}` : `beta-${index - 25}`,
+        );
+
         const { user } = await render(
-          <Combobox.Root items={manyItems}>
+          <Combobox.Root items={filteringItems}>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -4413,11 +4417,68 @@ describe('<Combobox.Root />', () => {
         list.scrollTop = 40;
         expect(list.scrollTop).toBeGreaterThan(0);
 
-        await user.type(input, 'item-1');
+        // Remove the current first item while keeping enough matches for the list to scroll.
+        await user.type(input, 'b');
 
         await waitFor(() => {
           expect(list.scrollTop).toBe(0);
         });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets manually filtered children without deferring the reset until hover',
+      async () => {
+        const filteringItems = Array.from({ length: 50 }, (_, index) =>
+          index < 25 ? `alpha-${index}` : `beta-${index - 25}`,
+        );
+
+        function ManuallyFilteredCombobox() {
+          const [inputValue, setInputValue] = React.useState('');
+          const visibleItems = filteringItems.filter((item) => item.startsWith(inputValue));
+
+          return (
+            <Combobox.Root inputValue={inputValue} onInputValueChange={setInputValue}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                      {visibleItems.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<ManuallyFilteredCombobox />);
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'b');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+
+        // A later highlight must not consume a typed-input reset that should already be cleared.
+        list.scrollTop = 40;
+        const visibleOption = screen.getByRole('option', { name: 'beta-5' });
+        fireEvent.mouseMove(visibleOption, { pointerType: 'mouse' });
+        await waitFor(() => {
+          expect(visibleOption).toHaveAttribute('data-highlighted');
+        });
+        expect(list.scrollTop).toBe(40);
       },
     );
 
