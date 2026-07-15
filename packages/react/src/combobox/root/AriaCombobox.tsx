@@ -10,7 +10,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
   getOverflowAncestors,
@@ -45,6 +45,7 @@ import { createCollatorItemFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
@@ -869,16 +870,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // registry cannot select a reordered item and scrolling cannot escape into the page/dialog.
     const list = store.state.listElement;
     if (!store.state.virtualized && list) {
-      const dialog = inline ? list.closest<HTMLElement>('[role="dialog"]') : null;
       let scrollContainer: HTMLElement | null = null;
 
       for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
-        if (!isHTMLElement(ancestor) || ancestor === dialog) {
+        if (!isHTMLElement(ancestor)) {
           break;
         }
 
-        const { overflowY } = getComputedStyle(ancestor);
-        if ((overflowY === 'auto' || overflowY === 'scroll') && ancestor.clientHeight > 0) {
+        // Stop at a surrounding dialog composed around an inline combobox so the reset
+        // scrolls the list's own overflow container, not the dialog or page behind it.
+        if (inline && ancestor.getAttribute('role') === 'dialog') {
+          break;
+        }
+
+        if (isScrollableY(ancestor, true)) {
           scrollContainer = ancestor;
           break;
         }
