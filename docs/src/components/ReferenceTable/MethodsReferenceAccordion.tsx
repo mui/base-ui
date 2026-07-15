@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedMethod } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
@@ -21,7 +22,14 @@ export function MethodsReferenceAccordion({
   const captionId = React.useId();
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the minimum closed height for `contain-intrinsic-height`;
+      // wrapped row content may be taller.
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class methods table
       </span>
