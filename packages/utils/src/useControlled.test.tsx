@@ -4,7 +4,7 @@ import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
 interface TestComponentChildrenArgument {
-  value: number | string | object | null;
+  value: number | string | object | null | undefined;
   setValue: React.Dispatch<React.SetStateAction<number | string>>;
 }
 

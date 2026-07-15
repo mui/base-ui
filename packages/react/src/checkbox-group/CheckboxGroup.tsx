@@ -32,7 +32,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const {
     allValues,
     className,
-    defaultValue: defaultValueProp,
+    defaultValue = EMPTY_ARRAY,
     disabled: disabledProp = false,
     id: idProp,
     onValueChange,
@@ -55,9 +55,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
-
-  const defaultValue =
-    externalValue === undefined ? (defaultValueProp ?? (EMPTY_ARRAY as string[])) : undefined;
 
   const [value, setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
@@ -96,9 +93,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   useRegisterFieldControl(controlRef, id, value, undefined, !!fieldName && !disabled, fieldName);
 
-  const resolvedValue = value ?? EMPTY_ARRAY;
-
-  useValueChanged(resolvedValue, () => {
+  useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
     }
@@ -107,10 +102,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(resolvedValue.length > 0);
-    setDirty(!areArraysEqual(resolvedValue, initialValue));
+    setFilled(value.length > 0);
+    setDirty(!areArraysEqual(value, initialValue));
 
-    validation.change(resolvedValue);
+    validation.change(value);
   });
 
   const state: CheckboxGroupState = {

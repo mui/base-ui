@@ -87,7 +87,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue: defaultInputValueProp,
+    defaultInputValue,
     inputValue: inputValueProp,
     open: openProp,
     defaultOpen = false,
@@ -171,7 +171,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const single = selectionMode === 'single';
-  const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
+  const hasInputValue = inputValueProp !== undefined || defaultInputValue !== undefined;
   const hasItems = items !== undefined;
   const hasFilteredItemsProp = filteredItemsProp !== undefined;
 
@@ -203,17 +203,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
-  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
-    () => {
-      if (hasInputValue) {
-        return defaultInputValueProp ?? '';
-      }
-      if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
-      }
-      return '';
-    },
-  ).current;
+  const initialDefaultInputValue = useRefWithInit(() => {
+    if (hasInputValue) {
+      return defaultInputValue ?? '';
+    }
+    if (single) {
+      return stringifyAsLabel(selectedValue, itemToStringLabel);
+    }
+    return '';
+  }).current;
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
@@ -262,7 +260,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (!items) {
-      return EMPTY_ARRAY as Value[];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
@@ -1092,7 +1090,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.

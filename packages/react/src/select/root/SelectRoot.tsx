@@ -351,7 +351,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {

@@ -11,7 +11,7 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen = false, onOpenChange, disabled } = parameters;
 
   const [open, setOpen] = useControlled({
     controlled: openParam,

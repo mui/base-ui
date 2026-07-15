@@ -64,7 +64,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     readOnly = false,
     form,
     name: nameProp,
-    defaultValue,
+    defaultValue = null,
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -107,14 +107,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+  const [value, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const value = valueUnwrapped ?? null;
   const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
