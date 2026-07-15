@@ -156,6 +156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const initialInlineHighlightForfeitedRef = React.useRef(false);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -534,6 +535,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           event.type === 'compositionend' ||
           (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
         if (isTypedInput) {
+          initialInlineHighlightForfeitedRef.current = true;
           const hasQuery = next.trim() !== '';
           if (hasQuery) {
             setQueryChangedAfterOpen(true);
@@ -812,13 +814,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     function syncSelectedIndex() {
       // An always-open inline list never closes, so `items`-prop selections (which don't
       // self-register their index like `<Combobox.Item>`s do) get their initial highlight
-      // computed here while open. Gated to the initial highlight only: before the query
-      // changes (a filtered list has different indices) and before the selected index has
-      // been initialized (so blur or toggling a selection doesn't move the highlight and
-      // scroll the list away).
+      // computed here while open. Only do this before the user edits the input or highlights
+      // an item, and before the selected index has been initialized, so late item resolution,
+      // blur, or toggling a selection doesn't move the highlight and scroll the list away.
       if (open) {
         const isInlineInitialHighlight =
-          inline && hasItems && !queryChangedAfterOpen && store.state.selectedIndex == null;
+          inline &&
+          hasItems &&
+          !initialInlineHighlightForfeitedRef.current &&
+          !queryChangedAfterOpen &&
+          store.state.activeIndex == null &&
+          store.state.selectedIndex == null;
 
         if (!isInlineInitialHighlight) {
           return;

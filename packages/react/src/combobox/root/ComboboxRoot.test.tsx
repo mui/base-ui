@@ -1000,6 +1000,80 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
+        'does not replace a pointer highlight when the initial selection resolves after mount (items prop)',
+        async ({ onTestFinished }) => {
+          const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+          onTestFinished(() => scrollIntoView.mockRestore());
+
+          const { setProps, user } = await render(
+            <Combobox.Root items={['apple', 'cherry']} inline open defaultValue="banana">
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          const apple = await screen.findByRole('option', { name: 'apple' });
+          await user.hover(apple);
+
+          await waitFor(() => {
+            expect(apple).toHaveAttribute('data-highlighted');
+          });
+
+          await setProps({ items: ['apple', 'banana', 'cherry'] });
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+          });
+
+          expect(apple).toHaveAttribute('data-highlighted');
+          expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
+          expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+          expect(scrollIntoView).not.toHaveBeenCalled();
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'does not apply the initial highlight after the user clears a pre-filtered inline input (items prop)',
+        async () => {
+          const { user } = await render(
+            <Combobox.Root
+              items={['b0', 'sel', 'b1', 'b2', 'b3']}
+              inline
+              open
+              defaultValue="sel"
+              defaultInputValue="b"
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByTestId('input');
+          await user.clear(input);
+
+          const selectedItem = await screen.findByRole('option', { name: 'sel' });
+          expect(selectedItem).not.toHaveAttribute('data-highlighted');
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'emits the selected item index to onItemHighlighted on mount when inline and virtualized (items prop)',
         async () => {
           const onItemHighlighted = vi.fn();
