@@ -579,6 +579,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [context, hoverInteractionState, open]);
 
+  React.useEffect(() => {
+    return () => {
+      clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    };
+  }, [hoverInteractionState]);
+
   const getInlineHandleCloseContext = useStableCallback(() => {
     if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
       return null;
