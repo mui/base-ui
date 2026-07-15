@@ -52,7 +52,9 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   validation: {
     getValidationProps: (_disabled: boolean, props: HTMLProps = EMPTY_OBJECT) => props,
     inputRef: { current: null },
+    registeredInputs: new Map(),
     registerInput: NOOP,
+    getInputControl: () => null,
     commit: async () => {},
     change: NOOP,
   },
