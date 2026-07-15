@@ -45,6 +45,16 @@ type MenubarState = {
 };
 ```
 
+## Additional Types
+
+### MenubarDataAttributes
+
+| Member         | Value                   | Description                                          |
+| :------------- | :---------------------- | :--------------------------------------------------- |
+| modal          | `data-modal`            | Present when the corresponding menubar is modal.     |
+| orientation    | `data-orientation`      | Determines the orientation of the menubar.           |
+| hasSubmenuOpen | `data-has-submenu-open` | Present when any submenu within the menubar is open. |
+
 ## External Types
 
 ### Orientation

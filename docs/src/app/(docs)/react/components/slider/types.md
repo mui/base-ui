@@ -583,6 +583,32 @@ type SliderLabelState = {
 
 ## Additional Types
 
+### SliderControlDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
+
+### SliderIndicatorDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
+
 ### SliderRootChangeEventCustomProperties
 
 ```typescript
@@ -591,6 +617,59 @@ type SliderRootChangeEventCustomProperties = {
   activeThumbIndex: number;
 };
 ```
+
+### SliderRootDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
+
+### SliderThumbDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| index       | `data-index`       | Indicates the index of the thumb in range sliders.                           |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
+
+### SliderTrackDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
+
+### SliderValueDataAttributes
+
+| Member      | Value              | Description                                                                  |
+| :---------- | :----------------- | :--------------------------------------------------------------------------- |
+| dragging    | `data-dragging`    | Present while the user is dragging.                                          |
+| orientation | `data-orientation` | Indicates the orientation of the slider.                                     |
+| disabled    | `data-disabled`    | Present when the slider is disabled.                                         |
+| valid       | `data-valid`       | Present when the slider is in a valid state (when wrapped in Field.Root).    |
+| invalid     | `data-invalid`     | Present when the slider is in an invalid state (when wrapped in Field.Root). |
+| touched     | `data-touched`     | Present when the slider has been touched (when wrapped in Field.Root).       |
+| dirty       | `data-dirty`       | Present when the slider's value has changed (when wrapped in Field.Root).    |
+| focused     | `data-focused`     | Present when the slider is focused (when wrapped in Field.Root).             |
 
 ### ThumbMetadata
 
@@ -615,7 +694,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
 - `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
+- `Default`: `SliderControlDataAttributes`, `SliderIndicatorDataAttributes`, `SliderRootDataAttributes`, `SliderThumbDataAttributes`, `SliderTrackDataAttributes`, `SliderValueDataAttributes`, `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 

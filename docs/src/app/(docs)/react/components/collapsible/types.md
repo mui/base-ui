@@ -156,12 +156,45 @@ type CollapsiblePanelState = {
 };
 ```
 
+## Additional Types
+
+### CollapsiblePanelCssVars
+
+| Member                 | Value                        | Description                     |
+| :--------------------- | :--------------------------- | :------------------------------ |
+| collapsiblePanelHeight | `--collapsible-panel-height` | The collapsible panel's height. |
+| collapsiblePanelWidth  | `--collapsible-panel-width`  | The collapsible panel's width.  |
+
+### CollapsiblePanelDataAttributes
+
+| Member        | Value                 | Description                                   |
+| :------------ | :-------------------- | :-------------------------------------------- |
+| open          | `data-open`           | Present when the collapsible panel is open.   |
+| closed        | `data-closed`         | Present when the collapsible panel is closed. |
+| startingStyle | `data-starting-style` | Present when the panel begins animating in.   |
+| endingStyle   | `data-ending-style`   | Present when the panel is animating out.      |
+
+### CollapsibleRootDataAttributes
+
+| Member        | Value                 | Description                                       |
+| :------------ | :-------------------- | :------------------------------------------------ |
+| open          | `data-open`           | Present when the collapsible is open.             |
+| closed        | `data-closed`         | Present when the collapsible is closed.           |
+| startingStyle | `data-starting-style` | Present when the collapsible begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the collapsible is animating out.    |
+
+### CollapsibleTriggerDataAttributes
+
+| Member    | Value             | Description                                 |
+| :-------- | :---------------- | :------------------------------------------ |
+| panelOpen | `data-panel-open` | Present when the collapsible panel is open. |
+
 ## Export Groups
 
 - `Collapsible.Root`: `Collapsible.Root`, `Collapsible.Root.State`, `Collapsible.Root.Props`, `Collapsible.Root.ChangeEventReason`, `Collapsible.Root.ChangeEventDetails`
 - `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.State`, `Collapsible.Trigger.Props`
 - `Collapsible.Panel`: `Collapsible.Panel`, `Collapsible.Panel.State`, `Collapsible.Panel.Props`
-- `Default`: `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
+- `Default`: `CollapsiblePanelCssVars`, `CollapsiblePanelDataAttributes`, `CollapsibleRootDataAttributes`, `CollapsibleTriggerDataAttributes`, `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
 
 ## Canonical Types
 

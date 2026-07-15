@@ -245,6 +245,48 @@ type ToolbarLinkState = {
 type ToolbarOrientation = 'horizontal' | 'vertical';
 ```
 
+### ToolbarButtonDataAttributes
+
+| Member      | Value              | Description                                              |
+| :---------- | :----------------- | :------------------------------------------------------- |
+| disabled    | `data-disabled`    | Present when the button is disabled.                     |
+| orientation | `data-orientation` | Indicates the orientation of the toolbar.                |
+| focusable   | `data-focusable`   | Present when the button remains focusable when disabled. |
+
+### ToolbarGroupDataAttributes
+
+| Member      | Value              | Description                               |
+| :---------- | :----------------- | :---------------------------------------- |
+| disabled    | `data-disabled`    | Present when the group is disabled.       |
+| orientation | `data-orientation` | Indicates the orientation of the toolbar. |
+
+### ToolbarInputDataAttributes
+
+| Member      | Value              | Description                                             |
+| :---------- | :----------------- | :------------------------------------------------------ |
+| disabled    | `data-disabled`    | Present when the input is disabled.                     |
+| orientation | `data-orientation` | Indicates the orientation of the toolbar.               |
+| focusable   | `data-focusable`   | Present when the input remains focusable when disabled. |
+
+### ToolbarLinkDataAttributes
+
+| Member      | Value              | Description                               |
+| :---------- | :----------------- | :---------------------------------------- |
+| orientation | `data-orientation` | Indicates the orientation of the toolbar. |
+
+### ToolbarRootDataAttributes
+
+| Member      | Value              | Description                               |
+| :---------- | :----------------- | :---------------------------------------- |
+| disabled    | `data-disabled`    | Present when the toolbar is disabled.     |
+| orientation | `data-orientation` | Indicates the orientation of the toolbar. |
+
+### ToolbarSeparatorDataAttributes
+
+| Member      | Value              | Description                                                                        |
+| :---------- | :----------------- | :--------------------------------------------------------------------------------- |
+| orientation | `data-orientation` | Indicates the orientation of the separator, which is perpendicular to the toolbar. |
+
 ## Export Groups
 
 - `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.State`, `Toolbar.Separator.Props`
@@ -253,7 +295,7 @@ type ToolbarOrientation = 'horizontal' | 'vertical';
 - `Toolbar.Button`: `Toolbar.Button`, `Toolbar.Button.State`, `Toolbar.Button.Props`
 - `Toolbar.Link`: `Toolbar.Link`, `Toolbar.Link.State`, `Toolbar.Link.Props`
 - `Toolbar.Input`: `Toolbar.Input`, `Toolbar.Input.State`, `Toolbar.Input.Props`
-- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
+- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarButtonDataAttributes`, `ToolbarGroupDataAttributes`, `ToolbarInputDataAttributes`, `ToolbarLinkDataAttributes`, `ToolbarRootDataAttributes`, `ToolbarSeparatorDataAttributes`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
 
 ## Canonical Types
 

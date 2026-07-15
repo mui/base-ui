@@ -907,6 +907,54 @@ type AccordionPanelState = {
 
 ## Additional Types
 
+### AccordionHeaderDataAttributes
+
+| Member   | Value           | Description                                  |
+| :------- | :-------------- | :------------------------------------------- |
+| index    | \`data-index\`    | Indicates the index of the accordion item.   |
+| disabled | \`data-disabled\` | Present when the accordion item is disabled. |
+| open     | \`data-open\`     | Present when the accordion item is open.     |
+
+### AccordionItemDataAttributes
+
+| Member   | Value           | Description                                  |
+| :------- | :-------------- | :------------------------------------------- |
+| index    | \`data-index\`    | Indicates the index of the accordion item.   |
+| disabled | \`data-disabled\` | Present when the accordion item is disabled. |
+| open     | \`data-open\`     | Present when the accordion item is open.     |
+
+### AccordionPanelCssVars
+
+| Member               | Value                      | Description                   |
+| :------------------- | :------------------------- | :---------------------------- |
+| accordionPanelHeight | \`--accordion-panel-height\` | The accordion panel's height. |
+| accordionPanelWidth  | \`--accordion-panel-width\`  | The accordion panel's width.  |
+
+### AccordionPanelDataAttributes
+
+| Member        | Value                 | Description                                  |
+| :------------ | :-------------------- | :------------------------------------------- |
+| index         | \`data-index\`          | Indicates the index of the accordion item.   |
+| open          | \`data-open\`           | Present when the accordion panel is open.    |
+| orientation   | \`data-orientation\`    | Indicates the orientation of the accordion.  |
+| disabled      | \`data-disabled\`       | Present when the accordion item is disabled. |
+| startingStyle | \`data-starting-style\` | Present when the panel begins animating in.  |
+| endingStyle   | \`data-ending-style\`   | Present when the panel is animating out.     |
+
+### AccordionRootDataAttributes
+
+| Member      | Value              | Description                                 |
+| :---------- | :----------------- | :------------------------------------------ |
+| disabled    | \`data-disabled\`    | Present when the accordion is disabled.     |
+| orientation | \`data-orientation\` | Indicates the orientation of the accordion. |
+
+### AccordionTriggerDataAttributes
+
+| Member    | Value             | Description                                  |
+| :-------- | :---------------- | :------------------------------------------- |
+| panelOpen | \`data-panel-open\` | Present when the accordion panel is open.    |
+| disabled  | \`data-disabled\`   | Present when the accordion item is disabled. |
+
 ### AccordionValue
 
 \`\`\`typescript
@@ -928,7 +976,7 @@ type Orientation = 'horizontal' | 'vertical';
 - \`Accordion.Header\`: \`Accordion.Header\`, \`Accordion.Header.State\`, \`Accordion.Header.Props\`
 - \`Accordion.Trigger\`: \`Accordion.Trigger\`, \`Accordion.Trigger.State\`, \`Accordion.Trigger.Props\`
 - \`Accordion.Panel\`: \`Accordion.Panel\`, \`Accordion.Panel.State\`, \`Accordion.Panel.Props\`
-- \`Default\`: \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderState\`, \`AccordionHeaderProps\`, \`AccordionTriggerState\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
+- \`Default\`: \`AccordionPanelCssVars\`, \`AccordionHeaderDataAttributes\`, \`AccordionItemDataAttributes\`, \`AccordionPanelDataAttributes\`, \`AccordionRootDataAttributes\`, \`AccordionTriggerDataAttributes\`, \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderState\`, \`AccordionHeaderProps\`, \`AccordionTriggerState\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
 
 ## Canonical Types
 
