@@ -23,6 +23,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
+  highlightType: AriaCombobox.HighlightEventReason;
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -127,6 +128,7 @@ export const selectors = {
   inline: (state: State) => state.inline,
 
   activeIndex: (state: State) => state.activeIndex,
+  highlightType: (state: State) => state.highlightType,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
   isSelected: (state: State, itemValue: any) => {

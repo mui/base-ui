@@ -406,6 +406,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus: 'idle',
       inline: inlineProp,
       activeIndex: null,
+      highlightType: 'none',
       selectedIndex: initialSelectedIndex,
       popupProps: {},
       listProps: {},
@@ -513,13 +514,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
     }) => {
-      store.update(options);
       const activeIndexOption = options.activeIndex;
+      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
+      const nextIndices: Partial<
+        Pick<StoreState, 'activeIndex' | 'highlightType' | 'selectedIndex'>
+      > = {};
+
+      if (activeIndexOption !== undefined) {
+        nextIndices.activeIndex = activeIndexOption;
+        nextIndices.highlightType = type;
+      }
+      if (options.selectedIndex !== undefined) {
+        nextIndices.selectedIndex = options.selectedIndex;
+      }
+
+      store.update(nextIndices);
+
       if (activeIndexOption === undefined) {
         return;
       }
-
-      const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
       if (activeIndexOption === null) {
         emitHighlight(undefined, -1, type);
@@ -591,7 +604,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             store.state.activeIndex == null &&
             (open || inline)
           ) {
-            store.set('activeIndex', 0);
+            store.update({ activeIndex: 0, highlightType: 'none' });
           }
         }
       } else if (
@@ -896,7 +909,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode && listIsNavigable) {
-          store.set('activeIndex', 0);
+          store.update({ activeIndex: 0, highlightType: 'none' });
         }
         pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
@@ -912,7 +925,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           ) {
             // There is no selection to restore in Autocomplete. Keep the first-item reset
             // synchronous so list navigation sees it before a directly rendered list closes.
-            store.set('activeIndex', 0);
+            store.update({ activeIndex: 0, highlightType: 'none' });
           }
 
           // Items re-mounted by the clear publish their composite indices in a follow-up
@@ -942,9 +955,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 hasItems || hasFilteredItemsProp ? flatFilteredItems : valuesRef.current;
               // A selection that is no longer in the list drops the highlight rather than
               // leaving it on whichever item now occupies that index.
-              store.set(
-                'activeIndex',
-                hasSelection
+              store.update({
+                activeIndex: hasSelection
                   ? findSelectionIndex(
                       registry,
                       currentSelectedValue,
@@ -952,9 +964,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                       isMultiple,
                     )
                   : null,
-              );
+                highlightType: 'none',
+              });
             } else if (autoHighlightMode === 'always') {
-              store.set('activeIndex', 0);
+              store.update({ activeIndex: 0, highlightType: 'none' });
             }
           });
         }
@@ -971,7 +984,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex == null) {
       if (autoHighlightMode === 'always' && candidateItems.length > 0) {
-        store.set('activeIndex', 0);
+        store.update({ activeIndex: 0, highlightType: 'none' });
         return;
       }
       emitHighlight(undefined, -1, REASONS.none);
@@ -980,7 +993,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex >= candidateItems.length) {
       emitHighlight(undefined, -1, REASONS.none);
-      store.set('activeIndex', null);
+      store.update({ activeIndex: null, highlightType: 'none' });
       return;
     }
 
