@@ -45,9 +45,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ...elementProps
   } = componentProps;
 
-  const rootContext = usePopoverRootContext(true);
+  const rootStore = usePopoverRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? rootContext?.store;
+  const store = handleStore ?? rootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
@@ -81,10 +81,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
-      !disabled &&
-      floatingContext != null &&
-      openOnHover &&
-      (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
+      !disabled && openOnHover && (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -97,7 +94,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
+  const click = useClick(floatingContext, { stickIfOpen });
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {
@@ -153,18 +150,19 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
+  const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
   if (isMountedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        {keyedElement}
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  return keyedElement;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {

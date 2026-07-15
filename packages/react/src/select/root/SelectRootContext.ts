@@ -8,7 +8,6 @@ import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
-  name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;

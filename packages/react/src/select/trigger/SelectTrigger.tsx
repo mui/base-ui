@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -101,9 +100,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useStableCallback((element) => {
-    store.set('triggerElement', element);
-  });
+  const setTriggerElement = store.useStateSetter('triggerElement');
 
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
@@ -141,7 +138,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     {
       id,
       role: 'combobox',
-      'aria-expanded': open ? 'true' : 'false',
+      'aria-expanded': open,
       'aria-haspopup': 'listbox',
       'aria-controls': open
         ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)

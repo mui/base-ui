@@ -10,10 +10,15 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
-import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import {
+  closestSnapPointIndex,
+  getSnapPointSwipeMovement,
+  useDrawerSnapPoints,
+} from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { clamp } from '../../internals/clamp';
 import {
+  getDisplacement,
   useSwipeDismiss,
   type SwipeDirection,
   type UseSwipeDismissProgressDetails,
@@ -70,7 +75,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 ) {
   const { render, className, style, children, ...elementProps } = props;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const popupRef = store.context.popupRef;
   const backdropRef = store.context.backdropRef;
 
@@ -122,15 +127,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const virtualKeyboard = useDrawerVirtualKeyboardContext();
 
   const snapPointRange = React.useMemo(() => {
-    if (!snapPoints || snapPoints.length < 2) {
-      return null;
-    }
-
-    if (swipeDirection !== 'down' && swipeDirection !== 'up') {
-      return null;
-    }
-
-    if (resolvedSnapPoints.length < 2) {
+    if (
+      !snapPoints ||
+      snapPoints.length < 2 ||
+      resolvedSnapPoints.length < 2 ||
+      (swipeDirection !== 'down' && swipeDirection !== 'up')
+    ) {
       return null;
     }
 
@@ -179,7 +181,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [snapPoints, swipeDirection]);
 
   const setSwipeDismissed = useStableCallback((dismissed: boolean) => {
-    setSwipeDismissedElements(popupRef.current, backdropRef.current, dismissed);
+    popupRef.current?.toggleAttribute(DrawerPopupDataAttributes.swipeDismiss, dismissed);
+    backdropRef.current?.toggleAttribute(DrawerPopupDataAttributes.swipeDismiss, dismissed);
   });
 
   const clearSwipeRelease = useStableCallback(() => {
@@ -198,15 +201,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   });
 
   const applySwipeProgress = useStableCallback(
-    ({
-      resolvedProgress,
-      shouldTrackProgress,
-      notifyParent,
-    }: {
-      resolvedProgress: number;
-      shouldTrackProgress: boolean;
-      notifyParent: boolean;
-    }) => {
+    (resolvedProgress: number, shouldTrackProgress: boolean, notifyParent: boolean) => {
       const isActive = open && !nested && shouldTrackProgress;
       const swipeProgress = isActive ? resolvedProgress : 0;
       const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
@@ -229,14 +224,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      if (!isActive || swipeProgress <= 0) {
-        backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, '0');
-        backdropElement.style.removeProperty(DrawerPopupCssVars.height);
-        return;
-      }
-
-      backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${swipeProgress}`);
-      if (frontmostHeight > 0) {
+      const showProgress = isActive && swipeProgress > 0;
+      backdropElement.style.setProperty(
+        DrawerBackdropCssVars.swipeProgress,
+        showProgress ? `${swipeProgress}` : '0',
+      );
+      if (showProgress && frontmostHeight > 0) {
         backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
       } else {
         backdropElement.style.removeProperty(DrawerPopupCssVars.height);
@@ -244,65 +237,43 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     },
   );
 
-  function resolveSwipeRelease({
-    direction,
-    deltaX,
-    deltaY,
-    velocityX,
-    velocityY,
-    releaseVelocityX,
-    releaseVelocityY,
-  }: {
-    direction: SwipeDirection | undefined;
-    deltaX: number;
-    deltaY: number;
-    velocityX: number;
-    velocityY: number;
-    releaseVelocityX: number;
-    releaseVelocityY: number;
-  }): number | null {
-    if (!direction) {
-      return null;
-    }
-
+  function resolveSwipeRelease(
+    direction: SwipeDirection,
+    deltaX: number,
+    deltaY: number,
+    velocityX: number,
+    velocityY: number,
+    releaseVelocityX: number,
+    releaseVelocityY: number,
+  ): number | null {
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
       return null;
     }
 
-    const size =
-      direction === 'left' || direction === 'right'
-        ? popupElement.offsetWidth
-        : popupElement.offsetHeight;
+    const size = getBaseSwipeSize(popupElement, direction);
     if (!Number.isFinite(size) || size <= 0) {
       return null;
     }
 
-    const axisDelta = direction === 'left' || direction === 'right' ? deltaX : deltaY;
+    // The snap point base offset shifts the popup along the dismiss direction for both
+    // `down` (+offset) and `up` (-offset), so it always adds to the directional translation.
     const snapPointBaseOffset =
-      snapPoints && snapPoints.length > 0 ? (activeSnapPointOffset ?? 0) : 0;
-    let baseOffset = 0;
-    if (direction === 'down') {
-      baseOffset = snapPointBaseOffset;
-    } else if (direction === 'up') {
-      baseOffset = -snapPointBaseOffset;
-    }
-
-    const translation = baseOffset + axisDelta;
+      (direction === 'down' || direction === 'up') && snapPoints && snapPoints.length > 0
+        ? (activeSnapPointOffset ?? 0)
+        : 0;
     const translationAlongDirection =
-      direction === 'left' || direction === 'up' ? -translation : translation;
+      snapPointBaseOffset + getDisplacement(direction, deltaX, deltaY);
     const remainingDistance = Math.max(0, size - translationAlongDirection);
     if (!Number.isFinite(remainingDistance) || remainingDistance <= 0) {
       return null;
     }
 
-    const axisVelocity =
-      direction === 'left' || direction === 'right' ? releaseVelocityX : releaseVelocityY;
-    const fallbackVelocity = direction === 'left' || direction === 'right' ? velocityX : velocityY;
-    const resolvedVelocity =
-      Math.abs(axisVelocity) > 0 && Number.isFinite(axisVelocity) ? axisVelocity : fallbackVelocity;
+    const releaseVelocity = getDisplacement(direction, releaseVelocityX, releaseVelocityY);
     const directionalVelocity =
-      direction === 'left' || direction === 'up' ? -resolvedVelocity : resolvedVelocity;
+      Math.abs(releaseVelocity) > 0 && Number.isFinite(releaseVelocity)
+        ? releaseVelocity
+        : getDisplacement(direction, velocityX, velocityY);
     if (
       !Number.isFinite(directionalVelocity) ||
       directionalVelocity <= MIN_SWIPE_RELEASE_VELOCITY
@@ -315,29 +286,20 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       MIN_SWIPE_RELEASE_VELOCITY,
       MAX_SWIPE_RELEASE_VELOCITY,
     );
+    // `remainingDistance` and `clampedVelocity` are guarded to be positive and finite above, so
+    // the clamped duration is always within [MIN, MAX] and the resulting scalar within (0, 1].
     const durationMs = clamp(
       remainingDistance / clampedVelocity,
       MIN_SWIPE_RELEASE_DURATION_MS,
       MAX_SWIPE_RELEASE_DURATION_MS,
     );
-    if (!Number.isFinite(durationMs)) {
-      return null;
-    }
-
     const normalizedDuration =
       (durationMs - MIN_SWIPE_RELEASE_DURATION_MS) /
       (MAX_SWIPE_RELEASE_DURATION_MS - MIN_SWIPE_RELEASE_DURATION_MS);
-    const durationScalar = clamp(
+    return (
       MIN_SWIPE_RELEASE_SCALAR +
-        normalizedDuration * (MAX_SWIPE_RELEASE_SCALAR - MIN_SWIPE_RELEASE_SCALAR),
-      MIN_SWIPE_RELEASE_SCALAR,
-      MAX_SWIPE_RELEASE_SCALAR,
+      normalizedDuration * (MAX_SWIPE_RELEASE_SCALAR - MIN_SWIPE_RELEASE_SCALAR)
     );
-    if (!Number.isFinite(durationScalar) || durationScalar <= 0) {
-      return null;
-    }
-
-    return durationScalar;
   }
 
   function updateNestedSwipeActive(details?: UseSwipeDismissProgressDetails) {
@@ -346,7 +308,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     }
 
     const direction = details.direction ?? swipeDirection;
-    const delta = direction === 'left' || direction === 'right' ? details.deltaX : details.deltaY;
+    const delta = getDisplacement(direction, details.deltaX, details.deltaY);
     if (!Number.isFinite(delta) || Math.abs(delta) < MIN_SWIPE_THRESHOLD) {
       return;
     }
@@ -464,36 +426,23 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
       let resolvedProgress = progress;
       if (snapPointRange && popupHeight > 0) {
-        if (details && Number.isFinite(details.deltaY)) {
-          const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
-          const nextOffset = clamp(baseOffset + details.deltaY, 0, popupHeight);
+        const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
+        const offsetToProgress = (nextOffset: number) =>
+          clamp((nextOffset - snapPointRange.minOffset) / snapPointRange.range, 0, 1);
 
-          resolvedProgress = clamp(
-            (nextOffset - snapPointRange.minOffset) / snapPointRange.range,
-            0,
-            1,
-          );
+        if (details && Number.isFinite(details.deltaY)) {
+          resolvedProgress = offsetToProgress(clamp(baseOffset + details.deltaY, 0, popupHeight));
         } else if (snapPointProgress !== null) {
           resolvedProgress = snapPointProgress;
         } else if (currentDirection === 'down' || currentDirection === 'up') {
           const displacement = progress * popupHeight;
-          const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
-          const nextOffset =
-            currentDirection === 'down' ? baseOffset + displacement : baseOffset - displacement;
-
-          resolvedProgress = clamp(
-            (nextOffset - snapPointRange.minOffset) / snapPointRange.range,
-            0,
-            1,
+          resolvedProgress = offsetToProgress(
+            currentDirection === 'down' ? baseOffset + displacement : baseOffset - displacement,
           );
         }
       }
 
-      applySwipeProgress({
-        resolvedProgress,
-        shouldTrackProgress,
-        notifyParent: true,
-      });
+      applySwipeProgress(resolvedProgress, shouldTrackProgress, true);
     },
     onRelease({
       event,
@@ -504,25 +453,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       velocityY,
       releaseVelocityX,
       releaseVelocityY,
-    }: {
-      event: PointerEvent | TouchEvent;
-      deltaX: number;
-      deltaY: number;
-      direction: SwipeDirection | undefined;
-      velocityX: number;
-      velocityY: number;
-      releaseVelocityX: number;
-      releaseVelocityY: number;
     }) {
-      const swipeReleasePayload = {
-        deltaX,
-        deltaY,
-        velocityX,
-        velocityY,
-        releaseVelocityX,
-        releaseVelocityY,
-      };
-
       function startSwipeRelease(resolvedDirection: SwipeDirection) {
         // Start ending transition styles earlier and synchronously to prevent a period where
         // the popup appears stuck on release before the actual closing animation starts.
@@ -538,48 +469,43 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         popupElement.setAttribute(TransitionStatusDataAttributes.endingStyle, '');
         ReactDOM.flushSync(() => {
           setSwipeRelease(
-            resolveSwipeRelease({
-              direction: resolvedDirection,
-              ...swipeReleasePayload,
-            }),
+            resolveSwipeRelease(
+              resolvedDirection,
+              deltaX,
+              deltaY,
+              velocityX,
+              velocityY,
+              releaseVelocityX,
+              releaseVelocityY,
+            ),
           );
         });
       }
 
       if (!snapPoints || snapPoints.length === 0) {
-        if (!direction) {
-          clearSwipeRelease();
-          return undefined;
-        }
-
         const element = store.context.popupRef.current;
-        if (!element) {
+        if (!direction || !element) {
           clearSwipeRelease();
           return undefined;
         }
 
-        const baseThreshold = getBaseSwipeThreshold(element, direction);
-        const delta = direction === 'left' || direction === 'right' ? deltaX : deltaY;
-        if (!Number.isFinite(delta)) {
+        const directionalDelta = getDisplacement(direction, deltaX, deltaY);
+        if (!Number.isFinite(directionalDelta)) {
           clearSwipeRelease();
           return undefined;
         }
 
-        const directionalDelta = direction === 'left' || direction === 'up' ? -delta : delta;
         if (directionalDelta <= 0) {
           clearSwipeRelease();
           return false;
         }
 
-        const velocity = direction === 'left' || direction === 'right' ? velocityX : velocityY;
-        const directionalVelocity =
-          direction === 'left' || direction === 'up' ? -velocity : velocity;
-        if (directionalVelocity >= FAST_SWIPE_VELOCITY && directionalDelta > 0) {
+        if (getDisplacement(direction, velocityX, velocityY) >= FAST_SWIPE_VELOCITY) {
           startSwipeRelease(direction);
           return true;
         }
 
-        const shouldClose = directionalDelta > baseThreshold;
+        const shouldClose = directionalDelta > getBaseSwipeThreshold(element, direction);
         if (shouldClose) {
           startSwipeRelease(direction);
         } else {
@@ -646,30 +572,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         const orderedSnapPoints = [...resolvedSnapPoints].sort(
           (first, second) => first.offset - second.offset,
         );
-        if (orderedSnapPoints.length === 0) {
-          clearSwipeRelease();
-          return false;
-        }
-
-        let currentIndex = 0;
-        let closestDistance = Math.abs(currentOffset - orderedSnapPoints[0].offset);
-        for (let index = 1; index < orderedSnapPoints.length; index += 1) {
-          const distance = Math.abs(currentOffset - orderedSnapPoints[index].offset);
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            currentIndex = index;
-          }
-        }
-
-        let targetSnapPoint = orderedSnapPoints[0];
-        closestDistance = Math.abs(targetOffset - targetSnapPoint.offset);
-        for (const snapPoint of orderedSnapPoints) {
-          const distance = Math.abs(targetOffset - snapPoint.offset);
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            targetSnapPoint = snapPoint;
-          }
-        }
+        const orderedOffsets = orderedSnapPoints.map((point) => point.offset);
+        const currentIndex = closestSnapPointIndex(orderedOffsets, currentOffset);
+        let targetSnapPoint =
+          orderedSnapPoints[closestSnapPointIndex(orderedOffsets, targetOffset)];
 
         const velocityDirection = Math.sign(resolvedDirectionalVelocity);
         const shouldAdvance =
@@ -700,8 +606,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
         }
 
-        const closeOffset = popupHeight;
-        const closeDistance = Math.abs(effectiveTargetOffset - closeOffset);
+        const closeDistance = Math.abs(effectiveTargetOffset - popupHeight);
         const snapDistance = Math.abs(effectiveTargetOffset - targetSnapPoint.offset);
         if (closeDistance < snapDistance) {
           return closeFromSnapPoints();
@@ -716,20 +621,16 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return closeFromSnapPoints();
       }
 
-      let closestSnapPoint = resolvedSnapPoints[0];
-      let closestDistance = Math.abs(targetOffset - closestSnapPoint.offset);
+      const closestSnapPoint =
+        resolvedSnapPoints[
+          closestSnapPointIndex(
+            resolvedSnapPoints.map((point) => point.offset),
+            targetOffset,
+          )
+        ];
 
-      for (const snapPoint of resolvedSnapPoints) {
-        const distance = Math.abs(targetOffset - snapPoint.offset);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestSnapPoint = snapPoint;
-        }
-      }
-
-      const closeOffset = popupHeight;
-      const closeDistance = Math.abs(targetOffset - closeOffset);
-      if (closeDistance < closestDistance) {
+      const closeDistance = Math.abs(targetOffset - popupHeight);
+      if (closeDistance < Math.abs(targetOffset - closestSnapPoint.offset)) {
         return closeFromSnapPoints();
       }
 
@@ -816,6 +717,80 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     const doc = ownerDocument(resolvedRootElement);
     const win = ownerWindow(doc);
 
+    function processTouchMove(event: TouchEvent, touchState: TouchScrollState, touch: Touch) {
+      const drawerAxisDelta = isVerticalScrollAxis
+        ? touch.clientY - touchState.lastY
+        : touch.clientX - touchState.lastX;
+
+      // Preserve native range interaction by never locking touchmove for range inputs.
+      if (isEventOnRangeInput(event, win)) {
+        touchState.allowSwipe = false;
+        return;
+      }
+
+      // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
+      if (event.touches.length === 2) {
+        return;
+      }
+
+      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
+
+      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+        return;
+      }
+
+      if (preserveNativeCrossAxisScrollOnMove(touchState, touch, isVerticalScrollAxis)) {
+        return;
+      }
+
+      const scrollTarget = touchState.scrollTarget;
+      if (!scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body) {
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        // Claim the gesture before React's delegated touch handlers see it; dispatching the
+        // move through React re-rasterizes the popup content on every frame.
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
+        return;
+      }
+
+      if (!hasScrollableContentOnAxis(scrollTarget, scrollAxis)) {
+        // If the scroll container doesn't overflow on the drawer axis, prevent the window from
+        // scrolling instead.
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        event.stopPropagation();
+        return;
+      }
+
+      if (drawerAxisDelta !== 0) {
+        const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
+          scrollTarget,
+          scrollAxis,
+          swipeDirection,
+          drawerAxisDelta,
+        );
+
+        if (!touchState.allowSwipe) {
+          if (event.cancelable && canSwipeFromScrollEdge) {
+            touchState.allowSwipe = true;
+            event.preventDefault();
+          } else {
+            touchState.allowSwipe = false;
+          }
+        } else if (event.cancelable) {
+          event.preventDefault();
+        }
+      }
+
+      if (touchState.allowSwipe === true) {
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
+      }
+    }
+
     function handleNativeTouchMove(event: TouchEvent) {
       // The virtual keyboard provider observes the move to tell a tap apart from a drag.
       // It must run even when the swipe gesture below claims the event with
@@ -833,88 +808,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const drawerAxisDelta = isVerticalScrollAxis
-        ? touch.clientY - touchState.lastY
-        : touch.clientX - touchState.lastX;
-
-      // Preserve native range interaction by never locking touchmove for range inputs.
-      if (isEventOnRangeInput(event, win)) {
-        touchState.allowSwipe = false;
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
-      if (event.touches.length === 2) {
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
-
-      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      if (preserveNativeCrossAxisScrollOnMove(touchState, touch, isVerticalScrollAxis)) {
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      const scrollTarget = touchState.scrollTarget;
-      if (!scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body) {
-        if (event.cancelable) {
-          event.preventDefault();
-        }
-        // Claim the gesture before React's delegated touch handlers see it; dispatching the
-        // move through React re-rasterizes the popup content on every frame.
-        event.stopPropagation();
-        moveSwipeNative(event, resolvedRootElement);
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      const hasScrollableContent = hasScrollableContentOnAxis(scrollTarget, scrollAxis);
-      if (!hasScrollableContent) {
-        // If the scroll container doesn't overflow on the drawer axis, prevent the window from
-        // scrolling instead.
-        if (event.cancelable) {
-          event.preventDefault();
-        }
-        event.stopPropagation();
-        updateTouchScrollPosition(touchState, touch);
-        return;
-      }
-
-      const delta = drawerAxisDelta;
-      if (delta !== 0) {
-        const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
-          scrollTarget,
-          scrollAxis,
-          swipeDirection,
-          delta,
-        );
-
-        if (!touchState.allowSwipe) {
-          if (!event.cancelable) {
-            touchState.allowSwipe = false;
-          } else if (canSwipeFromScrollEdge) {
-            touchState.allowSwipe = true;
-            event.preventDefault();
-          } else {
-            touchState.allowSwipe = false;
-          }
-        } else if (event.cancelable) {
-          event.preventDefault();
-        }
-      }
-
-      if (touchState.allowSwipe === true) {
-        event.stopPropagation();
-        moveSwipeNative(event, resolvedRootElement);
-      }
-
+      processTouchMove(event, touchState, touch);
       updateTouchScrollPosition(touchState, touch);
     }
 
@@ -940,12 +834,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       return;
     }
 
-    const resolvedProgress = !open || nested ? 0 : (snapPointProgress ?? 0);
-    applySwipeProgress({
-      resolvedProgress,
-      shouldTrackProgress: true,
-      notifyParent: false,
-    });
+    applySwipeProgress(!open || nested ? 0 : (snapPointProgress ?? 0), true, false);
   }, [
     applySwipeProgress,
     frontmostHeight,
@@ -1014,11 +903,22 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     [setSwipeDismissed, swipe.getDragStyles, swipe.swiping, swipeRelease],
   );
 
-  function resetTouchTrackingState() {
-    ignoreTouchSwipeRef.current = false;
+  function resetTouchSwipeState(ignoreSwipe: boolean) {
+    ignoreTouchSwipeRef.current = ignoreSwipe;
     touchScrollStateRef.current = null;
+  }
+
+  function resetTouchTrackingState() {
+    resetTouchSwipeState(false);
     lastPointerTypeRef.current = '';
     ignoreNextTouchStartFromPenRef.current = false;
+  }
+
+  function handlePointerEnd(event: React.PointerEvent): boolean {
+    if (lastPointerTypeRef.current === event.pointerType) {
+      lastPointerTypeRef.current = '';
+    }
+    return event.pointerType !== 'touch';
   }
 
   return (
@@ -1056,40 +956,26 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipePointerProps.onPointerMove?.(event);
         },
         onPointerUp(event) {
-          if (lastPointerTypeRef.current === event.pointerType) {
-            lastPointerTypeRef.current = '';
+          if (handlePointerEnd(event)) {
+            swipePointerProps.onPointerUp?.(event);
           }
-
-          if (event.pointerType === 'touch') {
-            return;
-          }
-
-          swipePointerProps.onPointerUp?.(event);
         },
         onPointerCancel(event) {
-          if (lastPointerTypeRef.current === event.pointerType) {
-            lastPointerTypeRef.current = '';
+          if (handlePointerEnd(event)) {
+            swipePointerProps.onPointerCancel?.(event);
           }
-
-          if (event.pointerType === 'touch') {
-            return;
-          }
-
-          swipePointerProps.onPointerCancel?.(event);
         },
         onTouchStart(event) {
           const startedFromPenPointerDown =
             lastPointerTypeRef.current === 'pen' && ignoreNextTouchStartFromPenRef.current;
           if (startedFromPenPointerDown) {
             ignoreNextTouchStartFromPenRef.current = false;
-            ignoreTouchSwipeRef.current = false;
-            touchScrollStateRef.current = null;
+            resetTouchSwipeState(false);
             return;
           }
 
           if (!open || !mounted || nestedDrawerOpen) {
-            ignoreTouchSwipeRef.current = false;
-            touchScrollStateRef.current = null;
+            resetTouchSwipeState(false);
             return;
           }
 
@@ -1099,8 +985,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           if (isReactTouchEventOnRangeInput(event)) {
-            ignoreTouchSwipeRef.current = false;
-            touchScrollStateRef.current = null;
+            resetTouchSwipeState(false);
             return;
           }
 
@@ -1110,18 +995,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           const eventTarget = getTarget(event.nativeEvent);
           const target = isElement(eventTarget) ? eventTarget : null;
           if (rootElement && target && !contains(rootElement, target)) {
-            ignoreTouchSwipeRef.current = true;
-            touchScrollStateRef.current = null;
+            resetTouchSwipeState(true);
             return;
           }
 
           virtualKeyboard?.onTouchStart(event);
 
-          ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
-          if (ignoreTouchSwipeRef.current) {
-            touchScrollStateRef.current = null;
+          if (isSwipeIgnoredTarget(elementAtPoint)) {
+            resetTouchSwipeState(true);
             return;
           }
+          ignoreTouchSwipeRef.current = false;
 
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;
@@ -1199,32 +1083,8 @@ export namespace DrawerViewport {
   export type State = DrawerViewportState;
 }
 
-function setSwipeDismissedElements(
-  popupElement: HTMLElement | null,
-  backdropElement: HTMLElement | null,
-  dismissed: boolean,
-) {
-  if (dismissed) {
-    popupElement?.setAttribute(DrawerPopupDataAttributes.swipeDismiss, '');
-    backdropElement?.setAttribute(DrawerPopupDataAttributes.swipeDismiss, '');
-    return;
-  }
-
-  popupElement?.removeAttribute(DrawerPopupDataAttributes.swipeDismiss);
-  backdropElement?.removeAttribute(DrawerPopupDataAttributes.swipeDismiss);
-}
-
 function setBackdropSwipingAttribute(backdropElement: HTMLElement | null, swiping: boolean) {
-  if (!backdropElement) {
-    return;
-  }
-
-  if (swiping) {
-    backdropElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
-    return;
-  }
-
-  backdropElement.removeAttribute(DrawerPopupDataAttributes.swiping);
+  backdropElement?.toggleAttribute(DrawerPopupDataAttributes.swiping, swiping);
 }
 
 function isSwipeIgnoredTarget(target: Element | null): boolean {
@@ -1235,10 +1095,12 @@ function isDrawerContentTarget(target: Element | null): boolean {
   return Boolean(target?.closest(DRAWER_CONTENT_SELECTOR));
 }
 
+function getBaseSwipeSize(element: HTMLElement, direction: SwipeDirection): number {
+  return direction === 'left' || direction === 'right' ? element.offsetWidth : element.offsetHeight;
+}
+
 function getBaseSwipeThreshold(element: HTMLElement, direction: SwipeDirection): number {
-  const size =
-    direction === 'left' || direction === 'right' ? element.offsetWidth : element.offsetHeight;
-  return Math.max(size * 0.5, MIN_SWIPE_THRESHOLD);
+  return Math.max(getBaseSwipeSize(element, direction) * 0.5, MIN_SWIPE_THRESHOLD);
 }
 
 function isRangeInput(
@@ -1341,9 +1203,7 @@ function preserveNativeCrossAxisScrollOnMove(
 }
 
 function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
-  return axis === 'vertical'
-    ? scrollTarget.scrollHeight > scrollTarget.clientHeight
-    : scrollTarget.scrollWidth > scrollTarget.clientWidth;
+  return getScrollMetrics(scrollTarget, axis).max > 0;
 }
 
 function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
@@ -1361,12 +1221,12 @@ function isAtSwipeStartEdge(
   axis: ScrollAxis,
   direction: SwipeDirection,
 ): boolean {
-  const { offset, max } = getScrollMetrics(scrollTarget, axis);
   const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
   if (dismissFromStartEdge === null) {
     return false;
   }
 
+  const { offset, max } = getScrollMetrics(scrollTarget, axis);
   return dismissFromStartEdge ? offset <= 0 : offset >= max;
 }
 
@@ -1376,37 +1236,20 @@ function canSwipeFromScrollEdgeOnMove(
   direction: SwipeDirection,
   delta: number,
 ): boolean {
-  const { offset, max } = getScrollMetrics(scrollTarget, axis);
   const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
-  if (dismissFromStartEdge === null) {
-    return false;
-  }
-
   const movingTowardDismiss = dismissFromStartEdge ? delta > 0 : delta < 0;
-  if (!movingTowardDismiss) {
+  if (dismissFromStartEdge === null || !movingTowardDismiss) {
     return false;
   }
 
-  return dismissFromStartEdge ? offset <= 0 : offset >= max;
+  return isAtSwipeStartEdge(scrollTarget, axis, direction);
 }
 
 function shouldDismissFromStartEdge(direction: SwipeDirection, axis: ScrollAxis): boolean | null {
-  if (axis === 'vertical') {
-    if (direction === 'down') {
-      return true;
-    }
-    if (direction === 'up') {
-      return false;
-    }
-    return null;
-  }
-
-  if (direction === 'right') {
+  const [startEdgeDirection, endEdgeDirection] =
+    axis === 'vertical' ? ['down', 'up'] : ['right', 'left'];
+  if (direction === startEdgeDirection) {
     return true;
   }
-  if (direction === 'left') {
-    return false;
-  }
-
-  return null;
+  return direction === endEdgeDirection ? false : null;
 }

@@ -4,6 +4,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { hasRenderableChildren } from '../utils/isRenderableNode';
 
 /**
  * Performs an action when clicked.
@@ -27,7 +28,6 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const { toast } = useToastRootContext();
 
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
-  const shouldRender = Boolean(computedChildren);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -51,11 +51,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
     ],
   });
 
-  if (!shouldRender) {
-    return null;
-  }
-
-  return element;
+  return hasRenderableChildren(element) ? element : null;
 });
 
 export interface ToastActionState {

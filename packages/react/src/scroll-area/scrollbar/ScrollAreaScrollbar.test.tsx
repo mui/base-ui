@@ -323,6 +323,80 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  // The vertical/horizontal track-click branches were consolidated into one
+  // axis-parameterized path. `getOffset` reads logical margins/paddings that jsdom
+  // doesn't compute, so exercise the merged branch against real layout here to pin
+  // the horizontal LTR path and the RTL inversion (jsdom track-click tests above
+  // assert the vertical path but pass vacuously on the offset math).
+  describe.skipIf(isJSDOM)('track click by axis', () => {
+    async function renderAxisTrack(
+      orientation: 'horizontal' | 'vertical',
+      direction: TextDirection,
+    ) {
+      await render(
+        <DirectionProvider direction={direction}>
+          <ScrollArea.Root style={{ width: 200, height: 200, direction }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 1000 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation={orientation} data-testid="scrollbar" keepMounted>
+              <ScrollArea.Thumb data-testid="thumb" />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const scrollbar = screen.getByTestId('scrollbar');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetWidth + thumb.offsetHeight).toBeGreaterThan(0));
+
+      return { viewport, scrollbar };
+    }
+
+    it('scrolls down when clicking below the thumb on a vertical track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('vertical', 'ltr');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.bottom - 5,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+    });
+
+    it('scrolls right when clicking the end of a horizontal LTR track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('horizontal', 'ltr');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.right - 5,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollLeft).toBeGreaterThan(0);
+    });
+
+    it('scrolls into the negative RTL range when clicking a horizontal RTL track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('horizontal', 'rtl');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.left + 5,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollLeft).toBeLessThan(0);
+    });
+  });
+
   // A short or heavily padded track drives `maxThumbOffset` to zero or negative
   // once the thumb hits its `MIN_THUMB_SIZE` floor. Dragging the thumb then
   // divides by a non-positive offset, teleporting the scroll position to an

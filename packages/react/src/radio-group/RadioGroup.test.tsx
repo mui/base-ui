@@ -93,6 +93,26 @@ describe('<RadioGroup />', () => {
       expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
     });
 
+    it('should not select an item with Enter', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('does not change state when canceled via a root click', async () => {
       const { user } = await render(
         <Field.Root>
@@ -1064,6 +1084,96 @@ describe('<RadioGroup />', () => {
       const radioGroup = screen.getByRole('radiogroup');
 
       expect(radioGroup.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'));
+    });
+
+    it('updates label precedence without retaining replaced or unmounted IDs', async () => {
+      function App() {
+        const [explicit, setExplicit] = React.useState(true);
+        const [fieldLabel, setFieldLabel] = React.useState<'field-label-a' | 'field-label-b'>(
+          'field-label-a',
+        );
+        const [showFieldLabel, setShowFieldLabel] = React.useState(true);
+        const [legend, setLegend] = React.useState<'legend-a' | 'legend-b'>('legend-a');
+        const [showLegend, setShowLegend] = React.useState(true);
+
+        const explicitLabelProps = explicit ? { 'aria-labelledby': 'explicit-label' } : {};
+
+        return (
+          <React.Fragment>
+            <span id="explicit-label">Explicit label</span>
+            <Field.Root name="choice">
+              {showFieldLabel && (
+                <Field.Label key={fieldLabel} id={fieldLabel} render={<span />} nativeLabel={false}>
+                  Field label
+                </Field.Label>
+              )}
+              <Fieldset.Root>
+                {showLegend && (
+                  <Fieldset.Legend key={legend} id={legend}>
+                    Legend
+                  </Fieldset.Legend>
+                )}
+                <RadioGroup {...explicitLabelProps}>
+                  <Radio.Root value="a" />
+                </RadioGroup>
+              </Fieldset.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setExplicit(false)}>
+              remove explicit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFieldLabel('field-label-b');
+                setShowFieldLabel(true);
+              }}
+            >
+              mount field replacement
+            </button>
+            <button type="button" onClick={() => setShowFieldLabel(false)}>
+              remove field label
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLegend('legend-b');
+                setShowLegend(true);
+              }}
+            >
+              mount legend replacement
+            </button>
+            <button type="button" onClick={() => setShowLegend(false)}>
+              remove legend
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const radioGroup = screen.getByRole('radiogroup');
+
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'explicit-label');
+
+      await user.click(screen.getByRole('button', { name: 'remove explicit' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'field-label-a');
+
+      await user.click(screen.getByRole('button', { name: 'remove field label' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-a');
+
+      await user.click(screen.getByRole('button', { name: 'mount field replacement' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'field-label-b');
+
+      await user.click(screen.getByRole('button', { name: 'remove field label' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-a');
+
+      await user.click(screen.getByRole('button', { name: 'remove legend' }));
+      expect(radioGroup).not.toHaveAttribute('aria-labelledby');
+
+      await user.click(screen.getByRole('button', { name: 'mount legend replacement' }));
+      expect(radioGroup).toHaveAttribute('aria-labelledby', 'legend-b');
+
+      await user.click(screen.getByRole('button', { name: 'remove legend' }));
+      expect(radioGroup).not.toHaveAttribute('aria-labelledby');
     });
   });
 

@@ -84,6 +84,35 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('closes with a `detail === 0` click event on keyboard item activation', async () => {
+        const openChangeSpy = vi.fn();
+
+        await render(<TestMenu rootProps={{ onOpenChange: openChangeSpy }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        const item1 = screen.getByTestId('item-1');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        await waitFor(() => {
+          expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
+        });
+
+        expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // Keyboard activation clicks carry `detail === 0`, which MenuRoot classifies
+        // as a keyboard (instant) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(0);
+      });
+
       it('changes the highlighted item using the Home and End keys', async () => {
         await render(<TestMenu />);
 
@@ -255,6 +284,43 @@ describe('<Menu.Root />', () => {
           });
 
           expect(hiddenItem).toHaveAttribute('tabindex', '-1');
+        });
+
+        it.skipIf(isJSDOM)('skips natively disabled items in text navigation', async () => {
+          const itemElements = [
+            <Menu.Item key="apple">Apple</Menu.Item>,
+            <Menu.Item
+              key="banana"
+              data-testid="item-banana"
+              nativeButton
+              render={<button type="button" disabled />}
+            >
+              Banana
+            </Menu.Item>,
+            <Menu.Item key="blueberry" data-testid="item-blueberry">
+              Blueberry
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const appleItem = screen.getByText('Apple');
+          const bananaItem = screen.getByTestId('item-banana');
+          const blueberryItem = screen.getByTestId('item-blueberry');
+
+          await act(async () => {
+            appleItem.focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(blueberryItem).toHaveFocus();
+          });
+
+          expect(bananaItem).toHaveAttribute('tabindex', '-1');
+          expect(bananaItem).not.toHaveAttribute('data-highlighted');
         });
 
         it.skipIf(!isJSDOM)(
@@ -639,6 +705,33 @@ describe('<Menu.Root />', () => {
 
         expect(menu).not.toBe(null);
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
+      });
+
+      it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <TestMenu
+            rootProps={{ onOpenChange }}
+            triggerProps={{ render: <button id="custom-trigger" /> }}
+            submenuTriggerProps={{ openOnHover: false }}
+          />,
+        );
+
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
+
+        await screen.findByTestId('menu');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
+
+        await screen.findByTestId('submenu');
+
+        expect(screen.getByTestId('menu')).not.toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.siblingOpen }),
+        );
       });
 
       it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
@@ -2331,6 +2424,9 @@ describe('<Menu.Root />', () => {
         expect(openChangeSpy.mock.calls[0][0]).toBe(true);
         expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
         expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // The synthesized drag-release click must carry `detail: 1` so MenuRoot does
+        // not classify it as a keyboard (`detail === 0`) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
       });
 
       it('closes the menu on click, drag outside, release', async () => {

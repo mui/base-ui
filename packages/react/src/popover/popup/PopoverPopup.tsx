@@ -7,23 +7,16 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
+import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
-
-const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the popover contents.
@@ -37,7 +30,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -60,8 +53,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
 
-  const popupId = elementProps.id ?? floatingId;
-
   useOpenChangeComplete({
     open,
     ref: store.context.popupRef,
@@ -80,12 +71,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const focusManagerModal = modal !== false && hasClosePart;
   store.useSyncedValue('focusManagerModal', focusManagerModal);
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: PopoverPopupState = {
     open,
@@ -101,7 +87,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       {
-        id: popupId,
+        id: floatingId,
         role: 'dialog',
         ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': titleId,
@@ -115,7 +101,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return (
@@ -133,7 +119,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       nextFocusableElement={store.context.triggerFocusTargetRef}
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
-      <ClosePartProvider value={closePartContext}>{element}</ClosePartProvider>
+      <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
     </FloatingFocusManager>
   );
 });

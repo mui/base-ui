@@ -1,16 +1,19 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
 
-const EMPTY: string[] = [];
-
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
 ): UseCheckboxGroupParentReturnValue {
-  const { allValues = EMPTY, value = EMPTY, onValueChange: onValueChangeProp } = params;
+  const {
+    allValues = EMPTY_ARRAY as string[],
+    value = EMPTY_ARRAY as string[],
+    onValueChange: onValueChangeProp,
+  } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
@@ -42,9 +45,7 @@ export function useCheckboxGroupParent(
         // - any that aren't disabled
         // - disabled ones that are checked
         const all = allValues.filter(
-          (v) =>
-            !disabledStatesRef.current.get(v) ||
-            (disabledStatesRef.current.get(v) && uncontrolledState.includes(v)),
+          (v) => !disabledStatesRef.current.get(v) || uncontrolledState.includes(v),
         );
 
         const allOnOrOff =
@@ -105,12 +106,11 @@ export function useCheckboxGroupParent(
   return React.useMemo(
     () => ({
       id,
-      indeterminate,
       getParentProps,
       getChildProps,
       disabledStatesRef,
     }),
-    [id, indeterminate, getParentProps, getChildProps],
+    [id, getParentProps, getChildProps],
   );
 }
 
@@ -127,7 +127,6 @@ export interface UseCheckboxGroupParentParameters {
 
 export interface UseCheckboxGroupParentReturnValue {
   id: string | undefined;
-  indeterminate: boolean;
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
   getParentProps: () => {
     id: string | undefined;

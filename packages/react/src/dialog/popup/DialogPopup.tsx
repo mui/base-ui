@@ -6,23 +6,11 @@ import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
-import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { DialogPopupCssVars } from './DialogPopupCssVars';
-import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
-
-const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-  nestedDialogOpen(value) {
-    return value ? { [DialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
-  },
-};
+import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A container for the dialog contents.
@@ -36,7 +24,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
@@ -52,8 +40,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
   const floatingId = floatingRootContext.useState('floatingId');
-
-  const popupId = elementProps.id ?? floatingId;
 
   useDialogPortalContext();
 
@@ -86,9 +72,9 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
-        id: popupId,
-        'aria-labelledby': titleElementId ?? undefined,
-        'aria-describedby': descriptionElementId ?? undefined,
+        id: floatingId,
+        'aria-labelledby': titleElementId,
+        'aria-describedby': descriptionElementId,
         role,
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
@@ -98,13 +84,13 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
           }
         },
         style: {
-          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
+          '--nested-dialogs': nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
     ],
     ref: [forwardedRef, store.context.popupRef, setPopupElement],
-    stateAttributesMapping,
+    stateAttributesMapping: dialogStateAttributesMapping,
   });
 
   return (
