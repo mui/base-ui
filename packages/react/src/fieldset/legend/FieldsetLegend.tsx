@@ -30,7 +30,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   }, [setLegendId, id]);
 
   const state: FieldsetLegendState = {
-    disabled: disabled ?? false,
+    disabled,
   };
 
   const element = useRenderElement('div', componentProps, {

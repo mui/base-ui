@@ -112,6 +112,69 @@ describe('<NumberField.ScrubArea />', () => {
     expect(input).toHaveValue('-7');
   });
 
+  it('tracks visual viewport scale and removes scrub listeners after pointer lock exits', async () => {
+    const visualViewport = window.visualViewport;
+    if (!visualViewport) {
+      throw new Error('Expected visualViewport in a browser test.');
+    }
+
+    let scale = 2;
+    const scaleGetter = vi.spyOn(visualViewport, 'scale', 'get').mockImplementation(() => scale);
+    const addEventListener = vi.spyOn(window, 'addEventListener');
+    const removeEventListener = vi.spyOn(window, 'removeEventListener');
+
+    try {
+      await render(
+        <NumberField.Root defaultValue={0} data-testid="root">
+          <NumberField.Input />
+          <NumberField.ScrubArea data-testid="scrub-area">
+            <NumberField.ScrubAreaCursor data-testid="cursor" />
+          </NumberField.ScrubArea>
+        </NumberField.Root>,
+      );
+
+      const scrubArea = screen.getByTestId('scrub-area');
+      const root = screen.getByTestId('root');
+
+      await act(async () => {
+        scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
+      });
+
+      const cursor = screen.getByTestId('cursor');
+      expect(cursor.style.transform).toContain('scale(0.5)');
+
+      scale = 4;
+      await act(async () => {
+        window.dispatchEvent(createPointerMoveEvent({ movementX: 4 }));
+      });
+      expect(cursor.style.transform).toContain('scale(0.25)');
+
+      const pointerUpListener = addEventListener.mock.calls.find(([type]) => type === 'pointerup');
+      const pointerMoveListener = addEventListener.mock.calls.find(
+        ([type]) => type === 'pointermove',
+      );
+      expect(pointerUpListener).toBeDefined();
+      expect(pointerMoveListener).toBeDefined();
+
+      await act(async () => {
+        window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+      });
+
+      expect(root).not.toHaveAttribute('data-scrubbing');
+      expect(screen.queryByTestId('cursor')).toBe(null);
+      expect(removeEventListener).toHaveBeenCalledWith('pointerup', pointerUpListener?.[1], true);
+      expect(removeEventListener).toHaveBeenCalledWith(
+        'pointermove',
+        pointerMoveListener?.[1],
+        true,
+      );
+    } finally {
+      scaleGetter.mockRestore();
+      addEventListener.mockRestore();
+      removeEventListener.mockRestore();
+    }
+  });
+
   it('clears the root scrubbing state when the scrub area unmounts mid-scrub', async () => {
     function App(props: { scrubAreaMounted: boolean }) {
       return (
