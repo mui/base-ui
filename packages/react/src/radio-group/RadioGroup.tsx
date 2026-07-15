@@ -61,7 +61,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef } = useFormContext();
   const fieldsetContext = useFieldsetRootContext(true);
 
   const disabled = fieldDisabled || disabledProp;
@@ -129,7 +129,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    if (!input || input.disabled) {
+    // `:disabled` also matches inputs disabled through an ancestor `<fieldset disabled>`,
+    // which the `disabled` property alone misses. Such inputs are ineligible to represent
+    // the group for focus and validation, matching native form submission.
+    if (!input || input.matches(':disabled')) {
       return undefined;
     }
 
@@ -138,7 +141,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.disabled) {
+    if (input.checked || currentInput == null || currentInput.matches(':disabled')) {
       return setInputRef(input);
     }
 
@@ -146,10 +149,17 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   });
 
   const getFormValue = useStableCallback(() => {
-    // Disabled radios are excluded from native form submission, so a disabled
-    // selection shouldn't be reported as the field's value either.
+    // Only project the value that native form submission would include: the winning input
+    // must be checked, enabled (`:disabled` also covers a disabled ancestor `<fieldset>`),
+    // and — when inside a Form — associated with that form element. A radio submitted-excluded
+    // natively (disabled, or associated to another form) shouldn't be reported as the value.
     const input = groupInputRef.current;
-    if (!input || input.disabled || !input.checked) {
+    if (
+      !input ||
+      !input.checked ||
+      input.matches(':disabled') ||
+      (elementRef.current != null && input.form !== elementRef.current)
+    ) {
       return null;
     }
 
@@ -167,7 +177,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
-    if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
+    if (checkedValue == null && fallbackInput && !fallbackInput.matches(':disabled')) {
       // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
       void setInputRef(fallbackInput);
     }

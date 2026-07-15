@@ -1351,6 +1351,89 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
+    it.skipIf(isJSDOM)(
+      'projects an enabled selected radio, matching native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual(['a']);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'excludes a radio disabled through an ancestor <fieldset disabled> to match native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <fieldset disabled>
+              <Field.Root name="choice">
+                <RadioGroup defaultValue="a">
+                  <Radio.Root value="a" data-testid="item-a" />
+                  <Radio.Root value="b" data-testid="item-b" />
+                </RadioGroup>
+              </Field.Root>
+            </fieldset>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // Native submission omits controls disabled by an ancestor fieldset, even though
+        // their `disabled` property is `false`.
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+      },
+    );
+
+    it.skipIf(isJSDOM)('omits a radio associated to another form via the `form` prop', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup form="external-form" defaultValue="a">
+                <Radio.Root value="a" data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      // The radio is associated to #external-form, so this form excludes it natively.
+      expect(new FormData(form).getAll('choice')).toEqual([]);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+    });
+
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
         <Form>
