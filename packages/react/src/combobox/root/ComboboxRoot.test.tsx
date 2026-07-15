@@ -872,6 +872,55 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
+        'does not apply the initial highlight when a selection resolves after blur (items prop)',
+        async ({ onTestFinished }) => {
+          const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+          onTestFinished(() => scrollIntoView.mockRestore());
+
+          function App() {
+            const [value, setValue] = React.useState<string | null>(null);
+
+            return (
+              <React.Fragment>
+                <Combobox.Root
+                  items={['apple', 'banana', 'cherry']}
+                  inline
+                  open
+                  value={value}
+                  onValueChange={setValue}
+                >
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Root>
+                <button type="button">Blur target</button>
+                <button type="button" onClick={() => setValue('banana')}>
+                  Resolve selection
+                </button>
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<App />);
+          const input = screen.getByTestId('input');
+
+          await user.click(input);
+          await user.click(screen.getByRole('button', { name: 'Blur target' }));
+          await user.click(screen.getByRole('button', { name: 'Resolve selection' }));
+
+          const selectedItem = screen.getByRole('option', { name: 'banana' });
+          expect(selectedItem).not.toHaveAttribute('data-highlighted');
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+          expect(scrollIntoView).not.toHaveBeenCalled();
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'does not snap the highlight to a stale index while filtering an inline list (items prop)',
         async () => {
           // The selected item survives filtering but shifts index: `banana` is at unfiltered
@@ -1043,16 +1092,13 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
-        'does not apply the initial highlight after the user clears a pre-filtered inline input (items prop)',
-        async () => {
-          const { user } = await render(
-            <Combobox.Root
-              items={['b0', 'sel', 'b1', 'b2', 'b3']}
-              inline
-              open
-              defaultValue="sel"
-              defaultInputValue="b"
-            >
+        'does not restore the initial highlight after pointer navigation is cleared (items prop)',
+        async ({ onTestFinished }) => {
+          const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+          onTestFinished(() => scrollIntoView.mockRestore());
+
+          const { setProps, user } = await render(
+            <Combobox.Root items={['apple', 'cherry']} inline open defaultValue="banana">
               <Combobox.Input data-testid="input" />
               <Combobox.List>
                 {(item: string) => (
@@ -1065,11 +1111,26 @@ describe('<Combobox.Root />', () => {
           );
 
           const input = screen.getByTestId('input');
-          await user.clear(input);
+          const apple = await screen.findByRole('option', { name: 'apple' });
+          await user.hover(apple);
 
-          const selectedItem = await screen.findByRole('option', { name: 'sel' });
-          expect(selectedItem).not.toHaveAttribute('data-highlighted');
+          await waitFor(() => {
+            expect(apple).toHaveAttribute('data-highlighted');
+          });
+
+          await user.unhover(apple);
+          await waitFor(() => {
+            expect(apple).not.toHaveAttribute('data-highlighted');
+          });
+
+          scrollIntoView.mockClear();
+          await setProps({ items: ['apple', 'banana', 'cherry'] });
+
+          expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
           expect(input).not.toHaveAttribute('aria-activedescendant');
+          expect(scrollIntoView).not.toHaveBeenCalled();
         },
       );
 

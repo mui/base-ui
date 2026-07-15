@@ -1119,6 +1119,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabledIndices: EMPTY_ARRAY as number[],
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
+      if (event) {
+        initialInlineHighlightForfeitedRef.current = true;
+      }
+
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
         return;
@@ -1142,6 +1146,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       mergeProps(
         listNavigation.reference,
         {
+          onBlur() {
+            if (inline) {
+              initialInlineHighlightForfeitedRef.current = true;
+            }
+          },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
             // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
             // grid movement. When the input has focus and no item is highlighted the user
@@ -1159,7 +1168,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         click.reference,
         role.reference,
       ),
-    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
+    [
+      listNavigation.reference,
+      dismiss.reference,
+      click.reference,
+      role.reference,
+      grid,
+      inline,
+      store,
+    ],
   );
 
   const popupProps = React.useMemo(
