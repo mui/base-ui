@@ -100,6 +100,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
 
+  // Only forwards the public `inputRef` and tracks the current representative for that forwarding.
+  // The registry (`validation.registeredInputs`) is authoritative for validation and form-value
+  // projection, so the group must not write `validation.inputRef`: a stale, unmounted radio left
+  // there would become the Field's fallback once the registry empties and keep blocking submission.
   function setInputRef(hiddenInput: HTMLInputElement | null) {
     let cleanup: void | (() => void) | undefined = undefined;
 
@@ -112,7 +116,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     groupInputRef.current = hiddenInput;
-    validation.inputRef.current = hiddenInput;
 
     return cleanup;
   }

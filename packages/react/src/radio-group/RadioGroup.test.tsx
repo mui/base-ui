@@ -1259,6 +1259,64 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
+    it('unblocks submission after every radio in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="choice">
+              <RadioGroup required>{mounted && <Radio.Root value="a" />}</RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ choice: null });
+    });
+
+    it('runs the custom validator after every radio in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn(() => 'always invalid');
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="choice" validate={validate}>
+              <RadioGroup>{mounted && <Radio.Root value="a" />}</RadioGroup>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<App />);
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('error')).toHaveTextContent('always invalid');
+    });
+
     it('excludes a disabled selected radio from onFormSubmit to match native form data', async () => {
       const handleSubmit = vi.fn();
 
@@ -1471,6 +1529,38 @@ describe('<RadioGroup />', () => {
 
       expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
     });
+
+    it.skipIf(isJSDOM)(
+      'submits null when the selected radio in a required group is disabled, matching native validity',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup required defaultValue="a">
+                <Radio.Root value="a" disabled data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+              <Field.Error match="valueMissing" data-testid="error">
+                required
+              </Field.Error>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        // Natively, a disabled checked radio still satisfies its radio group's `valueMissing`
+        // constraint even though its value is not submitted.
+        expect(screen.queryByTestId('error')).toBe(null);
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+      },
+    );
 
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
