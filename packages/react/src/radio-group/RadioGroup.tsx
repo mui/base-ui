@@ -88,7 +88,15 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
   );
 
-  const controlRef = React.useRef<HTMLElement>(null);
+  const getInputControl = validation.getInputControl;
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -109,30 +117,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return cleanup;
   }
 
-  const registerControlRef = useStableCallback(
-    (element: HTMLElement | null, isDisabled = false) => {
-      if (!element) {
-        return;
-      }
-
-      if (isDisabled) {
-        if (controlRef.current === element) {
-          controlRef.current = null;
-        }
-        return;
-      }
-
-      if (controlRef.current == null) {
-        controlRef.current = element;
-      }
-    },
-  );
-
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    // `:disabled` also matches inputs disabled through an ancestor `<fieldset disabled>`,
-    // which the `disabled` property alone misses. Such inputs are ineligible to represent
-    // the group for focus and validation, matching native form submission.
-    if (!input || input.matches(':disabled')) {
+    if (!input || input.disabled) {
       return undefined;
     }
 
@@ -141,7 +127,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.matches(':disabled')) {
+    if (input.checked || currentInput == null || currentInput.disabled) {
       return setInputRef(input);
     }
 
@@ -149,21 +135,18 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   });
 
   const getFormValue = useStableCallback(() => {
-    // Only project the value that native form submission would include: the winning input
-    // must be checked, enabled (`:disabled` also covers a disabled ancestor `<fieldset>`),
-    // and — when inside a Form — associated with that form element. A radio submitted-excluded
-    // natively (disabled, or associated to another form) shouldn't be reported as the value.
-    const input = groupInputRef.current;
-    if (
-      !input ||
-      !input.checked ||
-      input.matches(':disabled') ||
-      (elementRef.current != null && input.form !== elementRef.current)
-    ) {
-      return null;
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return checkedValue ?? null;
     }
 
-    return checkedValue ?? null;
+    for (const input of validation.registeredInputs.keys()) {
+      if (input.checked && !input.matches(':disabled') && input.form === formElement) {
+        return checkedValue ?? null;
+      }
+    }
+
+    return null;
   });
 
   useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
@@ -177,7 +160,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
-    if (checkedValue == null && fallbackInput && !fallbackInput.matches(':disabled')) {
+    if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
       // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
       void setInputRef(fallbackInput);
     }
@@ -200,7 +183,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,
@@ -214,7 +196,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,

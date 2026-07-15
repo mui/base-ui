@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
@@ -64,7 +63,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     name,
     setCheckedValue = NOOP,
     setTouched = NOOP,
-    registerControlRef = NOOP,
     registerInputRef = NOOP,
   } = groupContext ?? {};
 
@@ -87,15 +85,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleControlRef = useStableCallback((element: HTMLElement | null) => {
-    if (!element) {
-      return;
-    }
-
-    registerControlRef(element, disabled);
-  });
-
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef);
+  const registerFieldInput = validation?.registerInput;
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement | null) =>
+      registerFieldInput?.(element, { controlRef: radioRef, value: undefined }),
+    [registerFieldInput],
+  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef, registerInput);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
@@ -113,12 +109,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       return;
     }
 
-    if (radioRef.current) {
-      registerControlRef(radioRef.current, disabled);
-    }
-
     registerInputRef(inputRef.current);
-  }, [checked, disabled, registerControlRef, registerInputRef]);
+  }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();
   const inputId = useLabelableId({
@@ -238,7 +230,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
   const isRadioGroup = groupContext !== undefined;
 
-  const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
+  const refs = [forwardedRef, radioRef, buttonRef];
   const props = [
     rootProps,
     elementProps,

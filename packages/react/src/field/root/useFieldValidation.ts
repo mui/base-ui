@@ -44,7 +44,7 @@ function isEligibleInput(input: HTMLInputElement, formElement: HTMLFormElement |
 
 /**
  * Picks the input whose native validity should represent a field that owns several inputs (such as a
- * checkbox group). Prefers the first eligible currently-invalid input, where "first" follows
+ * checkbox or radio group). Prefers the first eligible currently-invalid input, where "first" follows
  * registration order (mount order), and otherwise returns the first eligible input.
  */
 function findRepresentativeInput(
@@ -95,9 +95,9 @@ export function useFieldValidation(
   const registeredInputs = useRefWithInit<RegisteredInputs>(() => new Map()).current;
   const validationCommitIdRef = React.useRef(0);
 
-  // Checkbox groups register several inputs against a single field. Track them so a `required`
-  // checkbox can't be satisfied by another input in the group, matching native per-checkbox
-  // behavior, and so focus and form-value projection use the same live controls.
+  // Groups register several inputs against a single field so focus, validation, and form-value
+  // projection can use the same live controls. This also ensures a `required` checkbox can't be
+  // satisfied by another input in the group, matching native per-checkbox behavior.
   const registerInput = React.useCallback(
     (element: HTMLInputElement | null, registration: RegisteredInput) => {
       if (!element) {
@@ -158,9 +158,9 @@ export function useFieldValidation(
       setValidityData(nextValidityData);
     }
 
-    // A field can own several inputs (a checkbox group), but only the last-mounted one wins the shared
-    // `inputRef`. Validate against the registry instead so every input counts; `inputRef` is the
-    // fallback only when no inputs are registered.
+    // A field can own several inputs (such as a checkbox or radio group), but only the last-mounted
+    // one wins the shared `inputRef`. Validate against the registry instead so every input counts;
+    // `inputRef` is the fallback only when no inputs are registered.
     const element =
       registeredInputs.size > 0
         ? findRepresentativeInput(registeredInputs, elementRef.current)
