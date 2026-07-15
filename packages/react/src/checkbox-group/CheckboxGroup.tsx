@@ -12,7 +12,6 @@ import { useRegisterFieldControl } from '../internals/field-register-control/use
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
-import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
@@ -85,14 +84,16 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   });
 
   const id = useBaseUiId(idProp);
+  const getInputControl = validation.getInputControl;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
-
-  const registerControlRef = React.useCallback((element: HTMLButtonElement | null) => {
-    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
-      controlRef.current = element;
-    }
-  }, []);
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
 
   useRegisterFieldControl(controlRef, id, value, undefined, !!fieldName && !disabled, fieldName);
 
@@ -127,9 +128,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       parent,
       disabled,
       validation,
-      registerControlRef,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
+    [allValues, value, defaultValue, setValue, parent, disabled, validation],
   );
 
   const element = useRenderElement('div', componentProps, {

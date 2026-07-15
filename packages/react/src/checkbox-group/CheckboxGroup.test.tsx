@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -987,6 +988,536 @@ describe('<CheckboxGroup />', () => {
       expect(checkbox1).toHaveFocus();
       expect(checkbox1).toHaveAttribute('aria-invalid', 'true');
       expect(screen.queryByTestId('error')).toHaveTextContent('server error');
+    });
+
+    it('focuses the invalid checkbox when a later checkbox in the group fails validation', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={['one']}>
+              <Field.Item>
+                <Checkbox.Root value="one" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" data-testid="checkbox" required />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+      expect(checkboxes[1]).toHaveFocus();
+    });
+
+    it('ignores required checkboxes associated with a different form', async () => {
+      const handleSubmit = vi.fn();
+
+      const { user } = render(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <Checkbox.Root value="external" form="external-form" required />
+                <Checkbox.Root value="current" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('stops validating a checkbox after it changes form owner', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [external, setExternal] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <form id="external-form" />
+            <Form onFormSubmit={handleSubmit}>
+              <Field.Root name="group">
+                <CheckboxGroup defaultValue={[]}>
+                  <Checkbox.Root
+                    value="checkbox"
+                    form={external ? 'external-form' : undefined}
+                    required
+                  />
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setExternal(true)}>
+                Move
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Move'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('validates and focuses required portaled checkboxes within the form', async () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      const { user } = render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={[]}>
+              {ReactDOM.createPortal(
+                <Checkbox.Root value="portaled" required data-testid="portaled" />,
+                portalContainer,
+              )}
+              <Checkbox.Root value="current" />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('portaled')).toHaveFocus();
+
+      await user.click(screen.getByTestId('portaled'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+      portalContainer.remove();
+    });
+
+    it('ignores a checkbox portaled into another form without a form attribute', async () => {
+      const handleSubmit = vi.fn();
+      const externalForm = document.createElement('form');
+      document.body.append(externalForm);
+
+      const { user } = render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={[]}>
+              {ReactDOM.createPortal(<Checkbox.Root value="external" required />, externalForm)}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+      externalForm.remove();
+    });
+
+    it('skips a checkbox disabled by a fieldset when focusing Form errors', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <fieldset disabled>
+                  <Checkbox.Root value="disabled" data-testid="disabled" />
+                </fieldset>
+                <Checkbox.Root value="enabled" data-testid="enabled" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('enabled')).toHaveFocus();
+      expect(screen.getByTestId('disabled')).not.toHaveFocus();
+    });
+
+    it('focuses a remaining checkbox when Form errors unmount the first checkbox', async () => {
+      function App() {
+        const [showFirst, setShowFirst] = React.useState(true);
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setShowFirst(false);
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                {showFirst && <Checkbox.Root value="one" data-testid="first" />}
+                <Checkbox.Root value="two" data-testid="second" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.queryByTestId('first')).toBe(null);
+      expect(screen.getByTestId('second')).toHaveFocus();
+    });
+
+    it('unblocks submission after every checkbox in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                {mounted && <Checkbox.Root value="one" required data-testid="checkbox" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('still runs custom validation after every checkbox in the group unmounts', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((value: unknown) =>
+        (value as string[]).length > 0 ? null : 'required',
+      );
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group" validate={validate}>
+              <CheckboxGroup defaultValue={[]}>
+                {mounted && <Checkbox.Root value="one" data-testid="checkbox" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Remove'));
+
+      validate.mockClear();
+      await user.click(screen.getByText('Submit'));
+
+      // The custom validator still runs against the preserved value and blocks submission, even
+      // though no checkbox is mounted to carry a native constraint.
+      expect(validate).toHaveBeenCalled();
+      expect(handleSubmit).not.toHaveBeenCalled();
+    });
+
+    it('clears a custom error when an inputless group becomes valid after submission', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((value: unknown) =>
+        (value as string[]).length > 0 ? null : 'required',
+      );
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+        const [value, setValue] = React.useState<string[]>([]);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="group" validate={validate}>
+              <CheckboxGroup value={value}>
+                {mounted && <Checkbox.Root value="one" />}
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+            <button type="button" onClick={() => setValue(['one'])}>
+              Select
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(screen.getByText('required')).not.toBe(null);
+
+      await user.click(screen.getByText('Remove'));
+      await user.click(screen.getByText('Select'));
+
+      expect(screen.queryByText('required')).toBe(null);
+
+      await user.click(screen.getByText('Submit'));
+      expect(handleSubmit).toHaveBeenCalledOnce();
+    });
+
+    it.each(['onSubmit', 'onBlur'] as const)(
+      'does not validate on change with validationMode=%s after the final checkbox unmounts',
+      async (validationMode) => {
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [mounted, setMounted] = React.useState(true);
+          const [value, setValue] = React.useState<string[]>([]);
+
+          return (
+            <Form>
+              <Field.Root name="group" validationMode={validationMode} validate={validate}>
+                <CheckboxGroup value={value}>
+                  {mounted && <Checkbox.Root value="one" />}
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setMounted(false)}>
+                Remove
+              </button>
+              <button type="button" onClick={() => setValue(['one'])}>
+                Select
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = render(<App />);
+
+        await user.click(screen.getByText('Remove'));
+        validate.mockClear();
+        await user.click(screen.getByText('Select'));
+
+        expect(validate).not.toHaveBeenCalled();
+
+        await user.click(screen.getByText('Submit'));
+
+        expect(validate).toHaveBeenCalledOnce();
+        expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+      },
+    );
+
+    it.each(['onSubmit', 'onBlur'] as const)(
+      'respects validationMode=%s when a controlled group starts without inputs',
+      async (validationMode) => {
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [value, setValue] = React.useState<string[]>([]);
+
+          return (
+            <Form>
+              <Field.Root name="group" validationMode={validationMode} validate={validate}>
+                <CheckboxGroup value={value} />
+              </Field.Root>
+              <button type="button" onClick={() => setValue(['one'])}>
+                Select one
+              </button>
+              <button type="button" onClick={() => setValue(['two'])}>
+                Select two
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = render(<App />);
+
+        validate.mockClear();
+        await user.click(screen.getByText('Select one'));
+
+        expect(validate).not.toHaveBeenCalled();
+
+        await user.click(screen.getByText('Submit'));
+
+        expect(validate).toHaveBeenCalledOnce();
+        expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+
+        await user.click(screen.getByText('Select two'));
+
+        expect(validate).toHaveBeenCalledTimes(validationMode === 'onSubmit' ? 2 : 1);
+      },
+    );
+
+    it('validates an inputless controlled group on change with validationMode=onChange', async () => {
+      const validate = vi.fn(() => null);
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+
+        return (
+          <Field.Root name="group" validationMode="onChange" validate={validate}>
+            <CheckboxGroup value={value} />
+            <button type="button" onClick={() => setValue(['one'])}>
+              Select
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+      validate.mockClear();
+
+      await user.click(screen.getByText('Select'));
+
+      expect(validate).toHaveBeenCalledOnce();
+      expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+    });
+
+    it('validates an initially empty group through the imperative action', async () => {
+      const validate = vi.fn(() => 'invalid');
+
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+
+        return (
+          <Field.Root name="group" actionsRef={actionsRef} validate={validate}>
+            <CheckboxGroup defaultValue={[]} />
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              Validate
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+      validate.mockClear();
+
+      await user.click(screen.getByText('Validate'));
+
+      expect(validate).toHaveBeenCalledOnce();
+      expect(validate).toHaveBeenCalledWith([], { group: [] });
+    });
+
+    it('skips a disabled representative checkbox on a later focus attempt', async () => {
+      function App() {
+        const [firstDisabled, setFirstDisabled] = React.useState(false);
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]}>
+                <Checkbox.Root value="one" data-testid="first" disabled={firstDisabled} />
+                <Checkbox.Root value="two" data-testid="second" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => setFirstDisabled(true)}>
+              Disable first
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+      expect(screen.getByTestId('first')).toHaveFocus();
+
+      await user.click(screen.getByText('Disable first'));
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('second')).toHaveFocus();
+    });
+
+    it('focuses the first child checkbox instead of a parent checkbox for Form errors', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group">
+              <CheckboxGroup defaultValue={[]} allValues={['one', 'two']}>
+                <Checkbox.Root parent data-testid="parent" />
+                <Checkbox.Root value="one" data-testid="first" />
+                <Checkbox.Root value="two" />
+              </CheckboxGroup>
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('first')).toHaveFocus();
+      expect(screen.getByTestId('parent')).not.toHaveFocus();
     });
 
     it('excludes parent checkboxes from form submission', async () => {

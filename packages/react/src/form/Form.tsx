@@ -36,6 +36,7 @@ export const Form = React.forwardRef(function Form<
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const elementRef = React.useRef<HTMLFormElement>(null);
   const submittedRef = React.useRef(false);
   const submitAttemptedRef = React.useRef(false);
 
@@ -87,7 +88,7 @@ export const Form = React.forwardRef(function Form<
   );
 
   const element = useRenderElement('form', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, elementRef],
     props: [
       {
         noValidate: true,
@@ -135,6 +136,7 @@ export const Form = React.forwardRef(function Form<
 
   const contextValue: FormContext = React.useMemo(
     () => ({
+      elementRef,
       formRef,
       validationMode,
       errors: errors ?? EMPTY_OBJECT,
