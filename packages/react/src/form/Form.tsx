@@ -36,21 +36,30 @@ export const Form = React.forwardRef(function Form<
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const elementRef = React.useRef<HTMLFormElement>(null);
   const submittedRef = React.useRef(false);
   const submitAttemptedRef = React.useRef(false);
 
   const focusFirstInvalid = useStableCallback(() => {
-    const invalidField = Array.from(formRef.current.fields.values()).find(
-      (field) => field.validityData.state.valid === false,
-    );
-    const control = invalidField?.controlRef.current;
-    if (control) {
-      control.focus();
-      if (control.tagName === 'INPUT') {
-        (control as HTMLInputElement).select();
+    // A field can be invalid without a focusable control (for example a checkbox group whose
+    // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
+    // Keep submission blocked, but move focus to the first invalid field that has a usable control.
+    let hasInvalid = false;
+    for (const field of formRef.current.fields.values()) {
+      if (field.validityData.state.valid !== false) {
+        continue;
+      }
+      hasInvalid = true;
+      const control = field.controlRef.current;
+      if (control) {
+        control.focus();
+        if (control.tagName === 'INPUT') {
+          (control as HTMLInputElement).select();
+        }
+        return true;
       }
     }
-    return invalidField !== undefined;
+    return hasInvalid;
   });
 
   const [errors, setErrors] = React.useState(externalErrors);
@@ -87,7 +96,7 @@ export const Form = React.forwardRef(function Form<
   );
 
   const element = useRenderElement('form', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, elementRef],
     props: [
       {
         noValidate: true,
@@ -135,6 +144,7 @@ export const Form = React.forwardRef(function Form<
 
   const contextValue: FormContext = React.useMemo(
     () => ({
+      elementRef,
       formRef,
       validationMode,
       errors: errors ?? EMPTY_OBJECT,
