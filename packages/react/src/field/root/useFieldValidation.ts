@@ -15,12 +15,12 @@ import type { FieldValidityData, FieldRootState } from './FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
-type RegisteredInput = {
+export type RegisteredInput = {
   controlRef: React.RefObject<HTMLElement | null>;
   value: string | undefined;
 };
 
-type RegisteredInputs = Map<HTMLInputElement, RegisteredInput>;
+export type RegisteredInputs = Map<HTMLInputElement, RegisteredInput>;
 
 /**
  * Whether an input participates in the surrounding Base UI Form. Inputs that are effectively
