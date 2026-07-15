@@ -46,9 +46,14 @@ const config: UserWorkspaceConfig = {
   optimizeDeps:
     process.env.REACT_17_TESTS === 'true'
       ? {
-          entries: [
-            'src/popover/positioner/PopoverPositioner.test.tsx',
-            'src/tooltip/positioner/TooltipPositioner.test.tsx',
+          noDiscovery: true,
+          include: [
+            '@mui/internal-test-utils',
+            '@mui/internal-test-utils/setupVitest',
+            '@testing-library/jest-dom/vitest',
+            '@testing-library/react',
+            'react',
+            'react-dom',
           ],
         }
       : undefined,
