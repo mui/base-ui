@@ -53,7 +53,10 @@ const config: UserWorkspaceConfig = {
             '@testing-library/jest-dom/vitest',
             '@testing-library/react',
             'react',
+            'react/jsx-dev-runtime',
+            'react/jsx-runtime',
             'react-dom',
+            'react-dom/test-utils',
           ],
         }
       : undefined,
