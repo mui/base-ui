@@ -294,6 +294,184 @@ type TabsTabPosition = { left: number; right: number; top: number; bottom: numbe
 type TabsTabSize = { width: number; height: number };
 ```
 
+## Additional Types
+
+### TabsIndicatorCssVars.activeTabBottom
+
+Indicates the distance on the bottom side from the parent's container if the tab is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabBottom = '--active-tab-bottom';
+```
+
+### TabsIndicatorCssVars.activeTabHeight
+
+Indicates the height of the tab if it is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabHeight = '--active-tab-height';
+```
+
+### TabsIndicatorCssVars.activeTabLeft
+
+Indicates the distance on the left side from the parent's container if the tab is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabLeft = '--active-tab-left';
+```
+
+### TabsIndicatorCssVars.activeTabRight
+
+Indicates the distance on the right side from the parent's container if the tab is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabRight = '--active-tab-right';
+```
+
+### TabsIndicatorCssVars.activeTabTop
+
+Indicates the distance on the top side from the parent's container if the tab is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabTop = '--active-tab-top';
+```
+
+### TabsIndicatorCssVars.activeTabWidth
+
+Indicates the width of the tab if it is active.
+
+```typescript
+type TabsIndicatorCssVarsactiveTabWidth = '--active-tab-width';
+```
+
+### TabsIndicatorDataAttributes.activationDirection
+
+Indicates the direction of the activation (based on the previous active tab).
+
+```typescript
+type TabsIndicatorDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TabsIndicatorDataAttributes.orientation
+
+Indicates the orientation of the tabs.
+
+```typescript
+type TabsIndicatorDataAttributesorientation = 'data-orientation';
+```
+
+### TabsListDataAttributes.activationDirection
+
+Indicates the direction of the activation (based on the previous active tab).
+
+```typescript
+type TabsListDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TabsListDataAttributes.orientation
+
+Indicates the orientation of the tabs.
+
+```typescript
+type TabsListDataAttributesorientation = 'data-orientation';
+```
+
+### TabsPanelDataAttributes.activationDirection
+
+Indicates the direction of the activation (based on the previous active tab).
+
+```typescript
+type TabsPanelDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TabsPanelDataAttributes.endingStyle
+
+Present when the panel is animating out.
+
+```typescript
+type TabsPanelDataAttributesendingStyle = 'data-ending-style';
+```
+
+### TabsPanelDataAttributes.hidden
+
+Present when the panel is hidden.
+
+```typescript
+type TabsPanelDataAttributeshidden = 'data-hidden';
+```
+
+### TabsPanelDataAttributes.index
+
+Indicates the index of the tab panel.
+
+```typescript
+type TabsPanelDataAttributesindex = 'data-index';
+```
+
+### TabsPanelDataAttributes.orientation
+
+Indicates the orientation of the tabs.
+
+```typescript
+type TabsPanelDataAttributesorientation = 'data-orientation';
+```
+
+### TabsPanelDataAttributes.startingStyle
+
+Present when the panel begins animating in.
+
+```typescript
+type TabsPanelDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### TabsRootDataAttributes.activationDirection
+
+Indicates the direction of the activation (based on the previous active tab).
+
+```typescript
+type TabsRootDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TabsRootDataAttributes.orientation
+
+Indicates the orientation of the tabs.
+
+```typescript
+type TabsRootDataAttributesorientation = 'data-orientation';
+```
+
+### TabsTabDataAttributes.activationDirection
+
+Indicates the direction of the activation (based on the previous active tab).
+
+```typescript
+type TabsTabDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TabsTabDataAttributes.active
+
+Present when the tab is active.
+
+```typescript
+type TabsTabDataAttributesactive = 'data-active';
+```
+
+### TabsTabDataAttributes.disabled
+
+Present when the tab is disabled.
+
+```typescript
+type TabsTabDataAttributesdisabled = 'data-disabled';
+```
+
+### TabsTabDataAttributes.orientation
+
+Indicates the orientation of the tabs.
+
+```typescript
+type TabsTabDataAttributesorientation = 'data-orientation';
+```
+
 ## Export Groups
 
 - `Tabs.Root`: `Tabs.Root`, `Tabs.Root.State`, `Tabs.Root.Props`, `Tabs.Root.Orientation`, `Tabs.Root.ChangeEventReason`, `Tabs.Root.ChangeEventDetails`
@@ -301,7 +479,7 @@ type TabsTabSize = { width: number; height: number };
 - `Tabs.Indicator`: `Tabs.Indicator`, `Tabs.Indicator.State`, `Tabs.Indicator.Props`
 - `Tabs.Panel`: `Tabs.Panel`, `Tabs.Panel.Metadata`, `Tabs.Panel.State`, `Tabs.Panel.Props`
 - `Tabs.List`: `Tabs.List`, `Tabs.List.State`, `Tabs.List.Props`
-- `Default`: `TabsRootOrientation`, `TabsRootState`, `TabsRootProps`, `TabsRootChangeEventReason`, `TabsRootChangeEventDetails`, `TabsIndicatorState`, `TabsIndicatorProps`, `TabsTabValue`, `TabsTabActivationDirection`, `TabsTabPosition`, `TabsTabSize`, `TabsTabMetadata`, `TabsTabState`, `TabsTabProps`, `TabsPanelMetadata`, `TabsPanelState`, `TabsPanelProps`, `TabsListState`, `TabsListProps`
+- `Default`: `TabsRootDataAttributes.activationDirection`, `TabsRootDataAttributes.orientation`, `TabsTabDataAttributes.activationDirection`, `TabsTabDataAttributes.orientation`, `TabsTabDataAttributes.disabled`, `TabsTabDataAttributes.active`, `TabsIndicatorCssVars.activeTabLeft`, `TabsIndicatorCssVars.activeTabRight`, `TabsIndicatorCssVars.activeTabTop`, `TabsIndicatorCssVars.activeTabBottom`, `TabsIndicatorCssVars.activeTabWidth`, `TabsIndicatorCssVars.activeTabHeight`, `TabsIndicatorDataAttributes.activationDirection`, `TabsIndicatorDataAttributes.orientation`, `TabsPanelDataAttributes.index`, `TabsPanelDataAttributes.activationDirection`, `TabsPanelDataAttributes.orientation`, `TabsPanelDataAttributes.hidden`, `TabsPanelDataAttributes.startingStyle`, `TabsPanelDataAttributes.endingStyle`, `TabsListDataAttributes.activationDirection`, `TabsListDataAttributes.orientation`, `TabsRootOrientation`, `TabsRootState`, `TabsRootProps`, `TabsRootChangeEventReason`, `TabsRootChangeEventDetails`, `TabsIndicatorState`, `TabsIndicatorProps`, `TabsTabValue`, `TabsTabActivationDirection`, `TabsTabPosition`, `TabsTabSize`, `TabsTabMetadata`, `TabsTabState`, `TabsTabProps`, `TabsPanelMetadata`, `TabsPanelState`, `TabsPanelProps`, `TabsListState`, `TabsListProps`
 
 ## Canonical Types
 

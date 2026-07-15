@@ -554,6 +554,12 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Separator Data Attributes:**
+
+| Attribute        | Type                         | Description                                 |
+| :--------------- | :--------------------------- | :------------------------------------------ |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
+
 ### Separator.Props
 
 Re-export of [Separator](#separator) props.
@@ -1084,6 +1090,174 @@ type MenuLinkItemState = {
 
 ## Additional Types
 
+### MenuArrowDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type MenuArrowDataAttributesalign = 'data-align';
+```
+
+### MenuArrowDataAttributes.closed
+
+Present when the menu popup is closed.
+
+```typescript
+type MenuArrowDataAttributesclosed = 'data-closed';
+```
+
+### MenuArrowDataAttributes.open
+
+Present when the menu popup is open.
+
+```typescript
+type MenuArrowDataAttributesopen = 'data-open';
+```
+
+### MenuArrowDataAttributes.side
+
+Indicates which side the popup is positioned relative to the anchor.
+
+```typescript
+type MenuArrowDataAttributesside = 'data-side';
+```
+
+### MenuArrowDataAttributes.uncentered
+
+Present when the menu arrow is uncentered.
+
+```typescript
+type MenuArrowDataAttributesuncentered = 'data-uncentered';
+```
+
+### MenuBackdropDataAttributes.closed
+
+Present when the menu is closed.
+
+```typescript
+type MenuBackdropDataAttributesclosed = 'data-closed';
+```
+
+### MenuBackdropDataAttributes.endingStyle
+
+Present when the menu is animating out.
+
+```typescript
+type MenuBackdropDataAttributesendingStyle = 'data-ending-style';
+```
+
+### MenuBackdropDataAttributes.open
+
+Present when the menu is open.
+
+```typescript
+type MenuBackdropDataAttributesopen = 'data-open';
+```
+
+### MenuBackdropDataAttributes.startingStyle
+
+Present when the menu begins animating in.
+
+```typescript
+type MenuBackdropDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### MenuCheckboxItemDataAttributes.checked
+
+Present when the menu checkbox item is checked.
+
+```typescript
+type MenuCheckboxItemDataAttributeschecked = 'data-checked';
+```
+
+### MenuCheckboxItemDataAttributes.disabled
+
+Present when the menu checkbox item is disabled.
+
+```typescript
+type MenuCheckboxItemDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuCheckboxItemDataAttributes.highlighted
+
+Present when the menu checkbox item is highlighted.
+
+```typescript
+type MenuCheckboxItemDataAttributeshighlighted = 'data-highlighted';
+```
+
+### MenuCheckboxItemDataAttributes.unchecked
+
+Present when the menu checkbox item is not checked.
+
+```typescript
+type MenuCheckboxItemDataAttributesunchecked = 'data-unchecked';
+```
+
+### MenuCheckboxItemIndicatorDataAttributes.checked
+
+Present when the menu checkbox item is checked.
+
+```typescript
+type MenuCheckboxItemIndicatorDataAttributeschecked = 'data-checked';
+```
+
+### MenuCheckboxItemIndicatorDataAttributes.disabled
+
+Present when the menu checkbox item is disabled.
+
+```typescript
+type MenuCheckboxItemIndicatorDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuCheckboxItemIndicatorDataAttributes.endingStyle
+
+Present when the indicator is animating out.
+
+```typescript
+type MenuCheckboxItemIndicatorDataAttributesendingStyle = 'data-ending-style';
+```
+
+### MenuCheckboxItemIndicatorDataAttributes.startingStyle
+
+Present when the indicator begins animating in.
+
+```typescript
+type MenuCheckboxItemIndicatorDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### MenuCheckboxItemIndicatorDataAttributes.unchecked
+
+Present when the menu checkbox item is not checked.
+
+```typescript
+type MenuCheckboxItemIndicatorDataAttributesunchecked = 'data-unchecked';
+```
+
+### MenuItemDataAttributes.disabled
+
+Present when the menu item is disabled.
+
+```typescript
+type MenuItemDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuItemDataAttributes.highlighted
+
+Present when the menu item is highlighted.
+
+```typescript
+type MenuItemDataAttributeshighlighted = 'data-highlighted';
+```
+
+### MenuLinkItemDataAttributes.highlighted
+
+Present when the link is highlighted.
+
+```typescript
+type MenuLinkItemDataAttributeshighlighted = 'data-highlighted';
+```
+
 ### MenuParent
 
 ```typescript
@@ -1093,6 +1267,350 @@ type MenuParent =
   | { type: 'context-menu'; context: ContextMenuRootContext }
   | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: MenuRootContext }
   | { type: undefined };
+```
+
+### MenuPopupDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type MenuPopupDataAttributesalign = 'data-align';
+```
+
+### MenuPopupDataAttributes.closed
+
+Present when the menu is closed.
+
+```typescript
+type MenuPopupDataAttributesclosed = 'data-closed';
+```
+
+### MenuPopupDataAttributes.endingStyle
+
+Present when the menu is animating out.
+
+```typescript
+type MenuPopupDataAttributesendingStyle = 'data-ending-style';
+```
+
+### MenuPopupDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type MenuPopupDataAttributesinstant = 'data-instant';
+```
+
+### MenuPopupDataAttributes.open
+
+Present when the menu is open.
+
+```typescript
+type MenuPopupDataAttributesopen = 'data-open';
+```
+
+### MenuPopupDataAttributes.side
+
+Indicates which side the popup is positioned relative to the anchor.
+
+```typescript
+type MenuPopupDataAttributesside = 'data-side';
+```
+
+### MenuPopupDataAttributes.startingStyle
+
+Present when the menu begins animating in.
+
+```typescript
+type MenuPopupDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### MenuPositionerCssVars.anchorHeight
+
+The anchor's height.
+
+```typescript
+type MenuPositionerCssVarsanchorHeight = '--anchor-height';
+```
+
+### MenuPositionerCssVars.anchorWidth
+
+The anchor's width.
+
+```typescript
+type MenuPositionerCssVarsanchorWidth = '--anchor-width';
+```
+
+### MenuPositionerCssVars.availableHeight
+
+The available height between the anchor and the edge of the viewport.
+
+```typescript
+type MenuPositionerCssVarsavailableHeight = '--available-height';
+```
+
+### MenuPositionerCssVars.availableWidth
+
+The available width between the anchor and the edge of the viewport.
+
+```typescript
+type MenuPositionerCssVarsavailableWidth = '--available-width';
+```
+
+### MenuPositionerCssVars.positionerHeight
+
+The height of the menu's positioner.
+It is important to set `height` to this value when using CSS to animate size changes.
+
+```typescript
+type MenuPositionerCssVarspositionerHeight = '--positioner-height';
+```
+
+### MenuPositionerCssVars.positionerWidth
+
+The width of the menu's positioner.
+It is important to set `width` to this value when using CSS to animate size changes.
+
+```typescript
+type MenuPositionerCssVarspositionerWidth = '--positioner-width';
+```
+
+### MenuPositionerCssVars.transformOrigin
+
+The coordinates that this element is anchored to. Used for animations and transitions.
+
+```typescript
+type MenuPositionerCssVarstransformOrigin = '--transform-origin';
+```
+
+### MenuPositionerDataAttributes.align
+
+Indicates how the popup is aligned relative to the specified side.
+
+```typescript
+type MenuPositionerDataAttributesalign = 'data-align';
+```
+
+### MenuPositionerDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type MenuPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### MenuPositionerDataAttributes.closed
+
+Present when the menu popup is closed.
+
+```typescript
+type MenuPositionerDataAttributesclosed = 'data-closed';
+```
+
+### MenuPositionerDataAttributes.open
+
+Present when the menu popup is open.
+
+```typescript
+type MenuPositionerDataAttributesopen = 'data-open';
+```
+
+### MenuPositionerDataAttributes.side
+
+Indicates which side the popup is positioned relative to the anchor.
+
+```typescript
+type MenuPositionerDataAttributesside = 'data-side';
+```
+
+### MenuRadioItemDataAttributes.checked
+
+Present when the menu radio item is selected.
+
+```typescript
+type MenuRadioItemDataAttributeschecked = 'data-checked';
+```
+
+### MenuRadioItemDataAttributes.disabled
+
+Present when the menu radio item is disabled.
+
+```typescript
+type MenuRadioItemDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuRadioItemDataAttributes.highlighted
+
+Present when the menu radio item is highlighted.
+
+```typescript
+type MenuRadioItemDataAttributeshighlighted = 'data-highlighted';
+```
+
+### MenuRadioItemDataAttributes.unchecked
+
+Present when the menu radio item is not selected.
+
+```typescript
+type MenuRadioItemDataAttributesunchecked = 'data-unchecked';
+```
+
+### MenuRadioItemIndicatorDataAttributes.checked
+
+Present when the menu radio item is selected.
+
+```typescript
+type MenuRadioItemIndicatorDataAttributeschecked = 'data-checked';
+```
+
+### MenuRadioItemIndicatorDataAttributes.disabled
+
+Present when the menu radio item is disabled.
+
+```typescript
+type MenuRadioItemIndicatorDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuRadioItemIndicatorDataAttributes.endingStyle
+
+Present when the radio indicator is animating out.
+
+```typescript
+type MenuRadioItemIndicatorDataAttributesendingStyle = 'data-ending-style';
+```
+
+### MenuRadioItemIndicatorDataAttributes.startingStyle
+
+Present when the radio indicator begins animating in.
+
+```typescript
+type MenuRadioItemIndicatorDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### MenuRadioItemIndicatorDataAttributes.unchecked
+
+Present when the menu radio item is not selected.
+
+```typescript
+type MenuRadioItemIndicatorDataAttributesunchecked = 'data-unchecked';
+```
+
+### MenuSeparatorDataAttributes.orientation
+
+Indicates the orientation of the separator.
+
+```typescript
+type MenuSeparatorDataAttributesorientation = 'data-orientation';
+```
+
+### MenuSubmenuTriggerDataAttributes.disabled
+
+Present when the submenu trigger is disabled.
+
+```typescript
+type MenuSubmenuTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuSubmenuTriggerDataAttributes.highlighted
+
+Present when the submenu trigger is highlighted.
+
+```typescript
+type MenuSubmenuTriggerDataAttributeshighlighted = 'data-highlighted';
+```
+
+### MenuSubmenuTriggerDataAttributes.popupOpen
+
+Present when the corresponding submenu is open.
+
+```typescript
+type MenuSubmenuTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### MenuTriggerDataAttributes.disabled
+
+Present when the trigger is disabled.
+
+```typescript
+type MenuTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### MenuTriggerDataAttributes.popupOpen
+
+Present when the corresponding menu is open.
+
+```typescript
+type MenuTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### MenuTriggerDataAttributes.pressed
+
+Present when the trigger is pressed.
+
+```typescript
+type MenuTriggerDataAttributespressed = 'data-pressed';
+```
+
+### MenuViewportCssVars.popupHeight
+
+The height of the parent popup.
+This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+It can be used to freeze the dimensions of the popup when animating between different content.
+
+```typescript
+type MenuViewportCssVarspopupHeight = '--popup-height';
+```
+
+### MenuViewportCssVars.popupWidth
+
+The width of the parent popup.
+This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+It can be used to freeze the dimensions of the popup when animating between different content.
+
+```typescript
+type MenuViewportCssVarspopupWidth = '--popup-width';
+```
+
+### MenuViewportDataAttributes.activationDirection
+
+Indicates the direction from which the popup was activated.
+This can be used to create directional animations based on how the popup was triggered.
+Contains space-separated values for both horizontal and vertical axes.
+
+```typescript
+type MenuViewportDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### MenuViewportDataAttributes.current
+
+Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.
+
+```typescript
+type MenuViewportDataAttributescurrent = 'data-current';
+```
+
+### MenuViewportDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type MenuViewportDataAttributesinstant = 'data-instant';
+```
+
+### MenuViewportDataAttributes.previous
+
+Applied to the direct child of the viewport that contains the exiting content when transitions are present.
+
+```typescript
+type MenuViewportDataAttributesprevious = 'data-previous';
+```
+
+### MenuViewportDataAttributes.transitioning
+
+Indicates that the viewport is currently transitioning between old and new content.
+
+```typescript
+type MenuViewportDataAttributestransitioning = 'data-transitioning';
 ```
 
 ## External Types
@@ -1162,7 +1680,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuArrowDataAttributes.open`, `MenuArrowDataAttributes.closed`, `MenuArrowDataAttributes.side`, `MenuArrowDataAttributes.align`, `MenuArrowDataAttributes.uncentered`, `MenuBackdropDataAttributes.open`, `MenuBackdropDataAttributes.closed`, `MenuBackdropDataAttributes.startingStyle`, `MenuBackdropDataAttributes.endingStyle`, `MenuCheckboxItemDataAttributes.checked`, `MenuCheckboxItemDataAttributes.unchecked`, `MenuCheckboxItemDataAttributes.disabled`, `MenuCheckboxItemDataAttributes.highlighted`, `MenuCheckboxItemIndicatorDataAttributes.checked`, `MenuCheckboxItemIndicatorDataAttributes.unchecked`, `MenuCheckboxItemIndicatorDataAttributes.disabled`, `MenuCheckboxItemIndicatorDataAttributes.startingStyle`, `MenuCheckboxItemIndicatorDataAttributes.endingStyle`, `MenuItemDataAttributes.highlighted`, `MenuItemDataAttributes.disabled`, `MenuLinkItemDataAttributes.highlighted`, `MenuPopupDataAttributes.open`, `MenuPopupDataAttributes.closed`, `MenuPopupDataAttributes.startingStyle`, `MenuPopupDataAttributes.endingStyle`, `MenuPopupDataAttributes.side`, `MenuPopupDataAttributes.align`, `MenuPopupDataAttributes.instant`, `MenuPositionerCssVars.availableWidth`, `MenuPositionerCssVars.availableHeight`, `MenuPositionerCssVars.anchorWidth`, `MenuPositionerCssVars.anchorHeight`, `MenuPositionerCssVars.transformOrigin`, `MenuPositionerCssVars.positionerWidth`, `MenuPositionerCssVars.positionerHeight`, `MenuPositionerDataAttributes.open`, `MenuPositionerDataAttributes.closed`, `MenuPositionerDataAttributes.anchorHidden`, `MenuPositionerDataAttributes.side`, `MenuPositionerDataAttributes.align`, `MenuRadioItemDataAttributes.checked`, `MenuRadioItemDataAttributes.unchecked`, `MenuRadioItemDataAttributes.disabled`, `MenuRadioItemDataAttributes.highlighted`, `MenuRadioItemIndicatorDataAttributes.checked`, `MenuRadioItemIndicatorDataAttributes.unchecked`, `MenuRadioItemIndicatorDataAttributes.disabled`, `MenuRadioItemIndicatorDataAttributes.startingStyle`, `MenuRadioItemIndicatorDataAttributes.endingStyle`, `MenuTriggerDataAttributes.popupOpen`, `MenuTriggerDataAttributes.pressed`, `MenuTriggerDataAttributes.disabled`, `MenuViewportCssVars.popupWidth`, `MenuViewportCssVars.popupHeight`, `MenuViewportDataAttributes.current`, `MenuViewportDataAttributes.previous`, `MenuViewportDataAttributes.activationDirection`, `MenuViewportDataAttributes.transitioning`, `MenuViewportDataAttributes.instant`, `MenuSeparatorDataAttributes.orientation`, `MenuSubmenuTriggerDataAttributes.popupOpen`, `MenuSubmenuTriggerDataAttributes.highlighted`, `MenuSubmenuTriggerDataAttributes.disabled`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 

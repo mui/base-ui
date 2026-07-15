@@ -368,6 +368,158 @@ type AccordionPanelState = {
 
 ## Additional Types
 
+### AccordionHeaderDataAttributes.disabled
+
+Present when the accordion item is disabled.
+
+```typescript
+type AccordionHeaderDataAttributesdisabled = 'data-disabled';
+```
+
+### AccordionHeaderDataAttributes.index
+
+Indicates the index of the accordion item.
+
+```typescript
+type AccordionHeaderDataAttributesindex = 'data-index';
+```
+
+### AccordionHeaderDataAttributes.open
+
+Present when the accordion item is open.
+
+```typescript
+type AccordionHeaderDataAttributesopen = 'data-open';
+```
+
+### AccordionItemDataAttributes.disabled
+
+Present when the accordion item is disabled.
+
+```typescript
+type AccordionItemDataAttributesdisabled = 'data-disabled';
+```
+
+### AccordionItemDataAttributes.index
+
+Indicates the index of the accordion item.
+
+```typescript
+type AccordionItemDataAttributesindex = 'data-index';
+```
+
+### AccordionItemDataAttributes.open
+
+Present when the accordion item is open.
+
+```typescript
+type AccordionItemDataAttributesopen = 'data-open';
+```
+
+### AccordionPanelCssVars.accordionPanelHeight
+
+The accordion panel's height.
+
+```typescript
+type AccordionPanelCssVarsaccordionPanelHeight = '--accordion-panel-height';
+```
+
+### AccordionPanelCssVars.accordionPanelWidth
+
+The accordion panel's width.
+
+```typescript
+type AccordionPanelCssVarsaccordionPanelWidth = '--accordion-panel-width';
+```
+
+### AccordionPanelDataAttributes.disabled
+
+Present when the accordion item is disabled.
+
+```typescript
+type AccordionPanelDataAttributesdisabled = 'data-disabled';
+```
+
+### AccordionPanelDataAttributes.endingStyle
+
+Present when the panel is animating out.
+
+```typescript
+type AccordionPanelDataAttributesendingStyle = 'data-ending-style';
+```
+
+### AccordionPanelDataAttributes.index
+
+Indicates the index of the accordion item.
+
+```typescript
+type AccordionPanelDataAttributesindex = 'data-index';
+```
+
+### AccordionPanelDataAttributes.open
+
+Present when the accordion panel is open.
+
+```typescript
+type AccordionPanelDataAttributesopen = 'data-open';
+```
+
+### AccordionPanelDataAttributes.orientation
+
+Indicates the orientation of the accordion.
+
+```typescript
+type AccordionPanelDataAttributesorientation = 'data-orientation';
+```
+
+### AccordionPanelDataAttributes.startingStyle
+
+Present when the panel begins animating in.
+
+```typescript
+type AccordionPanelDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### AccordionRootDataAttributes.disabled
+
+Present when the accordion is disabled.
+
+```typescript
+type AccordionRootDataAttributesdisabled = 'data-disabled';
+```
+
+### AccordionRootDataAttributes.orientation
+
+Indicates the orientation of the accordion.
+
+```typescript
+type AccordionRootDataAttributesorientation = 'data-orientation';
+```
+
+### AccordionTriggerDataAttributes.disabled
+
+Present when the accordion item is disabled.
+
+```typescript
+type AccordionTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### AccordionTriggerDataAttributes.index
+
+Indicates the index of the accordion item.
+
+```typescript
+type AccordionTriggerDataAttributesindex = 'data-index';
+```
+
+### AccordionTriggerDataAttributes.panelOpen
+
+Present when the accordion panel is open.
+
+```typescript
+type AccordionTriggerDataAttributespanelOpen = 'data-panel-open';
+```
+
 ### AccordionValue
 
 ```typescript
@@ -389,7 +541,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Accordion.Header`: `Accordion.Header`, `Accordion.Header.State`, `Accordion.Header.Props`
 - `Accordion.Trigger`: `Accordion.Trigger`, `Accordion.Trigger.State`, `Accordion.Trigger.Props`
 - `Accordion.Panel`: `Accordion.Panel`, `Accordion.Panel.State`, `Accordion.Panel.Props`
-- `Default`: `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
+- `Default`: `AccordionRootDataAttributes.disabled`, `AccordionRootDataAttributes.orientation`, `AccordionItemDataAttributes.index`, `AccordionItemDataAttributes.disabled`, `AccordionItemDataAttributes.open`, `AccordionHeaderDataAttributes.index`, `AccordionHeaderDataAttributes.disabled`, `AccordionHeaderDataAttributes.open`, `AccordionTriggerDataAttributes.index`, `AccordionTriggerDataAttributes.panelOpen`, `AccordionTriggerDataAttributes.disabled`, `AccordionPanelCssVars.accordionPanelHeight`, `AccordionPanelCssVars.accordionPanelWidth`, `AccordionPanelDataAttributes.index`, `AccordionPanelDataAttributes.open`, `AccordionPanelDataAttributes.orientation`, `AccordionPanelDataAttributes.disabled`, `AccordionPanelDataAttributes.startingStyle`, `AccordionPanelDataAttributes.endingStyle`, `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
 
 ## Canonical Types
 

@@ -456,6 +456,288 @@ Closes the tooltip.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### TooltipArrowDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type TooltipArrowDataAttributesalign = 'data-align';
+```
+
+### TooltipArrowDataAttributes.closed
+
+Present when the tooltip is closed.
+
+```typescript
+type TooltipArrowDataAttributesclosed = 'data-closed';
+```
+
+### TooltipArrowDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type TooltipArrowDataAttributesinstant = 'data-instant';
+```
+
+### TooltipArrowDataAttributes.open
+
+Present when the tooltip is open.
+
+```typescript
+type TooltipArrowDataAttributesopen = 'data-open';
+```
+
+### TooltipArrowDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type TooltipArrowDataAttributesside = 'data-side';
+```
+
+### TooltipArrowDataAttributes.uncentered
+
+Present when the tooltip arrow is uncentered.
+
+```typescript
+type TooltipArrowDataAttributesuncentered = 'data-uncentered';
+```
+
+### TooltipPopupDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type TooltipPopupDataAttributesalign = 'data-align';
+```
+
+### TooltipPopupDataAttributes.closed
+
+Present when the tooltip is closed.
+
+```typescript
+type TooltipPopupDataAttributesclosed = 'data-closed';
+```
+
+### TooltipPopupDataAttributes.endingStyle
+
+Present when the tooltip is animating out.
+
+```typescript
+type TooltipPopupDataAttributesendingStyle = 'data-ending-style';
+```
+
+### TooltipPopupDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type TooltipPopupDataAttributesinstant = 'data-instant';
+```
+
+### TooltipPopupDataAttributes.open
+
+Present when the tooltip is open.
+
+```typescript
+type TooltipPopupDataAttributesopen = 'data-open';
+```
+
+### TooltipPopupDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type TooltipPopupDataAttributesside = 'data-side';
+```
+
+### TooltipPopupDataAttributes.startingStyle
+
+Present when the tooltip begins animating in.
+
+```typescript
+type TooltipPopupDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### TooltipPositionerCssVars.anchorHeight
+
+The anchor's height.
+
+```typescript
+type TooltipPositionerCssVarsanchorHeight = '--anchor-height';
+```
+
+### TooltipPositionerCssVars.anchorWidth
+
+The anchor's width.
+
+```typescript
+type TooltipPositionerCssVarsanchorWidth = '--anchor-width';
+```
+
+### TooltipPositionerCssVars.availableHeight
+
+The available height between the trigger and the edge of the viewport.
+
+```typescript
+type TooltipPositionerCssVarsavailableHeight = '--available-height';
+```
+
+### TooltipPositionerCssVars.availableWidth
+
+The available width between the trigger and the edge of the viewport.
+
+```typescript
+type TooltipPositionerCssVarsavailableWidth = '--available-width';
+```
+
+### TooltipPositionerCssVars.positionerHeight
+
+The height of the tooltip's positioner.
+It is important to set `height` to this value when using CSS to animate size changes.
+
+```typescript
+type TooltipPositionerCssVarspositionerHeight = '--positioner-height';
+```
+
+### TooltipPositionerCssVars.positionerWidth
+
+The width of the tooltip's positioner.
+It is important to set `width` to this value when using CSS to animate size changes.
+
+```typescript
+type TooltipPositionerCssVarspositionerWidth = '--positioner-width';
+```
+
+### TooltipPositionerCssVars.transformOrigin
+
+The coordinates that this element is anchored to. Used for animations and transitions.
+
+```typescript
+type TooltipPositionerCssVarstransformOrigin = '--transform-origin';
+```
+
+### TooltipPositionerDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type TooltipPositionerDataAttributesalign = 'data-align';
+```
+
+### TooltipPositionerDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type TooltipPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### TooltipPositionerDataAttributes.closed
+
+Present when the tooltip is closed.
+
+```typescript
+type TooltipPositionerDataAttributesclosed = 'data-closed';
+```
+
+### TooltipPositionerDataAttributes.open
+
+Present when the tooltip is open.
+
+```typescript
+type TooltipPositionerDataAttributesopen = 'data-open';
+```
+
+### TooltipPositionerDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type TooltipPositionerDataAttributesside = 'data-side';
+```
+
+### TooltipTriggerDataAttributes.popupOpen
+
+Present when the corresponding tooltip is open.
+
+```typescript
+type TooltipTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### TooltipTriggerDataAttributes.triggerDisabled
+
+Present when the trigger is disabled, either by the `disabled` prop or by a parent `<Tooltip.Root>` component.
+
+```typescript
+type TooltipTriggerDataAttributestriggerDisabled = 'data-trigger-disabled';
+```
+
+### TooltipViewportCssVars.popupHeight
+
+The height of the parent popup.
+This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+It can be used to freeze the dimensions of the popup when animating between different content.
+
+```typescript
+type TooltipViewportCssVarspopupHeight = '--popup-height';
+```
+
+### TooltipViewportCssVars.popupWidth
+
+The width of the parent popup.
+This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+It can be used to freeze the dimensions of the popup when animating between different content.
+
+```typescript
+type TooltipViewportCssVarspopupWidth = '--popup-width';
+```
+
+### TooltipViewportDataAttributes.activationDirection
+
+Indicates the direction from which the popup was activated.
+This can be used to create directional animations based on how the popup was triggered.
+Contains space-separated values for both horizontal and vertical axes.
+
+```typescript
+type TooltipViewportDataAttributesactivationDirection = 'data-activation-direction';
+```
+
+### TooltipViewportDataAttributes.current
+
+Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.
+
+```typescript
+type TooltipViewportDataAttributescurrent = 'data-current';
+```
+
+### TooltipViewportDataAttributes.instant
+
+Present if animations should be instant.
+
+```typescript
+type TooltipViewportDataAttributesinstant = 'data-instant';
+```
+
+### TooltipViewportDataAttributes.previous
+
+Applied to the direct child of the viewport that contains the exiting content when transitions are present.
+
+```typescript
+type TooltipViewportDataAttributesprevious = 'data-previous';
+```
+
+### TooltipViewportDataAttributes.transitioning
+
+Indicates that the viewport is currently transitioning between old and new content.
+
+```typescript
+type TooltipViewportDataAttributestransitioning = 'data-transitioning';
+```
+
 ## External Types
 
 ### PayloadChildRenderFunction
@@ -505,7 +787,7 @@ type OffsetFunction = (data: {
 - `Tooltip.Viewport`: `Tooltip.Viewport`, `Tooltip.Viewport.Props`, `Tooltip.Viewport.State`
 - `Tooltip.createHandle`
 - `Tooltip.Handle`
-- `Default`: `TooltipProviderState`, `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalState`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipViewportState`, `TooltipViewportProps`, `TooltipArrowState`, `TooltipArrowProps`
+- `Default`: `TooltipTriggerDataAttributes.popupOpen`, `TooltipTriggerDataAttributes.triggerDisabled`, `TooltipPositionerCssVars.availableWidth`, `TooltipPositionerCssVars.availableHeight`, `TooltipPositionerCssVars.anchorWidth`, `TooltipPositionerCssVars.anchorHeight`, `TooltipPositionerCssVars.transformOrigin`, `TooltipPositionerCssVars.positionerWidth`, `TooltipPositionerCssVars.positionerHeight`, `TooltipPositionerDataAttributes.open`, `TooltipPositionerDataAttributes.closed`, `TooltipPositionerDataAttributes.anchorHidden`, `TooltipPositionerDataAttributes.side`, `TooltipPositionerDataAttributes.align`, `TooltipPopupDataAttributes.open`, `TooltipPopupDataAttributes.closed`, `TooltipPopupDataAttributes.startingStyle`, `TooltipPopupDataAttributes.endingStyle`, `TooltipPopupDataAttributes.side`, `TooltipPopupDataAttributes.align`, `TooltipPopupDataAttributes.instant`, `TooltipArrowDataAttributes.open`, `TooltipArrowDataAttributes.closed`, `TooltipArrowDataAttributes.side`, `TooltipArrowDataAttributes.align`, `TooltipArrowDataAttributes.uncentered`, `TooltipArrowDataAttributes.instant`, `TooltipViewportCssVars.popupWidth`, `TooltipViewportCssVars.popupHeight`, `TooltipViewportDataAttributes.current`, `TooltipViewportDataAttributes.previous`, `TooltipViewportDataAttributes.activationDirection`, `TooltipViewportDataAttributes.transitioning`, `TooltipViewportDataAttributes.instant`, `TooltipProviderState`, `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalState`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipViewportState`, `TooltipViewportProps`, `TooltipArrowState`, `TooltipArrowProps`
 
 ## Canonical Types
 

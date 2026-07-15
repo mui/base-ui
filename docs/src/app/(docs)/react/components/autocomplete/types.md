@@ -955,6 +955,118 @@ type ReturnValue = T[];
 
 ## Additional Types
 
+### AutocompleteArrowDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type AutocompleteArrowDataAttributesalign = 'data-align';
+```
+
+### AutocompleteArrowDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type AutocompleteArrowDataAttributesclosed = 'data-closed';
+```
+
+### AutocompleteArrowDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type AutocompleteArrowDataAttributesopen = 'data-open';
+```
+
+### AutocompleteArrowDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type AutocompleteArrowDataAttributesside = 'data-side';
+```
+
+### AutocompleteArrowDataAttributes.uncentered
+
+Present when the arrow is uncentered.
+
+```typescript
+type AutocompleteArrowDataAttributesuncentered = 'data-uncentered';
+```
+
+### AutocompleteBackdropDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type AutocompleteBackdropDataAttributesclosed = 'data-closed';
+```
+
+### AutocompleteBackdropDataAttributes.endingStyle
+
+Present when the popup is animating out.
+
+```typescript
+type AutocompleteBackdropDataAttributesendingStyle = 'data-ending-style';
+```
+
+### AutocompleteBackdropDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type AutocompleteBackdropDataAttributesopen = 'data-open';
+```
+
+### AutocompleteBackdropDataAttributes.startingStyle
+
+Present when the popup begins animating in.
+
+```typescript
+type AutocompleteBackdropDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### AutocompleteClearDataAttributes.disabled
+
+Present when the button is disabled.
+
+```typescript
+type AutocompleteClearDataAttributesdisabled = 'data-disabled';
+```
+
+### AutocompleteClearDataAttributes.endingStyle
+
+Present when the button is animating out.
+
+```typescript
+type AutocompleteClearDataAttributesendingStyle = 'data-ending-style';
+```
+
+### AutocompleteClearDataAttributes.popupOpen
+
+Present when the corresponding popup is open.
+
+```typescript
+type AutocompleteClearDataAttributespopupOpen = 'data-popup-open';
+```
+
+### AutocompleteClearDataAttributes.startingStyle
+
+Present when the button begins animating in.
+
+```typescript
+type AutocompleteClearDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### AutocompleteClearDataAttributes.visible
+
+Present when the clear button is visible.
+
+```typescript
+type AutocompleteClearDataAttributesvisible = 'data-visible';
+```
+
 ### AutocompleteFilter
 
 ```typescript
@@ -978,6 +1090,478 @@ type AutocompleteFilterOptions = {
    */
   locale?: Intl.LocalesArgument;
 };
+```
+
+### AutocompleteInputDataAttributes.dirty
+
+Present when the component's value has changed (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributesdirty = 'data-dirty';
+```
+
+### AutocompleteInputDataAttributes.disabled
+
+Present when the component is disabled.
+
+```typescript
+type AutocompleteInputDataAttributesdisabled = 'data-disabled';
+```
+
+### AutocompleteInputDataAttributes.filled
+
+Present when the component has a value (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributesfilled = 'data-filled';
+```
+
+### AutocompleteInputDataAttributes.focused
+
+Present when the input is focused (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributesfocused = 'data-focused';
+```
+
+### AutocompleteInputDataAttributes.invalid
+
+Present when the component is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributesinvalid = 'data-invalid';
+```
+
+### AutocompleteInputDataAttributes.listEmpty
+
+Present when the corresponding items list is empty.
+
+```typescript
+type AutocompleteInputDataAttributeslistEmpty = 'data-list-empty';
+```
+
+### AutocompleteInputDataAttributes.popupOpen
+
+Present when the corresponding popup is open.
+
+```typescript
+type AutocompleteInputDataAttributespopupOpen = 'data-popup-open';
+```
+
+### AutocompleteInputDataAttributes.popupSide
+
+Indicates which side the corresponding popup is positioned relative to its anchor.
+
+```typescript
+type AutocompleteInputDataAttributespopupSide = 'data-popup-side';
+```
+
+### AutocompleteInputDataAttributes.pressed
+
+Present when the input is pressed.
+
+```typescript
+type AutocompleteInputDataAttributespressed = 'data-pressed';
+```
+
+### AutocompleteInputDataAttributes.readonly
+
+Present when the component is readonly.
+
+```typescript
+type AutocompleteInputDataAttributesreadonly = 'data-readonly';
+```
+
+### AutocompleteInputDataAttributes.required
+
+Present when the component is required.
+
+```typescript
+type AutocompleteInputDataAttributesrequired = 'data-required';
+```
+
+### AutocompleteInputDataAttributes.touched
+
+Present when the component has been touched (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributestouched = 'data-touched';
+```
+
+### AutocompleteInputDataAttributes.valid
+
+Present when the component is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputDataAttributesvalid = 'data-valid';
+```
+
+### AutocompleteInputGroupDataAttributes.dirty
+
+Present when the component's value has changed (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributesdirty = 'data-dirty';
+```
+
+### AutocompleteInputGroupDataAttributes.disabled
+
+Present when the component is disabled.
+
+```typescript
+type AutocompleteInputGroupDataAttributesdisabled = 'data-disabled';
+```
+
+### AutocompleteInputGroupDataAttributes.filled
+
+Present when the component has a value (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributesfilled = 'data-filled';
+```
+
+### AutocompleteInputGroupDataAttributes.focused
+
+Present when the component is focused (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributesfocused = 'data-focused';
+```
+
+### AutocompleteInputGroupDataAttributes.invalid
+
+Present when the component is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributesinvalid = 'data-invalid';
+```
+
+### AutocompleteInputGroupDataAttributes.listEmpty
+
+Present when the corresponding items list is empty.
+
+```typescript
+type AutocompleteInputGroupDataAttributeslistEmpty = 'data-list-empty';
+```
+
+### AutocompleteInputGroupDataAttributes.popupOpen
+
+Present when the corresponding popup is open.
+
+```typescript
+type AutocompleteInputGroupDataAttributespopupOpen = 'data-popup-open';
+```
+
+### AutocompleteInputGroupDataAttributes.popupSide
+
+Indicates which side the corresponding popup is positioned relative to its anchor.
+
+```typescript
+type AutocompleteInputGroupDataAttributespopupSide = 'data-popup-side';
+```
+
+### AutocompleteInputGroupDataAttributes.pressed
+
+Present when the input group is pressed.
+
+```typescript
+type AutocompleteInputGroupDataAttributespressed = 'data-pressed';
+```
+
+### AutocompleteInputGroupDataAttributes.readonly
+
+Present when the component is readonly.
+
+```typescript
+type AutocompleteInputGroupDataAttributesreadonly = 'data-readonly';
+```
+
+### AutocompleteInputGroupDataAttributes.touched
+
+Present when the component has been touched (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributestouched = 'data-touched';
+```
+
+### AutocompleteInputGroupDataAttributes.valid
+
+Present when the component is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteInputGroupDataAttributesvalid = 'data-valid';
+```
+
+### AutocompleteItemDataAttributes.disabled
+
+Present when the item is disabled.
+
+```typescript
+type AutocompleteItemDataAttributesdisabled = 'data-disabled';
+```
+
+### AutocompleteItemDataAttributes.highlighted
+
+Present when the item is highlighted.
+
+```typescript
+type AutocompleteItemDataAttributeshighlighted = 'data-highlighted';
+```
+
+### AutocompletePopupDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type AutocompletePopupDataAttributesalign = 'data-align';
+```
+
+### AutocompletePopupDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type AutocompletePopupDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### AutocompletePopupDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type AutocompletePopupDataAttributesclosed = 'data-closed';
+```
+
+### AutocompletePopupDataAttributes.empty
+
+Present when the items list is empty.
+
+```typescript
+type AutocompletePopupDataAttributesempty = 'data-empty';
+```
+
+### AutocompletePopupDataAttributes.endingStyle
+
+Present when the popup is animating out.
+
+```typescript
+type AutocompletePopupDataAttributesendingStyle = 'data-ending-style';
+```
+
+### AutocompletePopupDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type AutocompletePopupDataAttributesopen = 'data-open';
+```
+
+### AutocompletePopupDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type AutocompletePopupDataAttributesside = 'data-side';
+```
+
+### AutocompletePopupDataAttributes.startingStyle
+
+Present when the popup begins animating in.
+
+```typescript
+type AutocompletePopupDataAttributesstartingStyle = 'data-starting-style';
+```
+
+### AutocompletePositionerCssVars.anchorHeight
+
+The anchor's height.
+
+```typescript
+type AutocompletePositionerCssVarsanchorHeight = '--anchor-height';
+```
+
+### AutocompletePositionerCssVars.anchorWidth
+
+The anchor's width.
+
+```typescript
+type AutocompletePositionerCssVarsanchorWidth = '--anchor-width';
+```
+
+### AutocompletePositionerCssVars.availableHeight
+
+The available height between the trigger and the edge of the viewport.
+
+```typescript
+type AutocompletePositionerCssVarsavailableHeight = '--available-height';
+```
+
+### AutocompletePositionerCssVars.availableWidth
+
+The available width between the trigger and the edge of the viewport.
+
+```typescript
+type AutocompletePositionerCssVarsavailableWidth = '--available-width';
+```
+
+### AutocompletePositionerCssVars.transformOrigin
+
+The coordinates that this element is anchored to. Used for animations and transitions.
+
+```typescript
+type AutocompletePositionerCssVarstransformOrigin = '--transform-origin';
+```
+
+### AutocompletePositionerDataAttributes.align
+
+Indicates how the popup is aligned relative to specified side.
+
+```typescript
+type AutocompletePositionerDataAttributesalign = 'data-align';
+```
+
+### AutocompletePositionerDataAttributes.anchorHidden
+
+Present when the anchor is hidden.
+
+```typescript
+type AutocompletePositionerDataAttributesanchorHidden = 'data-anchor-hidden';
+```
+
+### AutocompletePositionerDataAttributes.closed
+
+Present when the popup is closed.
+
+```typescript
+type AutocompletePositionerDataAttributesclosed = 'data-closed';
+```
+
+### AutocompletePositionerDataAttributes.empty
+
+Present when the items list is empty.
+
+```typescript
+type AutocompletePositionerDataAttributesempty = 'data-empty';
+```
+
+### AutocompletePositionerDataAttributes.open
+
+Present when the popup is open.
+
+```typescript
+type AutocompletePositionerDataAttributesopen = 'data-open';
+```
+
+### AutocompletePositionerDataAttributes.side
+
+Indicates which side the popup is positioned relative to the trigger.
+
+```typescript
+type AutocompletePositionerDataAttributesside = 'data-side';
+```
+
+### AutocompleteTriggerDataAttributes.dirty
+
+Present when the component's value has changed (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributesdirty = 'data-dirty';
+```
+
+### AutocompleteTriggerDataAttributes.disabled
+
+Present when the component is disabled.
+
+```typescript
+type AutocompleteTriggerDataAttributesdisabled = 'data-disabled';
+```
+
+### AutocompleteTriggerDataAttributes.filled
+
+Present when the component has a value (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributesfilled = 'data-filled';
+```
+
+### AutocompleteTriggerDataAttributes.focused
+
+Present when the trigger is focused (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributesfocused = 'data-focused';
+```
+
+### AutocompleteTriggerDataAttributes.invalid
+
+Present when the component is in an invalid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributesinvalid = 'data-invalid';
+```
+
+### AutocompleteTriggerDataAttributes.listEmpty
+
+Present when the corresponding items list is empty.
+
+```typescript
+type AutocompleteTriggerDataAttributeslistEmpty = 'data-list-empty';
+```
+
+### AutocompleteTriggerDataAttributes.popupOpen
+
+Present when the corresponding popup is open.
+
+```typescript
+type AutocompleteTriggerDataAttributespopupOpen = 'data-popup-open';
+```
+
+### AutocompleteTriggerDataAttributes.popupSide
+
+Indicates which side the corresponding popup is positioned relative to its anchor.
+
+```typescript
+type AutocompleteTriggerDataAttributespopupSide = 'data-popup-side';
+```
+
+### AutocompleteTriggerDataAttributes.pressed
+
+Present when the trigger is pressed.
+
+```typescript
+type AutocompleteTriggerDataAttributespressed = 'data-pressed';
+```
+
+### AutocompleteTriggerDataAttributes.readonly
+
+Present when the component is readonly.
+
+```typescript
+type AutocompleteTriggerDataAttributesreadonly = 'data-readonly';
+```
+
+### AutocompleteTriggerDataAttributes.required
+
+Present when the component is required.
+
+```typescript
+type AutocompleteTriggerDataAttributesrequired = 'data-required';
+```
+
+### AutocompleteTriggerDataAttributes.touched
+
+Present when the component has been touched (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributestouched = 'data-touched';
+```
+
+### AutocompleteTriggerDataAttributes.valid
+
+Present when the component is in a valid state (when wrapped in Field.Root).
+
+```typescript
+type AutocompleteTriggerDataAttributesvalid = 'data-valid';
 ```
 
 ## External Types
@@ -1042,7 +1626,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes.popupOpen`, `AutocompleteTriggerDataAttributes.pressed`, `AutocompleteTriggerDataAttributes.disabled`, `AutocompleteTriggerDataAttributes.readonly`, `AutocompleteTriggerDataAttributes.popupSide`, `AutocompleteTriggerDataAttributes.required`, `AutocompleteTriggerDataAttributes.valid`, `AutocompleteTriggerDataAttributes.invalid`, `AutocompleteTriggerDataAttributes.touched`, `AutocompleteTriggerDataAttributes.dirty`, `AutocompleteTriggerDataAttributes.filled`, `AutocompleteTriggerDataAttributes.focused`, `AutocompleteTriggerDataAttributes.listEmpty`, `AutocompleteInputDataAttributes.popupOpen`, `AutocompleteInputDataAttributes.pressed`, `AutocompleteInputDataAttributes.disabled`, `AutocompleteInputDataAttributes.readonly`, `AutocompleteInputDataAttributes.popupSide`, `AutocompleteInputDataAttributes.required`, `AutocompleteInputDataAttributes.valid`, `AutocompleteInputDataAttributes.invalid`, `AutocompleteInputDataAttributes.touched`, `AutocompleteInputDataAttributes.dirty`, `AutocompleteInputDataAttributes.filled`, `AutocompleteInputDataAttributes.focused`, `AutocompleteInputDataAttributes.listEmpty`, `AutocompleteInputGroupDataAttributes.popupOpen`, `AutocompleteInputGroupDataAttributes.pressed`, `AutocompleteInputGroupDataAttributes.disabled`, `AutocompleteInputGroupDataAttributes.readonly`, `AutocompleteInputGroupDataAttributes.popupSide`, `AutocompleteInputGroupDataAttributes.valid`, `AutocompleteInputGroupDataAttributes.invalid`, `AutocompleteInputGroupDataAttributes.touched`, `AutocompleteInputGroupDataAttributes.dirty`, `AutocompleteInputGroupDataAttributes.filled`, `AutocompleteInputGroupDataAttributes.focused`, `AutocompleteInputGroupDataAttributes.listEmpty`, `AutocompleteClearDataAttributes.popupOpen`, `AutocompleteClearDataAttributes.disabled`, `AutocompleteClearDataAttributes.visible`, `AutocompleteClearDataAttributes.startingStyle`, `AutocompleteClearDataAttributes.endingStyle`, `AutocompleteBackdropDataAttributes.open`, `AutocompleteBackdropDataAttributes.closed`, `AutocompleteBackdropDataAttributes.startingStyle`, `AutocompleteBackdropDataAttributes.endingStyle`, `AutocompletePositionerCssVars.availableWidth`, `AutocompletePositionerCssVars.availableHeight`, `AutocompletePositionerCssVars.anchorWidth`, `AutocompletePositionerCssVars.anchorHeight`, `AutocompletePositionerCssVars.transformOrigin`, `AutocompletePositionerDataAttributes.open`, `AutocompletePositionerDataAttributes.closed`, `AutocompletePositionerDataAttributes.anchorHidden`, `AutocompletePositionerDataAttributes.side`, `AutocompletePositionerDataAttributes.align`, `AutocompletePositionerDataAttributes.empty`, `AutocompletePopupDataAttributes.open`, `AutocompletePopupDataAttributes.closed`, `AutocompletePopupDataAttributes.startingStyle`, `AutocompletePopupDataAttributes.endingStyle`, `AutocompletePopupDataAttributes.side`, `AutocompletePopupDataAttributes.align`, `AutocompletePopupDataAttributes.anchorHidden`, `AutocompletePopupDataAttributes.empty`, `AutocompleteArrowDataAttributes.open`, `AutocompleteArrowDataAttributes.closed`, `AutocompleteArrowDataAttributes.side`, `AutocompleteArrowDataAttributes.align`, `AutocompleteArrowDataAttributes.uncentered`, `AutocompleteItemDataAttributes.highlighted`, `AutocompleteItemDataAttributes.disabled`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
