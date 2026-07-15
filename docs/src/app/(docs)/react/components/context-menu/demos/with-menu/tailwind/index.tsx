@@ -33,7 +33,7 @@ export default function ContextMenuWithMenuDemo() {
       <Menu.Root>
         <Menu.Trigger
           aria-label="Image actions"
-          className="absolute top-2 right-2 flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 opacity-0 select-none group-hover:opacity-100 data-pressed:opacity-100 any-pointer-coarse:opacity-100 hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-popup-open:bg-neutral-800 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+          className="absolute top-2 right-2 flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 opacity-0 select-none group-hover:opacity-100 data-pressed:opacity-100 any-pointer-coarse:opacity-100 hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
         >
           <MoreVertIcon />
         </Menu.Trigger>

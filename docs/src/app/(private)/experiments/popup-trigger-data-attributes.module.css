@@ -1,0 +1,306 @@
+.Root {
+  box-sizing: border-box;
+  width: min(100%, 68rem);
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 4vw, 3rem);
+  color: var(--color-gray-900);
+}
+
+.Intro {
+  max-width: 48rem;
+}
+
+.Eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-blue);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.Title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.Description {
+  max-width: 42rem;
+  margin: 1.25rem 0 0;
+  color: var(--color-gray-600);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.Steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 2rem 0;
+  padding: 1rem 1rem 1rem 2.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  box-shadow: 0 0 0 1px oklch(0% 0 0deg / 6%);
+}
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Card {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: canvas;
+  box-shadow:
+    0 0 0 1px oklch(0% 0 0deg / 7%),
+    0 1px 2px -1px oklch(0% 0 0deg / 8%),
+    0 8px 24px -12px oklch(0% 0 0deg / 16%);
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: 0 0 0 1px oklch(100% 0 0deg / 12%);
+  }
+}
+
+.CardHeader {
+  min-height: 8.5rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.CardHeader h2 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.CardHeader p {
+  margin: 0;
+  color: var(--color-gray-600);
+  font-size: 0.875rem;
+}
+
+.CardHeader code,
+.Note code {
+  padding: 0.125rem 0.3rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  font-size: 0.8125rem;
+}
+
+.ProblemBadge,
+.FixedBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ProblemBadge {
+  background-color: oklch(95% 0.04 25deg);
+  color: oklch(42% 0.18 25deg);
+}
+
+.FixedBadge {
+  background-color: oklch(95% 0.05 150deg);
+  color: oklch(38% 0.13 150deg);
+}
+
+.Stage {
+  display: grid;
+  min-height: 11rem;
+  place-items: center;
+  padding: 2rem;
+  background-image: radial-gradient(var(--color-gray-200) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.Trigger {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 9.5rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0 0.75rem 0 0.875rem;
+  border: 0;
+  border-radius: 0.5rem;
+  outline: 0;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  transition-duration: 120ms;
+  transition-property: scale, background-color, color, box-shadow;
+  transition-timing-function: ease-out;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow:
+    0 0 0 1px oklch(0% 0 0deg / 14%),
+    0 1px 2px oklch(0% 0 0deg / 8%);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    scale: 0.96;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+}
+
+.PopupOpenTrigger[data-popup-open],
+.PressedTrigger[data-pressed] {
+  background-color: var(--color-blue);
+  color: white;
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--color-blue), black 20%),
+    0 1px 2px oklch(0% 0 0deg / 10%);
+}
+
+.Positioner {
+  z-index: 1;
+  outline: 0;
+}
+
+.TooltipPopup {
+  position: relative;
+  max-width: 15rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-50);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  box-shadow: 0 4px 16px oklch(0% 0 0deg / 18%);
+}
+
+.TooltipArrow {
+  display: flex;
+}
+
+.TooltipArrow[data-side='top'] {
+  bottom: -9px;
+  rotate: 180deg;
+}
+
+.TooltipArrow[data-side='bottom'] {
+  top: -9px;
+}
+
+.ArrowBorder {
+  fill: var(--color-gray-900);
+}
+
+.ArrowFill {
+  fill: var(--color-gray-900);
+}
+
+.MenuPopup {
+  min-width: 10rem;
+  padding: 0.25rem;
+  border-radius: 0.625rem;
+  outline: 0;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  box-shadow:
+    0 0 0 1px oklch(0% 0 0deg / 8%),
+    0 8px 24px oklch(0% 0 0deg / 14%);
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow:
+      0 0 0 1px oklch(100% 0 0deg / 12%),
+      0 8px 24px oklch(0% 0 0deg / 30%);
+  }
+}
+
+.MenuItem {
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  outline: 0;
+  cursor: default;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.MenuItem[data-highlighted] {
+  background-color: var(--color-gray-100);
+}
+
+.Readout {
+  display: grid;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.StateRow,
+.EmphasizedStateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2rem;
+  border-bottom: 1px solid var(--color-gray-100);
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+}
+
+.StateRow strong,
+.EmphasizedStateRow strong {
+  color: var(--color-gray-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.StateRow strong[data-active],
+.EmphasizedStateRow strong[data-active] {
+  color: var(--color-blue);
+}
+
+.EmphasizedStateRow {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  font-weight: 600;
+}
+
+.Note {
+  max-width: 48rem;
+  margin: 1.5rem auto 0;
+  color: var(--color-gray-600);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  text-align: center;
+}

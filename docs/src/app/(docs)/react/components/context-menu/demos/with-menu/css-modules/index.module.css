@@ -96,7 +96,7 @@
   }
 
   &:active:not([data-disabled]),
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
