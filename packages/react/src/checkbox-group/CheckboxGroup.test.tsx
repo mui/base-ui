@@ -1520,6 +1520,45 @@ describe('<CheckboxGroup />', () => {
       expect(screen.getByTestId('parent')).not.toHaveFocus();
     });
 
+    it('focuses a later invalid field when an inputless group is invalid without a control', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group" validate={() => 'Invalid group'}>
+            <CheckboxGroup value={[]} />
+          </Field.Root>
+          <Field.Root name="email">
+            <Field.Control required data-testid="email" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      // The group is invalid but has no focusable control, so focus must skip to the next invalid field.
+      expect(screen.getByTestId('email')).toHaveFocus();
+    });
+
+    it('focuses a later invalid field when every checkbox in an invalid group is disabled', async () => {
+      const { user } = render(
+        <Form>
+          <Field.Root name="group" validate={() => 'Invalid group'}>
+            <CheckboxGroup defaultValue={[]}>
+              <Checkbox.Root value="one" disabled />
+            </CheckboxGroup>
+          </Field.Root>
+          <Field.Root name="email">
+            <Field.Control required data-testid="email" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(screen.getByTestId('email')).toHaveFocus();
+    });
+
     it('excludes parent checkboxes from form submission', async () => {
       const allValues = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 

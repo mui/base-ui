@@ -41,17 +41,25 @@ export const Form = React.forwardRef(function Form<
   const submitAttemptedRef = React.useRef(false);
 
   const focusFirstInvalid = useStableCallback(() => {
-    const invalidField = Array.from(formRef.current.fields.values()).find(
-      (field) => field.validityData.state.valid === false,
-    );
-    const control = invalidField?.controlRef.current;
-    if (control) {
-      control.focus();
-      if (control.tagName === 'INPUT') {
-        (control as HTMLInputElement).select();
+    // A field can be invalid without a focusable control (for example a checkbox group whose
+    // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
+    // Keep submission blocked, but move focus to the first invalid field that has a usable control.
+    let hasInvalid = false;
+    for (const field of formRef.current.fields.values()) {
+      if (field.validityData.state.valid !== false) {
+        continue;
+      }
+      hasInvalid = true;
+      const control = field.controlRef.current;
+      if (control) {
+        control.focus();
+        if (control.tagName === 'INPUT') {
+          (control as HTMLInputElement).select();
+        }
+        return true;
       }
     }
-    return invalidField !== undefined;
+    return hasInvalid;
   });
 
   const [errors, setErrors] = React.useState(externalErrors);
