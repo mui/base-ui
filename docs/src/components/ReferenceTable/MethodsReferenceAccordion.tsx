@@ -18,7 +18,7 @@ export function MethodsReferenceAccordion({
   methodLabel = 'Method',
   ...props
 }: Props) {
-  const captionId = `${partName}-methods-caption`;
+  const captionId = React.useId();
 
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>

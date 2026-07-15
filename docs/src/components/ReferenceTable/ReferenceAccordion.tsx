@@ -33,7 +33,7 @@ export function ReferenceAccordion({
   hideDefault = false,
   ...props
 }: Props) {
-  const captionId = `${partName}-caption`;
+  const captionId = React.useId();
 
   return (
     <Accordion.Root
