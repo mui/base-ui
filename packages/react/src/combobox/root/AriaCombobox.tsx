@@ -10,8 +10,10 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
+  getOverflowAncestors,
   useDismiss,
   useFloatingRootContext,
   useListNavigation,
@@ -43,6 +45,7 @@ import { createCollatorItemFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
@@ -541,6 +544,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // Defer index updates until after the filtered items have been derived to ensure
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
+
+          // Virtualized lists own their scroller. Reset regular lists directly so a stale
+          // composite registry cannot select a reordered item and scrolling cannot escape
+          // the popup.
+          const list = store.state.listElement;
+          if (!store.state.virtualized && list) {
+            const popup = popupRef.current;
+            for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+              if (
+                !isHTMLElement(ancestor) ||
+                (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
+              ) {
+                break;
+              }
+
+              if (isScrollableY(ancestor)) {
+                ancestor.scrollTop = 0;
+                break;
+              }
+            }
+          }
+
           if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
             store.set('activeIndex', 0);
           }
