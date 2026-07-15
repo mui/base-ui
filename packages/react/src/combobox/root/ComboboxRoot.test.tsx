@@ -4492,7 +4492,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
-                    <Combobox.List>
+                    <Combobox.List style={{ overflowY: 'auto' }}>
                       {(item: string) => (
                         <Combobox.Item key={item} value={item}>
                           {item}
@@ -4690,6 +4690,47 @@ describe('<Combobox.Root />', () => {
         expect(dialog.scrollTop).toBe(dialogScrollTop);
       },
     );
+
+    it.skipIf(isJSDOM)('does not reset a surrounding dialog', async () => {
+      const dialogRef = React.createRef<HTMLDivElement>();
+      const { user } = await render(
+        <Combobox.Root items={manyItems} open>
+          <div
+            ref={dialogRef}
+            role="dialog"
+            data-testid="dialog"
+            style={{ height: 80, overflowY: 'auto', overflowAnchor: 'none' }}
+          >
+            <div style={{ height: 100 }} />
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal container={dialogRef}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </div>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const dialog = screen.getByTestId('dialog');
+      await user.click(input);
+      dialog.scrollTop = dialog.scrollHeight;
+      const dialogScrollTop = dialog.scrollTop;
+      expect(dialogScrollTop).toBeGreaterThan(0);
+
+      await user.keyboard('item-1');
+
+      expect(dialog.scrollTop).toBe(dialogScrollTop);
+    });
   });
 
   describe('prop: autoHighlight', () => {

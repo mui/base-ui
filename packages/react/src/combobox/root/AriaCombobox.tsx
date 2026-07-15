@@ -159,7 +159,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
-  const pendingQueryScrollRef = React.useRef(false);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -545,7 +544,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // Defer index updates until after the filtered items have been derived to ensure
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
-          pendingQueryScrollRef.current = true;
+
+          // Virtualized lists own their scroller. Reset regular lists directly so a stale
+          // composite registry cannot select a reordered item and scrolling cannot escape
+          // the popup.
+          const list = store.state.listElement;
+          if (!store.state.virtualized && list) {
+            const popup = popupRef.current;
+            for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+              if (
+                !isHTMLElement(ancestor) ||
+                (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
+              ) {
+                break;
+              }
+
+              if (isScrollableY(ancestor)) {
+                ancestor.scrollTop = 0;
+                break;
+              }
+            }
+          }
+
           if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
             store.set('activeIndex', 0);
           }
@@ -856,44 +876,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       setIndices,
     ],
   );
-
-  // Consume the reset before the registry sync below truncates entries that still use their
-  // pre-filter indexes in this commit.
-  useIsoLayoutEffect(() => {
-    if (!pendingQueryScrollRef.current) {
-      return;
-    }
-
-    pendingQueryScrollRef.current = false;
-
-    // Virtualized lists own their scroller. Reset regular lists directly so a stale composite
-    // registry cannot select a reordered item and scrolling cannot escape into the page/dialog.
-    const list = store.state.listElement;
-    if (!store.state.virtualized && list) {
-      let scrollContainer: HTMLElement | null = null;
-
-      for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
-        if (!isHTMLElement(ancestor)) {
-          break;
-        }
-
-        // Stop at a surrounding dialog composed around an inline combobox so the reset
-        // scrolls the list's own overflow container, not the dialog or page behind it.
-        if (inline && ancestor.getAttribute('role') === 'dialog') {
-          break;
-        }
-
-        if (isScrollableY(ancestor, true)) {
-          scrollContainer = ancestor;
-          break;
-        }
-      }
-
-      if (scrollContainer) {
-        scrollContainer.scrollTop = 0;
-      }
-    }
-  }, [inputValue, inline, store]);
 
   useIsoLayoutEffect(() => {
     if (items) {
