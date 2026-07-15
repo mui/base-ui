@@ -31,3 +31,5 @@ export type {
   DialogViewportProps as AlertDialogViewportProps,
   DialogViewportState as AlertDialogViewportState,
 } from '../dialog/viewport/DialogViewport';
+
+export { AlertDialogTriggerDataAttributes } from './trigger/AlertDialogTriggerDataAttributes';

@@ -30,3 +30,16 @@ export type {
   Filter as ComboboxFilter,
   UseComboboxFilterOptions as ComboboxFilterOptions,
 } from '../combobox/root/utils/useFilter';
+
+export { ComboboxPositionerCssVars } from './positioner/ComboboxPositionerCssVars';
+
+export { ComboboxArrowDataAttributes } from './arrow/ComboboxArrowDataAttributes';
+export { ComboboxBackdropDataAttributes } from './backdrop/ComboboxBackdropDataAttributes';
+export { ComboboxClearDataAttributes } from './clear/ComboboxClearDataAttributes';
+export { ComboboxInputGroupDataAttributes } from './input-group/ComboboxInputGroupDataAttributes';
+export { ComboboxInputDataAttributes } from './input/ComboboxInputDataAttributes';
+export { ComboboxItemIndicatorDataAttributes } from './item-indicator/ComboboxItemIndicatorDataAttributes';
+export { ComboboxItemDataAttributes } from './item/ComboboxItemDataAttributes';
+export { ComboboxPopupDataAttributes } from './popup/ComboboxPopupDataAttributes';
+export { ComboboxPositionerDataAttributes } from './positioner/ComboboxPositionerDataAttributes';
+export { ComboboxTriggerDataAttributes } from './trigger/ComboboxTriggerDataAttributes';

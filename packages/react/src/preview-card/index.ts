@@ -8,3 +8,13 @@ export type * from './popup/PreviewCardPopup';
 export type * from './arrow/PreviewCardArrow';
 export type * from './viewport/PreviewCardViewport';
 export type * from './backdrop/PreviewCardBackdrop';
+
+export { PreviewCardPositionerCssVars } from './positioner/PreviewCardPositionerCssVars';
+export { PreviewCardViewportCssVars } from './viewport/PreviewCardViewportCssVars';
+
+export { PreviewCardArrowDataAttributes } from './arrow/PreviewCardArrowDataAttributes';
+export { PreviewCardBackdropDataAttributes } from './backdrop/PreviewCardBackdropDataAttributes';
+export { PreviewCardPopupDataAttributes } from './popup/PreviewCardPopupDataAttributes';
+export { PreviewCardPositionerDataAttributes } from './positioner/PreviewCardPositionerDataAttributes';
+export { PreviewCardTriggerDataAttributes } from './trigger/PreviewCardTriggerDataAttributes';
+export { PreviewCardViewportDataAttributes } from './viewport/PreviewCardViewportDataAttributes';

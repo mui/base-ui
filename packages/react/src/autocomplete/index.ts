@@ -71,3 +71,7 @@ export type {
   Filter as AutocompleteFilter,
   UseFilterOptions as AutocompleteFilterOptions,
 } from '../combobox/root/utils/useFilter';
+
+export { AutocompleteInputGroupDataAttributes } from './input-group/AutocompleteInputGroupDataAttributes';
+export { AutocompleteItemDataAttributes } from './item/AutocompleteItemDataAttributes';
+export { AutocompleteTriggerDataAttributes } from './trigger/AutocompleteTriggerDataAttributes';
