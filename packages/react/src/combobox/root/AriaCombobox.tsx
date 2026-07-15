@@ -10,8 +10,10 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
+  getOverflowAncestors,
   useDismiss,
   useFloatingRootContext,
   useListNavigation,
@@ -43,6 +45,7 @@ import { createCollatorItemFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
@@ -342,75 +345,90 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
-  const store = useRefWithInit(
-    () =>
-      new Store<StoreState>({
-        id,
-        labelId: undefined,
-        selectedValue,
-        open,
-        items,
-        selectionMode,
-        listRef,
-        labelsRef,
-        popupRef,
-        emptyRef,
-        inputRef,
-        startDismissRef,
-        endDismissRef,
-        keyboardActiveRef,
-        chipsContainerRef,
-        clearRef,
-        valuesRef,
-        pointerDownItemRef,
-        selectionEventRef,
-        name,
-        form,
-        disabled,
-        readOnly,
-        required,
-        grid,
-        virtualized,
-        openOnInputClick,
-        itemToStringLabel,
-        isItemEqualToValue,
-        modal,
-        autoHighlight: autoHighlightMode,
-        submitOnItemClick,
-        hasInputValue,
-        mounted: false,
-        forceMounted: false,
-        transitionStatus: 'idle',
-        inline: inlineProp,
-        activeIndex: null,
-        selectedIndex: null,
-        popupProps: {},
-        inputProps: {},
-        triggerProps: {},
-        itemProps: EMPTY_OBJECT,
-        positionerElement: null,
-        listElement: null,
-        popupId: undefined,
-        triggerElement: null,
-        inputElement: null,
-        inputGroupElement: null,
-        popupSide: null,
-        openMethod: null,
-        inputInsidePopup: true,
-        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
-        // until after hydration, so the hidden input takes over then if needed.
-        inputOwnsFormValue: selectionMode === 'none',
-        // Placeholder callbacks replaced on first render
-        onOpenChangeComplete: NOOP,
-        setOpen: NOOP,
-        setInputValue: NOOP,
-        setSelectedValue: NOOP,
-        setIndices: NOOP,
-        handleSelection: NOOP,
-        forceMount: NOOP,
-        requestSubmit: NOOP,
-      }),
-  ).current;
+  const store = useRefWithInit(() => {
+    // An inline list open on the first render never gets a closed pass of the closed-state
+    // sync effect below, and `items`-prop lists don't self-register their index the way
+    // individually rendered `<Combobox.Item>`s do, so the selected item was never highlighted.
+    // Seeding the index here lets list navigation highlight and scroll to the selection on
+    // mount. Computed once by construction, so a selection or list that resolves after mount
+    // doesn't move an existing highlight or scroll the list away.
+    let initialSelectedIndex: number | null = null;
+    if (inlineProp && open && hasItems && selectionMode !== 'none') {
+      const lastValue =
+        multiple && Array.isArray(selectedValue)
+          ? selectedValue[selectedValue.length - 1]
+          : selectedValue;
+      const index = findItemIndex(flatFilteredItems, lastValue, isItemEqualToValue);
+      initialSelectedIndex = index === -1 ? null : index;
+    }
+
+    return new Store<StoreState>({
+      id,
+      labelId: undefined,
+      selectedValue,
+      open,
+      items,
+      selectionMode,
+      listRef,
+      labelsRef,
+      popupRef,
+      emptyRef,
+      inputRef,
+      startDismissRef,
+      endDismissRef,
+      keyboardActiveRef,
+      chipsContainerRef,
+      clearRef,
+      valuesRef,
+      pointerDownItemRef,
+      selectionEventRef,
+      name,
+      form,
+      disabled,
+      readOnly,
+      required,
+      grid,
+      virtualized,
+      openOnInputClick,
+      itemToStringLabel,
+      isItemEqualToValue,
+      modal,
+      autoHighlight: autoHighlightMode,
+      submitOnItemClick,
+      hasInputValue,
+      mounted: false,
+      forceMounted: false,
+      transitionStatus: 'idle',
+      inline: inlineProp,
+      activeIndex: null,
+      selectedIndex: initialSelectedIndex,
+      popupProps: {},
+      inputProps: {},
+      triggerProps: {},
+      itemProps: EMPTY_OBJECT,
+      positionerElement: null,
+      listElement: null,
+      popupId: undefined,
+      triggerElement: null,
+      inputElement: null,
+      inputGroupElement: null,
+      popupSide: null,
+      openMethod: null,
+      inputInsidePopup: true,
+      // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+      // until after hydration, so the hidden input takes over then if needed.
+      inputOwnsFormValue: selectionMode === 'none',
+      // Placeholder callbacks replaced on first render
+      onOpenChangeComplete: NOOP,
+      setOpen: NOOP,
+      setInputValue: NOOP,
+      setSelectedValue: NOOP,
+      setIndices: NOOP,
+      handleSelection: NOOP,
+      forceMount: NOOP,
+      requestSubmit: NOOP,
+    });
+  }).current;
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
   const fieldStringValue = React.useMemo(() => {
@@ -541,6 +559,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // Defer index updates until after the filtered items have been derived to ensure
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
+
+          // Virtualized lists own their scroller. Reset regular lists directly so a stale
+          // composite registry cannot select a reordered item and scrolling cannot escape
+          // the popup.
+          const list = store.state.listElement;
+          if (!store.state.virtualized && list) {
+            const popup = popupRef.current;
+            for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+              if (
+                !isHTMLElement(ancestor) ||
+                (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
+              ) {
+                break;
+              }
+
+              if (isScrollableY(ancestor)) {
+                ancestor.scrollTop = 0;
+                break;
+              }
+            }
+          }
+
           if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
             store.set('activeIndex', 0);
           }
