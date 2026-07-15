@@ -57,6 +57,8 @@ const config: UserWorkspaceConfig = {
             'react/jsx-runtime',
             'react-dom',
             'react-dom/test-utils',
+            'use-sync-external-store/shim',
+            'use-sync-external-store/shim/with-selector',
           ],
         }
       : undefined,
