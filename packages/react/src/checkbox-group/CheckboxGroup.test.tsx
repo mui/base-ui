@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -889,6 +890,244 @@ describe('<CheckboxGroup />', () => {
     });
   });
 
+  describe('Form values', () => {
+    it('projects selected enabled checkboxes while preserving the logical validation value', () => {
+      const handleSubmit = vi.fn();
+      const validateGroup = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+      const validateOther = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="fruits" validate={validateGroup}>
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" disabled={disabled} />
+              </CheckboxGroup>
+            </Field.Root>
+            <Field.Root name="other" validate={validateOther}>
+              <Field.Control defaultValue="value" />
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validateGroup).toHaveBeenLastCalledWith(['apple', 'banana'], {
+        fruits: ['apple'],
+        other: 'value',
+      });
+      expect(validateOther.mock.lastCall?.[1].fruits).toEqual(['apple']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple']);
+
+      fireEvent.click(screen.getByText('Enable'));
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validateGroup).toHaveBeenLastCalledWith(['apple', 'banana'], {
+        fruits: ['apple', 'banana'],
+        other: 'value',
+      });
+      expect(validateOther.mock.lastCall?.[1].fruits).toEqual(['apple', 'banana']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple', 'banana']);
+    });
+
+    it('omits selected unmounted checkboxes while retaining group state across remounts', () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                {mounted && <Checkbox.Root value="banana" data-testid="banana" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setMounted((value) => !value)}>
+              Toggle
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Toggle'));
+      fireEvent.click(screen.getByText('Submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+
+      fireEvent.click(screen.getByText('Toggle'));
+      expect(screen.getByTestId('banana')).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(screen.getByText('Submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple', 'banana'] });
+    });
+
+    it('preserves the logical field-name value when Checkbox.Root has no value prop', () => {
+      const handleSubmit = vi.fn();
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['fruits']}>
+              <Checkbox.Root />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['fruits'] });
+    });
+
+    it('updates duplicate-value registrations before a parent layout effect submits', () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [trimmed, setTrimmed] = React.useState(false);
+        const formRef = React.useRef<HTMLFormElement>(null);
+
+        useIsoLayoutEffect(() => {
+          if (trimmed) {
+            formRef.current?.requestSubmit();
+          }
+        }, [trimmed]);
+
+        return (
+          <Form ref={formRef} onFormSubmit={handleSubmit}>
+            <Field.Root name="items">
+              <CheckboxGroup defaultValue={['one', 'two']}>
+                {!trimmed && <Checkbox.Root value="one" />}
+                <Checkbox.Root value="two" />
+                {!trimmed && <Checkbox.Root value="two" />}
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setTrimmed(true)}>
+              Trim
+            </button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Trim'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ items: ['two'] });
+    });
+
+    it('omits selected checkboxes associated with another form', () => {
+      const handleSubmit = vi.fn();
+
+      render(
+        <React.Fragment>
+          <form id="external-form" />
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" form="external-form" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+    });
+
+    it('omits a context-portaled checkbox without native form association', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple']}>
+              {ReactDOM.createPortal(<Checkbox.Root value="apple" />, portalContainer)}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: [] });
+      portalContainer.remove();
+    });
+
+    it('includes a portaled checkbox explicitly associated with the Form', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form id="current-form" onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple']}>
+              {ReactDOM.createPortal(
+                <Checkbox.Root value="apple" form="current-form" />,
+                portalContainer,
+              )}
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('omits checkboxes disabled by a fieldset', () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits">
+            <CheckboxGroup defaultValue={['apple', 'banana']}>
+              <Checkbox.Root value="apple" />
+              <fieldset disabled>
+                <Checkbox.Root value="banana" />
+              </fieldset>
+            </CheckboxGroup>
+          </Field.Root>
+          <Field.Root name="other" validate={validate}>
+            <Field.Control defaultValue="value" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validate.mock.lastCall?.[1].fruits).toEqual(['apple']);
+      expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple']);
+    });
+  });
+
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
       render(
@@ -1352,7 +1591,7 @@ describe('<CheckboxGroup />', () => {
         await user.click(screen.getByText('Submit'));
 
         expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
       },
     );
 
@@ -1390,7 +1629,7 @@ describe('<CheckboxGroup />', () => {
         await user.click(screen.getByText('Submit'));
 
         expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
 
         await user.click(screen.getByText('Select two'));
 
