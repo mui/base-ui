@@ -156,7 +156,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
-  const initialInlineHighlightForfeitedRef = React.useRef(false);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -343,75 +342,90 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
-  const store = useRefWithInit(
-    () =>
-      new Store<StoreState>({
-        id,
-        labelId: undefined,
-        selectedValue,
-        open,
-        items,
-        selectionMode,
-        listRef,
-        labelsRef,
-        popupRef,
-        emptyRef,
-        inputRef,
-        startDismissRef,
-        endDismissRef,
-        keyboardActiveRef,
-        chipsContainerRef,
-        clearRef,
-        valuesRef,
-        pointerDownItemRef,
-        selectionEventRef,
-        name,
-        form,
-        disabled,
-        readOnly,
-        required,
-        grid,
-        virtualized,
-        openOnInputClick,
-        itemToStringLabel,
-        isItemEqualToValue,
-        modal,
-        autoHighlight: autoHighlightMode,
-        submitOnItemClick,
-        hasInputValue,
-        mounted: false,
-        forceMounted: false,
-        transitionStatus: 'idle',
-        inline: inlineProp,
-        activeIndex: null,
-        selectedIndex: null,
-        popupProps: {},
-        inputProps: {},
-        triggerProps: {},
-        itemProps: EMPTY_OBJECT,
-        positionerElement: null,
-        listElement: null,
-        popupId: undefined,
-        triggerElement: null,
-        inputElement: null,
-        inputGroupElement: null,
-        popupSide: null,
-        openMethod: null,
-        inputInsidePopup: true,
-        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
-        // until after hydration, so the hidden input takes over then if needed.
-        inputOwnsFormValue: selectionMode === 'none',
-        // Placeholder callbacks replaced on first render
-        onOpenChangeComplete: NOOP,
-        setOpen: NOOP,
-        setInputValue: NOOP,
-        setSelectedValue: NOOP,
-        setIndices: NOOP,
-        handleSelection: NOOP,
-        forceMount: NOOP,
-        requestSubmit: NOOP,
-      }),
-  ).current;
+  const store = useRefWithInit(() => {
+    // An inline list open on the first render never gets a closed pass of the closed-state
+    // sync effect below, and `items`-prop lists don't self-register their index the way
+    // individually rendered `<Combobox.Item>`s do, so the selected item was never highlighted.
+    // Seeding the index here lets list navigation highlight and scroll to the selection on
+    // mount. Computed once by construction, so a selection or list that resolves after mount
+    // doesn't move an existing highlight or scroll the list away.
+    let initialSelectedIndex: number | null = null;
+    if (inlineProp && open && hasItems && selectionMode !== 'none') {
+      const lastValue =
+        multiple && Array.isArray(selectedValue)
+          ? selectedValue[selectedValue.length - 1]
+          : selectedValue;
+      const index = findItemIndex(flatFilteredItems, lastValue, isItemEqualToValue);
+      initialSelectedIndex = index === -1 ? null : index;
+    }
+
+    return new Store<StoreState>({
+      id,
+      labelId: undefined,
+      selectedValue,
+      open,
+      items,
+      selectionMode,
+      listRef,
+      labelsRef,
+      popupRef,
+      emptyRef,
+      inputRef,
+      startDismissRef,
+      endDismissRef,
+      keyboardActiveRef,
+      chipsContainerRef,
+      clearRef,
+      valuesRef,
+      pointerDownItemRef,
+      selectionEventRef,
+      name,
+      form,
+      disabled,
+      readOnly,
+      required,
+      grid,
+      virtualized,
+      openOnInputClick,
+      itemToStringLabel,
+      isItemEqualToValue,
+      modal,
+      autoHighlight: autoHighlightMode,
+      submitOnItemClick,
+      hasInputValue,
+      mounted: false,
+      forceMounted: false,
+      transitionStatus: 'idle',
+      inline: inlineProp,
+      activeIndex: null,
+      selectedIndex: initialSelectedIndex,
+      popupProps: {},
+      inputProps: {},
+      triggerProps: {},
+      itemProps: EMPTY_OBJECT,
+      positionerElement: null,
+      listElement: null,
+      popupId: undefined,
+      triggerElement: null,
+      inputElement: null,
+      inputGroupElement: null,
+      popupSide: null,
+      openMethod: null,
+      inputInsidePopup: true,
+      // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+      // until after hydration, so the hidden input takes over then if needed.
+      inputOwnsFormValue: selectionMode === 'none',
+      // Placeholder callbacks replaced on first render
+      onOpenChangeComplete: NOOP,
+      setOpen: NOOP,
+      setInputValue: NOOP,
+      setSelectedValue: NOOP,
+      setIndices: NOOP,
+      handleSelection: NOOP,
+      forceMount: NOOP,
+      requestSubmit: NOOP,
+    });
+  }).current;
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
   const fieldStringValue = React.useMemo(() => {
@@ -535,7 +549,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           event.type === 'compositionend' ||
           (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
         if (isTypedInput) {
-          initialInlineHighlightForfeitedRef.current = true;
           const hasQuery = next.trim() !== '';
           if (hasQuery) {
             setQueryChangedAfterOpen(true);
@@ -811,29 +824,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useIsoLayoutEffect(
-    function syncSelectedIndex() {
-      // An always-open inline list never closes, so `items`-prop selections (which don't
-      // self-register their index like `<Combobox.Item>`s do) get their initial highlight
-      // computed here while open. Only do this before the user edits the input or highlights
-      // an item, and before the selected index has been initialized, so late item resolution,
-      // blur, or toggling a selection doesn't move the highlight and scroll the list away.
+    function syncClosedState() {
       if (open) {
-        const isInlineInitialHighlight =
-          inline &&
-          hasItems &&
-          !initialInlineHighlightForfeitedRef.current &&
-          !queryChangedAfterOpen &&
-          store.state.activeIndex == null &&
-          store.state.selectedIndex == null;
-
-        if (!isInlineInitialHighlight) {
-          return;
-        }
-      } else {
-        // State-driven (not tied to the internal event path) so controlled closes
-        // also clear a pointerdown that never received a matching item mouseup.
-        pointerDownItemRef.current = null;
+        return;
       }
+
+      // State-driven (not tied to the internal event path) so controlled closes
+      // also clear a pointerdown that never received a matching item mouseup.
+      pointerDownItemRef.current = null;
 
       if (selectionMode === 'none') {
         return;
@@ -844,11 +842,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // it — trigger focus and programmatic value changes force-mount it). Mounted
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
-      // the index on the next open. While open the highlight indexes into the filtered
-      // list, so resolve against `flatFilteredItems` (a filtered-out selection then
-      // yields `-1` and no highlight); while closed the list is unfiltered.
-      const itemsRegistry = open ? flatFilteredItems : flatItems;
-      const registry = hasItems ? itemsRegistry : valuesRef.current;
+      // the index on the next open.
+      const registry = hasItems ? flatItems : valuesRef.current;
 
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
@@ -861,15 +856,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     },
     [
-      store,
       open,
-      inline,
-      queryChangedAfterOpen,
       selectedValue,
       selectionMode,
       hasItems,
       flatItems,
-      flatFilteredItems,
       multiple,
       isItemEqualToValue,
       setIndices,
@@ -1119,10 +1110,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabledIndices: EMPTY_ARRAY as number[],
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
-      if (event) {
-        initialInlineHighlightForfeitedRef.current = true;
-      }
-
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
         return;
@@ -1146,11 +1133,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       mergeProps(
         listNavigation.reference,
         {
-          onBlur() {
-            if (inline) {
-              initialInlineHighlightForfeitedRef.current = true;
-            }
-          },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
             // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
             // grid movement. When the input has focus and no item is highlighted the user
@@ -1168,15 +1150,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         click.reference,
         role.reference,
       ),
-    [
-      listNavigation.reference,
-      dismiss.reference,
-      click.reference,
-      role.reference,
-      grid,
-      inline,
-      store,
-    ],
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
   );
 
   const popupProps = React.useMemo(
