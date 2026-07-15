@@ -28,8 +28,8 @@ interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
   /**
-   * Whether the list is externally virtualized. Passed down from the wrapper (which already
-   * subscribes to it) so the inner component doesn't re-subscribe to the store.
+   * Whether this item uses a known virtual index. Passed down from the wrapper so the inner
+   * component doesn't subscribe to virtualization state.
    */
   virtualized: boolean;
   virtualItem: ComboboxVirtualItemMetadata | undefined;
@@ -262,13 +262,14 @@ export const ComboboxItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const store = useComboboxRootContext();
-    const virtualized = useStore(store, selectors.virtualized);
+    const externalVirtualized = useStore(store, selectors.externalVirtualized);
     const virtualItem = useComboboxVirtualItemContext();
 
-    // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
-    // item's lifetime: the two branches return different component types, so flipping it at
-    // runtime remounts the item and resets its refs and effects.
-    if (virtualized && componentProps.index == null && virtualItem == null) {
+    // External virtualization and whether an item provides an explicit `index` must be stable
+    // for an item's lifetime: the two branches return different component types, so flipping
+    // either at runtime remounts the item and resets its refs and effects. Built-in virtual
+    // items receive their index from context and stay on the regular branch.
+    if (externalVirtualized && componentProps.index == null && virtualItem == null) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );
@@ -278,7 +279,7 @@ export const ComboboxItem = React.memo(
       <ComboboxItemInner
         componentProps={componentProps}
         forwardedRef={forwardedRef}
-        virtualized={virtualized || virtualItem != null}
+        virtualized={externalVirtualized || virtualItem != null}
         virtualItem={virtualItem}
         indexFromFilter={undefined}
       />
