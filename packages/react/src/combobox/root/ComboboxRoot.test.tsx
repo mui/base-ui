@@ -4558,13 +4558,70 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
+      'resets the scroll container when filtering reorders retained items',
+      async () => {
+        const items = Array.from({ length: 10 }, (_, index) => `item-${index}`);
+
+        function ReorderingCombobox() {
+          const [inputValue, setInputValue] = React.useState('');
+          const filteredItems = inputValue === '' ? items : [...items].reverse();
+
+          return (
+            <Combobox.Root
+              filteredItems={filteredItems}
+              inputValue={inputValue}
+              onInputValueChange={setInputValue}
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List style={{ maxHeight: 60, overflowY: 'auto' }}>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item} style={{ height: 24 }}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<ReorderingCombobox />);
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'x');
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')[0]).toHaveTextContent('item-9');
+        });
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'resets only the nearest scrollable wrapper when composed in a scrollable dialog',
       async () => {
         const { user } = await render(
           <Combobox.Root items={manyItems} inline open>
-            <div role="dialog" data-testid="dialog" style={{ maxHeight: 80, overflowY: 'auto' }}>
+            <div
+              role="dialog"
+              data-testid="dialog"
+              style={{ height: 80, overflowY: 'auto', overflowAnchor: 'none' }}
+            >
+              <div style={{ height: 100 }} />
               <Combobox.Input data-testid="input" />
-              <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
+              <div data-testid="viewport" style={{ height: 100, overflowY: 'auto' }}>
                 <Combobox.List>
                   {(item: string) => (
                     <Combobox.Item key={item} value={item}>
@@ -4581,8 +4638,9 @@ describe('<Combobox.Root />', () => {
         const dialog = screen.getByTestId('dialog');
         const viewport = screen.getByTestId('viewport');
         await user.click(input);
-        dialog.scrollTop = 20;
+        dialog.scrollTop = 150;
         viewport.scrollTop = 40;
+        const dialogScrollTop = dialog.scrollTop;
         expect(dialog.scrollTop).toBeGreaterThan(0);
         expect(viewport.scrollTop).toBeGreaterThan(0);
 
@@ -4591,7 +4649,7 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(viewport.scrollTop).toBe(0);
         });
-        expect(dialog.scrollTop).toBe(20);
+        expect(dialog.scrollTop).toBe(dialogScrollTop);
       },
     );
   });

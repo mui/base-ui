@@ -10,8 +10,10 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
+  getOverflowAncestors,
   useDismiss,
   useFloatingRootContext,
   useListNavigation,
@@ -863,14 +865,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     pendingQueryScrollRef.current = false;
 
-    // Virtualized lists own their scroller. For regular lists, the registry can still contain
-    // detached items until the composite list recomputes its map, so skip stale entries.
-    if (!store.state.virtualized) {
-      const firstConnectedItem = store.state.listRef.current.find((item) => item?.isConnected);
-      // `scrollIntoView` is optional-called because JSDOM doesn't implement it.
-      firstConnectedItem?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    // Virtualized lists own their scroller. Reset regular lists directly so a stale composite
+    // registry cannot select a reordered item and scrolling cannot escape into the page/dialog.
+    const list = store.state.listElement;
+    if (!store.state.virtualized && list) {
+      const dialog = inline ? list.closest<HTMLElement>('[role="dialog"]') : null;
+      const scrollContainer = getOverflowAncestors(list.firstElementChild ?? list)[0];
+
+      if (isHTMLElement(scrollContainer) && scrollContainer !== dialog) {
+        scrollContainer.scrollTop = 0;
+      }
     }
-  }, [inputValue, store]);
+  }, [inputValue, inline, store]);
 
   useIsoLayoutEffect(() => {
     if (items) {
