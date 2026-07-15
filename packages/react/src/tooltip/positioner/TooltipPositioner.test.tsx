@@ -1,8 +1,8 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
@@ -81,12 +81,9 @@ describe('<Tooltip.Positioner />', () => {
       expect(positioner.style.opacity).toBe('');
     });
 
-    await act(async () => {
-      await waitSingleFrame();
-      await waitSingleFrame();
+    await waitFor(() => {
+      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
     });
-
-    expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
     expect(transitionRuns).toBe(0);
   });
 

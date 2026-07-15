@@ -43,6 +43,15 @@ function getBrowserConfig(): BrowserModeConfig {
 }
 
 const config: UserWorkspaceConfig = {
+  optimizeDeps:
+    process.env.REACT_17_TESTS === 'true'
+      ? {
+          entries: [
+            'src/popover/positioner/PopoverPositioner.test.tsx',
+            'src/tooltip/positioner/TooltipPositioner.test.tsx',
+          ],
+        }
+      : undefined,
   test: {
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,

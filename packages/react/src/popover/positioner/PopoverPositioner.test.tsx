@@ -75,12 +75,9 @@ describe('<Popover.Positioner />', () => {
       expect(positioner.style.opacity).toBe('');
     });
 
-    await act(async () => {
-      await waitSingleFrame();
-      await waitSingleFrame();
+    await waitFor(() => {
+      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
     });
-
-    expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
     expect(transitionRuns).toBe(0);
   });
 
@@ -90,12 +87,14 @@ describe('<Popover.Positioner />', () => {
       opacity: string;
       transform: string;
     }> = [];
+    const mountedElements = new WeakSet<HTMLDivElement>();
 
     const setPopupElement = (element: HTMLDivElement | null) => {
-      if (!element) {
+      if (!element || mountedElements.has(element)) {
         return;
       }
 
+      mountedElements.add(element);
       const computedStyle = getComputedStyle(element);
       mountSnapshots.push({
         hasStartingStyle: element.hasAttribute('data-starting-style'),

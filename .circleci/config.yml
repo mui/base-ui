@@ -177,10 +177,14 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps:
-          package-overrides: react@17.0.2
+          package-overrides: react@17.0.2 @testing-library/react@12.1.5
       - run:
           name: Run anchored Positioner regressions with React 17
-          command: pnpm test:chromium PopoverPositioner TooltipPositioner --no-watch
+          command: |
+            pnpm exec cross-env TZ=UTC VITEST_ENV=chromium vitest \
+              --project @base-ui/react PopoverPositioner TooltipPositioner --no-watch
+          environment:
+            REACT_17_TESTS: 'true'
       - store_test_results:
           path: test-results
   test_regressions:
