@@ -12,7 +12,6 @@ import { useRegisterFieldControl } from '../internals/field-register-control/use
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
-import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
@@ -52,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     validityData,
   } = useFieldRootContext();
   const { labelId, getDescriptionProps } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
 
@@ -83,20 +82,42 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     value,
     onValueChange: setValue,
   });
+  const resolvedValue = value ?? EMPTY_ARRAY;
 
   const id = useBaseUiId(idProp);
+  const getInputControl = validation.getInputControl;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
 
-  const registerControlRef = React.useCallback((element: HTMLButtonElement | null) => {
-    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
-      controlRef.current = element;
+  const getFormValue = useStableCallback(() => {
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return resolvedValue;
     }
-  }, []);
 
-  useRegisterFieldControl(controlRef, id, value, undefined, !!fieldName && !disabled, fieldName);
+    const successfulValues = new Set<string>();
+    for (const [input, registration] of validation.registeredInputs) {
+      if (
+        registration.value !== undefined &&
+        input.checked &&
+        !input.matches(':disabled') &&
+        input.form === formElement
+      ) {
+        successfulValues.add(registration.value);
+      }
+    }
 
-  const resolvedValue = value ?? EMPTY_ARRAY;
+    return resolvedValue.filter((inputValue) => successfulValues.has(inputValue));
+  });
+
+  useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
   useValueChanged(resolvedValue, () => {
     if (fieldName) {
@@ -127,9 +148,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       parent,
       disabled,
       validation,
-      registerControlRef,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
+    [allValues, value, defaultValue, setValue, parent, disabled, validation],
   );
 
   const element = useRenderElement('div', componentProps, {

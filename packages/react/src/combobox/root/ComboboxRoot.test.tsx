@@ -4762,6 +4762,358 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('scroll reset on input value change', () => {
+    const manyItems = Array.from({ length: 50 }, (_, index) => `item-${index}`);
+
+    it.skipIf(isJSDOM)(
+      'resets the list scroll position to the top when the query changes',
+      async () => {
+        const filteringItems = Array.from({ length: 50 }, (_, index) =>
+          index < 25 ? `alpha-${index}` : `beta-${index - 25}`,
+        );
+
+        const { user } = await render(
+          <Combobox.Root items={filteringItems}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        // Remove the current first item while keeping enough matches for the list to scroll.
+        await user.type(input, 'b');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets manually filtered children without deferring the reset until hover',
+      async () => {
+        const filteringItems = Array.from({ length: 50 }, (_, index) =>
+          index < 25 ? `alpha-${index}` : `beta-${index - 25}`,
+        );
+
+        function ManuallyFilteredCombobox() {
+          const [inputValue, setInputValue] = React.useState('');
+          const visibleItems = filteringItems.filter((item) => item.startsWith(inputValue));
+
+          return (
+            <Combobox.Root inputValue={inputValue} onInputValueChange={setInputValue}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                      {visibleItems.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<ManuallyFilteredCombobox />);
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'b');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+
+        // A later highlight must not consume a typed-input reset that should already be cleared.
+        list.scrollTop = 40;
+        const visibleOption = screen.getByRole('option', { name: 'beta-5' });
+        fireEvent.mouseMove(visibleOption, { pointerType: 'mouse' });
+        await waitFor(() => {
+          expect(visibleOption).toHaveAttribute('data-highlighted');
+        });
+        expect(list.scrollTop).toBe(40);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets the scroll position of a scrollable wrapper around the list',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <div data-testid="viewport" style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    <Combobox.List style={{ overflowY: 'auto' }}>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </div>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const viewport = screen.getByTestId('viewport');
+        viewport.scrollTop = 40;
+        expect(viewport.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(viewport.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)('skips clipping ancestors when finding the scroll container', async () => {
+      const { user } = await render(
+        <Combobox.Root items={manyItems}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <div data-testid="viewport" style={{ height: 100, overflowY: 'auto' }}>
+                  <div style={{ overflowY: 'clip' }}>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </div>
+                </div>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      const viewport = screen.getByTestId('viewport');
+      viewport.scrollTop = 40;
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+
+      await user.type(input, 'item-1');
+
+      await waitFor(() => {
+        expect(viewport.scrollTop).toBe(0);
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'keeps the auto-highlighted first item in view after the query changes',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems} autoHighlight>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List style={{ maxHeight: 100, overflowY: 'auto' }}>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+
+        await user.type(input, 'item-1');
+
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets the scroll container when filtering reorders retained items',
+      async () => {
+        const items = Array.from({ length: 10 }, (_, index) => `item-${index}`);
+
+        function ReorderingCombobox() {
+          const [inputValue, setInputValue] = React.useState('');
+          const filteredItems = inputValue === '' ? items : [...items].reverse();
+
+          return (
+            <Combobox.Root
+              filteredItems={filteredItems}
+              inputValue={inputValue}
+              onInputValueChange={setInputValue}
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List style={{ maxHeight: 60, overflowY: 'auto' }}>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item} style={{ height: 24 }}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<ReorderingCombobox />);
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const list = screen.getByRole('listbox');
+        list.scrollTop = 40;
+        expect(list.scrollTop).toBeGreaterThan(0);
+
+        await user.type(input, 'x');
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')[0]).toHaveTextContent('item-9');
+        });
+        await waitFor(() => {
+          expect(list.scrollTop).toBe(0);
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets only the nearest scrollable wrapper when composed in a scrollable dialog',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root items={manyItems} inline open>
+            <div
+              role="dialog"
+              data-testid="dialog"
+              style={{ height: 80, overflowY: 'auto', overflowAnchor: 'none' }}
+            >
+              <div style={{ height: 100 }} />
+              <Combobox.Input data-testid="input" />
+              <div data-testid="viewport" style={{ height: 100, overflowY: 'auto' }}>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </div>
+            </div>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        const dialog = screen.getByTestId('dialog');
+        const viewport = screen.getByTestId('viewport');
+        await user.click(input);
+        dialog.scrollTop = 150;
+        viewport.scrollTop = 40;
+        const dialogScrollTop = dialog.scrollTop;
+        expect(dialog.scrollTop).toBeGreaterThan(0);
+        expect(viewport.scrollTop).toBeGreaterThan(0);
+
+        await user.keyboard('item-1');
+
+        await waitFor(() => {
+          expect(viewport.scrollTop).toBe(0);
+        });
+        expect(dialog.scrollTop).toBe(dialogScrollTop);
+      },
+    );
+
+    it.skipIf(isJSDOM)('does not reset a surrounding dialog', async () => {
+      const dialogRef = React.createRef<HTMLDivElement>();
+      const { user } = await render(
+        <Combobox.Root items={manyItems} open>
+          <div
+            ref={dialogRef}
+            role="dialog"
+            data-testid="dialog"
+            style={{ height: 80, overflowY: 'auto', overflowAnchor: 'none' }}
+          >
+            <div style={{ height: 100 }} />
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal container={dialogRef}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </div>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const dialog = screen.getByTestId('dialog');
+      await user.click(input);
+      dialog.scrollTop = dialog.scrollHeight;
+      const dialogScrollTop = dialog.scrollTop;
+      expect(dialogScrollTop).toBeGreaterThan(0);
+
+      await user.keyboard('item-1');
+
+      expect(dialog.scrollTop).toBe(dialogScrollTop);
+    });
+  });
+
   describe('prop: autoHighlight', () => {
     it('does not auto-highlight on initial open when no selection', async () => {
       await render(
