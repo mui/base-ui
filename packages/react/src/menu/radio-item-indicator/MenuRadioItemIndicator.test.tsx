@@ -138,4 +138,70 @@ describe('<Menu.RadioItemIndicator />', () => {
       expect(animationFinished).toBe(true);
     });
   });
+
+  it('keeps the indicator mounted to play its exit animation when unchecked without keepMounted', async ({
+    skip,
+  }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    function Test() {
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      const [value, setValue] = React.useState('a');
+
+      return (
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button onClick={() => setValue('b')}>Select b</button>
+          <Menu.Root open modal={false}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.RadioGroup value={value}>
+                    <Menu.RadioItem value="a">
+                      <Menu.RadioItemIndicator
+                        className="animation-test-indicator"
+                        data-testid="indicator"
+                      />
+                    </Menu.RadioItem>
+                    <Menu.RadioItem value="b">
+                      <Menu.RadioItemIndicator />
+                    </Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.toBe(null);
+
+    await user.click(screen.getByText('Select b'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('indicator')).toBe(null);
+    });
+  });
 });

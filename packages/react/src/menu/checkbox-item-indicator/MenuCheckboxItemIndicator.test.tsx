@@ -128,4 +128,65 @@ describe('<Menu.CheckboxItemIndicator />', () => {
       expect(animationFinished).toBe(true);
     });
   });
+
+  it('keeps the indicator mounted to play its exit animation when unchecked without keepMounted', async ({
+    skip,
+  }) => {
+    if (isJSDOM) {
+      skip();
+    }
+
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    function Test() {
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      const [checked, setChecked] = React.useState(true);
+
+      return (
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button onClick={() => setChecked(false)}>Close</button>
+          <Menu.Root open modal={false}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem checked={checked}>
+                    <Menu.CheckboxItemIndicator
+                      className="animation-test-indicator"
+                      data-testid="indicator"
+                    />
+                  </Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByTestId('indicator')).not.toBe(null);
+
+    await user.click(screen.getByText('Close'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('indicator')).toBe(null);
+    });
+  });
 });
