@@ -20,7 +20,7 @@ import {
   setPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import type { Middleware } from '../../floating-ui-react/types';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -34,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
-  adaptiveOrigin: Middleware | undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -58,7 +58,7 @@ const selectors = {
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   adaptiveOrigin: createSelector(
-    (state: State<unknown>): Middleware | undefined => state.adaptiveOrigin,
+    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
   ),
 };
 
