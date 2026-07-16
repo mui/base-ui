@@ -659,4 +659,38 @@ describe('<Menu.Positioner />', () => {
       expect(side).toBe('inline-end');
     });
   });
+
+  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
+    await render(
+      <Menu.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Menu.Portal>
+          <Menu.Positioner data-testid="positioner">
+            <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+  });
+
+  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
+    await render(
+      <Menu.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Menu.Portal>
+          <Menu.Positioner data-testid="positioner">
+            <Menu.Popup style={popupStyle}>
+              <Menu.Viewport>Popup</Menu.Viewport>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner').style.transform).toBe('');
+    });
+  });
 });

@@ -1100,4 +1100,38 @@ describe('<PreviewCard.Positioner />', () => {
       });
     });
   });
+
+  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
+    await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+  });
+
+  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
+    await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>
+              <PreviewCard.Viewport>Popup</PreviewCard.Viewport>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner').style.transform).toBe('');
+    });
+  });
 });

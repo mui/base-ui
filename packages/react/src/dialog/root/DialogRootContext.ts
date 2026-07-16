@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { DialogStore } from '../store/DialogStore';
 
-export const IsDrawerContext = React.createContext(false);
-
 export const DialogRootContext = React.createContext<DialogStore<unknown> | undefined>(undefined);
 
 export function useDialogRootContext(optional?: false): DialogStore<unknown>;
