@@ -3,10 +3,7 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
-import {
-  IndexGuessBehavior,
-  useCompositeListItem,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -65,9 +62,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     value,
   } = useOTPFieldRootContext();
 
-  const { ref: listItemRef, index } = useCompositeListItem({
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
-  });
+  const { ref: listItemRef, index } = useCompositeListItem();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 

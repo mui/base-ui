@@ -29,7 +29,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
 
   return useRenderElement(tag, componentProps, {
     state,
-    ref: [...refs, compositeRef],
+    ref: [compositeRef, ...refs],
     props: [compositeProps, ...props, elementProps],
     stateAttributesMapping,
   });

@@ -8,10 +8,7 @@ import {
   useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
@@ -53,7 +50,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const listItem = useCompositeListItem({
     index: indexProp,
     textRef,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const store = useComboboxRootContext();

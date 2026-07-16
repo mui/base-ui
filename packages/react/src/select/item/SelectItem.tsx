@@ -3,10 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
@@ -48,7 +45,6 @@ export const SelectItem = React.memo(
     const listItem = useCompositeListItem({
       label,
       textRef,
-      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const {

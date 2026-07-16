@@ -516,4 +516,47 @@ describe('<Combobox.Item />', () => {
       expect(renderSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe('prop: index', () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4657 — explicitly
+    // indexed items in a non-virtualized list previously skipped CompositeList
+    // registration, so hover could not resolve the item in `listRef` and
+    // `data-highlighted` stayed on the previous item.
+    it('updates the highlight on hover in a non-virtualized list', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+      const { user } = await render(
+        <Combobox.Root items={items} defaultOpen autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item, index) => (
+                    <Combobox.Item key={item} value={item} index={index}>
+                      {item}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await user.hover(banana);
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      await user.hover(cherry);
+      await waitFor(() => {
+        expect(cherry).toHaveAttribute('data-highlighted');
+      });
+      expect(banana).not.toHaveAttribute('data-highlighted');
+    });
+  });
 });
