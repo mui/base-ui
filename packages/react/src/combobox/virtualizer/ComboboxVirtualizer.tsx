@@ -1,23 +1,18 @@
 'use client';
 import * as React from 'react';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
-  Dimensions,
-  LayoutList,
-  Virtualization,
-  useVirtualizer,
-  type Row,
-  type RowEntry,
-  type Virtualizer,
-} from '@mui/x-virtualizer';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
+  ListVirtualizer,
+  type ListVirtualizerRenderRowParameters,
+  type ListVirtualizerRow,
+  type ListVirtualizerRowSpacing,
+} from '../../internals/virtualization/ListVirtualizer';
+import type { ListVirtualizerHandle } from '../../internals/virtualization/ListVirtualizationRegistry';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 import {
   useComboboxDerivedItemsContext,
@@ -39,56 +34,22 @@ interface ComboboxVirtualItemRowModel<Value> {
 type ComboboxVirtualRowModel<Value> = ComboboxVirtualItemRowModel<Value>;
 
 interface ComboboxVirtualRowProps<Value> {
-  apiRef: React.RefObject<Virtualizer['api'] | null>;
   children: (item: Value, index: number) => React.ReactElement;
-  id: VirtualizerItemKey;
   isVirtualFocusRow: boolean;
   itemCount: number;
+  measureRef: React.RefCallback<HTMLElement> | undefined;
   model: ComboboxVirtualRowModel<Value>;
-  paddingEnd: number;
-  paddingStart: number;
-  rowCount: number;
-  rowIndex: number;
+  spacing: ListVirtualizerRowSpacing;
 }
-
-/**
- * Removes a retained offscreen focus row from layout while keeping its item mounted for
- * `aria-activedescendant` and keyboard selection.
- */
-const focusProxyStyle: React.CSSProperties = {
-  height: 0,
-  left: 0,
-  opacity: 0,
-  overflow: 'hidden',
-  pointerEvents: 'none',
-  position: 'absolute',
-  top: 0,
-  width: 0,
-};
 
 /**
  * Renders a virtual row and provides its logical index, accessibility metadata, and measurement
  * ref to the contained `<Combobox.Item>`.
  */
 function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
-  const {
-    apiRef,
-    children,
-    id,
-    isVirtualFocusRow,
-    itemCount,
-    model,
-    paddingEnd,
-    paddingStart,
-    rowCount,
-    rowIndex,
-  } = props;
+  const { children, isVirtualFocusRow, itemCount, measureRef, model, spacing } = props;
 
   const registeredItemCountRef = React.useRef(0);
-
-  const measureRef = useStableCallback((element: HTMLElement | null) => {
-    return element ? apiRef.current?.rowsMeta.observeRowHeight(element, id) : undefined;
-  });
 
   const registerItem = React.useCallback(() => {
     registeredItemCountRef.current += 1;
@@ -96,14 +57,6 @@ function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
       registeredItemCountRef.current -= 1;
     };
   }, []);
-
-  useIsoLayoutEffect(() => {
-    if (!isVirtualFocusRow) {
-      // Dynamic row measurement is incremental in MUI X. Mark the real row as measured so its
-      // metadata can advance the measured boundary; the zero-sized focus proxy must not count.
-      apiRef.current?.rowsMeta.setLastMeasuredRowIndex(rowIndex);
-    }
-  }, [apiRef, isVirtualFocusRow, rowIndex]);
 
   useIsoLayoutEffect(() => {
     if (process.env.NODE_ENV !== 'production' && registeredItemCountRef.current !== 1) {
@@ -115,7 +68,6 @@ function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
     }
   });
 
-  const spacing = getRowSpacing(rowIndex, rowCount, paddingStart, paddingEnd);
   const contextValue = React.useMemo(
     () => ({
       index: model.itemIndex,
@@ -150,16 +102,7 @@ function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
     </ComboboxVirtualItemContext.Provider>
   );
 
-  // MUI X can retain the focused row outside the visible range. Keep its Combobox.Item mounted
-  // for aria-activedescendant, but remove it from layout and measurement until the real row enters
-  // the window.
-  return isVirtualFocusRow ? (
-    <div role="presentation" style={focusProxyStyle}>
-      {item}
-    </div>
-  ) : (
-    item
-  );
+  return item;
 }
 
 function areVirtualRowPropsEqual<Value>(
@@ -167,18 +110,15 @@ function areVirtualRowPropsEqual<Value>(
   next: ComboboxVirtualRowProps<Value>,
 ) {
   return (
-    previous.apiRef === next.apiRef &&
     previous.children === next.children &&
-    previous.id === next.id &&
     previous.isVirtualFocusRow === next.isVirtualFocusRow &&
     previous.itemCount === next.itemCount &&
+    previous.measureRef === next.measureRef &&
     previous.model.item === next.model.item &&
     previous.model.itemIndex === next.model.itemIndex &&
     previous.model.virtualRowIndex === next.model.virtualRowIndex &&
-    previous.paddingEnd === next.paddingEnd &&
-    previous.paddingStart === next.paddingStart &&
-    previous.rowCount === next.rowCount &&
-    previous.rowIndex === next.rowIndex
+    previous.spacing.bottom === next.spacing.bottom &&
+    previous.spacing.top === next.spacing.top
   );
 }
 
@@ -189,10 +129,6 @@ const ComboboxVirtualRow = React.memo(
   ComboboxVirtualRowImpl,
   areVirtualRowPropsEqual,
 ) as typeof ComboboxVirtualRowImpl;
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxVirtualizerState> = {
-  totalSize: () => null,
-};
 
 /**
  * Renders a window of visible and overscanned items in a flat combobox list.
@@ -232,14 +168,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const highlightType = useStore(store, selectors.highlightType);
   const insideList = useVirtualizationListContext();
 
-  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
-  const layout = useRefWithInit(
-    () =>
-      new LayoutList({
-        container: scrollElementRef,
-        scroller: scrollElementRef,
-      }),
-  ).current;
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
@@ -249,6 +177,11 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     store.state.virtualizationRegistry.subscribeRenderAllRows,
     store.state.virtualizationRegistry.getRenderAllRows,
     store.state.virtualizationRegistry.getRenderAllRows,
+  );
+  const renderAllRowsRestoreVersion = React.useSyncExternalStore(
+    store.state.virtualizationRegistry.subscribeRenderAllRows,
+    store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
+    store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
   );
   const virtualizationEnabled = enabled && !renderAllRows;
 
@@ -260,17 +193,12 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     [estimateSize],
   );
 
-  const defaultEstimatedSize =
-    flatFilteredItems.length === 0
-      ? Math.max(1, typeof estimateSize === 'number' ? estimateSize : 1)
-      : getEstimatedSize(flatFilteredItems[0] as Value, 0);
-
-  const rows = React.useMemo<RowEntry[]>(() => {
+  const rows = React.useMemo<ListVirtualizerRow<ComboboxVirtualRowModel<Value>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
     return flatFilteredItems.map((item, itemIndex) => {
-      // Row ids are both React keys and MUI X measurement-cache identities. Normalize all supplied
-      // keys because React stringifies them (`1` and `"1"` would otherwise collide).
+      // Row ids are both React keys and MUI X measurement-cache identities. Normalize all
+      // supplied keys because React stringifies them (`1` and `"1"` would otherwise collide).
       const rawKey = getItemKey ? getItemKey(item as Value) : undefined;
       const key = getItemKey
         ? normalizeItemKey(rawKey)
@@ -299,7 +227,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
           itemIndex,
           type: 'item',
           virtualRowIndex: itemIndex,
-        } satisfies ComboboxVirtualRowModel<Value>,
+        },
       };
     });
   }, [flatFilteredItems, getItemKey, objectKeyRegistry]);
@@ -309,133 +237,42 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const rowIndexByItemIndex = React.useMemo(() => {
     const map = new Map<number, number>();
     rows.forEach((row, rowIndex) => {
-      const model = row.model as ComboboxVirtualRowModel<Value>;
+      const model = row.model;
       if (model.type === 'item') {
         map.set(model.itemIndex, rowIndex);
       }
     });
     return map;
   }, [rows]);
-  const rowIndexByItemIndexRef = React.useRef(rowIndexByItemIndex);
-  rowIndexByItemIndexRef.current = rowIndexByItemIndex;
-  const rowsRef = React.useRef(rows);
-  rowsRef.current = rows;
 
-  const focusedVirtualCellRef = React.useRef<{
-    columnIndex: number;
-    id: VirtualizerItemKey;
-    rowIndex: number;
-  } | null>(null);
   const focusedRowIndex = activeIndex == null ? undefined : rowIndexByItemIndex.get(activeIndex);
-  focusedVirtualCellRef.current =
-    focusedRowIndex == null
-      ? null
-      : {
-          columnIndex: 0,
-          id: rows[focusedRowIndex].id,
-          rowIndex: focusedRowIndex,
-        };
-
-  const getFocusedVirtualCell = React.useCallback(() => focusedVirtualCellRef.current, []);
-  const apiRef = React.useRef<Virtualizer['api'] | null>(null);
+  const pinnedRowIndexes = React.useMemo(
+    () => (focusedRowIndex == null ? [] : [focusedRowIndex]),
+    [focusedRowIndex],
+  );
 
   const renderRow = React.useCallback(
-    (params: {
-      id: VirtualizerItemKey;
-      model: Row;
-      rowIndex: number;
-      isVirtualFocusRow: boolean;
-    }) => (
+    (params: ListVirtualizerRenderRowParameters<ComboboxVirtualRowModel<Value>>) => (
       <ComboboxVirtualRow
-        key={params.id}
-        apiRef={apiRef}
-        id={params.id}
-        model={params.model as ComboboxVirtualRowModel<Value>}
-        itemCount={flatFilteredItems.length}
-        rowCount={rows.length}
-        rowIndex={params.rowIndex}
-        paddingStart={paddingStart}
-        paddingEnd={paddingEnd}
         isVirtualFocusRow={params.isVirtualFocusRow}
+        itemCount={flatFilteredItems.length}
+        measureRef={params.measureRef}
+        model={params.row.model}
+        spacing={params.spacing}
       >
         {children}
       </ComboboxVirtualRow>
     ),
-    [children, flatFilteredItems.length, paddingEnd, paddingStart, rows.length],
+    [children, flatFilteredItems.length],
   );
 
-  const getRowHeight = React.useCallback(() => 'auto' as const, []);
-
-  // MUI X rehydrates row metadata when these callback identities change. They intentionally use
-  // dependency-sensitive callbacks rather than stable wrappers so runtime estimate and padding
-  // updates invalidate cached geometry.
-  const getEstimatedRowHeight = React.useCallback(
-    (row: RowEntry) => {
-      const model = row.model as ComboboxVirtualRowModel<Value>;
-      return getEstimatedSize(model.item, model.itemIndex);
-    },
+  const estimateRowSize = React.useCallback(
+    (model: ComboboxVirtualRowModel<Value>) => getEstimatedSize(model.item, model.virtualRowIndex),
     [getEstimatedSize],
   );
-  const getRowSpacingProp = React.useCallback(
-    (row: RowEntry) => {
-      const model = row.model as ComboboxVirtualRowModel<Value>;
-      return getRowSpacing(model.virtualRowIndex, rows.length, paddingStart, paddingEnd);
-    },
-    [paddingEnd, paddingStart, rows.length],
-  );
-  const range = React.useMemo(
-    () =>
-      rows.length === 0
-        ? null
-        : {
-            // MUI X ranges are half-open: the last row index is excluded.
-            firstRowIndex: 0,
-            lastRowIndex: rows.length,
-          },
-    [rows.length],
-  );
 
-  const virtualizer = useVirtualizer({
-    layout,
-    dimensions: {
-      rowHeight: defaultEstimatedSize,
-    },
-    virtualization: {
-      rowBufferPx: Math.max(0, overscanPx ?? defaultEstimatedSize),
-    },
-    initialState: {
-      virtualization: {
-        enabled: virtualizationEnabled,
-        enabledForColumns: false,
-        enabledForRows: virtualizationEnabled,
-      },
-    },
-    rows,
-    range,
-    rowCount: rows.length,
-    getRowHeight,
-    getEstimatedRowHeight,
-    getRowSpacing: paddingStart === 0 && paddingEnd === 0 ? undefined : getRowSpacingProp,
-    focusedVirtualCell: getFocusedVirtualCell,
-    renderRow,
-  });
-  apiRef.current = virtualizer.api;
-
-  const totalSize = virtualizer.store.use(Dimensions.selectors.contentHeight);
-  // This subscription also drives the second phase of keyboard scrolling after ResizeObserver
-  // replaces estimates with measured row positions.
-  const rowsMeta = virtualizer.store.use(Dimensions.selectors.rowsMeta);
-  const containerProps = virtualizer.store.use(LayoutList.selectors.containerProps);
-  const contentProps = virtualizer.store.use(LayoutList.selectors.contentProps);
-  const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
-  const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
-
-  const resetScroll = useStableCallback(() => {
-    scrollElementRef.current?.scrollTo({
-      behavior: 'instant' as ScrollBehavior,
-      top: 0,
-    });
-  });
+  const listVirtualizerRef = React.useRef<ListVirtualizerHandle | null>(null);
+  const resetScroll = useStableCallback(() => listVirtualizerRef.current?.resetScroll());
   const virtualizerHandle = React.useMemo(() => ({ resetScroll }), [resetScroll]);
   const virtualizerId = useRefWithInit(() => Symbol('Base UI list virtualizer')).current;
 
@@ -491,198 +328,38 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     }
   }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
 
-  React.useEffect(() => {
-    const element = scrollElementRef.current;
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      virtualizationEnabled &&
-      rows.length >= 100 &&
-      element &&
-      totalSize > 0 &&
-      element.clientHeight >= totalSize
-    ) {
-      warn(
-        '<Combobox.Virtualizer> must have a constrained height or maximum height. ' +
-          'Without one, all items are rendered and virtualization provides no benefit.',
-      );
-    }
-  }, [rows.length, totalSize, virtualizationEnabled]);
-
-  useIsoLayoutEffect(() => {
-    const virtualization = virtualizer.store.state.virtualization;
-
-    if (
-      virtualization.enabled === virtualizationEnabled &&
-      virtualization.enabledForRows === virtualizationEnabled &&
-      virtualization.enabledForColumns === false
-    ) {
-      return;
-    }
-
-    // Updating the store flag alone does not recompute the rendered range. Schedule the MUI X
-    // render-context update before publishing the new virtualization mode.
-    virtualizer.api.scheduleUpdateRenderContext();
-    virtualizer.store.set('virtualization', {
-      ...virtualization,
-      enabled: virtualizationEnabled,
-      enabledForColumns: false,
-      enabledForRows: virtualizationEnabled,
-    });
-  }, [virtualizationEnabled, virtualizer.api, virtualizer.store]);
-
-  const scrollActiveItemIntoView = useStableCallback(
-    (itemIndex: number, requireMeasurement = false) => {
-      const scrollElement = scrollElementRef.current;
-      const rowIndex = rowIndexByItemIndexRef.current.get(itemIndex);
-
-      if (!scrollElement || rowIndex == null) {
-        return false;
-      }
-
-      const row = rowsRef.current[rowIndex];
-      const measured =
-        row != null && !virtualizer.api.rowsMeta.getRowHeightEntry(row.id).needsFirstMeasurement;
-
-      // The first pass may scroll using estimates so the destination mounts. The retry waits for
-      // the real row measurement; treating an estimated position as final can leave only the
-      // zero-sized focus proxy mounted after row heights expand.
-      if (requireMeasurement && !measured) {
-        return false;
-      }
-
-      const rowsMeta = virtualizer.store.state.rowsMeta;
-      const start = rowsMeta.positions[rowIndex];
-      const end = rowsMeta.positions[rowIndex + 1] ?? rowsMeta.currentPageTotalHeight;
-
-      if (start == null || end == null) {
-        return false;
-      }
-
-      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-      const scrollPaddingStart = Number.parseFloat(styles.scrollPaddingTop) || 0;
-      const scrollPaddingEnd = Number.parseFloat(styles.scrollPaddingBottom) || 0;
-      const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
-      const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
-      const viewportSize = Math.max(
-        0,
-        scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
-      );
-      const rowSize = end - start;
-      let nextScrollTop: number | null = null;
-
-      if (rowSize > viewportSize) {
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (start < viewportStart) {
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (end > viewportEnd) {
-        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-      }
-
-      if (nextScrollTop != null) {
-        const maxScrollTop = Math.max(
-          0,
-          rowsMeta.currentPageTotalHeight - scrollElement.clientHeight,
-        );
-        scrollElement.scrollTo({
-          behavior: 'instant' as ScrollBehavior,
-          top: Math.max(0, Math.min(nextScrollTop, maxScrollTop)),
-        });
-      }
-
-      // `false` keeps the request pending even if an estimated scroll was performed.
-      return measured;
-    },
-  );
-
-  const pendingScrollItemIndexRef = React.useRef<number | null>(null);
-  const pendingScrollRowsRef = React.useRef<RowEntry[] | null>(null);
-
-  useIsoLayoutEffect(() => {
-    if (
-      !virtualizationEnabled ||
-      highlightType === 'pointer' ||
-      activeIndex == null ||
-      activeIndex < 0 ||
-      !rowIndexByItemIndexRef.current.has(activeIndex)
-    ) {
-      pendingScrollItemIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
-      return;
-    }
-
-    pendingScrollItemIndexRef.current = activeIndex;
-    pendingScrollRowsRef.current = rowsRef.current;
-
-    // Try immediately with estimated metadata. If the destination is still unmeasured, the
-    // rowsMeta effect below corrects the position once ResizeObserver updates it.
-    if (scrollActiveItemIntoView(activeIndex)) {
-      pendingScrollItemIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
-    }
-  }, [activeIndex, highlightType, scrollActiveItemIntoView, virtualizationEnabled]);
-
-  useIsoLayoutEffect(() => {
-    const itemIndex = pendingScrollItemIndexRef.current;
-
-    // Filtering replaces the row collection. Do not apply a correction for an old logical index
-    // to an unrelated item that happens to occupy the same index in the new collection.
-    if (pendingScrollRowsRef.current !== rows) {
-      pendingScrollItemIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
-      return;
-    }
-
-    if (itemIndex != null && scrollActiveItemIntoView(itemIndex, true)) {
-      pendingScrollItemIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
-    }
-  }, [rows, rowsMeta, scrollActiveItemIntoView]);
-
-  const renderedRows = virtualizer.api.getters.getRows();
-
-  // `getRows` treats `lastRowIndex` as exclusive when rendering the range, but uses a strict
-  // greater-than comparison when deciding whether to append the focused virtual row.
-  if (focusedRowIndex === renderContext.lastRowIndex && focusedRowIndex < rows.length) {
-    const row = rows[focusedRowIndex];
-    renderedRows.push(
-      renderRow({
-        id: row.id,
-        model: row.model,
-        rowIndex: focusedRowIndex,
-        isVirtualFocusRow: true,
-      }),
+  const handleUnconstrainedHeight = useStableCallback(() => {
+    warn(
+      '<Combobox.Virtualizer> must have a constrained height or maximum height. ' +
+        'Without one, all items are rendered and virtualization provides no benefit.',
     );
-  }
-
-  const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
-
-  const state: ComboboxVirtualizerState = {
-    empty: rows.length === 0,
-    totalSize,
-  };
-
-  const defaultProps: HTMLProps = {
-    ...restContainerProps,
-    style: {
-      ...containerStyle,
-      [ComboboxVirtualizerCssVars.totalSize as string]: `${totalSize}px`,
-      overflow: 'auto',
-    } as React.CSSProperties,
-    children: (
-      <React.Fragment>
-        <div {...contentProps} />
-        <div role="presentation" {...positionerProps} />
-        {renderedRows}
-      </React.Fragment>
-    ),
-  };
-
-  return useRenderElement('div', componentProps, {
-    state,
-    stateAttributesMapping,
-    ref: [forwardedRef, containerRef],
-    props: [defaultProps, elementProps],
   });
+
+  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
+  const resolvedEstimateSize = typeof estimateSize === 'number' ? estimateSize : estimateRowSize;
+
+  return (
+    <ListVirtualizer
+      {...elementProps}
+      apiRef={listVirtualizerRef}
+      className={className}
+      enabled={virtualizationEnabled}
+      estimateSize={resolvedEstimateSize}
+      onUnconstrainedHeight={handleUnconstrainedHeight}
+      overscanPx={overscanPx}
+      paddingEnd={paddingEnd}
+      paddingStart={paddingStart}
+      pinnedRowIndexes={pinnedRowIndexes}
+      ref={forwardedRef}
+      render={render}
+      renderRow={renderRow}
+      restoreViewportVersion={renderAllRowsRestoreVersion}
+      rows={rows}
+      scrollToRowIndex={scrollToRowIndex}
+      style={style}
+      totalSizeCssVariable={ComboboxVirtualizerCssVars.totalSize}
+    />
+  );
 }) as {
   <Value>(
     props: ComboboxVirtualizer.Props<Value> & React.RefAttributes<HTMLDivElement>,
@@ -745,18 +422,6 @@ function normalizeItemKey(key: unknown): VirtualizerItemKey {
 
 function isObjectValue(value: unknown): value is object {
   return (typeof value === 'object' && value !== null) || typeof value === 'function';
-}
-
-function getRowSpacing(
-  rowIndex: number,
-  rowCount: number,
-  paddingStart: number,
-  paddingEnd: number,
-) {
-  return {
-    top: rowIndex === 0 ? paddingStart : 0,
-    bottom: rowIndex === rowCount - 1 ? paddingEnd : 0,
-  };
 }
 
 /**

@@ -20,6 +20,13 @@ export interface ListVirtualizationRegistry {
    */
   getRenderAllRows: () => boolean;
   /**
+   * Returns a version that changes whenever a render-all pass finishes.
+   *
+   * Virtualizers use this to restore their constrained viewport even if they remount after the
+   * render-all pass.
+   */
+  getRenderAllRowsRestoreVersion: () => number;
+  /**
    * Number of non-virtualized items currently registered with the list.
    */
   nonVirtualItemCount: number;
@@ -43,14 +50,19 @@ export interface ListVirtualizationRegistry {
 export function createListVirtualizationRegistry(): ListVirtualizationRegistry {
   const listeners = new Set<() => void>();
   let renderAllRows = false;
+  let renderAllRowsRestoreVersion = 0;
   const registry: ListVirtualizationRegistry = {
     getRenderAllRows: () => renderAllRows,
+    getRenderAllRowsRestoreVersion: () => renderAllRowsRestoreVersion,
     nonVirtualItemCount: 0,
     setRenderAllRows(nextRenderAllRows) {
       if (renderAllRows === nextRenderAllRows) {
         return;
       }
       renderAllRows = nextRenderAllRows;
+      if (!nextRenderAllRows) {
+        renderAllRowsRestoreVersion += 1;
+      }
       listeners.forEach((listener) => listener());
     },
     subscribeRenderAllRows(listener) {
