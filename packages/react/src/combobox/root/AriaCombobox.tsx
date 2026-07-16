@@ -67,6 +67,7 @@ import {
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
 
 /**
  * @internal
@@ -162,6 +163,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     hasQuery: boolean;
     selection?: boolean | undefined;
   }>(null);
+  const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -392,8 +394,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       required,
       grid,
       externalVirtualized: virtualized,
-      virtualizerMounted: false,
-      virtualized,
+      virtualizationRegistry,
       openOnInputClick,
       itemToStringLabel,
       isItemEqualToValue,
@@ -577,23 +578,31 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
 
-          // Virtualized lists own their scroller. Reset regular lists directly so a stale
-          // composite registry cannot select a reordered item and scrolling cannot escape
-          // the popup.
-          const list = store.state.listElement;
-          if (!store.state.virtualized && list) {
-            const popup = popupRef.current;
-            for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
-              if (
-                !isHTMLElement(ancestor) ||
-                (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
-              ) {
-                break;
-              }
+          const builtInVirtualizer = store.state.virtualizationRegistry.virtualizers
+            .values()
+            .next().value;
 
-              if (isScrollableY(ancestor)) {
-                ancestor.scrollTop = 0;
-                break;
+          if (builtInVirtualizer) {
+            builtInVirtualizer.resetScroll();
+          } else if (!store.state.externalVirtualized) {
+            // Externally virtualized lists own their scroller. Reset regular lists directly
+            // so a stale composite registry cannot select a reordered item and scrolling
+            // cannot escape the popup.
+            const list = store.state.listElement;
+            if (list) {
+              const popup = popupRef.current;
+              for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+                if (
+                  !isHTMLElement(ancestor) ||
+                  (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
+                ) {
+                  break;
+                }
+
+                if (isScrollableY(ancestor)) {
+                  ancestor.scrollTop = 0;
+                  break;
+                }
               }
             }
           }
@@ -604,7 +613,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             store.state.activeIndex == null &&
             (open || inline)
           ) {
-            store.update({ activeIndex: 0, highlightType: 'none' });
+            updateActiveIndexState(store, 0);
           }
         }
       } else if (
@@ -909,7 +918,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode && listIsNavigable) {
-          store.update({ activeIndex: 0, highlightType: 'none' });
+          updateActiveIndexState(store, 0);
         }
         pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
@@ -925,7 +934,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           ) {
             // There is no selection to restore in Autocomplete. Keep the first-item reset
             // synchronous so list navigation sees it before a directly rendered list closes.
-            store.update({ activeIndex: 0, highlightType: 'none' });
+            updateActiveIndexState(store, 0);
           }
 
           // Items re-mounted by the clear publish their composite indices in a follow-up
@@ -955,8 +964,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 hasItems || hasFilteredItemsProp ? flatFilteredItems : valuesRef.current;
               // A selection that is no longer in the list drops the highlight rather than
               // leaving it on whichever item now occupies that index.
-              store.update({
-                activeIndex: hasSelection
+              updateActiveIndexState(
+                store,
+                hasSelection
                   ? findSelectionIndex(
                       registry,
                       currentSelectedValue,
@@ -964,10 +974,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                       isMultiple,
                     )
                   : null,
-                highlightType: 'none',
-              });
+              );
             } else if (autoHighlightMode === 'always') {
-              store.update({ activeIndex: 0, highlightType: 'none' });
+              updateActiveIndexState(store, 0);
             }
           });
         }
@@ -984,7 +993,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex == null) {
       if (autoHighlightMode === 'always' && candidateItems.length > 0) {
-        store.update({ activeIndex: 0, highlightType: 'none' });
+        updateActiveIndexState(store, 0);
         return;
       }
       emitHighlight(undefined, -1, REASONS.none);
@@ -993,7 +1002,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex >= candidateItems.length) {
       emitHighlight(undefined, -1, REASONS.none);
-      store.update({ activeIndex: null, highlightType: 'none' });
+      updateActiveIndexState(store, null);
       return;
     }
 
@@ -1307,7 +1316,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       required,
       grid,
       externalVirtualized: virtualized,
-      virtualized: virtualized || store.state.virtualizerMounted,
       openOnInputClick,
       itemToStringLabel,
       modal,
@@ -1355,10 +1363,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () => ({
       query,
       hasItems,
+      isGrouped,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, hasItems, isGrouped, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1502,6 +1511,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
+}
+
+function updateActiveIndexState(
+  store: Store<StoreState>,
+  activeIndex: number | null,
+  highlightType: AriaCombobox.HighlightEventReason = 'none',
+) {
+  store.update({ activeIndex, highlightType });
 }
 
 type SelectionMode = 'single' | 'multiple' | 'none';

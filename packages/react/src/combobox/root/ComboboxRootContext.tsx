@@ -6,6 +6,7 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
+  isGrouped: boolean;
   filteredItems: any[];
   flatFilteredItems: any[];
 }
