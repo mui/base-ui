@@ -516,4 +516,375 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(closingRect.y - initialRect.y)).toBeLessThanOrEqual(1);
     },
   );
+
+  describe.skipIf(isJSDOM)('transform origin', () => {
+    function getTransformOrigin() {
+      return screen.getByTestId('positioner').style.getPropertyValue('--transform-origin');
+    }
+
+    it('points to the anchor center for center alignment', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      // The popup is centered on the anchor, so the anchor's center maps to the popup's center.
+      expect(getTransformOrigin()).toBe(`${popupWidth / 2}px 0px`);
+    });
+
+    it('points to the popup start edge for start alignment', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start">
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('0% 0px');
+    });
+
+    it('points to the popup logical start edge for start alignment in RTL', async () => {
+      await render(
+        <div dir="rtl">
+          <DirectionProvider direction="rtl">
+            <Popover.Root open>
+              <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" align="start" dir="rtl">
+                  <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
+    it('uses the floating element direction for RTL alignment', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start" dir="rtl">
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
+    it('points to the popup end edge for end alignment', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="end">
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
+    it('points to the popup logical end edge for end alignment in RTL', async () => {
+      await render(
+        <div dir="rtl">
+          <DirectionProvider direction="rtl">
+            <Popover.Root open>
+              <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" align="end" dir="rtl">
+                  <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      expect(getTransformOrigin()).toBe('0% 0px');
+    });
+
+    it('places the side coordinate first for horizontal sides', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" side="right" align="start">
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('0px 0%');
+    });
+
+    it('points to the popup end edge for horizontal end alignment', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 200, top: 50 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" side="left" align="end" sideOffset={7}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('calc(100% + 7px) 100%');
+    });
+
+    it('accounts for sideOffset', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start" sideOffset={7}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('0% -7px');
+    });
+
+    it('accounts for sideOffset on top side', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 50, top: 200 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start" side="top" sideOffset={7}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(getTransformOrigin()).toBe('0% calc(100% + 7px)');
+    });
+
+    it('keeps the popup start edge as the origin with alignOffset', async () => {
+      const alignOffset = 7;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start" alignOffset={alignOffset}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(positionerRect.left - anchorRect.left).toBe(alignOffset);
+      expect(getTransformOrigin()).toBe('0% 0px');
+    });
+
+    it('keeps the popup start edge as the origin for a 1px cross-axis shift', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger
+            style={{
+              ...triggerStyle,
+              position: 'fixed',
+              left: `calc(100vw - ${popupWidth - 1}px)`,
+              top: 50,
+            }}
+          >
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              align="start"
+              collisionAvoidance={{ align: 'shift' }}
+              collisionPadding={0}
+            >
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(Math.round(positionerRect.left - anchorRect.left)).toBe(-1);
+      expect(getTransformOrigin()).toBe('0% 0px');
+    });
+
+    it('points to the anchor center when start alignment is shifted on the cross axis', async () => {
+      const shiftedPopupWidth = 240;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', top: 50, right: 10 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              align="start"
+              collisionAvoidance={{ align: 'shift' }}
+            >
+              <Popover.Popup style={{ ...popupStyle, width: shiftedPopupWidth }}>
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(positionerRect.left).toBeLessThan(anchorRect.left);
+      expect(getTransformOrigin()).toBe(
+        `${anchorRect.x + anchorWidth / 2 - positionerRect.x}px 0px`,
+      );
+    });
+
+    it('points to the anchor center when end alignment is shifted on the cross axis', async () => {
+      const shiftedPopupWidth = 240;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 10, top: 50 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              align="end"
+              collisionAvoidance={{ align: 'shift' }}
+            >
+              <Popover.Popup style={{ ...popupStyle, width: shiftedPopupWidth }}>
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(positionerRect.right).toBeGreaterThan(anchorRect.right);
+      expect(getTransformOrigin()).toBe(
+        `${anchorRect.x + anchorWidth / 2 - positionerRect.x}px 0px`,
+      );
+    });
+
+    it('points to the anchor center when horizontal alignment is shifted on the cross axis', async () => {
+      const shiftedPopupHeight = 120;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 50, bottom: 10 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              side="right"
+              align="start"
+              collisionAvoidance={{ align: 'shift' }}
+            >
+              <Popover.Popup style={{ ...popupStyle, height: shiftedPopupHeight }}>
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(positionerRect.top).toBeLessThan(anchorRect.top);
+      expect(getTransformOrigin()).toBe(
+        `0px ${anchorRect.y + anchorHeight / 2 - positionerRect.y}px`,
+      );
+    });
+
+    it('points to the arrow when present regardless of alignment', async () => {
+      const arrowSize = 10;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start">
+              <Popover.Popup style={popupStyle}>
+                <Popover.Arrow style={{ width: arrowSize, height: arrowSize }} />
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      // The arrow is centered against the anchor, whose center sits at half the anchor's
+      // width from the popup's left edge with start alignment.
+      expect(getTransformOrigin()).toBe(`${anchorWidth / 2}px 0px`);
+    });
+
+    it('points to the anchor center when the popup is shifted to overlap the anchor', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 50, bottom: 10 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" collisionAvoidance={{ side: 'shift' }}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      // The popup doesn't fit below the anchor, so it shifts up and overlaps it. The
+      // side-axis origin then points to the anchor's vertical center within the popup.
+      expect(positionerRect.top).toBeLessThan(anchorRect.bottom);
+      expect(getTransformOrigin()).toBe(
+        `${popupWidth / 2}px ${anchorRect.y + anchorHeight / 2 - positionerRect.y}px`,
+      );
+    });
+  });
 });
