@@ -28,49 +28,44 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     },
   }));
 
-  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
-    if (isJSDOM) {
-      skip();
-    }
+  it.skipIf(isJSDOM)(
+    'should remove the indicator when there is no exit animation defined',
+    async () => {
+      function Test() {
+        const [checked, setChecked] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setChecked(false)}>Close</button>
+            <Menu.Root open modal={false}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.CheckboxItem checked={checked}>
+                      <Menu.CheckboxItemIndicator data-testid="indicator" />
+                    </Menu.CheckboxItem>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
 
-    function Test() {
-      const [checked, setChecked] = React.useState(true);
-      return (
-        <div>
-          <button onClick={() => setChecked(false)}>Close</button>
-          <Menu.Root open modal={false}>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.CheckboxItem checked={checked}>
-                    <Menu.CheckboxItemIndicator data-testid="indicator" />
-                  </Menu.CheckboxItem>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </div>
-      );
-    }
+      const { user } = await render(<Test />);
 
-    const { user } = await render(<Test />);
+      expect(screen.queryByTestId('indicator')).not.toBe(null);
 
-    expect(screen.queryByTestId('indicator')).not.toBe(null);
+      const closeButton = screen.getByText('Close');
 
-    const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
 
-    await user.click(closeButton);
+      await waitFor(() => {
+        expect(screen.queryByTestId('indicator')).toBe(null);
+      });
+    },
+  );
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('indicator')).toBe(null);
-    });
-  });
-
-  it('should remove the indicator when the animation finishes', async ({ skip }) => {
-    if (isJSDOM) {
-      skip();
-    }
-
+  it.skipIf(isJSDOM)('should remove the indicator when the animation finishes', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     let animationFinished = false;
@@ -128,4 +123,62 @@ describe('<Menu.CheckboxItemIndicator />', () => {
       expect(animationFinished).toBe(true);
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps the indicator mounted to play its exit animation when unchecked without keepMounted',
+    async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function Test() {
+        const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+        const [checked, setChecked] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setChecked(false)}>Close</button>
+            <Menu.Root open modal={false}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.CheckboxItem checked={checked}>
+                      <Menu.CheckboxItemIndicator
+                        className="animation-test-indicator"
+                        data-testid="indicator"
+                      />
+                    </Menu.CheckboxItem>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('indicator')).not.toBe(null);
+
+      await user.click(screen.getByText('Close'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('indicator')).toBe(null);
+      });
+    },
+  );
 });
