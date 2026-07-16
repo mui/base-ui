@@ -1,8 +1,9 @@
-import { expect } from 'vitest';
-import { createRenderer } from '#test-utils';
+import { expect, vi } from 'vitest';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
+import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Thumb />', () => {
@@ -18,6 +19,85 @@ describe('<ScrollArea.Thumb />', () => {
       );
     },
   }));
+
+  describe.skipIf(isJSDOM)('horizontal dragging', () => {
+    async function renderHorizontal(direction: 'ltr' | 'rtl') {
+      const { user } = await render(
+        <DirectionProvider direction={direction}>
+          <ScrollArea.Root style={{ width: 200, height: 200, direction }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 200 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar
+              orientation="horizontal"
+              data-testid="scrollbar"
+              keepMounted
+              style={{ display: 'flex', width: 200, height: 10 }}
+            >
+              <ScrollArea.Thumb data-testid="thumb" />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const scrollbar = screen.getByTestId('scrollbar');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetWidth).toBeGreaterThan(0));
+
+      return { scrollbar, thumb, user, viewport };
+    }
+
+    it('updates LTR scroll position and pointer capture state', async () => {
+      const { scrollbar, thumb, user, viewport } = await renderHorizontal('ltr');
+      const setPointerCapture = vi.spyOn(thumb, 'setPointerCapture').mockImplementation(() => {});
+      vi.spyOn(thumb, 'hasPointerCapture').mockReturnValue(true);
+      const releasePointerCapture = vi
+        .spyOn(thumb, 'releasePointerCapture')
+        .mockImplementation(() => {});
+      const rect = thumb.getBoundingClientRect();
+
+      await user.pointer({
+        target: thumb,
+        coords: { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 },
+        keys: '[MouseLeft>]',
+      });
+      await user.pointer({
+        target: thumb,
+        coords: { clientX: rect.left + rect.width / 2 + 20, clientY: rect.top + rect.height / 2 },
+      });
+
+      expect(setPointerCapture).toHaveBeenCalledTimes(1);
+      expect(viewport.scrollLeft).toBeGreaterThan(0);
+      expect(scrollbar).toHaveAttribute('data-scrolling');
+
+      await user.pointer({ keys: '[/MouseLeft]' });
+
+      expect(releasePointerCapture).toHaveBeenCalled();
+    });
+
+    it('uses the negative RTL range and clears scrolling on pointer cancel', async () => {
+      const { scrollbar, thumb, user, viewport } = await renderHorizontal('rtl');
+      const rect = thumb.getBoundingClientRect();
+
+      await user.pointer({
+        target: thumb,
+        coords: { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 },
+        keys: '[MouseLeft>]',
+      });
+      await user.pointer({
+        target: thumb,
+        coords: { clientX: rect.left + rect.width / 2 - 20, clientY: rect.top + rect.height / 2 },
+      });
+
+      expect(viewport.scrollLeft).toBeLessThan(0);
+      expect(scrollbar).toHaveAttribute('data-scrolling');
+      expect(() => fireEvent.pointerCancel(thumb, { pointerId: 1 })).not.toThrow();
+      await waitFor(() => expect(scrollbar).not.toHaveAttribute('data-scrolling'));
+
+      await user.pointer({ keys: '[/MouseLeft]' });
+    });
+  });
 
   it('clears scrolling state on pointer cancel without releasing stale capture', async () => {
     await render(

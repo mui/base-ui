@@ -88,7 +88,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
-    stopEventPropagation = false,
+    stopEventPropagation,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
   } = params;
@@ -215,7 +215,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
       const selectionStart = target.selectionStart;
       const selectionEnd = target.selectionEnd;
-      const textContent = target.value ?? '';
+      const textContent = target.value;
       // return to native textbox behavior when
       // 1 - Shift is held to make a text selection, or if there already is a text selection
       if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
@@ -326,7 +326,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       if (!element || target == null || !isNativeInput(target)) {
         return;
       }
-      target.setSelectionRange(0, target.value.length ?? 0);
+      target.setSelectionRange(0, target.value.length);
     },
     onKeyDown,
   };
@@ -336,14 +336,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
-    disabledIndices,
     onMapChange,
     relayKeyboardEvent: onKeyDown,
   };
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
-  for (const key of MODIFIER_KEYS.values()) {
+  for (const key of MODIFIER_KEYS) {
     if (ignoredModifierKeys.includes(key)) {
       continue;
     }
