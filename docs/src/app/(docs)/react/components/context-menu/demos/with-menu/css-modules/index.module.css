@@ -95,12 +95,19 @@
     }
   }
 
-  &:active:not([data-disabled]),
-  &[data-pressed] {
+  &:active:not([data-disabled]) {
     background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-pressed] {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
     }
   }
 
