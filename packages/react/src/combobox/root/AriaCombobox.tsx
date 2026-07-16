@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -67,7 +68,10 @@ import {
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
+import {
+  createListVirtualizationRegistry,
+  setListVirtualizersRenderAllRows,
+} from '../../internals/virtualization/ListVirtualizationRegistry';
 
 /**
  * @internal
@@ -114,6 +118,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
+    isItemDisabled,
     isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     inline: inlineProp = false,
@@ -394,6 +399,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       virtualizationRegistry,
       openOnInputClick,
       itemToStringLabel,
+      isItemDisabled,
       isItemEqualToValue,
       modal,
       autoHighlight: autoHighlightMode,
@@ -1141,6 +1147,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
+  const isIndexDisabled = useStableCallback((index: number) => {
+    const itemValue = hasItems ? flatFilteredItems[index] : valuesRef.current[index];
+    return isItemDisabled?.(itemValue, index) === true;
+  });
+
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     id,
@@ -1156,7 +1167,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
@@ -1261,6 +1272,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       externalVirtualized: virtualized,
       openOnInputClick,
       itemToStringLabel,
+      isItemDisabled,
       modal,
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
@@ -1290,6 +1302,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     virtualized,
     openOnInputClick,
     itemToStringLabel,
+    isItemDisabled,
     modal,
     isItemEqualToValue,
     submitOnItemClick,
@@ -1407,6 +1420,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
             }
 
+            let collectedRenderedLabels = false;
+
             // Only single-selection autofill matches against the registered values/labels.
             // `multiple` ignores autofill and `none` just writes the input value, so avoid the
             // sticky `forceMounted` mount (which never resets) for those modes.
@@ -1416,10 +1431,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 // `forceMount` only refreshes the derived labels for the `items` prop. When
                 // serialized matching misses, also mount the list so rendered labels (which can
                 // differ from the serialized values) are registered for autofill matching.
+                setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
                 store.set('forceMounted', true);
+                collectedRenderedLabels = true;
               }
             }
-            queueMicrotask(handleChange);
+            queueMicrotask(() => {
+              handleChange();
+
+              if (collectedRenderedLabels) {
+                // Allow the force-mounted tree to commit its registered labels before restoring
+                // the virtual window and unmounting the closed popup.
+                queueMicrotask(() => {
+                  ReactDOM.flushSync(() => {
+                    setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, false);
+                  });
+                  store.set('forceMounted', false);
+                });
+              }
+            });
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
@@ -1626,6 +1656,14 @@ interface ComboboxRootProps<ItemValue> {
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
+  /**
+   * Determines whether an item is disabled from its value and logical index.
+   *
+   * Use this prop when disabled state must be known before an item is rendered, such as when
+   * virtualizing the list. Disabled items are skipped during keyboard navigation, and rendered
+   * `<Combobox.Item>` elements inherit the disabled state.
+   */
+  isItemDisabled?: ((itemValue: ItemValue, index: number) => boolean) | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.

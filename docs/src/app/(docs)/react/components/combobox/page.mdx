@@ -229,7 +229,9 @@ The virtualizer is the scroll container, so constrain its height or maximum heig
 }
 ```
 
-Use `getItemKey` to provide stable identity when item values are objects. `estimateSize` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimateSize` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+
+When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. Unlike the `disabled` prop on a rendered `<Combobox.Item>`, this callback makes the disabled state available while the item is outside the rendered window, so keyboard navigation can skip it.
 
 The `virtualized` prop on `<Combobox.Root>` is only needed when integrating a different virtualization library. Do not set it when using `<Combobox.Virtualizer>`.
 
