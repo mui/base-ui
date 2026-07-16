@@ -299,4 +299,41 @@ describe('<Tooltip.Positioner />', () => {
       expect(positioner.style.transform).toBe('');
     });
   });
+
+  it.skipIf(isJSDOM)('updates positioning when Viewport mounts and unmounts', async () => {
+    function App() {
+      const [showViewport, setShowViewport] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <button onClick={() => setShowViewport((value) => !value)}>Toggle Viewport</button>
+          <Tooltip.Root open>
+            <Trigger style={triggerStyle}>Trigger</Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner data-testid="positioner">
+                <Tooltip.Popup style={popupStyle}>
+                  {showViewport ? <Tooltip.Viewport>Popup</Tooltip.Viewport> : 'Popup'}
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const positioner = screen.getByTestId('positioner');
+
+    expect(positioner.style.transform).not.toBe('');
+
+    await user.click(screen.getByRole('button', { name: 'Toggle Viewport' }));
+    await waitFor(() => {
+      expect(positioner.style.transform).toBe('');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Toggle Viewport' }));
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+  });
 });

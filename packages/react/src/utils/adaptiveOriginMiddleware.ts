@@ -1,11 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSide } from '@floating-ui/utils';
 import { Middleware } from '../floating-ui-react';
-
-export const DEFAULT_SIDES = {
-  sideX: 'left',
-  sideY: 'top',
-};
+import { DEFAULT_SIDES } from './adaptiveOriginConstants';
 
 export const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',

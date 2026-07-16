@@ -10,6 +10,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 /**
  * A container for the tooltip contents.
@@ -62,7 +63,12 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.context.popupRef, setPopupElement],
-    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    props: [
+      FOCUSABLE_POPUP_PROPS,
+      popupProps,
+      getDisabledMountTransitionStyles(transitionStatus),
+      elementProps,
+    ],
     stateAttributesMapping: popupTransitionStateMapping,
   });
 
