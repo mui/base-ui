@@ -68,54 +68,6 @@ function loadPackageJson() {
 
 const rootPackage = loadPackageJson();
 
-/**
- * Work around https://github.com/vercel/next.js/issues/91735.
- * Next.js 16.2 does not assign MDX files to the React Server Components webpack layer.
- *
- * @param {unknown[]} rules
- */
-function patchMdxWebpackLayers(rules) {
-  for (const rule of rules) {
-    if (!rule || typeof rule !== 'object') {
-      continue;
-    }
-
-    const webpackRule = /** @type {Record<string, unknown>} */ (rule);
-
-    if (webpackRule.test instanceof RegExp && webpackRule.test.test('page.mdx')) {
-      const loaders = Array.isArray(webpackRule.use) ? webpackRule.use : [webpackRule.use];
-
-      for (const loader of loaders) {
-        if (!loader || typeof loader !== 'object') {
-          continue;
-        }
-
-        const webpackLoader = /** @type {Record<string, unknown>} */ (loader);
-        const options = webpackLoader.options;
-
-        if (
-          typeof webpackLoader.loader === 'string' &&
-          webpackLoader.loader.includes('next-swc-loader') &&
-          options &&
-          typeof options === 'object'
-        ) {
-          const webpackOptions = /** @type {Record<string, unknown>} */ (options);
-          if (webpackOptions.bundleLayer == null) {
-            webpackOptions.bundleLayer = 'rsc';
-          }
-        }
-      }
-    }
-
-    if (Array.isArray(webpackRule.oneOf)) {
-      patchMdxWebpackLayers(webpackRule.oneOf);
-    }
-    if (Array.isArray(webpackRule.rules)) {
-      patchMdxWebpackLayers(webpackRule.rules);
-    }
-  }
-}
-
 /** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
 const typesGenerationOptions = {
   socketDir: '.next/docs-infra',
@@ -164,11 +116,7 @@ const nextConfig = {
       },
     },
   },
-  webpack: (config, { defaultLoaders, isServer }) => {
-    if (isServer && Array.isArray(config.module.rules)) {
-      patchMdxWebpackLayers(config.module.rules);
-    }
-
+  webpack: (config, { defaultLoaders }) => {
     // for production builds
     config.module.rules.push({
       test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
