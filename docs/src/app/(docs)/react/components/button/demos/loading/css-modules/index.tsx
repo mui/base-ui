@@ -7,18 +7,23 @@ export default function ExampleButton() {
   const [loading, setLoading] = React.useState(false);
 
   return (
-    <Button
-      className={styles.Button}
-      disabled={loading}
-      focusableWhenDisabled
-      onClick={() => {
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-        }, 4000);
-      }}
-    >
-      {loading ? 'Submitting' : 'Submit'}
-    </Button>
+    <React.Fragment>
+      <Button
+        className={styles.Button}
+        disabled={loading}
+        focusableWhenDisabled
+        onClick={() => {
+          setLoading(true);
+          setTimeout(() => {
+            setLoading(false);
+          }, 4000);
+        }}
+      >
+        {loading ? 'Submitting' : 'Submit'}
+      </Button>
+      <span role="status" className={styles.VisuallyHidden}>
+        {loading ? 'Submitting' : null}
+      </span>
+    </React.Fragment>
   );
 }
