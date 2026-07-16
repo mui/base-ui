@@ -85,6 +85,7 @@ export type State = {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
+  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
@@ -173,6 +174,7 @@ export const selectors = {
   grid: (state: State) => state.grid,
   externalVirtualized: (state: State) => state.externalVirtualized,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,

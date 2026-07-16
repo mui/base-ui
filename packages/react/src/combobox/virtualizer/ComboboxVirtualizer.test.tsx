@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Combobox.Virtualizer />', () => {
@@ -121,6 +121,34 @@ describe('<Combobox.Virtualizer />', () => {
     expect(await screen.findByRole('option', { name: 'Item 2' })).toHaveStyle({
       marginBottom: '6px',
     });
+  });
+
+  it.skipIf(!isJSDOM)('updates estimated size and padding when their props change', async () => {
+    function Test(props: { estimateSize: number; paddingStart: number }) {
+      return (
+        <Combobox.Root defaultOpen items={createItems(3)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimateSize={props.estimateSize}
+              paddingStart={props.paddingStart}
+              render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
+            >
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test estimateSize={20} paddingStart={4} />);
+    const virtualizer = screen.getByTestId('virtualizer');
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('64px'));
+
+    await rerender(<Test estimateSize={40} paddingStart={40} />);
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('160px'));
+    expect(screen.getByRole('option', { name: 'Item 1' })).toHaveStyle({ marginTop: '40px' });
   });
 
   it.skipIf(isJSDOM)('updates the total size after measuring items', async () => {
@@ -273,6 +301,120 @@ describe('<Combobox.Virtualizer />', () => {
       expect(input.ownerDocument.getElementById(activeId as string)).toHaveTextContent('Item 100');
     });
     expect(handleScrollTo).toHaveBeenCalled();
+  });
+
+  it.skipIf(isJSDOM)(
+    'corrects keyboard scrolling after the highlighted row is measured',
+    async () => {
+      let scrollTop = 0;
+      const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+        scrollTop = options.top ?? scrollTop;
+      });
+
+      const { user } = await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimateSize={20}
+              overscanPx={0}
+              render={
+                <div
+                  ref={setElementScrollState({
+                    clientHeight: 60,
+                    getScrollTop: () => scrollTop,
+                    scrollTo: handleScrollTo,
+                  })}
+                />
+              }
+            >
+              {(item: string) => (
+                <Combobox.Item value={item} style={{ height: 100 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      handleScrollTo.mockClear();
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => expect(handleScrollTo.mock.calls.length).toBeGreaterThan(1));
+
+      const activeId = input.getAttribute('aria-activedescendant');
+      expect(activeId).not.toBe(null);
+      const activeItem = input.ownerDocument.getElementById(activeId as string);
+      expect(activeItem).toHaveTextContent('Item 100');
+      expect(activeItem?.parentElement).not.toHaveStyle({ position: 'absolute' });
+
+      const firstScrollTop = handleScrollTo.mock.calls[0][0].top ?? 0;
+      const lastScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
+      expect(lastScrollTop).toBeGreaterThan(firstScrollTop);
+    },
+  );
+
+  it('skips disabled offscreen items during keyboard navigation', async () => {
+    let scrollTop = 0;
+
+    const { user } = await render(
+      <Combobox.Root
+        defaultOpen
+        items={createItems(100)}
+        isItemDisabled={(_, index) => index === 99}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.List>
+          <Combobox.Virtualizer
+            estimateSize={20}
+            overscanPx={0}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 60,
+                  getScrollTop: () => scrollTop,
+                  scrollTo(options) {
+                    scrollTop = options.top ?? scrollTop;
+                  },
+                })}
+              />
+            }
+          >
+            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await user.keyboard('{ArrowUp}');
+
+    await waitFor(() => {
+      const activeId = input.getAttribute('aria-activedescendant');
+      expect(activeId).not.toBe(null);
+      expect(input.ownerDocument.getElementById(activeId as string)).toHaveTextContent('Item 99');
+    });
+  });
+
+  it('applies logical disabled state to rendered items', async () => {
+    await render(
+      <Combobox.Root defaultOpen items={createItems(3)} isItemDisabled={(_, index) => index === 0}>
+        <Combobox.List>
+          <Combobox.Virtualizer estimateSize={20}>
+            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    expect(await screen.findByRole('option', { name: 'Item 1' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('resets the virtual scroller when filtering without auto-highlight', async () => {
@@ -856,6 +998,33 @@ describe('<Combobox.Virtualizer />', () => {
     }
   });
 
+  it('keeps primitive values with the same string representation distinct', async () => {
+    const firstSymbol = Symbol('same');
+    const secondSymbol = Symbol('same');
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Combobox.Root defaultOpen items={[1, '1', firstSymbol, secondSymbol]}>
+          <Combobox.List>
+            <Combobox.Virtualizer<string | number | symbol> estimateSize={20}>
+              {(item: string | number | symbol, index) => (
+                <Combobox.Item value={item}>{`${typeof item} ${index}`}</Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getAllByRole('option')).toHaveLength(4);
+      expect(errorSpy.mock.calls.some(([message]) => String(message).includes('same key'))).toBe(
+        false,
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('updates virtual metadata and empty state after filtering', async () => {
     const { user } = await render(
       <Combobox.Root defaultOpen items={createItems(10)}>
@@ -1007,7 +1176,7 @@ describe('<Combobox.Virtualizer />', () => {
         <Combobox.Root defaultOpen items={['one', 'two']}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <Combobox.Virtualizer
+            <Combobox.Virtualizer<string>
               estimateSize={20}
               render={<div ref={setElementClientHeight(40)} />}
             >
@@ -1158,7 +1327,7 @@ describe('<Combobox.Virtualizer />', () => {
           ]}
           virtualized
         >
-          <Combobox.Virtualizer estimateSize={20}>{() => null}</Combobox.Virtualizer>
+          <Combobox.Virtualizer<string> estimateSize={20}>{() => <div />}</Combobox.Virtualizer>
         </Combobox.Root>,
       );
 
@@ -1184,6 +1353,78 @@ describe('<Combobox.Virtualizer />', () => {
     }
 
     expect(TypeTest).toBeDefined();
+  });
+
+  it('requires getItemKey when the item type cannot be inferred', () => {
+    const item = { id: 1 };
+
+    function TypeTest() {
+      return (
+        // @ts-expect-error unknown item types require getItemKey
+        <Combobox.Virtualizer estimateSize={20}>
+          {() => <Combobox.Item value={item}>{item.id}</Combobox.Item>}
+        </Combobox.Virtualizer>
+      );
+    }
+
+    expect(TypeTest).toBeDefined();
+  });
+
+  it('does not allow item renderers to omit a row', () => {
+    function TypeTest() {
+      return (
+        <Combobox.Virtualizer<string> estimateSize={20}>
+          {
+            // @ts-expect-error virtualized item renderers must return an element
+            () => null
+          }
+        </Combobox.Virtualizer>
+      );
+    }
+
+    expect(TypeTest).toBeDefined();
+  });
+
+  it('collects offscreen rendered labels for browser autofill', async () => {
+    const items = Array.from({ length: 100 }, (_, index) => `V${index + 1}`);
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <Combobox.Root name="country" items={items} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Virtualizer<string>
+                  estimateSize={20}
+                  overscanPx={0}
+                  render={<div ref={setElementClientHeight(40)} />}
+                >
+                  {(item: string, index) => (
+                    <Combobox.Item value={item}>{`Country ${index + 1}`}</Combobox.Item>
+                  )}
+                </Combobox.Virtualizer>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+
+    fireEvent.change(hiddenInput, { target: { value: 'Country 50' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).toHaveBeenCalledWith('V50', expect.objectContaining({ reason: 'none' }));
+    expect(screen.queryByRole('listbox')).toBe(null);
+
+    await user.click(screen.getByRole('combobox'));
+    await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+    await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
   });
 
   it('renders all items when disabled', async () => {
