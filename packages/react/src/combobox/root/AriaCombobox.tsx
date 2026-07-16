@@ -398,7 +398,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       readOnly,
       required,
       grid,
-      externalVirtualized: virtualized,
+      externallyVirtualized: virtualized,
       virtualizationRegistry,
       openOnInputClick,
       itemToStringLabel,
@@ -590,7 +590,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
           if (builtInVirtualizer) {
             builtInVirtualizer.resetScroll();
-          } else if (!store.state.externalVirtualized) {
+          } else if (!store.state.externallyVirtualized) {
             // Externally virtualized lists own their scroller. Reset regular lists directly
             // so a stale composite registry cannot select a reordered item and scrolling
             // cannot escape the popup.
@@ -1326,7 +1326,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       readOnly,
       required,
       grid,
-      externalVirtualized: virtualized,
+      externallyVirtualized: virtualized,
       openOnInputClick,
       itemToStringLabel,
       isItemDisabled,
