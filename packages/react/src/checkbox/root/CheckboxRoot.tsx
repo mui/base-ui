@@ -178,7 +178,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.registerInput);
+  const registerFieldInput = validation.registerInput;
+  const registeredInputValue = groupContext ? value : undefined;
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement | null) =>
+      registerFieldInput(element, { controlRef, value: registeredInputValue }),
+    [registerFieldInput, registeredInputValue],
+  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, parent ? undefined : registerInput);
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -307,7 +314,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
+    ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
         id: nativeButton ? (inputId ?? undefined) : id,
