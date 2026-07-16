@@ -6,6 +6,7 @@ import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
 export type State = {
   id: string | undefined;
@@ -79,8 +80,7 @@ export type State = {
   required: boolean;
   grid: boolean;
   externalVirtualized: boolean;
-  virtualizerMounted: boolean;
-  virtualized: boolean;
+  virtualizationRegistry: ListVirtualizationRegistry;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
@@ -170,8 +170,6 @@ export const selectors = {
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
   externalVirtualized: createSelector((state: State) => state.externalVirtualized),
-  virtualizerMounted: createSelector((state: State) => state.virtualizerMounted),
-  virtualized: createSelector((state: State) => state.virtualized),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),

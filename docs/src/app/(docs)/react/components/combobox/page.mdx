@@ -65,6 +65,13 @@ import { Combobox } from '@base-ui/react/combobox';
 
           <Combobox.Collection />
         </Combobox.List>
+
+        {/* Alternatively, use Virtualizer as the only child of List for large flat collections. */}
+        <Combobox.List>
+          <Combobox.Virtualizer estimateSize={32}>
+            {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+        </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
   </Combobox.Portal>
@@ -208,7 +215,23 @@ import { DemoComboboxCreatable } from './demos/creatable';
 
 ### Virtualized
 
-Efficiently handle large datasets with `<Combobox.Virtualizer>`. It renders only the visible items while preserving Combobox keyboard navigation and selection behavior. Pass the collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`.
+Efficiently handle large datasets with `<Combobox.Virtualizer>`. It renders only the visible items while preserving Combobox keyboard navigation and selection behavior.
+
+Pass a flat collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`. Each item renderer must return exactly one `<Combobox.Item>`. Grouped collections and grid mode are not currently supported.
+
+The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content and can be combined with `--available-height` from `<Combobox.Positioner>`:
+
+```css
+.Scroller {
+  height: min(22.5rem, var(--total-size));
+  max-height: var(--available-height);
+  overflow: auto;
+}
+```
+
+Use `getItemKey` to provide stable identity when item values are objects. `estimateSize` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+
+The `virtualized` prop on `<Combobox.Root>` is only needed when integrating a different virtualization library. Do not set it when using `<Combobox.Virtualizer>`.
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 

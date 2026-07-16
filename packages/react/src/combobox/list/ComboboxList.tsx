@@ -15,6 +15,7 @@ import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
+import { VirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 
 /**
  * A list container for the items.
@@ -31,7 +32,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
@@ -106,8 +107,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     ],
   });
 
+  const contextualElement = (
+    <VirtualizationListContext.Provider value>{element}</VirtualizationListContext.Provider>
+  );
+
   if (externalVirtualized) {
-    return element;
+    return contextualElement;
   }
 
   // With the `items` prop, typeahead labels are derived from the items so they survive the list
@@ -116,8 +121,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
 
   return (
-    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
-      {element}
+    <CompositeList
+      elementsRef={store.state.listRef}
+      itemCount={hasItems ? flatFilteredItems.length : undefined}
+      labelsRef={labelsRef}
+    >
+      {contextualElement}
     </CompositeList>
   );
 });

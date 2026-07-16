@@ -15,7 +15,13 @@ export type CompositeMetadata<CustomMetadata> = {
  * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+  const {
+    children,
+    elementsRef,
+    itemCount: itemCountProp,
+    labelsRef,
+    onMapChange: onMapChangeProp,
+  } = props;
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
@@ -126,17 +132,18 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
-      if (elementsRef.current.length !== sortedMap.size) {
-        elementsRef.current.length = sortedMap.size;
+      const itemCount = itemCountProp ?? sortedMap.size;
+      if (elementsRef.current.length !== itemCount) {
+        elementsRef.current.length = itemCount;
       }
-      if (labelsRef && labelsRef.current.length !== sortedMap.size) {
-        labelsRef.current.length = sortedMap.size;
+      if (labelsRef && labelsRef.current.length !== itemCount) {
+        labelsRef.current.length = itemCount;
       }
-      nextIndexRef.current = sortedMap.size;
+      nextIndexRef.current = itemCount;
     }
 
     onMapChange(sortedMap);
-  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
+  }, [onMapChange, sortedMap, elementsRef, itemCountProp, labelsRef, mapTick]);
 
   useIsoLayoutEffect(() => {
     return () => {
@@ -266,6 +273,10 @@ export interface CompositeListProps<Metadata> {
    * `useListNavigation`'s `listRef` prop.
    */
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * The logical number of items when some items are not registered in the DOM.
+   */
+  itemCount?: number | undefined;
   /**
    * A ref to the list of element labels, ordered by their index.
    * `useTypeahead`'s `listRef` prop.

@@ -9,8 +9,8 @@ describe('<CompositeList />', () => {
   const { render } = createRenderer();
 
   describe('prop: elementsRef', () => {
-    function Item(props: { label?: string }) {
-      const { ref, index } = useCompositeListItem();
+    function Item(props: { index?: number; label?: string }) {
+      const { ref, index } = useCompositeListItem({ index: props.index });
       return (
         <div ref={ref} data-testid={props.label} data-index={props.label ? index : undefined}>
           {props.label}
@@ -39,6 +39,39 @@ describe('<CompositeList />', () => {
       unmount();
       expect(elementsRef.current).toHaveLength(0);
       expect(labelsRef.current).toHaveLength(0);
+    });
+
+    it('preserves a logical item count when only some items are mounted', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function App(props: { itemCount: number }) {
+        return (
+          <CompositeList
+            elementsRef={elementsRef}
+            itemCount={props.itemCount}
+            labelsRef={labelsRef}
+          >
+            <Item index={4} label="mounted" />
+          </CompositeList>
+        );
+      }
+
+      const { rerender } = await render(<App itemCount={10} />);
+
+      expect(elementsRef.current).toHaveLength(10);
+      expect(labelsRef.current).toHaveLength(10);
+      expect(elementsRef.current[4]).toBe(screen.getByTestId('mounted'));
+
+      await rerender(<App itemCount={5} />);
+
+      expect(elementsRef.current).toHaveLength(5);
+      expect(labelsRef.current).toHaveLength(5);
+      expect(elementsRef.current[4]).toBe(screen.getByTestId('mounted'));
     });
 
     it('updates indexes when keyed groups reorder', async () => {

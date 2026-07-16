@@ -1116,28 +1116,41 @@ type ReturnValue = T[];
 
 ### Virtualizer
 
-Renders only the visible items in the combobox list.
+Renders a window of visible and overscanned items in a flat combobox list.
 Renders a scrollable `<div>` element.
 
 Requires the `items` prop on `<Combobox.Root>` and must be the only item-rendering child of
-`<Combobox.List>`.
+`<Combobox.List>`. The element must have a constrained height or maximum height for
+virtualization to limit the number of mounted items.
+
+Grouped collections and grid mode are not currently supported.
 
 **Virtualizer Props:**
 
-| Prop               | Type                                                                                               | Default | Description                                                                                                                                                                                   |
-| :----------------- | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| enabled            | `boolean`                                                                                          | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
-| estimateSize\*     | `number \| ((index: number) => number)`                                                            | -       | Estimated item size used before item elements have been measured.                                                                                                                             |
-| getItemKey         | `((item: Value, index: number) => string \| number)`                                               | -       | Returns a stable key for the item value and logical index.                                                                                                                                    |
-| overscan           | `number`                                                                                           | `1`     | Number of extra estimated items to render before and after the visible range.                                                                                                                 |
-| paddingEnd         | `number`                                                                                           | `0`     | Empty space after the last item in the virtual content.                                                                                                                                       |
-| paddingStart       | `number`                                                                                           | `0`     | Empty space before the first item in the virtual content.                                                                                                                                     |
-| scrollPaddingEnd   | `number`                                                                                           | `0`     | End-side viewport padding used when scrolling an item into view.                                                                                                                              |
-| scrollPaddingStart | `number`                                                                                           | `0`     | Start-side viewport padding used when scrolling an item into view.                                                                                                                            |
-| children\*         | `((item: Value, index: number) => React.ReactNode)`                                                | -       | Renders an item for the given value and logical index.                                                                                                                                        |
-| className          | `string \| ((state: Combobox.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style              | `React.CSSProperties \| ((state: Combobox.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render             | `ReactElement \| ((props: HTMLProps, state: Combobox.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                               | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| enabled      | `boolean`                                                                                          | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
+| estimateSize | `number \| ((item: Value, index: number) => number)`                                               | -       | Estimated item size used before item elements have been measured.                                                                                                                             |
+| getItemKey   | `((item: Value) => string \| number)`                                                              | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects.                                                    |
+| overscanPx   | `number`                                                                                           | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the estimated size of the first item.                                                                               |
+| paddingEnd   | `number`                                                                                           | `0`     | Empty space in pixels after the last virtual row.                                                                                                                                             |
+| paddingStart | `number`                                                                                           | `0`     | Empty space in pixels before the first virtual row.                                                                                                                                           |
+| children     | `((item: Value, index: number) => ReactElement \| null)`                                           | -       | Renders exactly one item for the given value and logical index.                                                                                                                               |
+| className    | `string \| ((state: Combobox.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Virtualizer Data Attributes:**
+
+| Attribute  | Type | Description                                       |
+| :--------- | :--- | :------------------------------------------------ |
+| data-empty | -    | Present when the virtualized collection is empty. |
+
+**Virtualizer CSS Variables:**
+
+| Variable       | Type     | Description                                  |
+| :------------- | :------- | :------------------------------------------- |
+| `--total-size` | `number` | The total height of the virtualized content. |
 
 ### Virtualizer.Props
 
