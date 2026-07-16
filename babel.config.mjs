@@ -1,6 +1,7 @@
 import getBaseConfig from '@mui/internal-code-infra/babel-config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import inlineMetadataEnumMembers from './scripts/inlineMetadataEnumMembers.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -10,6 +11,16 @@ export default function getBabelConfig(api) {
   const baseConfig = getBaseConfig(api);
 
   const plugins = [
+    ...(process.env.MUI_INLINE_METADATA_ENUMS === 'true'
+      ? [
+          [
+            inlineMetadataEnumMembers,
+            {
+              tsconfigPath: path.join(dirname, 'packages/react/tsconfig.build.json'),
+            },
+          ],
+        ]
+      : []),
     [
       '@mui/internal-babel-plugin-minify-errors',
       {

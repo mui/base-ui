@@ -23,13 +23,15 @@ import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
+import { SelectTriggerDataAttributes } from './SelectTriggerDataAttributes';
 
 const SELECTED_DELAY = 400;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
-  popupSide: (side: Side | null) => (side ? { 'data-popup-side': side } : null),
+  popupSide: (side: Side | null) =>
+    side ? { [SelectTriggerDataAttributes.popupSide]: side } : null,
   value: () => null,
 };
 

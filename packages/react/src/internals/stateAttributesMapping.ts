@@ -12,8 +12,8 @@ export enum TransitionStatusDataAttributes {
   endingStyle = 'data-ending-style',
 }
 
-const STARTING_HOOK = { 'data-starting-style': '' };
-const ENDING_HOOK = { 'data-ending-style': '' };
+const STARTING_HOOK = { [TransitionStatusDataAttributes.startingStyle]: '' };
+const ENDING_HOOK = { [TransitionStatusDataAttributes.endingStyle]: '' };
 
 export const transitionStatusMapping = {
   transitionStatus(value): Record<string, string> | null {

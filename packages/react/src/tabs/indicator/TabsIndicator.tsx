@@ -11,6 +11,7 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
+import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -94,12 +95,12 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
   const style: React.CSSProperties | undefined = isTabSelected
     ? ({
-        '--active-tab-left': `${left}px`,
-        '--active-tab-right': `${right}px`,
-        '--active-tab-top': `${top}px`,
-        '--active-tab-bottom': `${bottom}px`,
-        '--active-tab-width': `${width}px`,
-        '--active-tab-height': `${height}px`,
+        [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
+        [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
+        [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
+        [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+        [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
+        [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
       } as React.CSSProperties)
     : undefined;
 

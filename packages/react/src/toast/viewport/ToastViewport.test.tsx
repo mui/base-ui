@@ -16,6 +16,25 @@ describe('<Toast.Viewport />', () => {
     },
   }));
 
+  it.skipIf(isJSDOM)('sets the measured frontmost toast height CSS variable', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('viewport').style.getPropertyValue('--toast-frontmost-height'),
+      ).not.toBe(''),
+    );
+  });
+
   it.skipIf(!isJSDOM)(
     'rebinds owner-document listeners once across empty store cycles',
     async () => {

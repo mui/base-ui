@@ -8,6 +8,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
+import { DialogViewportDataAttributes } from '../../dialog/viewport/DialogViewportDataAttributes';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import {
@@ -977,7 +978,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         },
         // Drawer popups use drawer-specific nested state attributes.
         // Suppress DialogViewport's generic nested dialog attribute.
-        ['data-nested-dialog-open' as string]: undefined,
+        [DialogViewportDataAttributes.nestedDialogOpen as string]: undefined,
       })}
     >
       <DrawerViewportContext.Provider value={swipeProviderValue}>

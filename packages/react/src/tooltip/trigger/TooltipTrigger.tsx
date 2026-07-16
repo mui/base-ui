@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -280,7 +281,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           }
         },
         id: thisTriggerId,
-        'data-trigger-disabled': disabled ? '' : undefined,
+        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
         [TOOLTIP_TRIGGER_IDENTIFIER]: disabled ? undefined : '',
       } as React.HTMLAttributes<Element>,
       elementProps,

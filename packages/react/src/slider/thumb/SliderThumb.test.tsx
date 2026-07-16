@@ -19,6 +19,18 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('sets the thumb index data attribute', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control>
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('thumb')).toHaveAttribute('data-index', '0');
+  });
+
   describe('ARIA attributes', () => {
     ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
       it(`forwards ${attr} to the input`, async () => {

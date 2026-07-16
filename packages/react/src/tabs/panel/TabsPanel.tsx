@@ -14,6 +14,7 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRootState } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
+import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
   ...tabsStateAttributesMapping,
@@ -71,7 +72,7 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
         tabIndex: open ? 0 : -1,
         inert: inertValue(!open),
         // Computed key: a plain literal key fails the DOM-props excess property check.
-        ['data-index' as string]: index,
+        [TabsPanelDataAttributes.index as string]: index,
       },
       elementProps,
     ],

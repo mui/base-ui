@@ -15,6 +15,8 @@ import { Dimensions } from '../floating-ui-react/types';
 import { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';
+import { CommonPopupCssVars } from './CommonPopupCssVars';
+import { CommonViewportDataAttributes } from './CommonViewportDataAttributes';
 
 export const popupViewportStateMapping: StateAttributesMapping<{
   activationDirection: string | undefined;
@@ -22,7 +24,7 @@ export const popupViewportStateMapping: StateAttributesMapping<{
   activationDirection: (value) =>
     value
       ? {
-          'data-activation-direction': value,
+          [CommonViewportDataAttributes.activationDirection]: value,
         }
       : null,
 };
@@ -219,8 +221,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
             {
               ...(previousContentDimensions
                 ? {
-                    '--popup-width': `${previousContentDimensions.width}px`,
-                    '--popup-height': `${previousContentDimensions.height}px`,
+                    [CommonPopupCssVars.popupWidth]: `${previousContentDimensions.width}px`,
+                    [CommonPopupCssVars.popupHeight]: `${previousContentDimensions.height}px`,
                   }
                 : null),
               position: 'absolute',

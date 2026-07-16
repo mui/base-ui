@@ -15,6 +15,16 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
+  it('sets the orientation data attribute', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar orientation="horizontal" keepMounted data-testid="scrollbar" />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toHaveAttribute('data-orientation', 'horizontal');
+  });
+
   describe('data-scrolling attribute', () => {
     const { render: renderWithClock, clock } = createRenderer();
 
