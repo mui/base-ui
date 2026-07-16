@@ -22,7 +22,7 @@ import {
   type Side,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import { useAnchorPositioningFallback } from '../../utils/useAnchorPositioningFallback';
+import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
@@ -107,7 +107,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
-  const positioning = useAnchorPositioningFallback({
+  const positioning = useNavigationMenuAnchorPositioning({
     anchor: anchor ?? domReference,
     positionMethod,
     mounted,
