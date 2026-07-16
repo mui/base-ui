@@ -51,6 +51,10 @@ interface ComboboxVirtualRowProps<Value> {
   rowIndex: number;
 }
 
+/**
+ * Removes a retained offscreen focus row from layout while keeping its item mounted for
+ * `aria-activedescendant` and keyboard selection.
+ */
 const focusProxyStyle: React.CSSProperties = {
   height: 0,
   left: 0,
@@ -62,6 +66,10 @@ const focusProxyStyle: React.CSSProperties = {
   width: 0,
 };
 
+/**
+ * Renders a virtual row and provides its logical index, accessibility metadata, and measurement
+ * ref to the contained `<Combobox.Item>`.
+ */
 function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
   const {
     apiRef,
@@ -174,6 +182,9 @@ function areVirtualRowPropsEqual<Value>(
   );
 }
 
+/**
+ * Memoized virtual row that avoids rerendering item content while its row metadata is unchanged.
+ */
 const ComboboxVirtualRow = React.memo(
   ComboboxVirtualRowImpl,
   areVirtualRowPropsEqual,
@@ -216,7 +227,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const store = useComboboxRootContext();
   const { flatFilteredItems, hasItems, isGrouped } = useComboboxDerivedItemsContext();
   const activeIndex = useStore(store, selectors.activeIndex);
-  const externalVirtualized = useStore(store, selectors.externalVirtualized);
+  const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
   const grid = useStore(store, selectors.grid);
   const highlightType = useStore(store, selectors.highlightType);
   const insideList = useVirtualizationListContext();
@@ -460,7 +471,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     if (!insideList) {
       warn('<Combobox.Virtualizer> must be placed inside <Combobox.List>.');
     }
-    if (externalVirtualized) {
+    if (externallyVirtualized) {
       warn(
         '<Combobox.Root> must not use the `virtualized` prop together with ' +
           '<Combobox.Virtualizer>. The prop is only for external virtualization.',
@@ -478,7 +489,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
           'Use a flat listbox instead.',
       );
     }
-  }, [externalVirtualized, grid, hasItems, insideList, isGrouped]);
+  }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
 
   React.useEffect(() => {
     const element = scrollElementRef.current;
@@ -678,6 +689,9 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   ): React.JSX.Element;
 };
 
+/**
+ * Creates an identity registry used to generate stable keys for object and symbol item values.
+ */
 function createObjectKeyRegistry() {
   return {
     // Objects and symbols cannot be represented injectively by String(value). Preserve identity
@@ -690,6 +704,9 @@ function createObjectKeyRegistry() {
   };
 }
 
+/**
+ * Returns a stable virtualizer key for an item when the consumer does not provide `getItemKey`.
+ */
 function getDefaultItemKey<Value>(
   item: Value,
   registry: ReturnType<typeof createObjectKeyRegistry>,

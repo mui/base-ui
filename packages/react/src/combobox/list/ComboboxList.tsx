@@ -37,7 +37,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
-  const externalVirtualized = useStore(store, selectors.externalVirtualized);
+  const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
   const forceMounted = useStore(store, selectors.forceMounted);
 
   const multiple = selectionMode === 'multiple';
@@ -111,7 +111,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     <VirtualizationListContext.Provider value>{element}</VirtualizationListContext.Provider>
   );
 
-  if (externalVirtualized) {
+  if (externallyVirtualized) {
     return contextualElement;
   }
 

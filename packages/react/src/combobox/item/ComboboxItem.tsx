@@ -34,6 +34,10 @@ interface ComboboxItemInnerProps {
    * component doesn't subscribe to virtualization state.
    */
   virtualized: boolean;
+  /**
+   * Metadata supplied by the built-in virtualizer for the row containing this item.
+   * `undefined` for non-virtualized items and items managed by an external virtualizer.
+   */
   virtualItem: ComboboxVirtualItemMetadata | undefined;
   /**
    * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
@@ -43,6 +47,9 @@ interface ComboboxItemInnerProps {
   indexFromFilter: number | undefined;
 }
 
+/**
+ * Implements a Combobox item after the public wrapper has resolved its virtualization metadata.
+ */
 function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const { componentProps, forwardedRef, virtualized, virtualItem, indexFromFilter } = props;
   const {
@@ -57,16 +64,13 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   } = componentProps;
 
   const textRef = React.useRef<HTMLElement | null>(null);
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    virtualItem &&
-    indexProp != null &&
-    indexProp !== virtualItem.index
-  ) {
-    warn(
-      '<Combobox.Item> received an `index` prop that conflicts with the index provided by ' +
-        '<Combobox.Virtualizer>. Remove the `index` prop from virtualized items.',
-    );
+  if (process.env.NODE_ENV !== 'production') {
+    if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
+      warn(
+        '<Combobox.Item> received an `index` prop that conflicts with the index provided by ' +
+          '<Combobox.Virtualizer>. Remove the `index` prop from virtualized items.',
+      );
+    }
   }
 
   const explicitIndex = virtualItem?.index ?? indexProp;
@@ -280,12 +284,16 @@ export const ComboboxItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const store = useComboboxRootContext();
-    const externalVirtualized = useStore(store, selectors.externalVirtualized);
+    const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
     const virtualItem = useComboboxVirtualItemContext();
     const insideList = useVirtualizationListContext();
 
     useIsoLayoutEffect(() => {
-      if (process.env.NODE_ENV === 'production' || virtualItem != null || !insideList) {
+      if (process.env.NODE_ENV === 'production') {
+        return undefined;
+      }
+
+      if (virtualItem != null || !insideList) {
         return undefined;
       }
 
@@ -308,7 +316,7 @@ export const ComboboxItem = React.memo(
     // for an item's lifetime: the two branches return different component types, so flipping
     // either at runtime remounts the item and resets its refs and effects. Built-in virtual
     // items receive their index from context and stay on the regular branch.
-    if (externalVirtualized && componentProps.index == null && virtualItem == null) {
+    if (externallyVirtualized && componentProps.index == null && virtualItem == null) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );
@@ -318,7 +326,7 @@ export const ComboboxItem = React.memo(
       <ComboboxItemInner
         componentProps={componentProps}
         forwardedRef={forwardedRef}
-        virtualized={externalVirtualized || virtualItem != null}
+        virtualized={externallyVirtualized || virtualItem != null}
         virtualItem={virtualItem}
         indexFromFilter={undefined}
       />
