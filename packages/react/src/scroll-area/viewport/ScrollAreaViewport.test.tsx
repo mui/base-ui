@@ -56,7 +56,10 @@ describe('<ScrollArea.Viewport />', () => {
     it('ignores data-scrolling during programmatic scroll', async () => {
       await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
-          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
+          >
             <div style={{ width: 1000, height: 1000 }} />
           </ScrollArea.Viewport>
         </ScrollArea.Root>,
@@ -65,6 +68,7 @@ describe('<ScrollArea.Viewport />', () => {
       const viewport = screen.getByTestId('viewport');
 
       // No user interaction before the scroll event, as with `scrollTo()`.
+      // `pointer-events: none` isolates this from the browser's real pointer.
       fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
       expect(viewport).not.toHaveAttribute('data-scrolling');

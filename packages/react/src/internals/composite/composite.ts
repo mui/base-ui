@@ -96,7 +96,7 @@ export function scrollIntoViewIfNeeded(
 
     if (direction === 'rtl') {
       if (
-        elementOffsetLeft - elementStyles.scrollMarginRight <
+        elementOffsetLeft - elementStyles.scrollMarginLeft <
         scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
       ) {
         // overflow to the left, scroll to align left edges

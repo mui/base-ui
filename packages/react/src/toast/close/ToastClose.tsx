@@ -26,8 +26,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
   } = componentProps;
 
   const store = useToastProviderContext();
-  const { toast } = useToastRootContext();
-  const expanded = store.useState('expanded');
+  const { toast, expanded } = useToastRootContext();
 
   const [hasFocus, setHasFocus] = React.useState(false);
 
@@ -40,7 +39,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     type: toast.type,
   };
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
     state,
     props: [
@@ -60,8 +59,6 @@ export const ToastClose = React.forwardRef(function ToastClose(
       getButtonProps,
     ],
   });
-
-  return element;
 });
 
 export interface ToastCloseState {

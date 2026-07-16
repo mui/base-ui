@@ -707,6 +707,33 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
+      it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <TestMenu
+            rootProps={{ onOpenChange }}
+            triggerProps={{ render: <button id="custom-trigger" /> }}
+            submenuTriggerProps={{ openOnHover: false }}
+          />,
+        );
+
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
+
+        await screen.findByTestId('menu');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
+
+        await screen.findByTestId('submenu');
+
+        expect(screen.getByTestId('menu')).not.toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.siblingOpen }),
+        );
+      });
+
       it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
         const { user } = await render(<TestMenu />);
 
