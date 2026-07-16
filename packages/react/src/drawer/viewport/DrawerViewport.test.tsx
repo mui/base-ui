@@ -2090,6 +2090,162 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('does not prevent a sub-slop first touchmove over cross-axis scrollable content', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 100 })],
+      });
+
+      // Below the axis-attribution slop the gesture cannot be claimed yet: preventing the first
+      // cancelable touchmove on iOS cancels native scrolling for the entire gesture.
+      const firstMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 97 })],
+      });
+      expect(firstMoveDispatched).toBe(true);
+
+      // Past the slop on the cross axis, native vertical scrolling stays preserved.
+      const secondMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 60 })],
+      });
+      expect(secondMoveDispatched).toBe(true);
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [createTouch(scroll, { clientX: 100, clientY: 60 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('claims the gesture once the drawer axis passes the slop over cross-axis scrollable content', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 100 })],
+      });
+
+      const ambiguousMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 103, clientY: 101 })],
+      });
+      expect(ambiguousMoveDispatched).toBe(true);
+
+      const drawerAxisMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 112, clientY: 101 })],
+      });
+      expect(drawerAxisMoveDispatched).toBe(false);
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [createTouch(scroll, { clientX: 112, clientY: 101 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('yields the gesture when the browser commits to a native cross-axis scroll', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 100 })],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 97 })],
+      });
+
+      // A non-cancelable touchmove (still below the slop) means the browser committed the
+      // gesture to a native scroll.
+      const nonCancelableMove = new Event('touchmove', { bubbles: true, cancelable: false });
+      Object.defineProperty(nonCancelableMove, 'touches', {
+        value: [createTouch(scroll, { clientX: 100, clientY: 96 })],
+        configurable: true,
+      });
+      scroll.dispatchEvent(nonCancelableMove);
+
+      // Even a decisive drawer-axis move afterwards must not be claimed.
+      const drawerAxisMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 140, clientY: 96 })],
+      });
+      expect(drawerAxisMoveDispatched).toBe(true);
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [createTouch(scroll, { clientX: 140, clientY: 96 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not lock vertical swipe after minor cross-axis jitter in down drawers', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
