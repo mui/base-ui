@@ -109,7 +109,6 @@
     }
   });
 
-  observer.observe(tabsList);
   observer.observe(activeTab);
   // Bounded lifetime so the observer can't retain the subtree forever if it's
   // removed while still 0×0 (no resize fires to trigger self-disconnect).
