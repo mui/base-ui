@@ -875,6 +875,66 @@ describe('<Combobox.Trigger />', () => {
         expect(trigger).toHaveTextContent('apricot');
       });
     });
+
+    it('only matches mounted indexed item labels when typing on the focused trigger', async () => {
+      function TestComponent() {
+        const [showBanana, setShowBanana] = React.useState(true);
+
+        return (
+          <Combobox.Root>
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <button type="button" onClick={() => setShowBanana(false)}>
+              Remove banana
+            </button>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple" index={0}>
+                      Apple
+                    </Combobox.Item>
+                    {showBanana && (
+                      <Combobox.Item value="banana" index={1}>
+                        Banana
+                      </Combobox.Item>
+                    )}
+                    <Combobox.Item value="blueberry" index={2}>
+                      Blueberry
+                    </Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+
+      await user.click(screen.getByRole('button', { name: 'Remove banana' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('blueberry');
+      });
+    });
   });
 
   describe('data state attributes', () => {

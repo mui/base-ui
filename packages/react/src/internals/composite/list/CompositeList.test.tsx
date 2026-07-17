@@ -42,6 +42,41 @@ describe('<CompositeList />', () => {
       expect(labelsRef.current).toHaveLength(0);
     });
 
+    it('keeps refs populated for items whose guessed index is already correct', async () => {
+      function GuessedItem(props: { label: string }) {
+        const { ref } = useCompositeListItem({ guess: true, label: props.label });
+        return (
+          <div ref={ref} data-testid={props.label}>
+            {props.label}
+          </div>
+        );
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+          <GuessedItem label="a" />
+          <GuessedItem label="b" />
+          <GuessedItem label="c" />
+        </CompositeList>,
+      );
+
+      // A React 18 Strict Mode effect replay empties the arrays without reattaching refs
+      // when every guessed index is already correct. The list must repopulate them itself.
+      await waitFor(() => {
+        expect(elementsRef.current[0]).toBe(screen.getByTestId('a'));
+      });
+      expect(elementsRef.current[1]).toBe(screen.getByTestId('b'));
+      expect(elementsRef.current[2]).toBe(screen.getByTestId('c'));
+      expect(labelsRef.current).toEqual(['a', 'b', 'c']);
+    });
+
     it('only publishes maps that are aligned with the element registry', async () => {
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
