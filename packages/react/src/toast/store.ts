@@ -396,7 +396,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       if (timer.timeout) {
         timer.timeout.clear();
         const elapsed = Date.now() - timer.start;
-        const remaining = timer.delay - elapsed;
+        const remaining = timer.remaining - elapsed;
         timer.remaining = remaining > 0 ? remaining : 0;
       }
     });
