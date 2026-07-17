@@ -1703,6 +1703,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
+      vi.useFakeTimers();
 
       try {
         await render(
@@ -1792,21 +1793,13 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
         await act(async () => {
           second.focus();
+          await vi.runAllTimersAsync();
         });
 
-        await waitFor(() => {
-          expect(scroll.scrollTop).toBe(270);
-        });
-
-        // Wait out all delayed realign passes (4 × 150ms).
-        await act(async () => {
-          await new Promise((resolve) => {
-            setTimeout(resolve, 750);
-          });
-        });
-
+        expect(scroll.scrollTop).toBe(270);
         expect(scrollToSpy).toHaveBeenCalledTimes(1);
       } finally {
+        vi.useRealTimers();
         visualViewport.restore();
         restoreInnerHeight();
       }
@@ -1921,6 +1914,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
+      vi.useFakeTimers();
 
       try {
         await render(
@@ -2011,18 +2005,13 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           second.focus();
           // The user immediately puts a finger down on the drawer body to scroll it.
           scroll.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-        });
-
-        // Wait out all delayed realign passes (4 × 150ms).
-        await act(async () => {
-          await new Promise((resolve) => {
-            setTimeout(resolve, 750);
-          });
+          await vi.runAllTimersAsync();
         });
 
         // Only the initial alignment scroll was issued; the passes stayed cancelled.
         expect(scrollToSpy).toHaveBeenCalledTimes(1);
       } finally {
+        vi.useRealTimers();
         visualViewport.restore();
         restoreInnerHeight();
       }
@@ -2032,6 +2021,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   it.skipIf(isJSDOM)('clears keyboard state when a tapped input redirects focus away', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(500);
+    vi.useFakeTimers();
 
     try {
       await render(
@@ -2073,18 +2063,10 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         await act(async () => {
           input.dispatchEvent(touchEnd);
           await flushMicrotasks();
+          await vi.runAllTimersAsync();
         });
 
         expect(other).toHaveFocus();
-
-        // Wait past any alignment frame and delayed realign passes that a stale target would
-        // have kept alive.
-        await act(async () => {
-          await new Promise((resolve) => {
-            setTimeout(resolve, 300);
-          });
-        });
-
         // Focus stays on the redirected element and the drawer left no keyboard inset
         // behind for the abandoned input.
         expect(other).toHaveFocus();
@@ -2093,6 +2075,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         document.elementFromPoint = originalElementFromPoint;
       }
     } finally {
+      vi.useRealTimers();
       visualViewport.restore();
       restoreInnerHeight();
     }
