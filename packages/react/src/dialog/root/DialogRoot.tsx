@@ -4,7 +4,6 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { REASONS } from '../../internals/reasons';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
-import { IsDrawerContext } from './DialogRootContext';
 import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**
@@ -14,8 +13,7 @@ import { useRenderDialogRoot } from './useRenderDialogRoot';
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
-  const mode = React.useContext(IsDrawerContext) ? 'drawer' : 'dialog';
-  return useRenderDialogRoot(props, mode);
+  return useRenderDialogRoot('dialog', props);
 }
 
 export interface DialogRootState {}
