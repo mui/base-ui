@@ -129,12 +129,15 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     // A reorder that changes item indexes must invert at least one adjacent pair
     // from the previous sorted order. Observing each pair's common parent catches
     // both direct item moves and ancestor wrapper moves at the boundary.
+    const roots = new Set<Element>();
     for (let i = 1; i < sortedNodes.length; i += 1) {
       const root = getCommonAncestor(sortedNodes[i - 1], sortedNodes[i]);
       if (root) {
-        mutationObserver.observe(root, { childList: true });
+        roots.add(root);
       }
     }
+
+    roots.forEach((root) => mutationObserver.observe(root, { childList: true }));
   }
 
   const flush = useStableCallback(() => {

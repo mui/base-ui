@@ -579,6 +579,28 @@ describe('<CompositeList />', () => {
       ]);
     });
 
+    it('observes each shared mutation root once', async () => {
+      const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <div data-testid="list">
+            <Item label="a" />
+            <Item label="b" />
+            <Item label="c" />
+          </div>
+        </CompositeList>,
+        { strict: false },
+      );
+
+      const observedRoots = observe.mock.calls.map(([root]) => root);
+      observe.mockRestore();
+      expect(observedRoots).toEqual([screen.getByTestId('list')]);
+    });
+
     it('updates indexes when keyed groups reorder', async () => {
       function App() {
         const [reordered, setReordered] = React.useState(false);
