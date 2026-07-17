@@ -48,6 +48,9 @@
 
 .ScrollAreaScrollbar {
   display: flex;
+  /* Column direction so the thumb's `flex` stretches it across the track's
+     thickness, leaving its width to `--scroll-area-thumb-width`. */
+  flex-direction: column;
   height: 10px;
   background: rgb(0 0 0 / 0.05);
 }
