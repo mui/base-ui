@@ -826,7 +826,7 @@ describe('<Menu.Root />', () => {
             <TestMenu
               rootProps={{ onOpenChange: rootOnOpenChange }}
               submenuProps={{ onOpenChange: submenuOnOpenChange }}
-              submenuTriggerProps={{ delay: 0 }}
+              submenuTriggerProps={{ delay: 0, closeDelay: 50 }}
             />,
           );
 
@@ -840,8 +840,8 @@ describe('<Menu.Root />', () => {
             expect(screen.queryByTestId('submenu')).not.toBe(null);
           });
 
-          // Click the item directly. Moving the pointer to it teleports it out of the
-          // submenu trigger, closing the submenu before the click could land.
+          // Schedule a delayed hover close, then click the item before it fires.
+          fireEvent.mouseLeave(submenuTrigger);
           fireEvent.click(screen.getByTestId('item-4_1'));
 
           await waitFor(() => {
@@ -855,8 +855,12 @@ describe('<Menu.Root />', () => {
           const submenuCloseCalls = submenuOnOpenChange.mock.calls.filter(
             (args) => args[0] === false,
           );
+          const staleHoverCloseCalls = submenuCloseCalls.filter(
+            (args) => args[1].reason === REASONS.triggerHover,
+          );
           expect(rootCloseCalls.length).toBe(1);
           expect(submenuCloseCalls.length).toBe(1);
+          expect(staleHoverCloseCalls.length).toBe(0);
         },
       );
 
