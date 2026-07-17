@@ -93,7 +93,7 @@ export interface SliderRootContext {
    */
   step: number;
   thumbCollisionBehavior: 'push' | 'swap' | 'none';
-  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
+  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
    * The value(s) of the slider

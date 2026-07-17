@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsRoot } from './TabsRoot';
 
@@ -29,9 +30,7 @@ export interface TabsRootContext {
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => () => void;
-  setTabMap: (
-    map: Map<Node, (TabsTab.Metadata & { index?: number | null | undefined }) | null>,
-  ) => void;
+  setTabMap: (map: Map<Node, CompositeMetadata<TabsTab.Metadata>>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

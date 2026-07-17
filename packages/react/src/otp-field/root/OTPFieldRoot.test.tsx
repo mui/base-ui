@@ -1320,6 +1320,27 @@ describe('<OTPField.Root />', () => {
     });
 
     describe('server-side rendering', () => {
+      it('renders visible inputs with unique IDs', () => {
+        renderToString(
+          <OTPFieldBase.Root data-testid="root" id="verification-code" length={OTP_LENGTH}>
+            {Array.from({ length: OTP_LENGTH }, (_, index) => (
+              <OTPFieldBase.Input key={index} />
+            ))}
+          </OTPFieldBase.Root>,
+        );
+
+        const inputs = screen.getByTestId('root').querySelectorAll('input');
+
+        expect(Array.from(inputs, (input) => input.id)).toEqual([
+          'verification-code',
+          'verification-code-2',
+          'verification-code-3',
+          'verification-code-4',
+          'verification-code-5',
+          'verification-code-6',
+        ]);
+      });
+
       it('renders a hidden validation input with the provided length', () => {
         renderToString(
           <OTPFieldBase.Root name="otp" required length={OTP_LENGTH}>
