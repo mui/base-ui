@@ -1,0 +1,59 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.Heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ScrollAreaRoot {
+  width: 400px;
+}
+
+.ScrollAreaViewport {
+  width: 100%;
+  scroll-snap-type: x mandatory;
+}
+
+.NativeScroller {
+  width: 400px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.Row {
+  display: flex;
+}
+
+.Item {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 200px;
+  height: 120px;
+  scroll-snap-align: start;
+  background: #f5f5f5;
+  font-size: 2rem;
+
+  &:nth-child(even) {
+    background: #e0e0e0;
+  }
+}
+
+.ScrollAreaScrollbar {
+  display: flex;
+  height: 10px;
+  background: rgb(0 0 0 / 0.05);
+}
+
+.ScrollAreaThumb {
+  flex: 1;
+  border-radius: 20px;
+  background: rgb(0 0 0 / 0.5);
+}
