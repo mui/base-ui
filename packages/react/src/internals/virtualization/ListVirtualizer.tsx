@@ -103,8 +103,12 @@ function ListVirtualRow<RowModel extends MuiVirtualizerRow>(props: ListVirtualRo
     rowIndex,
   } = props;
 
+  const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
   const measureRef = useStableCallback((element: HTMLElement | null) => {
-    return element ? apiRef.current?.rowsMeta.observeRowHeight(element, row.id) : undefined;
+    measureCleanupRef.current?.();
+    measureCleanupRef.current = element
+      ? apiRef.current?.rowsMeta.observeRowHeight(element, row.id)
+      : undefined;
   });
 
   useIsoLayoutEffect(() => {
