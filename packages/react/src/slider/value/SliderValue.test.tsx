@@ -37,6 +37,24 @@ describe('<Slider.Value />', () => {
     expect(sliderValue).toHaveTextContent('40 – 65');
   });
 
+  it('associates the output with every thumb input', async () => {
+    await render(
+      <Slider.Root defaultValue={[40, 65]}>
+        <Slider.Value data-testid="output" />
+        <Slider.Control>
+          <Slider.Thumb index={0} />
+          <Slider.Thumb index={1} />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const thumbIds = screen.getAllByRole('slider').map((thumb) => thumb.id);
+
+    expect(thumbIds).not.toContain('');
+    expect(new Set(thumbIds).size).toBe(thumbIds.length);
+    expect(screen.getByTestId('output')).toHaveAttribute('for', thumbIds.join(' '));
+  });
+
   it('renders all thumb values', async () => {
     await render(
       <Slider.Root defaultValue={[40, 60, 80, 95]}>

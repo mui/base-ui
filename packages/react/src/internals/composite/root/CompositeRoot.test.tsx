@@ -1156,13 +1156,13 @@ const NestedItem = React.forwardRef(function NestedItem(
 
 function NestedItemsRoot() {
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<NestedItemMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<NestedItemMetadata>>(),
   );
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
 
     itemMap.forEach((metadata) => {
-      if (metadata?.index != null && metadata.disabled && !metadata.focusableWhenDisabled) {
+      if (metadata.disabled && !metadata.focusableWhenDisabled) {
         output.push(metadata.index);
       }
     });

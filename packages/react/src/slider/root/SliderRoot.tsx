@@ -141,7 +141,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ThumbMetadata>>(),
   );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,

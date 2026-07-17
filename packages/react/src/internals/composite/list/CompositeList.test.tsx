@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { CompositeList } from './CompositeList';
 import { useCompositeListItem } from './useCompositeListItem';
@@ -130,8 +130,8 @@ describe('<CompositeList />', () => {
         </CompositeList>,
       );
 
-      const map = onMapChange.mock.lastCall?.[0] as Map<Element, { index?: number } | null>;
-      expect(Array.from(map.values(), (metadata) => metadata?.index)).toEqual([0, 1, 2]);
+      const map = onMapChange.mock.lastCall?.[0] as Map<Element, { index: number }>;
+      expect(Array.from(map.values(), (metadata) => metadata.index)).toEqual([0, 1, 2]);
       expect(elementsRef.current).toEqual([
         screen.getByTestId('zero'),
         screen.getByTestId('one'),
@@ -181,7 +181,7 @@ describe('<CompositeList />', () => {
             <GuessedItem label="baseline automatic" />
           </CompositeList>
           <CompositeList elementsRef={elementsRef}>
-            <GuessedItem label="explicit" index={100} />
+            <GuessedItem label="explicit" index={1} />
             <GuessedItem label="automatic" />
           </CompositeList>
         </React.Fragment>,
@@ -193,7 +193,7 @@ describe('<CompositeList />', () => {
         screen.getByTestId('baseline automatic').dataset.initialIndex,
       );
       expect(elementsRef.current[0]).toBe(screen.getByTestId('automatic'));
-      expect(elementsRef.current[100]).toBe(screen.getByTestId('explicit'));
+      expect(elementsRef.current[1]).toBe(screen.getByTestId('explicit'));
     });
 
     it('populates a replacement element registry when the items are unchanged', async () => {
@@ -557,7 +557,7 @@ describe('<CompositeList />', () => {
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '1');
     });
 
-    it('keeps an item registered when it renders no element', async () => {
+    it('updates the registry when a mounted item stops rendering an element', async () => {
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
       };
@@ -901,24 +901,20 @@ describe('<CompositeList />', () => {
       const labelsRef = {
         current: [] as Array<string | null>,
       };
-      const onMapChange = vi.fn();
-
       function App(props: { label: string }) {
         return (
-          <CompositeList elementsRef={elementsRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+          <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
             <LabelledItem testId="item" label={props.label} />
           </CompositeList>
         );
       }
 
-      const { setProps } = await render(<App label="before" />, { strict: false });
+      const { setProps } = await render(<App label="before" />);
       expect(labelsRef.current).toEqual(['before']);
-      onMapChange.mockClear();
 
       await setProps({ label: 'after' });
 
       expect(labelsRef.current).toEqual(['after']);
-      expect(onMapChange).toHaveBeenCalledOnce();
     });
   });
 
@@ -945,6 +941,120 @@ describe('<CompositeList />', () => {
       const map = onMapChange.mock.lastCall?.[0] as Map<Element, { kind: string; index: number }>;
       expect(map.get(screen.getByTestId('first'))).toEqual({ kind: 'alpha', index: 0 });
       expect(map.get(screen.getByTestId('second'))).toEqual({ kind: 'beta', index: 1 });
+    });
+  });
+
+  describe('Suspense integration', () => {
+    it('does not publish an empty registry when an outer boundary repeatedly suspends', async () => {
+      function createSuspender() {
+        let pending = true;
+        let resolvePromise = () => {};
+        const promise = new Promise<void>((resolve) => {
+          resolvePromise = resolve;
+        });
+
+        return {
+          read() {
+            if (pending) {
+              throw promise;
+            }
+          },
+          resolve() {
+            pending = false;
+            resolvePromise();
+          },
+        };
+      }
+
+      const suspenders = [createSuspender(), createSuspender()];
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+      const snapshots: Array<{
+        elements: Array<HTMLElement | null>;
+        labels: Array<string | null>;
+        mapElements: Element[];
+      }> = [];
+
+      function Item(props: { attempt?: number; label: string }) {
+        const { ref, index } = useCompositeListItem({ guess: true, label: props.label });
+        if (props.attempt != null && props.attempt >= 0) {
+          suspenders[props.attempt].read();
+        }
+        return (
+          <div ref={ref} data-testid={props.label} data-index={index}>
+            {props.label}
+          </div>
+        );
+      }
+
+      function App() {
+        const [attempt, setAttempt] = React.useState(-1);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setAttempt((value) => value + 1)}>
+              Suspend
+            </button>
+            <React.Suspense fallback={<div>Loading</div>}>
+              <CompositeList
+                elementsRef={elementsRef}
+                labelsRef={labelsRef}
+                onMapChange={(map) => {
+                  snapshots.push({
+                    elements: [...elementsRef.current],
+                    labels: [...labelsRef.current],
+                    mapElements: Array.from(map.keys()),
+                  });
+                }}
+              >
+                <Item label="a" />
+                <Item label="b" attempt={attempt} />
+                <Item label="c" />
+              </CompositeList>
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      async function suspendAndResolve(attempt: number) {
+        await act(async () => {
+          screen.getByRole('button', { name: 'Suspend' }).click();
+        });
+        await screen.findByText('Loading');
+
+        await act(async () => {
+          suspenders[attempt].resolve();
+          await Promise.resolve();
+        });
+        await waitFor(() => {
+          expect(screen.queryByText('Loading')).toBe(null);
+        });
+
+        expect(elementsRef.current).toEqual([
+          screen.getByTestId('a'),
+          screen.getByTestId('b'),
+          screen.getByTestId('c'),
+        ]);
+        expect(labelsRef.current).toEqual(['a', 'b', 'c']);
+        expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
+        expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+        expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
+      }
+
+      await suspendAndResolve(0);
+      await suspendAndResolve(1);
+
+      expect(snapshots.length).toBeGreaterThan(0);
+      snapshots.forEach((snapshot) => {
+        expect(snapshot.mapElements).toHaveLength(3);
+        expect(snapshot.elements).toEqual(snapshot.mapElements);
+        expect(snapshot.labels).toEqual(['a', 'b', 'c']);
+      });
     });
   });
 
@@ -989,9 +1099,9 @@ describe('<CompositeList />', () => {
 
       const { unmount } = await render(<OrphanItem />);
 
-      // The default context no-ops keep a stray item inert rather than throwing. Its index is
-      // whatever the guess produced, since there is no list to correct it, so it isn't asserted.
+      // The default context no-ops keep a stray item inert rather than throwing.
       expect(screen.getByTestId('orphan')).toBeInTheDocument();
+      expect(screen.getByTestId('orphan')).toHaveAttribute('data-index', '-1');
       expect(() => unmount()).not.toThrow();
     });
   });

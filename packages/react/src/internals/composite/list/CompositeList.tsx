@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext, type CompositeListRegistration } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
-  index?: number | null | undefined;
+  index: number;
 } & CustomMetadata;
 
 interface CompositeListItem<Metadata> {
@@ -59,7 +59,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   });
 
   const syncRefs = useStableCallback((items: readonly CompositeListItem<Metadata>[]) => {
-    const nextMap = new Map<Element, CompositeMetadata<Metadata> | null>();
+    const nextMap = new Map<Element, CompositeMetadata<Metadata>>();
 
     elementsRef.current.length = 0;
     if (labelsRef) {
@@ -89,6 +89,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   function observe(sortedNodes: HTMLElement[]) {
     mutationObserverRef.current?.disconnect();
+    mutationObserverRef.current = null;
 
     // A single item can't reorder.
     if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
@@ -246,7 +247,9 @@ function getCompositeListSnapshot<Metadata>(
     nextAutomaticIndex += 1;
   });
 
-  items.sort((a, b) => a.index - b.index);
+  if (reservedIndices.size > 0) {
+    items.sort((a, b) => a.index - b.index);
+  }
 
   return [items, automaticItems.map((item) => item.element)] as const;
 }
@@ -296,7 +299,7 @@ export interface CompositeListProps<Metadata> {
    * `useTypeahead`'s `listRef` prop.
    */
   labelsRef?: React.RefObject<Array<string | null>> | undefined;
-  onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void) | undefined;
+  onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;
 }
 
 export namespace CompositeList {

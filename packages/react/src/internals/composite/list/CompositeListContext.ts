@@ -11,7 +11,7 @@ export interface CompositeListRegistration<Metadata> {
 export interface CompositeListContextValue<Metadata> {
   register: (node: Element, registration: CompositeListRegistration<Metadata>) => void;
   unregister: (node: Element) => void;
-  subscribeMapChange: (fn: (map: Map<Element, Metadata | null>) => void) => () => void;
+  subscribeMapChange: (fn: (map: Map<Element, Metadata>) => void) => () => void;
   nextIndexRef: React.RefObject<number>;
 }
 
