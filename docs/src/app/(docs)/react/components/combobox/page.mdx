@@ -215,7 +215,7 @@ import { DemoComboboxCreatable } from './demos/creatable';
 
 ### Virtualized
 
-Efficiently handle large datasets with `<Combobox.Virtualizer>`. It renders only the visible items while preserving Combobox keyboard navigation and selection behavior.
+For most large datasets, use the built-in `<Combobox.Virtualizer>`. It is the recommended approach because it renders only the visible items while handling Combobox keyboard navigation, scrolling, selection, and accessibility metadata for you.
 
 Pass a flat collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`. Each item renderer must return exactly one `<Combobox.Item>`. Grouped collections and grid mode are not currently supported.
 
@@ -233,11 +233,19 @@ Use `getItemKey` to provide stable identity when item values are objects or when
 
 When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. Unlike the `disabled` prop on a rendered `<Combobox.Item>`, this callback makes the disabled state available while the item is outside the rendered window, so keyboard navigation can skip it.
 
-The `virtualized` prop on `<Combobox.Root>` is only needed when integrating a different virtualization library. Do not set it when using `<Combobox.Virtualizer>`.
-
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
 <DemoComboboxVirtualized />
+
+#### Third-party virtualizers
+
+You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. The built-in `<Combobox.Virtualizer>` is recommended for most cases because a third-party integration must coordinate filtering, item indexes, scrolling, and accessibility metadata itself.
+
+Set the `virtualized` prop on `<Combobox.Root>` only for an external virtualizer. Read the current filtered collection with `useFilteredItems()`, render the virtual rows as `<Combobox.Item>` elements, and pass each item its index in the filtered collection. The following example integrates [`@tanstack/react-virtual`](https://tanstack.com/virtual/latest):
+
+import { DemoComboboxVirtualizedTanStack } from './demos/virtualized-tanstack';
+
+<DemoComboboxVirtualizedTanStack />
 
 #### Memoizing items
 
