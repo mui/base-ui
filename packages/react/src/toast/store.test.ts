@@ -174,5 +174,26 @@ describe('ToastStore', () => {
 
       expect(selectors.toast(store.state, 'b')?.transitionStatus).not.toBe('ending');
     });
+
+    it('accumulates active time across hover cycles so the toast still dismisses', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 100 });
+
+      vi.advanceTimersByTime(40);
+      store.pauseTimers();
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
+
+      store.resumeTimers();
+      vi.advanceTimersByTime(40);
+      store.pauseTimers();
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
+
+      store.resumeTimers();
+      vi.advanceTimersByTime(40);
+
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    });
   });
 });
