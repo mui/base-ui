@@ -33,6 +33,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     render,
     className,
     style,
+    index: indexProp,
     ...elementProps
   } = componentProps;
 
@@ -62,7 +63,10 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     value,
   } = useOTPFieldRootContext();
 
-  const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
+  const { ref: listItemRef, index } = useCompositeListItem({
+    guess: true,
+    index: indexProp,
+  });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 
@@ -347,7 +351,15 @@ export interface OTPFieldInputProps extends BaseUIComponentProps<
   'input',
   OTPFieldInputState,
   React.ComponentPropsWithRef<'input'>
-> {}
+> {
+  /**
+   * The index of the input in the OTP field.
+   *
+   * Use this escape hatch to silence hydration warnings with React 17 or 18 Strict Mode SSR.
+   * Without it, the inferred index corrects itself after hydration.
+   */
+  index?: number | undefined;
+}
 
 export namespace OTPFieldInput {
   export type State = OTPFieldInputState;

@@ -8,7 +8,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<OTPField.Input />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
   const modifierKeys = [
     ['Ctrl', { ctrlKey: true }],
@@ -71,6 +71,70 @@ describe('<OTPField.Input />', () => {
     await render(<OTPFieldTest />);
 
     expect(screen.getAllByRole('textbox')).toHaveLength(6);
+  });
+
+  it('hydrates explicit indexes in Strict Mode', async () => {
+    const element = (
+      <React.StrictMode>
+        <OTPField.Root id="verification-code" length={3} defaultValue="12">
+          <OTPField.Input index={0} />
+          <OTPField.Input index={1} aria-label="Character 2 of 3" />
+          <OTPField.Input index={2} aria-label="Character 3 of 3" />
+        </OTPField.Root>
+      </React.StrictMode>
+    );
+
+    const { hydrate } = renderToString(element);
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    expect(inputs.map((input) => input.id)).toEqual([
+      'verification-code',
+      'verification-code-2',
+      'verification-code-3',
+    ]);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '']);
+    inputs.forEach((input) => {
+      expect(input).not.toHaveAttribute('index');
+    });
+
+    await hydrate();
+
+    expect(screen.getAllByRole('textbox')).toEqual(inputs);
+    expect(inputs.map((input) => input.id)).toEqual([
+      'verification-code',
+      'verification-code-2',
+      'verification-code-3',
+    ]);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '']);
+
+    await act(async () => {
+      inputs[0].focus();
+    });
+    fireEvent.keyDown(inputs[0], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(inputs[1]);
+
+    await act(async () => {
+      inputs[1].blur();
+    });
+  });
+
+  it('registers inputs by their explicit index', async () => {
+    await render(
+      <OTPField.Root length={2} defaultValue="12">
+        <OTPField.Input index={1} data-testid="second" aria-label="Character 2 of 2" />
+        <OTPField.Input index={0} data-testid="first" />
+      </OTPField.Root>,
+    );
+
+    const first = screen.getByTestId('first');
+    const second = screen.getByTestId('second');
+
+    await act(async () => {
+      first.focus();
+    });
+    fireEvent.keyDown(first, { key: 'ArrowRight' });
+
+    expect(document.activeElement).toBe(second);
   });
 
   it('moves focus with arrow keys', async () => {
