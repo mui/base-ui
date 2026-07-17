@@ -490,19 +490,21 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
     };
 
-    // Once the user puts a finger down they own the scroll position. The delayed realign
-    // passes can't tell a user scroll from a reveal scroll WebKit canceled, so stop them
-    // rather than risk pulling the drawer back to center under the user; a later focus or
-    // viewport change reschedules alignment if it's still needed.
-    const cancelDelayedRealignOnPointerDown = () => {
+    // Once the user puts a finger down they own the scroll position. Stop both the frame settle
+    // loop, which can center after changing layout settles, and the delayed passes, which can't
+    // distinguish a user scroll from a reveal scroll WebKit canceled. A later focus or viewport
+    // change reschedules alignment if it's still needed.
+    const cancelKeyboardRealignOnPointerDown = () => {
+      keyboardFocusFrame.cancel();
       keyboardRealignTimeout.clear();
+      keyboardScrollElement = null;
     };
 
     cleanupListeners.push(
       addEventListener(doc, 'focusin', handleFocusIn, true),
       addEventListener(doc, 'focusout', handleFocusOut, true),
       addEventListener(win, 'scroll', handleWindowScroll),
-      addEventListener(doc, 'pointerdown', cancelDelayedRealignOnPointerDown, true),
+      addEventListener(doc, 'pointerdown', cancelKeyboardRealignOnPointerDown, true),
     );
 
     if (captureFocusedKeyboardTarget(activeElement(doc))) {

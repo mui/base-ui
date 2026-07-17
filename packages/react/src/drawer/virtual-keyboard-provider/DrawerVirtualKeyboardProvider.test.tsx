@@ -1910,7 +1910,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   );
 
   it.skipIf(isJSDOM)(
-    'stops the delayed realign passes once the user starts scrolling',
+    'stops pending realignment once the user starts scrolling while geometry is changing',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
@@ -1946,11 +1946,12 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           clientHeight: { configurable: true, value: 420 },
           scrollHeight: { configurable: true, value: 1200 },
         });
+        let scrollBottom = 380;
         scroll.getBoundingClientRect = () =>
           ({
             top: 300,
-            bottom: 720,
-            height: 420,
+            bottom: scrollBottom,
+            height: scrollBottom - 300,
             left: 0,
             right: 320,
             width: 320,
@@ -2003,13 +2004,22 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
         await act(async () => {
           second.focus();
-          // The user immediately puts a finger down on the drawer body to scroll it.
+          // Let the first settle check observe the squeezed body before the user takes over.
+          vi.advanceTimersToNextFrame();
           scroll.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+
+          // The body continues expanding after pointer-down, then the destination settles.
+          // A live frame loop would eventually center the field against the final geometry.
+          for (const bottom of [400, 440, 480, 480]) {
+            scrollBottom = bottom;
+            vi.advanceTimersToNextFrame();
+          }
+
           await vi.runAllTimersAsync();
         });
 
-        // Only the initial alignment scroll was issued; the passes stayed cancelled.
-        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        // Pointer-down cancels both the pending frame alignment and delayed passes.
+        expect(scrollToSpy).not.toHaveBeenCalled();
       } finally {
         vi.useRealTimers();
         visualViewport.restore();
@@ -2084,6 +2094,7 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   it.skipIf(isJSDOM)('defers the alignment scroll until the destination stops moving', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);
+    vi.useFakeTimers();
 
     try {
       await render(
@@ -2156,21 +2167,19 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       // Let the first alignment check measure the squeezed geometry, then settle it.
       await act(async () => {
-        await new Promise((resolve) => {
-          requestAnimationFrame(() => resolve(undefined));
-        });
+        vi.advanceTimersToNextFrame();
         scrollBottom = 480;
+        await vi.runAllTimersAsync();
       });
 
       // Squeezed destination: visible band [316, 364] → center 340, input center 670
       // → scrollTop 330. Settled: band [316, 464] → center 390 → scrollTop 280. The
       // squeezed destination must never be scrolled to.
-      await waitFor(() => {
-        expect(scroll.scrollTop).toBe(280);
-      });
+      expect(scroll.scrollTop).toBe(280);
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
       expect(scrollToSpy).not.toHaveBeenCalledWith(expect.objectContaining({ top: 330 }));
     } finally {
+      vi.useRealTimers();
       visualViewport.restore();
       restoreInnerHeight();
     }
