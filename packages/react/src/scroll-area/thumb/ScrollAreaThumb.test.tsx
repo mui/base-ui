@@ -239,6 +239,65 @@ describe('<ScrollArea.Thumb />', () => {
     await waitFor(() => expect(scrollbar).not.toHaveAttribute('data-scrolling'));
   });
 
+  describe('scroll snap', () => {
+    function defineThumbPointerCapture(thumb: HTMLElement) {
+      Object.defineProperties(thumb, {
+        setPointerCapture: {
+          configurable: true,
+          value: () => {},
+        },
+        hasPointerCapture: {
+          configurable: true,
+          value: () => false,
+        },
+      });
+    }
+
+    function renderWithSnap() {
+      return render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', scrollSnapType: 'y mandatory' }}
+          >
+            <div style={{ width: 200, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+    }
+
+    it('disables viewport scroll snap while dragging and restores it on release', async () => {
+      await renderWithSnap();
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      defineThumbPointerCapture(thumb);
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerUp(thumb, { pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
+    it('restores viewport scroll snap on pointer cancel', async () => {
+      await renderWithSnap();
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      defineThumbPointerCapture(thumb);
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerCancel(thumb, { pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+  });
+
   describe('data-scrolling attribute', () => {
     const { render: renderWithClock, clock } = createRenderer();
 
