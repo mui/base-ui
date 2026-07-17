@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -35,7 +35,7 @@ export interface ListVirtualizerRow<RowModel extends MuiVirtualizerRow> {
 /**
  * Empty space around a virtual row.
  */
-export interface ListVirtualizerRowSpacing {
+interface ListVirtualizerRowSpacing {
   bottom: number;
   top: number;
 }
@@ -49,10 +49,6 @@ export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtuali
    */
   isVirtualFocusRow: boolean;
   /**
-   * Ref callback that measures the rendered row.
-   */
-  measureRef: React.RefCallback<HTMLElement> | undefined;
-  /**
    * The row being rendered.
    */
   row: ListVirtualizerRow<RowModel>;
@@ -60,10 +56,6 @@ export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtuali
    * Index in the virtual row collection.
    */
   rowIndex: number;
-  /**
-   * Empty space applied before or after the row.
-   */
-  spacing: ListVirtualizerRowSpacing;
 }
 
 interface ListVirtualRowProps<RowModel extends MuiVirtualizerRow> {
@@ -81,14 +73,12 @@ interface ListVirtualRowProps<RowModel extends MuiVirtualizerRow> {
  * Removes a retained offscreen focus row from layout while keeping its content mounted.
  */
 const focusProxyStyle: React.CSSProperties = {
-  height: 0,
-  left: 0,
-  opacity: 0,
-  overflow: 'hidden',
   pointerEvents: 'none',
   position: 'absolute',
   top: 0,
-  width: 0,
+  // Keep the focused item's content measurable and exposed to assistive technology while
+  // removing it from the scroll layout.
+  transform: 'translateX(-10000px)',
 };
 
 function ListVirtualRow<RowModel extends MuiVirtualizerRow>(props: ListVirtualRowProps<RowModel>) {
@@ -121,20 +111,25 @@ function ListVirtualRow<RowModel extends MuiVirtualizerRow>(props: ListVirtualRo
 
   const content = renderRow({
     isVirtualFocusRow,
-    measureRef: isVirtualFocusRow ? undefined : measureRef,
     row,
     rowIndex,
-    spacing: getRowSpacing(rowIndex, rowCount, paddingStart, paddingEnd),
   });
+
+  const spacing = getRowSpacing(rowIndex, rowCount, paddingStart, paddingEnd);
+  const style: React.CSSProperties = isVirtualFocusRow
+    ? focusProxyStyle
+    : {
+        display: 'flow-root',
+        paddingBottom: spacing.bottom || undefined,
+        paddingTop: spacing.top || undefined,
+      };
 
   // MUI X can retain a focused row outside the visible range. Keep its semantic content mounted,
   // but remove it from layout and measurement until the real row enters the rendered window.
-  return isVirtualFocusRow ? (
-    <div role="presentation" style={focusProxyStyle}>
+  return (
+    <div ref={isVirtualFocusRow ? undefined : measureRef} role="presentation" style={style}>
       {content}
     </div>
-  ) : (
-    content
   );
 }
 
@@ -191,9 +186,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     (row: ListVirtualizerRow<RowModel>, rowIndex: number) => {
       const size =
         typeof estimateSize === 'function' ? estimateSize(row.model, rowIndex) : estimateSize;
-      return Math.max(1, size);
+      const spacing = getRowSpacing(rowIndex, rows.length, paddingStart, paddingEnd);
+      return Math.max(1, size) + spacing.top + spacing.bottom;
     },
-    [estimateSize],
+    [estimateSize, paddingEnd, paddingStart, rows.length],
   );
 
   const defaultEstimatedSize =
@@ -277,13 +273,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     },
     [defaultEstimatedSize, getEstimatedSize, rowIndexById, rows],
   );
-  const getRowSpacingProp = React.useCallback(
-    (row: RowEntry) => {
-      const rowIndex = rowIndexById.get(row.id as React.Key) ?? -1;
-      return getRowSpacing(rowIndex, rows.length, paddingStart, paddingEnd);
-    },
-    [paddingEnd, paddingStart, rowIndexById, rows.length],
-  );
   const range = React.useMemo(
     () =>
       rows.length === 0
@@ -302,7 +291,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       rowHeight: defaultEstimatedSize,
     },
     virtualization: {
-      rowBufferPx: Math.max(0, overscanPx ?? defaultEstimatedSize),
+      rowBufferPx: Math.max(0, overscanPx ?? Math.max(150, defaultEstimatedSize)),
     },
     initialState: {
       virtualization: {
@@ -316,7 +305,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     rowCount: rows.length,
     getRowHeight,
     getEstimatedRowHeight,
-    getRowSpacing: paddingStart === 0 && paddingEnd === 0 ? undefined : getRowSpacingProp,
     focusedVirtualCell: getFocusedVirtualCell,
     renderRow,
   });
@@ -417,19 +405,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   useIsoLayoutEffect(() => {
     const element = scrollElementRef.current;
-    const viewportHeight = element?.clientHeight ?? 0;
+    const viewportHeight = element ? getContentHeight(element) : 0;
 
-    if (
-      !restoreViewportRef.current ||
-      viewportHeight <= 0 ||
-      Math.abs(rootSize.height - viewportHeight) < 1
-    ) {
+    if (!restoreViewportRef.current || viewportHeight <= 0) {
       return;
     }
 
-    // LayoutList uses the same element as its container and scroller. Its client height is the
-    // authoritative viewport even if a preceding render-all pass temporarily expanded the
-    // element's observed content box.
+    // A completed render-all pass needs this correction at most once. Keeping the flag armed
+    // would overwrite every later ResizeObserver update.
+    restoreViewportRef.current = false;
+
+    if (Math.abs(rootSize.height - viewportHeight) < 1) {
+      return;
+    }
+
+    // MUI X stores the ResizeObserver content-box height. Preserve that same box model even if a
+    // preceding render-all pass temporarily expanded the observed content box.
     virtualizer.store.set('rootSize', {
       ...rootSize,
       height: viewportHeight,
@@ -501,8 +492,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     }
 
     const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-    const scrollPaddingStart = Number.parseFloat(styles.scrollPaddingTop) || 0;
-    const scrollPaddingEnd = Number.parseFloat(styles.scrollPaddingBottom) || 0;
+    const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
+    const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
     const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
     const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
     const viewportSize = Math.max(
@@ -674,6 +665,7 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
   onUnconstrainedHeight?: (() => void) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
+   * Defaults to the larger of 150px and the estimated row size.
    */
   overscanPx?: number | undefined;
   /**
@@ -733,4 +725,39 @@ function getRowSpacing(
     top: rowIndex === 0 ? paddingStart : 0,
     bottom: rowIndex === rowCount - 1 ? paddingEnd : 0,
   };
+}
+
+function resolveScrollPadding(scrollElement: HTMLElement, value: string) {
+  if (!value || value === 'auto') {
+    return 0;
+  }
+
+  if (value.endsWith('px')) {
+    const pixels = Number.parseFloat(value);
+    return Number.isFinite(pixels) ? Math.max(0, pixels) : 0;
+  }
+
+  // Computed scroll-padding preserves percentages and calculations. Resolve them through layout
+  // against the scrollport's corresponding dimension, as required by CSS Scroll Snap.
+  const probe = ownerDocument(scrollElement).createElement('div');
+  Object.assign(probe.style, {
+    boxSizing: 'border-box',
+    height: value,
+    pointerEvents: 'none',
+    position: 'absolute',
+    visibility: 'hidden',
+    width: '0px',
+  });
+  scrollElement.append(probe);
+  const pixels = probe.getBoundingClientRect().height;
+  probe.remove();
+
+  return Number.isFinite(pixels) ? Math.max(0, pixels) : 0;
+}
+
+function getContentHeight(element: HTMLElement) {
+  const styles = ownerWindow(element).getComputedStyle(element);
+  const padding =
+    (Number.parseFloat(styles.paddingTop) || 0) + (Number.parseFloat(styles.paddingBottom) || 0);
+  return Math.max(0, element.clientHeight - padding);
 }

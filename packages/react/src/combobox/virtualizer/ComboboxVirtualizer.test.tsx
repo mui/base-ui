@@ -95,7 +95,7 @@ describe('<Combobox.Virtualizer />', () => {
     expect(firstItem).toHaveAttribute('aria-posinset', '1');
     expect(firstItem).toHaveAttribute('aria-setsize', '10');
     expect(firstItem).toHaveAttribute('data-index', '0');
-    expect(firstItem).toHaveStyle({ marginTop: '4px' });
+    expect(firstItem.parentElement).toHaveStyle({ paddingTop: '4px' });
   });
 
   it('applies padding after the last virtual row', async () => {
@@ -118,8 +118,8 @@ describe('<Combobox.Virtualizer />', () => {
       </Combobox.Root>,
     );
 
-    expect(await screen.findByRole('option', { name: 'Item 2' })).toHaveStyle({
-      marginBottom: '6px',
+    expect((await screen.findByRole('option', { name: 'Item 2' })).parentElement).toHaveStyle({
+      paddingBottom: '6px',
     });
   });
 
@@ -148,20 +148,24 @@ describe('<Combobox.Virtualizer />', () => {
     await rerender(<Test estimateSize={40} paddingStart={40} />);
 
     await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('160px'));
-    expect(screen.getByRole('option', { name: 'Item 1' })).toHaveStyle({ marginTop: '40px' });
+    expect(screen.getByRole('option', { name: 'Item 1' }).parentElement).toHaveStyle({
+      paddingTop: '40px',
+    });
   });
 
-  it.skipIf(isJSDOM)('updates the total size after measuring items', async () => {
+  it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {
+    vi.restoreAllMocks();
+
     await render(
-      <Combobox.Root defaultOpen items={createItems(3)}>
+      <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
           <Combobox.Virtualizer
-            estimateSize={10}
+            estimateSize={20}
             overscanPx={0}
-            render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
+            render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
           >
             {(item: string) => (
-              <Combobox.Item key={item} value={item} style={{ height: 20 }}>
+              <Combobox.Item key={item} value={item} style={{ display: 'block', height: 20 }}>
                 {item}
               </Combobox.Item>
             )}
@@ -171,7 +175,14 @@ describe('<Combobox.Virtualizer />', () => {
     );
 
     const virtualizer = screen.getByTestId('virtualizer');
-    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px'));
+    await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(100));
+
+    virtualizer.scrollTop = 200;
+    fireEvent.scroll(virtualizer);
+
+    await waitFor(() => expect(screen.queryByRole('option', { name: 'Item 1' })).toBe(null));
+    expect(screen.getByRole('option', { name: 'Item 11' })).not.toBe(null);
   });
 
   it('updates the rendered items when scrolled', async () => {
@@ -363,7 +374,7 @@ describe('<Combobox.Virtualizer />', () => {
         expect(activeItem).toHaveTextContent('Item 100');
         handleScrollTo.mockClear();
 
-        await act(async () => resizeObserver.notify(activeItem as HTMLElement, 100));
+        await act(async () => resizeObserver.notify(activeItem?.parentElement as HTMLElement, 100));
 
         await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
         const correctedScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
@@ -869,18 +880,67 @@ describe('<Combobox.Virtualizer />', () => {
     scrollTop = 320;
     fireEvent.scroll(virtualizer);
 
-    await waitFor(() => {
-      const activeItem = input.ownerDocument.getElementById(activeId as string);
-      expect(activeItem).not.toBe(null);
-      expect(activeItem?.parentElement).toHaveStyle({
-        height: '0px',
-        opacity: '0',
-        overflow: 'hidden',
-        position: 'absolute',
-        width: '0px',
-      });
-    });
+    const activeItem = input.ownerDocument.getElementById(activeId as string);
+    await waitFor(() => expect(activeItem).not.toBe(null));
+    expect(activeItem?.parentElement).toHaveStyle({ position: 'absolute' });
+    expect(activeItem?.parentElement?.style.transform).toBe('translateX(-10000px)');
     expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px');
+  });
+
+  it('does not remount an item when it becomes the offscreen focus proxy', async () => {
+    let scrollTop = 0;
+    const handleItemMount = vi.fn();
+
+    function Item(props: { item: string }) {
+      React.useEffect(() => {
+        if (props.item === 'Item 1') {
+          handleItemMount();
+        }
+      }, [props.item]);
+
+      return <Combobox.Item value={props.item}>{props.item}</Combobox.Item>;
+    }
+
+    const { user } = await renderNonStrict(
+      <Combobox.Root defaultOpen items={createItems(100)}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.List>
+          <Combobox.Virtualizer
+            estimateSize={32}
+            overscanPx={0}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 64,
+                  getScrollTop: () => scrollTop,
+                  scrollTo(options) {
+                    scrollTop = options.top ?? scrollTop;
+                  },
+                })}
+                data-testid="virtualizer"
+              />
+            }
+          >
+            {(item: string) => <Item item={item} />}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await user.keyboard('{ArrowDown}');
+    expect(handleItemMount).toHaveBeenCalledTimes(1);
+
+    scrollTop = 320;
+    fireEvent.scroll(screen.getByTestId('virtualizer'));
+
+    await waitFor(() => {
+      const activeId = input.getAttribute('aria-activedescendant');
+      const activeItem = input.ownerDocument.getElementById(activeId as string);
+      expect(activeItem?.parentElement).toHaveStyle({ position: 'absolute' });
+    });
+    expect(handleItemMount).toHaveBeenCalledTimes(1);
   });
 
   it('passes the item and filtered index to estimateSize', async () => {
@@ -1442,6 +1502,52 @@ describe('<Combobox.Virtualizer />', () => {
     await user.click(screen.getByRole('combobox'));
     await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
     await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
+  });
+
+  it('does not render every item for an unmatched large autofill value', async () => {
+    const items = Array.from({ length: 1001 }, (_, index) => `V${index + 1}`);
+    const renderItem = vi.fn((item: string, index: number) => (
+      <Combobox.Item value={item}>{`Country ${index + 1}`}</Combobox.Item>
+    ));
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Combobox.Root name="country" items={items}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Virtualizer<string>
+                    estimateSize={20}
+                    overscanPx={0}
+                    render={<div ref={setElementClientHeight(40)} />}
+                  >
+                    {renderItem}
+                  </Combobox.Virtualizer>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+      renderItem.mockClear();
+
+      fireEvent.change(hiddenInput, { target: { value: 'Country 1000' } });
+
+      expect(renderItem).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Browser autofill could not match a rendered item label'),
+      );
+      await flushMicrotasks();
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it('renders all items when disabled', async () => {

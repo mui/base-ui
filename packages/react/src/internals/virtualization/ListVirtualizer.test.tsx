@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import {
   ListVirtualizer,
   type ListVirtualizerRenderRowParameters,
@@ -20,7 +20,10 @@ describe('<ListVirtualizer />', () => {
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function mockRect(
       this: HTMLElement,
     ) {
-      if (this.hasAttribute('data-row-index')) {
+      if (
+        this.hasAttribute('data-row-index') ||
+        this.firstElementChild?.hasAttribute('data-row-index')
+      ) {
         return createDOMRect({ height: 20, width: 200 });
       }
 
@@ -45,7 +48,7 @@ describe('<ListVirtualizer />', () => {
 
     await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5));
 
-    expect(screen.getByText('Item 1')).toHaveStyle({ marginTop: '4px' });
+    expect(screen.getByText('Item 1').parentElement).toHaveStyle({ paddingTop: '4px' });
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);
 
@@ -70,19 +73,48 @@ describe('<ListVirtualizer />', () => {
     const secondPinnedRow = await screen.findByText('Item 76');
 
     expect(firstPinnedRow.parentElement).toHaveStyle({
-      height: '0px',
-      opacity: '0',
-      overflow: 'hidden',
       position: 'absolute',
-      width: '0px',
     });
+    expect(firstPinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
     expect(secondPinnedRow.parentElement).toHaveStyle({
-      height: '0px',
-      opacity: '0',
-      overflow: 'hidden',
       position: 'absolute',
-      width: '0px',
     });
+    expect(secondPinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
+  });
+
+  it.skipIf(isJSDOM)('resolves calculated scroll padding against the scrollport', async () => {
+    vi.restoreAllMocks();
+
+    const scrollTo = vi.fn();
+    await render(
+      <ListVirtualizer
+        estimateSize={20}
+        overscanPx={0}
+        render={
+          <div
+            ref={(element) => {
+              if (element) {
+                Object.defineProperty(element, 'scrollTo', {
+                  configurable: true,
+                  value: scrollTo,
+                });
+              }
+            }}
+            style={{ height: 100, scrollPaddingBottom: 'calc(20% + 5px)', width: 200 }}
+          />
+        }
+        renderRow={renderRow}
+        rows={createRows(20)}
+        scrollToRowIndex={17}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith({
+        behavior: 'instant',
+        top: 285,
+      }),
+    );
   });
 });
 
@@ -121,16 +153,7 @@ function createRows(count: number): ListVirtualizerRow<TestRowModel>[] {
 
 function renderRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
   return (
-    <div
-      ref={params.measureRef}
-      data-row-index={params.rowIndex}
-      role="listitem"
-      style={{
-        height: 20,
-        marginBottom: params.spacing.bottom || undefined,
-        marginTop: params.spacing.top || undefined,
-      }}
-    >
+    <div data-row-index={params.rowIndex} role="listitem" style={{ height: 20 }}>
       {params.row.model.label}
     </div>
   );
