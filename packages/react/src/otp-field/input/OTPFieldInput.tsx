@@ -62,7 +62,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     value,
   } = useOTPFieldRootContext();
 
-  const { ref: listItemRef, index } = useCompositeListItem();
+  const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 
