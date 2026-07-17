@@ -186,6 +186,33 @@ describe('Composite', () => {
       expect(item2).not.toHaveFocus();
     });
 
+    it.each([
+      { orientation: 'horizontal' as const, key: 'ArrowRight', prevented: true },
+      { orientation: 'horizontal' as const, key: 'ArrowDown', prevented: false },
+      { orientation: 'vertical' as const, key: 'ArrowDown', prevented: true },
+      { orientation: 'vertical' as const, key: 'ArrowRight', prevented: false },
+      { orientation: 'both' as const, key: 'ArrowRight', prevented: true },
+      { orientation: 'both' as const, key: 'ArrowDown', prevented: true },
+    ])(
+      'sets default prevention to $prevented for $key with $orientation orientation',
+      async ({ orientation, key, prevented }) => {
+        await render(
+          <CompositeRoot orientation={orientation}>
+            <CompositeItem data-testid="1">1</CompositeItem>
+            <CompositeItem data-testid="2">2</CompositeItem>
+          </CompositeRoot>,
+        );
+
+        const item1 = screen.getByTestId('1');
+        act(() => item1.focus());
+
+        const allowed = fireEvent.keyDown(item1, { key });
+        await flushMicrotasks();
+
+        expect(allowed).toBe(!prevented);
+      },
+    );
+
     it.skipIf(isJSDOM)('updates the order of items', async () => {
       function App(props: { items: string[] }) {
         return (
@@ -464,6 +491,22 @@ describe('Composite', () => {
   });
 
   describe('grid', () => {
+    it('prevents default for grid navigation outside the configured orientation', async () => {
+      await render(
+        <CompositeRoot grid={threeColsGrid} orientation="horizontal">
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      const allowed = fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(allowed).toBe(false);
+    });
+
     it('uniform 1x1 items', async () => {
       function App() {
         return (

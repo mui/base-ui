@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
@@ -9,7 +10,6 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import {
-  FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
@@ -268,15 +268,10 @@ function TooltipInteractions<Payload>({
     () => mergeProps(clientPoint.reference, dismiss.reference),
     [clientPoint.reference, dismiss.reference],
   );
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
-
   usePopupInteractionProps(store, {
     activeTriggerProps: triggerProps,
     inactiveTriggerProps: triggerProps,
-    popupProps,
+    popupProps: dismiss.floating ?? EMPTY_OBJECT,
   });
 
   return null;

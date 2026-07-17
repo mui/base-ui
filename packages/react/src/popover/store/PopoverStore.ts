@@ -20,6 +20,7 @@ import {
   setPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -33,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -56,7 +57,9 @@ const selectors = {
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector(
+    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
+  ),
 };
 
 type Selectors = typeof selectors;
@@ -206,7 +209,7 @@ function createInitialState<Payload>(
     stickIfOpen: true,
     openOnHover: false,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
     ...initialState,
   };
 

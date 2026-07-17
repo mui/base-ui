@@ -1,10 +1,11 @@
-import { expect, vi } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { CSPProvider } from '@base-ui/react/csp-provider';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { script as generatedPrehydrationScript } from './prehydrationScript.min';
 
 describe('<Tabs.Indicator />', () => {
   const { render, renderToString } = createRenderer();
@@ -496,6 +497,113 @@ describe('<Tabs.Indicator />', () => {
 
       // eslint-disable-next-line testing-library/no-container -- script elements have no accessible role
       expect(container.querySelector('script')).toBe(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('pre-hydration script execution', () => {
+    let host: HTMLDivElement;
+
+    afterEach(() => {
+      host?.remove();
+    });
+
+    // Builds the server-emitted markup by hand and executes the real generated
+    // script against it, as the browser would before hydration.
+    function renderServerMarkup({
+      hidden = false,
+      activeTabStyle = 'width: 100px; height: 40px;',
+    } = {}) {
+      host = document.createElement('div');
+      if (hidden) {
+        host.style.display = 'none';
+      }
+      host.innerHTML =
+        '<div role="tablist" style="width: 300px; height: 40px; position: relative;">' +
+        `<button data-active style="${activeTabStyle} padding: 0; border: 0;">One</button>` +
+        '<button style="width: 100px; height: 40px; padding: 0; border: 0;">Two</button>' +
+        '<span hidden></span>' +
+        '</div>';
+      document.body.appendChild(host);
+
+      const tabsList = host.querySelector<HTMLElement>('[role="tablist"]')!;
+      const activeTab = host.querySelector<HTMLElement>('[data-active]')!;
+      const indicator = host.querySelector<HTMLElement>('span')!;
+
+      const scriptElement = document.createElement('script');
+      scriptElement.textContent = generatedPrehydrationScript;
+      // Appending an inline script executes it synchronously with `document.currentScript` set.
+      indicator.after(scriptElement);
+
+      return { tabsList, activeTab, indicator };
+    }
+
+    it('positions the indicator once a hidden streamed segment becomes visible', async () => {
+      const { activeTab, indicator } = renderServerMarkup({ hidden: true });
+
+      expect(indicator).toHaveAttribute('hidden');
+      host.style.display = '';
+
+      await waitFor(() => {
+        expect(indicator).not.toHaveAttribute('hidden');
+      });
+      expect(getComputedStyle(indicator).getPropertyValue('--active-tab-width')).toBe(
+        `${activeTab.offsetWidth}px`,
+      );
+    });
+
+    it('does not resurrect the indicator when the captured tab is no longer active', async () => {
+      const { activeTab, indicator } = renderServerMarkup({ hidden: true });
+
+      // Simulate hydration switching to a value with no matching tab.
+      activeTab.removeAttribute('data-active');
+      host.style.display = '';
+
+      // Give the ResizeObserver a chance to deliver after the reveal.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      expect(indicator).toHaveAttribute('hidden');
+    });
+
+    it('stops once hydration has revealed the indicator', async () => {
+      const { tabsList, indicator } = renderServerMarkup({ hidden: true });
+
+      // Simulate hydration taking ownership before the observer delivers:
+      // React reveals the indicator and writes its own position variables.
+      indicator.removeAttribute('hidden');
+      indicator.style.setProperty('--active-tab-width', '55px');
+      host.style.display = '';
+
+      // Give the ResizeObserver a chance to deliver after the reveal.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      expect(getComputedStyle(indicator).getPropertyValue('--active-tab-width')).toBe('55px');
+
+      // The observer must have disconnected, so later resizes change nothing.
+      tabsList.style.width = '500px';
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      expect(getComputedStyle(indicator).getPropertyValue('--active-tab-width')).toBe('55px');
+    });
+
+    it('keeps observing until the active tab is fully measurable', async () => {
+      // The tab has width but no height yet (e.g. styles or images still loading).
+      const { activeTab, indicator } = renderServerMarkup({
+        activeTabStyle: 'width: 100px; height: 0; overflow: hidden;',
+      });
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      expect(indicator).toHaveAttribute('hidden');
+
+      activeTab.style.height = '40px';
+
+      await waitFor(() => {
+        expect(indicator).not.toHaveAttribute('hidden');
+      });
     });
   });
 });

@@ -78,7 +78,7 @@ The 0th index toast appears at the front.
 ```css title="z-index stacking"
 .Toast {
   z-index: calc(1000 - var(--toast-index));
-  transform: scale(1 - calc(0.1 * var(--toast-index)));
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
 }
 ```
 
@@ -114,8 +114,8 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css title="Swipe offset"
 .Toast {
-  /* @highlight-text "--toast-swipe-movement-x" */
-  transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))))
+    translateX(var(--toast-swipe-movement-x)) /* @highlight-text "--toast-swipe-movement-x" */
     /* @highlight-text "--toast-swipe-movement-y" */
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
@@ -443,7 +443,7 @@ See full [`promise` method](#ToastuseToastManager-promise)
 
 [//]: # '@exclude-table-of-contents'
 
-## Additional Types
+## Additional types
 
 <TypesToastAdditional showAdditionalTypes={['toastmanagerupdateoptions']} />
 

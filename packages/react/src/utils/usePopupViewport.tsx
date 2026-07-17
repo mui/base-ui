@@ -14,6 +14,7 @@ import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
 import { useDirection } from '../direction-provider';
+import { adaptiveOrigin } from './adaptiveOriginMiddleware';
 
 export const popupViewportStateMapping: StateAttributesMapping<{
   activationDirection: string | undefined;
@@ -106,9 +107,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
   useIsoLayoutEffect(() => {
-    store.set('hasViewport', true);
+    store.set('adaptiveOrigin', adaptiveOrigin);
     return () => {
-      store.set('hasViewport', false);
+      store.set('adaptiveOrigin', undefined);
     };
   }, [store]);
 

@@ -54,7 +54,7 @@ describe('ToastStore', () => {
     expectToastMetadataToMatchToasts(store);
     expect(selectors.toast(store.state, 'middle')?.transitionStatus).toBe('ending');
 
-    store.removeToast('middle', { skipOnRemove: true });
+    store.removeToast('middle', true);
 
     expectToastMetadataToMatchToasts(store);
 
@@ -63,17 +63,36 @@ describe('ToastStore', () => {
     expectToastMetadataToMatchToasts(store);
   });
 
+  it('ignores height recalculations while a toast is transitioning out', () => {
+    const store = createStore([{ id: 'a', height: 40 }]);
+
+    store.closeToast('a');
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+
+    // Mirrors the write `recalculateHeight` makes when a content observer fires:
+    // it always includes `transitionStatus: undefined`. The ending toast must stay
+    // ending so `useOpenChangeComplete` still removes it.
+    store.updateToastInternal('a', { height: 80, transitionStatus: undefined });
+
+    const toast = selectors.toast(store.state, 'a');
+    expect(toast?.transitionStatus).toBe('ending');
+    expect(toast?.height).toBe(0);
+
+    store.removeToast('a', true);
+    expect(selectors.toast(store.state, 'a')).toBe(undefined);
+  });
+
   describe('limit', () => {
     it('recomputes limited flags when the limit changes', () => {
       // Ordered newest-first, matching how `addToast` prepends.
       const store = createStore([{ id: 'c' }, { id: 'b' }, { id: 'a' }]);
 
-      store.syncProviderProps({ timeout: 0, limit: 1 });
+      store.syncProviderProps(0, 1);
       expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'b')?.limited).toBe(true);
       expect(selectors.toast(store.state, 'a')?.limited).toBe(true);
 
-      store.syncProviderProps({ timeout: 0, limit: 3 });
+      store.syncProviderProps(0, 3);
       expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'b')?.limited).toBe(false);
       expect(selectors.toast(store.state, 'a')?.limited).toBe(false);

@@ -7,7 +7,6 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
-import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useButton } from '../../internals/use-button';
 import { SwitchRootContext } from './SwitchRootContext';
@@ -101,7 +100,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     if (inputRef.current) {
       setFilled(inputRef.current.checked);
     }
-  }, [inputRef, setFilled]);
+  }, [setFilled]);
 
   useValueChanged(checked, () => {
     clearErrors(name);
@@ -164,55 +163,53 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     },
   };
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = mergeProps<'input'>(
-    {
-      checked,
-      disabled,
-      form,
-      id: hiddenInputId,
-      name,
-      required,
-      style: name ? visuallyHiddenInput : visuallyHidden,
-      tabIndex: -1,
-      type: 'checkbox',
-      'aria-hidden': true,
-      ref: handleInputRef,
-      onChange(event) {
-        // Workaround for https://github.com/react/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
-          return;
-        }
+  const inputProps: React.ComponentPropsWithRef<'input'> = {
+    ...validation.getValidationProps(disabled),
+    checked,
+    disabled,
+    form,
+    id: hiddenInputId,
+    name,
+    required,
+    style: name ? visuallyHiddenInput : visuallyHidden,
+    tabIndex: -1,
+    type: 'checkbox',
+    'aria-hidden': true,
+    ref: handleInputRef,
+    onChange(event) {
+      // Workaround for https://github.com/react/react/issues/9023
+      if (event.nativeEvent.defaultPrevented) {
+        return;
+      }
 
-        if (readOnly) {
-          event.preventDefault();
-          return;
-        }
+      if (readOnly) {
+        event.preventDefault();
+        return;
+      }
 
-        const nextChecked = event.currentTarget.checked;
-        const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
+      const nextChecked = event.currentTarget.checked;
+      const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        onCheckedChange?.(nextChecked, eventDetails);
+      onCheckedChange?.(nextChecked, eventDetails);
 
-        if (eventDetails.isCanceled) {
-          return;
-        }
+      if (eventDetails.isCanceled) {
+        return;
+      }
 
-        setCheckedState(nextChecked);
-      },
-      onClick(event) {
-        // The click dispatched from the root's `onClick` is an implementation detail
-        // and must not reach ancestors, which already receive the original click.
-        event.stopPropagation();
-      },
-      onFocus() {
-        switchRef.current?.focus();
-      },
+      setCheckedState(nextChecked);
     },
-    (props) => validation.getValidationProps(disabled, props),
+    onClick(event) {
+      // The click dispatched from the root's `onClick` is an implementation detail
+      // and must not reach ancestors, which already receive the original click.
+      event.stopPropagation();
+    },
+    onFocus() {
+      switchRef.current?.focus();
+    },
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
-    value !== undefined ? { value } : EMPTY_OBJECT,
-  );
+    ...(value !== undefined ? { value } : EMPTY_OBJECT),
+  };
 
   const state: SwitchRootState = React.useMemo(
     () => ({
