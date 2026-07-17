@@ -18,7 +18,6 @@ blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
-  - '@floating-ui/*'
   - '@mui/internal-*'
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
