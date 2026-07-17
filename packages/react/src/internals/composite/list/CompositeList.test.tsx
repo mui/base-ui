@@ -7,7 +7,7 @@ import { CompositeList } from './CompositeList';
 import { useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describe('prop: elementsRef', () => {
     function Item(props: { label?: string; index?: number }) {
@@ -125,7 +125,7 @@ describe('<CompositeList />', () => {
       };
 
       function GuessedItem(props: { label: string; index?: number }) {
-        const { ref, index } = useCompositeListItem({ index: props.index });
+        const { ref, index } = useCompositeListItem({ guess: true, index: props.index });
         const initialIndex = React.useRef(index).current;
         return <div ref={ref} data-testid={props.label} data-initial-index={initialIndex} />;
       }
@@ -316,7 +316,7 @@ describe('<CompositeList />', () => {
       const initialIndexes: Record<string, number> = {};
 
       function GuessedItem(props: { label: string }) {
-        const { ref, index } = useCompositeListItem();
+        const { ref, index } = useCompositeListItem({ guess: true });
         renderCounts[props.label] += 1;
         if (!(props.label in initialIndexes)) {
           initialIndexes[props.label] = index;
@@ -843,6 +843,42 @@ describe('<CompositeList />', () => {
       const map = onMapChange.mock.lastCall?.[0] as Map<Element, { kind: string; index: number }>;
       expect(map.get(screen.getByTestId('first'))).toEqual({ kind: 'alpha', index: 0 });
       expect(map.get(screen.getByTestId('second'))).toEqual({ kind: 'beta', index: 1 });
+    });
+  });
+
+  describe('server-side rendering', () => {
+    function Item(props: { label: string }) {
+      const { ref, index } = useCompositeListItem();
+      return <div ref={ref} data-testid={props.label} data-index={index} />;
+    }
+
+    it('hydrates a server-rendered list without a mismatch under Strict Mode', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function App() {
+        return (
+          <CompositeList elementsRef={elementsRef}>
+            <Item label="a" />
+            <Item label="b" />
+          </CompositeList>
+        );
+      }
+
+      const { hydrate } = await renderToString(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>,
+      );
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '-1');
+
+      await hydrate();
+
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+      expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('b')]);
     });
   });
 

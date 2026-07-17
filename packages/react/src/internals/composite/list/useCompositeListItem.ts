@@ -4,6 +4,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
+  /**
+   * Whether to guess the initial index from render order, avoiding a re-render after mount for
+   * flat lists.
+   * @default false
+   */
+  guess?: boolean | undefined;
   index?: number | undefined;
   label?: string | null | undefined;
   metadata?: Metadata | undefined;
@@ -21,7 +27,7 @@ interface UseCompositeListItemReturnValue {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata, textRef, index: externalIndex } = params;
+  const { guess, label, metadata, textRef, index: externalIndex } = params;
 
   const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
 
@@ -30,7 +36,7 @@ export function useCompositeListItem<Metadata>(
   // rendering), the commit flush corrects it before paint.
   const indexRef = React.useRef(-1);
   const [internalIndex, setInternalIndex] = React.useState<number>(
-    externalIndex == null
+    externalIndex == null && guess
       ? () => {
           if (indexRef.current === -1) {
             const newIndex = nextIndexRef.current;
