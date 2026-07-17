@@ -53,6 +53,7 @@ export default function MenuDetachedTriggersFullDemo() {
           <Menu.Portal>
             <Menu.Positioner
               sideOffset={8}
+              align="start"
               className={`
                 outline-none
                 h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)]

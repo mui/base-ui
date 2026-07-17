@@ -9,7 +9,7 @@ export default function ExampleMenu() {
         Song <CaretDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className="outline-hidden" sideOffset={8}>
+        <Menu.Positioner className="outline-hidden" sideOffset={8} align="start">
           <Menu.Popup className={popupClass}>
             <Menu.Item className={itemClass}>Add to Library</Menu.Item>
 
