@@ -132,7 +132,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
-      const itemCount = itemCountProp ?? sortedMap.size;
+      const itemCount = Math.max(itemCountProp ?? 0, sortedMap.size);
       if (elementsRef.current.length !== itemCount) {
         elementsRef.current.length = itemCount;
       }

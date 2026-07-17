@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -10,7 +11,6 @@ import {
   ListVirtualizer,
   type ListVirtualizerRenderRowParameters,
   type ListVirtualizerRow,
-  type ListVirtualizerRowSpacing,
 } from '../../internals/virtualization/ListVirtualizer';
 import type { ListVirtualizerHandle } from '../../internals/virtualization/ListVirtualizationRegistry';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
@@ -35,19 +35,16 @@ type ComboboxVirtualRowModel<Value> = ComboboxVirtualItemRowModel<Value>;
 
 interface ComboboxVirtualRowProps<Value> {
   children: (item: Value, index: number) => React.ReactElement;
-  isVirtualFocusRow: boolean;
   itemCount: number;
-  measureRef: React.RefCallback<HTMLElement> | undefined;
   model: ComboboxVirtualRowModel<Value>;
-  spacing: ListVirtualizerRowSpacing;
 }
 
 /**
- * Renders a virtual row and provides its logical index, accessibility metadata, and measurement
- * ref to the contained `<Combobox.Item>`.
+ * Renders a virtual row and provides its logical index and accessibility metadata to the
+ * contained `<Combobox.Item>`.
  */
 function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
-  const { children, isVirtualFocusRow, itemCount, measureRef, model, spacing } = props;
+  const { children, itemCount, model } = props;
 
   const registeredItemCountRef = React.useRef(0);
 
@@ -58,42 +55,31 @@ function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
     };
   }, []);
 
-  useIsoLayoutEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && registeredItemCountRef.current !== 1) {
-      warn(
-        'Each <Combobox.Virtualizer> item renderer must render exactly one ' +
-          '<Combobox.Item>. Rendered ' +
-          `${registeredItemCountRef.current} items for the value at index ${model.itemIndex}.`,
-      );
-    }
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (registeredItemCountRef.current !== 1) {
+        warn(
+          'Each <Combobox.Virtualizer> item renderer must render exactly one ' +
+            '<Combobox.Item>. Rendered ' +
+            `${registeredItemCountRef.current} items for the value at index ${model.itemIndex}.`,
+        );
+      }
+    });
+  }
 
   const contextValue = React.useMemo(
     () => ({
       index: model.itemIndex,
-      measureRef: isVirtualFocusRow ? undefined : measureRef,
       props: {
         'aria-posinset': model.itemIndex + 1,
         'aria-setsize': itemCount,
         'data-index': model.itemIndex,
-        style: isVirtualFocusRow
-          ? undefined
-          : {
-              marginBottom: spacing.bottom || undefined,
-              marginTop: spacing.top || undefined,
-            },
       },
       registerItem: process.env.NODE_ENV === 'production' ? undefined : registerItem,
     }),
-    [
-      isVirtualFocusRow,
-      itemCount,
-      measureRef,
-      model.itemIndex,
-      registerItem,
-      spacing.bottom,
-      spacing.top,
-    ],
+    [itemCount, model.itemIndex, registerItem],
   );
 
   const item = (
@@ -111,14 +97,10 @@ function areVirtualRowPropsEqual<Value>(
 ) {
   return (
     previous.children === next.children &&
-    previous.isVirtualFocusRow === next.isVirtualFocusRow &&
     previous.itemCount === next.itemCount &&
-    previous.measureRef === next.measureRef &&
     previous.model.item === next.model.item &&
     previous.model.itemIndex === next.model.itemIndex &&
-    previous.model.virtualRowIndex === next.model.virtualRowIndex &&
-    previous.spacing.bottom === next.spacing.bottom &&
-    previous.spacing.top === next.spacing.top
+    previous.model.virtualRowIndex === next.model.virtualRowIndex
   );
 }
 
@@ -173,12 +155,12 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill). The registry coordinates that mode across generic list
   // virtualizers without relying on an imperative handle that may not be registered yet.
-  const renderAllRows = React.useSyncExternalStore(
+  const renderAllRows = useSyncExternalStore(
     store.state.virtualizationRegistry.subscribeRenderAllRows,
     store.state.virtualizationRegistry.getRenderAllRows,
     store.state.virtualizationRegistry.getRenderAllRows,
   );
-  const renderAllRowsRestoreVersion = React.useSyncExternalStore(
+  const renderAllRowsRestoreVersion = useSyncExternalStore(
     store.state.virtualizationRegistry.subscribeRenderAllRows,
     store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
     store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
@@ -232,20 +214,8 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     });
   }, [flatFilteredItems, getItemKey, objectKeyRegistry]);
 
-  // Keep logical item indexes separate from virtual row indexes. They are identical for today's
-  // flat lists, but will diverge when non-item rows such as group headers are introduced.
-  const rowIndexByItemIndex = React.useMemo(() => {
-    const map = new Map<number, number>();
-    rows.forEach((row, rowIndex) => {
-      const model = row.model;
-      if (model.type === 'item') {
-        map.set(model.itemIndex, rowIndex);
-      }
-    });
-    return map;
-  }, [rows]);
-
-  const focusedRowIndex = activeIndex == null ? undefined : rowIndexByItemIndex.get(activeIndex);
+  // Item and virtual-row indexes are identical while grouped rows are unsupported.
+  const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
   const pinnedRowIndexes = React.useMemo(
     () => (focusedRowIndex == null ? [] : [focusedRowIndex]),
     [focusedRowIndex],
@@ -253,13 +223,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
 
   const renderRow = React.useCallback(
     (params: ListVirtualizerRenderRowParameters<ComboboxVirtualRowModel<Value>>) => (
-      <ComboboxVirtualRow
-        isVirtualFocusRow={params.isVirtualFocusRow}
-        itemCount={flatFilteredItems.length}
-        measureRef={params.measureRef}
-        model={params.row.model}
-        spacing={params.spacing}
-      >
+      <ComboboxVirtualRow itemCount={flatFilteredItems.length} model={params.row.model}>
         {children}
       </ComboboxVirtualRow>
     ),
@@ -452,7 +416,7 @@ interface ComboboxVirtualizerBaseProps<Value> extends Omit<
   estimateSize: number | ((item: Value, index: number) => number);
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the estimated size of the first item.
+   * Defaults to the larger of 150px and the estimated size of the first item.
    */
   overscanPx?: number | undefined;
   /**

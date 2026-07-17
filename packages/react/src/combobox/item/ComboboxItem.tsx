@@ -101,7 +101,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
-  useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+  }
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;
@@ -219,7 +223,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [buttonRef, forwardedRef, listItem.ref, itemRef, virtualItem?.measureRef],
+    ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
     state,
     props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
   });
@@ -288,29 +292,29 @@ export const ComboboxItem = React.memo(
     const virtualItem = useComboboxVirtualItemContext();
     const insideList = useVirtualizationListContext();
 
-    useIsoLayoutEffect(() => {
-      if (process.env.NODE_ENV === 'production') {
-        return undefined;
-      }
+    if (process.env.NODE_ENV !== 'production') {
+      // The build-time environment never changes during a component's lifetime.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useIsoLayoutEffect(() => {
+        if (virtualItem != null || !insideList) {
+          return undefined;
+        }
 
-      if (virtualItem != null || !insideList) {
-        return undefined;
-      }
+        const registry = store.state.virtualizationRegistry;
+        registry.nonVirtualItemCount += 1;
 
-      const registry = store.state.virtualizationRegistry;
-      registry.nonVirtualItemCount += 1;
+        if (registry.virtualizers.size > 0) {
+          warn(
+            '<Combobox.List> must not render static <Combobox.Item> elements alongside ' +
+              '<Combobox.Virtualizer>. Render every list item through the virtualizer.',
+          );
+        }
 
-      if (registry.virtualizers.size > 0) {
-        warn(
-          '<Combobox.List> must not render static <Combobox.Item> elements alongside ' +
-            '<Combobox.Virtualizer>. Render every list item through the virtualizer.',
-        );
-      }
-
-      return () => {
-        registry.nonVirtualItemCount -= 1;
-      };
-    }, [insideList, store, virtualItem]);
+        return () => {
+          registry.nonVirtualItemCount -= 1;
+        };
+      }, [insideList, store, virtualItem]);
+    }
 
     // External virtualization and whether an item provides an explicit `index` must be stable
     // for an item's lifetime: the two branches return different component types, so flipping

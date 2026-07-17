@@ -74,6 +74,86 @@ describe('<CompositeList />', () => {
       expect(elementsRef.current[4]).toBe(screen.getByTestId('mounted'));
     });
 
+    it('keeps external registrations when keyed items shift indexes', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function App() {
+        const [prepended, setPrepended] = React.useState(false);
+        const items = prepended ? ['x', 'a', 'b'] : ['a', 'b'];
+
+        return (
+          <CompositeList elementsRef={elementsRef} itemCount={items.length} labelsRef={labelsRef}>
+            <button type="button" onClick={() => setPrepended(true)}>
+              Prepend
+            </button>
+            {items.map((item, index) => (
+              <Item key={item} index={index} label={item} />
+            ))}
+          </CompositeList>
+        );
+      }
+
+      // Strict Mode replays the registration effects and masks the commit-order collision.
+      const { user } = await render(<App />, { strict: false });
+
+      await user.click(screen.getByRole('button', { name: 'Prepend' }));
+
+      await waitFor(() => expect(elementsRef.current).toHaveLength(3));
+      expect(elementsRef.current.map((element) => element?.textContent)).toEqual(['x', 'a', 'b']);
+    });
+
+    it('clears an unmounted explicit-index registration', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function App(props: { mounted: boolean }) {
+        return (
+          <CompositeList elementsRef={elementsRef} itemCount={5} labelsRef={labelsRef}>
+            {props.mounted && <Item index={4} label="mounted" />}
+          </CompositeList>
+        );
+      }
+
+      const { rerender } = await render(<App mounted />);
+
+      expect(elementsRef.current).toHaveLength(5);
+      expect(elementsRef.current[4]).toBe(screen.getByTestId('mounted'));
+
+      await rerender(<App mounted={false} />);
+
+      expect(elementsRef.current).toHaveLength(5);
+      expect(elementsRef.current[4]).toBe(null);
+    });
+
+    it('keeps registered static items beyond the declared collection count', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef} itemCount={2} labelsRef={labelsRef}>
+          <Item label="first" />
+          <Item label="second" />
+          <Item label="extra" />
+        </CompositeList>,
+      );
+
+      expect(elementsRef.current).toHaveLength(3);
+      expect(elementsRef.current[2]).toBe(screen.getByTestId('extra'));
+    });
+
     it('updates indexes when keyed groups reorder', async () => {
       function App() {
         const [reordered, setReordered] = React.useState(false);

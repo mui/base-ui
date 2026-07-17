@@ -57,17 +57,30 @@ export function useCompositeListItem<Metadata>(
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
+      const previousNode = componentRef.current;
       componentRef.current = node;
 
-      if (index !== -1 && node !== null) {
-        elementsRef.current[index] = node;
+      if (index === -1) {
+        return;
+      }
 
-        if (labelsRef) {
-          const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined
-            ? label
-            : (textRef?.current?.textContent ?? node.textContent);
+      if (node === null) {
+        if (elementsRef.current[index] === previousNode) {
+          elementsRef.current[index] = null;
+          if (labelsRef) {
+            labelsRef.current[index] = null;
+          }
         }
+        return;
+      }
+
+      elementsRef.current[index] = node;
+
+      if (labelsRef) {
+        const isLabelDefined = label !== undefined;
+        labelsRef.current[index] = isLabelDefined
+          ? label
+          : (textRef?.current?.textContent ?? node.textContent);
       }
     },
     [index, elementsRef, labelsRef, label, textRef],
@@ -76,7 +89,11 @@ export function useCompositeListItem<Metadata>(
   const previousExternalIndexRef = React.useRef(externalIndex);
   useIsoLayoutEffect(() => {
     const previousExternalIndex = previousExternalIndexRef.current;
-    if (previousExternalIndex != null && previousExternalIndex !== externalIndex) {
+    if (
+      previousExternalIndex != null &&
+      previousExternalIndex !== externalIndex &&
+      elementsRef.current[previousExternalIndex] === componentRef.current
+    ) {
       elementsRef.current[previousExternalIndex] = null;
       if (labelsRef) {
         labelsRef.current[previousExternalIndex] = null;

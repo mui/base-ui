@@ -20,10 +20,6 @@ export interface ComboboxVirtualItemMetadata {
     'data-index': number;
   };
   /**
-   * Ref callback that measures the item element.
-   */
-  measureRef: React.RefCallback<HTMLElement> | undefined;
-  /**
    * Registers the item rendered for this virtual row.
    */
   registerItem: (() => () => void) | undefined;

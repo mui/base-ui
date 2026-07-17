@@ -9,6 +9,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { warn } from '@base-ui/utils/warn';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
@@ -73,6 +74,8 @@ import {
   setListVirtualizersRenderAllRows,
 } from '../../internals/virtualization/ListVirtualizationRegistry';
 
+const MAX_RENDERED_AUTOFILL_ITEMS = 1000;
+
 /**
  * @internal
  */
@@ -83,7 +86,7 @@ export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
 ): React.JSX.Element;
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
-    items?: readonly any[] | undefined;
+    items?: readonly any[] | readonly Group<any>[] | undefined;
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
@@ -925,9 +928,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      listRef.current.length = flatFilteredItems.length;
+      if (virtualized) {
+        listRef.current.length = flatFilteredItems.length;
+      }
     }
-  }, [items, flatFilteredItems]);
+  }, [flatFilteredItems, items, virtualized]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -1148,6 +1153,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const isIndexDisabled = useStableCallback((index: number) => {
+    if (!hasItems && !(index in valuesRef.current)) {
+      return true;
+    }
+
     const itemValue = hasItems ? flatFilteredItems[index] : valuesRef.current[index];
     return isItemDisabled?.(itemValue, index) === true;
   });
@@ -1422,37 +1431,53 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
             let collectedRenderedLabels = false;
 
+            function restoreRenderedLabels() {
+              ReactDOM.flushSync(() => {
+                setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, false);
+                store.set('forceMounted', false);
+              });
+            }
+
             // Only single-selection autofill matches against the registered values/labels.
             // `multiple` ignores autofill and `none` just writes the input value, so avoid the
             // sticky `forceMounted` mount (which never resets) for those modes.
             if (single) {
               forceMount();
               if (items && findSerializedMatchIndex() === -1) {
-                // `forceMount` only refreshes the derived labels for the `items` prop. When
-                // serialized matching misses, also mount the list so rendered labels (which can
-                // differ from the serialized values) are registered for autofill matching.
-                // React 18 batches the external-store updates through the following microtask.
-                // Flush this temporary render-all pass so label matching always sees the
-                // committed item refs.
-                ReactDOM.flushSync(() => {
-                  setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
-                  store.set('forceMounted', true);
-                });
-                collectedRenderedLabels = true;
+                if (flatFilteredItems.length <= MAX_RENDERED_AUTOFILL_ITEMS) {
+                  // `forceMount` only refreshes labels derived from the `items` prop. For smaller
+                  // collections, mount the list once so custom rendered text remains available to
+                  // browser autofill. Larger collections must provide `itemToStringLabel` so an
+                  // autofill event cannot synchronously mount thousands of rows.
+                  collectedRenderedLabels = true;
+                  try {
+                    ReactDOM.flushSync(() => {
+                      setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
+                      store.set('forceMounted', true);
+                    });
+                  } catch (error) {
+                    restoreRenderedLabels();
+                    throw error;
+                  }
+                } else {
+                  warn(
+                    'Browser autofill could not match a rendered item label in a collection with ' +
+                      `more than ${MAX_RENDERED_AUTOFILL_ITEMS} items. Provide the ` +
+                      '`itemToStringLabel` prop so labels can be matched without rendering the ' +
+                      'entire collection.',
+                  );
+                }
               }
             }
             queueMicrotask(() => {
-              handleChange();
-
-              if (collectedRenderedLabels) {
-                // Allow the force-mounted tree to commit its registered labels before restoring
-                // the virtual window and unmounting the closed popup.
-                queueMicrotask(() => {
-                  ReactDOM.flushSync(() => {
-                    setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, false);
-                  });
-                  store.set('forceMounted', false);
-                });
+              try {
+                handleChange();
+              } finally {
+                if (collectedRenderedLabels) {
+                  // The render-all pass committed synchronously, so labels have been read by the
+                  // time this runs. Restore the window even if a consumer callback throws.
+                  restoreRenderedLabels();
+                }
               }
             });
           },
@@ -1662,11 +1687,12 @@ interface ComboboxRootProps<ItemValue> {
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
-   * Determines whether an item is disabled from its value and logical index.
+   * Determines whether an item is disabled from its value and logical index for keyboard
+   * navigation.
    *
    * Use this prop when disabled state must be known before an item is rendered, such as when
-   * virtualizing the list. Disabled items are skipped during keyboard navigation, and rendered
-   * `<Combobox.Item>` elements inherit the disabled state.
+   * virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what
+   * makes keyboard navigation skip disabled items and gives rendered items their disabled state.
    */
   isItemDisabled?: ((itemValue: ItemValue, index: number) => boolean) | undefined;
   /**
