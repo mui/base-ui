@@ -1,0 +1,66 @@
+'use client';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStore } from '@base-ui/utils/store';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { selectors } from '../store';
+
+const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImpl(
+  componentProps: FilterDropdownEmpty.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { render, className, style, ...elementProps } = componentProps;
+  const context = useFilterDropdownRootContext();
+  const sourceRef = React.useRef<HTMLDivElement | null>(null);
+  const [announcementText, setAnnouncementText] = React.useState('');
+
+  // Mirror consumer-rendered content into the live region
+  useIsoLayoutEffect(() => {
+    const textContent = sourceRef.current?.textContent;
+    if (textContent) {
+      setAnnouncementText(textContent);
+    }
+  }, []);
+
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, sourceRef],
+    props: [elementProps],
+  });
+
+  return (
+    <React.Fragment>
+      {element}
+      {announcementText &&
+        context.liveRegionElement &&
+        ReactDOM.createPortal(<div>{announcementText}</div>, context.liveRegionElement)}
+    </React.Fragment>
+  );
+});
+
+/**
+ * @internal
+ */
+export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty(
+  componentProps: FilterDropdownEmpty.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { store } = useFilterDropdownPopupContext();
+  const isEmpty = useStore(store, selectors.isEmpty);
+  return isEmpty ? <FilterDropdownEmptyImpl {...componentProps} ref={forwardedRef} /> : null;
+});
+
+export interface FilterDropdownEmptyState {}
+
+export interface FilterDropdownEmptyProps extends BaseUIComponentProps<
+  'div',
+  FilterDropdownEmptyState
+> {}
+
+export namespace FilterDropdownEmpty {
+  export type Props = FilterDropdownEmptyProps;
+  export type State = FilterDropdownEmptyState;
+}
