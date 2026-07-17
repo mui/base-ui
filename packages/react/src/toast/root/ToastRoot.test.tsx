@@ -228,6 +228,150 @@ describe('<Toast.Root />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'clears the starting state and restores the height when re-adding an ending toast',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, close, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid="toast-root"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid="toast-root"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <button type="button" onClick={() => close('save')}>
+              close
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem) => (
+                <Toast.Root key={toastItem.id} toast={toastItem} data-testid="toast-root">
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        const toastRoot = screen.getByTestId('toast-root');
+        expect(toastRoot).not.toHaveAttribute('data-starting-style');
+        const initialHeight = toastRoot.style.getPropertyValue('--toast-height');
+        expect(initialHeight).not.toBe('');
+
+        await user.click(screen.getByRole('button', { name: 'close' }));
+        expect(toastRoot).toHaveAttribute('data-ending-style');
+        expect(toastRoot.style.getPropertyValue('--toast-height')).toBe('');
+
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        expect(screen.getByTestId('toast-root')).toBe(toastRoot);
+
+        await waitFor(() => {
+          expect(toastRoot).not.toHaveAttribute('data-starting-style');
+        });
+        await waitFor(() => {
+          expect(toastRoot.style.getPropertyValue('--toast-height')).toBe(initialHeight);
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('registers an active toast after its root remounts', async () => {
+    function App() {
+      const { add, toasts } = Toast.useToastManager();
+      const [showToasts, setShowToasts] = React.useState(true);
+      const [longTitle, setLongTitle] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+            add
+          </button>
+          <button type="button" onClick={() => setShowToasts(false)}>
+            hide
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLongTitle(true);
+              setShowToasts(true);
+            }}
+          >
+            show
+          </button>
+          <Toast.Viewport>
+            {showToasts
+              ? toasts.map((toastItem) => (
+                  <Toast.Root
+                    key={toastItem.id}
+                    toast={toastItem}
+                    data-testid="toast-root"
+                    style={{ width: 30 }}
+                  >
+                    <Toast.Title>
+                      {longTitle ? 'This title is much longer than before' : undefined}
+                    </Toast.Title>
+                  </Toast.Root>
+                ))
+              : null}
+          </Toast.Viewport>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <App />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    const initialRoot = screen.getByTestId('toast-root');
+    expect(initialRoot).not.toHaveAttribute('data-starting-style');
+    const initialHeight = parseInt(initialRoot.style.getPropertyValue('--toast-height'), 10);
+
+    await user.click(screen.getByRole('button', { name: 'hide' }));
+    expect(screen.queryByTestId('toast-root')).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'show' }));
+    const remountedRoot = screen.getByTestId('toast-root');
+    expect(remountedRoot).not.toBe(initialRoot);
+
+    await waitFor(() => {
+      const remountedHeight = parseInt(remountedRoot.style.getPropertyValue('--toast-height'), 10);
+      expect(remountedHeight).toBeGreaterThan(initialHeight);
+    });
+
+    await user.keyboard('{F6}');
+    await user.keyboard('{Tab}');
+
+    expect(remountedRoot).toHaveFocus();
+  });
+
   // requires :focus-visible check
   it.skipIf(isJSDOM)('closes when pressing escape', async () => {
     const { user } = await render(

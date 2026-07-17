@@ -79,6 +79,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   );
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const hasInitializedRef = React.useRef(false);
   const dragStartPosRef = React.useRef({ x: 0, y: 0 });
   const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
   const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
@@ -116,18 +117,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    const previousHeight = element.style.height;
-    element.style.height = 'auto';
-
-    const height = element.offsetHeight;
-
-    element.style.height = previousHeight;
+    const height = measureHeight(element);
 
     function update() {
       store.updateToastInternal(toast.id, {
-        ref: rootRef,
         height,
-        transitionStatus: undefined,
       });
     }
 
@@ -138,7 +132,24 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   });
 
-  useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
+  // Initialize newly mounted roots, and reinitialize a retained root when its toast is revived.
+  useIsoLayoutEffect(() => {
+    if (hasInitializedRef.current && toast.transitionStatus !== 'starting') {
+      return;
+    }
+
+    const element = rootRef.current;
+    if (!element) {
+      return;
+    }
+
+    hasInitializedRef.current = true;
+    store.updateToastInternal(toast.id, {
+      ref: rootRef,
+      height: measureHeight(element),
+      transitionStatus: undefined,
+    });
+  }, [store, toast.id, toast.transitionStatus]);
 
   function setResolvedDragOffset(nextDragOffset: { x: number; y: number }) {
     dragOffsetRef.current = nextDragOffset;
@@ -540,4 +551,14 @@ export namespace ToastRoot {
   export type ToastObject<Data extends object = any> = ToastRootToastObject<Data>;
   export type State = ToastRootState;
   export type Props = ToastRootProps;
+}
+
+function measureHeight(element: HTMLElement) {
+  const previousHeight = element.style.height;
+  element.style.height = 'auto';
+
+  const height = element.offsetHeight;
+
+  element.style.height = previousHeight;
+  return height;
 }
