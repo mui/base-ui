@@ -39,21 +39,21 @@ export function useCompositeListItem<Metadata>(
     useCompositeListContext();
 
   const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
-    externalIndex ??
-      (indexGuessBehavior === GUESS_FROM_ORDER
-        ? () => {
-            if (indexRef.current === -1) {
-              const newIndex = nextIndexRef.current;
-              nextIndexRef.current += 1;
-              indexRef.current = newIndex;
-            }
-            return indexRef.current;
+  const [internalIndex, setInternalIndex] = React.useState<number>(
+    indexGuessBehavior === GUESS_FROM_ORDER
+      ? () => {
+          if (indexRef.current === -1) {
+            const newIndex = nextIndexRef.current;
+            nextIndexRef.current += 1;
+            indexRef.current = newIndex;
           }
-        : -1),
+          return indexRef.current;
+        }
+      : -1,
   );
+  const index = externalIndex ?? internalIndex;
 
-  const componentRef = React.useRef<Element | null>(null);
+  const componentRef = React.useRef<HTMLElement | null>(null);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
@@ -72,6 +72,24 @@ export function useCompositeListItem<Metadata>(
     },
     [index, elementsRef, labelsRef, label, textRef],
   );
+
+  const previousExternalIndexRef = React.useRef(externalIndex);
+  useIsoLayoutEffect(() => {
+    const previousExternalIndex = previousExternalIndexRef.current;
+    if (previousExternalIndex != null && previousExternalIndex !== externalIndex) {
+      elementsRef.current[previousExternalIndex] = null;
+      if (labelsRef) {
+        labelsRef.current[previousExternalIndex] = null;
+      }
+    }
+
+    if (externalIndex != null) {
+      // React 18 Strict Mode replays effects without reattaching callback refs. Re-publish the
+      // externally indexed element after the parent list clears its refs during that replay.
+      ref(componentRef.current);
+    }
+    previousExternalIndexRef.current = externalIndex;
+  }, [elementsRef, externalIndex, labelsRef, ref]);
 
   useIsoLayoutEffect(() => {
     if (externalIndex != null) {
@@ -97,10 +115,10 @@ export function useCompositeListItem<Metadata>(
       const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
       if (i != null) {
-        setIndex(i);
+        setInternalIndex(i);
       }
     });
-  }, [externalIndex, subscribeMapChange, setIndex]);
+  }, [externalIndex, subscribeMapChange, setInternalIndex]);
 
   return { ref, index };
 }

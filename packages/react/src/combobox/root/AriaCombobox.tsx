@@ -1431,8 +1431,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 // `forceMount` only refreshes the derived labels for the `items` prop. When
                 // serialized matching misses, also mount the list so rendered labels (which can
                 // differ from the serialized values) are registered for autofill matching.
-                setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
-                store.set('forceMounted', true);
+                // React 18 batches the external-store updates through the following microtask.
+                // Flush this temporary render-all pass so label matching always sees the
+                // committed item refs.
+                ReactDOM.flushSync(() => {
+                  setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
+                  store.set('forceMounted', true);
+                });
                 collectedRenderedLabels = true;
               }
             }
