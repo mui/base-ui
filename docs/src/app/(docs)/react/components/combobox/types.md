@@ -32,6 +32,7 @@ Doesn't render its own HTML element.
 | form                 | `string`                                                                                                | -       | Identifies the form that owns the internal input.&#xA;Useful when the combobox is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | grid                 | `boolean`                                                                                               | `false` | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | inline               | `boolean`                                                                                               | `false` | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Combobox.Root inline open>` In a `Combobox.Root` > `Dialog.Root` composition, bind the Combobox's `open` and&#xA;`onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the&#xA;component resets its transient state (filter query, highlighted item, and input value) when&#xA;the dialog closes.                                                      |
+| isItemDisabled       | `((itemValue: Value, index: number) => boolean)`                                                        | -       | Determines whether an item is disabled from its value and logical index. Use this prop when disabled state must be known before an item is rendered, such as when&#xA;virtualizing the list. Disabled items are skipped during keyboard navigation, and rendered&#xA;`<Combobox.Item>` elements inherit the disabled state.                                                                                                                                                                                                                                           |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                         | -       | Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                    |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                    |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                         |
@@ -1114,6 +1115,61 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
+### Virtualizer
+
+Renders a window of visible and overscanned items in a flat combobox list.
+Renders a scrollable `<div>` element.
+
+Requires the `items` prop on `<Combobox.Root>` and must be the only item-rendering child of
+`<Combobox.List>`. The element must have a constrained height or maximum height for
+virtualization to limit the number of mounted items.
+
+Grouped collections and grid mode are not currently supported.
+
+**Virtualizer Props:**
+
+| Prop         | Type                                                                                               | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| enabled      | `boolean`                                                                                          | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
+| estimateSize | `number \| ((item: Value, index: number) => number)`                                               | -       | Estimated item size used before item elements have been measured.                                                                                                                             |
+| getItemKey   | `((item: Value) => string \| number)`                                                              | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                |
+| overscanPx   | `number`                                                                                           | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the estimated size of the first item.                                                                               |
+| paddingEnd   | `number`                                                                                           | `0`     | Empty space in pixels after the last virtual row.                                                                                                                                             |
+| paddingStart | `number`                                                                                           | `0`     | Empty space in pixels before the first virtual row.                                                                                                                                           |
+| children     | `((item: Value, index: number) => ReactElement)`                                                   | -       | Renders exactly one item for the given value and logical index.                                                                                                                               |
+| className    | `string \| ((state: Combobox.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Virtualizer Data Attributes:**
+
+| Attribute  | Type | Description                                       |
+| :--------- | :--- | :------------------------------------------------ |
+| data-empty | -    | Present when the virtualized collection is empty. |
+
+**Virtualizer CSS Variables:**
+
+| Variable       | Type     | Description                                  |
+| :------------- | :------- | :------------------------------------------- |
+| `--total-size` | `number` | The total height of the virtualized content. |
+
+### Virtualizer.Props
+
+Re-export of [Virtualizer](#virtualizer) props.
+
+### Virtualizer.State
+
+State metadata exposed to render props.
+
+```typescript
+type ComboboxVirtualizerState = {
+  /** Whether the virtualized collection has no items. */
+  empty: boolean;
+  /** Total virtual content size in pixels. */
+  totalSize: number;
+};
+```
+
 ## Additional Types
 
 ### ComboboxFilter
@@ -1194,6 +1250,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.InputGroup`: `Combobox.InputGroup`, `Combobox.InputGroup.State`, `Combobox.InputGroup.Props`
 - `Combobox.Trigger`: `Combobox.Trigger`, `Combobox.Trigger.State`, `Combobox.Trigger.Props`
 - `Combobox.List`: `Combobox.List`, `Combobox.List.State`, `Combobox.List.Props`
+- `Combobox.Virtualizer`: `Combobox.Virtualizer`, `Combobox.Virtualizer.State`, `Combobox.Virtualizer.Props`
 - `Combobox.Status`: `Combobox.Status`, `Combobox.Status.State`, `Combobox.Status.Props`
 - `Combobox.Portal`: `Combobox.Portal`, `Combobox.Portal.State`, `Combobox.Portal.Props`
 - `Combobox.Backdrop`: `Combobox.Backdrop`, `Combobox.Backdrop.Props`, `Combobox.Backdrop.State`
@@ -1215,7 +1272,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxVirtualizerState`, `ComboboxVirtualizerProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1240,6 +1297,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Trigger.Props`: `ComboboxTriggerProps`
 - `Combobox.List.State`: `ComboboxListState`
 - `Combobox.List.Props`: `ComboboxListProps`
+- `Combobox.Virtualizer.State`: `ComboboxVirtualizerState`
+- `Combobox.Virtualizer.Props`: `ComboboxVirtualizerProps`
 - `Combobox.Status.State`: `ComboboxStatusState`
 - `Combobox.Status.Props`: `ComboboxStatusProps`
 - `Combobox.Portal.State`: `ComboboxPortalState`

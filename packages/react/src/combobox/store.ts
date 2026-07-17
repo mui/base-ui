@@ -6,6 +6,7 @@ import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
 export type State = {
   id: string | undefined;
@@ -23,6 +24,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
+  highlightType: AriaCombobox.HighlightEventReason;
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -77,10 +79,12 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   grid: boolean;
-  virtualized: boolean;
+  externallyVirtualized: boolean;
+  virtualizationRegistry: ListVirtualizationRegistry;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
+  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
@@ -124,6 +128,7 @@ export const selectors = {
   inline: createSelector((state: State) => state.inline),
 
   activeIndex: createSelector((state: State) => state.activeIndex),
+  highlightType: createSelector((state: State) => state.highlightType),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isSelected: createSelector((state: State, itemValue: any) => {
@@ -165,8 +170,9 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
-  virtualized: createSelector((state: State) => state.virtualized),
+  externallyVirtualized: createSelector((state: State) => state.externallyVirtualized),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  isItemDisabled: createSelector((state: State) => state.isItemDisabled),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
