@@ -11,9 +11,9 @@ import {
   limitShift,
   offset,
   shift,
-  useFloating,
   size,
   type UseFloatingOptions,
+  type UseFloatingReturn,
   type Placement,
   type FloatingRootContext,
   type VirtualElement,
@@ -25,10 +25,11 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
+import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
+import { DEFAULT_SIDES } from './adaptiveOriginConstants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';
@@ -117,12 +118,21 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
+type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
+
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
+  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
+): UseAnchorPositioningReturnValue {
+  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
+}
+
+export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
+  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -441,7 +451,7 @@ export function useAnchorPositioning(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloating({
+  } = useFloatingHook({
     rootContext: floatingRootContext,
     open: keepMounted ? mounted : undefined,
     placement,
@@ -766,7 +776,7 @@ export interface UseAnchorPositioningReturnValue {
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
-  refs: ReturnType<typeof useFloating>['refs'];
+  refs: UseFloatingReturn['refs'];
   context: FloatingContext;
   isPositioned: boolean;
   update: () => void;

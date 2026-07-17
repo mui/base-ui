@@ -36,6 +36,7 @@ export default function ExampleEmojiPicker() {
         <input
           ref={textInputRef}
           type="text"
+          aria-label="Message"
           className={styles.TextInput}
           placeholder="iMessage"
           value={textValue}
@@ -61,7 +62,11 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
-                <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
+                <Autocomplete.Input
+                  aria-label="Search emojis"
+                  placeholder="Search emojis…"
+                  className={styles.Input}
+                />
                 <div className={styles.Viewport}>
                   <Autocomplete.Empty>
                     <div className={styles.Empty}>No emojis found</div>

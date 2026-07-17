@@ -12,7 +12,7 @@ import type { AlertDialogHandle } from '../handle';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) {
-  return useRenderDialogRoot(props, 'alert-dialog');
+  return useRenderDialogRoot('alert-dialog', props);
 }
 
 export interface AlertDialogRootState {}

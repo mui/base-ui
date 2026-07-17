@@ -14,17 +14,6 @@
     return;
   }
 
-  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
-    return;
-  }
-
-  let left = 0;
-  let right = 0;
-  let top = 0;
-  let bottom = 0;
-  let width = 0;
-  let height = 0;
-
   function getCssDimensions(element) {
     const css = getComputedStyle(element);
     let cssWidth = parseFloat(css.width) || 0;
@@ -44,7 +33,12 @@
     };
   }
 
-  if (activeTab != null && tabsList != null) {
+  function updatePosition() {
+    let left = 0;
+    let right = 0;
+    let top = 0;
+    let bottom = 0;
+
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
     const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
     const tabRect = activeTab.getBoundingClientRect();
@@ -64,24 +58,59 @@
       top = activeTab.offsetTop;
     }
 
-    width = computedWidth;
-    height = computedHeight;
+    const width = computedWidth;
+    const height = computedHeight;
     right = tabsList.scrollWidth - left - width;
     bottom = tabsList.scrollHeight - top - height;
+
+    function setProp(name, value) {
+      indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
+    }
+
+    setProp('left', left);
+    setProp('right', right);
+    setProp('top', top);
+    setProp('bottom', bottom);
+    setProp('width', width);
+    setProp('height', height);
+
+    if (width > 0 && height > 0) {
+      indicator.removeAttribute('hidden');
+      return true;
+    }
+
+    return false;
   }
 
-  function setProp(name, value) {
-    indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
+  if (updatePosition() || typeof ResizeObserver === 'undefined') {
+    return;
   }
 
-  setProp('left', left);
-  setProp('right', right);
-  setProp('top', top);
-  setProp('bottom', bottom);
-  setProp('width', width);
-  setProp('height', height);
-
-  if (width > 0 && height > 0) {
-    indicator.removeAttribute('hidden');
+  let timeout, observer;
+  function stop() {
+    observer.disconnect();
+    clearTimeout(timeout);
   }
+
+  observer = new ResizeObserver(() => {
+    if (
+      // Hydration got there first
+      !indicator.isConnected ||
+      !indicator.hasAttribute('hidden') ||
+      // selection moved off the captured tab.
+      !activeTab.hasAttribute('data-active')
+    ) {
+      stop();
+      return;
+    }
+
+    if (updatePosition()) {
+      stop();
+    }
+  });
+
+  observer.observe(activeTab);
+  // Bounded lifetime so the observer can't retain the subtree forever if it's
+  // removed while still 0×0 (no resize fires to trigger self-disconnect).
+  timeout = setTimeout(stop, 10000);
 })();
