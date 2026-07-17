@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Combobox.Virtualizer />', () => {
@@ -306,54 +306,71 @@ describe('<Combobox.Virtualizer />', () => {
   it.skipIf(isJSDOM)(
     'corrects keyboard scrolling after the highlighted row is measured',
     async () => {
+      const resizeObserver = mockResizeObserver();
       let scrollTop = 0;
       const handleScrollTo = vi.fn((options: ScrollToOptions) => {
         scrollTop = options.top ?? scrollTop;
       });
 
-      const { user } = await render(
-        <Combobox.Root defaultOpen items={createItems(100)}>
-          <Combobox.Input data-testid="input" />
-          <Combobox.List>
-            <Combobox.Virtualizer
-              estimateSize={20}
-              overscanPx={0}
-              render={
-                <div
-                  ref={setElementScrollState({
-                    clientHeight: 60,
-                    getScrollTop: () => scrollTop,
-                    scrollTo: handleScrollTo,
-                  })}
-                />
-              }
-            >
-              {(item: string) => (
-                <Combobox.Item value={item} style={{ height: 100 }}>
-                  {item}
-                </Combobox.Item>
-              )}
-            </Combobox.Virtualizer>
-          </Combobox.List>
-        </Combobox.Root>,
-      );
+      try {
+        const { user } = await render(
+          <Combobox.Root defaultOpen items={createItems(100)}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              <Combobox.Virtualizer
+                estimateSize={20}
+                overscanPx={0}
+                render={
+                  <div
+                    ref={setElementScrollState({
+                      clientHeight: 60,
+                      getScrollTop: () => scrollTop,
+                      scrollTo: handleScrollTo,
+                    })}
+                    data-testid="virtualizer"
+                  />
+                }
+              >
+                {(item: string) => (
+                  <Combobox.Item value={item} style={{ height: 100 }}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.Virtualizer>
+            </Combobox.List>
+          </Combobox.Root>,
+        );
 
-      const input = screen.getByTestId('input');
-      await user.click(input);
-      handleScrollTo.mockClear();
-      await user.keyboard('{ArrowUp}');
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        handleScrollTo.mockClear();
+        await user.keyboard('{ArrowUp}');
 
-      await waitFor(() => expect(handleScrollTo.mock.calls.length).toBeGreaterThan(1));
+        await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
+        const estimatedScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
 
-      const activeId = input.getAttribute('aria-activedescendant');
-      expect(activeId).not.toBe(null);
-      const activeItem = input.ownerDocument.getElementById(activeId as string);
-      expect(activeItem).toHaveTextContent('Item 100');
-      expect(activeItem?.parentElement).not.toHaveStyle({ position: 'absolute' });
+        fireEvent.scroll(screen.getByTestId('virtualizer'));
 
-      const firstScrollTop = handleScrollTo.mock.calls[0][0].top ?? 0;
-      const lastScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
-      expect(lastScrollTop).toBeGreaterThan(firstScrollTop);
+        const activeId = input.getAttribute('aria-activedescendant');
+        expect(activeId).not.toBe(null);
+        await waitFor(() => {
+          const activeItem = input.ownerDocument.getElementById(activeId as string);
+          expect(activeItem?.parentElement).not.toHaveStyle({ position: 'absolute' });
+        });
+
+        const activeItem = input.ownerDocument.getElementById(activeId as string);
+        expect(activeItem).not.toBe(null);
+        expect(activeItem).toHaveTextContent('Item 100');
+        handleScrollTo.mockClear();
+
+        await act(async () => resizeObserver.notify(activeItem as HTMLElement, 100));
+
+        await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
+        const correctedScrollTop = handleScrollTo.mock.lastCall?.[0].top ?? 0;
+        expect(correctedScrollTop).toBeGreaterThan(estimatedScrollTop);
+      } finally {
+        resizeObserver.restore();
+      }
     },
   );
 
@@ -1528,6 +1545,60 @@ function setElementScrollState(options: {
       configurable: true,
       value: options.scrollTo,
     });
+  };
+}
+
+function mockResizeObserver() {
+  const originalResizeObserver = window.ResizeObserver;
+  const observers = new Set<TestResizeObserver>();
+
+  class TestResizeObserver implements ResizeObserver {
+    readonly elements = new Set<Element>();
+
+    constructor(readonly callback: ResizeObserverCallback) {
+      observers.add(this);
+    }
+
+    observe(element: Element) {
+      this.elements.add(element);
+    }
+
+    unobserve(element: Element) {
+      this.elements.delete(element);
+    }
+
+    disconnect() {
+      this.elements.clear();
+      observers.delete(this);
+    }
+
+    takeRecords() {
+      return [];
+    }
+  }
+
+  window.ResizeObserver = TestResizeObserver;
+
+  return {
+    notify(element: HTMLElement, height: number) {
+      const size = { blockSize: height, inlineSize: element.clientWidth };
+      const entry = {
+        borderBoxSize: [size],
+        contentBoxSize: [size],
+        contentRect: createDOMRect({ height, width: element.clientWidth }),
+        devicePixelContentBoxSize: [size],
+        target: element,
+      } satisfies ResizeObserverEntry;
+
+      observers.forEach((observer) => {
+        if (observer.elements.has(element)) {
+          observer.callback([entry], observer);
+        }
+      });
+    },
+    restore() {
+      window.ResizeObserver = originalResizeObserver;
+    },
   };
 }
 
