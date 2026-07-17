@@ -29,6 +29,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
 
   return useRenderElement(tag, componentProps, {
     state,
+    // The composite ref attaches first so an outer item wins when nested items share a DOM node.
     ref: [compositeRef, ...refs],
     props: [compositeProps, ...props, elementProps],
     stateAttributesMapping,

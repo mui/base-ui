@@ -86,23 +86,31 @@ describe('<CompositeList />', () => {
         mapElements: Element[];
       }> = [];
 
-      await render(
-        <CompositeList
-          elementsRef={elementsRef}
-          onMapChange={(map) => {
-            snapshots.push({
-              elements: [...elementsRef.current],
-              mapElements: Array.from(map.keys()),
-            });
-          }}
-        >
-          <Item label="a" />
-          <Item label="b" />
-          <Item label="c" />
-        </CompositeList>,
-      );
+      function App(props: { items: string[] }) {
+        return (
+          <CompositeList
+            elementsRef={elementsRef}
+            onMapChange={(map) => {
+              snapshots.push({
+                elements: [...elementsRef.current],
+                mapElements: Array.from(map.keys()),
+              });
+            }}
+          >
+            {props.items.map((item) => (
+              <Item key={item} label={item} />
+            ))}
+          </CompositeList>
+        );
+      }
 
-      expect(snapshots.length).toBeGreaterThan(0);
+      const { setProps } = await render(<App items={['a', 'b', 'c']} />, { strict: false });
+
+      expect(snapshots).toHaveLength(1);
+
+      await setProps({ items: ['a', 'b', 'c', 'd'] });
+
+      expect(snapshots).toHaveLength(2);
       snapshots.forEach((snapshot) => {
         expect(snapshot.elements).toEqual(snapshot.mapElements);
       });
@@ -118,15 +126,17 @@ describe('<CompositeList />', () => {
         <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
           <Item label="two" index={2} />
           <Item label="zero" index={0} />
+          <Item label="one" index={1} />
         </CompositeList>,
       );
 
       const map = onMapChange.mock.lastCall?.[0] as Map<Element, { index?: number } | null>;
-      expect(Array.from(map.values(), (metadata) => metadata?.index)).toEqual([0, 2]);
-      expect(elementsRef.current).toHaveLength(3);
-      expect(elementsRef.current[0]).toBe(screen.getByTestId('zero'));
-      expect(Object.hasOwn(elementsRef.current, 1)).toBe(false);
-      expect(elementsRef.current[2]).toBe(screen.getByTestId('two'));
+      expect(Array.from(map.values(), (metadata) => metadata?.index)).toEqual([0, 1, 2]);
+      expect(elementsRef.current).toEqual([
+        screen.getByTestId('zero'),
+        screen.getByTestId('one'),
+        screen.getByTestId('two'),
+      ]);
     });
 
     it('reserves explicit slots when assigning automatic indexes', async () => {
@@ -383,14 +393,14 @@ describe('<CompositeList />', () => {
       ]);
     });
 
-    it('re-registers an explicitly indexed item when its index changes', async () => {
+    it('re-registers an item when its explicit index changes or is removed', async () => {
       const refCalls: Array<HTMLElement | null> = [];
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
       };
 
-      function TrackedItem(props: { index: number }) {
-        const { ref, index } = useCompositeListItem({ index: props.index });
+      function TrackedItem(props: { index?: number }) {
+        const { ref, index } = useCompositeListItem({ guess: true, index: props.index });
         const trackingRef = React.useCallback(
           (node: HTMLElement | null) => {
             refCalls.push(node);
@@ -401,7 +411,7 @@ describe('<CompositeList />', () => {
         return <div ref={trackingRef} data-testid="tracked" data-index={index} />;
       }
 
-      function App(props: { index: number }) {
+      function App(props: { index?: number }) {
         return (
           <CompositeList elementsRef={elementsRef}>
             <TrackedItem index={props.index} />
@@ -424,6 +434,14 @@ describe('<CompositeList />', () => {
       expect(screen.getByTestId('tracked')).toHaveAttribute('data-index', '2');
       expect(Object.hasOwn(elementsRef.current, 0)).toBe(false);
       expect(elementsRef.current[2]).toBe(tracked);
+
+      await setProps({ index: undefined });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('tracked')).toHaveAttribute('data-index', '0');
+      });
+      expect(refCalls).toEqual([tracked, null, tracked, null, tracked]);
+      expect(elementsRef.current).toEqual([tracked]);
     });
 
     it('does not detach item refs when an index shifts', async () => {
@@ -875,6 +893,33 @@ describe('<CompositeList />', () => {
       await setProps({ items: ['a'] });
       expect(labelsRef.current).toEqual(['a']);
     });
+
+    it('updates the label of a mounted item', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function App(props: { label: string }) {
+        return (
+          <CompositeList elementsRef={elementsRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+            <LabelledItem testId="item" label={props.label} />
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App label="before" />, { strict: false });
+      expect(labelsRef.current).toEqual(['before']);
+      onMapChange.mockClear();
+
+      await setProps({ label: 'after' });
+
+      expect(labelsRef.current).toEqual(['after']);
+      expect(onMapChange).toHaveBeenCalledOnce();
+    });
   });
 
   describe('prop: onMapChange', () => {
@@ -909,7 +954,7 @@ describe('<CompositeList />', () => {
       return <div ref={ref} data-testid={props.label} data-index={index} />;
     }
 
-    it('hydrates a server-rendered list without a mismatch under Strict Mode', async () => {
+    it('hydrates a server-rendered list without a mismatch under Strict Mode', () => {
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
       };
@@ -923,15 +968,11 @@ describe('<CompositeList />', () => {
         );
       }
 
-      const { hydrate } = await renderToString(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>,
-      );
+      const { hydrate } = renderToString(<App />);
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '-1');
       expect(screen.getByTestId('b')).toHaveAttribute('data-index', '-1');
 
-      await hydrate();
+      hydrate();
 
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
       expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');

@@ -12,6 +12,7 @@ import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { type CompositeMetadata } from '../list/CompositeList';
+import { useCompositeListItem } from '../list/useCompositeListItem';
 import { CompositeRoot } from './CompositeRoot';
 import { gridNavigation } from './gridNavigation';
 
@@ -20,6 +21,17 @@ const threeColsGrid = gridNavigation({ cols: 3 });
 describe('Composite', () => {
   const { render } = createRenderer();
   const gridItems = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  function IndexedItem(props: { index: number; active?: boolean; testId: string }) {
+    const { ref } = useCompositeListItem({ index: props.index });
+    return (
+      <div
+        ref={ref}
+        data-testid={props.testId}
+        data-composite-item-active={props.active ? '' : undefined}
+      />
+    );
+  }
 
   function TestGridItems() {
     return (
@@ -133,6 +145,21 @@ describe('Composite', () => {
 
       expect(item1).toHaveAttribute('tabindex', '0');
       expect(item1).toHaveFocus();
+    });
+
+    it('uses an active item explicit index as the initial highlighted index', async () => {
+      const onHighlightedIndexChange = vi.fn();
+
+      await render(
+        <CompositeRoot highlightedIndex={0} onHighlightedIndexChange={onHighlightedIndexChange}>
+          <IndexedItem testId="two" index={2} active />
+          <IndexedItem testId="zero" index={0} />
+          <IndexedItem testId="one" index={1} />
+        </CompositeRoot>,
+        { strict: false },
+      );
+
+      expect(onHighlightedIndexChange).toHaveBeenCalledWith(2);
     });
 
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {

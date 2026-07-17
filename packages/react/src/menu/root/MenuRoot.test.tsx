@@ -84,6 +84,56 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it.skipIf(isJSDOM)('navigates across grouped items with arrow keys and text', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Group>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item>Cherry</Menu.Item>
+                  </Menu.Group>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('[Enter]');
+
+        const apple = screen.getByRole('menuitem', { name: 'Apple' });
+        const banana = screen.getByRole('menuitem', { name: 'Banana' });
+        const cherry = screen.getByRole('menuitem', { name: 'Cherry' });
+
+        await waitFor(() => {
+          expect(apple).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(banana).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+
+        await act(async () => {
+          apple.focus();
+        });
+        await user.keyboard('c');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+      });
+
       it('closes with a `detail === 0` click event on keyboard item activation', async () => {
         const openChangeSpy = vi.fn();
 

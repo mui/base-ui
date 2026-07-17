@@ -13,7 +13,7 @@ export type CompositeMetadata<CustomMetadata> = {
 interface CompositeListItem<Metadata> {
   index: number;
   element: HTMLElement;
-  metadata: Metadata | null;
+  registration: CompositeListRegistration<Metadata>;
 }
 
 /**
@@ -37,14 +37,14 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // Item effects can run without their parent rendering. Schedule one synchronous
   // parent update for the whole commit so refs are rebuilt before paint and while
   // the originating React event is still inside `act()` in tests.
-  function scheduleMapUpdate() {
+  const scheduleMapUpdate = useStableCallback(() => {
     if (isDirtyRef.current) {
       return;
     }
 
     isDirtyRef.current = true;
     setMapTick((tick) => !tick);
-  }
+  });
 
   const register = useStableCallback(
     (node: Element, registration: CompositeListRegistration<Metadata>) => {
@@ -68,18 +68,17 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
     items.forEach((item) => {
       nextMap.set(item.element, {
-        ...(item.metadata ?? ({} as Metadata)),
+        ...(item.registration.metadata ?? ({} as Metadata)),
         index: item.index,
       });
 
       elementsRef.current[item.index] = item.element;
 
       if (labelsRef) {
-        const registration = map.get(item.element)!;
         labelsRef.current[item.index] =
-          registration.label !== undefined
-            ? registration.label
-            : (registration.textRef?.current?.textContent ?? item.element.textContent);
+          item.registration.label !== undefined
+            ? item.registration.label
+            : (item.registration.textRef?.current?.textContent ?? item.element.textContent);
       }
     });
 
@@ -153,6 +152,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   });
 
   useIsoLayoutEffect(() => {
+    // Re-copy the last committed snapshot when the ref objects change or Strict Mode replays
+    // effects without reattaching callback refs.
     if (!isDirtyRef.current) {
       syncRefs(itemsRef.current);
     }
@@ -221,7 +222,7 @@ function getCompositeListSnapshot<Metadata>(
     const item = {
       index: index ?? -1,
       element: node as HTMLElement,
-      metadata: registration.metadata,
+      registration,
     };
 
     if (index === null) {
