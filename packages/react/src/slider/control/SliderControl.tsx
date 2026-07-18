@@ -98,7 +98,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
     minStepsBetweenValues,
     onValueCommitted,
     orientation,
-    pressedInputRef,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     pressedValuesRef,
@@ -136,26 +135,20 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const currentInteractionValueRef = React.useRef<number | number[] | null>(null);
   const latestValuesRef = useValueAsRef(values);
 
+  function getThumbInput(el: Element | null | undefined) {
+    return el?.querySelector<HTMLInputElement>('input[type="range"]');
+  }
+
   function updatePressedThumb(nextIndex: number) {
-    if (pressedThumbIndexRef.current !== nextIndex) {
-      pressedThumbIndexRef.current = nextIndex;
-    }
-
-    const thumbElement = thumbRefs.current[nextIndex];
-
-    if (!thumbElement) {
+    pressedThumbIndexRef.current = nextIndex;
+    if (!thumbRefs.current[nextIndex]) {
       pressedThumbCenterOffsetRef.current = null;
-      pressedInputRef.current = null;
-      return;
     }
-
-    pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
   }
 
   function resetPressedThumb() {
     pressedThumbIndexRef.current = -1;
     pressedThumbCenterOffsetRef.current = null;
-    pressedInputRef.current = null;
   }
 
   function isTargetDisabledThumb(target: EventTarget | null) {
@@ -168,7 +161,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
         return false;
       }
 
-      return thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled === true;
+      return getThumbInput(thumbEl)?.disabled === true;
     });
   }
 
@@ -211,20 +204,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
       };
     }
 
-    const collisionResult = resolveThumbCollision({
-      behavior: thumbCollisionBehavior,
+    return resolveThumbCollision(
+      thumbCollisionBehavior,
       values,
-      currentValues: latestValuesRef.current ?? values,
-      initialValues: pressedValuesRef.current,
-      pressedIndex: thumbIndex,
-      nextValue: newValue,
+      latestValuesRef.current,
+      pressedValuesRef.current,
+      thumbIndex,
+      newValue,
       min,
       max,
       step,
       minStepsBetweenValues,
-    });
-
-    return collisionResult;
+    );
   }
 
   function startPressing(fingerCoords: Coords) {
@@ -254,12 +245,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       for (let i = 0; i < thumbRefs.current.length; i += 1) {
         const thumbEl = thumbRefs.current[i];
-        if (
-          isElement(thumbEl) &&
-          !thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled
-        ) {
-          const midpoint = getMidpoint(thumbEl);
-          const distance = Math.abs(fingerCoords[axis] - midpoint[axis]);
+        if (isElement(thumbEl) && !getThumbInput(thumbEl)?.disabled) {
+          const midpoint = getMidpoint(thumbEl, vertical);
+          const distance = Math.abs(fingerCoords[axis] - midpoint);
 
           if (minDistance === undefined || distance <= minDistance) {
             closestThumbIndex = i;
@@ -284,8 +272,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   }
 
   function focusThumb(thumbIndex: number) {
-    const input =
-      thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
+    const input = getThumbInput(thumbRefs.current?.[thumbIndex]);
     if (!input) {
       return;
     }
@@ -314,10 +301,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
       currentInteractionValueRef.current = finger.value;
       latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 
-      // Only track the swapped thumb once the change is actually applied so a
+      // Only track and focus the swapped thumb once the change is actually applied so a
       // canceled swap doesn't leak the new index into subsequent moves.
       if (finger.didSwap) {
         updatePressedThumb(finger.thumbIndex);
+        focusThumb(finger.thumbIndex);
       }
     }
 
@@ -351,11 +339,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
         setDragging(true);
       }
 
-      const applied = setValueFromPointer(finger, REASONS.drag, nativeEvent);
-
-      if (applied && finger.didSwap) {
-        focusThumb(finger.thumbIndex);
-      }
+      setValueFromPointer(finger, REASONS.drag, nativeEvent);
     }
   });
 
@@ -363,7 +347,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
     setActive(-1);
     setDragging(false);
 
-    pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
 
     // If the value array shrank or grew mid-drag, the cached interaction value no longer
@@ -391,8 +374,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
-    pressedValuesRef.current = null;
-    currentInteractionValueRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   });
@@ -425,11 +406,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-      const applied = setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
-
-      if (applied && finger.didSwap) {
-        focusThumb(finger.thumbIndex);
-      }
+      setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -528,11 +505,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
-              const applied = setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
-
-              if (applied && finger.didSwap) {
-                focusThumb(finger.thumbIndex);
-              }
+              setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
             }
           }
 
@@ -541,7 +514,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           moveCountRef.current = 0;
-          const doc = ownerDocument(controlRef.current);
+          const doc = ownerDocument(control);
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
         },

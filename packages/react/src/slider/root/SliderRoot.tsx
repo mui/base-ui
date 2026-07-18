@@ -36,23 +36,14 @@ import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../internals/reasons';
 
-function getSliderChangeEventReason(
-  event: React.KeyboardEvent | React.ChangeEvent,
-): SliderRootChangeEventReason {
-  return 'key' in event ? REASONS.keyboard : REASONS.inputChange;
-}
-
 function areValuesEqual(
   newValue: number | readonly number[],
   oldValue: number | readonly number[],
 ) {
-  if (typeof newValue === 'number' && typeof oldValue === 'number') {
-    return newValue === oldValue;
-  }
-  if (Array.isArray(newValue) && Array.isArray(oldValue)) {
-    return areArraysEqual(newValue, oldValue);
-  }
-  return false;
+  return (
+    newValue === oldValue ||
+    (Array.isArray(newValue) && Array.isArray(oldValue) && areArraysEqual(newValue, oldValue))
+  );
 }
 
 /**
@@ -133,8 +124,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  // The input element nested in the pressed thumb.
-  const pressedInputRef = React.useRef<HTMLInputElement>(null);
   // The px distance between the pointer and the center of a pressed thumb.
   const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
   // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
@@ -152,7 +141,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ThumbMetadata>>(),
   );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
@@ -245,7 +234,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        const reason = getSliderChangeEventReason(event);
+        const reason = 'key' in event ? REASONS.keyboard : REASONS.inputChange;
         const applied = setValue(
           newValue,
           createChangeEventDetails(reason, event.nativeEvent, undefined, {
@@ -332,7 +321,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       pressedValuesRef,
@@ -352,7 +340,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }),
     [
       active,
-      controlRef,
       ariaLabelledby,
       defaultLabelId,
       disabled,
@@ -363,7 +350,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       largeStep,
       lastUsedThumbIndex,
-      lastChangeReasonRef,
       form,
       locale,
       max,
@@ -372,22 +358,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      pressedInputRef,
-      pressedThumbCenterOffsetRef,
-      pressedThumbIndexRef,
-      pressedValuesRef,
       registerFieldControlRef,
       setActive,
-      setDragging,
-      setIndicatorPosition,
-      setLabelId,
       setValue,
       state,
       step,
       thumbCollisionBehavior,
       thumbAlignment,
       thumbMap,
-      thumbRefs,
       values,
     ],
   );

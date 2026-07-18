@@ -8,10 +8,7 @@ import {
   useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
@@ -49,19 +46,17 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     ...elementProps
   } = componentProps;
 
-  const didPointerDownRef = React.useRef(false);
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
+    guess: true,
     index: indexProp,
     textRef,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
 
-  const open = useStore(store, selectors.open);
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
@@ -102,28 +97,19 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     const visibleMap = store.state.valuesRef.current;
     visibleMap[index] = itemValue;
 
-    // Stable registry that doesn't depend on filtering. Assume that no
-    // filtering had occurred at this point; otherwise, an `items` prop is
-    // required.
-    if (selectionMode !== 'none') {
-      store.state.allValuesRef.current.push(itemValue);
-    }
-
     return () => {
       delete visibleMap[index];
     };
-  }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+  }, [hasRegistered, hasItems, index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
-    if (!open) {
-      didPointerDownRef.current = false;
-      return;
-    }
-
     if (!hasRegistered || hasItems) {
       return;
     }
 
+    // Runs while closed as well (the list can stay mounted via `keepMounted` or a
+    // force-mount) so the index tracks the item's composite position, keeping features
+    // like closed-trigger typeahead in sync when the rendered order changes.
     const selectedValue = store.state.selectedValue;
     const lastSelectedValue = Array.isArray(selectedValue)
       ? selectedValue[selectedValue.length - 1]
@@ -132,7 +118,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
       store.set('selectedIndex', index);
     }
-  }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+  }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -169,7 +155,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // as it should be a `<div>` instead.
     tabIndex: undefined,
     onPointerDownCapture(event) {
-      didPointerDownRef.current = true;
+      // The compat `mouseup` only fires for the primary pointer, so a non-primary
+      // touch must not overwrite the shared ref — a mismatch would make the primary
+      // pointer's release read as a drag-select and commit a second time after `click`.
+      if (event.isPrimary) {
+        store.state.pointerDownItemRef.current = event.currentTarget;
+      }
       event.preventDefault();
     },
     onMouseDown(event) {
@@ -185,8 +176,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       commitSelection(event.nativeEvent);
     },
     onMouseUp(event) {
-      const pointerStartedOnItem = didPointerDownRef.current;
-      didPointerDownRef.current = false;
+      const pointerStartedOnItem = store.state.pointerDownItemRef.current === event.currentTarget;
+      store.state.pointerDownItemRef.current = null;
 
       if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
         return;

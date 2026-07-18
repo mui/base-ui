@@ -3,7 +3,6 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -56,31 +55,27 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     allowInputSyncRef,
-    disabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
     id,
     incrementValue,
     inputMode,
-    inputValue,
     max,
     min,
     name,
     nameProp,
-    readOnly,
-    required,
     setValue,
     state,
     setInputValue,
     locale,
     inputRef,
-    value,
     onValueCommitted,
     lastChangedValueRef,
     hasPendingCommitRef,
     valueRef,
   } = useNumberFieldRootContext();
+  const { disabled, readOnly, required, value, inputValue } = state;
 
   const { clearErrors } = useFormContext();
   const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
@@ -342,8 +337,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (event.key === symbol) {
           const symbolIndex = inputValue.indexOf(symbol);
           const isSymbolHighlighted = selectionContainsIndex(symbolIndex);
-          isAllowedNonNumericKey =
-            !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+          isAllowedNonNumericKey = symbolIndex === -1 || isAllSelected || isSymbolHighlighted;
         }
       });
 
@@ -386,14 +380,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const amount = getStepAmount(event);
 
       // Prevent insertion of text or caret from moving.
-      stopEvent(event);
+      event.preventDefault();
+      event.stopPropagation();
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
       let changed = false;
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      if (isStepKey || willSetHome || willSetEnd) {
         allowInputSyncRef.current = true;
-
+      }
+      if (isStepKey) {
         // When stepping from the synced numeric state, refresh the commit ref to the current
         // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
         // earlier change (mirrors the button path).
@@ -407,12 +403,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-      } else if (willSetHome) {
-        allowInputSyncRef.current = true;
-        changed = setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
-      } else if (willSetEnd) {
-        allowInputSyncRef.current = true;
-        changed = setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      } else if (willSetHome || willSetEnd) {
+        changed = setValue(
+          (willSetHome ? min : max) ?? null,
+          createChangeEventDetails(REASONS.keyboard, nativeEvent),
+        );
       }
 
       if (changed) {

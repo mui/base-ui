@@ -70,7 +70,6 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
-  pressedInputRef: React.RefObject<HTMLInputElement | null>;
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   pressedValuesRef: React.RefObject<readonly number[] | null>;
@@ -94,7 +93,7 @@ export interface SliderRootContext {
    */
   step: number;
   thumbCollisionBehavior: 'push' | 'swap' | 'none';
-  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
+  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
    * The value(s) of the slider

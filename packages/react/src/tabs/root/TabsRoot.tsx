@@ -57,25 +57,14 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const isControlled = valueProp !== undefined;
 
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata>>(),
   );
   const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
-      if (selectedValue === undefined) {
-        return null;
-      }
-
-      for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
-          return tabElement as HTMLElement;
-        }
-      }
-
-      return null;
-    },
+    (selectedValue: TabsTab.Value | undefined): HTMLElement | null =>
+      findTabElement(tabMap, selectedValue),
     [tabMap],
   );
 
@@ -158,20 +147,18 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         next.set(panelValue, panelId);
         return next;
       });
-    },
-  );
 
-  const unregisterMountedTabPanel = useStableCallback(
-    (panelValue: TabsTab.Value | number, panelId: string) => {
-      setMountedTabPanels((prev) => {
-        if (!prev.has(panelValue) || prev.get(panelValue) !== panelId) {
-          return prev;
-        }
+      return () => {
+        setMountedTabPanels((prev) => {
+          if (prev.get(panelValue) !== panelId) {
+            return prev;
+          }
 
-        const next = new Map(prev);
-        next.delete(panelValue);
-        return next;
-      });
+          const next = new Map(prev);
+          next.delete(panelValue);
+          return next;
+        });
+      };
     },
   );
 
@@ -187,8 +174,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata?.value) {
-          return tabMetadata?.id;
+        if (tabPanelValue === tabMetadata.value) {
+          return tabMetadata.id;
         }
       }
       return undefined;
@@ -205,7 +192,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       orientation,
       registerMountedTabPanel,
       setTabMap,
-      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     }),
@@ -217,7 +203,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       orientation,
       registerMountedTabPanel,
       setTabMap,
-      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     ],
@@ -225,7 +210,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const selectedTabMetadata = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.value === value) {
+      if (tabMetadata.value === value) {
         return tabMetadata;
       }
     }
@@ -236,7 +221,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used as a fallback when the current selection is disabled or missing.
   const firstEnabledTabValue = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && !tabMetadata.disabled) {
+      if (!tabMetadata.disabled) {
         return tabMetadata.value;
       }
     }
@@ -373,35 +358,40 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+function findTabElement(
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
+  value: TabsTab.Value | undefined,
+): HTMLElement | null {
+  if (value === undefined) {
+    return null;
+  }
+
+  for (const [tabElement, tabMetadata] of tabMap.entries()) {
+    if (value === (tabMetadata.value ?? tabMetadata.index)) {
+      return tabElement as HTMLElement;
+    }
+  }
+
+  return null;
+}
+
 function computeActivationDirection(
   oldValue: TabsTab.Value | null,
   newValue: TabsTab.Value | null,
   orientation: 'horizontal' | 'vertical',
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
 ): TabsTab.ActivationDirection {
   if (oldValue == null || newValue == null) {
     return 'none';
   }
 
-  let oldTab: HTMLElement | null = null;
-  let newTab: HTMLElement | null = null;
+  const [positionProp, backward, forward] =
+    orientation === 'horizontal'
+      ? (['left', 'left', 'right'] as const)
+      : (['top', 'up', 'down'] as const);
 
-  for (const [tabElement, tabMetadata] of tabMap.entries()) {
-    if (tabMetadata == null) {
-      continue;
-    }
-
-    const tabValue = tabMetadata.value ?? tabMetadata.index;
-    if (oldValue === tabValue) {
-      oldTab = tabElement as HTMLElement;
-    }
-    if (newValue === tabValue) {
-      newTab = tabElement as HTMLElement;
-    }
-    if (oldTab != null && newTab != null) {
-      break;
-    }
-  }
+  const oldTab = findTabElement(tabMap, oldValue);
+  const newTab = findTabElement(tabMap, newValue);
 
   if (oldTab == null || newTab == null) {
     // Fallback for dynamic tabs: when a tab element isn't registered yet
@@ -412,31 +402,19 @@ function computeActivationDirection(
       (typeof oldValue === 'number' || typeof oldValue === 'string') &&
       typeof oldValue === typeof newValue
     ) {
-      if (orientation === 'horizontal') {
-        return newValue > oldValue ? 'right' : 'left';
-      }
-      return newValue > oldValue ? 'down' : 'up';
+      return newValue > oldValue ? forward : backward;
     }
     return 'none';
   }
 
-  const oldRect = oldTab.getBoundingClientRect();
-  const newRect = newTab.getBoundingClientRect();
+  const oldPosition = oldTab.getBoundingClientRect()[positionProp];
+  const newPosition = newTab.getBoundingClientRect()[positionProp];
 
-  if (orientation === 'horizontal') {
-    if (newRect.left < oldRect.left) {
-      return 'left';
-    }
-    if (newRect.left > oldRect.left) {
-      return 'right';
-    }
-  } else {
-    if (newRect.top < oldRect.top) {
-      return 'up';
-    }
-    if (newRect.top > oldRect.top) {
-      return 'down';
-    }
+  if (newPosition < oldPosition) {
+    return backward;
+  }
+  if (newPosition > oldPosition) {
+    return forward;
   }
 
   return 'none';

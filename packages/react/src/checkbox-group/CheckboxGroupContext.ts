@@ -16,22 +16,12 @@ export interface CheckboxGroupContext {
   parent: UseCheckboxGroupParentReturnValue;
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
-  registerControlRef: (element: HTMLButtonElement | null) => void;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(
   undefined,
 );
 
-export function useCheckboxGroupContext(optional: false): CheckboxGroupContext;
-export function useCheckboxGroupContext(optional?: true): CheckboxGroupContext | undefined;
-export function useCheckboxGroupContext(optional = true) {
-  const context = React.useContext(CheckboxGroupContext);
-  if (context === undefined && !optional) {
-    throw new Error(
-      'Base UI: CheckboxGroupContext is missing. CheckboxGroup parts must be placed within <CheckboxGroup>.',
-    );
-  }
-
-  return context;
+export function useCheckboxGroupContext() {
+  return React.useContext(CheckboxGroupContext);
 }

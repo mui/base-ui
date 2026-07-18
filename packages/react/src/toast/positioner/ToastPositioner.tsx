@@ -14,7 +14,6 @@ import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
-import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { usePositioner } from '../../utils/usePositioner';
 
@@ -89,20 +88,16 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionAvoidance,
   });
 
-  const state: ToastPositionerState = React.useMemo(
-    () => ({
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [positioning.side, positioning.align, positioning.anchorHidden],
-  );
+  const state: ToastPositionerState = {
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+  };
 
   const element = usePositioner(componentProps, state, {
     styles: {
       ...positioning.positionerStyles,
-      [ToastRootCssVars.index as string]:
-        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
     },
     transitionStatus: toast.transitionStatus,
     props: elementProps,

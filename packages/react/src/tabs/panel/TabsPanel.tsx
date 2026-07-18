@@ -14,7 +14,6 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRootState } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
-import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
   ...tabsStateAttributesMapping,
@@ -39,22 +38,11 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     orientation,
     tabActivationDirection,
     registerMountedTabPanel,
-    unregisterMountedTabPanel,
   } = useTabsRootContext();
 
   const id = useBaseUiId();
 
-  const metadata = React.useMemo(
-    () => ({
-      id,
-      value,
-    }),
-    [id, value],
-  );
-
-  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
-    metadata,
-  });
+  const { ref: listItemRef, index } = useCompositeListItem();
 
   const open = value === selectedValue;
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
@@ -82,7 +70,8 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
         role: 'tabpanel',
         tabIndex: open ? 0 : -1,
         inert: inertValue(!open),
-        [TabsPanelDataAttributes.index as string]: index,
+        // Computed key: a plain literal key fails the DOM-props excess property check.
+        ['data-index' as string]: index,
       },
       elementProps,
     ],
@@ -108,11 +97,8 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
       return undefined;
     }
 
-    registerMountedTabPanel(value, id);
-    return () => {
-      unregisterMountedTabPanel(value, id);
-    };
-  }, [hidden, keepMounted, value, id, registerMountedTabPanel, unregisterMountedTabPanel]);
+    return registerMountedTabPanel(value, id);
+  }, [hidden, keepMounted, value, id, registerMountedTabPanel]);
 
   const shouldRender = keepMounted || mounted;
   if (!shouldRender) {

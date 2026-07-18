@@ -52,13 +52,11 @@ export const ToastContent = React.forwardRef(function ToastContent(
     behind,
   };
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentRef],
     state,
     props: elementProps,
   });
-
-  return element;
 });
 
 export interface ToastContentState {
