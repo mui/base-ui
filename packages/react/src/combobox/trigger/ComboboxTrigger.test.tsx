@@ -1,10 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 describe('<Combobox.Trigger />', () => {
   const { render } = createRenderer();
@@ -100,6 +103,24 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
+    it('ignores native keydown events on a disabled non-native trigger', async () => {
+      const onOpenChange = vi.fn();
+      await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Trigger disabled nativeButton={false} render={<div />} data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }),
+        );
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
     it('should prioritize local disabled over root disabled', async () => {
       await render(
         <Combobox.Root disabled={false}>
@@ -112,6 +133,85 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveAttribute('disabled');
     });
+  });
+
+  it.each([
+    {
+      name: 'single selection',
+      control: (
+        <Combobox.Root defaultValue="apple">
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>
+      ),
+      expectedValue: 'apple',
+    },
+    {
+      name: 'no selection',
+      control: (
+        <Autocomplete.Root defaultValue="query">
+          <Autocomplete.Trigger data-testid="trigger" />
+        </Autocomplete.Root>
+      ),
+      expectedValue: 'query',
+    },
+  ])('validates the $name value when blurred', async ({ control, expectedValue }) => {
+    const validate = vi.fn();
+    await render(
+      <Field.Root validationMode="onBlur" validate={validate}>
+        {control}
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.focus(trigger);
+    fireEvent.blur(trigger);
+
+    expect(validate).toHaveBeenCalledWith(expectedValue, expect.anything());
+  });
+
+  it('ignores a pending mouseup after the trigger unmounts', async () => {
+    const onOpenChange = vi.fn();
+
+    function Test({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Combobox.Root onOpenChange={onOpenChange}>
+          {showTrigger && <Combobox.Trigger data-testid="trigger" />}
+        </Combobox.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test showTrigger />);
+    fireEvent.mouseDown(screen.getByTestId('trigger'));
+    await rerender(<Test showTrigger={false} />);
+
+    fireEvent.mouseUp(document.body);
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not select when closed typeahead matches a sparse label without a value', async () => {
+    const onValueChange = vi.fn();
+
+    function SparseRegistry() {
+      const store = useComboboxRootContext();
+      useIsoLayoutEffect(() => {
+        store.state.labelsRef.current[0] = 'apple';
+        delete store.state.valuesRef.current[0];
+      }, [store]);
+      return null;
+    }
+
+    const { user } = await render(
+      <Combobox.Root onValueChange={onValueChange}>
+        <SparseRegistry />
+        <Combobox.Trigger>Open</Combobox.Trigger>
+      </Combobox.Root>,
+    );
+
+    const trigger = screen.getByRole('combobox');
+    trigger.focus();
+    await user.keyboard('a');
+
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 
   describe('prop: readOnly', () => {
@@ -135,6 +235,32 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it.each(['ArrowDown', 'ArrowUp'])('does not open on %s when readOnly', async (key) => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root readOnly onOpenChange={onOpenChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.focus();
+      await user.keyboard(`{${key}}`);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 

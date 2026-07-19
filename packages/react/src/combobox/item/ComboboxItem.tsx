@@ -62,7 +62,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
+  const index = indexProp ?? indexFromFilter ?? listItem.index;
   const hasRegistered = listItem.index !== -1;
 
   const rootId = useStore(store, selectors.id);

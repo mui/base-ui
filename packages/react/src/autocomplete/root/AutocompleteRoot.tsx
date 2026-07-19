@@ -62,7 +62,7 @@ export function AutocompleteRoot<ItemValue>(
   if (enableInline && inlineInputValue !== '') {
     resolvedInputValue = inlineInputValue;
   } else if (isControlled) {
-    resolvedInputValue = value ?? '';
+    resolvedInputValue = value;
   } else {
     resolvedInputValue = internalValue;
   }
