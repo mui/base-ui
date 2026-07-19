@@ -6,7 +6,6 @@ export type { CompositeListContextValue } from './list/CompositeListContext';
 export { CompositeRoot } from './root/CompositeRoot';
 export { useCompositeListItem } from './list/useCompositeListItem';
 export type { UseCompositeListItemParameters } from './list/useCompositeListItem';
-export { IndexGuessBehavior } from './list/useCompositeListItem';
 export { useCompositeRoot } from './root/useCompositeRoot';
 export type { UseCompositeRootParameters } from './root/useCompositeRoot';
 export { gridNavigation } from './root/gridNavigation';

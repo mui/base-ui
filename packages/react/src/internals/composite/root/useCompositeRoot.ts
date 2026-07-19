@@ -8,17 +8,12 @@ import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
   ARROW_DOWN,
-  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
   END,
   HOME,
-  HORIZONTAL_KEYS,
-  HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   MODIFIER_KEYS,
-  VERTICAL_KEYS,
-  VERTICAL_KEYS_WITH_EXTRA_KEYS,
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
@@ -121,8 +116,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       sortedElements.find((compositeElement) =>
         compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
       ) ?? null;
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    // Set the default highlighted index of an arbitrary composite item. The map value carries
+    // the item's own index, which is not its position among the keys once a list mixes explicit
+    // and automatic indexes and leaves gaps.
+    const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
@@ -182,8 +179,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Stable so that `relayKeyboardEvent` does not invalidate identity-sensitive
   // consumers (the `CompositeRootContext` value and trigger data forwarding).
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    const RELEVANT_KEYS = enableHomeAndEndKeys ? COMPOSITE_KEYS : ARROW_KEYS;
-    if (!RELEVANT_KEYS.has(event.key)) {
+    const isHomeOrEnd = event.key === HOME || event.key === END;
+    if (!COMPOSITE_KEYS.has(event.key) || (!enableHomeAndEndKeys && isHomeOrEnd)) {
       return;
     }
 
@@ -199,17 +196,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     const isRtl = direction === 'rtl';
 
     const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-    const forwardKey = {
-      horizontal: horizontalForwardKey,
-      vertical: ARROW_DOWN,
-      both: horizontalForwardKey,
-    }[orientation];
     const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-    const backwardKey = {
-      horizontal: horizontalBackwardKey,
-      vertical: ARROW_UP,
-      both: horizontalBackwardKey,
-    }[orientation];
+    const forwardKey = orientation === 'vertical' ? ARROW_DOWN : horizontalForwardKey;
+    const backwardKey = orientation === 'vertical' ? ARROW_UP : horizontalBackwardKey;
 
     const target = getTarget(event.nativeEvent);
     if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
@@ -250,25 +239,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       });
     }
 
-    const forwardKeys = {
-      horizontal: [horizontalForwardKey],
-      vertical: [ARROW_DOWN],
-      both: [horizontalForwardKey, ARROW_DOWN],
-    }[orientation];
-
-    const backwardKeys = {
-      horizontal: [horizontalBackwardKey],
-      vertical: [ARROW_UP],
-      both: [horizontalBackwardKey, ARROW_UP],
-    }[orientation];
-
-    const preventedKeys = isGrid
-      ? RELEVANT_KEYS
-      : {
-          horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-          vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-          both: RELEVANT_KEYS,
-        }[orientation];
+    const isForwardKey =
+      (orientation !== 'vertical' && event.key === horizontalForwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_DOWN);
+    const isBackwardKey =
+      (orientation !== 'vertical' && event.key === horizontalBackwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_UP);
 
     if (enableHomeAndEndKeys) {
       if (event.key === HOME) {
@@ -278,16 +254,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       }
     }
 
-    if (
-      nextIndex === highlightedIndex &&
-      (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
-    ) {
-      if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+    if (nextIndex === highlightedIndex && (isForwardKey || isBackwardKey)) {
+      if (loopFocus && nextIndex === maxIndex && isForwardKey) {
         nextIndex = minIndex;
         if (onLoop) {
           nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
-      } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+      } else if (loopFocus && nextIndex === minIndex && isBackwardKey) {
         nextIndex = maxIndex;
         if (onLoop) {
           nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
@@ -295,7 +268,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       } else {
         nextIndex = findNonDisabledListIndex(elementsRef.current, {
           startingIndex: nextIndex,
-          decrement: backwardKeys.includes(event.key),
+          decrement: isBackwardKey,
           disabledIndices,
         });
       }
@@ -306,7 +279,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         event.stopPropagation();
       }
 
-      if (preventedKeys.has(event.key)) {
+      if (isGrid || isHomeOrEnd || isForwardKey || isBackwardKey) {
         event.preventDefault();
       }
       onHighlightedIndexChange(nextIndex, true);

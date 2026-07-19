@@ -57,7 +57,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const isControlled = valueProp !== undefined;
 
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata>>(),
   );
   const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
@@ -174,8 +174,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata?.value) {
-          return tabMetadata?.id;
+        if (tabPanelValue === tabMetadata.value) {
+          return tabMetadata.id;
         }
       }
       return undefined;
@@ -210,7 +210,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const selectedTabMetadata = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.value === value) {
+      if (tabMetadata.value === value) {
         return tabMetadata;
       }
     }
@@ -221,7 +221,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used as a fallback when the current selection is disabled or missing.
   const firstEnabledTabValue = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && !tabMetadata.disabled) {
+      if (!tabMetadata.disabled) {
         return tabMetadata.value;
       }
     }
@@ -359,7 +359,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 });
 
 function findTabElement(
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
   value: TabsTab.Value | undefined,
 ): HTMLElement | null {
   if (value === undefined) {
@@ -367,7 +367,7 @@ function findTabElement(
   }
 
   for (const [tabElement, tabMetadata] of tabMap.entries()) {
-    if (tabMetadata != null && value === (tabMetadata.value ?? tabMetadata.index)) {
+    if (value === (tabMetadata.value ?? tabMetadata.index)) {
       return tabElement as HTMLElement;
     }
   }
@@ -379,7 +379,7 @@ function computeActivationDirection(
   oldValue: TabsTab.Value | null,
   newValue: TabsTab.Value | null,
   orientation: 'horizontal' | 'vertical',
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
 ): TabsTab.ActivationDirection {
   if (oldValue == null || newValue == null) {
     return 'none';

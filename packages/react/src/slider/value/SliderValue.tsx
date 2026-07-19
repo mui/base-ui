@@ -30,7 +30,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   let htmlFor = '';
   for (const thumbMetadata of thumbMap.values()) {
-    if (thumbMetadata?.inputId) {
+    if (thumbMetadata.inputId) {
       htmlFor += `${thumbMetadata.inputId} `;
     }
   }

@@ -234,6 +234,62 @@ describe('<Select.Item />', () => {
     });
   });
 
+  it('should highlight a hovered item and commit it with a mouse click', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <Select.Root onValueChange={onValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+              <Select.Item value="three">three</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseDown(trigger);
+    fireEvent.pointerUp(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseUp(trigger);
+    fireEvent.click(trigger);
+    await flushMicrotasks();
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+    });
+
+    const option = screen.getByRole('option', { name: 'two' });
+
+    fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+    fireEvent.mouseMove(option);
+
+    await waitFor(() => {
+      expect(option).toHaveAttribute('data-highlighted');
+    });
+
+    fireEvent.pointerDown(option, { pointerType: 'mouse' });
+    fireEvent.mouseDown(option);
+    fireEvent.pointerUp(option, { pointerType: 'mouse' });
+    fireEvent.mouseUp(option);
+    fireEvent.click(option);
+    await flushMicrotasks();
+
+    expect(onValueChange).toHaveBeenCalledOnce();
+    expect(onValueChange).toHaveBeenCalledWith('two', expect.anything());
+    await waitFor(() => {
+      expect(screen.getByTestId('value').textContent).toBe('two');
+    });
+  });
+
   it('should ignore an unhighlighted item with a generic virtual click', async () => {
     await render(
       <Select.Root defaultOpen highlightItemOnHover={false}>
