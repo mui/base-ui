@@ -158,7 +158,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
-  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const pendingQueryHighlightRef = React.useRef<null | {
+    hasQuery: boolean;
+    selection?: boolean | undefined;
+  }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -587,10 +590,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
           }
 
-          if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
+          if (
+            hasQuery &&
+            autoHighlightMode &&
+            store.state.activeIndex == null &&
+            (open || inline)
+          ) {
             store.set('activeIndex', 0);
           }
         }
+      } else if (
+        eventDetails.reason === REASONS.inputClear &&
+        next === '' &&
+        store.state.inputInsidePopup
+      ) {
+        // A programmatic clear of an active query (e.g. after selecting an item with the
+        // input inside the popup): restore the highlight to the selected item.
+        pendingQueryHighlightRef.current = { hasQuery: false, selection: true };
       }
 
       setInputValueUnwrapped(next);
@@ -886,14 +902,53 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
+      const active = open || inline;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode) {
+        if (autoHighlightMode && active) {
           store.set('activeIndex', 0);
         }
-      } else if (autoHighlightMode === 'always') {
-        store.set('activeIndex', 0);
+        pendingQueryHighlightRef.current = null;
+      } else if (String(inputValue).trim() === '') {
+        // Only handle the clear once it has committed (a controlled input may reject it),
+        // so a restore cannot fire while a query is still active.
+        pendingQueryHighlightRef.current = null;
+        if (active) {
+          const clearedBySelection = pendingHighlight.selection;
+          // Items re-mounted by the clear publish their composite indices in a follow-up
+          // commit, so the item registries are mid-update here. Defer past React's cascade.
+          queueMicrotask(() => {
+            if (
+              (!store.state.open && !store.state.inline) ||
+              (inputRef.current && inputRef.current.value.trim() !== '')
+            ) {
+              return;
+            }
+
+            // Return the highlight to the selected item, the same anchor the popup uses
+            // when it first opens. Read the selection through the store so consumers can
+            // pass an inline `isItemEqualToValue` or a fresh `selectedValue` array without
+            // re-running this effect on every render.
+            const currentSelectedValue = store.state.selectedValue;
+            const lastSelectedValue = Array.isArray(currentSelectedValue)
+              ? currentSelectedValue[currentSelectedValue.length - 1]
+              : currentSelectedValue;
+            const hasSelection = store.state.selectionMode !== 'none' && lastSelectedValue != null;
+
+            if (hasSelection || clearedBySelection) {
+              const registry =
+                hasItems || hasFilteredItemsProp ? flatFilteredItems : valuesRef.current;
+              const index = hasSelection
+                ? findItemIndex(registry, lastSelectedValue, store.state.isItemEqualToValue)
+                : -1;
+              // A selection that is no longer in the list drops the highlight rather than
+              // leaving it on whichever item now occupies that index.
+              store.set('activeIndex', index === -1 ? null : index);
+            } else if (autoHighlightMode === 'always') {
+              store.set('activeIndex', 0);
+            }
+          });
+        }
       }
-      pendingQueryHighlightRef.current = null;
     }
 
     if (!open && !inline) {
@@ -942,6 +997,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inline,
     open,
     store,
+    // Reruns the effect when the query changes without affecting the deps above, such as
+    // clearing the input when no items are filtered out (individually rendered items).
+    inputValue,
   ]);
 
   useIsoLayoutEffect(() => {
