@@ -10,7 +10,6 @@ import type { MenuRoot } from '../root/MenuRoot';
 import {
   useAnchorPositioning,
   type Align,
-  type CollisionAvoidance,
   type Side,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
@@ -128,7 +127,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionAvoidance,
     shift: contextMenu
       ? {
-          crossAxis: (collisionAvoidance as CollisionAvoidance).side !== 'flip',
+          crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
           rootBoundary: 'layoutViewport',
         }
       : undefined,

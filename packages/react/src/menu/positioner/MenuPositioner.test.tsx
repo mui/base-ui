@@ -66,6 +66,23 @@ describe('<Menu.Positioner />', () => {
       });
     });
 
+    it('disables cross-axis shifting when side collision avoidance is flip', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner collisionAvoidance={{ side: 'flip' }}>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+        crossAxis: false,
+        rootBoundary: 'layoutViewport',
+      });
+    });
+
     it('uses the visual viewport for a context menu submenu', async () => {
       await render(
         <ContextMenu.Root open>

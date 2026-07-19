@@ -64,6 +64,7 @@ describe('useAnchorPositioning', () => {
   it('uses the visual viewport for shift by default', async () => {
     await render(<TestUseAnchorPositioning />);
 
+    expect(shiftSpy).toHaveBeenCalled();
     expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe(undefined);
   });
 
