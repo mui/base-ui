@@ -1,6 +1,15 @@
-import type { Selector } from 'reselect';
-
 type Fn = (...args: any[]) => any;
+
+/**
+ * A function deriving a value from the store state, optionally with extra parameters.
+ * @param state The store state.
+ * @param params Extra parameters forwarded to the selector.
+ * @returns The derived value.
+ */
+export type Selector<State = any, Result = unknown, Params extends readonly any[] = any[]> = (
+  state: State,
+  ...params: Params
+) => Result;
 /**
  * The NoOptionalParams type is a utility type that checks if a function has optional or default parameters.
  * If the function has optional or default parameters, it returns a string literal type with an error message.
