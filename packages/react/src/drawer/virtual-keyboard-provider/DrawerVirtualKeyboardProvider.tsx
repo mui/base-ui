@@ -421,6 +421,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const handleFocusIn = (event: FocusEvent) => {
+      // The programmatic transition is over once focus lands, which happens before
+      // `.focus()` returns. Any later `focusout` is the consumer's own — an `onFocus`
+      // handler that blurs or moves focus — and must be reconciled rather than
+      // suppressed, so stop suppressing here instead of waiting for `.focus()` to return.
+      programmaticKeyboardFocusRef.current = false;
+
       consumePreemptedFocus();
 
       if (!captureFocusedKeyboardTarget(getTarget(event))) {
@@ -429,6 +435,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         // `focusout` via `programmaticKeyboardFocusRef`, so a consumer `onFocus` handler that
         // redirects focus out of the drawer would otherwise leave a stale target holding its
         // inset, slack, and pending realign. Reconcile against the real focus here.
+        // A handler that ends focus entirely emits no `focusin` to reconcile from; that case
+        // is covered by clearing the suppression flag above so its `focusout` is handled.
         if (focusedKeyboardTargetRef.current) {
           clearFocusedKeyboardTarget();
         }
@@ -625,7 +633,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // iOS only opens the software keyboard when focus happens synchronously
       // inside the touch gesture. The flag suppresses the `focusout` cleanup the
       // intermediate blur would otherwise trigger, so the keyboard inset isn't
-      // dropped for a frame between the blur and the re-focus.
+      // dropped for a frame between the blur and the re-focus. It is cleared by the
+      // `focusin` that lands, so only that blur is suppressed; the `finally` is the
+      // backstop for a target that never takes focus.
       event.preventDefault();
       programmaticKeyboardFocusRef.current = true;
       try {

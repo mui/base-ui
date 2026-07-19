@@ -130,6 +130,15 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     };
   }
 
+  async function flushAnimationFrames(count: number) {
+    for (let i = 0; i < count; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => {
+        requestAnimationFrame(resolve);
+      });
+    }
+  }
+
   it.skipIf(isJSDOM)(
     'adds scroll slack and centers the focused input while the visual viewport is reduced',
     async () => {
@@ -2076,7 +2085,6 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           await vi.runAllTimersAsync();
         });
 
-        expect(other).toHaveFocus();
         // Focus stays on the redirected element and the drawer left no keyboard inset
         // behind for the abandoned input.
         expect(other).toHaveFocus();
@@ -2086,6 +2094,107 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       }
     } finally {
       vi.useRealTimers();
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
+  it.skipIf(isJSDOM)('clears keyboard state when a tapped input blurs itself', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(500);
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{
+                      height: 420,
+                      overflowY: 'auto',
+                      overflowAnchor: 'auto',
+                      paddingBottom: 20,
+                    }}
+                  >
+                    <div style={{ height: 900 }} />
+                    <input data-testid="input" type="text" />
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const scroll = screen.getByTestId('scroll');
+      const input = screen.getByTestId('input');
+
+      Object.defineProperties(scroll, {
+        clientHeight: { configurable: true, value: 420 },
+        scrollHeight: { configurable: true, value: 1200 },
+      });
+      scroll.getBoundingClientRect = () =>
+        ({
+          top: 300,
+          bottom: 720,
+          height: 420,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: 300,
+          toJSON: () => {},
+        }) as DOMRect;
+      input.getBoundingClientRect = () =>
+        ({
+          top: 650,
+          bottom: 690,
+          height: 40,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: 650,
+          toJSON: () => {},
+        }) as DOMRect;
+
+      // A consumer that opens its own picker instead of the software keyboard blurs the field
+      // from `onFocus`. The `focusout` arrives before `.focus()` returns, and focus ends on the
+      // body, so no `focusin` follows to reconcile from: that `focusout` is the provider's only
+      // chance to drop the field. Focus does eventually return to the popup, but only on a
+      // later task, so a retained target keeps aligning against the blurred field until then.
+      input.addEventListener('focusin', () => {
+        input.blur();
+      });
+
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [createTouch(input, { clientX: 12, clientY: 34 })],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, { clientX: 12, clientY: 34 });
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          // Let the frame-scheduled alignment run: it is what applies the inset and slack to a
+          // target the `focusout` failed to clear.
+          await flushAnimationFrames(3);
+        });
+
+        expect(input).not.toHaveFocus();
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+        expect(scroll.style.paddingBottom).toBe('20px');
+        expect(scroll.style.scrollPaddingBottom).toBe('');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    } finally {
       visualViewport.restore();
       restoreInnerHeight();
     }
