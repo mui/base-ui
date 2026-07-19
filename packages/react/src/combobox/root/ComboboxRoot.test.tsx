@@ -18,6 +18,7 @@ import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
 import { useStore } from '@base-ui/utils/store';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { REASONS } from '../../internals/reasons';
@@ -6423,6 +6424,76 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'keeps filtered content stable when a controlled close is deferred',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 100ms linear;
+          }
+        `;
+
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          const closeTimeout = useTimeout();
+
+          return (
+            <React.Fragment>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <Combobox.Root
+                items={['Apple', 'Apricot', 'Banana']}
+                open={open}
+                onOpenChange={(nextOpen) => {
+                  if (!nextOpen) {
+                    closeTimeout.start(50, () => setOpen(false));
+                  }
+                }}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        await user.type(screen.getByTestId('input'), 'ap');
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+        expect(screen.getByTestId('input')).toHaveValue('Apple');
+        expect(screen.getByRole('option', { name: 'Apple' })).not.toBe(null);
+        expect(screen.getByRole('option', { name: 'Apricot' })).not.toBe(null);
+      },
+    );
   });
 
   describe('prop: onOpenChange', () => {

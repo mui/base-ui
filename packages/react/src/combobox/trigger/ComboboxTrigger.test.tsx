@@ -176,15 +176,26 @@ describe('<Combobox.Trigger />', () => {
       return (
         <Combobox.Root onOpenChange={onOpenChange}>
           {showTrigger && <Combobox.Trigger data-testid="trigger" />}
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
         </Combobox.Root>
       );
     }
 
     const { rerender } = await render(<Test showTrigger />);
     fireEvent.mouseDown(screen.getByTestId('trigger'));
+
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(true, expect.anything()));
+    onOpenChange.mockClear();
+
     await rerender(<Test showTrigger={false} />);
 
-    fireEvent.mouseUp(document.body);
+    fireEvent.mouseUp(document.body, { clientX: 100, clientY: 100 });
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 

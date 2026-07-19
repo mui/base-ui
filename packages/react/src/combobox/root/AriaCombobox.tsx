@@ -232,12 +232,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  // A controlled popup may ignore a close request. In that case, don't leave the list
-  // frozen on the query captured for an exit animation that never started.
-  if (open && closeQuery !== null) {
-    setCloseQuery(null);
-  }
-
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? String(inputValue).trim();
 
@@ -550,6 +544,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
+        // A controlled popup may ignore a close request. Resuming input proves the popup
+        // is remaining open, so release the query captured for an exit animation.
+        if (closeQuery !== null) {
+          setCloseQuery(null);
+        }
+
         const event = eventDetails.event as Event;
         const inputType = (event as InputEvent).inputType;
         // Treat composition commits as typed input; autofill may omit `inputType` or

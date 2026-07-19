@@ -25,13 +25,14 @@ describe('useInitialLiveRegionTextMutation', () => {
   });
 
   it('skips empty text nodes when finding the announcement text', async () => {
+    const text = document.createTextNode('Status');
+    const empty = document.createTextNode('');
+
     function Status() {
       const ref = useInitialLiveRegionTextMutation<HTMLDivElement>();
 
       useIsoLayoutEffect(() => {
-        const empty = document.createTextNode('');
-        const text = document.createTextNode('Status');
-        ref.current?.append(empty, text);
+        ref.current?.append(text, empty);
       }, [ref]);
 
       return <div ref={ref} data-testid="status" />;
@@ -39,7 +40,8 @@ describe('useInitialLiveRegionTextMutation', () => {
 
     await render(<Status />);
 
-    expect(screen.getByTestId('status').textContent).toContain('\u2060');
+    expect(text.data).toBe('Status\u2060');
+    expect(empty.data).toBe('');
   });
 
   it('does not overwrite text that changes before the reset', async () => {
