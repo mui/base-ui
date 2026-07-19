@@ -42,9 +42,11 @@ export const SelectItem = React.memo(
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
+    const metadata = React.useMemo(() => ({ value: itemValue }), [itemValue]);
     const listItem = useCompositeListItem({
       guess: true,
       label,
+      metadata,
       textRef,
     });
 
@@ -55,7 +57,6 @@ export const SelectItem = React.memo(
       setValue,
       selectionRef,
       typingRef,
-      valuesRef,
       multiple,
       selectedItemTextRef,
       disabled: selectDisabled,
@@ -72,19 +73,6 @@ export const SelectItem = React.memo(
     const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
-      const values = valuesRef.current;
-      values[index] = itemValue;
-
-      return () => {
-        delete values[index];
-      };
-    }, [hasRegistered, index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {

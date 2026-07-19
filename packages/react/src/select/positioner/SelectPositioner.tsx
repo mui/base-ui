@@ -5,7 +5,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
-import { CompositeList } from '../../internals/composite/list/CompositeList';
+import {
+  CompositeList,
+  type CompositeMetadata,
+} from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useAnchorPositioning,
@@ -151,67 +154,66 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<{ value: any }>>) => {
+    const previousValues = valuesRef.current;
+    const nextValues = Array.from(map.values(), (item) => item.value);
+    valuesRef.current = nextValues;
 
-  const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (valuesRef.current.length === 0) {
-        return;
-      }
+    if (nextValues.length === previousValues.length) {
+      return;
+    }
 
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
+    const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (map.size === prevSize) {
-        return;
-      }
+    if (previousValues.length !== 0 && !store.state.multiple && value !== null) {
+      const selectedValueIndex = findItemIndex(nextValues, value, isItemEqualToValue);
+      if (selectedValueIndex === -1) {
+        const initialSelectedValue = initialValueRef.current;
+        const hasInitial =
+          initialSelectedValue != null &&
+          findItemIndex(nextValues, initialSelectedValue, isItemEqualToValue) !== -1;
+        const nextValue = hasInitial ? initialSelectedValue : null;
+        setValue(nextValue, eventDetails);
 
-      const eventDetails = createChangeEventDetails(REASONS.none);
-
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (selectedValueIndex === -1) {
-          const initialSelectedValue = initialValueRef.current;
-          const hasInitial =
-            initialSelectedValue != null &&
-            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
-          const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
-
-          if (nextValue === null) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
         }
       }
+    }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
-          (selectedItemValue) =>
-            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
-        );
-        if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
+    if (previousValues.length !== 0 && store.state.multiple && Array.isArray(value)) {
+      const nextValue = value.filter(
+        (selectedItemValue) =>
+          findItemIndex(nextValues, selectedItemValue, isItemEqualToValue) !== -1,
+      );
+      if (nextValue.length !== value.length) {
+        setValue(nextValue, eventDetails);
 
-          if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
         }
       }
+    }
 
-      if (open && alignItemWithTriggerActive) {
-        store.update({
-          scrollUpArrowVisible: false,
-          scrollDownArrowVisible: false,
-        });
+    if (open && alignItemWithTriggerActive) {
+      store.update({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
 
-        const stylesToClear: React.CSSProperties = { height: '' };
-        clearStyles(positionerElement, stylesToClear);
-        clearStyles(popupRef.current, stylesToClear);
-      }
-    },
-  );
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      valuesRef.current = [];
+    };
+  }, [valuesRef]);
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
@@ -226,7 +228,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+    <CompositeList<{ value: any }>
+      elementsRef={listRef}
+      labelsRef={labelsRef}
+      onMapChange={onMapChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}

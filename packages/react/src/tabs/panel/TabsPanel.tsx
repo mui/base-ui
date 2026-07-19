@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
@@ -37,12 +36,12 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     getTabIdByPanelValue,
     orientation,
     tabActivationDirection,
-    registerMountedTabPanel,
   } = useTabsRootContext();
 
   const id = useBaseUiId();
 
-  const { ref: listItemRef, index } = useCompositeListItem();
+  const metadata = React.useMemo<TabsPanel.Metadata>(() => ({ id, value }), [id, value]);
+  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({ metadata });
 
   const open = value === selectedValue;
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
@@ -87,18 +86,6 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
       }
     },
   });
-
-  useIsoLayoutEffect(() => {
-    if (hidden && !keepMounted) {
-      return undefined;
-    }
-
-    if (id == null) {
-      return undefined;
-    }
-
-    return registerMountedTabPanel(value, id);
-  }, [hidden, keepMounted, value, id, registerMountedTabPanel]);
 
   const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
