@@ -2246,6 +2246,131 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('keeps tracking the finger when a claimed drag returns inside the slop', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 100 })],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 120, clientY: 100 })],
+      });
+      fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 150, clientY: 100 })],
+      });
+
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-x')).toBe('30px');
+
+      // The slop is measured from the touch origin, so a claimed drag that travels back inside it
+      // must not be re-arbitrated: the popup has to keep following the finger.
+      const inSlopMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 103, clientY: 100 })],
+      });
+      expect(inSlopMoveDispatched).toBe(false);
+      expect(
+        Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-x')),
+      ).toBeLessThan(0);
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [createTouch(scroll, { clientX: 103, clientY: 100 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('keeps driving a claimed drag through a non-cancelable touchmove', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [createTouch(scroll, { clientX: 100, clientY: 100 })],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 150, clientY: 100 })],
+      });
+      fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 200, clientY: 100 })],
+      });
+
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-x')).toBe('50px');
+
+      // Once the drawer axis owns the gesture, a non-cancelable move no longer means the browser
+      // took it for a native scroll, so the drag must not be abandoned.
+      const nonCancelableMove = new Event('touchmove', { bubbles: true, cancelable: false });
+      Object.defineProperty(nonCancelableMove, 'touches', {
+        value: [createTouch(scroll, { clientX: 250, clientY: 100 })],
+        configurable: true,
+      });
+      await act(async () => {
+        scroll.dispatchEvent(nonCancelableMove);
+      });
+
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-x')).toBe('100px');
+
+      const laterMoveDispatched = fireEvent.touchMove(scroll, {
+        touches: [createTouch(scroll, { clientX: 300, clientY: 100 })],
+      });
+      expect(laterMoveDispatched).toBe(false);
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-x')).toBe('150px');
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [createTouch(scroll, { clientX: 300, clientY: 100 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not lock vertical swipe after minor cross-axis jitter in down drawers', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">

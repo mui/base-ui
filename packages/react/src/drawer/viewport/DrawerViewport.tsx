@@ -63,6 +63,7 @@ interface TouchScrollState {
   hasCrossAxisScrollableContent: boolean;
   allowSwipe: boolean | null;
   preserveNativeCrossAxisScroll: boolean;
+  drawerAxisAttributed: boolean;
 }
 
 /**
@@ -741,7 +742,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      if (preserveNativeCrossAxisScrollOnMove(touchState, event, touch, isVerticalScrollAxis)) {
+      if (shouldYieldTouchMove(touchState, event, touch, isVerticalScrollAxis)) {
         return;
       }
 
@@ -1033,6 +1034,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             hasCrossAxisScrollableContent,
             allowSwipe,
             preserveNativeCrossAxisScroll: false,
+            drawerAxisAttributed: false,
           };
 
           swipeTouchProps.onTouchStart?.(event);
@@ -1174,7 +1176,12 @@ function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): 
   touchState.lastY = touch.clientY;
 }
 
-function preserveNativeCrossAxisScrollOnMove(
+/**
+ * Arbitrates a touchmove between the drawer swipe and a native cross-axis scroll.
+ * Returns `true` when the move must be left alone — either because the cross axis already won the
+ * gesture, or because neither axis has passed the slop yet and the gesture cannot be attributed.
+ */
+function shouldYieldTouchMove(
   touchState: TouchScrollState,
   event: TouchEvent,
   touch: Touch,
@@ -1184,7 +1191,14 @@ function preserveNativeCrossAxisScrollOnMove(
     return true;
   }
 
-  if (touchState.allowSwipe === true || !touchState.hasCrossAxisScrollableContent) {
+  // Attribution happens once per gesture. Re-arbitrating after the drawer axis has won would let
+  // the pre-attribution branches below fire mid-drag (the slop is measured from the touch origin,
+  // which is never re-baselined), freezing the popup and dropping `preventDefault()`.
+  if (
+    touchState.drawerAxisAttributed ||
+    touchState.allowSwipe === true ||
+    !touchState.hasCrossAxisScrollableContent
+  ) {
     return false;
   }
 
@@ -1213,6 +1227,7 @@ function preserveNativeCrossAxisScrollOnMove(
   }
 
   if (absDrawerAxisGestureDelta >= AXIS_LOCK_SLOP) {
+    touchState.drawerAxisAttributed = true;
     return false;
   }
 
