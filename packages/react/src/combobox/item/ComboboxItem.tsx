@@ -233,26 +233,18 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems, flatFilteredValues } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues, itemToValue } = useComboboxDerivedItemsContext();
 
-  let indexFromFilter = componentProps.index;
-  if (indexFromFilter == null) {
-    indexFromFilter = findItemIndex(
-      flatFilteredValues,
-      componentProps.value ?? null,
-      isItemEqualToValue,
-    );
-    if (indexFromFilter === -1) {
-      indexFromFilter = findItemIndex(
-        flatFilteredItems,
-        componentProps.value ?? null,
-        isItemEqualToValue,
-      );
-    }
-  }
+  // An explicit `value` is always a selection value, so it is looked up against the projected
+  // values. Without `itemToValue` those are the source items themselves.
+  const indexFromFilter =
+    componentProps.index ??
+    findItemIndex(flatFilteredValues, componentProps.value ?? null, isItemEqualToValue);
 
   const mappedValue =
-    componentProps.value === undefined ? flatFilteredValues[indexFromFilter] : undefined;
+    itemToValue && componentProps.value === undefined
+      ? flatFilteredValues[indexFromFilter]
+      : undefined;
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
@@ -283,7 +275,10 @@ export const ComboboxItem = React.memo(
     // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
     // item's lifetime: the two branches return different component types, so flipping it at
     // runtime remounts the item and resets its refs and effects.
-    if (virtualized) {
+    // An item that supplies both `index` and `value` needs nothing from the filtered set, so it
+    // stays off that context. Omitting `value` means the value is projected from the source at
+    // this index, which does require the subscription.
+    if (virtualized && (componentProps.index == null || componentProps.value === undefined)) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );

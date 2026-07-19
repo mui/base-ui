@@ -3,10 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import {
-  resolveComboboxMultipleLabels,
-  resolveComboboxSelectedLabel,
-} from '../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 
 /**
  * The current value of the combobox.
@@ -27,6 +24,8 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const multiple = useStore(store, selectors.selectionMode) === 'multiple';
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
+  // A labeled `null` item only suppresses the placeholder in single mode, where `null` is itself
+  // a selectable value. In multiple mode an empty selection always shows the placeholder.
   const shouldCheckNullItemLabel =
     !multiple && !hasSelectedValue && placeholder != null && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
@@ -39,22 +38,20 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
     children = placeholder;
   } else if (multiple && Array.isArray(selectedValue)) {
-    children = resolveComboboxMultipleLabels(
+    children = resolveMultipleLabels(
       selectedValue,
       items,
       itemToStringLabel,
       itemValues,
       isItemEqualToValue,
-      store.state.labelCacheRef.current,
     );
   } else {
-    children = resolveComboboxSelectedLabel(
+    children = resolveSelectedLabel(
       selectedValue,
       items,
       itemToStringLabel,
       itemValues,
       isItemEqualToValue,
-      store.state.labelCacheRef.current,
     );
   }
 

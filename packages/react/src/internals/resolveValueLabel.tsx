@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { serializeValue } from './serializeValue';
+import { defaultItemEquality, findItemIndex, type ItemEqualityComparer } from './itemEquality';
 
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
@@ -29,8 +30,13 @@ export function isGroupedItems(
 
 /**
  * Checks if the items array contains an item with a null value that has a non-null label.
+ * When `itemValues` is provided, the value comes from the projection rather than `item.value`.
  */
-export function hasNullItemLabel(items: ItemsInput): boolean {
+export function hasNullItemLabel(items: ItemsInput, itemValues?: readonly any[]): boolean {
+  if (itemValues) {
+    return (items as ReadonlyArray<LabeledItem>)?.[itemValues.indexOf(null)]?.label != null;
+  }
+
   if (!Array.isArray(items)) {
     return items != null && 'null' in items;
   }
@@ -86,6 +92,8 @@ export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  itemValues?: readonly any[],
+  isItemEqualToValue: ItemEqualityComparer = defaultItemEquality,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
@@ -98,6 +106,15 @@ export function resolveSelectedLabel(
   // Custom object with explicit label takes precedence
   if (value && typeof value === 'object' && 'label' in value && value.label != null) {
     return value.label;
+  }
+
+  // Values projected from source items via `itemToValue`: the label lives on the source item at
+  // the same index, so the value is matched positionally rather than against `item.value`.
+  if (itemValues) {
+    const match = (items as ReadonlyArray<LabeledItem>)?.[
+      findItemIndex(itemValues, value, isItemEqualToValue)
+    ];
+    return match?.label != null ? match.label : fallback();
   }
 
   // Items provided as plain record map
@@ -136,6 +153,8 @@ export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  itemValues?: readonly any[],
+  isItemEqualToValue?: ItemEqualityComparer,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {
@@ -143,7 +162,7 @@ export function resolveMultipleLabels(
     }
     acc.push(
       <React.Fragment key={index}>
-        {resolveSelectedLabel(value, items, itemToStringLabel)}
+        {resolveSelectedLabel(value, items, itemToStringLabel, itemValues, isItemEqualToValue)}
       </React.Fragment>,
     );
     return acc;

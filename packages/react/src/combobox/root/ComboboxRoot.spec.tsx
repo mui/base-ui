@@ -191,17 +191,15 @@ const itemsWithOptionalValues: Array<{ value?: string; label: string }> = [{ lab
   }}
 />;
 
-const invalidSingleSelectProps: Combobox.Root.Props<string> = {
-  multiple: false,
-  // @ts-expect-error - a single-select value cannot be an array
-  defaultValue: ['javascript', 'typescript'],
-  onValueChange(value) {
+<Combobox.Root
+  multiple={false}
+  // @ts-expect-error
+  defaultValue={['javascript', 'typescript']}
+  onValueChange={(value) => {
     // @ts-expect-error
     value.pop();
-  },
-};
-
-<Combobox.Root {...invalidSingleSelectProps} />;
+  }}
+/>;
 
 <Combobox.Root
   defaultValue="javascript"
@@ -668,7 +666,7 @@ export function Wrapper<Value, Multiple extends boolean | undefined = false>(
   return <Combobox.Root {...props} />;
 }
 
-const mappedWrapperProps: Combobox.Root.MappedProps<string, false, (typeof objectItems)[number]> = {
+const mappedWrapperProps: Combobox.Root.MappedProps<string, false, typeof objectItems> = {
   items: objectItems,
   itemToValue: (item) => item.value,
 };

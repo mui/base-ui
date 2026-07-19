@@ -14,22 +14,6 @@ describe('<Autocomplete.Root />', () => {
 
   const { render, renderToString } = createRenderer();
 
-  it('does not forward itemToValue supplied through an untyped spread', async () => {
-    const itemToValue = vi.fn(() => 'mapped');
-    const rootProps: any = { items: ['alpha'], itemToValue };
-
-    await render(
-      <Autocomplete.Root {...rootProps}>
-        <Autocomplete.Input />
-        <Autocomplete.List>
-          <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
-        </Autocomplete.List>
-      </Autocomplete.Root>,
-    );
-
-    expect(itemToValue).not.toHaveBeenCalled();
-  });
-
   describe('keyboard interactions', () => {
     it('closes popup on Tab after selecting with Enter and typing again', async () => {
       const { user } = await render(

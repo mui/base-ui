@@ -52,16 +52,12 @@ import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import {
+  resolveSelectedLabel,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
   isGroupedItems,
 } from '../../internals/resolveValueLabel';
-import {
-  findCachedLabel,
-  resolveComboboxSelectedLabel,
-  type ComboboxLabelCache,
-} from '../utils/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
@@ -232,7 +228,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
     return valueItems.map(itemToValue);
   }, [itemToValue, valueItems]);
-  const labelCacheRef = useRefWithInit<ComboboxLabelCache>(() => [EMPTY_ARRAY, EMPTY_ARRAY]);
 
   const sourceItemToStringLabel = React.useMemo(() => {
     if (!itemToValue || !itemToStringLabel) {
@@ -246,13 +241,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return stringifyAsLabel(value, itemToStringLabel);
     }
 
-    const label = resolveComboboxSelectedLabel(
+    const label = resolveSelectedLabel(
       value,
       valueItems,
       itemToStringLabel,
       itemValues,
       isItemEqualToValue,
-      labelCacheRef.current,
     );
     return typeof label === 'string' || typeof label === 'number'
       ? String(label)
@@ -289,55 +283,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const query = closeQuery ?? String(inputValue).trim();
 
-  const selectedLabelString = React.useMemo(
-    () => (single ? getSelectedLabelString(selectedValue) : ''),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      single,
-      selectedValue,
-      itemToValue,
-      valueItems,
-      itemValues,
-      itemToStringLabel,
-      isItemEqualToValue,
-    ],
-  );
-  const lastSelectedLabelStringRef = React.useRef(selectedLabelString);
-
-  useIsoLayoutEffect(() => {
-    if (!itemValues) {
-      return;
-    }
-
-    const selectedItems = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
-    const cache = labelCacheRef.current;
-    const nextValues = [];
-    const nextLabels = [];
-
-    for (const selectedItem of selectedItems) {
-      const sourceIndex = findItemIndex(itemValues, selectedItem, isItemEqualToValue);
-      if (sourceIndex === -1) {
-        const label = findCachedLabel(cache, selectedItem, isItemEqualToValue);
-        if (label !== undefined) {
-          nextValues.push(selectedItem);
-          nextLabels.push(label);
-        }
-        continue;
-      }
-
-      const label = resolveComboboxSelectedLabel(
-        selectedItem,
-        valueItems,
-        itemToStringLabel,
-        itemValues,
-        isItemEqualToValue,
-      );
-      nextValues.push(selectedItem);
-      nextLabels.push(label);
-    }
-
-    labelCacheRef.current = [nextValues, nextLabels];
-  }, [itemValues, selectedValue, isItemEqualToValue, valueItems, itemToStringLabel, labelCacheRef]);
+  const selectedLabelString = single ? getSelectedLabelString(selectedValue) : '';
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -486,7 +432,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       open,
       items: itemToValue ? valueItems : items,
       itemValues,
-      labelCacheRef,
       selectionMode,
       listRef,
       labelsRef,
@@ -1140,11 +1085,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }
 
-  // Keep this before the selected-label watcher: a value change updates the shared label ref so
-  // the later watcher does not schedule the same input synchronization a second time.
   useValueChanged(selectedValue, () => {
-    lastSelectedLabelStringRef.current = selectedLabelString;
-
     if (selectionMode === 'none') {
       return;
     }
@@ -1170,13 +1111,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation.change(inputValue);
   });
 
-  useValueChanged(selectedLabelString, () => {
-    if (lastSelectedLabelStringRef.current === selectedLabelString) {
-      return;
-    }
-
-    lastSelectedLabelStringRef.current = selectedLabelString;
-
+  // `itemValues` stands in for `items` when values are projected: it changes whenever the source
+  // it was mapped from changes, so a label that resolves after mount still syncs the input.
+  useValueChanged(itemValues ?? items, () => {
     if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
