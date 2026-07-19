@@ -774,6 +774,86 @@ describe('<Combobox.Trigger />', () => {
       });
     });
 
+    it('selects the mapped value on closed-trigger typeahead (itemToValue)', async () => {
+      const countries = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+        { code: 'AU', label: 'Australia' },
+      ];
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={countries}
+          itemToValue={(country) => country.code}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value data-testid="value" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(country: (typeof countries)[number]) => (
+                    <Combobox.Item key={country.code}>{country.label}</Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      // Typeahead matches the item's label ("Canada") while the list is closed and
+      // selects the mapped value.
+      await user.keyboard('Can');
+
+      await waitFor(() => {
+        expect(onValueChange.mock.calls.some(([value]) => value === 'CA')).toBe(true);
+      });
+      expect(trigger).toHaveTextContent('Canada');
+    });
+
+    it('uses mounted registrations for filteredItems-only closed-trigger typeahead', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root filteredItems={['apple', 'banana']} onValueChange={onValueChange}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(onValueChange).toHaveBeenCalledWith('banana', expect.any(Object));
+      });
+    });
+
     it.each([false, true])(
       'cycles to the next matching item when typing after open/close (no items prop, keepMounted %s)',
       async (keepMounted) => {

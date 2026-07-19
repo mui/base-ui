@@ -2,8 +2,11 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';
+import {
+  resolveComboboxMultipleLabels,
+  resolveComboboxSelectedLabel,
+} from '../utils/resolveValueLabel';
 
 /**
  * The current value of the combobox.
@@ -19,10 +22,13 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
+  const itemValues = useStore(store, selectors.itemValues);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const multiple = useStore(store, selectors.selectionMode) === 'multiple';
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
-  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const shouldCheckNullItemLabel =
+    !multiple && !hasSelectedValue && placeholder != null && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   let children = null;
@@ -33,9 +39,23 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
     children = placeholder;
   } else if (multiple && Array.isArray(selectedValue)) {
-    children = resolveMultipleLabels(selectedValue, items, itemToStringLabel);
+    children = resolveComboboxMultipleLabels(
+      selectedValue,
+      items,
+      itemToStringLabel,
+      itemValues,
+      isItemEqualToValue,
+      store.state.labelCacheRef.current,
+    );
   } else {
-    children = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
+    children = resolveComboboxSelectedLabel(
+      selectedValue,
+      items,
+      itemToStringLabel,
+      itemValues,
+      isItemEqualToValue,
+      store.state.labelCacheRef.current,
+    );
   }
 
   return <React.Fragment>{children}</React.Fragment>;

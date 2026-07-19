@@ -73,8 +73,27 @@ import { Combobox } from '@base-ui/react/combobox';
 
 ## TypeScript
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Combobox infers the selected value type from `defaultValue`, `value`, or the return value of `itemToValue`.
+Source items and explicitly specified `<Combobox.Item value>` props can have different types. Use `itemToValue` to derive selection values automatically when rendering a collection: filtering and collection children receive source items, while change callbacks and equality checks receive mapped values.
+Mapped values must be defined and unique. An explicit item `value` takes precedence over `itemToValue`.
+
+For example, the source items can be user objects while selection uses only their IDs. Their `label` fields are used automatically for display and filtering:
+
+```tsx title="Mapping source items to selection values"
+type User = { id: string; label: string; email: string };
+
+const users: User[] = [
+  { id: 'u1', label: 'Alice Johnson', email: 'alice@example.com' },
+  { id: 'u2', label: 'Bob Smith', email: 'bob@example.com' },
+];
+
+<Combobox.Root items={users} itemToValue={(user) => user.id}>
+  <Combobox.Input />
+  <Combobox.List>
+    {(user) => <Combobox.Item key={user.id}>{user.label}</Combobox.Item>}
+  </Combobox.List>
+</Combobox.Root>;
+```
 
 ## Examples
 

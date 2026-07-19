@@ -31,15 +31,16 @@ interface ComboboxItemInnerProps {
    * composite list registration order.
    */
   indexFromFilter: number | undefined;
+  mappedValue?: any;
 }
 
 function ComboboxItemInner(props: ComboboxItemInnerProps) {
-  const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
+  const { componentProps, forwardedRef, virtualized, indexFromFilter, mappedValue } = props;
   const {
     render,
     className,
     style,
-    value: itemValue = null,
+    value: itemValueProp = null,
     index: indexProp,
     disabled = false,
     nativeButton = false,
@@ -55,7 +56,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
-  const hasItems = useComboboxHasItemsContext();
+  const hasItemsContext = useComboboxHasItemsContext();
+  const hasItems = hasItemsContext !== false;
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
@@ -64,6 +66,16 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const selectable = selectionMode !== 'none';
   const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = listItem.index !== -1;
+  const hasExplicitValue = componentProps.value !== undefined;
+
+  let itemValue = itemValueProp;
+  if (!hasExplicitValue) {
+    if (typeof hasItemsContext !== 'boolean') {
+      [itemValue] = hasItemsContext;
+    } else if (mappedValue !== undefined) {
+      itemValue = mappedValue;
+    }
+  }
 
   const rootId = useStore(store, selectors.id);
   const highlighted = useStore(store, selectors.isActive, index);
@@ -221,13 +233,26 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredItems, flatFilteredValues } = useComboboxDerivedItemsContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  let indexFromFilter = componentProps.index;
+  if (indexFromFilter == null) {
+    indexFromFilter = findItemIndex(
+      flatFilteredValues,
+      componentProps.value ?? null,
+      isItemEqualToValue,
+    );
+    if (indexFromFilter === -1) {
+      indexFromFilter = findItemIndex(
+        flatFilteredItems,
+        componentProps.value ?? null,
+        isItemEqualToValue,
+      );
+    }
+  }
+
+  const mappedValue =
+    componentProps.value === undefined ? flatFilteredValues[indexFromFilter] : undefined;
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
@@ -236,6 +261,7 @@ function ComboboxItemVirtualizedIndex(props: {
       forwardedRef={forwardedRef}
       virtualized
       indexFromFilter={indexFromFilter}
+      mappedValue={mappedValue}
     />
   );
 }
@@ -257,7 +283,7 @@ export const ComboboxItem = React.memo(
     // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
     // item's lifetime: the two branches return different component types, so flipping it at
     // runtime remounts the item and resets its refs and effects.
-    if (virtualized && componentProps.index == null) {
+    if (virtualized) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
       );

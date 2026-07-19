@@ -828,6 +828,18 @@ describe('<Combobox.Value />', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('None');
     });
 
+    it('does not resolve a null label from filteredItems without itemToValue', async () => {
+      await render(
+        <Combobox.Root filteredItems={[{ value: null, label: 'None' }]}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option" />
+          </Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Select an option');
+    });
+
     it('uses placeholder when items have null value without label', async () => {
       const items = [
         { value: null, label: null },
@@ -891,6 +903,35 @@ describe('<Combobox.Value />', () => {
               </Combobox.Popup>
             </Combobox.Positioner>
           </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Select options');
+    });
+
+    it('displays placeholder for an empty array when items contain a labeled null value', async () => {
+      const items = [
+        { value: null, label: 'None' },
+        { value: 'option1', label: 'Option 1' },
+      ];
+
+      await render(
+        <Combobox.Root items={items} itemToValue={(item) => item.value} multiple defaultValue={[]}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select options" />
+          </Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Select options');
+    });
+
+    it('displays the multiple placeholder with an identity-mapped labeled null item', async () => {
+      await render(
+        <Combobox.Root items={[{ value: null, label: 'None' }]} multiple defaultValue={[]}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select options" />
+          </Combobox.Trigger>
         </Combobox.Root>,
       );
 

@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
+import {
+  ComboboxHasItemsContext,
+  useComboboxDerivedItemsContext,
+} from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 
 /**
@@ -14,7 +17,7 @@ import { useGroupCollectionContext } from './GroupCollectionContext';
 export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
   const { children } = props;
 
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, itemToValue } = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
@@ -23,7 +26,28 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
     return null;
   }
 
-  return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
+  if (!itemToValue) {
+    return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
+  }
+
+  return (
+    <React.Fragment>
+      {itemsToRender.map((item, index) => {
+        const child = children(item, index);
+        // A distinct context value intentionally associates each rendered child with its item.
+        // eslint-disable-next-line react/jsx-no-constructed-context-values
+        const contextValue = [itemToValue(item)] as const;
+        return (
+          <ComboboxHasItemsContext.Provider
+            key={(child as React.ReactElement | null)?.key ?? index}
+            value={contextValue}
+          >
+            {child}
+          </ComboboxHasItemsContext.Provider>
+        );
+      })}
+    </React.Fragment>
+  );
 }
 
 export interface ComboboxCollectionState {}

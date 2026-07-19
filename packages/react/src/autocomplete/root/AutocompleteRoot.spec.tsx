@@ -39,6 +39,9 @@ const groupItemsReadonly = [
   }}
 />;
 
+// @ts-expect-error - itemToValue is a Combobox-only prop
+<Autocomplete.Root items={objectItems} itemToValue={(item) => item.value} />;
+
 <Autocomplete.Root
   items={groupItemsReadonly}
   itemToStringValue={(item) => {

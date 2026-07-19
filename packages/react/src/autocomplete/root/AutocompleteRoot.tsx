@@ -39,8 +39,9 @@ export function AutocompleteRoot<ItemValue>(
     onValueChange,
     mode = 'list',
     itemToStringValue,
+    itemToValue: ignoredItemToValue,
     ...other
-  } = props;
+  } = props as AutocompleteRoot.Props<ItemValue> & { itemToValue?: unknown };
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
@@ -155,6 +156,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'onSelectedValueChange'
   | 'fillInputOnItemPress'
   | 'itemToStringValue'
+  | 'itemToValue'
   | 'isItemEqualToValue'
   // Different names
   | 'inputValue' // value

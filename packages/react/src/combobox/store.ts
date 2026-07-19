@@ -5,6 +5,7 @@ import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
+import { hasMappedNullItemLabel, type ComboboxLabelCache } from './utils/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -12,6 +13,8 @@ export type State = {
   labelId: string | undefined;
 
   items: readonly any[] | undefined;
+  itemValues: readonly any[] | undefined;
+  labelCacheRef: React.RefObject<ComboboxLabelCache>;
 
   selectedValue: any;
 
@@ -95,6 +98,7 @@ export const selectors = {
   labelId: createSelector((state: State) => state.labelId),
 
   items: createSelector((state: State) => state.items),
+  itemValues: createSelector((state: State) => state.itemValues),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   hasSelectionChips: createSelector((state: State) => {
@@ -114,7 +118,17 @@ export const selectors = {
   }),
 
   hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
-    return enabled ? hasNullItemLabel(state.items) : false;
+    if (!enabled) {
+      return false;
+    }
+    if (state.itemValues === undefined) {
+      return hasNullItemLabel(state.items);
+    }
+    const labelCache = state.labelCacheRef.current;
+    return (
+      hasMappedNullItemLabel(state.items ?? [], state.itemValues) ||
+      labelCache[1][labelCache[0].indexOf(null)] != null
+    );
   }),
 
   open: createSelector((state: State) => state.open),

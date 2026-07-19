@@ -8,6 +8,8 @@ export interface ComboboxDerivedItemsContext {
   hasItems: boolean;
   filteredItems: any[];
   flatFilteredItems: any[];
+  flatFilteredValues: any[];
+  itemToValue: ((item: any) => any) | undefined;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
@@ -17,7 +19,9 @@ export const ComboboxFloatingContext = React.createContext<FloatingRootContext |
 export const ComboboxDerivedItemsContext = React.createContext<
   ComboboxDerivedItemsContext | undefined
 >(undefined);
-export const ComboboxHasItemsContext = React.createContext<boolean>(false);
+// Collection uses a tuple so Item can distinguish any mapped value, including booleans,
+// from the root's has-items flag without creating another context.
+export const ComboboxHasItemsContext = React.createContext<boolean | readonly [any]>(false);
 // `inputValue` can't be placed in the store.
 // https://github.com/mui/base-ui/issues/2703
 export const ComboboxInputValueContext =

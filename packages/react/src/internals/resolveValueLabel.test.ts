@@ -1,7 +1,16 @@
 import { expect } from 'vitest';
-import { hasNullItemLabel } from './resolveValueLabel';
+import { hasNullItemLabel, resolveSelectedLabel } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {
+  describe('resolveSelectedLabel', () => {
+    it('preserves an explicit selected label for ordinary items', () => {
+      const selected = { value: 'a', label: 'Selected label' };
+      const items = [{ value: 'a', label: 'Item label' }];
+
+      expect(resolveSelectedLabel(selected, items)).toBe('Selected label');
+    });
+  });
+
   describe('hasNullItemLabel', () => {
     it('returns true when grouped items contain a null-valued item with a label', () => {
       const items = [
