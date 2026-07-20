@@ -55,6 +55,7 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
     registeredInputs: new Map(),
     registerInput: NOOP,
     getInputControl: () => null,
+    isDisabled: () => false,
     commit: async () => {},
     change: NOOP,
   },

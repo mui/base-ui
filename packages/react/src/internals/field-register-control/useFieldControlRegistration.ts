@@ -18,6 +18,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   const {
     commit,
     invalid,
+    isDisabled,
     markedDirtyRef,
     name,
     setRegisteredFieldName,
@@ -49,6 +50,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }
 
   const validate = useStableCallback(() => {
+    if (isDisabled()) {
+      return;
+    }
+
     const registration = registrationRef.current;
     markedDirtyRef.current = true;
 
@@ -70,6 +75,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       getValue: getValueForForm,
       name: name ?? registration.name,
       controlRef: registration.controlRef,
+      isDisabled,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
@@ -106,10 +112,20 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       getValue: getValueForForm,
       name: name ?? registration.name,
       controlRef: registration.controlRef,
+      isDisabled,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
-  }, [formRef, getValueForForm, invalid, name, setRegisteredFieldName, validate, validityData]);
+  }, [
+    formRef,
+    getValueForForm,
+    invalid,
+    isDisabled,
+    name,
+    setRegisteredFieldName,
+    validate,
+    validityData,
+  ]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
@@ -159,6 +175,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 export interface UseFieldControlRegistrationParameters {
   commit: (value: unknown) => void;
   invalid: boolean;
+  isDisabled: () => boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
   setRegisteredFieldName: (name: string | undefined) => void;
