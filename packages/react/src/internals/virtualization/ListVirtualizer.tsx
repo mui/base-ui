@@ -380,19 +380,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   React.useImperativeHandle(apiRefProp, () => ({ resetScroll }), [resetScroll]);
 
-  React.useEffect(() => {
-    const element = scrollElementRef.current;
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      enabled &&
-      rows.length >= 100 &&
-      element &&
-      totalSize > 0 &&
-      element.clientHeight >= totalSize
-    ) {
-      onUnconstrainedHeight?.();
-    }
-  }, [enabled, onUnconstrainedHeight, rows.length, totalSize]);
+  if (process.env.NODE_ENV !== 'production') {
+    // NODE_ENV doesn't change at runtime
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      const element = scrollElementRef.current;
+      if (
+        enabled &&
+        rows.length >= 100 &&
+        element &&
+        totalSize > 0 &&
+        element.clientHeight >= totalSize
+      ) {
+        onUnconstrainedHeight?.();
+      }
+    }, [enabled, onUnconstrainedHeight, rows.length, totalSize]);
+  }
 
   const pendingVirtualizationUpdateRef = React.useRef(false);
   const restoreViewportRef = React.useRef(false);
@@ -765,6 +768,7 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
   estimatedItemHeight: number | ((row: RowModel, rowIndex: number) => number);
   /**
    * Called when a large enabled collection has no effective height constraint.
+   * This is only called in development mode and should be used to alert the developer.
    */
   onUnconstrainedHeight?: (() => void) | undefined;
   /**
