@@ -30,6 +30,7 @@ type SwipeProgressDetailsInternal = {
 
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
+const POINTER_CAPTURE_THRESHOLD = 5;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
@@ -408,7 +409,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       dragOffsetRef.current = { x: transform.x, y: transform.y };
       recordDragSample({ x: transform.x, y: transform.y }, swipeStartTimeRef.current);
 
-      if (!('touches' in event)) {
+      // Drag surfaces defer capture to `handleMoveCore`. A `trackDrag: false` surface (the swipe
+      // area) is a thin strip the pointer leaves within a few pixels, so it captures immediately.
+      if (!trackDrag && !('touches' in event)) {
         safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
       }
     }
@@ -622,6 +625,19 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const deltaY = clientY - dragStartPosRef.current.y;
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
+
+    // Capturing on press would retarget the eventual `click` to the dragged element, so presses on
+    // non-native interactive children (e.g. `<span role="radio">`) would never activate them.
+    if (
+      trackDrag &&
+      !('touches' in event) &&
+      deltaX * deltaX + deltaY * deltaY >= POINTER_CAPTURE_THRESHOLD * POINTER_CAPTURE_THRESHOLD
+    ) {
+      const element = elementRef.current;
+      if (element) {
+        safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+      }
+    }
 
     let candidate: SwipeDirection | undefined;
     if (!intendedSwipeDirectionRef.current) {
