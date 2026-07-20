@@ -69,28 +69,19 @@ export const SelectItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const index = listItem.index;
-    const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
       const values = valuesRef.current;
       values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [hasRegistered, index, itemValue, valuesRef]);
+    }, [index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return;
-      }
-
       const selectedValue = store.state.value;
 
       let selectedCandidate = selectedValue;
@@ -112,7 +103,7 @@ export const SelectItem = React.memo(
           selectedItemTextRef.current = textRef.current;
         }
       }
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+    }, [index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -246,9 +237,8 @@ export const SelectItem = React.memo(
         index,
         textRef,
         selectedByFocus,
-        hasRegistered,
       }),
-      [selected, index, textRef, selectedByFocus, hasRegistered],
+      [selected, index, textRef, selectedByFocus],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
