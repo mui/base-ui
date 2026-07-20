@@ -1,0 +1,44 @@
+name: pkg.pr.new release
+
+on:
+  push:
+    branches:
+      - research
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Set up pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22.18'
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm release:build
+      - name: Publish to pkg.pr.new
+        run: |
+          set +e
+          for i in 1 2 3; do
+            echo "Attempt $i to publish packages..."
+            pnpm exec pkg-pr-new publish $(pnpm code-infra list-workspaces --public-only --output=path) --pnpm --packageManager=pnpm --peerDeps --comment=update --compact false
+            exit_code=$?
+            if [ $exit_code -eq 0 ]; then
+              break
+            elif [ $i -eq 3 ]; then
+              echo "Command failed after $i attempts with exit code $exit_code."
+              exit $exit_code
+            else
+              echo "Attempt $i failed (exit code $exit_code), retrying after 30 seconds..."
+              sleep 30
+            fi
+          done
