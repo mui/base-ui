@@ -136,8 +136,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     estimateSize,
     getItemKey,
     overscanPx,
-    paddingStart = 0,
-    paddingEnd = 0,
     enabled = true,
     ...elementProps
   } = componentProps;
@@ -311,8 +309,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
       estimateSize={resolvedEstimateSize}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
-      paddingEnd={paddingEnd}
-      paddingStart={paddingStart}
       pinnedRowIndexes={pinnedRowIndexes}
       ref={forwardedRef}
       render={render}
@@ -419,16 +415,6 @@ interface ComboboxVirtualizerBaseProps<Value> extends Omit<
    * Defaults to the larger of 150px and the estimated size of the first item.
    */
   overscanPx?: number | undefined;
-  /**
-   * Empty space in pixels before the first virtual row.
-   * @default 0
-   */
-  paddingStart?: number | undefined;
-  /**
-   * Empty space in pixels after the last virtual row.
-   * @default 0
-   */
-  paddingEnd?: number | undefined;
   /**
    * Whether virtualization is enabled. When `false`, all items are rendered.
    * @default true

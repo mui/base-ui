@@ -72,8 +72,8 @@
 
 .Scroller {
   box-sizing: border-box;
-  height: min(22.5rem, var(--total-size));
-  max-height: var(--available-height);
+  height: min(22rem, var(--total-size));
+  max-height: calc(var(--available-height) - 0.5rem);
   overflow: auto;
   overscroll-behavior: contain;
   scroll-padding-block: 0.25rem;
@@ -81,7 +81,11 @@
 
 .List {
   box-sizing: border-box;
-  padding: 0;
+  padding-block: 0.25rem;
+
+  &[data-empty] {
+    padding-block: 0;
+  }
 }
 
 .Item {
