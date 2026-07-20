@@ -27,16 +27,9 @@ import { resolveThumbCollision } from '../utils/resolveThumbCollision';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
-function getControlOffset(styles: CSSStyleDeclaration | null, vertical: boolean) {
-  if (!styles) {
-    return {
-      start: 0,
-      end: 0,
-    };
-  }
-
-  function parseSize(value: string | null | undefined) {
-    const parsed = value != null ? parseFloat(value) : 0;
+function getControlOffset(styles: CSSStyleDeclaration, vertical: boolean) {
+  function parseSize(value: string) {
+    const parsed = parseFloat(value);
     return Number.isNaN(parsed) ? 0 : parsed;
   }
 
@@ -178,7 +171,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     const { width, height, bottom, left, right } = control.getBoundingClientRect();
 
-    const controlOffset = getControlOffset(stylesRef.current, vertical);
+    // All refs on the control are assigned in the same commit, before an interaction can begin.
+    const controlOffset = getControlOffset(stylesRef.current!, vertical);
     const insetThumbOffset = insetThumbOffsetRef.current;
     const controlSize =
       (vertical ? height : width) - controlOffset.start - controlOffset.end - insetThumbOffset * 2;
@@ -389,25 +383,19 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     const touch = nativeEvent.changedTouches[0];
+    touchIdRef.current = touch.identifier;
 
-    if (touch != null) {
-      touchIdRef.current = touch.identifier;
+    const fingerCoords = { x: touch.clientX, y: touch.clientY };
+    startPressing(fingerCoords);
+
+    const finger = getFingerState(fingerCoords);
+
+    if (finger == null) {
+      return;
     }
 
-    const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
-
-    if (fingerCoords != null) {
-      startPressing(fingerCoords);
-
-      const finger = getFingerState(fingerCoords);
-
-      if (finger == null) {
-        return;
-      }
-
-      focusThumb(finger.thumbIndex);
-      setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
-    }
+    focusThumb(finger.thumbIndex);
+    setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
 
     moveCountRef.current = 0;
     const doc = ownerDocument(controlRef.current);
@@ -477,36 +465,33 @@ export const SliderControl = React.forwardRef(function SliderControl(
             return;
           }
 
-          const fingerCoords = getFingerCoords(event, touchIdRef);
+          const fingerCoords = { x: event.clientX, y: event.clientY };
+          startPressing(fingerCoords);
 
-          if (fingerCoords != null) {
-            startPressing(fingerCoords);
+          const finger = getFingerState(fingerCoords);
 
-            const finger = getFingerState(fingerCoords);
+          if (finger == null) {
+            return;
+          }
 
-            if (finger == null) {
-              return;
-            }
+          const pressedOnFocusedThumb = contains(
+            thumbRefs.current[finger.thumbIndex],
+            activeElement(ownerDocument(control)),
+          );
 
-            const pressedOnFocusedThumb = contains(
-              thumbRefs.current[finger.thumbIndex],
-              activeElement(ownerDocument(control)),
-            );
+          if (pressedOnFocusedThumb) {
+            event.preventDefault();
+          } else {
+            focusFrame.request(() => {
+              focusThumb(finger.thumbIndex);
+            });
+          }
 
-            if (pressedOnFocusedThumb) {
-              event.preventDefault();
-            } else {
-              focusFrame.request(() => {
-                focusThumb(finger.thumbIndex);
-              });
-            }
+          setDragging(true);
 
-            setDragging(true);
-
-            const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
-            if (!pressedOnAnyThumb) {
-              setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
-            }
+          const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
+          if (!pressedOnAnyThumb) {
+            setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
           }
 
           if (event.nativeEvent.pointerId) {

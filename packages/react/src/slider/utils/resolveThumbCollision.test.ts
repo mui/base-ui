@@ -194,4 +194,25 @@ describe('resolveThumbCollision', () => {
     expect(result.thumbIndex).toBe(1);
     expect(result.didSwap).toBe(true);
   });
+
+  it('uses current values when a controlled range grows during a swap interaction', () => {
+    const result = resolveThumbCollision(
+      'swap',
+      [20, 40],
+      [20, 40, 60],
+      [20, 40],
+      1,
+      70,
+      0,
+      100,
+      1,
+      0,
+    );
+
+    expect(result).toEqual({
+      value: [20, 60, 70],
+      thumbIndex: 2,
+      didSwap: true,
+    });
+  });
 });

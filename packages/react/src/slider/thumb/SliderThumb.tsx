@@ -344,10 +344,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           return;
         }
 
-        if (!thumbRef.current) {
-          return;
-        }
-
         setActive(-1);
 
         // Keep field-level blur logic from running while focus moves to another thumb
@@ -376,10 +372,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           event.stopPropagation();
         }
 
-        let newValue = null;
+        const roundedValue = roundValueToStep(thumbValue, step, min);
+        let newValue = roundedValue;
         let direction = 0;
         let increment = event.shiftKey ? largeStep : step;
-        const roundedValue = roundValueToStep(thumbValue, step, min);
+        // ALL_KEYS is exhaustive for this switch.
+        // eslint-disable-next-line default-case
         switch (event.key) {
           case ARROW_UP:
             direction = 1;
@@ -413,31 +411,27 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
             break;
-          default:
-            break;
         }
 
         if (direction !== 0) {
           newValue = getNewValue(roundedValue, increment, direction, min, max);
         }
 
-        if (newValue !== null) {
-          const input = event.currentTarget as HTMLInputElement;
+        const input = event.currentTarget as HTMLInputElement;
 
-          if (!matchesFocusVisible(input)) {
-            restoringFocusVisibleRef.current = true;
-            input.blur();
-            input.focus({
-              preventScroll: true,
-              // Show `:focus-visible` after keyboard interaction, even if the
-              // thumb was previously focused by a pointer.
-              focusVisible: true,
-            });
-          }
-
-          handleInputChange(newValue, index, event);
-          event.preventDefault();
+        if (!matchesFocusVisible(input)) {
+          restoringFocusVisibleRef.current = true;
+          input.blur();
+          input.focus({
+            preventScroll: true,
+            // Show `:focus-visible` after keyboard interaction, even if the
+            // thumb was previously focused by a pointer.
+            focusVisible: true,
+          });
         }
+
+        handleInputChange(newValue, index, event);
+        event.preventDefault();
       },
       step,
       style: {
@@ -481,12 +475,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           }
 
           pressedThumbIndexRef.current = index;
-
-          if (thumbRef.current != null) {
-            const midpoint = getMidpoint(thumbRef.current, vertical);
-            pressedThumbCenterOffsetRef.current =
-              (vertical ? event.clientY : event.clientX) - midpoint;
-          }
+          const midpoint = getMidpoint(event.currentTarget, vertical);
+          pressedThumbCenterOffsetRef.current =
+            (vertical ? event.clientY : event.clientX) - midpoint;
         },
         style: thumbStyle,
         suppressHydrationWarning: renderBeforeHydration || undefined,

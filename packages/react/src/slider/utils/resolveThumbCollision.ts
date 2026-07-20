@@ -26,16 +26,6 @@ export function resolveThumbCollision(
 ): ResolveThumbCollisionResult {
   const activeValues = currentValues ?? values;
   const baselineValues = initialValues ?? values;
-  const range = activeValues.length > 1;
-
-  if (!range) {
-    return {
-      value: nextValue,
-      thumbIndex: 0,
-      didSwap: false,
-    };
-  }
-
   const minValueDifference = step * minStepsBetweenValues;
 
   // `push` does its own copy/bounds/rounding pass in `getPushedThumbValues`, so it must not
@@ -88,18 +78,9 @@ export function resolveThumbCollision(
 
       const targetIndex = shouldSwapForward ? pressedIndex + 1 : pressedIndex - 1;
 
-      const initialValuesForPush = candidateValues.map((_, index) => {
-        if (index === pressedIndex) {
-          return pressedValueAfterClamp;
-        }
-
-        const baseline = baselineValues[index];
-        if (baseline != null) {
-          return baseline;
-        }
-
-        return activeValues[index];
-      });
+      // Keep live entries added during the interaction while restoring the original baseline.
+      const initialValuesForPush = Object.assign(activeValues.slice(), baselineValues);
+      initialValuesForPush[pressedIndex] = pressedValueAfterClamp;
 
       let nextValueForTarget = nextValue;
       if (shouldSwapForward) {
@@ -121,22 +102,20 @@ export function resolveThumbCollision(
 
       const neighborIndex = shouldSwapForward ? targetIndex - 1 : targetIndex + 1;
 
-      if (neighborIndex >= 0 && neighborIndex < adjustedValues.length) {
-        const previousValue = adjustedValues[neighborIndex - 1];
-        const nextValueAfter = adjustedValues[neighborIndex + 1];
+      const previousValue = adjustedValues[neighborIndex - 1];
+      const nextValueAfter = adjustedValues[neighborIndex + 1];
 
-        let neighborLowerBound = previousValue != null ? previousValue + minValueDifference : min;
-        neighborLowerBound = Math.max(neighborLowerBound, min + neighborIndex * minValueDifference);
+      let neighborLowerBound = previousValue != null ? previousValue + minValueDifference : min;
+      neighborLowerBound = Math.max(neighborLowerBound, min + neighborIndex * minValueDifference);
 
-        let neighborUpperBound = nextValueAfter != null ? nextValueAfter - minValueDifference : max;
-        neighborUpperBound = Math.min(
-          neighborUpperBound,
-          max - (adjustedValues.length - 1 - neighborIndex) * minValueDifference,
-        );
+      let neighborUpperBound = nextValueAfter != null ? nextValueAfter - minValueDifference : max;
+      neighborUpperBound = Math.min(
+        neighborUpperBound,
+        max - (adjustedValues.length - 1 - neighborIndex) * minValueDifference,
+      );
 
-        const restoredValue = clamp(pressedValueAfterClamp, neighborLowerBound, neighborUpperBound);
-        adjustedValues[neighborIndex] = Number(restoredValue.toFixed(12));
-      }
+      const restoredValue = clamp(pressedValueAfterClamp, neighborLowerBound, neighborUpperBound);
+      adjustedValues[neighborIndex] = Number(restoredValue.toFixed(12));
 
       return {
         value: adjustedValues,
