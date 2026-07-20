@@ -129,9 +129,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    render,
-    className,
-    style,
     children,
     estimatedItemHeight,
     getItemKey,
@@ -264,35 +261,35 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     };
   }, [store, virtualizerHandle, virtualizerId]);
 
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      return;
-    }
-    if (!hasItems) {
-      warn('<Combobox.Virtualizer> requires the `items` prop on <Combobox.Root>.');
-    }
-    if (!insideList) {
-      warn('<Combobox.Virtualizer> must be placed inside <Combobox.List>.');
-    }
-    if (externallyVirtualized) {
-      warn(
-        '<Combobox.Root> must not use the `virtualized` prop together with ' +
-          '<Combobox.Virtualizer>. The prop is only for external virtualization.',
-      );
-    }
-    if (isGrouped) {
-      warn(
-        '<Combobox.Virtualizer> does not currently support grouped collections. ' +
-          'Render a flat item collection instead.',
-      );
-    }
-    if (grid) {
-      warn(
-        '<Combobox.Virtualizer> does not currently support grid mode. ' +
-          'Use a flat listbox instead.',
-      );
-    }
-  }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!hasItems) {
+        warn('<Combobox.Virtualizer> requires the `items` prop on <Combobox.Root>.');
+      }
+      if (!insideList) {
+        warn('<Combobox.Virtualizer> must be placed inside <Combobox.List>.');
+      }
+      if (externallyVirtualized) {
+        warn(
+          '<Combobox.Root> must not use the `virtualized` prop together with ' +
+            '<Combobox.Virtualizer>. The prop is only for external virtualization.',
+        );
+      }
+      if (isGrouped) {
+        warn(
+          '<Combobox.Virtualizer> does not currently support grouped collections. ' +
+            'Render a flat item collection instead.',
+        );
+      }
+      if (grid) {
+        warn(
+          '<Combobox.Virtualizer> does not currently support grid mode. ' +
+            'Use a flat listbox instead.',
+        );
+      }
+    }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
+  }
 
   const handleUnconstrainedHeight = useStableCallback(() => {
     warn(
@@ -309,19 +306,16 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     <ListVirtualizer
       {...elementProps}
       apiRef={listVirtualizerRef}
-      className={className}
       enabled={virtualizationEnabled}
       estimatedItemHeight={resolvedEstimatedItemHeight}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
       pinnedRowIndexes={pinnedRowIndexes}
       ref={forwardedRef}
-      render={render}
       renderRow={renderRow}
       restoreViewportVersion={renderAllRowsRestoreVersion}
       rows={rows}
       scrollToRowIndex={scrollToRowIndex}
-      style={style}
       totalSizeCssVariable={ComboboxVirtualizerCssVars.totalSize}
     />
   );
