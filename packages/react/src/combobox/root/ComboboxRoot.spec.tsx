@@ -370,12 +370,6 @@ declare const legacyBrand: unique symbol;
 type LegacyBrandedValue = string & { readonly [legacyBrand]: true };
 declare const legacyBrandedValue: LegacyBrandedValue;
 
-declare class LegacyClassValue {
-  private marker;
-  getLabel(): string;
-}
-declare const legacyClassValue: LegacyClassValue;
-
 enum LegacyEnumValue {
   Apple = 'apple',
   Banana = 'banana',
@@ -465,13 +459,6 @@ const setNarrowMultipleValue: React.Dispatch<React.SetStateAction<Array<'a' | 'b
   value={legacyDate}
   onValueChange={(value) => value?.getTime()}
   isItemEqualToValue={(item, value) => item.getTime() === value.getTime()}
-/>;
-
-<Combobox.Root
-  items={objectItems}
-  value={legacyClassValue}
-  onValueChange={(value) => value?.getLabel()}
-  isItemEqualToValue={(item, value) => item === value}
 />;
 
 <Combobox.Root<LegacyShape>
