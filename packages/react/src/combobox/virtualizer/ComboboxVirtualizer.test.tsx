@@ -185,6 +185,126 @@ describe('<Combobox.Virtualizer />', () => {
     expect(screen.getByRole('option', { name: 'Item 11' })).not.toBe(null);
   });
 
+  it.skipIf(isJSDOM)('supports a max-height constraint without an explicit height', async () => {
+    vi.restoreAllMocks();
+
+    await render(
+      <Combobox.Root defaultOpen items={createItems(100)}>
+        <Combobox.List>
+          <Combobox.Virtualizer
+            estimateSize={20}
+            render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
+          >
+            {(item: string) => (
+              <Combobox.Item key={item} value={item} style={{ display: 'block', height: 20 }}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    await waitFor(() => expect(virtualizer.clientHeight).toBe(60));
+    expect(screen.getAllByRole('option').length).toBeLessThan(100);
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps the viewport covered before scroll events update the window',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <Combobox.Root defaultOpen items={createItems(1000)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimateSize={32}
+              overscanPx={64}
+              render={<div data-testid="virtualizer" style={{ height: 360, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} style={{ display: 'block', height: 32 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('32000px'),
+      );
+      await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(1000));
+
+      virtualizer.scrollTop = 128;
+
+      const viewportRect = virtualizer.getBoundingClientRect();
+      const initiallyRenderedItems = screen.getAllByRole('option');
+      const lastInitiallyRenderedItem = initiallyRenderedItems.at(-1) as HTMLElement;
+      expect(lastInitiallyRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+        viewportRect.bottom,
+      );
+
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'Item 1' })).toBe(null));
+      expect(screen.getAllByRole('option').length).toBeLessThan(20);
+
+      virtualizer.scrollTop = 0;
+
+      const firstDownwardItem = screen.getAllByRole('option')[0];
+      expect(firstDownwardItem.getBoundingClientRect().top).toBeLessThanOrEqual(viewportRect.top);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the viewport covered when measured rows are shorter than their estimate',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimateSize={100}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} style={{ display: 'block', height: 10 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      const viewportRect = virtualizer.getBoundingClientRect();
+      await waitFor(() => {
+        const renderedItems = screen.getAllByRole('option');
+        const lastRenderedItem = renderedItems.at(-1) as HTMLElement;
+        expect(lastRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+          viewportRect.bottom + 100,
+        );
+      });
+
+      virtualizer.scrollTop = 1;
+      fireEvent.scroll(virtualizer);
+      virtualizer.scrollTop = 20;
+      fireEvent.scroll(virtualizer);
+
+      const renderedItems = screen.getAllByRole('option');
+      const lastRenderedItem = renderedItems.at(-1) as HTMLElement;
+      expect(lastRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+        viewportRect.bottom,
+      );
+    },
+  );
+
   it('updates the rendered items when scrolled', async () => {
     let scrollTop = 0;
 
@@ -1616,6 +1736,7 @@ function setElementClientHeight(clientHeight: number) {
       return;
     }
 
+    element.style.height = `${clientHeight}px`;
     Object.defineProperty(element, 'clientHeight', {
       configurable: true,
       value: clientHeight,
@@ -1639,6 +1760,7 @@ function setElementScrollState(options: {
       return;
     }
 
+    element.style.height = `${options.clientHeight}px`;
     Object.defineProperty(element, 'clientHeight', {
       configurable: true,
       value: options.clientHeight,

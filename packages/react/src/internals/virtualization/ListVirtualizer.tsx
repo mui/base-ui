@@ -11,6 +11,7 @@ import {
   useVirtualizer,
   type Row as MuiVirtualizerRow,
   type RowEntry,
+  type RenderContext,
   type Virtualizer,
 } from '@mui/x-virtualizer';
 import type { StateAttributesMapping } from '../getStateAttributesProps';
@@ -81,7 +82,9 @@ const focusProxyStyle: React.CSSProperties = {
   transform: 'translateX(-10000px)',
 };
 
-function ListVirtualRow<RowModel extends MuiVirtualizerRow>(props: ListVirtualRowProps<RowModel>) {
+function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
+  props: ListVirtualRowProps<RowModel>,
+) {
   const {
     apiRef,
     isVirtualFocusRow,
@@ -133,6 +136,43 @@ function ListVirtualRow<RowModel extends MuiVirtualizerRow>(props: ListVirtualRo
   );
 }
 
+const ListVirtualRow = React.memo(ListVirtualRowImpl) as typeof ListVirtualRowImpl;
+
+function getRenderZoneTransform(offsetTop: number, scrollTop: number) {
+  return `translate3d(0, ${offsetTop - scrollTop}px, 0)`;
+}
+
+function getOverscannedRenderContext(
+  renderContext: RenderContext,
+  rowPositions: readonly number[],
+  rowCount: number,
+  overscanPx: number,
+  scrollTop: number,
+  viewportHeight: number,
+) {
+  let firstRowIndex = renderContext.firstRowIndex;
+  let lastRowIndex = renderContext.lastRowIndex;
+  const overscanStart = Math.max(0, scrollTop - overscanPx);
+  const overscanEnd = scrollTop + viewportHeight + overscanPx;
+
+  while (firstRowIndex > 0 && (rowPositions[firstRowIndex] ?? 0) > overscanStart) {
+    firstRowIndex -= 1;
+  }
+
+  while (
+    lastRowIndex < rowCount &&
+    (rowPositions[lastRowIndex] ?? Number.POSITIVE_INFINITY) <= overscanEnd
+  ) {
+    lastRowIndex += 1;
+  }
+
+  return {
+    ...renderContext,
+    firstRowIndex,
+    lastRowIndex,
+  };
+}
+
 const stateAttributesMapping: StateAttributesMapping<ListVirtualizerState> = {
   totalSize: () => null,
 };
@@ -170,6 +210,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   } = componentProps;
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+  const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
+  const renderZoneOffsetTopRef = React.useRef(0);
+  const scrollTopRef = React.useRef(0);
+  // The browser moves a native scrollport before dispatching its scroll event. Keep the existing
+  // rows pinned in a sticky viewport during that interval, then move the render zone once MUI X
+  // has synchronously committed the next row window.
+  const handleScrollChange = useStableCallback((scrollPosition: { top: number }) => {
+    scrollTopRef.current = scrollPosition.top;
+
+    if (renderZoneRef.current) {
+      renderZoneRef.current.style.transform = getRenderZoneTransform(
+        renderZoneOffsetTopRef.current,
+        scrollPosition.top,
+      );
+    }
+  });
   const [virtualizationRevision, bumpVirtualizationRevision] = React.useReducer(
     (value) => value + 1,
     0,
@@ -284,6 +340,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           },
     [rows.length],
   );
+  const rowBufferPx = Math.max(0, overscanPx ?? Math.max(150, defaultEstimatedSize));
+  // MUI X waits for one estimated row of accumulated scrolling before recomputing an unchanged
+  // controlled range. Keep at least that much measured content mounted when an estimate is taller
+  // than the real rows, even when the requested overscan is smaller.
+  const renderBufferPx = Math.max(rowBufferPx, defaultEstimatedSize);
 
   const virtualizer = useVirtualizer({
     layout,
@@ -291,7 +352,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       rowHeight: defaultEstimatedSize,
     },
     virtualization: {
-      rowBufferPx: Math.max(0, overscanPx ?? Math.max(150, defaultEstimatedSize)),
+      // Controlled range calculation avoids MUI X's fixed 15-row directional buffer. Base UI
+      // applies the requested pixel buffer to the returned range below.
+      layoutMode: 'controlled',
+      rowBufferPx,
     },
     initialState: {
       virtualization: {
@@ -307,6 +371,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     getEstimatedRowHeight,
     focusedVirtualCell: getFocusedVirtualCell,
     renderRow,
+    onScrollChange: handleScrollChange,
   });
   muiApiRef.current = virtualizer.api;
 
@@ -320,12 +385,24 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const contentProps = virtualizer.store.use(LayoutList.selectors.contentProps);
   const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
   const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
+  const currentScrollTop = virtualizer.store.state.virtualization.scrollPosition.current.top;
+  const overscannedRenderContext = getOverscannedRenderContext(
+    renderContext,
+    rowsMeta.positions,
+    rows.length,
+    renderBufferPx,
+    currentScrollTop,
+    dimensions.viewportInnerSize.height,
+  );
+  const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
+  renderZoneOffsetTopRef.current = renderZoneOffsetTop;
 
   const resetScroll = useStableCallback(() => {
     scrollElementRef.current?.scrollTo({
       behavior: 'instant' as ScrollBehavior,
       top: 0,
     });
+    handleScrollChange({ top: 0 });
   });
 
   React.useImperativeHandle(apiRefProp, () => ({ resetScroll }), [resetScroll]);
@@ -569,15 +646,21 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     }
   }, [rows, rowsMeta, scrollRowIntoView]);
 
-  const renderedRows = virtualizer.api.getters.getRows();
+  const renderedRows = virtualizer.api.getters.getRows({
+    renderContext: overscannedRenderContext,
+  });
 
   validPinnedRowIndexes.forEach((rowIndex) => {
-    if (rowIndex >= renderContext.firstRowIndex && rowIndex < renderContext.lastRowIndex) {
+    if (
+      rowIndex >= overscannedRenderContext.firstRowIndex &&
+      rowIndex < overscannedRenderContext.lastRowIndex
+    ) {
       return;
     }
     if (
       rowIndex === primaryPinnedRowIndex &&
-      (rowIndex < renderContext.firstRowIndex || rowIndex > renderContext.lastRowIndex)
+      (rowIndex < overscannedRenderContext.firstRowIndex ||
+        rowIndex > overscannedRenderContext.lastRowIndex)
     ) {
       return;
     }
@@ -594,6 +677,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   });
 
   const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
+  const { style: contentStyle, ...restContentProps } = contentProps;
+  const renderedRangeEnd =
+    rowsMeta.positions[overscannedRenderContext.lastRowIndex] ??
+    renderZoneOffsetTop +
+      (overscannedRenderContext.lastRowIndex - overscannedRenderContext.firstRowIndex) *
+        defaultEstimatedSize;
+  const layoutSizerHeight =
+    rows.length === 0 ? 0 : Math.min(totalSize, Math.max(defaultEstimatedSize, renderedRangeEnd));
 
   const state: ListVirtualizerState = {
     empty: rows.length === 0,
@@ -607,7 +698,45 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       ...(totalSizeCssVariable ? { [totalSizeCssVariable]: `${totalSize}px` } : null),
       overflow: 'auto',
     } as React.CSSProperties,
-    children: (
+    // The absolute content establishes the full scroll height without expanding an unconstrained
+    // list. Its sticky viewport keeps the mounted rows covering the visible area while native
+    // scrolling waits for the JavaScript scroll handler.
+    children: enabled ? (
+      <React.Fragment>
+        <div
+          {...restContentProps}
+          style={{
+            ...contentStyle,
+            display: 'block',
+            zIndex: undefined,
+          }}
+        >
+          <div
+            role="presentation"
+            style={{
+              height: dimensions.viewportOuterSize.height,
+              overflow: 'hidden',
+              position: 'sticky',
+              top: 0,
+              width: dimensions.viewportOuterSize.width,
+            }}
+          >
+            <div
+              ref={renderZoneRef}
+              role="presentation"
+              style={{
+                transform: getRenderZoneTransform(renderZoneOffsetTop, scrollTopRef.current),
+              }}
+            >
+              {renderedRows}
+            </div>
+          </div>
+        </div>
+        {/* Preserve intrinsic sizing for max-height-only scrollports without putting the full
+            virtual content height in normal flow. */}
+        <div role="presentation" style={{ height: layoutSizerHeight }} />
+      </React.Fragment>
+    ) : (
       <React.Fragment>
         <div {...contentProps} />
         <div role="presentation" {...positionerProps} />

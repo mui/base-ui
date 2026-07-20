@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import {
   ListVirtualizer,
@@ -80,6 +80,41 @@ describe('<ListVirtualizer />', () => {
       position: 'absolute',
     });
     expect(secondPinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
+  });
+
+  it('does not rerender rows retained between virtual windows', async () => {
+    const renderRowSpy = vi.fn(renderRow);
+
+    await render(
+      <ListVirtualizer
+        estimateSize={20}
+        overscanPx={0}
+        render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
+        renderRow={renderRowSpy}
+        rows={createRows(100)}
+      />,
+    );
+
+    await screen.findByText('Item 2');
+    const initiallyRenderedIndexes = new Set(
+      renderRowSpy.mock.calls.map(([params]) => params.rowIndex),
+    );
+    const initialRenderCount = renderRowSpy.mock.calls.filter(
+      ([params]) => params.rowIndex === 1,
+    ).length;
+
+    const virtualizer = screen.getByTestId('virtualizer');
+    virtualizer.scrollTop = 20;
+    fireEvent.scroll(virtualizer);
+
+    await waitFor(() =>
+      expect(
+        renderRowSpy.mock.calls.some(([params]) => !initiallyRenderedIndexes.has(params.rowIndex)),
+      ).toBe(true),
+    );
+    expect(renderRowSpy.mock.calls.filter(([params]) => params.rowIndex === 1)).toHaveLength(
+      initialRenderCount,
+    );
   });
 
   it.skipIf(isJSDOM)('resolves calculated scroll padding against the scrollport', async () => {
@@ -165,6 +200,7 @@ function setElementClientHeight(clientHeight: number) {
       return;
     }
 
+    element.style.height = `${clientHeight}px`;
     Object.defineProperty(element, 'clientHeight', {
       configurable: true,
       value: clientHeight,
