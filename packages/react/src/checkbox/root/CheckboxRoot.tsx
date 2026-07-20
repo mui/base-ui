@@ -99,11 +99,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const id = useBaseUiId();
 
   const parentId = useBaseUiId();
-  let inputId = controlId;
-  if (isGroupedWithParent && (parent || value !== undefined)) {
-    inputId = parent ? parentId : `${parentContext.id}-${value}`;
-  } else if (idProp) {
-    inputId = idProp;
+  let inputId = idProp ?? controlId;
+  if (isGroupedWithParent) {
+    if (parent) {
+      inputId = parentId;
+    } else if (value !== undefined) {
+      inputId = `${parentContext.id}-${value}`;
+    }
   }
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};

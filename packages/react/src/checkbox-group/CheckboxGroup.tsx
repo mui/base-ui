@@ -57,7 +57,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const defaultValue = defaultValueProp ?? (EMPTY_ARRAY as string[]);
 
-  const [value, setValueUnwrapped] = useControlled<string[]>({
+  const [value = EMPTY_ARRAY as string[], setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
     default: defaultValue,
     name: 'CheckboxGroup',

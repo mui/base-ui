@@ -101,12 +101,35 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
   const registeredInputRefs = React.useRef(new Set<HTMLInputElement>());
   const representativeInputRef = React.useRef<HTMLInputElement | null>(null);
-  const mergedRepresentativeInputRef = useMergedRefs(representativeInputRef, inputRefProp);
+  const forwardRepresentativeInputRef = useStableCallback((input: HTMLInputElement | null) => {
+    if (!inputRefProp) {
+      return () => undefined;
+    }
+
+    if (typeof inputRefProp === 'function') {
+      const cleanup = inputRefProp(input);
+      return typeof cleanup === 'function' ? cleanup : () => void inputRefProp(null);
+    }
+
+    inputRefProp.current = input;
+    return () => {
+      inputRefProp.current = null;
+    };
+  });
+  const mergedRepresentativeInputRef = useMergedRefs(
+    representativeInputRef,
+    forwardRepresentativeInputRef,
+  );
   const previousInputRefProp = React.useRef(inputRefProp);
 
   useIsoLayoutEffect(() => {
-    if (previousInputRefProp.current !== inputRefProp) {
-      previousInputRefProp.current = inputRefProp;
+    const previousInputRef = previousInputRefProp.current;
+    previousInputRefProp.current = inputRefProp;
+
+    if (
+      previousInputRef !== inputRefProp &&
+      !(typeof previousInputRef === 'function' && typeof inputRefProp === 'function')
+    ) {
       void mergedRepresentativeInputRef?.(representativeInputRef.current);
     }
   }, [inputRefProp, mergedRepresentativeInputRef]);
@@ -116,7 +139,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     let nextRepresentativeInput: HTMLInputElement | null = null;
 
     for (const input of registeredInputRefs.current) {
-      if (!input.disabled) {
+      if (!input.matches(':disabled')) {
         firstEnabledInput ??= input;
         if (input.checked) {
           nextRepresentativeInput = input;

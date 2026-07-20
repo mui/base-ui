@@ -416,6 +416,32 @@ describe('<RadioGroup />', () => {
     expect(secondInputRef.current).toBe(inputA);
   });
 
+  it('does not detach an inline inputRef callback on unrelated re-renders', async () => {
+    const inputRefSpy = vi.fn();
+
+    function App() {
+      const [, forceRender] = React.useState(0);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={(input) => inputRefSpy(input)}>
+            <Radio.Root value="a" data-testid="radio-a" />
+          </RadioGroup>
+          <button type="button" onClick={() => forceRender((value) => value + 1)}>
+            Re-render
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const callCountAfterMount = inputRefSpy.mock.calls.length;
+
+    fireEvent.click(screen.getByText('Re-render'));
+
+    expect(inputRefSpy).toHaveBeenCalledTimes(callCountAfterMount);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
@@ -1190,6 +1216,20 @@ describe('<RadioGroup />', () => {
   });
 
   describe('Fieldset', () => {
+    it('does not assign inputRef to a radio disabled by its fieldset', async () => {
+      const groupInputRef = React.createRef<HTMLInputElement>();
+
+      await render(
+        <Fieldset.Root disabled>
+          <RadioGroup inputRef={groupInputRef}>
+            <Radio.Root value="a" />
+          </RadioGroup>
+        </Fieldset.Root>,
+      );
+
+      expect(groupInputRef.current).toBe(null);
+    });
+
     it('labels the radio group from the fieldset legend', async () => {
       await render(
         <Field.Root name="test">
