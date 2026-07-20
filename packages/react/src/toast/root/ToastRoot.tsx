@@ -79,7 +79,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   );
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const hasInitializedRef = React.useRef(false);
+  const hasMountedRef = React.useRef(false);
   const dragStartPosRef = React.useRef({ x: 0, y: 0 });
   const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
   const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
@@ -111,17 +111,25 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   // Recalculates the natural height of the toast and updates it in the toast manager.
   // `flushSync` avoids visual flickers when called from observer callbacks.
+  // The store ignores this write while the toast is transitioning out.
   const recalculateHeight = useStableCallback((flushSync: boolean = false) => {
     const element = rootRef.current;
     if (!element) {
       return;
     }
 
-    const height = measureHeight(element);
+    const previousHeight = element.style.height;
+    element.style.height = 'auto';
+
+    const height = element.offsetHeight;
+
+    element.style.height = previousHeight;
 
     function update() {
       store.updateToastInternal(toast.id, {
+        ref: rootRef,
         height,
+        transitionStatus: undefined,
       });
     }
 
@@ -132,24 +140,20 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   });
 
-  // Initialize newly mounted roots, and reinitialize a retained root when its toast is revived.
+  // Initialize the toast on mount, and reinitialize when it begins a new lifecycle:
+  // re-adding an ending toast retains the same root instance (`key={toast.id}`), and
+  // index-keyed lists can hand an existing instance a different toast.
   useIsoLayoutEffect(() => {
-    if (hasInitializedRef.current && toast.transitionStatus !== 'starting') {
-      return;
+    if (hasMountedRef.current && toast.transitionStatus === 'starting') {
+      // A retained root keeps component-local swipe state from its previous lifecycle;
+      // clear it so a revived toast doesn't stay offset or exit in the swiped direction.
+      setCurrentSwipeDirection(undefined);
+      setInitialTransform({ x: 0, y: 0, scale: 1 });
+      setResolvedDragOffset({ x: 0, y: 0 });
     }
-
-    const element = rootRef.current;
-    if (!element) {
-      return;
-    }
-
-    hasInitializedRef.current = true;
-    store.updateToastInternal(toast.id, {
-      ref: rootRef,
-      height: measureHeight(element),
-      transitionStatus: undefined,
-    });
-  }, [store, toast.id, toast.transitionStatus]);
+    hasMountedRef.current = true;
+    recalculateHeight();
+  }, [recalculateHeight, toast.id, toast.transitionStatus]);
 
   function setResolvedDragOffset(nextDragOffset: { x: number; y: number }) {
     dragOffsetRef.current = nextDragOffset;
@@ -551,14 +555,4 @@ export namespace ToastRoot {
   export type ToastObject<Data extends object = any> = ToastRootToastObject<Data>;
   export type State = ToastRootState;
   export type Props = ToastRootProps;
-}
-
-function measureHeight(element: HTMLElement) {
-  const previousHeight = element.style.height;
-  element.style.height = 'auto';
-
-  const height = element.offsetHeight;
-
-  element.style.height = previousHeight;
-  return height;
 }

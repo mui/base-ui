@@ -69,9 +69,10 @@ describe('ToastStore', () => {
     store.closeToast('a');
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
 
-    // Mirrors the height update a content observer makes. The ending toast must
-    // stay ending so `useOpenChangeComplete` still removes it.
-    store.updateToastInternal('a', { height: 80 });
+    // Mirrors the write `recalculateHeight` makes when a content observer fires:
+    // it always includes `transitionStatus: undefined`. The ending toast must stay
+    // ending so `useOpenChangeComplete` still removes it.
+    store.updateToastInternal('a', { height: 80, transitionStatus: undefined });
 
     const toast = selectors.toast(store.state, 'a');
     expect(toast?.transitionStatus).toBe('ending');

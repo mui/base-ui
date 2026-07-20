@@ -372,6 +372,238 @@ describe('<Toast.Root />', () => {
     expect(remountedRoot).toHaveFocus();
   });
 
+  it.skipIf(isJSDOM)(
+    'keeps stacking intact when re-adding an ending toast among other toasts',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, close, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="toast-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="toast-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ id: 't1', title: 'One', timeout: 0 })}>
+              add-1
+            </button>
+            <button type="button" onClick={() => add({ id: 't2', title: 'Two', timeout: 0 })}>
+              add-2
+            </button>
+            <button type="button" onClick={() => close('t1')}>
+              close-1
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem) => (
+                <Toast.Root
+                  key={toastItem.id}
+                  toast={toastItem}
+                  data-testid={`toast-${toastItem.id}`}
+                >
+                  <Toast.Content data-testid={`content-${toastItem.id}`}>
+                    <Toast.Title />
+                  </Toast.Content>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'add-1' }));
+        await user.click(screen.getByRole('button', { name: 'add-2' }));
+        await user.click(screen.getByRole('button', { name: 'close-1' }));
+
+        const toast1 = screen.getByTestId('toast-t1');
+        expect(toast1).toHaveAttribute('data-ending-style');
+
+        await user.click(screen.getByRole('button', { name: 'add-1' }));
+
+        await waitFor(() => {
+          expect(toast1).not.toHaveAttribute('data-starting-style');
+        });
+        await waitFor(() => {
+          expect(toast1.style.getPropertyValue('--toast-height')).not.toBe('');
+        });
+
+        // The revived toast is frontmost and its content is not hidden as "behind".
+        expect(toast1.style.getPropertyValue('--toast-index')).toBe('0');
+        expect(screen.getByTestId('content-t1')).not.toHaveAttribute('data-behind');
+
+        // The unrelated toast is unaffected and stacks behind the revived one.
+        const toast2 = screen.getByTestId('toast-t2');
+        expect(toast2).not.toHaveAttribute('data-ending-style');
+        expect(toast2.style.getPropertyValue('--toast-index')).toBe('1');
+        expect(screen.getByTestId('content-t2')).toHaveAttribute('data-behind');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('clears swipe state when re-adding a swipe-dismissed toast', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    function App() {
+      const { add, toasts } = Toast.useToastManager();
+
+      return (
+        <React.Fragment>
+          <style>
+            {`
+            [data-testid="toast-root"] {
+              opacity: 1;
+              transition: opacity 10s;
+            }
+
+            [data-testid="toast-root"][data-ending-style] {
+              opacity: 0;
+            }
+          `}
+          </style>
+          <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+            add
+          </button>
+          <Toast.Viewport>
+            {toasts.map((toastItem) => (
+              <Toast.Root
+                key={toastItem.id}
+                toast={toastItem}
+                data-testid="toast-root"
+                swipeDirection="right"
+              >
+                <Toast.Title />
+              </Toast.Root>
+            ))}
+          </Toast.Viewport>
+        </React.Fragment>
+      );
+    }
+
+    try {
+      const { user } = await render(
+        <Toast.Provider>
+          <App />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+      const toastRoot = screen.getByTestId('toast-root');
+      Object.defineProperty(toastRoot, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastRoot, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+
+      simulateSwipe(toastRoot, 100, 100, 160, 100);
+
+      expect(toastRoot).toHaveAttribute('data-ending-style');
+      expect(toastRoot).toHaveAttribute('data-swipe-direction', 'right');
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('toast-root')).toBe(toastRoot);
+
+      await waitFor(() => {
+        expect(toastRoot).not.toHaveAttribute('data-starting-style');
+      });
+      await waitFor(() => {
+        expect(toastRoot).not.toHaveAttribute('data-swipe-direction');
+      });
+      expect(toastRoot.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastRoot.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'moves focus to the next toast when closing in an index-keyed list',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="root-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="root-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem, index) => (
+                <Toast.Root key={index} toast={toastItem} data-testid={`root-${index}`}>
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        // With index keys, each add shifts every retained root to a different toast,
+        // so the store refs must be re-registered per toast id.
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        await user.click(screen.getByRole('button', { name: 'add' }));
+
+        await user.keyboard('{F6}');
+        await user.keyboard('{Tab}');
+        expect(screen.getByTestId('root-0')).toHaveFocus();
+
+        await user.keyboard('{Escape}');
+
+        // Focus hands off to the next active toast, not the one animating out.
+        await waitFor(() => {
+          expect(screen.getByTestId('root-1')).toHaveFocus();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
   // requires :focus-visible check
   it.skipIf(isJSDOM)('closes when pressing escape', async () => {
     const { user } = await render(
