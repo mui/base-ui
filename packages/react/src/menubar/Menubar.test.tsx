@@ -20,6 +20,70 @@ describe('<Menubar />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('ignores a delayed touch click immediately after focus opens another menu', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    const editTrigger = screen.getByTestId('edit-trigger');
+    await act(async () => {
+      editTrigger.focus();
+    });
+    await screen.findByTestId('edit-menu');
+
+    fireEvent(
+      editTrigger,
+      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+    );
+    expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+
+    await wait(310);
+    fireEvent(
+      editTrigger,
+      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
+  it('keeps focus on an outside target when a triggerless menubar menu closes', async () => {
+    function TestComponent() {
+      const [open, setOpen] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <button data-testid="outside" type="button">
+            Outside
+          </button>
+          <Menubar>
+            <Menu.Root open={open} onOpenChange={setOpen}>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="triggerless-menu">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const outside = screen.getByTestId('outside');
+
+    await user.click(outside);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('triggerless-menu')).not.toHaveAttribute('data-open');
+    });
+    expect(outside).toHaveFocus();
+  });
+
   // All these tests run for contained, detached and multiple contained triggers.
   // The rendered menubar has the same structure in most cases.
   describe.for([

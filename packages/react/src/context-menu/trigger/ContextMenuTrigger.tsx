@@ -126,15 +126,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     if (event.touches.length === 1) {
       event.stopPropagation();
       const touch = event.touches[0];
-      touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
+      const touchPosition = { x: touch.clientX, y: touch.clientY };
+      touchPositionRef.current = touchPosition;
       longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        if (touchPositionRef.current) {
-          handleLongPress(
-            touchPositionRef.current.x,
-            touchPositionRef.current.y,
-            event.nativeEvent,
-          );
-        }
+        handleLongPress(touchPosition.x, touchPosition.y, event.nativeEvent);
       });
     }
   }
@@ -175,7 +170,6 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (
-        contains(triggerRef.current, targetElement) ||
         contains(internalBackdropRef.current, targetElement) ||
         contains(backdropRef.current, targetElement)
       ) {

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -75,7 +76,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   function handleClick(event: React.MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose() {},
+      preventUnmountOnClose: NOOP,
     });
 
     setSelectedValue(value, details);

@@ -21,6 +21,12 @@ describe('<Menu.Item />', () => {
     },
   }));
 
+  it('throws when rendered outside Menu.Root', async () => {
+    await expect(render(<Menu.Item />)).rejects.toThrow(
+      'Base UI: MenuRootContext is missing. Menu parts must be placed within <Menu.Root>.',
+    );
+  });
+
   it('calls the onClick handler when clicked', async () => {
     const onClick = vi.fn();
     const { user } = await render(

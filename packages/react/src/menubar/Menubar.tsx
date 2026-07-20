@@ -97,7 +97,7 @@ export const Menubar = React.forwardRef(function Menubar(
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
   const { events: menuEvents } = useFloatingTree()!;
-  const rootContext = useMenubarContext();
+  const rootContext = useMenubarContext()!;
 
   React.useEffect(() => {
     function onSubmenuOpenChange(details: MenuOpenEventDetails) {

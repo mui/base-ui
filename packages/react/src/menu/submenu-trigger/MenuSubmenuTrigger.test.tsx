@@ -1,13 +1,29 @@
-import { vi, expect } from 'vitest';
-import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { afterEach, beforeEach, vi, expect } from 'vitest';
+import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { SafeReact } from '@base-ui/utils/safeReact';
 
 type TextDirection = 'ltr' | 'rtl';
 
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  async function waitForAnimationFrame() {
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve());
+        }),
+    );
+  }
+
+  afterEach(waitForAnimationFrame);
 
   describeConformance(<Menu.SubmenuTrigger />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -26,6 +42,12 @@ describe('<Menu.SubmenuTrigger />', () => {
       );
     },
   }));
+
+  it('throws when rendered outside Menu.SubmenuRoot', async () => {
+    await expect(render(<Menu.SubmenuTrigger />)).rejects.toThrow(
+      'Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.',
+    );
+  });
 
   function TestComponent({ direction = 'ltr' }: { direction: TextDirection }) {
     return (
@@ -209,6 +231,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         .spyOn(console, 'warn')
         .mockName('console.warn')
         .mockImplementation(() => {});
+      vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(undefined as never);
 
       await render(
         <Menu.Root open>
@@ -237,6 +260,38 @@ describe('<Menu.SubmenuTrigger />', () => {
           'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
         ),
       );
+      expect(warnSpy.mock.lastCall?.[0]).not.toContain('undefined');
+    });
+
+    it.skipIf(!isJSDOM)('does not inspect rendered disabled elements in production', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalNodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      try {
+        await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger
+                      nativeButton
+                      render={<button type="button" disabled={true} />}
+                    >
+                      Open submenu
+                    </Menu.SubmenuTrigger>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        expect(warnSpy).not.toHaveBeenCalled();
+      } finally {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
     });
   });
 });

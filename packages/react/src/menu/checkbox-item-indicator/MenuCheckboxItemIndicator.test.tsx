@@ -28,6 +28,12 @@ describe('<Menu.CheckboxItemIndicator />', () => {
     },
   }));
 
+  it('throws when rendered outside Menu.CheckboxItem', async () => {
+    await expect(render(<Menu.CheckboxItemIndicator />)).rejects.toThrow(
+      'Base UI: MenuCheckboxItemContext is missing. MenuCheckboxItem parts must be placed within <Menu.CheckboxItem>.',
+    );
+  });
+
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
     async () => {

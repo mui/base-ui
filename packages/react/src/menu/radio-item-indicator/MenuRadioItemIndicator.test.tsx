@@ -26,6 +26,12 @@ describe('<Menu.RadioItemIndicator />', () => {
     },
   }));
 
+  it('throws when rendered outside Menu.RadioItem', async () => {
+    await expect(render(<Menu.RadioItemIndicator />)).rejects.toThrow(
+      'Base UI: MenuRadioItemContext is missing. MenuRadioItem parts must be placed within <Menu.RadioItem>.',
+    );
+  });
+
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
     async () => {

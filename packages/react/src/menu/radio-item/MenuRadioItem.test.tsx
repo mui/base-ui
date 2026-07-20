@@ -33,6 +33,18 @@ describe('<Menu.RadioItem />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('throws when rendered outside Menu.RadioGroup', async () => {
+    await expect(
+      render(
+        <Menu.Root open>
+          <Menu.RadioItem value="one" />
+        </Menu.Root>,
+      ),
+    ).rejects.toThrow(
+      'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+    );
+  });
+
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();
