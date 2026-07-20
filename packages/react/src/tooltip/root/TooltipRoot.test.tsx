@@ -2512,6 +2512,55 @@ describe('nested tooltips', () => {
     }
   });
 
+  it.each([
+    {
+      name: 'starts with a ShadowRoot',
+      getPath(innerTrigger: HTMLElement, outerTrigger: HTMLElement) {
+        const shadowRoot = document.createElement('div').attachShadow({ mode: 'open' });
+        return [shadowRoot, innerTrigger, outerTrigger, document.body, document, window];
+      },
+    },
+    {
+      name: 'is empty',
+      getPath() {
+        return [];
+      },
+    },
+  ])('handles a composed path that $name', async ({ getPath }) => {
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
+          Outer
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="inner-trigger">Inner</Tooltip.Trigger>
+          </Tooltip.Root>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="outer-popup">Outer tooltip</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const outerTrigger = screen.getByTestId('outer-trigger');
+    const innerTrigger = screen.getByTestId('inner-trigger');
+
+    fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse' });
+    fireEvent.mouseEnter(outerTrigger);
+
+    const mouseOverEvent = new MouseEvent('mouseover', { bubbles: true, composed: true });
+    Object.defineProperty(mouseOverEvent, 'composedPath', {
+      value: () => getPath(innerTrigger, outerTrigger),
+    });
+    innerTrigger.dispatchEvent(mouseOverEvent);
+
+    clock.tick(OPEN_DELAY);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+  });
+
   it('should open the outer tooltip when hovering over the non-nested area', async () => {
     await render(
       <Tooltip.Root>
