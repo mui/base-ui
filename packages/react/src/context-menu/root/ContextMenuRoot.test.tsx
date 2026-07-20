@@ -99,6 +99,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('does not activate a submenu trigger when releasing the context menu pointer over it', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const submenuOnOpenChange = vi.fn();
 
       await render(
