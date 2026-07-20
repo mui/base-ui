@@ -26,6 +26,16 @@ export function resolveThumbCollision(
 ): ResolveThumbCollisionResult {
   const activeValues = currentValues ?? values;
   const baselineValues = initialValues ?? values;
+  const range = activeValues.length > 1;
+
+  if (!range) {
+    return {
+      value: nextValue,
+      thumbIndex: 0,
+      didSwap: false,
+    };
+  }
+
   const minValueDifference = step * minStepsBetweenValues;
 
   // `push` does its own copy/bounds/rounding pass in `getPushedThumbValues`, so it must not
@@ -78,9 +88,18 @@ export function resolveThumbCollision(
 
       const targetIndex = shouldSwapForward ? pressedIndex + 1 : pressedIndex - 1;
 
-      // Keep live entries added during the interaction while restoring the original baseline.
-      const initialValuesForPush = Object.assign(activeValues.slice(), baselineValues);
-      initialValuesForPush[pressedIndex] = pressedValueAfterClamp;
+      const initialValuesForPush = candidateValues.map((_, index) => {
+        if (index === pressedIndex) {
+          return pressedValueAfterClamp;
+        }
+
+        const baseline = baselineValues[index];
+        if (baseline != null) {
+          return baseline;
+        }
+
+        return activeValues[index];
+      });
 
       let nextValueForTarget = nextValue;
       if (shouldSwapForward) {

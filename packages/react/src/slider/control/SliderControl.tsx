@@ -27,9 +27,16 @@ import { resolveThumbCollision } from '../utils/resolveThumbCollision';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
-function getControlOffset(styles: CSSStyleDeclaration, vertical: boolean) {
-  function parseSize(value: string) {
-    const parsed = parseFloat(value);
+function getControlOffset(styles: CSSStyleDeclaration | null, vertical: boolean) {
+  if (!styles) {
+    return {
+      start: 0,
+      end: 0,
+    };
+  }
+
+  function parseSize(value: string | null | undefined) {
+    const parsed = value != null ? parseFloat(value) : 0;
     return Number.isNaN(parsed) ? 0 : parsed;
   }
 
@@ -171,8 +178,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     const { width, height, bottom, left, right } = control.getBoundingClientRect();
 
-    // All refs on the control are assigned in the same commit, before an interaction can begin.
-    const controlOffset = getControlOffset(stylesRef.current!, vertical);
+    const controlOffset = getControlOffset(stylesRef.current, vertical);
     const insetThumbOffset = insetThumbOffsetRef.current;
     const controlSize =
       (vertical ? height : width) - controlOffset.start - controlOffset.end - insetThumbOffset * 2;

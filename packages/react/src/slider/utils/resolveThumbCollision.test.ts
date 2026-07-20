@@ -215,4 +215,14 @@ describe('resolveThumbCollision', () => {
       didSwap: true,
     });
   });
+
+  it('returns a scalar when the live values shrink to one item during an interaction', () => {
+    const result = resolveThumbCollision('push', [20, 40], [20], [20, 40], 0, 30, 0, 100, 1, 0);
+
+    expect(result).toEqual({
+      value: 30,
+      thumbIndex: 0,
+      didSwap: false,
+    });
+  });
 });

@@ -372,12 +372,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           event.stopPropagation();
         }
 
-        const roundedValue = roundValueToStep(thumbValue, step, min);
-        let newValue = roundedValue;
+        let newValue = null;
         let direction = 0;
         let increment = event.shiftKey ? largeStep : step;
-        // ALL_KEYS is exhaustive for this switch.
-        // eslint-disable-next-line default-case
+        const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
             direction = 1;
@@ -411,27 +409,31 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
             break;
+          default:
+            break;
         }
 
         if (direction !== 0) {
           newValue = getNewValue(roundedValue, increment, direction, min, max);
         }
 
-        const input = event.currentTarget as HTMLInputElement;
+        if (newValue !== null) {
+          const input = event.currentTarget as HTMLInputElement;
 
-        if (!matchesFocusVisible(input)) {
-          restoringFocusVisibleRef.current = true;
-          input.blur();
-          input.focus({
-            preventScroll: true,
-            // Show `:focus-visible` after keyboard interaction, even if the
-            // thumb was previously focused by a pointer.
-            focusVisible: true,
-          });
+          if (!matchesFocusVisible(input)) {
+            restoringFocusVisibleRef.current = true;
+            input.blur();
+            input.focus({
+              preventScroll: true,
+              // Show `:focus-visible` after keyboard interaction, even if the
+              // thumb was previously focused by a pointer.
+              focusVisible: true,
+            });
+          }
+
+          handleInputChange(newValue, index, event);
+          event.preventDefault();
         }
-
-        handleInputChange(newValue, index, event);
-        event.preventDefault();
       },
       step,
       style: {
