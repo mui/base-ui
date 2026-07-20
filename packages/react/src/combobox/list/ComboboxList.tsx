@@ -52,13 +52,35 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
+  // Also supports static siblings (such as <Combobox.SelectAll />) before the
+  // collection render function.
   // Ensures this component's `popupProps` subscription does not cause <Combobox.Item>
   // to re-render on every active index change.
   const resolvedChildren = React.useMemo(() => {
+    if (children == null) {
+      return children;
+    }
+
     if (typeof children === 'function') {
       return <ComboboxCollection>{children}</ComboboxCollection>;
     }
-    return children;
+
+    const childArray = Array.isArray(children) ? children : React.Children.toArray(children);
+    const renderFns = childArray.filter((child) => typeof child === 'function');
+    const elements = childArray.filter((child) => typeof child !== 'function');
+
+    if (renderFns.length === 0) {
+      return children;
+    }
+
+    const renderFn = renderFns[0] as (item: any, index: number) => React.ReactNode;
+
+    return (
+      <React.Fragment>
+        {elements}
+        <ComboboxCollection>{renderFn}</ComboboxCollection>
+      </React.Fragment>
+    );
   }, [children]);
 
   const state: ComboboxListState = {

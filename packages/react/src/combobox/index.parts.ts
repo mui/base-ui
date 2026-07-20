@@ -23,6 +23,11 @@ export { ComboboxRow as Row } from './row/ComboboxRow';
 export { ComboboxCollection as Collection } from './collection/ComboboxCollection';
 export { ComboboxEmpty as Empty } from './empty/ComboboxEmpty';
 export { ComboboxClear as Clear } from './clear/ComboboxClear';
+export { ComboboxSelectAll as SelectAll } from './select-all/ComboboxSelectAll';
+export {
+  isComboboxSelectAllValue,
+  prependSelectAllFilteredItems,
+} from './select-all/selectAllValue';
 
 export { Separator } from '../separator';
 
