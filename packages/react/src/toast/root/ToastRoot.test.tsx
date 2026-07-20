@@ -540,6 +540,90 @@ describe('<Toast.Root />', () => {
   });
 
   it.skipIf(isJSDOM)(
+    'clears swipe state when a retained root is reused for another toast',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="root-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="root-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem, index) => (
+                <Toast.Root
+                  key={index}
+                  toast={toastItem}
+                  data-testid={`root-${index}`}
+                  swipeDirection="right"
+                >
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        const addButton = screen.getByRole('button', { name: 'add' });
+        await user.click(addButton);
+        await user.click(addButton);
+        await user.click(addButton);
+
+        const swipedRoot = screen.getByTestId('root-1');
+        Object.defineProperty(swipedRoot, 'setPointerCapture', {
+          configurable: true,
+          value: () => {},
+        });
+        Object.defineProperty(swipedRoot, 'releasePointerCapture', {
+          configurable: true,
+          value: () => {},
+        });
+
+        simulateSwipe(swipedRoot, 100, 100, 160, 100);
+        expect(swipedRoot).toHaveAttribute('data-swipe-direction', 'right');
+
+        // Index keys shift every retained root onto a different toast, so this root now
+        // renders a toast that was never swiped.
+        await user.click(addButton);
+        expect(screen.getByTestId('root-1')).toBe(swipedRoot);
+
+        await waitFor(() => {
+          expect(swipedRoot).not.toHaveAttribute('data-swipe-direction');
+        });
+        expect(swipedRoot).not.toHaveAttribute('data-ending-style');
+        expect(swipedRoot.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+        expect(swipedRoot.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'moves focus to the next toast when closing in an index-keyed list',
     async () => {
       const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;

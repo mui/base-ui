@@ -151,9 +151,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    if (previousToastId !== undefined && toast.transitionStatus === 'starting') {
+    if (previousToastId !== undefined) {
       // A retained root keeps component-local swipe state from its previous lifecycle;
-      // clear it so a revived toast doesn't stay offset or exit in the swiped direction.
+      // clear it so the toast doesn't stay offset or exit in the swiped direction.
       setCurrentSwipeDirection(undefined);
       setInitialTransform({ x: 0, y: 0, scale: 1 });
       setResolvedDragOffset({ x: 0, y: 0 });
