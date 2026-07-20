@@ -18,34 +18,16 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
-import { contains } from '../../floating-ui-react/utils/element';
+import { contains, getTarget } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
 
 import { OPEN_DELAY } from '../utils/constants';
 
 const TOOLTIP_TRIGGER_IDENTIFIER = 'data-base-ui-tooltip-trigger';
-
-function getTargetElement(event: Event): Element | null {
-  if ('composedPath' in event) {
-    const path = event.composedPath();
-    for (let i = 0; i < path.length; i += 1) {
-      const element = path[i];
-      if (isElement(element)) {
-        return element;
-      }
-    }
-  }
-
-  const target = event.target;
-  if (isElement(target)) {
-    return target;
-  }
-
-  return null;
-}
 
 function closestEnabledTooltipTrigger(element: Element | null): Element | null {
   let current = element;
@@ -139,20 +121,13 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (!hasProvider) {
       return delayWithDefault;
     }
-    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-    return groupOpenValue === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
+    return getDelay(delayRef.current, 'open') === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {
     const triggerEl = triggerElementRef.current;
-    if (!triggerEl || !target) {
-      return false;
-    }
-
     const nearestTrigger = closestEnabledTooltipTrigger(target);
-    return (
-      nearestTrigger !== null && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)
-    );
+    return nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger);
   }
 
   function detectNestedTriggerHover(target: Element | null) {
@@ -176,9 +151,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     restMs: getOpenDelay,
     delay() {
       if (closeDelay == null && hasProvider) {
-        return {
-          close: typeof delayRef.current === 'object' ? delayRef.current.close : undefined,
-        };
+        return { close: getDelay(delayRef.current, 'close') };
       }
       return { close: closeDelayWithDefault };
     },
@@ -194,7 +167,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const handleNestedTriggerHover = (event: MouseEvent) => {
     const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;
-    const target = getTargetElement(event);
+    const target = getTarget(event) as Element | null;
     const nestedTriggerHovered = detectNestedTriggerHover(target);
     const triggerEl = triggerElementRef.current as HTMLElement | null;
     const targetInsideTrigger = triggerEl && target && contains(triggerEl, target);
@@ -257,7 +230,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           handleNestedTriggerHover(event.nativeEvent);
         },
         onFocus(event: React.FocusEvent) {
-          if (isEnabledNestedTriggerTarget(getTargetElement(event.nativeEvent))) {
+          if (isEnabledNestedTriggerTarget(getTarget(event.nativeEvent) as Element | null)) {
             (event as BaseUIEvent<React.FocusEvent<Element>>).preventBaseUIHandler();
           }
         },
