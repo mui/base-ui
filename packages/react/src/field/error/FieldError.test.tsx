@@ -211,6 +211,40 @@ describe('<Field.Error />', () => {
       expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
+    it('renders client validation error arrays as a list', async () => {
+      await render(
+        <Form>
+          <Field.Root validate={() => ['First error', 'Second error']}>
+            <Field.Control />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('submit'));
+
+      const list = screen.getByTestId('default-error').querySelector('ul');
+      expect(list).not.toBe(null);
+      expect(list?.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('First error')).not.toBe(null);
+      expect(screen.getByText('Second error')).not.toBe(null);
+    });
+
+    it('does not register an empty error id', async () => {
+      await render(
+        <Field.Root invalid>
+          <Field.Control aria-describedby="external-description" />
+          <Field.Error id="">Message</Field.Error>
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute(
+        'aria-describedby',
+        'external-description',
+      );
+    });
+
     it('ignores empty Form error arrays', async () => {
       await render(
         <Form errors={{ username: [] }}>
