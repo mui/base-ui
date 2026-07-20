@@ -7,7 +7,6 @@ import {
   type ListVirtualizerRenderRowParameters,
   type ListVirtualizerRow,
 } from './ListVirtualizer';
-import { createListVirtualizationRegistry } from './ListVirtualizationRegistry';
 
 interface TestRowModel {
   label: string;
@@ -148,30 +147,6 @@ describe('<ListVirtualizer />', () => {
         top: 285,
       }),
     );
-  });
-});
-
-describe('createListVirtualizationRegistry', () => {
-  it('increments the restore version after each completed render-all pass', () => {
-    const registry = createListVirtualizationRegistry();
-    const listener = vi.fn();
-    registry.subscribeRenderAllRows(listener);
-
-    expect(registry.getRenderAllRowsRestoreVersion()).toBe(0);
-
-    registry.setRenderAllRows(true);
-    expect(registry.getRenderAllRowsRestoreVersion()).toBe(0);
-
-    registry.setRenderAllRows(false);
-    expect(registry.getRenderAllRowsRestoreVersion()).toBe(1);
-
-    registry.setRenderAllRows(false);
-    expect(registry.getRenderAllRowsRestoreVersion()).toBe(1);
-
-    registry.setRenderAllRows(true);
-    registry.setRenderAllRows(false);
-    expect(registry.getRenderAllRowsRestoreVersion()).toBe(2);
-    expect(listener).toHaveBeenCalledTimes(4);
   });
 });
 

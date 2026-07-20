@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -143,24 +142,15 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
   const grid = useStore(store, selectors.grid);
   const highlightType = useStore(store, selectors.highlightType);
+  const virtualizationState = useStore(store, selectors.virtualizationState);
   const insideList = useVirtualizationListContext();
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
-  // labels for browser autofill). The registry coordinates that mode across generic list
-  // virtualizers without relying on an imperative handle that may not be registered yet.
-  const renderAllRows = useSyncExternalStore(
-    store.state.virtualizationRegistry.subscribeRenderAllRows,
-    store.state.virtualizationRegistry.getRenderAllRows,
-    store.state.virtualizationRegistry.getRenderAllRows,
-  );
-  const renderAllRowsRestoreVersion = useSyncExternalStore(
-    store.state.virtualizationRegistry.subscribeRenderAllRows,
-    store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
-    store.state.virtualizationRegistry.getRenderAllRowsRestoreVersion,
-  );
-  const virtualizationEnabled = enabled && !renderAllRows;
+  // labels for browser autofill). Keep that mode reactive even if it begins before the virtualizer
+  // has registered its imperative handle.
+  const virtualizationEnabled = enabled && !virtualizationState.renderAllRows;
 
   const getEstimatedItemHeight = React.useCallback(
     (item: Value, index: number) => {
@@ -313,7 +303,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
       pinnedRowIndexes={pinnedRowIndexes}
       ref={forwardedRef}
       renderRow={renderRow}
-      restoreViewportVersion={renderAllRowsRestoreVersion}
+      restoreViewportVersion={virtualizationState.renderAllRowsRestoreVersion}
       rows={rows}
       scrollToRowIndex={scrollToRowIndex}
       totalSizeCssVariable={ComboboxVirtualizerCssVars.totalSize}

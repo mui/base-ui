@@ -8,6 +8,11 @@ import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
+export type VirtualizationState = {
+  renderAllRows: boolean;
+  renderAllRowsRestoreVersion: number;
+};
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
@@ -81,6 +86,7 @@ export type State = {
   required: boolean;
   grid: boolean;
   externallyVirtualized: boolean;
+  virtualizationState: VirtualizationState;
   virtualizationRegistry: ListVirtualizationRegistry;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
@@ -94,6 +100,25 @@ export type State = {
 };
 
 export type ComboboxStore = Store<State>;
+
+type VirtualizationStore = {
+  state: { virtualizationState: VirtualizationState };
+  set: (key: 'virtualizationState', value: VirtualizationState) => void;
+};
+
+export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
+  const virtualizationState = store.state.virtualizationState;
+
+  if (virtualizationState.renderAllRows === renderAllRows) {
+    return;
+  }
+
+  store.set('virtualizationState', {
+    renderAllRows,
+    renderAllRowsRestoreVersion:
+      virtualizationState.renderAllRowsRestoreVersion + (renderAllRows ? 0 : 1),
+  });
+}
 
 export const selectors = {
   id: (state: State) => state.id,
@@ -173,6 +198,7 @@ export const selectors = {
   required: (state: State) => state.required,
   grid: (state: State) => state.grid,
   externallyVirtualized: (state: State) => state.externallyVirtualized,
+  virtualizationState: (state: State) => state.virtualizationState,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
