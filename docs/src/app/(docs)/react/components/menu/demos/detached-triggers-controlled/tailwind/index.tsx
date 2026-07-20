@@ -87,7 +87,7 @@ export default function MenuDetachedTriggersControlledDemo() {
       >
         {({ payload }) => (
           <Menu.Portal>
-            <Menu.Positioner sideOffset={8} className="outline-hidden">
+            <Menu.Positioner sideOffset={8} align="start" className="outline-hidden">
               <Menu.Popup className={popupClass}>
                 {payload &&
                   MENUS[payload].map((item, index) => (

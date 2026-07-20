@@ -17,7 +17,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
 
       <Menu.Root handle={demoMenu}>
         <Menu.Portal>
-          <Menu.Positioner sideOffset={8} className="outline-hidden">
+          <Menu.Positioner sideOffset={8} align="start" className="outline-hidden">
             <Menu.Popup className={popupClass}>
               <Menu.Item className={itemClass}>Rename</Menu.Item>
               <Menu.Item className={itemClass}>Duplicate</Menu.Item>
