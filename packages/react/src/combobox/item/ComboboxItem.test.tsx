@@ -515,10 +515,10 @@ describe('<Combobox.Item />', () => {
       expect(screen.getByTestId('refresh-list-ref')).toHaveTextContent('||three|four|');
     });
 
-    it('uses an unregistered index for an item missing from the filtered values', async () => {
-      await render(
+    it('does not register an item missing from the filtered values', async () => {
+      const { user } = await render(
         <Combobox.Root virtualized items={['one']} defaultOpen>
-          <Combobox.Input />
+          <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
@@ -531,7 +531,14 @@ describe('<Combobox.Item />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('option', { name: 'missing value' }).id).toMatch(/--1$/);
+      const input = screen.getByTestId('input');
+      const item = screen.getByRole('option', { name: 'missing value' });
+
+      await user.hover(item);
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(item).not.toHaveAttribute('data-highlighted');
+      expect(item).not.toHaveAttribute('id');
     });
   });
 
