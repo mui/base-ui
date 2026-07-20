@@ -4,7 +4,8 @@ import type { ToastObject } from './useToastManager';
 
 function createStore(toasts: ToastObject<any>[]) {
   return new ToastStore({
-    toasts,
+    // Mirrors `addToast`, which always stamps an `updateKey` on the way in.
+    toasts: toasts.map((toast) => ({ updateKey: 0, ...toast })),
     timeout: 0,
     limit: 3,
     hovering: false,
@@ -80,6 +81,30 @@ describe('ToastStore', () => {
 
     store.removeToast('a', true);
     expect(selectors.toast(store.state, 'a')).toBe(undefined);
+  });
+
+  it('ignores mutations that target an unknown toast', () => {
+    const store = createStore([{ id: 'a' }]);
+    const toastsBefore = store.state.toasts;
+
+    store.removeToast('missing');
+    store.closeToast('missing');
+    store.updateToast('missing', { title: 'nope' });
+
+    expect(store.state.toasts).toBe(toastsBefore);
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe(undefined);
+  });
+
+  it('does not invoke onRemove for a toast that is no longer in the store', () => {
+    const onRemove = vi.fn();
+    const store = createStore([{ id: 'a', onRemove }]);
+
+    store.removeToast('a');
+    expect(onRemove).toHaveBeenCalledTimes(1);
+
+    // Removing again must be a no-op rather than firing the callback a second time.
+    store.removeToast('a');
+    expect(onRemove).toHaveBeenCalledTimes(1);
   });
 
   describe('limit', () => {
@@ -176,6 +201,69 @@ describe('ToastStore', () => {
       vi.advanceTimersByTime(200);
 
       expect(selectors.toast(store.state, 'c')?.transitionStatus).not.toBe('ending');
+    });
+
+    it('keeps a rescheduled timer paused while expanded, and runs it once collapsed', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 100 });
+
+      // Hovering the viewport pauses the running timer.
+      store.set('hovering', true);
+      store.pauseTimers();
+
+      // Passing `timeout` reschedules the timer. The replacement must not start
+      // running while the viewport is still expanded.
+      store.updateToast('a', { timeout: 100 });
+
+      vi.advanceTimersByTime(200);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
+
+      // Collapsing must still be able to start the rescheduled timer.
+      store.set('hovering', false);
+      store.resumeTimers();
+
+      vi.advanceTimersByTime(100);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    });
+
+    it('does not extend the remaining time across repeated pause/resume cycles', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 5000 });
+
+      // Two hover cycles, each leaving the timer running for 1000ms.
+      for (let cycle = 0; cycle < 2; cycle += 1) {
+        vi.advanceTimersByTime(1000);
+        store.pauseTimers();
+        vi.advanceTimersByTime(1000);
+        store.resumeTimers();
+      }
+
+      // 2000ms of the 5000ms timeout has been consumed, so 3000ms must remain.
+      vi.advanceTimersByTime(2999);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
+
+      vi.advanceTimersByTime(2);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    });
+
+    it('dismisses promptly when the clock jumped past the timeout while paused', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 5000 });
+
+      // Mimics a throttled background tab: wall-clock time passes without the
+      // scheduled timeout ever running.
+      vi.setSystemTime(Date.now() + 60_000);
+      store.pauseTimers();
+      store.resumeTimers();
+
+      vi.advanceTimersByTime(1);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
     });
 
     it('re-pauses timers after the last timed toast becomes untimed', () => {
