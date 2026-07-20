@@ -170,7 +170,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     apiRef: apiRefProp,
     className,
     enabled = true,
-    estimateSize,
+    estimatedItemHeight,
     onUnconstrainedHeight,
     overscanPx,
     pinnedRowIndexes,
@@ -213,19 +213,21 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       }),
   ).current;
 
-  const getEstimatedSize = React.useCallback(
+  const getEstimatedItemHeight = React.useCallback(
     (row: ListVirtualizerRow<RowModel>, rowIndex: number) => {
       const size =
-        typeof estimateSize === 'function' ? estimateSize(row.model, rowIndex) : estimateSize;
+        typeof estimatedItemHeight === 'function'
+          ? estimatedItemHeight(row.model, rowIndex)
+          : estimatedItemHeight;
       return Math.max(1, size);
     },
-    [estimateSize],
+    [estimatedItemHeight],
   );
 
-  const defaultEstimatedSize =
+  const defaultEstimatedItemHeight =
     rows.length === 0
-      ? Math.max(1, typeof estimateSize === 'number' ? estimateSize : 1)
-      : getEstimatedSize(rows[0], 0);
+      ? Math.max(1, typeof estimatedItemHeight === 'number' ? estimatedItemHeight : 1)
+      : getEstimatedItemHeight(rows[0], 0);
 
   const rowsRef = React.useRef(rows);
   rowsRef.current = rows;
@@ -290,15 +292,15 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     return map;
   }, [rows]);
 
-  // MUI X rehydrates row metadata when these callback identities change. They intentionally use
-  // dependency-sensitive callbacks so estimate and padding changes invalidate cached geometry.
+  // MUI X rehydrates row metadata when these callback identities change. This intentionally uses
+  // a dependency-sensitive callback so estimate changes invalidate cached geometry.
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
       const rowIndex = rowIndexById.get(row.id as React.Key) ?? -1;
       const listRow = rows[rowIndex];
-      return listRow ? getEstimatedSize(listRow, rowIndex) : defaultEstimatedSize;
+      return listRow ? getEstimatedItemHeight(listRow, rowIndex) : defaultEstimatedItemHeight;
     },
-    [defaultEstimatedSize, getEstimatedSize, rowIndexById, rows],
+    [defaultEstimatedItemHeight, getEstimatedItemHeight, rowIndexById, rows],
   );
   const range = React.useMemo(
     () =>
@@ -311,16 +313,16 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           },
     [rows.length],
   );
-  const rowBufferPx = Math.max(0, overscanPx ?? Math.max(150, defaultEstimatedSize));
+  const rowBufferPx = Math.max(0, overscanPx ?? Math.max(150, defaultEstimatedItemHeight));
   // MUI X waits for one estimated row of accumulated scrolling before recomputing an unchanged
   // controlled range. Keep at least that much measured content mounted when an estimate is taller
   // than the real rows, even when the requested overscan is smaller.
-  const renderBufferPx = Math.max(rowBufferPx, defaultEstimatedSize);
+  const renderBufferPx = Math.max(rowBufferPx, defaultEstimatedItemHeight);
 
   const virtualizer = useVirtualizer({
     layout,
     dimensions: {
-      rowHeight: defaultEstimatedSize,
+      rowHeight: defaultEstimatedItemHeight,
     },
     virtualization: {
       // Controlled range calculation avoids MUI X's fixed 15-row directional buffer. Base UI
@@ -653,9 +655,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     rowsMeta.positions[overscannedRenderContext.lastRowIndex] ??
     renderZoneOffsetTop +
       (overscannedRenderContext.lastRowIndex - overscannedRenderContext.firstRowIndex) *
-        defaultEstimatedSize;
+        defaultEstimatedItemHeight;
   const layoutSizerHeight =
-    rows.length === 0 ? 0 : Math.min(totalSize, Math.max(defaultEstimatedSize, renderedRangeEnd));
+    rows.length === 0
+      ? 0
+      : Math.min(totalSize, Math.max(defaultEstimatedItemHeight, renderedRangeEnd));
 
   const state: ListVirtualizerState = {
     empty: rows.length === 0,
@@ -756,16 +760,16 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
    */
   enabled?: boolean | undefined;
   /**
-   * Estimated row size used before measuring the rendered element.
+   * Estimated item height in CSS pixels used before measuring the rendered element.
    */
-  estimateSize: number | ((row: RowModel, rowIndex: number) => number);
+  estimatedItemHeight: number | ((row: RowModel, rowIndex: number) => number);
   /**
    * Called when a large enabled collection has no effective height constraint.
    */
   onUnconstrainedHeight?: (() => void) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated row size.
+   * Defaults to the larger of 150px and the estimated item height.
    */
   overscanPx?: number | undefined;
   /**

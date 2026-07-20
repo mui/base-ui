@@ -47,7 +47,7 @@ function BuiltInVirtualizer() {
             <Combobox.List className={styles.BuiltInList}>
               <Combobox.Virtualizer
                 className={`${styles.Scroller} ${styles.BuiltInScroller}`}
-                estimateSize={32}
+                estimatedItemHeight={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >

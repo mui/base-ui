@@ -21,7 +21,7 @@ export default function ExampleVirtualizedCombobox() {
             <Combobox.List className="py-1 data-empty:py-0">
               <Combobox.Virtualizer
                 className="h-[min(22rem,var(--total-size))] max-h-[calc(var(--available-height)-0.5rem)] overflow-auto overscroll-contain scroll-py-1"
-                estimateSize={32}
+                estimatedItemHeight={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >

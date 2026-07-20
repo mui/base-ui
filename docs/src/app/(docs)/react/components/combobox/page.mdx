@@ -68,7 +68,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
         {/* Alternatively, use Virtualizer as the only child of List for large flat collections. */}
         <Combobox.List>
-          <Combobox.Virtualizer estimateSize={32}>
+          <Combobox.Virtualizer estimatedItemHeight={32}>
             {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
           </Combobox.Virtualizer>
         </Combobox.List>
@@ -229,7 +229,7 @@ The virtualizer is the scroll container, so constrain its height or maximum heig
 }
 ```
 
-Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimateSize` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range (defaulting to the larger of 150px and the estimated item size). CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range (defaulting to the larger of 150px and the estimated item height). CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
 
 When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
 
