@@ -44,6 +44,7 @@ import {
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { isMacVoiceOverKeyboardOpen } from '../utils/isMacVoiceOverKeyboardOpen';
 
 /**
  * Groups all parts of the menu.
@@ -479,7 +480,15 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         {
           id: floatingId,
           role: 'menu' as const,
-          'aria-labelledby': activeTriggerElement?.id,
+          'aria-labelledby':
+            parent.type === 'menu' &&
+            open &&
+            isMacVoiceOverKeyboardOpen(
+              lastOpenChangeReason,
+              floatingRootContext.context.dataRef.current.openEvent,
+            )
+              ? undefined
+              : activeTriggerElement?.id,
           onMouseMove() {
             store.set('allowMouseEnter', true);
             if (parent.type === 'menu') {
@@ -508,6 +517,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [
       activeTriggerElement,
       floatingId,
+      floatingRootContext,
+      lastOpenChangeReason,
+      open,
       parent.type,
       store,
       typeahead.floating,
