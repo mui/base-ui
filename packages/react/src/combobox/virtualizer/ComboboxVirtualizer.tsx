@@ -177,7 +177,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
     return flatFilteredItems.map((item, itemIndex) => {
-      // Row ids are both React keys and MUI X measurement-cache identities. Normalize all
+      // Row ids are both React keys and the MUI X Virtualizer measurement-cache identities. Normalize all
       // supplied keys because React stringifies them (`1` and `"1"` would otherwise collide).
       const rawKey = getItemKey ? getItemKey(item as Value) : undefined;
       const key = getItemKey
