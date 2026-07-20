@@ -43,6 +43,10 @@ export function AutocompleteRoot<ItemValue>(
     ...other
   } = props as AutocompleteRoot.Props<ItemValue> & { itemToValue?: unknown };
 
+  // Strip this Combobox-only prop for untyped callers. Forwarding it would enable mapped-value
+  // behavior that Autocomplete does not expose or support.
+  void ignoredItemToValue;
+
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
 

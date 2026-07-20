@@ -57,7 +57,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItemsContext = useComboboxHasItemsContext();
-  const hasItems = hasItemsContext !== false;
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
@@ -69,12 +68,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const hasExplicitValue = componentProps.value !== undefined;
 
   let itemValue = itemValueProp;
-  if (!hasExplicitValue) {
-    if (typeof hasItemsContext !== 'boolean') {
-      [itemValue] = hasItemsContext;
-    } else if (mappedValue !== undefined) {
-      itemValue = mappedValue;
-    }
+  if (typeof hasItemsContext !== 'boolean') {
+    // Function children belong to their source item, so mapping wins over a mismatched explicit
+    // value and keeps pointer and keyboard selection in the same value domain.
+    [itemValue] = hasItemsContext;
+  } else if (!hasExplicitValue && mappedValue !== undefined) {
+    itemValue = mappedValue;
   }
 
   const rootId = useStore(store, selectors.id);
@@ -102,7 +101,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   }, [hasRegistered, virtualized, index, indexProp, store]);
 
   useIsoLayoutEffect(() => {
-    if (!hasRegistered || hasItems) {
+    if (!hasRegistered) {
       return undefined;
     }
 
@@ -112,10 +111,10 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     return () => {
       delete visibleMap[index];
     };
-  }, [hasRegistered, hasItems, index, itemValue, store]);
+  }, [hasRegistered, index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
-    if (!hasRegistered || hasItems) {
+    if (!hasRegistered || hasItemsContext === true) {
       return;
     }
 
@@ -130,7 +129,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
       store.set('selectedIndex', index);
     }
-  }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
+  }, [hasRegistered, hasItemsContext, store, index, itemValue, isItemEqualToValue]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -272,9 +271,9 @@ export const ComboboxItem = React.memo(
     const store = useComboboxRootContext();
     const virtualized = useStore(store, selectors.virtualized);
 
-    // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
-    // item's lifetime: the two branches return different component types, so flipping it at
-    // runtime remounts the item and resets its refs and effects.
+    // `virtualized` and whether an item provides `index` and `value` must be stable for the item's
+    // lifetime: the two branches return different component types, so changing any of them at
+    // runtime can remount the item and reset its refs and effects.
     // An item that supplies both `index` and `value` needs nothing from the filtered set, so it
     // stays off that context. Omitting `value` means the value is projected from the source at
     // this index, which does require the subscription.
@@ -323,8 +322,9 @@ export interface ComboboxItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item.
-   * @default null
+   * A unique value that identifies this item. Items rendered by collection function children use
+   * the value returned by the root's `itemToValue` prop when this is omitted.
+   * Manually rendered items must specify a value with the same type as the root's selected value.
    */
   value?: any;
   /**

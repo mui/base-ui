@@ -9,6 +9,28 @@ describe('resolveValueLabel', () => {
 
       expect(resolveSelectedLabel(selected, items)).toBe('Selected label');
     });
+
+    it('lets a mapped label formatter override labels on mapped object values', () => {
+      const selected = { value: 'a', label: 'Mapped label' };
+      const sourceItem = { id: 'a', name: 'Source label' };
+
+      expect(
+        resolveSelectedLabel(
+          selected,
+          [sourceItem],
+          (value, item) => `${item.name}: ${value.value}`,
+          [selected],
+        ),
+      ).toBe('Source label: a');
+    });
+
+    it('provides the matching source item for a mapped null value', () => {
+      const sourceItem = { id: 'none', name: 'No selection' };
+
+      expect(resolveSelectedLabel(null, [sourceItem], (_value, item) => item.name, [null])).toBe(
+        'No selection',
+      );
+    });
   });
 
   describe('hasNullItemLabel', () => {

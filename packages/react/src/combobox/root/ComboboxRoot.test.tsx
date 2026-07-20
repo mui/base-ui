@@ -3620,6 +3620,11 @@ describe('<Combobox.Root />', () => {
       expect(
         screen.getAllByDisplayValue('us').find((input) => input.getAttribute('name') === 'country'),
       ).toBeDefined();
+      expect(
+        screen
+          .getAllByDisplayValue('us')
+          .find((input) => input.getAttribute('name') === 'countries'),
+      ).toBeDefined();
       expect(screen.getByDisplayValue('ca')).toHaveAttribute('name', 'countries');
       expect(itemToStringValue).toHaveBeenCalled();
       expect(itemToStringValue.mock.calls.every(([value]) => typeof value === 'string')).toBe(true);
@@ -3917,6 +3922,35 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByTestId('value')).toHaveTextContent('Canada');
       });
 
+      it('retains the selected label when external filtering removes its source item', async () => {
+        function App() {
+          const [filteredItems, setFilteredItems] = React.useState(countries);
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setFilteredItems([countries[0]])}>
+                Filter selection out
+              </button>
+              <Combobox.Root
+                filteredItems={filteredItems}
+                itemToValue={(country) => country.code}
+                defaultValue="CA"
+              >
+                <Combobox.Input data-testid="input" />
+                <span data-testid="value">
+                  <Combobox.Value />
+                </span>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+        await user.click(screen.getByRole('button', { name: 'Filter selection out' }));
+
+        expect(screen.getByTestId('input')).toHaveValue('Canada');
+        expect(screen.getByTestId('value')).toHaveTextContent('Canada');
+      });
+
       it('maps separately created filteredItems to the emitted value', async () => {
         const onValueChange = vi.fn();
         const filteredItems = countries.map((country) => ({ ...country }));
@@ -3992,16 +4026,16 @@ describe('<Combobox.Root />', () => {
 
       it('infers labels and selects mapped values from grouped items', async () => {
         const groupedItems = [
-          { value: 'fruits', items: [{ value: 1, label: 'Apple' }] },
-          { value: 'vegetables', items: [{ value: 3, label: 'Carrot' }] },
+          { groupLabel: 'fruits', items: [{ id: 'apple', label: 'Apple' }] },
+          { groupLabel: 'vegetables', items: [{ id: 'carrot', label: 'Carrot' }] },
         ];
         const onValueChange = vi.fn();
 
         const { user } = await render(
           <Combobox.Root
             items={groupedItems}
-            itemToValue={(item: { value: number; label: string }) => item.value}
-            defaultValue={3}
+            itemToValue={(item) => item.id.toUpperCase()}
+            defaultValue="CARROT"
             defaultOpen
             onValueChange={onValueChange}
           >
@@ -4011,10 +4045,10 @@ describe('<Combobox.Root />', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(group) => (
-                <Combobox.Group key={group.value} items={group.items}>
-                  <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                <Combobox.Group key={group.groupLabel} items={group.items}>
+                  <Combobox.GroupLabel>{group.groupLabel}</Combobox.GroupLabel>
                   <Combobox.Collection>
-                    {(item) => <Combobox.Item key={item.value}>{item.label}</Combobox.Item>}
+                    {(item) => <Combobox.Item key={item.id}>{item.label}</Combobox.Item>}
                   </Combobox.Collection>
                 </Combobox.Group>
               )}
@@ -4026,21 +4060,21 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByTestId('value')).toHaveTextContent('Carrot');
 
         await user.click(screen.getByRole('option', { name: 'Apple' }));
-        expect(onValueChange.mock.lastCall?.[0]).toBe(1);
+        expect(onValueChange.mock.lastCall?.[0]).toBe('APPLE');
       });
 
       it('infers labels and selects mapped values from grouped filteredItems', async () => {
         const groupedItems = [
-          { value: 'fruits', items: [{ value: 1, label: 'Apple' }] },
-          { value: 'vegetables', items: [{ value: 3, label: 'Carrot' }] },
+          { groupLabel: 'fruits', items: [{ id: 'apple', label: 'Apple' }] },
+          { groupLabel: 'vegetables', items: [{ id: 'carrot', label: 'Carrot' }] },
         ];
         const onValueChange = vi.fn();
 
         const { user } = await render(
           <Combobox.Root
             filteredItems={groupedItems}
-            itemToValue={(item: { value: number; label: string }) => item.value}
-            defaultValue={3}
+            itemToValue={(item) => item.id.toUpperCase()}
+            defaultValue="CARROT"
             defaultOpen
             onValueChange={onValueChange}
           >
@@ -4050,10 +4084,10 @@ describe('<Combobox.Root />', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(group) => (
-                <Combobox.Group key={group.value} items={group.items}>
-                  <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                <Combobox.Group key={group.groupLabel} items={group.items}>
+                  <Combobox.GroupLabel>{group.groupLabel}</Combobox.GroupLabel>
                   <Combobox.Collection>
-                    {(item) => <Combobox.Item key={item.value}>{item.label}</Combobox.Item>}
+                    {(item) => <Combobox.Item key={item.id}>{item.label}</Combobox.Item>}
                   </Combobox.Collection>
                 </Combobox.Group>
               )}
@@ -4065,7 +4099,7 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByTestId('value')).toHaveTextContent('Carrot');
 
         await user.click(screen.getByRole('option', { name: 'Apple' }));
-        expect(onValueChange.mock.lastCall?.[0]).toBe(1);
+        expect(onValueChange.mock.lastCall?.[0]).toBe('APPLE');
       });
 
       it('resolves the source label for a null mapped value', async () => {
@@ -4189,6 +4223,30 @@ describe('<Combobox.Root />', () => {
 
         expect(await screen.findByRole('option', { name: 'Canada' })).not.toBe(null);
         expect(screen.queryByRole('option', { name: 'United States' })).toBe(null);
+      });
+
+      it('provides the source item to itemToStringLabel for custom item shapes', async () => {
+        const users = [
+          { id: 'u1', name: 'Alice Johnson' },
+          { id: 'u2', name: 'Bob Smith' },
+        ];
+        const { user } = await render(
+          <Combobox.Root
+            items={users}
+            itemToValue={(item) => item.id}
+            itemToStringLabel={(value, item) => item?.name ?? value}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(item) => <Combobox.Item key={item.id}>{item.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>,
+        );
+
+        await user.type(screen.getByTestId('input'), 'Bob');
+        await user.click(screen.getByRole('option', { name: 'Bob Smith' }));
+
+        expect(screen.getByTestId('input')).toHaveValue('Bob Smith');
       });
 
       it('uses the mapped value for closed-trigger typeahead labels', async () => {
@@ -4349,6 +4407,40 @@ describe('<Combobox.Root />', () => {
         const hiddenInput = screen
           .getAllByDisplayValue('')
           .find((el) => el.getAttribute('name') === 'country') as HTMLInputElement;
+
+        fireEvent.change(hiddenInput, { target: { value: 'Canada' } });
+        await flushMicrotasks();
+
+        expect(onValueChange.mock.lastCall?.[0]).toBe('CA');
+      });
+
+      it('matches mapped filtered items while the popup is closed', async () => {
+        const onValueChange = vi.fn();
+        await render(
+          <Combobox.Root
+            name="country"
+            filteredItems={countries}
+            itemToValue={(country) => country.code}
+            onValueChange={onValueChange}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(country: (typeof countries)[number]) => (
+                      <Combobox.Item key={country.code}>{country.label}</Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const hiddenInput = screen
+          .getAllByDisplayValue('')
+          .find((element) => element.getAttribute('name') === 'country')!;
 
         fireEvent.change(hiddenInput, { target: { value: 'Canada' } });
         await flushMicrotasks();
@@ -4589,6 +4681,24 @@ describe('<Combobox.Root />', () => {
       }
     });
 
+    it('warns once for each root that returns an undefined mapped value', async () => {
+      const items: Array<{ id?: string; label: string }> = [{ label: 'Missing ID' }];
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        await render(
+          <React.Fragment>
+            <Combobox.Root items={items} itemToValue={(item) => item.id} />
+            <Combobox.Root items={items} itemToValue={(item) => item.id} />
+          </React.Fragment>,
+        );
+
+        expect(warnSpy).toHaveBeenCalledTimes(2);
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+
     it('syncs the selected index while closed using the mapped value', async () => {
       const { user } = await render(
         <Combobox.Root items={countries} itemToValue={(country) => country.code} defaultValue="US">
@@ -4712,6 +4822,85 @@ describe('<Combobox.Root />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe('AU');
     });
 
+    it('does not rerender mapped collection items when their projected values are unchanged', async () => {
+      const renderSpy = vi.fn();
+      function renderItem(props: React.ComponentProps<'div'>) {
+        renderSpy();
+        return <div {...props} />;
+      }
+
+      const { user } = await render(
+        <Combobox.Root
+          items={countries}
+          itemToValue={(country) => country.code}
+          filter={null}
+          defaultOpen
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(country: (typeof countries)[number]) => (
+              <Combobox.Item key={country.code} render={renderItem}>
+                {country.label}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const initialRenderCount = renderSpy.mock.calls.length;
+      await user.type(screen.getByTestId('input'), 'x');
+
+      expect(renderSpy).toHaveBeenCalledTimes(initialRenderCount);
+    });
+
+    it('keeps static JSX items keyboard-accessible when itemToValue is passed without items', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root<string>
+          itemToValue={(item: { id: string }) => item.id}
+          defaultOpen
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Item value="create">Create item</Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}{Enter}');
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe('create');
+    });
+
+    it('includes static items in the keyboard order of a mapped filteredItems list', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          filteredItems={[countries[0]]}
+          itemToValue={(country) => country.code}
+          defaultOpen
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Collection>
+              {(country: (typeof countries)[number]) => (
+                <Combobox.Item key={country.code}>{country.label}</Combobox.Item>
+              )}
+            </Combobox.Collection>
+            <Combobox.Item value="create">Create item</Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe('create');
+    });
+
     it('does not associate static items with Collection source indexes', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
@@ -4750,7 +4939,7 @@ describe('<Combobox.Root />', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe('CA');
     });
 
-    it('uses an explicit Item value that matches the mapped value', async () => {
+    it('uses the mapped value for collection items with an incompatible explicit value', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
@@ -4764,7 +4953,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.List>
                   {(country: (typeof countries)[number]) => (
-                    <Combobox.Item key={country.code} value={country.code}>
+                    <Combobox.Item key={country.code} value={country}>
                       {country.label}
                     </Combobox.Item>
                   )}
@@ -5129,6 +5318,49 @@ describe('<Combobox.Root />', () => {
 
     expect(filteredItems).toEqual(['one', 'two']);
     expect(screen.getAllByRole('option')).toHaveLength(1);
+  });
+
+  it('cleans a mapped filteredItems registry when the prop is removed', async () => {
+    const filteredItems = [
+      { id: 'one', label: 'One' },
+      { id: 'two', label: 'Two' },
+    ];
+    const onValueChange = vi.fn();
+
+    function App() {
+      const [useFilteredItems, setUseFilteredItems] = React.useState(true);
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setUseFilteredItems(false)}>
+            Remove filtered items
+          </button>
+          <Combobox.Root
+            filteredItems={useFilteredItems ? filteredItems : undefined}
+            itemToValue={(item) => item.id}
+            defaultOpen
+            onValueChange={onValueChange}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              <Combobox.Collection>
+                {(item: (typeof filteredItems)[number]) => (
+                  <Combobox.Item key={item.id}>{item.label}</Combobox.Item>
+                )}
+              </Combobox.Collection>
+              <Combobox.Item value="static">Static</Combobox.Item>
+            </Combobox.List>
+          </Combobox.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Remove filtered items' }));
+    await user.click(screen.getByTestId('input'));
+    await user.keyboard('{ArrowDown}{Enter}');
+
+    expect(screen.getAllByRole('option')).toHaveLength(1);
+    expect(onValueChange.mock.lastCall?.[0]).toBe('static');
   });
 
   describe('initial input value derivation', () => {

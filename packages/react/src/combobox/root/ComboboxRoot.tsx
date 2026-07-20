@@ -3,25 +3,31 @@ import * as React from 'react';
 import type { Group } from '../../internals/resolveValueLabel';
 import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
 
-let warnedUndefinedItemValue = false;
-
 /**
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<
-  Value,
-  Multiple extends boolean | undefined = false,
-  Items extends readonly any[] | undefined = undefined,
-  FilteredItems extends readonly any[] | undefined = undefined,
->(props: ComboboxRootMappedProps<Value, Multiple, Items, FilteredItems>): React.JSX.Element;
+export function ComboboxRoot<Value, SourceItem = any>(
+  props: ComboboxRootMappedOverloadProps<Value, true, SourceItem> & { multiple: true },
+): React.JSX.Element;
+export function ComboboxRoot<Value, SourceItem = any>(
+  props: ComboboxRootMappedOverloadProps<Value, false, SourceItem> & {
+    multiple?: false | undefined;
+  },
+): React.JSX.Element;
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, SourceItem = any>(
+  props: ComboboxRootMappedOverloadProps<Value, Multiple, SourceItem>,
+): React.JSX.Element;
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, Item = any>(
+  props: ComboboxRootMappedProps<Value, Multiple, Item>,
+): React.JSX.Element;
 export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element;
 export function ComboboxRoot(
-  props: ComboboxRoot.Props<any, any> | ComboboxRootMappedProps<any, any, any[], any[]>,
+  props: ComboboxRoot.Props<any, any> | ComboboxRootMappedProps<any, any, any>,
 ): React.JSX.Element {
   const {
     multiple = false,
@@ -31,7 +37,9 @@ export function ComboboxRoot(
     autoComplete,
     itemToValue,
     ...other
-  } = props as ComboboxRootMappedProps<any, any, any[], any[]>;
+  } = props as ComboboxRootMappedProps<any, any, any>;
+
+  const warnedUndefinedItemValueRef = React.useRef(false);
 
   // Memoized so the projected values aren't recomputed on every render when the getter is stable.
   const mapItemToValue = React.useMemo(() => {
@@ -43,8 +51,8 @@ export function ComboboxRoot(
       const itemValue = itemToValue(item);
       if (itemValue === undefined) {
         if (process.env.NODE_ENV !== 'production') {
-          if (!warnedUndefinedItemValue) {
-            warnedUndefinedItemValue = true;
+          if (!warnedUndefinedItemValueRef.current) {
+            warnedUndefinedItemValueRef.current = true;
             console.warn(
               'Base UI: Combobox.Root `itemToValue` returned `undefined`. ' +
                 'This cannot identify an item, so the value was replaced with `null`. ' +
@@ -78,6 +86,10 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
 type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
+
+type NormalizedMappedValue<Value> =
+  | Exclude<Value, undefined>
+  | (undefined extends Value ? null : never);
 
 /** Unwraps grouped source items so callbacks receive leaf items. */
 type ComboboxSourceItem<Item> = [Item] extends [never]
@@ -117,7 +129,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   multiple?: Multiple | undefined;
   /**
    * Provides a hint to the browser for autofill.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
+   * See [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete).
    */
   autoComplete?: string | undefined;
   /**
@@ -212,19 +224,19 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
 export type ComboboxRootMappedProps<
   Value,
   Multiple extends boolean | undefined = false,
-  Items extends readonly any[] | undefined = undefined,
-  FilteredItems extends readonly any[] | undefined = undefined,
-  Item = ComboboxSourceItemFromArrays<Items, FilteredItems>,
+  Item = any,
 > = Omit<
-  ComboboxRootProps<Value, Multiple>,
-  'items' | 'filteredItems' | 'filter' | 'onValueChange' | 'onItemHighlighted'
+  ComboboxRootProps<NormalizedMappedValue<Value>, Multiple>,
+  'items' | 'filteredItems' | 'filter' | 'itemToStringLabel' | 'onValueChange' | 'onItemHighlighted'
 > & {
   /**
    * Event handler called when the selected value of the combobox changes.
    */
   onValueChange?:
     | ((
-        value: ComboboxValueType<NoInfer<Value>, Multiple> | (Multiple extends true ? never : null),
+        value:
+          | ComboboxValueType<NoInfer<NormalizedMappedValue<Value>>, Multiple>
+          | (Multiple extends true ? never : null),
         eventDetails: ComboboxRoot.ChangeEventDetails,
       ) => void)
     | undefined;
@@ -233,7 +245,7 @@ export type ComboboxRootMappedProps<
    */
   onItemHighlighted?:
     | ((
-        highlightedValue: NoInfer<Value> | undefined,
+        highlightedValue: NoInfer<NormalizedMappedValue<Value>> | undefined,
         eventDetails: ComboboxRoot.HighlightEventDetails,
       ) => void)
     | undefined;
@@ -241,13 +253,13 @@ export type ComboboxRootMappedProps<
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: Items | undefined;
+  items?: readonly Item[] | readonly Group<Item>[] | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: FilteredItems | undefined;
+  filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;
   /**
    * Filter function used to match items vs input query.
    */
@@ -256,18 +268,35 @@ export type ComboboxRootMappedProps<
     | ((item: Item, query: string, itemToString?: (item: Item) => string) => boolean)
     | undefined;
   /**
-   * Maps each source item to the value used for selection, change callbacks, and equality checks.
-   * Filtering and function children receive the source item. An explicit `<Combobox.Item value>`
-   * takes precedence over the mapped value.
-   * The returned value should be defined and uniquely identify the item. `undefined` is
-   * normalized to `null` and logs a development warning.
+   * Converts a mapped value to a string representation for display in the input.
+   * The corresponding source item is provided as the second argument when it is available.
+   * If the source item shape is `{ value, label }`, its label is used automatically without
+   * needing to specify this prop.
    */
-  itemToValue: (item: Item) => Value | undefined;
+  itemToStringLabel?:
+    | ((itemValue: NormalizedMappedValue<Value>, sourceItem?: Item | undefined) => string)
+    | undefined;
+  /**
+   * Maps each source item to the value used for selection, change callbacks, and equality checks.
+   * Filtering and function children receive the source item. Collection items use the mapped
+   * value; manually rendered items must specify a value of the same type.
+   * The returned value should be defined and uniquely identify the item. `undefined` is
+   * normalized to `null`, reflected in callback types, and logs a development warning.
+   */
+  itemToValue: (item: Item) => Value;
 };
 
-type ComboboxSourceItemFromArrays<Items, FilteredItems> = ComboboxSourceItem<
-  Exclude<Items | FilteredItems, undefined> extends readonly (infer Item)[] ? Item : never
->;
+type ComboboxRootMappedOverloadProps<
+  Value,
+  Multiple extends boolean | undefined,
+  SourceItem,
+> = Omit<
+  ComboboxRootMappedProps<Value, Multiple, ComboboxSourceItem<SourceItem>>,
+  'items' | 'filteredItems'
+> & {
+  items?: readonly SourceItem[] | undefined;
+  filteredItems?: readonly SourceItem[] | undefined;
+};
 
 export interface ComboboxRootState extends AriaComboboxState {}
 
@@ -287,9 +316,8 @@ export namespace ComboboxRoot {
   export type MappedProps<
     Value,
     Multiple extends boolean | undefined = false,
-    Items extends readonly any[] | undefined = undefined,
-    FilteredItems extends readonly any[] | undefined = undefined,
-  > = ComboboxRootMappedProps<Value, Multiple, Items, FilteredItems>;
+    Item = any,
+  > = ComboboxRootMappedProps<Value, Multiple, Item>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

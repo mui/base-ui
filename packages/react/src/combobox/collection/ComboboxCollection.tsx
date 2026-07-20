@@ -4,6 +4,7 @@ import {
   ComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
+import { isGroupedItems } from '../../internals/resolveValueLabel';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 
 /**
@@ -17,8 +18,9 @@ import { useGroupCollectionContext } from './GroupCollectionContext';
 export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
   const { children } = props;
 
-  const { filteredItems, itemToValue } = useComboboxDerivedItemsContext();
+  const { filteredItems, itemToValue, mappedValues } = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
+  const tupleCache = React.useRef(new Map<any, { value: any; context: readonly [any] }>());
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
 
@@ -26,21 +28,34 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
     return null;
   }
 
-  if (!itemToValue) {
+  // The outer pass of a grouped collection renders group records. Only the nested collections
+  // render leaf items, which are the values accepted by `itemToValue`.
+  if (!itemToValue || (!groupContext && isGroupedItems(itemsToRender))) {
     return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
+  }
+
+  const renderedItems = new Set(itemsToRender);
+  for (const cachedItem of tupleCache.current.keys()) {
+    if (!renderedItems.has(cachedItem)) {
+      tupleCache.current.delete(cachedItem);
+    }
   }
 
   return (
     <React.Fragment>
       {itemsToRender.map((item, index) => {
         const child = children(item, index);
-        // A distinct context value intentionally associates each rendered child with its item.
-        // eslint-disable-next-line react/jsx-no-constructed-context-values
-        const contextValue = [itemToValue(item)] as const;
+        const mappedValue = mappedValues?.has(item) ? mappedValues.get(item) : itemToValue(item);
+        const cached = tupleCache.current.get(item);
+        let contextValue = cached?.context;
+        if (!cached || !Object.is(cached.value, mappedValue)) {
+          contextValue = [mappedValue] as const;
+          tupleCache.current.set(item, { value: mappedValue, context: contextValue });
+        }
         return (
           <ComboboxHasItemsContext.Provider
             key={(child as React.ReactElement | null)?.key ?? index}
-            value={contextValue}
+            value={contextValue!}
           >
             {child}
           </ComboboxHasItemsContext.Provider>

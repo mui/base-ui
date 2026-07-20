@@ -854,6 +854,39 @@ describe('<Combobox.Trigger />', () => {
       });
     });
 
+    it('selects mapped filteredItems on closed-trigger typeahead', async () => {
+      const countries = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          filteredItems={countries}
+          itemToValue={(country) => country.code}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.List>
+            {(country: (typeof countries)[number]) => (
+              <Combobox.Item key={country.code}>{country.label}</Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('c');
+
+      await waitFor(() => {
+        expect(onValueChange).toHaveBeenCalledWith('CA', expect.any(Object));
+      });
+    });
+
     it.each([false, true])(
       'cycles to the next matching item when typing after open/close (no items prop, keepMounted %s)',
       async (keepMounted) => {

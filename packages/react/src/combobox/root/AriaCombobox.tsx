@@ -229,29 +229,77 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return valueItems.map(itemToValue);
   }, [itemToValue, valueItems]);
 
+  const sourceValueMap = React.useMemo(() => {
+    if (!itemValues) {
+      return undefined;
+    }
+    return new Map(valueItems.map((item, index) => [item, itemValues[index]]));
+  }, [itemValues, valueItems]);
+
+  const selectedItemCacheRef = React.useRef<{
+    items: readonly any[];
+    values: readonly any[];
+  }>({ items: EMPTY_ARRAY, values: EMPTY_ARRAY });
+
+  // `filteredItems` can remove the selected source item while keeping its mapped value selected.
+  // Retain only the current items plus any selected items from the previous render so labels stay
+  // stable without accumulating every remote result the combobox has ever seen.
+  const { labelItems, labelItemValues } = React.useMemo(() => {
+    if (!itemToValue || !itemValues || hasItems) {
+      return { labelItems: valueItems, labelItemValues: itemValues };
+    }
+
+    const nextItems = [...valueItems];
+    const nextValues = [...itemValues];
+    const selectedValues =
+      multiple && Array.isArray(selectedValue) ? selectedValue : [selectedValue];
+    const previous = selectedItemCacheRef.current;
+
+    for (const selectedItemValue of selectedValues) {
+      if (findItemIndex(nextValues, selectedItemValue, isItemEqualToValue) !== -1) {
+        continue;
+      }
+
+      const previousIndex = findItemIndex(previous.values, selectedItemValue, isItemEqualToValue);
+      if (previousIndex !== -1) {
+        nextItems.push(previous.items[previousIndex]);
+        nextValues.push(previous.values[previousIndex]);
+      }
+    }
+
+    selectedItemCacheRef.current = { items: nextItems, values: nextValues };
+    return { labelItems: nextItems, labelItemValues: nextValues };
+  }, [hasItems, isItemEqualToValue, itemToValue, itemValues, multiple, selectedValue, valueItems]);
+
   const sourceItemToStringLabel = React.useMemo(() => {
     if (!itemToValue || !itemToStringLabel) {
       return itemToStringLabel;
     }
-    return (item: any) => itemToStringLabel(itemToValue(item));
-  }, [itemToValue, itemToStringLabel]);
+    return (item: any) => {
+      const mappedValue = sourceValueMap?.has(item) ? sourceValueMap.get(item) : itemToValue(item);
+      return itemToStringLabel(mappedValue, item);
+    };
+  }, [itemToValue, itemToStringLabel, sourceValueMap]);
 
-  function getSelectedLabelString(value: any) {
-    if (!itemToValue) {
-      return stringifyAsLabel(value, itemToStringLabel);
-    }
+  const getSelectedLabelString = React.useCallback(
+    (value: any) => {
+      if (!itemToValue) {
+        return stringifyAsLabel(value, itemToStringLabel);
+      }
 
-    const label = resolveSelectedLabel(
-      value,
-      valueItems,
-      itemToStringLabel,
-      itemValues,
-      isItemEqualToValue,
-    );
-    return typeof label === 'string' || typeof label === 'number'
-      ? String(label)
-      : stringifyAsLabel(value, itemToStringLabel);
-  }
+      const label = resolveSelectedLabel(
+        value,
+        labelItems,
+        itemToStringLabel,
+        labelItemValues,
+        isItemEqualToValue,
+      );
+      return typeof label === 'string' || typeof label === 'number'
+        ? String(label)
+        : stringifyAsLabel(value, itemToStringLabel);
+    },
+    [isItemEqualToValue, itemToStringLabel, itemToValue, labelItemValues, labelItems],
+  );
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -283,7 +331,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const query = closeQuery ?? String(inputValue).trim();
 
-  const selectedLabelString = single ? getSelectedLabelString(selectedValue) : '';
+  const selectedLabelString = React.useMemo(
+    () => (single ? getSelectedLabelString(selectedValue) : ''),
+    [getSelectedLabelString, selectedValue, single],
+  );
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -353,12 +404,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
-        : // The cast here is done as `flatItems` is readonly.
-          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
-          // reference this exact readonly value, creating a mutation risk.
-          // However, <Combobox.Item> can never mutate this value as the mutating effect
-          // bails early when `items` is provided, and this is only ever returned
-          // when `items` is provided due to the early return at the top of this hook.
+        : // The cast is safe because this result is treated as immutable. The mutable item
+          // registry clones projected values before mounted items register into it.
           (flatItems as Value[]);
     }
 
@@ -400,8 +447,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (flatFilteredItems === valueItems) {
       return itemValues as Value[];
     }
-    return flatFilteredItems.map(itemToValue) as Value[];
-  }, [flatFilteredItems, itemToValue, itemValues, valueItems]);
+    return flatFilteredItems.map((item) =>
+      sourceValueMap!.has(item) ? sourceValueMap!.get(item) : itemToValue(item),
+    ) as Value[];
+  }, [flatFilteredItems, itemToValue, itemValues, sourceValueMap, valueItems]);
+
+  const mappedValues = React.useMemo(() => {
+    if (!itemToValue) {
+      return undefined;
+    }
+    return new Map(flatFilteredItems.map((item, index) => [item, flatFilteredValues[index]]));
+  }, [flatFilteredItems, flatFilteredValues, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
@@ -430,8 +486,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       labelId: undefined,
       selectedValue,
       open,
-      items: itemToValue ? valueItems : items,
-      itemValues,
+      items: itemToValue ? labelItems : items,
+      itemValues: labelItemValues,
       selectionMode,
       listRef,
       labelsRef,
@@ -967,13 +1023,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (hasItems || hasMappedFilteredItems) {
-      valuesRef.current = flatFilteredValues;
-      listRef.current.length = flatFilteredValues.length;
-    } else if (itemToValue && !filteredItemsProp) {
-      valuesRef.current = [];
-      listRef.current.length = 0;
+      if (!mounted || virtualized) {
+        valuesRef.current = [...flatFilteredValues];
+        listRef.current.length = flatFilteredValues.length;
+      } else {
+        // Mounted items register their actual composite order, including static items rendered
+        // alongside a collection. Trim stale slots after child layout effects have registered.
+        valuesRef.current.length = listRef.current.length;
+      }
+    } else if (mounted) {
+      valuesRef.current.length = listRef.current.length;
     }
-  }, [hasItems, hasMappedFilteredItems, filteredItemsProp, itemToValue, flatFilteredValues]);
+  }, [hasItems, hasMappedFilteredItems, flatFilteredValues, mounted, virtualized]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -992,12 +1053,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    let candidateItems = valuesRef.current;
-    if (itemToValue) {
-      candidateItems = flatFilteredValues;
-    } else if (hasItems || hasFilteredItemsProp) {
-      candidateItems = flatFilteredItems;
-    }
+    const hasCustomRenderedItems = valuesRef.current.length > flatFilteredValues.length;
+    const candidateItems =
+      !virtualized && hasCustomRenderedItems ? valuesRef.current : flatFilteredValues;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -1032,14 +1090,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     autoHighlightMode,
     emitHighlight,
-    hasFilteredItemsProp,
-    hasItems,
-    itemToValue,
-    flatFilteredItems,
     flatFilteredValues,
     inline,
     open,
     store,
+    virtualized,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1302,8 +1357,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       open,
       mounted,
       transitionStatus,
-      items: itemToValue ? valueItems : items,
-      itemValues,
+      items: itemToValue ? labelItems : items,
+      itemValues: labelItemValues,
       inline: inlineProp,
       popupProps,
       inputProps,
@@ -1335,10 +1390,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    valueItems,
+    labelItems,
     itemToValue,
-    itemValues,
-    flatFilteredValues,
+    labelItemValues,
     popupProps,
     inputProps,
     itemProps,
@@ -1369,18 +1423,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       query,
       hasItems: hasItems || hasMappedFilteredItems,
       filteredItems,
-      flatFilteredItems,
       flatFilteredValues,
       itemToValue,
+      mappedValues,
     }),
     [
       query,
       hasItems,
       hasMappedFilteredItems,
       filteredItems,
-      flatFilteredItems,
       flatFilteredValues,
       itemToValue,
+      mappedValues,
     ],
   );
 
@@ -1484,8 +1538,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             // sticky `forceMounted` mount (which never resets) for those modes.
             if (single) {
               forceMount();
-              if (items && findSerializedMatchIndex() === -1) {
-                // `forceMount` only refreshes the derived labels for the `items` prop. When
+              if ((hasItems || hasMappedFilteredItems) && findSerializedMatchIndex() === -1) {
+                // `forceMount` only refreshes the derived labels for source-item props. When
                 // serialized matching misses, also mount the list so rendered labels (which can
                 // differ from the serialized values) are registered for autofill matching.
                 store.set('forceMounted', true);
@@ -1684,7 +1738,7 @@ interface ComboboxRootProps<ItemValue> {
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
-  itemToStringLabel?: ((itemValue: ItemValue) => string) | undefined;
+  itemToStringLabel?: ((itemValue: ItemValue, sourceItem?: any) => string) | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.

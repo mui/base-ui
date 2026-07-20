@@ -68,10 +68,26 @@ const itemsWithOptionalValues: Array<{ value?: string; label: string }> = [{ lab
 <Combobox.Root
   items={itemsWithOptionalValues}
   itemToValue={(item) => item.value}
-  onValueChange={(value) => {
-    const normalizedValue: string | null = value;
+  onItemHighlighted={(value) => {
+    const normalizedValue: string | null | undefined = value;
     void normalizedValue;
   }}
+/>;
+
+<Combobox.Root
+  items={itemsWithOptionalValues}
+  itemToValue={(item) => item.value}
+  multiple
+  onValueChange={(value) => {
+    const normalizedValues: Array<string | null> = value;
+    void normalizedValues;
+  }}
+/>;
+
+<Combobox.Root<string>
+  items={objectItems}
+  itemToValue={(item) => item.value}
+  onValueChange={(value) => value?.toUpperCase()}
 />;
 
 <Combobox.Root
@@ -653,7 +669,7 @@ export function Wrapper<Value, Multiple extends boolean | undefined = false>(
   return <Combobox.Root {...props} />;
 }
 
-const mappedWrapperProps: Combobox.Root.MappedProps<string, false, typeof objectItems> = {
+const mappedWrapperProps: Combobox.Root.MappedProps<string, false, (typeof objectItems)[number]> = {
   items: objectItems,
   itemToValue: (item) => item.value,
 };

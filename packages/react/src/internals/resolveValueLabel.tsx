@@ -4,7 +4,7 @@ import { serializeValue } from './serializeValue';
 import { defaultItemEquality, findItemIndex, type ItemEqualityComparer } from './itemEquality';
 
 type ItemRecord = Record<string, React.ReactNode>;
-type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
+type ItemsInput = ItemRecord | ReadonlyArray<unknown> | undefined;
 
 interface LabeledItem {
   value: any;
@@ -91,7 +91,7 @@ export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => s
 export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: (item: any, sourceItem?: any) => string,
   itemValues?: readonly any[],
   isItemEqualToValue: ItemEqualityComparer = defaultItemEquality,
 ): React.ReactNode {
@@ -99,8 +99,12 @@ export function resolveSelectedLabel(
     return stringifyAsLabel(value, itemToStringLabel);
   }
 
-  if (itemToStringLabel && value != null) {
-    return itemToStringLabel(value);
+  const projectedIndex = itemValues ? findItemIndex(itemValues, value, isItemEqualToValue) : -1;
+  const projectedItem =
+    projectedIndex === -1 ? undefined : (items as ReadonlyArray<LabeledItem>)?.[projectedIndex];
+
+  if (itemToStringLabel && itemValues && (value != null || projectedIndex !== -1)) {
+    return itemToStringLabel(value, projectedItem);
   }
 
   // Custom object with explicit label takes precedence
@@ -111,10 +115,11 @@ export function resolveSelectedLabel(
   // Values projected from source items via `itemToValue`: the label lives on the source item at
   // the same index, so the value is matched positionally rather than against `item.value`.
   if (itemValues) {
-    const match = (items as ReadonlyArray<LabeledItem>)?.[
-      findItemIndex(itemValues, value, isItemEqualToValue)
-    ];
-    return match?.label != null ? match.label : fallback();
+    return projectedItem?.label != null ? projectedItem.label : fallback();
+  }
+
+  if (itemToStringLabel && value != null) {
+    return itemToStringLabel(value);
   }
 
   // Items provided as plain record map
@@ -152,7 +157,7 @@ export function resolveSelectedLabel(
 export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: (item: any, sourceItem?: any) => string,
   itemValues?: readonly any[],
   isItemEqualToValue?: ItemEqualityComparer,
 ): React.ReactNode {
