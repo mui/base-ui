@@ -522,6 +522,46 @@ describe('<Checkbox.Root />', () => {
       fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
     });
+
+    it('falls back to the Field control id when id is empty', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          <Checkbox.Root id="" />
+        </Field.Root>,
+      );
+
+      const label = screen.getByText('Label');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(input.id).not.toBe('');
+      expect(label).toHaveAttribute('for', input.id);
+
+      fireEvent.click(label);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('assigns an input id to a valueless child in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root />
+        </CheckboxGroup>,
+      );
+
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      expect(input.id).not.toBe('');
+    });
+
+    it('assigns a root id to a valueless native button in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root nativeButton render={<button />} />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByRole('checkbox').id).not.toBe('');
+    });
   });
 
   describe('Form', () => {

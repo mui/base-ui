@@ -57,6 +57,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const defaultValue = defaultValueProp ?? (EMPTY_ARRAY as string[]);
 
+  // A controlled value can still be `undefined` at runtime even though `useControlled`'s
+  // generic return type says otherwise. Keep the fallback to prevent group consumers from crashing.
   const [value = EMPTY_ARRAY as string[], setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
     default: defaultValue,
