@@ -44,20 +44,31 @@ export const Form = React.forwardRef(function Form<
     // A field can be invalid without a focusable control (for example a checkbox group whose
     // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
     // Keep submission blocked, but move focus to the first invalid field that has a usable control.
+    // The fields Map's insertion order drifts when a control re-registers on value change, so
+    // pick the first control by document position rather than registration order.
     let hasInvalid = false;
+    let firstControl: HTMLElement | null = null;
     for (const field of formRef.current.fields.values()) {
       if (field.validityData.state.valid !== false) {
         continue;
       }
       hasInvalid = true;
       const control = field.controlRef.current;
-      if (control) {
-        control.focus();
-        if (control.tagName === 'INPUT') {
-          (control as HTMLInputElement).select();
-        }
-        return true;
+      if (
+        control &&
+        (!firstControl ||
+          // eslint-disable-next-line no-bitwise
+          firstControl.compareDocumentPosition(control) & Node.DOCUMENT_POSITION_PRECEDING)
+      ) {
+        firstControl = control;
       }
+    }
+    if (firstControl) {
+      firstControl.focus();
+      if (firstControl.tagName === 'INPUT') {
+        (firstControl as HTMLInputElement).select();
+      }
+      return true;
     }
     return hasInvalid;
   });

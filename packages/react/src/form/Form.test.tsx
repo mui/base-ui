@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Form } from '@base-ui/react/form';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
@@ -62,6 +63,34 @@ describe('<Form />', () => {
     } finally {
       select.mockRestore();
     }
+  });
+
+  it('focuses the first invalid field in document order after a control re-registers', async () => {
+    const { user } = render(
+      <Form>
+        <Field.Root name="a">
+          <Checkbox.Root required data-testid="a" />
+        </Field.Root>
+        <Field.Root name="b">
+          <Checkbox.Root required data-testid="b" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const checkboxA = screen.getByTestId('a');
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    await user.click(submit);
+    expect(checkboxA).toHaveFocus();
+
+    // Toggling the checkbox re-registers its field control, which moves the field
+    // to the end of the internal registration Map.
+    await user.click(checkboxA);
+    await user.click(checkboxA);
+
+    await user.click(submit);
+    expect(checkboxA).toHaveFocus();
   });
 
   it('submits when a valid async validator is pending', async () => {
