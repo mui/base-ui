@@ -5,6 +5,7 @@ import { NumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { createRenderer, describeConformance } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
@@ -1453,7 +1454,7 @@ describe('<NumberField.Input />', () => {
     },
   );
 
-  it('leaves the value untouched when a paste event carries no clipboard data', async () => {
+  it('reports an unchanged value once when a paste event carries no clipboard data', async () => {
     const onValueChange = vi.fn();
 
     await render(
@@ -1469,8 +1470,13 @@ describe('<NumberField.Input />', () => {
     Object.defineProperty(pasteEvent, 'clipboardData', { value: null });
     fireEvent(input, pasteEvent);
 
+    // Missing clipboard text splices an empty string in, so the text is unchanged. The paste
+    // still marks the input dirty, and direct-entry reasons report even when the number is
+    // unchanged, so exactly one `input-paste` change is emitted with the current value.
     expect(input).toHaveValue('12');
-    expect(onValueChange.mock.lastCall?.[0]).toBe(12);
+    expect(onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.calls[0][0]).toBe(12);
+    expect(onValueChange.mock.calls[0][1].reason).toBe(REASONS.inputPaste);
   });
 
   describe('single sign character', () => {
