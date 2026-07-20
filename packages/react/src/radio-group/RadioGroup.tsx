@@ -154,6 +154,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
+  useIsoLayoutEffect(() => {
+    updateRepresentativeInput();
+  }, [fieldsetContext?.disabled, updateRepresentativeInput]);
+
   const registerInputRef = useStableCallback((input: HTMLInputElement) => {
     // `useMergedRefs` uses this callback's cleanup instead of detaching it with `null`.
     registeredInputRefs.current.add(input);
