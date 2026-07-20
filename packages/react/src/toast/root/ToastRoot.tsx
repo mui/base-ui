@@ -79,7 +79,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   );
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const hasMountedRef = React.useRef(false);
+  const lastToastIdRef = React.useRef<string | undefined>(undefined);
   const dragStartPosRef = React.useRef({ x: 0, y: 0 });
   const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
   const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
@@ -144,14 +144,22 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   // re-adding an ending toast retains the same root instance (`key={toast.id}`), and
   // index-keyed lists can hand an existing instance a different toast.
   useIsoLayoutEffect(() => {
-    if (hasMountedRef.current && toast.transitionStatus === 'starting') {
+    const previousToastId = lastToastIdRef.current;
+    // `recalculateHeight` clears the `starting` status itself, so bail out on the
+    // resulting re-run and on the later `ending` one, which the store discards anyway.
+    if (toast.transitionStatus !== 'starting' && previousToastId === toast.id) {
+      return;
+    }
+
+    if (previousToastId !== undefined && toast.transitionStatus === 'starting') {
       // A retained root keeps component-local swipe state from its previous lifecycle;
       // clear it so a revived toast doesn't stay offset or exit in the swiped direction.
       setCurrentSwipeDirection(undefined);
       setInitialTransform({ x: 0, y: 0, scale: 1 });
       setResolvedDragOffset({ x: 0, y: 0 });
     }
-    hasMountedRef.current = true;
+
+    lastToastIdRef.current = toast.id;
     recalculateHeight();
   }, [recalculateHeight, toast.id, toast.transitionStatus]);
 
