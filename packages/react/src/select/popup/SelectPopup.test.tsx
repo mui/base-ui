@@ -1,8 +1,9 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Select.Popup />', () => {
@@ -20,6 +21,71 @@ describe('<Select.Popup />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Select.Positioner>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Select.Root open>
+            <Select.Popup />
+          </Select.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('keeps arrow keys inside the popup when the trigger lives in a toolbar', async () => {
+    // Clicking the trigger starts its deferred `forceMount` timer, which settles after the
+    // assertions below.
+    ignoreActWarnings();
+    const onToolbarKeyDown = vi.fn();
+    const { user } = await render(
+      <Toolbar.Root onKeyDown={onToolbarKeyDown}>
+        <Select.Root defaultValue="a">
+          <Toolbar.Button render={<Select.Trigger data-testid="trigger" />}>
+            <Select.Value />
+          </Toolbar.Button>
+          {/* Rendered inline rather than portaled, so the popup sits inside the toolbar's own
+              DOM subtree and its composite key handling actually sees these events. */}
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Root>
+        <Toolbar.Button data-testid="next">Next</Toolbar.Button>
+      </Toolbar.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await act(async () => {
+      trigger.focus();
+    });
+
+    // Opening with the keyboard moves focus onto the selected item inside the popup.
+    await user.keyboard('{Enter}');
+    await screen.findByRole('listbox');
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+    });
+
+    // Enter isn't a composite key, so opening legitimately reaches the toolbar.
+    onToolbarKeyDown.mockClear();
+
+    // A horizontal toolbar navigates with ArrowRight. While the select popup owns focus that key
+    // belongs to the popup, so it must not bubble out and move focus off the toolbar button.
+    await user.keyboard('{ArrowRight}');
+
+    expect(onToolbarKeyDown).not.toHaveBeenCalled();
+    expect(screen.getByTestId('next')).not.toHaveFocus();
+  });
 
   it('has aria attributes when no Select.List is present', async () => {
     const { user } = await render(
@@ -966,6 +1032,645 @@ describe('<Select.Popup />', () => {
       }
     },
   );
+
+  it('does not resize the positioner when the list scrolls before the popup is placed', async () => {
+    await render(
+      <Select.Root defaultValue="a">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Positioner data-testid="positioner">
+          <Select.Popup>
+            <Select.ScrollUpArrow keepMounted data-testid="up-arrow" />
+            <Select.List
+              data-testid="list"
+              ref={(node) => {
+                if (!node) {
+                  return;
+                }
+
+                Object.defineProperty(node, 'scrollTop', { value: 100, configurable: true });
+                Object.defineProperty(node, 'scrollHeight', { value: 400, configurable: true });
+                Object.defineProperty(node, 'clientHeight', { value: 200, configurable: true });
+              }}
+            >
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    const geometryBefore = {
+      height: positioner.style.height,
+      top: positioner.style.top,
+      bottom: positioner.style.bottom,
+    };
+
+    // A closed popup has never been measured, so a stray scroll must neither rewrite the
+    // positioner geometry nor light up the scroll arrows.
+    fireEvent.scroll(screen.getByTestId('list'));
+
+    expect({
+      height: positioner.style.height,
+      top: positioner.style.top,
+      bottom: positioner.style.bottom,
+    }).toEqual(geometryBefore);
+    expect(screen.getByTestId('up-arrow')).not.toHaveAttribute('data-visible');
+  });
+
+  describe.skipIf(isJSDOM)('aligned popup scroll resizing', () => {
+    const docEl = document.documentElement;
+    const restores: Array<() => void> = [];
+
+    function stubProperty(target: object, property: string, value: unknown) {
+      const descriptor = Object.getOwnPropertyDescriptor(target, property);
+      Object.defineProperty(target, property, { value, configurable: true });
+      restores.push(() => {
+        if (descriptor) {
+          Object.defineProperty(target, property, descriptor);
+        } else {
+          delete (target as Record<string, unknown>)[property];
+        }
+      });
+    }
+
+    function stubRect(node: HTMLElement, left: number, top: number, width: number, height: number) {
+      stubProperty(node, 'getBoundingClientRect', () => ({
+        x: left,
+        y: top,
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+        toJSON: () => ({}),
+      }));
+      // Floating UI derives the element scale by comparing the rect against the offset box, so
+      // both have to agree or the stubbed geometry reads back as if the page were zoomed.
+      stubProperty(node, 'offsetWidth', width);
+      stubProperty(node, 'offsetHeight', height);
+    }
+
+    afterEach(() => {
+      while (restores.length > 0) {
+        restores.pop()!();
+      }
+    });
+
+    /**
+     * Renders an item-aligned select whose viewport and element geometry are fully stubbed, so
+     * the height-on-scroll behavior is reproducible instead of depending on the runner's window.
+     */
+    async function renderAligned(options: {
+      viewportHeight: number;
+      triggerTop: number;
+      positionerHeight: number;
+      listScrollHeight: number;
+      listClientHeight: number;
+      /** Vertical distance from the positioner top to the selected item's text. */
+      selectedTextTop?: number;
+      popupMaxHeight?: string;
+      /** Use uncontrolled open state so the component can close itself. */
+      uncontrolledOpen?: boolean;
+    }) {
+      const {
+        viewportHeight,
+        triggerTop,
+        positionerHeight,
+        listScrollHeight,
+        listClientHeight,
+        selectedTextTop,
+        popupMaxHeight = 'none',
+        uncontrolledOpen = false,
+      } = options;
+
+      stubProperty(docEl, 'clientHeight', viewportHeight);
+      stubProperty(docEl, 'clientWidth', 400);
+
+      let listScrollTop = 0;
+
+      await render(
+        <Select.Root
+          open={uncontrolledOpen ? undefined : true}
+          defaultOpen={uncontrolledOpen}
+          defaultValue="selected"
+        >
+          <Select.Trigger
+            data-testid="trigger"
+            ref={(node) => {
+              if (node) {
+                stubRect(node, 10, triggerTop, 80, 30);
+              }
+            }}
+          >
+            <Select.Value
+              data-testid="value"
+              ref={(node) => {
+                if (node) {
+                  stubRect(node, 10, triggerTop, 60, 30);
+                }
+              }}
+            />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner
+              data-testid="positioner"
+              ref={(node) => {
+                if (node) {
+                  stubRect(node, 10, 0, 108, positionerHeight);
+                }
+              }}
+            >
+              <Select.Popup data-testid="popup" style={{ maxHeight: popupMaxHeight }}>
+                <Select.List
+                  data-testid="list"
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollTop', {
+                      configurable: true,
+                      get: () => listScrollTop,
+                      set: (value: number) => {
+                        listScrollTop = value;
+                      },
+                    });
+                    stubProperty(node, 'scrollHeight', listScrollHeight);
+                    stubProperty(node, 'clientHeight', listClientHeight);
+                  }}
+                >
+                  <Select.Item value="selected">
+                    <Select.ItemText
+                      data-testid="selected-text"
+                      ref={(node) => {
+                        if (node && selectedTextTop != null) {
+                          stubRect(node, 10, selectedTextTop, 80, 30);
+                        }
+                      }}
+                    >
+                      Selected
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="other">
+                    <Select.ItemText>Other</Select.ItemText>
+                  </Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      const list = screen.getByTestId('list');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+      });
+
+      return {
+        positioner,
+        list,
+        getListScrollTop: () => listScrollTop,
+        setListScrollTop: (value: number) => {
+          listScrollTop = value;
+        },
+      };
+    }
+
+    it('anchors the popup to the viewport bottom when the selection sits near the list top', async () => {
+      const { positioner } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+      expect(positioner.style.top).toBe('');
+    });
+
+    it('grows a bottom-anchored popup as the list is scrolled and re-pins it to the top', async () => {
+      const { positioner, list, getListScrollTop, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      setListScrollTop(100);
+      fireEvent.scroll(list);
+
+      // The scrolled distance is converted into extra popup height, and the list snaps back so
+      // the newly revealed rows appear by growing rather than by scrolling.
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('300px');
+      });
+      expect(getListScrollTop()).toBe(0);
+    });
+
+    it('consumes a sub-pixel overscroll into the popup height', async () => {
+      const { positioner, list, getListScrollTop, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      setListScrollTop(0.5);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('200.5px');
+      });
+      expect(getListScrollTop()).toBe(0);
+    });
+
+    it('leaves the popup height alone when the list is already at the anchored edge', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      const heightBefore = positioner.style.height;
+
+      setListScrollTop(0);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe(heightBefore);
+      });
+    });
+
+    it('grows a top-anchored popup upward and keeps the list pinned to the bottom', async () => {
+      const { positioner, list, getListScrollTop, setListScrollTop } = await renderAligned({
+        viewportHeight: 400,
+        triggerTop: 200,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 300,
+        selectedTextTop: 300,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.top).toBe('0px');
+      });
+      expect(positioner.style.bottom).toBe('');
+
+      setListScrollTop(0);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('300px');
+      });
+      expect(getListScrollTop()).toBe(100);
+    });
+
+    it('stops growing a top-anchored popup once it fills the available height', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 400,
+        triggerTop: 200,
+        positionerHeight: 300,
+        listScrollHeight: 400,
+        listClientHeight: 300,
+        selectedTextTop: 300,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.top).toBe('0px');
+      });
+
+      setListScrollTop(0);
+      fireEvent.scroll(list);
+
+      // 300px of popup plus 100px of remaining scroll saturates the 380px of available height,
+      // so it clamps instead of overshooting the viewport.
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('380px');
+      });
+
+      // Once saturated, further scrolling must not keep resizing.
+      setListScrollTop(50);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('380px');
+      });
+    });
+
+    it('pins a top-anchored popup that already fills the viewport to the end of the list', async () => {
+      const { positioner, list, getListScrollTop, setListScrollTop } = await renderAligned({
+        viewportHeight: 400,
+        triggerTop: 200,
+        positionerHeight: 380,
+        listScrollHeight: 400,
+        listClientHeight: 300,
+        selectedTextTop: 300,
+      });
+
+      // A popup at least as tall as the usable viewport is flush with its top edge.
+      await waitFor(() => {
+        expect(positioner.style.top).toBe('0px');
+      });
+
+      const heightBefore = positioner.style.height;
+
+      setListScrollTop(100);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(getListScrollTop()).toBe(100);
+      });
+      expect(positioner.style.height).toBe(heightBefore);
+
+      // Having reached its maximum, the popup stops taking over scrolling entirely: a later
+      // sub-pixel scroll is left to the list instead of being snapped back to the edge.
+      setListScrollTop(99.5);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe(heightBefore);
+      });
+      expect(getListScrollTop()).toBe(99.5);
+    });
+
+    it('stops resizing once a max-height constrained popup is fully grown', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+        popupMaxHeight: '100px',
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      const heightBefore = positioner.style.height;
+
+      setListScrollTop(100);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe(heightBefore);
+      });
+    });
+
+    it('treats a zero max-height as unconstrained rather than collapsing the popup', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+        popupMaxHeight: '0px',
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      setListScrollTop(100);
+      fireEvent.scroll(list);
+
+      // `max-height: 0` is treated as unset, matching the margin/min-height fallbacks, so the
+      // popup still grows by the scrolled distance instead of clamping to nothing.
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('300px');
+      });
+    });
+
+    it('centers the transform origin when the positioner has no measurable height', async () => {
+      const { positioner } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 0,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+        selectedTextTop: 100,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      expect(screen.getByTestId('popup').style.getPropertyValue('--transform-origin')).toBe(
+        '50% 50%',
+      );
+    });
+
+    it('never applies a non-positive height when the viewport collapses below the margins', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      const heightBefore = positioner.style.height;
+
+      // The viewport shrinks to less than the popup's own margins after placement.
+      stubProperty(docEl, 'clientHeight', 20);
+
+      setListScrollTop(100);
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe(heightBefore);
+      });
+    });
+
+    it('ignores a pinch-zoomed visual viewport outside WebKit', async () => {
+      const { visualViewport } = window;
+      if (visualViewport) {
+        stubProperty(visualViewport, 'scale', 1.5);
+      }
+
+      const { positioner } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      // Only WebKit mispositions pinch-zoomed popups, so other engines keep item alignment.
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+      });
+    });
+
+    it('ignores scroll events bubbling to the popup while a Select.List owns scrolling', async () => {
+      const { positioner, list, setListScrollTop } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      const heightBefore = positioner.style.height;
+
+      // Give the popup its own (different) scroll geometry so handling it would be detectable.
+      const popup = screen.getByTestId('popup');
+      Object.defineProperty(popup, 'scrollTop', { value: 50, configurable: true });
+      Object.defineProperty(popup, 'scrollHeight', { value: 400, configurable: true });
+      Object.defineProperty(popup, 'clientHeight', { value: 200, configurable: true });
+
+      setListScrollTop(100);
+      // The list, not the popup, is the scroll container here. Handling the bubbled event on the
+      // popup as well would resize using the wrong element's offsets.
+      fireEvent.scroll(popup);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe(heightBefore);
+      });
+
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('300px');
+      });
+    });
+
+    it('grows the popup when it is itself the scroll container', async () => {
+      stubProperty(docEl, 'clientHeight', 720);
+      stubProperty(docEl, 'clientWidth', 400);
+
+      let popupScrollTop = 0;
+
+      await render(
+        <Select.Root open defaultValue="selected">
+          <Select.Trigger
+            data-testid="trigger"
+            ref={(node) => {
+              if (node) {
+                stubRect(node, 10, 300, 80, 30);
+              }
+            }}
+          >
+            <Select.Value
+              ref={(node) => {
+                if (node) {
+                  stubRect(node, 10, 300, 60, 30);
+                }
+              }}
+            />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner
+              data-testid="positioner"
+              ref={(node) => {
+                if (node) {
+                  stubRect(node, 10, 0, 108, 200);
+                }
+              }}
+            >
+              <Select.Popup
+                data-testid="popup"
+                style={{ maxHeight: 'none' }}
+                ref={(node) => {
+                  if (!node) {
+                    return;
+                  }
+
+                  Object.defineProperty(node, 'scrollTop', {
+                    configurable: true,
+                    get: () => popupScrollTop,
+                    set: (value: number) => {
+                      popupScrollTop = value;
+                    },
+                  });
+                  stubProperty(node, 'scrollHeight', 400);
+                  stubProperty(node, 'clientHeight', 200);
+                }}
+              >
+                <Select.Item value="selected">
+                  <Select.ItemText>Selected</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="other">
+                  <Select.ItemText>Other</Select.ItemText>
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      const popup = screen.getByTestId('popup');
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      popupScrollTop = 100;
+      fireEvent.scroll(popup);
+
+      await waitFor(() => {
+        expect(positioner.style.height).toBe('300px');
+      });
+      expect(popupScrollTop).toBe(0);
+    });
+
+    it('closes the aligned popup when the window is resized', async () => {
+      const { positioner } = await renderAligned({
+        viewportHeight: 720,
+        triggerTop: 300,
+        positionerHeight: 200,
+        listScrollHeight: 400,
+        listClientHeight: 200,
+        uncontrolledOpen: true,
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.bottom).toBe('0px');
+      });
+
+      // The aligned geometry is measured once, so a resize invalidates it entirely.
+      fireEvent(window, new UIEvent('resize'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+    });
+  });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {

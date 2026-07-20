@@ -40,6 +40,17 @@ describe('<Field.Description />', () => {
     );
   });
 
+  it('does not register an empty description id', () => {
+    render(
+      <Field.Root>
+        <Field.Control aria-describedby="external-description" />
+        <Field.Description id="">Message</Field.Description>
+      </Field.Root>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-describedby', 'external-description');
+  });
+
   it('reflects the disabled state from Field.Item', async () => {
     await render(
       <Field.Root>

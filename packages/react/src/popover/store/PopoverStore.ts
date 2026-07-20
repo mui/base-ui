@@ -82,9 +82,9 @@ export class PopoverStore<Payload> extends ReactStore<
   Selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>>,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(

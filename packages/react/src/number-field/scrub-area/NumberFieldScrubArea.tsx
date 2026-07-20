@@ -71,14 +71,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
   const [isScrubbing, setIsScrubbing] = React.useState(false);
 
-  function updateCursorTransform(x: number, y: number) {
-    const virtualCursor = scrubAreaCursorRef.current;
-    if (virtualCursor) {
-      // Invert the visual viewport scale so the cursor matches the OS cursor, which doesn't
-      // scale with the content on pinch-zoom.
-      const scale = ownerWindow(virtualCursor).visualViewport?.scale ?? 1;
-      virtualCursor.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / scale})`;
-    }
+  function updateCursorTransform(virtualCursor: HTMLSpanElement, x: number, y: number) {
+    // Invert the visual viewport scale so the cursor matches the OS cursor, which doesn't
+    // scale with the content on pinch-zoom.
+    const scale = ownerWindow(virtualCursor).visualViewport?.scale ?? 1;
+    virtualCursor.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / scale})`;
   }
 
   const onScrub = useStableCallback(({ movementX, movementY }: PointerEvent) => {
@@ -121,7 +118,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
     virtualCursorCoords.current = newCoords;
 
-    updateCursorTransform(newCoords.x, newCoords.y);
+    updateCursorTransform(virtualCursor, newCoords.x, newCoords.y);
   });
 
   const onScrubbingChange = useStableCallback(
@@ -143,7 +140,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       virtualCursorCoords.current = initialCoords;
 
-      updateCursorTransform(initialCoords.x, initialCoords.y);
+      updateCursorTransform(virtualCursor, initialCoords.x, initialCoords.y);
     },
   );
 
@@ -198,6 +195,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       function handleScrubPointerMove(event: PointerEvent) {
+        // The effects below can tear down and re-run without unmounting (`<Activity>`), which
+        // clears the ref while `isScrubbing` stays `true` and re-attaches this listener. The ref
+        // is the source of truth for whether a pointer is actually down.
         if (!isScrubbingRef.current) {
           return;
         }

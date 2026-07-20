@@ -28,14 +28,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   const { thumbMap, state, values, format, locale } = useSliderRootContext();
 
-  let htmlFor = '';
-  for (const thumbMetadata of thumbMap.values()) {
-    if (thumbMetadata.inputId) {
-      htmlFor += `${thumbMetadata.inputId} `;
-    }
-  }
-
-  const outputFor = htmlFor.trim() || undefined;
+  const outputFor =
+    Array.from(thumbMap.values(), ({ inputId }) => inputId)
+      .join(' ')
+      .trim() || undefined;
 
   const formattedValues = React.useMemo(
     () => values.map((v) => formatNumber(v, locale, format)),
