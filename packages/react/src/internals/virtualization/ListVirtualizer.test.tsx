@@ -36,7 +36,7 @@ describe('<ListVirtualizer />', () => {
 
     await render(
       <ListVirtualizer
-        estimateSize={20}
+        estimatedItemHeight={20}
         overscanPx={20}
         render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" role="list" />}
         renderRow={renderRow}
@@ -58,7 +58,7 @@ describe('<ListVirtualizer />', () => {
   it('retains multiple pinned rows outside the rendered window', async () => {
     await render(
       <ListVirtualizer
-        estimateSize={20}
+        estimatedItemHeight={20}
         overscanPx={0}
         pinnedRowIndexes={[50, 75]}
         render={<div ref={setElementClientHeight(40)} />}
@@ -85,7 +85,7 @@ describe('<ListVirtualizer />', () => {
 
     await render(
       <ListVirtualizer
-        estimateSize={20}
+        estimatedItemHeight={20}
         overscanPx={0}
         render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
         renderRow={renderRowSpy}
@@ -121,7 +121,7 @@ describe('<ListVirtualizer />', () => {
     const scrollTo = vi.fn();
     await render(
       <ListVirtualizer
-        estimateSize={20}
+        estimatedItemHeight={20}
         overscanPx={0}
         render={
           <div

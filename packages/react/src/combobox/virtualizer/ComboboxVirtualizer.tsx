@@ -133,7 +133,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     className,
     style,
     children,
-    estimateSize,
+    estimatedItemHeight,
     getItemKey,
     overscanPx,
     enabled = true,
@@ -165,12 +165,15 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   );
   const virtualizationEnabled = enabled && !renderAllRows;
 
-  const getEstimatedSize = React.useCallback(
+  const getEstimatedItemHeight = React.useCallback(
     (item: Value, index: number) => {
-      const size = typeof estimateSize === 'function' ? estimateSize(item, index) : estimateSize;
+      const size =
+        typeof estimatedItemHeight === 'function'
+          ? estimatedItemHeight(item, index)
+          : estimatedItemHeight;
       return Math.max(1, size);
     },
-    [estimateSize],
+    [estimatedItemHeight],
   );
 
   const rows = React.useMemo<ListVirtualizerRow<ComboboxVirtualRowModel<Value>>[]>(() => {
@@ -228,9 +231,10 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     [children, flatFilteredItems.length],
   );
 
-  const estimateRowSize = React.useCallback(
-    (model: ComboboxVirtualRowModel<Value>) => getEstimatedSize(model.item, model.virtualRowIndex),
-    [getEstimatedSize],
+  const estimateRowHeight = React.useCallback(
+    (model: ComboboxVirtualRowModel<Value>) =>
+      getEstimatedItemHeight(model.item, model.virtualRowIndex),
+    [getEstimatedItemHeight],
   );
 
   const listVirtualizerRef = React.useRef<ListVirtualizerHandle | null>(null);
@@ -298,7 +302,8 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   });
 
   const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
-  const resolvedEstimateSize = typeof estimateSize === 'number' ? estimateSize : estimateRowSize;
+  const resolvedEstimatedItemHeight =
+    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : estimateRowHeight;
 
   return (
     <ListVirtualizer
@@ -306,7 +311,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
       apiRef={listVirtualizerRef}
       className={className}
       enabled={virtualizationEnabled}
-      estimateSize={resolvedEstimateSize}
+      estimatedItemHeight={resolvedEstimatedItemHeight}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
       pinnedRowIndexes={pinnedRowIndexes}
@@ -407,9 +412,9 @@ interface ComboboxVirtualizerBaseProps<Value> extends Omit<
    */
   children: (item: Value, index: number) => React.ReactElement;
   /**
-   * Estimated item size used before item elements have been measured.
+   * Estimated item height in CSS pixels used before item elements have been measured.
    */
-  estimateSize: number | ((item: Value, index: number) => number);
+  estimatedItemHeight: number | ((item: Value, index: number) => number);
   /**
    * Pixel buffer rendered before and after the visible range.
    * Defaults to the larger of 150px and the estimated size of the first item.
