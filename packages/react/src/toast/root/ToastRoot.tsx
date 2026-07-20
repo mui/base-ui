@@ -234,7 +234,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   });
 
-  function handlePointerDown(event: React.PointerEvent) {
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
       return;
     }
@@ -260,15 +260,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     dragStartPosRef.current = { x: event.clientX, y: event.clientY };
     swipeCancelBaselineRef.current = dragStartPosRef.current;
 
-    if (rootRef.current) {
-      const transform = getElementTransform(rootRef.current);
-      initialTransformRef.current = transform;
-      setInitialTransform(transform);
-      setResolvedDragOffset({
-        x: transform.x,
-        y: transform.y,
-      });
-    }
+    const element = event.currentTarget;
+
+    const transform = getElementTransform(element);
+    initialTransformRef.current = transform;
+    setInitialTransform(transform);
+    setResolvedDragOffset({
+      x: transform.x,
+      y: transform.y,
+    });
 
     store.set('hovering', true);
     setIsSwiping(true);
@@ -276,18 +276,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setLockedDirection(null);
     isFirstPointerMoveRef.current = true;
 
-    const element = rootRef.current;
-    if (element) {
-      dragAbortControllerRef.current?.abort();
-      const dragAbortController = new AbortController();
-      dragAbortControllerRef.current = dragAbortController;
+    dragAbortControllerRef.current?.abort();
+    const dragAbortController = new AbortController();
+    dragAbortControllerRef.current = dragAbortController;
 
-      const doc = ownerDocument(element);
-      doc.addEventListener('pointerup', handleSwipeEnd, { signal: dragAbortController.signal });
-      doc.addEventListener('pointercancel', handleSwipeEnd, { signal: dragAbortController.signal });
+    const doc = ownerDocument(element);
+    doc.addEventListener('pointerup', handleSwipeEnd, { signal: dragAbortController.signal });
+    doc.addEventListener('pointercancel', handleSwipeEnd, { signal: dragAbortController.signal });
 
-      element.setPointerCapture?.(event.pointerId);
-    }
+    element.setPointerCapture?.(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent) {
@@ -330,15 +327,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
         setIsRealSwipe(true);
-        if (lockedDirection === null) {
-          const hasHorizontal =
-            swipeDirections.includes('left') || swipeDirections.includes('right');
-          const hasVertical = swipeDirections.includes('up') || swipeDirections.includes('down');
-          if (hasHorizontal && hasVertical) {
-            const absX = Math.abs(deltaX);
-            const absY = Math.abs(deltaY);
-            setLockedDirection(absX > absY ? 'horizontal' : 'vertical');
-          }
+        // `lockedDirection` is always reset alongside `isRealSwipe`, so it is
+        // still `null` here. Locking is only meaningful when both axes are
+        // swipeable; otherwise the single axis already constrains the gesture.
+        const hasHorizontal = swipeDirections.includes('left') || swipeDirections.includes('right');
+        const hasVertical = swipeDirections.includes('up') || swipeDirections.includes('down');
+        if (hasHorizontal && hasVertical) {
+          const absX = Math.abs(deltaX);
+          const absY = Math.abs(deltaY);
+          setLockedDirection(absX > absY ? 'horizontal' : 'vertical');
         }
       }
     }
@@ -417,12 +414,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   React.useEffect(() => {
-    if (!swipeEnabled) {
-      return undefined;
-    }
-
     const element = rootRef.current;
-    if (!element) {
+    if (!swipeEnabled || !element) {
       return undefined;
     }
 

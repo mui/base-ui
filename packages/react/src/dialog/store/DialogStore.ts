@@ -62,9 +62,9 @@ export class DialogStore<Payload> extends ReactStore<
   typeof selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>> | undefined,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);

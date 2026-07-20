@@ -12,10 +12,18 @@ import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
 import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
-type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
+type ToastInternalUpdateOptions<Data extends object> = Partial<
+  Omit<ToastObject<Data>, 'id' | 'updateKey'>
+>;
+
+/**
+ * A toast once it lives in the store. `addToast` is the only way in and it always
+ * assigns `updateKey`, so unlike the public `ToastObject` it is never missing.
+ */
+export type StoredToast<Data extends object = any> = ToastObject<Data> & { updateKey: number };
 
 export type State = {
-  toasts: ToastObject<any>[];
+  toasts: StoredToast[];
   toastMetadata: Map<string, ToastMetadata>;
   hovering: boolean;
   focused: boolean;
@@ -27,7 +35,7 @@ export type State = {
 };
 
 type ToastMetadata = {
-  value: ToastObject<any>;
+  value: StoredToast;
   domIndex: number;
   visibleIndex: number;
   offsetY: number;
@@ -35,7 +43,7 @@ type ToastMetadata = {
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
-function createToastMetadata(toasts: ToastObject<any>[]) {
+function createToastMetadata(toasts: StoredToast[]) {
   const metadata = new Map<string, ToastMetadata>();
   let visibleIndex = 0;
   let offsetY = 0;
@@ -63,7 +71,7 @@ function createToastMetadata(toasts: ToastObject<any>[]) {
 // toasts in newest-first order, so the newest `limit` toasts stay visible and
 // the rest are flagged. Returns the same toast reference when its `limited`
 // flag is unchanged to avoid unnecessary re-renders.
-function applyLimited(toasts: ToastObject<any>[], limit: number): ToastObject<any>[] {
+function applyLimited(toasts: StoredToast[], limit: number): StoredToast[] {
   let activeIndex = 0;
   return toasts.map((toast) => {
     if (toast.transitionStatus === 'ending') {
@@ -188,7 +196,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       }
     }
 
-    const toastToAdd: ToastObject<Data> = {
+    const toastToAdd: StoredToast<Data> = {
       ...toast,
       id,
       updateKey: 0,
@@ -233,11 +241,11 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const nextToast: ToastObject<Data> = {
+    const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
       ...(markUpdated && {
-        updateKey: (prevToast.updateKey ?? 0) + 1,
+        updateKey: prevToast.updateKey + 1,
       }),
     };
 
@@ -278,7 +286,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   closeToast = (toastId?: string) => {
     const closeAll = toastId === undefined;
     const { limit, toasts } = this.state;
-    let toastsToClose: ToastObject<any>[];
+    let toastsToClose: StoredToast[];
 
     if (closeAll) {
       toastsToClose = toasts;
@@ -357,11 +365,14 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
     this.areTimersPaused = true;
     this.timers.forEach((timer) => {
+      // Timers added while already paused have no running timeout, so their
+      // `remaining` is still the full delay and must be left alone.
       if (timer.timeout) {
         timer.timeout.clear();
-        const elapsed = Date.now() - timer.start;
-        const remaining = timer.delay - elapsed;
-        timer.remaining = remaining > 0 ? remaining : 0;
+        // `start` is stamped on every resume, so subtracting from `remaining`
+        // (rather than from the original delay) keeps repeated pause/resume
+        // cycles from handing the toast extra time.
+        timer.remaining = Math.max(timer.remaining - (Date.now() - timer.start), 0);
       }
     });
   }
@@ -450,10 +461,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
   }
 
-  private setToasts(
-    newToasts: ToastObject<any>[],
-    clearInteraction: boolean = newToasts.length === 0,
-  ) {
+  private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
     const updates: Partial<State> = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
@@ -505,8 +513,11 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
 interface TimerInfo {
   timeout?: Timeout | undefined;
+  /** Timestamp of the last time the timeout started running. */
   start: number;
+  /** Full timeout duration, used to restart a timer that elapsed while throttled. */
   delay: number;
+  /** Time left before the toast auto-dismisses, excluding any paused time. */
   remaining: number;
   callback: () => void;
 }

@@ -32,7 +32,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
 

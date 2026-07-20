@@ -60,6 +60,25 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('1');
     });
 
+    it.skipIf(!isJSDOM)('does not warn for a detached payload open in production', () => {
+      const originalEnvironment = process.env.NODE_ENV;
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      process.env.NODE_ENV = 'production';
+
+      try {
+        const handle = Dialog.createHandle<number>();
+
+        handle.openWithPayload(8);
+
+        expect(handle.isOpen).toBe(false);
+        expect(consoleWarn.mock.calls.length).toBe(0);
+      } finally {
+        process.env.NODE_ENV = originalEnvironment;
+        consoleWarn.mockRestore();
+      }
+    });
+
     it('ignores imperative handle calls made after the root is detached', async () => {
       const handle = Dialog.createHandle<number>();
 

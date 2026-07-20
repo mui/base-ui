@@ -41,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();

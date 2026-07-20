@@ -4,6 +4,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../../internals/types';
+import { useToolbarRootContext } from './ToolbarRootContext';
 
 describe('<Toolbar.Root />', () => {
   const { render } = createRenderer();
@@ -18,6 +19,27 @@ describe('<Toolbar.Root />', () => {
       const { container } = await render(<Toolbar.Root />);
 
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'toolbar');
+    });
+  });
+
+  describe('context', () => {
+    function OptionalToolbarConsumer() {
+      const context = useToolbarRootContext(true);
+      return <span>{context?.orientation ?? 'outside'}</span>;
+    }
+
+    it('allows optional consumers both outside and inside a toolbar', async () => {
+      await render(
+        <div>
+          <OptionalToolbarConsumer />
+          <Toolbar.Root orientation="vertical">
+            <OptionalToolbarConsumer />
+          </Toolbar.Root>
+        </div>,
+      );
+
+      expect(screen.getByText('outside')).toBeVisible();
+      expect(screen.getByText('vertical')).toBeVisible();
     });
   });
 
@@ -75,6 +97,29 @@ describe('<Toolbar.Root />', () => {
           expect(groupedButton2).toHaveFocus();
         });
       });
+    });
+
+    it('does not wrap focus when loopFocus is false', async () => {
+      const { user } = await render(
+        <Toolbar.Root loopFocus={false}>
+          <Toolbar.Button data-testid="first" />
+          <Toolbar.Button data-testid="last" />
+        </Toolbar.Root>,
+      );
+      const first = screen.getByTestId('first');
+      const last = screen.getByTestId('last');
+
+      await user.keyboard('[Tab]');
+      expect(first).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+      expect(first).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(last).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(last).toHaveFocus();
     });
   });
 
