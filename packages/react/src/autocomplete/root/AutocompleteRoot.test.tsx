@@ -6,6 +6,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
+import { Switch } from '@base-ui/react/switch';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -1152,6 +1153,28 @@ describe('<Autocomplete.Root />', () => {
     );
   });
 
+  describe('prop: value', () => {
+    it('treats a controlled null value as an empty query', async () => {
+      await render(
+        <Autocomplete.Root value={null as never} items={['apple']} defaultOpen>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).toHaveValue('');
+      expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
+    });
+  });
+
   describe('prop: submitOnItemClick', () => {
     it('prevents submit on Enter when an item is highlighted by default (false)', async () => {
       let submitted = 0;
@@ -1233,6 +1256,40 @@ describe('<Autocomplete.Root />', () => {
       await user.click(alphaButton);
 
       expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
+    });
+
+    it('uses the combobox input form when another unscoped control owns the validation ref', async () => {
+      let submitCount = 0;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submitCount += 1;
+      };
+
+      const { user } = await render(
+        <React.Fragment>
+          <form onSubmit={handleSubmit}>
+            <Autocomplete.Root items={['alpha']} submitOnItemClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </form>
+          <Switch.Root aria-label="Unrelated switch" />
+        </React.Fragment>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
       expect(submitCount).toBe(1);
     });
 

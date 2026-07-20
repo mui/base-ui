@@ -759,7 +759,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const requestSubmit = useStableCallback(() => {
-    const formElement = validation.inputRef.current?.form;
+    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
