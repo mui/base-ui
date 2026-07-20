@@ -1,4 +1,4 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -28,9 +28,15 @@ describe('<Menu.GroupLabel />', () => {
   }));
 
   it('throws when rendered outside Menu.Group or Menu.RadioGroup', async () => {
-    await expect(render(<Menu.GroupLabel />)).rejects.toThrow(
-      'Base UI: MenuGroupContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.GroupLabel />)).rejects.toThrow(
+        'Base UI: MenuGroupContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   describe('a11y attributes', () => {

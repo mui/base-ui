@@ -170,6 +170,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (
+        contains(triggerRef.current, targetElement) ||
         contains(internalBackdropRef.current, targetElement) ||
         contains(backdropRef.current, targetElement)
       ) {

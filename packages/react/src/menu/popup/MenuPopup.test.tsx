@@ -22,15 +22,21 @@ describe('<Menu.Popup />', () => {
   }));
 
   it('throws when rendered outside Menu.Positioner', async () => {
-    await expect(
-      render(
-        <Menu.Root open>
-          <Menu.Popup />
-        </Menu.Root>,
-      ),
-    ).rejects.toThrow(
-      'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.Popup />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('stops toolbar navigation keys without blocking ordinary key events', async () => {

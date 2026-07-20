@@ -3,7 +3,6 @@ import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
-import { SafeReact } from '@base-ui/utils/safeReact';
 
 type TextDirection = 'ltr' | 'rtl';
 
@@ -44,9 +43,15 @@ describe('<Menu.SubmenuTrigger />', () => {
   }));
 
   it('throws when rendered outside Menu.SubmenuRoot', async () => {
-    await expect(render(<Menu.SubmenuTrigger />)).rejects.toThrow(
-      'Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.SubmenuTrigger />)).rejects.toThrow(
+        'Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   function TestComponent({ direction = 'ltr' }: { direction: TextDirection }) {
@@ -231,8 +236,6 @@ describe('<Menu.SubmenuTrigger />', () => {
         .spyOn(console, 'warn')
         .mockName('console.warn')
         .mockImplementation(() => {});
-      vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(undefined as never);
-
       await render(
         <Menu.Root open>
           <Menu.Trigger>Open menu</Menu.Trigger>

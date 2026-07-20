@@ -25,9 +25,15 @@ describe('<ContextMenu.Trigger />', () => {
   }));
 
   it('throws when rendered outside ContextMenu.Root', async () => {
-    await expect(render(<ContextMenu.Trigger />)).rejects.toThrow(
-      'Base UI: ContextMenuRootContext is missing. ContextMenu parts must be placed within <ContextMenu.Root>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<ContextMenu.Trigger />)).rejects.toThrow(
+        'Base UI: ContextMenuRootContext is missing. ContextMenu parts must be placed within <ContextMenu.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('should open menu on right click (context menu event)', async () => {
@@ -287,7 +293,7 @@ describe('<ContextMenu.Trigger />', () => {
     });
   });
 
-  it('blocks native context menus on both internal and external backdrops only', async () => {
+  it('blocks native context menus on both internal and external backdrops', async () => {
     await render(
       <ContextMenu.Root defaultOpen>
         <ContextMenu.Trigger>Right click me</ContextMenu.Trigger>
@@ -317,6 +323,47 @@ describe('<ContextMenu.Trigger />', () => {
     expect(internalEvent.defaultPrevented).toBe(true);
     expect(externalEvent.defaultPrevented).toBe(true);
     expect(outsideEvent.defaultPrevented).toBe(false);
+  });
+
+  it('blocks native context menus in a portal mounted inside the trigger DOM subtree', async () => {
+    const portalContainerRef = React.createRef<HTMLDivElement>();
+
+    await render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>
+          Right click me
+          <div ref={portalContainerRef} />
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal container={portalContainerRef}>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup data-testid="popup" />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    screen.getByTestId('popup').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('blocks the native context menu when onContextMenu skips the Base UI handler', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger
+          data-testid="trigger"
+          onContextMenu={(event) => event.preventBaseUIHandler()}
+        >
+          Right click me
+        </ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    screen.getByTestId('trigger').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
   });
 
   describe.skipIf(isJSDOM)('long press', () => {

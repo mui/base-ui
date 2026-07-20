@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -21,9 +21,15 @@ describe('<Menu.Trigger />', () => {
   }));
 
   it('throws without Menu.Root or a handle', async () => {
-    await expect(render(<Menu.Trigger />)).rejects.toThrow(
-      'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.Trigger />)).rejects.toThrow(
+        'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   describe('prop: disabled', () => {

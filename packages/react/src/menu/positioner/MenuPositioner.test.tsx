@@ -38,13 +38,19 @@ describe('<Menu.Positioner />', () => {
   });
 
   it('throws when rendered outside Menu.Portal', async () => {
-    await expect(
-      render(
-        <Menu.Root open>
-          <Menu.Positioner />
-        </Menu.Root>,
-      ),
-    ).rejects.toThrow('Base UI: <Menu.Portal> is missing.');
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.Positioner />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Menu.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   describeConformance(<Menu.Positioner />, () => ({

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -27,9 +27,15 @@ describe('<Menu.RadioItemIndicator />', () => {
   }));
 
   it('throws when rendered outside Menu.RadioItem', async () => {
-    await expect(render(<Menu.RadioItemIndicator />)).rejects.toThrow(
-      'Base UI: MenuRadioItemContext is missing. MenuRadioItem parts must be placed within <Menu.RadioItem>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.RadioItemIndicator />)).rejects.toThrow(
+        'Base UI: MenuRadioItemContext is missing. MenuRadioItem parts must be placed within <Menu.RadioItem>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it.skipIf(isJSDOM)(

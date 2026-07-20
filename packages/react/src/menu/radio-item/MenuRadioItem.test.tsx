@@ -34,15 +34,21 @@ describe('<Menu.RadioItem />', () => {
   }));
 
   it('throws when rendered outside Menu.RadioGroup', async () => {
-    await expect(
-      render(
-        <Menu.Root open>
-          <Menu.RadioItem value="one" />
-        </Menu.Root>,
-      ),
-    ).rejects.toThrow(
-      'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.RadioItem value="one" />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
