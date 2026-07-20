@@ -250,7 +250,7 @@ describe('ToastStore', () => {
       expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
     });
 
-    it('dismisses promptly when the clock jumped past the timeout while paused', () => {
+    it('restarts the full delay when the clock jumped past the timeout before pausing', () => {
       vi.useFakeTimers();
       const store = createStore([]);
 
@@ -261,6 +261,9 @@ describe('ToastStore', () => {
       vi.setSystemTime(Date.now() + 60_000);
       store.pauseTimers();
       store.resumeTimers();
+
+      vi.advanceTimersByTime(4999);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
 
       vi.advanceTimersByTime(1);
       expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');

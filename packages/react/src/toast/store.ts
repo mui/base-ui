@@ -383,6 +383,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
     this.areTimersPaused = false;
     this.timers.forEach((timer, id) => {
+      timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
       timer.timeout ??= Timeout.create();
       timer.timeout.start(timer.remaining, () => {
         this.handleTimerFired(id);
@@ -425,6 +426,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     this.timers.set(id, {
       timeout: currentTimeout,
       start,
+      delay,
       remaining: delay,
       callback,
     });
@@ -513,6 +515,8 @@ interface TimerInfo {
   timeout?: Timeout | undefined;
   /** Timestamp of the last time the timeout started running. */
   start: number;
+  /** Full timeout duration, used to restart a timer that elapsed while throttled. */
+  delay: number;
   /** Time left before the toast auto-dismisses, excluding any paused time. */
   remaining: number;
   callback: () => void;
