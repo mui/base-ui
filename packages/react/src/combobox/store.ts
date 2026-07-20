@@ -8,6 +8,11 @@ import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
+export type VirtualizationState = {
+  renderAllRows: boolean;
+  renderAllRowsRestoreVersion: number;
+};
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
@@ -80,6 +85,7 @@ export type State = {
   required: boolean;
   grid: boolean;
   externallyVirtualized: boolean;
+  virtualizationState: VirtualizationState;
   virtualizationRegistry: ListVirtualizationRegistry;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
@@ -93,6 +99,25 @@ export type State = {
 };
 
 export type ComboboxStore = Store<State>;
+
+type VirtualizationStore = {
+  state: { virtualizationState: VirtualizationState };
+  set: (key: 'virtualizationState', value: VirtualizationState) => void;
+};
+
+export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
+  const virtualizationState = store.state.virtualizationState;
+
+  if (virtualizationState.renderAllRows === renderAllRows) {
+    return;
+  }
+
+  store.set('virtualizationState', {
+    renderAllRows,
+    renderAllRowsRestoreVersion:
+      virtualizationState.renderAllRowsRestoreVersion + (renderAllRows ? 0 : 1),
+  });
+}
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
@@ -171,6 +196,7 @@ export const selectors = {
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
   externallyVirtualized: createSelector((state: State) => state.externallyVirtualized),
+  virtualizationState: createSelector((state: State) => state.virtualizationState),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemDisabled: createSelector((state: State) => state.isItemDisabled),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),

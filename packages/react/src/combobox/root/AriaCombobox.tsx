@@ -37,7 +37,7 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, setVirtualizationRenderAllRows, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -69,10 +69,7 @@ import {
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import {
-  createListVirtualizationRegistry,
-  setListVirtualizersRenderAllRows,
-} from '../../internals/virtualization/ListVirtualizationRegistry';
+import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
 
 const MAX_RENDERED_AUTOFILL_ITEMS = 1000;
 
@@ -399,6 +396,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       required,
       grid,
       externallyVirtualized: virtualized,
+      virtualizationState: {
+        renderAllRows: false,
+        renderAllRowsRestoreVersion: 0,
+      },
       virtualizationRegistry,
       openOnInputClick,
       itemToStringLabel,
@@ -1433,7 +1434,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
             function restoreRenderedLabels() {
               ReactDOM.flushSync(() => {
-                setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, false);
+                setVirtualizationRenderAllRows(store, false);
                 store.set('forceMounted', false);
               });
             }
@@ -1452,7 +1453,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                   collectedRenderedLabels = true;
                   try {
                     ReactDOM.flushSync(() => {
-                      setListVirtualizersRenderAllRows(store.state.virtualizationRegistry, true);
+                      setVirtualizationRenderAllRows(store, true);
                       store.set('forceMounted', true);
                     });
                   } catch (error) {
