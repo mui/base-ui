@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
@@ -36,12 +37,12 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     getTabIdByPanelValue,
     orientation,
     tabActivationDirection,
+    registerMountedTabPanel,
   } = useTabsRootContext();
 
   const id = useBaseUiId();
 
-  const metadata = React.useMemo<TabsPanel.Metadata>(() => ({ id, value }), [id, value]);
-  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({ metadata });
+  const { ref: listItemRef, index } = useCompositeListItem();
 
   const open = value === selectedValue;
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
@@ -86,6 +87,17 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
       }
     },
   });
+
+  useIsoLayoutEffect(() => {
+    // On React 17 `useId` resolves in a passive effect, so `id` is still
+    // undefined during this layout effect on the first commit. Skip the
+    // registration until the effect re-runs with the resolved id.
+    if (id == null || (hidden && !keepMounted)) {
+      return undefined;
+    }
+
+    return registerMountedTabPanel(value, id);
+  }, [hidden, keepMounted, value, id, registerMountedTabPanel]);
 
   const shouldRender = keepMounted || mounted;
   if (!shouldRender) {

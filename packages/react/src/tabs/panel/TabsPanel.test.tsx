@@ -25,6 +25,36 @@ describe('<Tabs.Panel />', () => {
   });
 
   describe('panels sharing a value', () => {
+    it('gives ownership to a panel that starts sharing the value later', async () => {
+      function App() {
+        const [firstValue, setFirstValue] = React.useState('a');
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setFirstValue('b')}>
+              share value
+            </button>
+            <Tabs.Root value="c">
+              <Tabs.List>
+                <Tabs.Tab value="b">B</Tabs.Tab>
+              </Tabs.List>
+              <Tabs.Panel value={firstValue} keepMounted data-testid="first" />
+              <Tabs.Panel value="b" keepMounted data-testid="second" />
+            </Tabs.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const tab = screen.getByRole('tab');
+
+      expect(tab).toHaveAttribute('aria-controls', screen.getByTestId('second').id);
+
+      await user.click(screen.getByRole('button', { name: 'share value' }));
+
+      expect(tab).toHaveAttribute('aria-controls', screen.getByTestId('first').id);
+    });
+
     it('keeps the surviving registration when a shadowed panel unmounts', async () => {
       function App() {
         const [shadowedMounted, setShadowedMounted] = React.useState(true);
