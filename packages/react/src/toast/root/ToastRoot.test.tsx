@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -249,6 +250,40 @@ describe('<Toast.Root />', () => {
     await user.keyboard('{Escape}');
 
     expect(screen.queryByTestId('root')).toBe(null);
+  });
+
+  it('ignores Escape when focus is in portaled content', async () => {
+    function PortalList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
+          <Toast.Title>{toastItem.title}</Toast.Title>
+          {ReactDOM.createPortal(
+            <button type="button" data-testid="portaled">
+              portaled
+            </button>,
+            document.body,
+          )}
+        </Toast.Root>
+      ));
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <PortalList />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    // The button is a React child of the toast, so the key event bubbles to the
+    // toast, but it lives outside the toast in the DOM and owns the Escape key.
+    await act(async () => screen.getByTestId('portaled').focus());
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByTestId('root')).not.toBe(null);
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
@@ -502,7 +537,7 @@ describe('<Toast.Root />', () => {
       });
     });
 
-    it('cancels swipe when direction is reversed beyond threshold', async () => {
+    it('cancels a vertical swipe when the pointer changes its mind', async () => {
       await render(
         <Toast.Provider>
           <Toast.Viewport>
@@ -516,13 +551,182 @@ describe('<Toast.Root />', () => {
 
       const toastElement = screen.getByTestId('toast-root');
 
-      // Start swiping up
       fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
-      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 80, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 99,
+        movementY: -1,
+        pointerId: 1,
+      });
 
-      // Then reverse direction
-      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
-      fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
+      // Swipe up well past the dismiss threshold to arm the gesture.
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 10,
+        movementY: -89,
+        pointerId: 1,
+      });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'up');
+
+      // Reversing moves the cancel baseline to the turning point, so the swipe
+      // is now measured as zero progress from there rather than 50px from the
+      // original press, and the change of mind wins.
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 50,
+        movementY: 40,
+        pointerId: 1,
+      });
+      fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 50, pointerId: 1 });
+
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+    });
+
+    it('cancels a horizontal swipe when the pointer changes its mind', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection="right" />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 101,
+        clientY: 100,
+        movementX: 1,
+        pointerId: 1,
+      });
+
+      fireEvent.pointerMove(toastElement, {
+        clientX: 190,
+        clientY: 100,
+        movementX: 89,
+        pointerId: 1,
+      });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'right');
+
+      fireEvent.pointerMove(toastElement, {
+        clientX: 150,
+        clientY: 100,
+        movementX: -40,
+        pointerId: 1,
+      });
+      fireEvent.pointerUp(toastElement, { clientX: 150, clientY: 100, pointerId: 1 });
+
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+    });
+
+    it('locks the gesture to the horizontal axis when it starts sideways', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 100, pointerId: 1 });
+
+      // Mostly sideways, so the gesture locks to the horizontal axis.
+      fireEvent.pointerMove(toastElement, { clientX: 95, clientY: 98, pointerId: 1 });
+
+      // Left is not a dismissible direction, so nothing gets armed.
+      fireEvent.pointerMove(toastElement, { clientX: 90, clientY: 98, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Back at the origin the horizontal delta is exactly zero.
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 98, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Dragging far downwards and slightly right: without the axis lock the
+      // larger vertical delta would arm `down` instead.
+      fireEvent.pointerMove(toastElement, { clientX: 110, clientY: 220, pointerId: 1 });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'right');
+
+      fireEvent.pointerMove(toastElement, { clientX: 160, clientY: 220, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 160, clientY: 220, pointerId: 1 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('locks the gesture to the vertical axis when it starts upright', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 100, pointerId: 1 });
+
+      // Mostly upright, so the gesture locks to the vertical axis.
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 95, pointerId: 1 });
+
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 90, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 100, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Dragging far to the right and slightly down: without the axis lock the
+      // larger horizontal delta would arm `right` instead.
+      fireEvent.pointerMove(toastElement, { clientX: 220, clientY: 110, pointerId: 1 });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'down');
+
+      fireEvent.pointerMove(toastElement, { clientX: 220, clientY: 160, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 220, clientY: 160, pointerId: 1 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('does not start a swipe from a non-primary pointer button', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection="right" />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 2, pointerId: 1 });
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+
+      fireEvent.pointerMove(toastElement, { clientX: 200, clientY: 100, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 200, clientY: 100, pointerId: 1 });
 
       expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
