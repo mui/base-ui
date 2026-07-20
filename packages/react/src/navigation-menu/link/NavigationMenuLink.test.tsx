@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -131,41 +131,36 @@ describe('<NavigationMenu.Link />', () => {
     });
   });
 
-  it('closes the menu when focus leaves from a link', async () => {
+  it('keeps the menu open when a link loses focus without a related target', async () => {
     const { user } = await render(
-      <div>
-        <NavigationMenu.Root>
-          <NavigationMenu.List>
-            <NavigationMenu.Item value="item-1">
-              <NavigationMenu.Trigger>Item 1</NavigationMenu.Trigger>
-              <NavigationMenu.Content>
-                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
-          </NavigationMenu.List>
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="item-1">
+            <NavigationMenu.Trigger>Item 1</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
 
-          <NavigationMenu.Portal>
-            <NavigationMenu.Positioner>
-              <NavigationMenu.Popup>
-                <NavigationMenu.Viewport />
-              </NavigationMenu.Popup>
-            </NavigationMenu.Positioner>
-          </NavigationMenu.Portal>
-        </NavigationMenu.Root>
-        <button>Outside</button>
-      </div>,
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner>
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
     );
 
     const trigger = screen.getByRole('button', { name: 'Item 1' });
     await user.click(trigger);
 
     const link = await screen.findByRole('link', { name: 'Link 1' });
-    await act(async () => link.focus());
-    await act(async () => screen.getByRole('button', { name: 'Outside' }).focus());
+    fireEvent.focus(link);
+    fireEvent.blur(link, { relatedTarget: null });
 
-    await waitFor(() => {
-      expect(screen.queryByRole('link', { name: 'Link 1' })).toBe(null);
-    });
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('link', { name: 'Link 1' })).not.toBe(null);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 });

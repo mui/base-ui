@@ -245,6 +245,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           setSharedFixedSize(popup, positioner, currentWidth, currentHeight);
 
           sizeFrame.request(() => {
+            if (!isActiveItemRef.current) {
+              return;
+            }
+
             setSharedFixedSize(popup, positioner, measuredWidth, measuredHeight);
             scheduleAutoSizeReset(popup);
           });
@@ -519,6 +523,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
+    if (nested && positionerElement) {
+      return null;
+    }
+
     return triggerElementRef.current?.closest('ul') ?? null;
   }
 
@@ -527,7 +535,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     move: false,
     handleClose: safePolygon({
       blockPointerEvents: shouldBlockSafePolygonPointerEvents,
-      getScope: nested && positionerElement ? undefined : getScope,
+      getScope,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
@@ -700,12 +708,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (
         positionerElement &&
         popupElement &&
-        isOutsideMenuEvent(event.relatedTarget as HTMLElement | null, {
-          popupElement,
-          rootRef,
-          tree: tree!,
-          nodeId,
-        })
+        isOutsideMenuEvent(
+          {
+            currentTarget: event.currentTarget,
+            relatedTarget: event.relatedTarget as HTMLElement | null,
+          },
+          { popupElement, rootRef, tree, nodeId },
+        )
       ) {
         setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
       }
