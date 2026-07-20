@@ -63,8 +63,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null =>
-      findTabElement(tabMap, selectedValue),
+    (selectedValue: TabsTab.Value): HTMLElement | null => findTabElement(tabMap, selectedValue),
     [tabMap],
   );
 
@@ -231,15 +230,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       setValue(fallbackValue);
       // Automatic fallbacks are not directional transitions; reset the direction
       // alongside the value so the batched commit keeps both in sync.
-      setActivationDirectionState((prev) => {
-        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
-          return prev;
-        }
-
-        return {
-          previousValue: fallbackValue,
-          tabActivationDirection: 'none',
-        };
+      setActivationDirectionState({
+        previousValue: fallbackValue,
+        tabActivationDirection: 'none',
       });
       notifyAutomaticValueChange(fallbackValue, fallbackReason);
       // Mark the initial notification as delivered only after the consumer
@@ -340,14 +333,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
 function findTabElement(
   tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
-  value: TabsTab.Value | undefined,
+  value: TabsTab.Value,
 ): HTMLElement | null {
-  if (value === undefined) {
-    return null;
-  }
-
   for (const [tabElement, tabMetadata] of tabMap.entries()) {
-    if (value === (tabMetadata.value ?? tabMetadata.index)) {
+    if (value === tabMetadata.value) {
       return tabElement as HTMLElement;
     }
   }

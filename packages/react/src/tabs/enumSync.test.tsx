@@ -6,6 +6,9 @@ import { createRenderer } from '#test-utils';
 import { tabsStateAttributesMapping } from './root/stateAttributesMapping';
 import { TabsRootDataAttributes } from './root/TabsRootDataAttributes';
 import { TabsPanelDataAttributes } from './panel/TabsPanelDataAttributes';
+import { TabsListDataAttributes } from './list/TabsListDataAttributes';
+import { TabsTabDataAttributes } from './tab/TabsTabDataAttributes';
+import { TabsIndicatorDataAttributes } from './indicator/TabsIndicatorDataAttributes';
 import { TabsIndicatorCssVars } from './indicator/TabsIndicatorCssVars';
 
 // The parts inline these enums' values instead of referencing the members, so
@@ -31,6 +34,46 @@ describe('Tabs enum sync', () => {
     );
 
     expect(screen.getByTestId('panel')).toHaveAttribute(TabsPanelDataAttributes.index);
+  });
+
+  it('names the tab attributes per TabsTabDataAttributes', async () => {
+    await render(
+      <Tabs.Root defaultValue={0} orientation="vertical">
+        <Tabs.List>
+          <Tabs.Tab value={0} data-testid="active-tab" />
+          <Tabs.Tab value={1} disabled data-testid="disabled-tab" />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    const activeTab = screen.getByTestId('active-tab');
+    expect(activeTab).toHaveAttribute(TabsTabDataAttributes.orientation, 'vertical');
+    expect(activeTab).toHaveAttribute(TabsTabDataAttributes.activationDirection, 'none');
+    expect(activeTab).toHaveAttribute(TabsTabDataAttributes.active);
+    expect(activeTab).not.toHaveAttribute(TabsTabDataAttributes.disabled);
+
+    const disabledTab = screen.getByTestId('disabled-tab');
+    expect(disabledTab).toHaveAttribute(TabsTabDataAttributes.disabled);
+    expect(disabledTab).not.toHaveAttribute(TabsTabDataAttributes.active);
+  });
+
+  it('names the list and indicator attributes per their data attribute enums', async () => {
+    await render(
+      <Tabs.Root defaultValue={0} orientation="vertical">
+        <Tabs.List data-testid="list">
+          <Tabs.Tab value={0} />
+          <Tabs.Indicator data-testid="indicator" />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    const list = screen.getByTestId('list');
+    expect(list).toHaveAttribute(TabsListDataAttributes.orientation, 'vertical');
+    expect(list).toHaveAttribute(TabsListDataAttributes.activationDirection, 'none');
+
+    const indicator = screen.getByTestId('indicator');
+    expect(indicator).toHaveAttribute(TabsIndicatorDataAttributes.orientation, 'vertical');
+    expect(indicator).toHaveAttribute(TabsIndicatorDataAttributes.activationDirection, 'none');
   });
 
   it('names the indicator CSS variables per TabsIndicatorCssVars', async () => {

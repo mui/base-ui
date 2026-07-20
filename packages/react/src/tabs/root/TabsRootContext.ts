@@ -20,7 +20,7 @@ export interface TabsRootContext {
   /**
    * Gets the element of the Tab with the given value.
    */
-  getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
+  getTabElementBySelectedValue: (selectedValue: TabsTab.Value) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
    */

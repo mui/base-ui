@@ -273,6 +273,9 @@ describe('<Form />', () => {
           <button type="button" onClick={() => setDisabled(true)}>
             Disable
           </button>
+          <button type="button" onClick={() => setDisabled(false)}>
+            Enable
+          </button>
           <button type="submit">Submit</button>
         </Form>
       );
@@ -296,6 +299,13 @@ describe('<Form />', () => {
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+
+    await user.click(screen.getByRole('button', { name: 'Enable' }));
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
   });
 
   it('clears invalid attributes when a field control becomes disabled', async () => {

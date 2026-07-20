@@ -4,7 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   CompositeList,
   type CompositeMetadata,
@@ -71,8 +71,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     initialValueRef,
     popupRef,
     setValue,
+    floatingContext: floatingRootContext,
   } = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);

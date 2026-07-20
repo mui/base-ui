@@ -180,4 +180,76 @@ describe('<Tooltip.Provider />', () => {
       expect(screen.queryByText('Content')).toBe(null);
     });
   });
+
+  describe('prop: timeout', () => {
+    clock.withFakeTimers();
+
+    function TwoTooltips({ timeout }: { timeout: number }) {
+      return (
+        <Tooltip.Provider delay={100} timeout={timeout}>
+          {['One', 'Two'].map((name) => (
+            <Tooltip.Root key={name}>
+              <Tooltip.Trigger>{name}</Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>{`Content ${name}`}</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          ))}
+        </Tooltip.Provider>
+      );
+    }
+
+    it('opens an adjacent tooltip instantly while the group is active', async () => {
+      await render(<TwoTooltips timeout={400} />);
+
+      const first = screen.getByRole('button', { name: 'One' });
+      const second = screen.getByRole('button', { name: 'Two' });
+
+      fireEvent.mouseEnter(first);
+      fireEvent.mouseMove(first);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content One')).not.toBe(null);
+
+      fireEvent.mouseLeave(first);
+      fireEvent.mouseEnter(second);
+      fireEvent.mouseMove(second);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content Two')).not.toBe(null);
+      expect(screen.queryByText('Content One')).toBe(null);
+    });
+
+    it('requires the full delay again once the timeout elapses', async () => {
+      await render(<TwoTooltips timeout={400} />);
+
+      const first = screen.getByRole('button', { name: 'One' });
+      const second = screen.getByRole('button', { name: 'Two' });
+
+      fireEvent.mouseEnter(first);
+      fireEvent.mouseMove(first);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content One')).not.toBe(null);
+
+      fireEvent.mouseLeave(first);
+      clock.tick(400);
+      await flushMicrotasks();
+
+      fireEvent.mouseEnter(second);
+      fireEvent.mouseMove(second);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content Two')).toBe(null);
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content Two')).not.toBe(null);
+    });
+  });
 });
