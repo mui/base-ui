@@ -163,14 +163,17 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
     // Registered for every button so a secondary press doesn't leave the tab
     // stuck in the pressing state, which would suppress later focus activation.
-    ownerDocument(event.currentTarget).addEventListener(
-      'pointerup',
-      () => {
-        isPressingRef.current = false;
-        isMainButtonRef.current = false;
-      },
-      { once: true },
-    );
+    const doc = ownerDocument(event.currentTarget);
+
+    function handlePointerEnd() {
+      isPressingRef.current = false;
+      isMainButtonRef.current = false;
+      doc.removeEventListener('pointerup', handlePointerEnd);
+      doc.removeEventListener('pointercancel', handlePointerEnd);
+    }
+
+    doc.addEventListener('pointerup', handlePointerEnd);
+    doc.addEventListener('pointercancel', handlePointerEnd);
   }
 
   const state: TabsTabState = {

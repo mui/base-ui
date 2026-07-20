@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -131,6 +131,23 @@ describe('<Tabs.Tab />', () => {
       await user.pointer({ keys: '[MouseRight]', target: secondTab });
 
       expect(handleValueChange).not.toHaveBeenCalled();
+
+      await act(async () => {
+        firstTab.focus();
+      });
+      await user.keyboard('{ArrowRight}');
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(secondTab).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('activates on focus again once a secondary-button press is cancelled', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(<TwoTabs onValueChange={handleValueChange} />);
+
+      const [firstTab, secondTab] = screen.getAllByRole('tab');
+      fireEvent.pointerDown(secondTab, { button: 2 });
+      fireEvent.pointerCancel(secondTab);
 
       await act(async () => {
         firstTab.focus();
