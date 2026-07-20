@@ -44,14 +44,12 @@ function BuiltInVirtualizer() {
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
-            <Combobox.List className={styles.List}>
+            <Combobox.List className={styles.BuiltInList}>
               <Combobox.Virtualizer
-                className={styles.Scroller}
+                className={`${styles.Scroller} ${styles.BuiltInScroller}`}
                 estimateSize={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
-                paddingStart={4}
-                paddingEnd={4}
               >
                 {(item: VirtualizedItem) => <VirtualizedItemRow item={item} />}
               </Combobox.Virtualizer>

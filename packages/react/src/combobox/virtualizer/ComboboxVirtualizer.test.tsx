@@ -76,7 +76,6 @@ describe('<Combobox.Virtualizer />', () => {
         <Combobox.List>
           <Combobox.Virtualizer
             estimateSize={20}
-            paddingStart={4}
             overscanPx={0}
             render={<div ref={setElementClientHeight(40)} />}
           >
@@ -95,42 +94,15 @@ describe('<Combobox.Virtualizer />', () => {
     expect(firstItem).toHaveAttribute('aria-posinset', '1');
     expect(firstItem).toHaveAttribute('aria-setsize', '10');
     expect(firstItem).toHaveAttribute('data-index', '0');
-    expect(firstItem.parentElement).toHaveStyle({ paddingTop: '4px' });
   });
 
-  it('applies padding after the last virtual row', async () => {
-    await render(
-      <Combobox.Root defaultOpen items={createItems(2)}>
-        <Combobox.List>
-          <Combobox.Virtualizer
-            estimateSize={20}
-            overscanPx={0}
-            paddingEnd={6}
-            render={<div ref={setElementClientHeight(60)} />}
-          >
-            {(item: string) => (
-              <Combobox.Item key={item} value={item} style={{ height: 20 }}>
-                {item}
-              </Combobox.Item>
-            )}
-          </Combobox.Virtualizer>
-        </Combobox.List>
-      </Combobox.Root>,
-    );
-
-    expect((await screen.findByRole('option', { name: 'Item 2' })).parentElement).toHaveStyle({
-      paddingBottom: '6px',
-    });
-  });
-
-  it.skipIf(!isJSDOM)('updates estimated size and padding when their props change', async () => {
-    function Test(props: { estimateSize: number; paddingStart: number }) {
+  it.skipIf(!isJSDOM)('updates estimated size when the prop changes', async () => {
+    function Test(props: { estimateSize: number }) {
       return (
         <Combobox.Root defaultOpen items={createItems(3)}>
           <Combobox.List>
             <Combobox.Virtualizer
               estimateSize={props.estimateSize}
-              paddingStart={props.paddingStart}
               render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
             >
               {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
@@ -140,17 +112,14 @@ describe('<Combobox.Virtualizer />', () => {
       );
     }
 
-    const { rerender } = await render(<Test estimateSize={20} paddingStart={4} />);
+    const { rerender } = await render(<Test estimateSize={20} />);
     const virtualizer = screen.getByTestId('virtualizer');
 
-    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('64px'));
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
 
-    await rerender(<Test estimateSize={40} paddingStart={40} />);
+    await rerender(<Test estimateSize={40} />);
 
-    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('160px'));
-    expect(screen.getByRole('option', { name: 'Item 1' }).parentElement).toHaveStyle({
-      paddingTop: '40px',
-    });
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
   });
 
   it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {

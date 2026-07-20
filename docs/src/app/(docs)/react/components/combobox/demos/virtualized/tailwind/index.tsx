@@ -18,14 +18,12 @@ export default function ExampleVirtualizedCombobox() {
                 No items found.
               </div>
             </Combobox.Empty>
-            <Combobox.List className="p-0">
+            <Combobox.List className="py-1 data-empty:py-0">
               <Combobox.Virtualizer
-                className="h-[min(22.5rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-1"
+                className="h-[min(22rem,var(--total-size))] max-h-[calc(var(--available-height)-0.5rem)] overflow-auto overscroll-contain scroll-py-1"
                 estimateSize={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
-                paddingStart={4}
-                paddingEnd={4}
               >
                 {(item: VirtualizedItem) => (
                   <Combobox.Item

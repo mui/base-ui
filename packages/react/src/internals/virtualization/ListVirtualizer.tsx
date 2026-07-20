@@ -34,14 +34,6 @@ export interface ListVirtualizerRow<RowModel extends MuiVirtualizerRow> {
 }
 
 /**
- * Empty space around a virtual row.
- */
-interface ListVirtualizerRowSpacing {
-  bottom: number;
-  top: number;
-}
-
-/**
  * Parameters provided when rendering a row.
  */
 export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtualizerRow> {
@@ -62,11 +54,8 @@ export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtuali
 interface ListVirtualRowProps<RowModel extends MuiVirtualizerRow> {
   apiRef: React.RefObject<Virtualizer['api'] | null>;
   isVirtualFocusRow: boolean;
-  paddingEnd: number;
-  paddingStart: number;
   renderRow: (params: ListVirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
   row: ListVirtualizerRow<RowModel>;
-  rowCount: number;
   rowIndex: number;
 }
 
@@ -82,19 +71,14 @@ const focusProxyStyle: React.CSSProperties = {
   transform: 'translateX(-10000px)',
 };
 
+const virtualRowStyle: React.CSSProperties = {
+  display: 'flow-root',
+};
+
 function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
   props: ListVirtualRowProps<RowModel>,
 ) {
-  const {
-    apiRef,
-    isVirtualFocusRow,
-    paddingEnd,
-    paddingStart,
-    renderRow,
-    row,
-    rowCount,
-    rowIndex,
-  } = props;
+  const { apiRef, isVirtualFocusRow, renderRow, row, rowIndex } = props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
   const measureRef = useStableCallback((element: HTMLElement | null) => {
@@ -118,14 +102,7 @@ function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
     rowIndex,
   });
 
-  const spacing = getRowSpacing(rowIndex, rowCount, paddingStart, paddingEnd);
-  const style: React.CSSProperties = isVirtualFocusRow
-    ? focusProxyStyle
-    : {
-        display: 'flow-root',
-        paddingBottom: spacing.bottom || undefined,
-        paddingTop: spacing.top || undefined,
-      };
+  const style = isVirtualFocusRow ? focusProxyStyle : virtualRowStyle;
 
   // MUI X can retain a focused row outside the visible range. Keep its semantic content mounted,
   // but remove it from layout and measurement until the real row enters the rendered window.
@@ -196,8 +173,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     estimateSize,
     onUnconstrainedHeight,
     overscanPx,
-    paddingEnd = 0,
-    paddingStart = 0,
     pinnedRowIndexes,
     render,
     renderRow: renderRowProp,
@@ -242,10 +217,9 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     (row: ListVirtualizerRow<RowModel>, rowIndex: number) => {
       const size =
         typeof estimateSize === 'function' ? estimateSize(row.model, rowIndex) : estimateSize;
-      const spacing = getRowSpacing(rowIndex, rows.length, paddingStart, paddingEnd);
-      return Math.max(1, size) + spacing.top + spacing.bottom;
+      return Math.max(1, size);
     },
-    [estimateSize, paddingEnd, paddingStart, rows.length],
+    [estimateSize],
   );
 
   const defaultEstimatedSize =
@@ -298,16 +272,13 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           key={params.id}
           apiRef={muiApiRef}
           isVirtualFocusRow={params.isVirtualFocusRow}
-          paddingEnd={paddingEnd}
-          paddingStart={paddingStart}
           renderRow={renderRowProp}
           row={row}
-          rowCount={rows.length}
           rowIndex={params.rowIndex}
         />
       );
     },
-    [paddingEnd, paddingStart, renderRowProp, rows],
+    [renderRowProp, rows],
   );
 
   const getRowHeight = React.useCallback(() => 'auto' as const, []);
@@ -798,16 +769,6 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
    */
   overscanPx?: number | undefined;
   /**
-   * Empty space after the last virtual row.
-   * @default 0
-   */
-  paddingEnd?: number | undefined;
-  /**
-   * Empty space before the first virtual row.
-   * @default 0
-   */
-  paddingStart?: number | undefined;
-  /**
    * Rows retained outside the rendered range for component-specific focus or measurement
    * semantics.
    */
@@ -842,18 +803,6 @@ export namespace ListVirtualizer {
     ListVirtualizerRenderRowParameters<RowModel>;
   export type Row<RowModel extends MuiVirtualizerRow> = ListVirtualizerRow<RowModel>;
   export type State = ListVirtualizerState;
-}
-
-function getRowSpacing(
-  rowIndex: number,
-  rowCount: number,
-  paddingStart: number,
-  paddingEnd: number,
-): ListVirtualizerRowSpacing {
-  return {
-    top: rowIndex === 0 ? paddingStart : 0,
-    bottom: rowIndex === rowCount - 1 ? paddingEnd : 0,
-  };
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {

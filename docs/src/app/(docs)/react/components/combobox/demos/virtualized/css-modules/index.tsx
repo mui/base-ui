@@ -23,8 +23,6 @@ export default function ExampleVirtualizedCombobox() {
                 estimateSize={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
-                paddingStart={4}
-                paddingEnd={4}
               >
                 {(item: VirtualizedItem) => (
                   <Combobox.Item value={item} className={styles.Item}>

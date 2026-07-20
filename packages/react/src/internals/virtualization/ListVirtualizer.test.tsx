@@ -38,7 +38,6 @@ describe('<ListVirtualizer />', () => {
       <ListVirtualizer
         estimateSize={20}
         overscanPx={20}
-        paddingStart={4}
         render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" role="list" />}
         renderRow={renderRow}
         rows={rows}
@@ -48,13 +47,12 @@ describe('<ListVirtualizer />', () => {
 
     await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5));
 
-    expect(screen.getByText('Item 1').parentElement).toHaveStyle({ paddingTop: '4px' });
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);
 
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
-    expect(virtualizer.style.getPropertyValue('--list-size')).toBe('2004px');
+    expect(virtualizer.style.getPropertyValue('--list-size')).toBe('2000px');
   });
 
   it('retains multiple pinned rows outside the rendered window', async () => {
