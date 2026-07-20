@@ -7,7 +7,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { FieldItemContext } from './FieldItemContext';
 import { LabelableProvider } from '../../internals/labelable-provider';
-import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 
 /**
  * Groups individual items in a checkbox group or radio group with a label and description.
@@ -32,10 +31,6 @@ export const FieldItem = React.forwardRef(function FieldItem(
   const disabled = rootDisabled || disabledProp;
   const state: FieldItemState = { ...fieldState, disabled };
 
-  const checkboxGroupContext = useCheckboxGroupContext();
-  const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
-  const controlId = hasParentCheckbox ? checkboxGroupContext?.parent.id : undefined;
-
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 
   const element = useRenderElement('div', componentProps, {
@@ -46,7 +41,7 @@ export const FieldItem = React.forwardRef(function FieldItem(
   });
 
   return (
-    <LabelableProvider controlId={controlId}>
+    <LabelableProvider>
       <FieldItemContext.Provider value={fieldItemContext}>{element}</FieldItemContext.Provider>
     </LabelableProvider>
   );
