@@ -50,13 +50,12 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       if (
         positionerElement &&
         popupElement &&
-        isOutsideMenuEvent(
-          {
-            currentTarget: event.currentTarget,
-            relatedTarget: event.relatedTarget as HTMLElement | null,
-          },
-          { popupElement, rootRef, tree, nodeId },
-        )
+        isOutsideMenuEvent(event.relatedTarget as HTMLElement | null, {
+          popupElement,
+          rootRef,
+          tree: tree!,
+          nodeId,
+        })
       ) {
         setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
       }

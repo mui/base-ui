@@ -51,4 +51,20 @@ describe('<NavigationMenu.Positioner />', () => {
       rootBoundary: 'layoutViewport',
     });
   });
+
+  it('throws a descriptive error when rendered outside <NavigationMenu.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <NavigationMenu.Root value="test">
+            <NavigationMenu.Positioner />
+          </NavigationMenu.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <NavigationMenu.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });
