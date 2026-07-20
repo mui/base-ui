@@ -1420,31 +1420,38 @@ describe('<NumberField.Input />', () => {
     }
   });
 
-  it('warns without an owner stack when React cannot provide one', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+  // React below 19.1 has no `captureOwnerStack`, so the test above already warns without a
+  // stack. `warn` dedupes by message, which would swallow the identical warning here.
+  const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
 
-    try {
-      await render(
-        <NumberField.Root defaultValue={12}>
-          <NumberField.Input />
-        </NumberField.Root>,
-      );
+  it.skipIf(!hasCaptureOwnerStack)(
+    'warns without an owner stack when React cannot provide one',
+    async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
 
-      const input = screen.getByRole('textbox');
-      await act(async () => input.focus());
+      try {
+        await render(
+          <NumberField.Root defaultValue={12}>
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
 
-      pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+        const input = screen.getByRole('textbox');
+        await act(async () => input.focus());
 
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0]?.[0]).toBe(
-        'Base UI: <NumberField.Input> could not read clipboard text during paste handling. ',
-      );
-    } finally {
-      ownerStackSpy.mockRestore();
-      warnSpy.mockRestore();
-    }
-  });
+        pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.mock.calls[0]?.[0]).toBe(
+          'Base UI: <NumberField.Input> could not read clipboard text during paste handling. ',
+        );
+      } finally {
+        ownerStackSpy.mockRestore();
+        warnSpy.mockRestore();
+      }
+    },
+  );
 
   it('leaves the value untouched when a paste event carries no clipboard data', async () => {
     const onValueChange = vi.fn();
