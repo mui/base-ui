@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
@@ -22,6 +23,16 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
+
+function comesBefore(input: HTMLInputElement, current: HTMLInputElement) {
+  if (!input.isConnected || !current.isConnected || input.ownerDocument !== current.ownerDocument) {
+    return false;
+  }
+
+  const position = input.compareDocumentPosition(current);
+  // eslint-disable-next-line no-bitwise
+  return Boolean(position & ownerWindow(input).Node.DOCUMENT_POSITION_FOLLOWING);
+}
 
 /**
  * Provides a shared state to a series of radio buttons.
@@ -126,10 +137,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     const previousInputRef = previousInputRefProp.current;
     previousInputRefProp.current = inputRefProp;
 
-    if (
-      previousInputRef !== inputRefProp &&
-      !(typeof previousInputRef === 'function' && typeof inputRefProp === 'function')
-    ) {
+    if (previousInputRef !== inputRefProp) {
       void mergedRepresentativeInputRef?.(representativeInputRef.current);
     }
   }, [inputRefProp, mergedRepresentativeInputRef]);
@@ -140,10 +148,14 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     for (const input of registeredInputRefs.current) {
       if (!input.matches(':disabled')) {
-        firstEnabledInput ??= input;
-        if (input.checked) {
+        if (firstEnabledInput === null || comesBefore(input, firstEnabledInput)) {
+          firstEnabledInput = input;
+        }
+        if (
+          input.checked &&
+          (nextRepresentativeInput === null || comesBefore(input, nextRepresentativeInput))
+        ) {
           nextRepresentativeInput = input;
-          break;
         }
       }
     }

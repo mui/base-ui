@@ -416,14 +416,49 @@ describe('<RadioGroup />', () => {
     expect(secondInputRef.current).toBe(inputA);
   });
 
-  it('does not detach an inline inputRef callback on unrelated re-renders', async () => {
+  it('updates inputRef when a callback ref prop changes', async () => {
+    const firstInputRef = vi.fn();
+    const secondInputRef = vi.fn();
+
+    function App() {
+      const [useSecondRef, setUseSecondRef] = React.useState(false);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={useSecondRef ? secondInputRef : firstInputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+          </RadioGroup>
+          <button type="button" onClick={() => setUseSecondRef(true)}>
+            Replace ref
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    firstInputRef.mockClear();
+
+    fireEvent.click(screen.getByText('Replace ref'));
+
+    expect(firstInputRef).toHaveBeenCalledOnce();
+    expect(firstInputRef).toHaveBeenCalledWith(null);
+    expect(secondInputRef).toHaveBeenCalledOnce();
+    expect(secondInputRef).toHaveBeenCalledWith(inputA);
+  });
+
+  it('does not detach a stable inputRef callback on unrelated re-renders', async () => {
     const inputRefSpy = vi.fn();
 
     function App() {
       const [, forceRender] = React.useState(0);
+      const inputRef = React.useCallback((input: HTMLInputElement | null) => {
+        inputRefSpy(input);
+      }, []);
+
       return (
         <React.Fragment>
-          <RadioGroup inputRef={(input) => inputRefSpy(input)}>
+          <RadioGroup inputRef={inputRef}>
             <Radio.Root value="a" data-testid="radio-a" />
           </RadioGroup>
           <button type="button" onClick={() => forceRender((value) => value + 1)}>
@@ -550,6 +585,38 @@ describe('<RadioGroup />', () => {
     fireEvent.click(screen.getByText('Remove first'));
 
     expect(groupInputRef.current).toBe(inputB);
+  });
+
+  it('repoints inputRef to the first radio in document order when it remounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showFirst, setShowFirst] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            {showFirst && <Radio.Root value="a" data-testid="radio-a" />}
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setShowFirst((visible) => !visible)}>
+            Toggle first
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByText('Toggle first'));
+    expect(groupInputRef.current).toBe(inputB);
+
+    fireEvent.click(screen.getByText('Toggle first'));
+    const remountedInputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    expect(groupInputRef.current).toBe(remountedInputA);
   });
 
   it('repoints inputRef when its current radio becomes disabled', async () => {
