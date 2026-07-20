@@ -546,7 +546,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (eventDetails.reason === REASONS.inputChange) {
         // A controlled popup may ignore a close request. Resuming input proves the popup
         // is remaining open, so release the query captured for an exit animation.
-        if (closeQuery !== null) {
+        if (open && closeQuery !== null) {
           setCloseQuery(null);
         }
 
@@ -627,7 +627,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setQueryChangedAfterOpen(false);
         setCloseQuery(null);
 
-        if (inputValue !== '') {
+        if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
           setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
         }
       }
