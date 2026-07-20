@@ -246,8 +246,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  if (min >= max) {
-    warn('Slider `max` must be greater than `min`.');
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    if (min >= max) {
+      warn('Slider `max` must be greater than `min`.');
+    }
   }
 
   useIsoLayoutEffect(() => {

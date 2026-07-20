@@ -383,6 +383,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     const touch = nativeEvent.changedTouches[0];
+    if (touch == null) {
+      return;
+    }
+
     touchIdRef.current = touch.identifier;
 
     const fingerCoords = { x: touch.clientX, y: touch.clientY };
