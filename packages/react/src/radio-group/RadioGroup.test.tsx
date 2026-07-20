@@ -386,6 +386,36 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy.mock.lastCall?.[0]).toBe(inputB);
   });
 
+  it('updates inputRef when the ref prop changes', async () => {
+    const firstInputRef = React.createRef<HTMLInputElement>();
+    const secondInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [useSecondRef, setUseSecondRef] = React.useState(false);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={useSecondRef ? secondInputRef : firstInputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+          </RadioGroup>
+          <button type="button" onClick={() => setUseSecondRef(true)}>
+            Replace ref
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    expect(firstInputRef.current).toBe(inputA);
+    expect(secondInputRef.current).toBe(null);
+
+    fireEvent.click(screen.getByText('Replace ref'));
+
+    expect(firstInputRef.current).toBe(null);
+    expect(secondInputRef.current).toBe(inputA);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
@@ -464,6 +494,66 @@ describe('<RadioGroup />', () => {
     fireEvent.click(screen.getByText('Clear'));
 
     expect(groupInputRef.current).toBe(inputA);
+  });
+
+  it('repoints inputRef when its current radio unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showFirst, setShowFirst] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            {showFirst && <Radio.Root value="a" data-testid="radio-a" />}
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setShowFirst(false)}>
+            Remove first
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByText('Remove first'));
+
+    expect(groupInputRef.current).toBe(inputB);
+  });
+
+  it('repoints inputRef when its current radio becomes disabled', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [disabled, setDisabled] = React.useState(false);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            <Radio.Root value="a" disabled={disabled} data-testid="radio-a" />
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setDisabled(true)}>
+            Disable first
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByText('Disable first'));
+
+    expect(groupInputRef.current).toBe(inputB);
   });
 
   it.skipIf(isJSDOM)(
@@ -1064,6 +1154,37 @@ describe('<RadioGroup />', () => {
         await user.click(radioB);
         expect(radioB).toHaveAttribute('data-checked', '');
         expect(radioGroup).not.toHaveAttribute('aria-invalid');
+      });
+
+      it('onBlur validates only when focus leaves the group', async () => {
+        const validate = vi.fn((value) => (value === 'a' ? 'error' : null));
+
+        await render(
+          <React.Fragment>
+            <Field.Root validationMode="onBlur" validate={validate}>
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="radio-a" />
+                <Radio.Root value="b" data-testid="radio-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button">Outside</button>
+          </React.Fragment>,
+        );
+
+        const group = screen.getByRole('radiogroup');
+        const radioA = screen.getByTestId('radio-a');
+        const radioB = screen.getByTestId('radio-b');
+
+        fireEvent.focus(radioA);
+        fireEvent.blur(group, { relatedTarget: radioB });
+
+        expect(validate).not.toHaveBeenCalled();
+
+        fireEvent.blur(group, { relatedTarget: screen.getByText('Outside') });
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(validate.mock.calls[0][0]).toBe('a');
+        expect(group).toHaveAttribute('aria-invalid', 'true');
       });
     });
   });

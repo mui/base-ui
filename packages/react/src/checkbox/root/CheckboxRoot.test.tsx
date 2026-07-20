@@ -99,6 +99,22 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('interactions', () => {
+    it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {
+      await render(
+        <Checkbox.Root
+          ref={(element) => {
+            if (element) {
+              element.focus();
+              element.blur();
+              element.click();
+            }
+          }}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should change its state when clicked', async () => {
       await render(<Checkbox.Root />);
       const [checkbox] = screen.getAllByRole('checkbox');
@@ -209,6 +225,21 @@ describe('<Checkbox.Root />', () => {
       });
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('ignores a hidden input click canceled before React handles it', async () => {
+      const handleCheckedChange = vi.fn();
+      await render(<Checkbox.Root onCheckedChange={handleCheckedChange} />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true })[1];
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      event.preventDefault();
+
+      fireEvent(input, event);
+
+      expect(handleCheckedChange).not.toHaveBeenCalled();
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
     it('can be activated with Space key', async () => {

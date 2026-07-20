@@ -55,8 +55,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const disabled = fieldDisabled || disabledProp;
 
-  const defaultValue =
-    externalValue === undefined ? (defaultValueProp ?? (EMPTY_ARRAY as string[])) : undefined;
+  const defaultValue = defaultValueProp ?? (EMPTY_ARRAY as string[]);
 
   const [value, setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
@@ -82,7 +81,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     value,
     onValueChange: setValue,
   });
-  const resolvedValue = value ?? EMPTY_ARRAY;
 
   const id = useBaseUiId(idProp);
   const getInputControl = validation.getInputControl;
@@ -99,7 +97,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const getFormValue = useStableCallback(() => {
     const formElement = elementRef.current;
     if (!formElement) {
-      return resolvedValue;
+      return value;
     }
 
     const successfulValues = new Set<string>();
@@ -114,12 +112,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       }
     }
 
-    return resolvedValue.filter((inputValue) => successfulValues.has(inputValue));
+    return value.filter((inputValue) => successfulValues.has(inputValue));
   });
 
   useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
-  useValueChanged(resolvedValue, () => {
+  useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
     }
@@ -128,10 +126,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(resolvedValue.length > 0);
-    setDirty(!areArraysEqual(resolvedValue, initialValue));
+    setFilled(value.length > 0);
+    setDirty(!areArraysEqual(value, initialValue));
 
-    validation.change(resolvedValue);
+    validation.change(value);
   });
 
   const state: CheckboxGroupState = {
@@ -143,13 +141,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     () => ({
       allValues,
       value,
-      defaultValue,
       setValue,
       parent,
       disabled,
       validation,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation],
+    [allValues, value, setValue, parent, disabled, validation],
   );
 
   const element = useRenderElement('div', componentProps, {

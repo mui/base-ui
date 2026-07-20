@@ -104,11 +104,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       return;
     }
 
-    if (disabled && checked) {
-      registerInputRef(null);
-      return;
-    }
-
     registerInputRef(inputRef.current);
   }, [checked, disabled, registerInputRef]);
 

@@ -18,7 +18,7 @@ export interface RadioGroupContext<Value> {
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   validation?: UseFieldValidationReturnValue | undefined;
-  registerInputRef: (element: HTMLInputElement | null) => void;
+  registerInputRef: (element: HTMLInputElement) => () => void;
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContext<any> | undefined>(undefined);

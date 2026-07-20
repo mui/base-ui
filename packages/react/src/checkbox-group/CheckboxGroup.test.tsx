@@ -67,6 +67,30 @@ describe('<CheckboxGroup />', () => {
       expect(green).toHaveAttribute('aria-checked', 'false');
       expect(blue).toHaveAttribute('aria-checked', 'true');
     });
+
+    it('supports an empty string item value', () => {
+      function App() {
+        const [value, setValue] = React.useState(['']);
+        return (
+          <CheckboxGroup value={value} onValueChange={setValue}>
+            <Checkbox.Root value="" data-testid="empty" />
+            <Checkbox.Root value="other" data-testid="other" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const empty = screen.getByTestId('empty');
+      const other = screen.getByTestId('other');
+
+      expect(empty).toHaveAttribute('aria-checked', 'true');
+      expect(other).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(empty);
+
+      expect(empty).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: onValueChange', () => {
