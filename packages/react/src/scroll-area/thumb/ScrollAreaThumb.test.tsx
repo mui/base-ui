@@ -296,6 +296,21 @@ describe('<ScrollArea.Thumb />', () => {
       fireEvent.pointerCancel(thumb, { pointerId: 1 });
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
     });
+
+    it('keeps the saved scroll snap value when a second pointer starts mid-drag', async () => {
+      await renderWithSnap();
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      defineThumbPointerCapture(thumb);
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 2 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerUp(thumb, { pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
   });
 
   describe('data-scrolling attribute', () => {

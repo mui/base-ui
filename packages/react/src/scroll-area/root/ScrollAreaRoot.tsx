@@ -102,6 +102,20 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
+  // CSS scroll snap forces every programmatic scroll to land on a snap
+  // point, making thumb dragging jump between snap points. Native
+  // scrollbars suppress snapping while dragging, so disable it until the
+  // pointer is released; restoring the value re-snaps the viewport. The
+  // save is guarded so a second pointer during an active drag can't
+  // clobber the saved value with `none`.
+  const disableViewportSnap = useStableCallback(() => {
+    const viewportEl = viewportRef.current;
+    if (viewportEl && savedSnapTypeRef.current === null) {
+      savedSnapTypeRef.current = viewportEl.style.scrollSnapType;
+      viewportEl.style.scrollSnapType = 'none';
+    }
+  });
+
   const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
     if (event.button !== 0) {
       return;
@@ -121,15 +135,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     if (viewportEl) {
       startScrollTopRef.current = viewportEl.scrollTop;
       startScrollLeftRef.current = viewportEl.scrollLeft;
-
-      // CSS scroll snap forces every programmatic scroll to land on a snap
-      // point, making thumb dragging jump between snap points. Native
-      // scrollbars suppress snapping while dragging, so disable it until the
-      // pointer is released; restoring the value re-snaps the viewport.
-      if (savedSnapTypeRef.current === null) {
-        savedSnapTypeRef.current = viewportEl.style.scrollSnapType;
-        viewportEl.style.scrollSnapType = 'none';
-      }
+      disableViewportSnap();
     }
 
     const thumb =
@@ -255,6 +261,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handlePointerMove,
       handlePointerUp,
       handleScroll,
+      disableViewportSnap,
       cornerSize,
       setCornerSize,
       thumbSize,
@@ -287,6 +294,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handlePointerMove,
       handlePointerUp,
       handleScroll,
+      disableViewportSnap,
       cornerSize,
       thumbSize,
       hasMeasuredScrollbar,
