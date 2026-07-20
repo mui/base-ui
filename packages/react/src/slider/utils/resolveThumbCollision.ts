@@ -121,22 +121,20 @@ export function resolveThumbCollision(
 
       const neighborIndex = shouldSwapForward ? targetIndex - 1 : targetIndex + 1;
 
-      if (neighborIndex >= 0 && neighborIndex < adjustedValues.length) {
-        const previousValue = adjustedValues[neighborIndex - 1];
-        const nextValueAfter = adjustedValues[neighborIndex + 1];
+      const previousValue = adjustedValues[neighborIndex - 1];
+      const nextValueAfter = adjustedValues[neighborIndex + 1];
 
-        let neighborLowerBound = previousValue != null ? previousValue + minValueDifference : min;
-        neighborLowerBound = Math.max(neighborLowerBound, min + neighborIndex * minValueDifference);
+      let neighborLowerBound = previousValue != null ? previousValue + minValueDifference : min;
+      neighborLowerBound = Math.max(neighborLowerBound, min + neighborIndex * minValueDifference);
 
-        let neighborUpperBound = nextValueAfter != null ? nextValueAfter - minValueDifference : max;
-        neighborUpperBound = Math.min(
-          neighborUpperBound,
-          max - (adjustedValues.length - 1 - neighborIndex) * minValueDifference,
-        );
+      let neighborUpperBound = nextValueAfter != null ? nextValueAfter - minValueDifference : max;
+      neighborUpperBound = Math.min(
+        neighborUpperBound,
+        max - (adjustedValues.length - 1 - neighborIndex) * minValueDifference,
+      );
 
-        const restoredValue = clamp(pressedValueAfterClamp, neighborLowerBound, neighborUpperBound);
-        adjustedValues[neighborIndex] = Number(restoredValue.toFixed(12));
-      }
+      const restoredValue = clamp(pressedValueAfterClamp, neighborLowerBound, neighborUpperBound);
+      adjustedValues[neighborIndex] = Number(restoredValue.toFixed(12));
 
       return {
         value: adjustedValues,
