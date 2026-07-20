@@ -1,10 +1,27 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, beforeEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+
+const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
+
+vi.mock('../../utils/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../utils/useAnchorPositioning')>(
+    '../../utils/useAnchorPositioning',
+  );
+
+  return {
+    ...actual,
+    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
+      useAnchorPositioningSpy(...args);
+      return actual.useAnchorPositioning(...args);
+    }) satisfies typeof actual.useAnchorPositioning,
+  };
+});
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
@@ -16,6 +33,10 @@ const Trigger = React.forwardRef(function Trigger(
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
 
+  beforeEach(() => {
+    useAnchorPositioningSpy.mockClear();
+  });
+
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
@@ -26,6 +47,59 @@ describe('<Menu.Positioner />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  describe('layout viewport', () => {
+    it('uses the layout viewport for a root context menu', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+        crossAxis: true,
+        rootBoundary: 'layoutViewport',
+      });
+    });
+
+    it('disables cross-axis shifting when side collision avoidance is flip', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner collisionAvoidance={{ side: 'flip' }}>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+        crossAxis: false,
+        rootBoundary: 'layoutViewport',
+      });
+    });
+
+    it('uses the visual viewport for a context menu submenu', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.SubmenuRoot defaultOpen>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner>
+                <ContextMenu.Popup>Popup</ContextMenu.Popup>
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.SubmenuRoot>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy).toHaveBeenCalled();
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toBe(undefined);
+    });
+  });
 
   describe.skipIf(isJSDOM)('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async () => {

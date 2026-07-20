@@ -181,7 +181,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const registerFieldInput = validation.registerInput;
   const registeredInputValue = groupContext ? value : undefined;
   const registerInput = React.useCallback(
-    (element: HTMLInputElement | null) =>
+    (element: HTMLInputElement) =>
       registerFieldInput(element, { controlRef, value: registeredInputValue }),
     [registerFieldInput, registeredInputValue],
   );

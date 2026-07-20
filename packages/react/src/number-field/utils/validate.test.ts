@@ -73,6 +73,20 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(1000000.1 + 0.2)).not.toBe(1000000.3);
     });
 
+    it('returns non-finite values untouched', () => {
+      expect(removeFloatingPointErrors(Infinity)).toBe(Infinity);
+      expect(removeFloatingPointErrors(-Infinity)).toBe(-Infinity);
+      expect(removeFloatingPointErrors(NaN)).toBeNaN();
+    });
+
+    it('rounds compact notation against its standard equivalent', () => {
+      // `compact` would format 1234.567 as "1.2K", which cannot round-trip back to a number, so
+      // the rounding is resolved with standard notation instead.
+      expect(
+        removeFloatingPointErrors(1234.567, { notation: 'compact', maximumFractionDigits: 1 }),
+      ).toBe(1234.6);
+    });
+
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });
@@ -725,6 +739,23 @@ describe('NumberField validate', () => {
         }),
       ).toBe(-0.2);
     });
+  });
+
+  it('keeps rounded out-of-range values when clamping is disabled', () => {
+    // `allowOutOfRange` text entry rounds to the format's precision but must stay outside the
+    // range so native overflow validation can report it.
+    expect(
+      toValidatedNumber(12.349, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        format: { maximumFractionDigits: 2 },
+        minWithDefault: 0,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+        clamp: false,
+      }),
+    ).toBe(12.35);
   });
 
   it('clamps to a non-step-aligned max after snapping so the boundary is reachable', () => {
