@@ -104,9 +104,12 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       return;
     }
 
-    // Re-evaluates which input represents the group when this radio's state changes.
-    // `mergedInputRef` owns the registration lifecycle, so the returned cleanup is redundant here.
-    void registerInputRef(inputRef.current);
+    if (disabled && checked) {
+      registerInputRef(null);
+      return;
+    }
+
+    registerInputRef(inputRef.current);
   }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();

@@ -386,67 +386,6 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy.mock.lastCall?.[0]).toBe(inputB);
   });
 
-  it('updates inputRef when the ref prop changes', async () => {
-    const firstInputRef = React.createRef<HTMLInputElement>();
-    const secondInputRef = React.createRef<HTMLInputElement>();
-
-    function App() {
-      const [useSecondRef, setUseSecondRef] = React.useState(false);
-      return (
-        <React.Fragment>
-          <RadioGroup inputRef={useSecondRef ? secondInputRef : firstInputRef}>
-            <Radio.Root value="a" data-testid="radio-a" />
-          </RadioGroup>
-          <button type="button" onClick={() => setUseSecondRef(true)}>
-            Replace ref
-          </button>
-        </React.Fragment>
-      );
-    }
-
-    await render(<App />);
-
-    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    expect(firstInputRef.current).toBe(inputA);
-    expect(secondInputRef.current).toBe(null);
-
-    fireEvent.click(screen.getByText('Replace ref'));
-
-    expect(firstInputRef.current).toBe(null);
-    expect(secondInputRef.current).toBe(inputA);
-  });
-
-  it('updates inputRef when a callback ref prop changes', async () => {
-    const firstInputRef = vi.fn();
-    const secondInputRef = vi.fn();
-
-    function App() {
-      const [useSecondRef, setUseSecondRef] = React.useState(false);
-      return (
-        <React.Fragment>
-          <RadioGroup inputRef={useSecondRef ? secondInputRef : firstInputRef}>
-            <Radio.Root value="a" data-testid="radio-a" />
-          </RadioGroup>
-          <button type="button" onClick={() => setUseSecondRef(true)}>
-            Replace ref
-          </button>
-        </React.Fragment>
-      );
-    }
-
-    await render(<App />);
-
-    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    firstInputRef.mockClear();
-
-    fireEvent.click(screen.getByText('Replace ref'));
-
-    expect(firstInputRef).toHaveBeenCalledOnce();
-    expect(firstInputRef).toHaveBeenCalledWith(null);
-    expect(secondInputRef).toHaveBeenCalledOnce();
-    expect(secondInputRef).toHaveBeenCalledWith(inputA);
-  });
-
   it('does not detach a stable inputRef callback on unrelated re-renders', async () => {
     const inputRefSpy = vi.fn();
 
@@ -557,7 +496,7 @@ describe('<RadioGroup />', () => {
     expect(groupInputRef.current).toBe(inputA);
   });
 
-  it('repoints inputRef when its current radio unmounts', async () => {
+  it('detaches inputRef when its current radio unmounts', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
     function App() {
@@ -578,75 +517,12 @@ describe('<RadioGroup />', () => {
     await render(<App />);
 
     const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
 
     expect(groupInputRef.current).toBe(inputA);
 
     fireEvent.click(screen.getByText('Remove first'));
 
-    expect(groupInputRef.current).toBe(inputB);
-  });
-
-  it('repoints inputRef to the first radio in document order when it remounts', async () => {
-    const groupInputRef = React.createRef<HTMLInputElement>();
-
-    function App() {
-      const [showFirst, setShowFirst] = React.useState(true);
-      return (
-        <React.Fragment>
-          <RadioGroup inputRef={groupInputRef}>
-            {showFirst && <Radio.Root value="a" data-testid="radio-a" />}
-            <Radio.Root value="b" data-testid="radio-b" />
-          </RadioGroup>
-          <button type="button" onClick={() => setShowFirst((visible) => !visible)}>
-            Toggle first
-          </button>
-        </React.Fragment>
-      );
-    }
-
-    await render(<App />);
-
-    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
-    expect(groupInputRef.current).toBe(inputA);
-
-    fireEvent.click(screen.getByText('Toggle first'));
-    expect(groupInputRef.current).toBe(inputB);
-
-    fireEvent.click(screen.getByText('Toggle first'));
-    const remountedInputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    expect(groupInputRef.current).toBe(remountedInputA);
-  });
-
-  it('repoints inputRef when its current radio becomes disabled', async () => {
-    const groupInputRef = React.createRef<HTMLInputElement>();
-
-    function App() {
-      const [disabled, setDisabled] = React.useState(false);
-      return (
-        <React.Fragment>
-          <RadioGroup inputRef={groupInputRef}>
-            <Radio.Root value="a" disabled={disabled} data-testid="radio-a" />
-            <Radio.Root value="b" data-testid="radio-b" />
-          </RadioGroup>
-          <button type="button" onClick={() => setDisabled(true)}>
-            Disable first
-          </button>
-        </React.Fragment>
-      );
-    }
-
-    await render(<App />);
-
-    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
-
-    expect(groupInputRef.current).toBe(inputA);
-
-    fireEvent.click(screen.getByText('Disable first'));
-
-    expect(groupInputRef.current).toBe(inputB);
+    expect(groupInputRef.current).toBe(null);
   });
 
   it.skipIf(isJSDOM)(
@@ -1295,68 +1171,6 @@ describe('<RadioGroup />', () => {
       );
 
       expect(groupInputRef.current).toBe(null);
-    });
-
-    it('updates inputRef when the fieldset disabled state changes', async () => {
-      const groupInputRef = React.createRef<HTMLInputElement>();
-
-      function App() {
-        const [disabled, setDisabled] = React.useState(false);
-        return (
-          <React.Fragment>
-            <Fieldset.Root disabled={disabled}>
-              <RadioGroup inputRef={groupInputRef}>
-                <Radio.Root value="a" data-testid="radio-a" />
-              </RadioGroup>
-            </Fieldset.Root>
-            <button type="button" onClick={() => setDisabled((value) => !value)}>
-              Toggle disabled
-            </button>
-          </React.Fragment>
-        );
-      }
-
-      await render(<App />);
-
-      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-      expect(groupInputRef.current).toBe(input);
-
-      fireEvent.click(screen.getByText('Toggle disabled'));
-      expect(groupInputRef.current).toBe(null);
-
-      fireEvent.click(screen.getByText('Toggle disabled'));
-      expect(groupInputRef.current).toBe(input);
-    });
-
-    it('updates inputRef when a plain native fieldset disabled state changes', async () => {
-      const groupInputRef = React.createRef<HTMLInputElement>();
-
-      function App() {
-        const [disabled, setDisabled] = React.useState(false);
-        return (
-          <React.Fragment>
-            <fieldset disabled={disabled}>
-              <RadioGroup inputRef={groupInputRef}>
-                <Radio.Root value="a" data-testid="radio-a" />
-              </RadioGroup>
-            </fieldset>
-            <button type="button" onClick={() => setDisabled((value) => !value)}>
-              Toggle disabled
-            </button>
-          </React.Fragment>
-        );
-      }
-
-      await render(<App />);
-
-      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
-      expect(groupInputRef.current).toBe(input);
-
-      fireEvent.click(screen.getByText('Toggle disabled'));
-      expect(groupInputRef.current).toBe(null);
-
-      fireEvent.click(screen.getByText('Toggle disabled'));
-      expect(groupInputRef.current).toBe(input);
     });
 
     it('labels the radio group from the fieldset legend', async () => {

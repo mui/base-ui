@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
@@ -23,16 +20,6 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
-
-function comesBefore(input: HTMLInputElement, current: HTMLInputElement) {
-  if (!input.isConnected || !current.isConnected || input.ownerDocument !== current.ownerDocument) {
-    return false;
-  }
-
-  const position = input.compareDocumentPosition(current);
-  // eslint-disable-next-line no-bitwise
-  return Boolean(position & ownerWindow(input).Node.DOCUMENT_POSITION_FOLLOWING);
-}
 
 /**
  * Provides a shared state to a series of radio buttons.
@@ -110,95 +97,84 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }),
     [getInputControl],
   );
-  const registeredInputRefs = React.useRef(new Set<HTMLInputElement>());
-  const representativeInputRef = React.useRef<HTMLInputElement | null>(null);
-  const forwardRepresentativeInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    if (!inputRefProp) {
-      return () => undefined;
-    }
+  const groupInputRef = React.useRef<HTMLInputElement | null>(null);
+  const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
 
-    if (typeof inputRefProp === 'function') {
-      const cleanup = inputRefProp(input);
-      return typeof cleanup === 'function' ? cleanup : () => void inputRefProp(null);
-    }
+  // Only forwards the public `inputRef` and tracks the current representative for that forwarding.
+  // The registry (`validation.registeredInputs`) is authoritative for validation and form-value
+  // projection, so the group must not write `validation.inputRef`: a stale, unmounted radio left
+  // there would become the Field's fallback once the registry empties and keep blocking submission.
+  function setInputRef(hiddenInput: HTMLInputElement | null) {
+    let cleanup: void | (() => void) | undefined = undefined;
 
-    inputRefProp.current = input;
-    return () => {
-      inputRefProp.current = null;
-    };
-  });
-  const mergedRepresentativeInputRef = useMergedRefs(
-    representativeInputRef,
-    forwardRepresentativeInputRef,
-  );
-  const previousInputRefProp = React.useRef(inputRefProp);
-
-  useIsoLayoutEffect(() => {
-    const previousInputRef = previousInputRefProp.current;
-    previousInputRefProp.current = inputRefProp;
-
-    if (previousInputRef !== inputRefProp) {
-      void mergedRepresentativeInputRef?.(representativeInputRef.current);
-    }
-  }, [inputRefProp, mergedRepresentativeInputRef]);
-
-  const updateRepresentativeInput = useStableCallback(() => {
-    let firstEnabledInput: HTMLInputElement | null = null;
-    let nextRepresentativeInput: HTMLInputElement | null = null;
-
-    for (const input of registeredInputRefs.current) {
-      if (!input.matches(':disabled')) {
-        if (firstEnabledInput === null || comesBefore(input, firstEnabledInput)) {
-          firstEnabledInput = input;
-        }
-        if (
-          input.checked &&
-          (nextRepresentativeInput === null || comesBefore(input, nextRepresentativeInput))
-        ) {
-          nextRepresentativeInput = input;
-        }
+    if (inputRefProp) {
+      if (typeof inputRefProp === 'function') {
+        cleanup = inputRefProp(hiddenInput);
+      } else {
+        inputRefProp.current = hiddenInput;
       }
     }
 
-    nextRepresentativeInput ??= firstEnabledInput;
-    if (representativeInputRef.current !== nextRepresentativeInput) {
-      void mergedRepresentativeInputRef?.(nextRepresentativeInput);
+    groupInputRef.current = hiddenInput;
+
+    return cleanup;
+  }
+
+  const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
+    if (!input) {
+      return undefined;
     }
-  });
 
-  // Runs after every commit: the representative can go stale without any React-visible
-  // dependency changing (native `<fieldset disabled>` toggles, sibling reorders).
-  useIsoLayoutEffect(updateRepresentativeInput);
+    // `:disabled` also covers inputs disabled by an ancestor `<fieldset disabled>`,
+    // which the `disabled` property misses.
+    let cleanup: void | (() => void);
+    if (!input.matches(':disabled')) {
+      if (!firstEnabledInputRef.current) {
+        firstEnabledInputRef.current = input;
+      }
 
-  const registerInputRef = useStableCallback((input: HTMLInputElement) => {
-    // `useMergedRefs` uses this callback's cleanup instead of detaching it with `null`.
-    registeredInputRefs.current.add(input);
-    updateRepresentativeInput();
+      const currentInput = groupInputRef.current;
+      if (input.checked || currentInput == null || currentInput.matches(':disabled')) {
+        cleanup = setInputRef(input);
+      }
+    }
 
+    // Detach when this input unmounts while still forwarded, so consumers don't
+    // keep holding a disconnected node. The input may have become the forwarded
+    // one after attach (via the re-registration effect), so always return this.
     return () => {
-      registeredInputRefs.current.delete(input);
-      updateRepresentativeInput();
+      if (firstEnabledInputRef.current === input) {
+        firstEnabledInputRef.current = null;
+      }
+      if (groupInputRef.current === input) {
+        if (cleanup) {
+          cleanup();
+          groupInputRef.current = null;
+        } else {
+          void setInputRef(null);
+        }
+      } else {
+        cleanup?.();
+      }
     };
   });
-
-  const formValue = checkedValue ?? null;
 
   const getFormValue = useStableCallback(() => {
     const formElement = elementRef.current;
     if (!formElement) {
-      return formValue;
+      return checkedValue ?? null;
     }
 
     for (const input of validation.registeredInputs.keys()) {
       if (input.checked && !input.matches(':disabled') && input.form === formElement) {
-        return formValue;
+        return checkedValue ?? null;
       }
     }
 
     return null;
   });
 
-  useRegisterFieldControl(controlRef, id, formValue, getFormValue, !disabled, nameProp);
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -207,6 +183,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     setFilled(checkedValue != null);
 
     validation.change(checkedValue);
+
+    const fallbackInput = firstEnabledInputRef.current;
+    if (checkedValue == null && fallbackInput && !fallbackInput.matches(':disabled')) {
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
+    }
   });
 
   const ariaLabelledby = labelId ?? fieldsetContext?.legendId;
