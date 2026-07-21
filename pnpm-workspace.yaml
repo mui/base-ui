@@ -18,6 +18,8 @@ updateNotifier: false
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  - '*storybook'
+  - '@storybook/*'
   - '@base-ui/*'
   - '@mui/internal-*'
 trustPolicy: no-downgrade
