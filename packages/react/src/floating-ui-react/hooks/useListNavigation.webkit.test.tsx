@@ -100,9 +100,12 @@ describe('useListNavigation (WebKit)', () => {
     fireEvent.mouseMove(screen.getByTestId('item-1'));
     expect(screen.getByTestId('item-0')).toHaveFocus();
 
-    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
-    await waitFor(() => {
-      expect(screen.getByTestId('item-1')).toHaveFocus();
+    // Scrolling can also move the active item out from under the pointer. This
+    // must not reset the keyboard highlight as though the pointer had left it.
+    fireEvent.pointerLeave(screen.getByTestId('item-0'), {
+      pointerType: 'mouse',
+      relatedTarget: screen.getByRole('menu'),
     });
+    expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'true');
   });
 });
