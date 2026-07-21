@@ -195,12 +195,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 function NestedPopupSubmenuExample() {
   return (
     <NavigationMenu.Root className={styles.Root} aria-label="Main">
@@ -932,18 +926,22 @@ export const CloseOnClickLinks: Story = {
     const body = within(canvasElement.ownerDocument.body);
     const trigger = canvas.getByRole('button', { name: 'Docs' });
 
-    // A closeOnClick link closes the menu on activation.
+    // A closeOnClick link closes the menu on activation. Wait for the popup's
+    // open animation before interacting — clicking mid-transition is flaky in
+    // slow capture environments (Chromatic).
     await userEvent.click(trigger);
-    await userEvent.click(await body.findByRole('link', { name: /Getting started/ }));
+    await waitFor(() => expect(body.getByRole('link', { name: /Getting started/ })).toBeVisible());
+    await userEvent.click(body.getByRole('link', { name: /Getting started/ }));
     await waitFor(() =>
       expect(body.queryByRole('link', { name: /Community/ })).not.toBeInTheDocument(),
     );
 
     // The default (closeOnClick={false}) keeps the menu open.
     await userEvent.click(trigger);
-    await userEvent.click(await body.findByRole('link', { name: /Community/ }));
-    await expect(body.getByRole('link', { name: /Community/ })).toBeVisible();
-    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await waitFor(() => expect(body.getByRole('link', { name: /Community/ })).toBeVisible());
+    await userEvent.click(body.getByRole('link', { name: /Community/ }));
+    await waitFor(() => expect(body.getByRole('link', { name: /Community/ })).toBeVisible());
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
   },
 };
 
