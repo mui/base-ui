@@ -131,8 +131,8 @@
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.8",
-    "@floating-ui/utils": "^0.2.11",
+    "@floating-ui/react-dom": "^2.1.9",
+    "@floating-ui/utils": "^0.2.12",
     "@mui/x-virtualizer": "^0.6.0",
     "use-sync-external-store": "^1.6.0"
   },

@@ -344,10 +344,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           return;
         }
 
-        if (!thumbRef.current) {
-          return;
-        }
-
         setActive(-1);
 
         // Keep field-level blur logic from running while focus moves to another thumb
@@ -481,12 +477,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           }
 
           pressedThumbIndexRef.current = index;
-
-          if (thumbRef.current != null) {
-            const midpoint = getMidpoint(thumbRef.current, vertical);
-            pressedThumbCenterOffsetRef.current =
-              (vertical ? event.clientY : event.clientX) - midpoint;
-          }
+          const midpoint = getMidpoint(event.currentTarget, vertical);
+          pressedThumbCenterOffsetRef.current =
+            (vertical ? event.clientY : event.clientX) - midpoint;
         },
         style: thumbStyle,
         suppressHydrationWarning: renderBeforeHydration || undefined,

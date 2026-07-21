@@ -99,7 +99,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inputValue: inputValueProp,
     open: openProp,
     defaultOpen = false,
-    selectionMode = 'none',
+    selectionMode,
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
     form,
@@ -570,6 +570,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
+        // A controlled popup may ignore a close request. Resuming input proves the popup
+        // is remaining open, so release the query captured for an exit animation.
+        if (open && closeQuery !== null) {
+          setCloseQuery(null);
+        }
+
         const event = eventDetails.event as Event;
         const inputType = (event as InputEvent).inputType;
         // Treat composition commits as typed input; autofill may omit `inputType` or
@@ -651,11 +657,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // If reopening interrupts the close animation, handleUnmount won't run to clear the
       // frozen closeQuery and pending popup input.
-      if (nextOpen && multiple && inputInsidePopup && !inline && closeQuery !== null) {
+      if (nextOpen && inputInsidePopup && !inline && closeQuery !== null) {
         setQueryChangedAfterOpen(false);
         setCloseQuery(null);
 
-        if (inputValue !== '') {
+        if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
           setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
         }
       }
@@ -728,29 +734,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
-
-      if (
-        single &&
-        nextValue != null &&
-        eventDetails.reason !== REASONS.inputChange &&
-        queryChangedAfterOpen &&
-        !inline
-      ) {
-        setCloseQuery(query);
-      }
     },
   );
 
   const handleSelection = useStableCallback(
-    (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
-      let itemValue = passedValue;
-      if (itemValue === undefined) {
-        if (activeIndex === null) {
-          return;
-        }
-        itemValue = valuesRef.current[activeIndex];
-      }
-
+    (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => {
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
@@ -805,10 +793,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const requestSubmit = useStableCallback(() => {
-    if (!submitOnItemClick) {
-      return;
-    }
-
     const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
@@ -1774,9 +1758,8 @@ export type AriaComboboxProps<
    * - `single`: Remembers the last selected value.
    * - `multiple`: Remember all selected values.
    * - `none`: Do not remember the selected value.
-   * @default 'none'
    */
-  selectionMode?: Mode | undefined;
+  selectionMode: Mode;
   /**
    * The selected value of the combobox. Use when controlled.
    */

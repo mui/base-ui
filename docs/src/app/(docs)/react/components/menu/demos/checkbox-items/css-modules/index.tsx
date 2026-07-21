@@ -14,7 +14,7 @@ export default function ExampleMenu() {
         Workspace <CaretDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+        <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
           <Menu.Popup className={styles.Popup}>
             <Menu.CheckboxItem
               checked={showMinimap}

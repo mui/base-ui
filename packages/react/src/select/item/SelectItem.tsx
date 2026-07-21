@@ -4,10 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { useSelectDerivedItemsContext, useSelectRootContext } from '../root/SelectRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
@@ -52,10 +49,10 @@ export const SelectItem = React.memo(
     const { hasItems } = useSelectDerivedItemsContext();
     const insideList = useVirtualizationListContext();
     const listItem = useCompositeListItem({
+      guess: true,
       index: virtualItem?.index,
       label,
       textRef,
-      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const {
@@ -112,6 +109,12 @@ export const SelectItem = React.memo(
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
+      if (virtualItem && highlighted) {
+        itemRef.current?.focus({ preventScroll: true });
+      }
+    }, [highlighted, virtualItem]);
+
+    useIsoLayoutEffect(() => {
       if (!hasRegistered || hasItems) {
         return undefined;
       }
@@ -125,10 +128,6 @@ export const SelectItem = React.memo(
     }, [hasItems, hasRegistered, index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return;
-      }
-
       const selectedValue = store.state.value;
 
       let selectedCandidate = selectedValue;
@@ -150,7 +149,7 @@ export const SelectItem = React.memo(
           selectedItemTextRef.current = textRef.current;
         }
       }
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+    }, [index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -284,9 +283,8 @@ export const SelectItem = React.memo(
         index,
         textRef,
         selectedByFocus,
-        hasRegistered,
       }),
-      [selected, index, textRef, selectedByFocus, hasRegistered],
+      [selected, index, textRef, selectedByFocus],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

@@ -155,9 +155,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     const decimal =
       parts.find((part) => part.type === 'decimal')?.value ??
       getNumberLocaleDetails(locale, format).decimal;
-    if (decimal) {
-      keys.add(decimal);
-    }
+    keys.add(decimal);
 
     // Allow every non-digit character the formatter renders — separators, currency symbols, units
     // (e.g. `km/h`, `°C`), exponent separators, and locale literals — decomposed per character
@@ -374,7 +372,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         });
         if (changed) {
           onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
+            lastChangedValueRef.current,
             createGenericEventDetails(REASONS.wheel, event),
           );
         }

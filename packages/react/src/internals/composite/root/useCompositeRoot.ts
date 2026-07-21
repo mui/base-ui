@@ -116,8 +116,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       sortedElements.find((compositeElement) =>
         compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
       ) ?? null;
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    // Set the default highlighted index of an arbitrary composite item. The map value carries
+    // the item's own index, which is not its position among the keys once a list mixes explicit
+    // and automatic indexes and leaves gaps.
+    const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);

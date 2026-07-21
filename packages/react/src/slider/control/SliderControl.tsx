@@ -389,25 +389,23 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     const touch = nativeEvent.changedTouches[0];
-
-    if (touch != null) {
-      touchIdRef.current = touch.identifier;
+    if (touch == null) {
+      return;
     }
 
-    const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
+    touchIdRef.current = touch.identifier;
 
-    if (fingerCoords != null) {
-      startPressing(fingerCoords);
+    const fingerCoords = { x: touch.clientX, y: touch.clientY };
+    startPressing(fingerCoords);
 
-      const finger = getFingerState(fingerCoords);
+    const finger = getFingerState(fingerCoords);
 
-      if (finger == null) {
-        return;
-      }
-
-      focusThumb(finger.thumbIndex);
-      setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
+    if (finger == null) {
+      return;
     }
+
+    focusThumb(finger.thumbIndex);
+    setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
 
     moveCountRef.current = 0;
     const doc = ownerDocument(controlRef.current);
@@ -477,36 +475,33 @@ export const SliderControl = React.forwardRef(function SliderControl(
             return;
           }
 
-          const fingerCoords = getFingerCoords(event, touchIdRef);
+          const fingerCoords = { x: event.clientX, y: event.clientY };
+          startPressing(fingerCoords);
 
-          if (fingerCoords != null) {
-            startPressing(fingerCoords);
+          const finger = getFingerState(fingerCoords);
 
-            const finger = getFingerState(fingerCoords);
+          if (finger == null) {
+            return;
+          }
 
-            if (finger == null) {
-              return;
-            }
+          const pressedOnFocusedThumb = contains(
+            thumbRefs.current[finger.thumbIndex],
+            activeElement(ownerDocument(control)),
+          );
 
-            const pressedOnFocusedThumb = contains(
-              thumbRefs.current[finger.thumbIndex],
-              activeElement(ownerDocument(control)),
-            );
+          if (pressedOnFocusedThumb) {
+            event.preventDefault();
+          } else {
+            focusFrame.request(() => {
+              focusThumb(finger.thumbIndex);
+            });
+          }
 
-            if (pressedOnFocusedThumb) {
-              event.preventDefault();
-            } else {
-              focusFrame.request(() => {
-                focusThumb(finger.thumbIndex);
-              });
-            }
+          setDragging(true);
 
-            setDragging(true);
-
-            const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
-            if (!pressedOnAnyThumb) {
-              setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
-            }
+          const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
+          if (!pressedOnAnyThumb) {
+            setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
           }
 
           if (event.nativeEvent.pointerId) {

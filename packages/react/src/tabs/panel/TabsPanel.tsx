@@ -89,11 +89,10 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   });
 
   useIsoLayoutEffect(() => {
-    if (hidden && !keepMounted) {
-      return undefined;
-    }
-
-    if (id == null) {
+    // On React 17 `useId` resolves in a passive effect, so `id` is still
+    // undefined during this layout effect on the first commit. Skip the
+    // registration until the effect re-runs with the resolved id.
+    if (id == null || (hidden && !keepMounted)) {
       return undefined;
     }
 

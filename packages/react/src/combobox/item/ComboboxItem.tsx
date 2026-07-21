@@ -9,10 +9,7 @@ import {
   useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
@@ -75,9 +72,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const explicitIndex = virtualItem?.index ?? indexProp;
   const listItem = useCompositeListItem({
+    guess: true,
     index: explicitIndex,
     textRef,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const store = useComboboxRootContext();
@@ -91,7 +88,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const selectable = selectionMode !== 'none';
   const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
-  const hasRegistered = listItem.index !== -1;
+  const hasRegistered = index !== -1;
   const disabled = disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
   const rootId = useStore(store, selectors.id);

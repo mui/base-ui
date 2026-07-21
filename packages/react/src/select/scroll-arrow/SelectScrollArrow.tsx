@@ -97,7 +97,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         }
 
         store.set('activeIndex', null);
-        handleScrollArrowVisibility();
+        handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
         const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
@@ -106,11 +106,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
         if (scrollTop !== scroller.scrollTop) {
           scroller.scrollTop = scrollTop;
-        }
-
-        // Fallback when there are no items registered yet.
-        if (items.length === 0) {
-          store.set(isUp ? 'scrollUpArrowVisible' : 'scrollDownArrowVisible', !isScrolledToEdge);
         }
 
         if (isScrolledToEdge) {

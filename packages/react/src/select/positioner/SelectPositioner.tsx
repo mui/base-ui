@@ -4,11 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import {
-  useSelectDerivedItemsContext,
-  useSelectRootContext,
-  useSelectFloatingContext,
-} from '../root/SelectRootContext';
+import { useSelectDerivedItemsContext, useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -72,8 +68,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     initialValueRef,
     popupRef,
     setValue,
+    floatingContext: floatingRootContext,
   } = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
   const { flatItems, hasItems } = useSelectDerivedItemsContext();
 
   const open = useStore(store, selectors.open);
