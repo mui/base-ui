@@ -2,7 +2,10 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
+import { Field } from '@base-ui/react/field';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { createRenderer, describeConformance } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
@@ -28,6 +31,18 @@ describe('<NumberField.Input />', () => {
       return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered outside <NumberField.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<NumberField.Input />)).rejects.toThrow(
+        'Base UI: NumberFieldRootContext is missing. NumberField parts must be placed within <NumberField.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('has textbox role', async () => {
     await render(
@@ -1404,5 +1419,175 @@ describe('<NumberField.Input />', () => {
     } finally {
       warnSpy.mockRestore();
     }
+  });
+
+  // React below 19.1 has no `captureOwnerStack`, so the test above already warns without a
+  // stack. `warn` dedupes by message, which would swallow the identical warning here.
+  const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
+
+  it.skipIf(!hasCaptureOwnerStack)(
+    'warns without an owner stack when React cannot provide one',
+    async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+
+      try {
+        await render(
+          <NumberField.Root defaultValue={12}>
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByRole('textbox');
+        await act(async () => input.focus());
+
+        pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.mock.calls[0]?.[0]).toBe(
+          'Base UI: <NumberField.Input> could not read clipboard text during paste handling. ',
+        );
+      } finally {
+        ownerStackSpy.mockRestore();
+        warnSpy.mockRestore();
+      }
+    },
+  );
+
+  it('reports an unchanged value once when a paste event carries no clipboard data', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root defaultValue={12} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', { value: null });
+    fireEvent(input, pasteEvent);
+
+    // Missing clipboard text splices an empty string in, so the text is unchanged. The paste
+    // still marks the input dirty, and direct-entry reasons report even when the number is
+    // unchanged, so exactly one `input-paste` change is emitted with the current value.
+    expect(input).toHaveValue('12');
+    expect(onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.calls[0][0]).toBe(12);
+    expect(onValueChange.mock.calls[0][1].reason).toBe(REASONS.inputPaste);
+  });
+
+  describe('single sign character', () => {
+    async function renderSigned() {
+      await render(
+        <NumberField.Root min={-10} max={10} defaultValue={-5}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      await act(async () => input.focus());
+      expect(input).toHaveValue('-5');
+
+      return {
+        input,
+        pressMinus() {
+          return input.dispatchEvent(
+            new window.KeyboardEvent('keydown', { key: '-', bubbles: true, cancelable: true }),
+          );
+        },
+      };
+    }
+
+    it('blocks a second minus sign when the existing one is not selected', async () => {
+      const { input, pressMinus } = await renderSigned();
+      input.setSelectionRange(2, 2);
+      expect(pressMinus()).toBe(false);
+    });
+
+    it('allows a minus sign that replaces the selected existing sign', async () => {
+      const { input, pressMinus } = await renderSigned();
+      input.setSelectionRange(0, 1);
+      expect(pressMinus()).toBe(true);
+    });
+
+    it('allows a minus sign when the whole value is selected', async () => {
+      const { input, pressMinus } = await renderSigned();
+      input.setSelectionRange(0, input.value.length);
+      expect(pressMinus()).toBe(true);
+    });
+  });
+
+  describe('consumer-prevented defaults', () => {
+    it('does not mark the field focused when the focus default is prevented', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <NumberField.Root defaultValue={1234}>
+            <NumberField.Input onFocus={(event) => event.preventDefault()} />
+          </NumberField.Root>
+        </Field.Root>,
+      );
+
+      await act(async () => screen.getByRole('textbox').focus());
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('does not reformat, touch, or commit on blur when the blur default is prevented', async () => {
+      const onValueCommitted = vi.fn();
+
+      await render(
+        <Field.Root data-testid="field">
+          <NumberField.Root onValueCommitted={onValueCommitted}>
+            <NumberField.Input onBlur={(event) => event.preventDefault()} />
+          </NumberField.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: '5.10' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5.10');
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-touched');
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('ignores a change whose native default was already prevented', async () => {
+      const onValueChange = vi.fn();
+
+      await render(
+        <NumberField.Root defaultValue={5} onValueChange={onValueChange}>
+          <NumberField.Input onChange={(event) => event.preventDefault()} />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: '9' }, cancelable: true });
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not step when the keydown default is prevented', async () => {
+      const onValueChange = vi.fn();
+
+      await render(
+        <NumberField.Root defaultValue={5} onValueChange={onValueChange}>
+          <NumberField.Input onKeyDown={(event) => event.preventDefault()} />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
   });
 });

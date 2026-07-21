@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Combobox.ChipRemove />', () => {
   const { render } = createRenderer();
@@ -232,6 +232,54 @@ describe('<Combobox.ChipRemove />', () => {
       expect(screen.getByTestId('input')).toHaveFocus();
     });
 
+    it('keeps a popup input focused when removing a chip rendered outside the popup', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) =>
+                value.map((item) => (
+                  <Combobox.Chip key={item}>
+                    {item}
+                    <Combobox.ChipRemove data-testid={`remove-${item}`} />
+                  </Combobox.Chip>
+                ))
+              }
+            </Combobox.Value>
+          </Combobox.Chips>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.click(screen.getByTestId('remove-apple'));
+
+      expect(screen.queryByTestId('remove-apple')).toBe(null);
+      expect(screen.getByRole('dialog')).not.toBe(null);
+      expect(input).toHaveFocus();
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute(
+        'aria-selected',
+        'false',
+      );
+    });
+
     it('should prevent event propagation', async () => {
       const handleChipClick = vi.fn();
       const handleRemoveClick = vi.fn();
@@ -254,6 +302,190 @@ describe('<Combobox.ChipRemove />', () => {
       // Remove click should happen but not propagate to chip
       expect(handleRemoveClick.mock.calls.length).toBe(1);
       expect(handleChipClick.mock.calls.length).toBe(0);
+    });
+
+    it('allows click and keyboard events to propagate when requested', async () => {
+      const handleChipClick = vi.fn();
+      const handleChipKeyDown = vi.fn();
+      const allowPropagation = (
+        _value: string[],
+        eventDetails: Combobox.Root.ChangeEventDetails,
+      ) => {
+        eventDetails.allowPropagation();
+      };
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple']} onValueChange={allowPropagation}>
+          <Combobox.Input />
+          <Combobox.Chips>
+            <Combobox.Chip onClick={handleChipClick} onKeyDown={handleChipKeyDown}>
+              apple
+              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const remove = screen.getByTestId('remove');
+      await user.click(remove);
+      expect(handleChipClick).toHaveBeenCalledTimes(1);
+
+      await act(async () => remove.focus());
+      await user.keyboard('{Enter}');
+      expect(handleChipKeyDown).toHaveBeenCalled();
+    });
+
+    it.each([{ disabled: true }, { readOnly: true }])(
+      'ignores click and keyboard activation on a non-native button: %o',
+      async (rootProps) => {
+        const handleValueChange = vi.fn();
+        await render(
+          <Combobox.Root
+            multiple
+            defaultValue={['apple']}
+            onValueChange={handleValueChange}
+            {...rootProps}
+          >
+            <Combobox.Chips>
+              <Combobox.Chip>
+                apple
+                <Combobox.ChipRemove data-testid="remove" nativeButton={false} render={<div />} />
+              </Combobox.Chip>
+            </Combobox.Chips>
+          </Combobox.Root>,
+        );
+
+        const remove = screen.getByTestId('remove');
+        await act(async () => {
+          remove.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          remove.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }),
+          );
+        });
+
+        expect(handleValueChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it('removes a chip with Space but ignores unrelated keys', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Combobox.Root
+          multiple
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Chips>
+            <Combobox.Chip>
+              apple
+              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+            <Combobox.Chip>banana</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const remove = screen.getByTestId('remove');
+      remove.focus();
+      fireEvent.keyDown(remove, { key: 'ArrowDown' });
+      expect(handleValueChange).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(remove, { key: ' ' });
+      expect(handleValueChange).toHaveBeenCalledWith(['banana'], expect.anything());
+    });
+
+    it('keeps a different active item highlighted when removing a chip', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple', 'banana']}>
+          <Combobox.Input />
+          <Combobox.Chips>
+            <Combobox.Chip>
+              apple
+              <Combobox.ChipRemove data-testid="remove-apple">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+            <Combobox.Chip>
+              banana
+              <Combobox.ChipRemove data-testid="remove-banana">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple option</Combobox.Item>
+                  <Combobox.Item value="banana">banana option</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.hover(screen.getByRole('option', { name: 'apple option' }));
+      fireEvent.click(screen.getByTestId('remove-banana'));
+
+      expect(screen.getByRole('option', { name: 'apple option' })).toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
+    it('removes a filtered-out chip without clearing the visible highlight', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple', 'banana']} items={['banana']}>
+          <Combobox.Input />
+          <Combobox.Chips>
+            <Combobox.Chip>
+              apple
+              <Combobox.ChipRemove data-testid="remove-apple">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+            <Combobox.Chip>banana</Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="banana">banana option</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.hover(screen.getByRole('option', { name: 'banana option' }));
+      fireEvent.click(screen.getByTestId('remove-apple'));
+
+      expect(screen.getByRole('option', { name: 'banana option' })).toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
+    it('records pointer-origin removal when clearing the highlighted item', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple']}>
+          <Combobox.Chips>
+            <Combobox.Chip>
+              apple
+              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+            </Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple option</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      fireEvent.pointerMove(screen.getByRole('option', { name: 'apple option' }));
+      await user.click(screen.getByTestId('remove'));
+
+      expect(screen.getByRole('option', { name: 'apple option' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
     });
 
     it('should handle keyboard activation', async () => {

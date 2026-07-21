@@ -1,5 +1,5 @@
-import { expect } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import { afterEach, expect, vi } from 'vitest';
+import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
@@ -9,6 +9,15 @@ const testContext: MenuGroupContext = () => {};
 describe('<Menu.GroupLabel />', () => {
   const { render } = createRenderer();
 
+  afterEach(async () => {
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve());
+        }),
+    );
+  });
+
   describeConformance(<Menu.GroupLabel />, () => ({
     render: (node) => {
       return render(
@@ -17,6 +26,18 @@ describe('<Menu.GroupLabel />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when rendered outside Menu.Group or Menu.RadioGroup', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.GroupLabel />)).rejects.toThrow(
+        'Base UI: MenuGroupContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('a11y attributes', () => {
     it('should have the role `presentation`', async () => {
