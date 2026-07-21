@@ -1117,6 +1117,7 @@ describe('<Combobox.Root />', () => {
           await waitFor(() => {
             expect(scrollIntoView.mock.contexts).toEqual([selectedItem]);
           });
+          expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
         },
       );
 
@@ -1703,6 +1704,7 @@ describe('<Combobox.Root />', () => {
           // Interim registrations may scroll transiently before paint; the final scroll
           // must land on the restored selected item.
           await waitFor(() => expect(scrollIntoView.mock.contexts.at(-1)).toBe(banana));
+          expect(scrollIntoView.mock.lastCall).toEqual([{ block: 'nearest', inline: 'nearest' }]);
           expect(onItemHighlighted.mock.lastCall?.[0]).toBe('banana');
 
           // The restore must never report an item at an index it does not occupy: the
@@ -2628,6 +2630,7 @@ describe('<Combobox.Root />', () => {
           await waitFor(() => {
             expect(scrollIntoView.mock.contexts).toEqual([selectedItem]);
           });
+          expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
         },
       );
 
