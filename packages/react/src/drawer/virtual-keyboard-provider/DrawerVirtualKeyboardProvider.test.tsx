@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
+import { useDrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
 
 describe('<Drawer.VirtualKeyboardProvider />', () => {
   beforeAll(function beforeHook() {
@@ -52,6 +53,19 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       configurable: true,
     });
     return touchCancel;
+  }
+
+  function DirectVirtualKeyboardTouchTarget() {
+    const virtualKeyboard = useDrawerVirtualKeyboardContext();
+
+    return (
+      <input
+        data-testid="input"
+        type="text"
+        onTouchStart={virtualKeyboard?.onTouchStart}
+        onTouchEnd={virtualKeyboard?.onTouchEnd}
+      />
+    );
   }
 
   function mockVisualViewport(height: number) {
@@ -3366,31 +3380,57 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
-  it.skipIf(isJSDOM)('ignores incomplete touch sequences while the drawer is closed', async () => {
-    await render(
-      <Drawer.Root open={false} modal={false}>
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal keepMounted>
-            <Drawer.Viewport>
-              <Drawer.Popup>
-                <input data-testid="input" type="text" />
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
-      </Drawer.Root>,
-    );
+  it.skipIf(isJSDOM)(
+    'ignores a directly captured touch target while a closed drawer remains mounted',
+    async () => {
+      const originalElementFromPoint = document.elementFromPoint;
 
-    const input = screen.getByTestId('input');
-    fireEvent.touchStart(input, {
-      touches: [createTouch(input, { clientX: 0, clientY: 0 })],
-    });
-    fireEvent.touchStart(input, { touches: [] });
-    fireEvent.touchMove(input, { touches: [] });
-    input.dispatchEvent(createNativeTouchEnd(input, { clientX: 0, clientY: 0 }));
+      try {
+        await render(
+          <Drawer.Root
+            defaultOpen
+            modal={false}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (!nextOpen) {
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup initialFocus={false} data-testid="popup">
+                    <DirectVirtualKeyboardTouchTarget />
+                    <Drawer.Close>Close</Drawer.Close>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
 
-    expect(input).not.toHaveFocus();
-  });
+        const input = screen.getByTestId('input');
+        document.elementFromPoint = () => input;
+
+        await act(async () => {
+          screen.getByRole('button', { name: 'Close' }).click();
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-closed', '');
+        });
+
+        fireEvent.touchStart(input, {
+          touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+        });
+        fireEvent.touchMove(input, { touches: [] });
+        input.dispatchEvent(createNativeTouchEnd(input, { clientX: 0, clientY: 0 }));
+
+        expect(input).not.toHaveFocus();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)('does not focus a lift-point target outside the drawer', async () => {
     await render(

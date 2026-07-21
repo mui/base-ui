@@ -43,15 +43,19 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
   return point;
 }
 
-function dispatchTouchPointerEvent(element: Element, type: string) {
+function dispatchTouchPointerEvent(
+  element: Element,
+  type: string,
+  point: { clientX: number; clientY: number },
+) {
   const event = new Event(type, { bubbles: true, cancelable: true });
   Object.defineProperties(event, {
     pointerType: { value: 'touch' },
     pointerId: { value: 1 },
     button: { value: 0 },
     buttons: { value: type === 'pointerup' || type === 'pointercancel' ? 0 : 1 },
-    clientX: { value: 0 },
-    clientY: { value: 0 },
+    clientX: { value: point.clientX },
+    clientY: { value: point.clientY },
   });
   element.dispatchEvent(event);
 }
@@ -599,6 +603,7 @@ describe('<Drawer.SwipeArea />', () => {
       clientX: { value: 0 },
       clientY: { value: 0 },
     });
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
 
     let dispatched = false;
     await act(async () => {
@@ -607,6 +612,7 @@ describe('<Drawer.SwipeArea />', () => {
     });
     expect(dispatched).toBe(true);
     expect(event.defaultPrevented).toBe(false);
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
 
     fireEvent.pointerCancel(screen.getByTestId('swipe-area'), {
       pointerType: 'mouse',
@@ -615,7 +621,7 @@ describe('<Drawer.SwipeArea />', () => {
     await flushMicrotasks();
   });
 
-  it('ignores compatibility touch pointer events and handles pointer cancellation', async () => {
+  it('ignores compatibility touch pointer gestures with real displacement', async () => {
     const handleOpenChange = vi.fn();
     await render(
       <Drawer.Root onOpenChange={handleOpenChange}>
@@ -624,10 +630,13 @@ describe('<Drawer.SwipeArea />', () => {
     );
     const swipeArea = screen.getByTestId('swipe-area');
 
-    dispatchTouchPointerEvent(swipeArea, 'pointerdown');
-    dispatchTouchPointerEvent(swipeArea, 'pointermove');
-    dispatchTouchPointerEvent(swipeArea, 'pointerup');
-    dispatchTouchPointerEvent(swipeArea, 'pointercancel');
+    await act(async () => {
+      dispatchTouchPointerEvent(swipeArea, 'pointerdown', { clientX: 0, clientY: 120 });
+      dispatchTouchPointerEvent(swipeArea, 'pointermove', { clientX: 0, clientY: 40 });
+      dispatchTouchPointerEvent(swipeArea, 'pointerup', { clientX: 0, clientY: 40 });
+      dispatchTouchPointerEvent(swipeArea, 'pointercancel', { clientX: 0, clientY: 40 });
+      await flushMicrotasks();
+    });
     expect(handleOpenChange).not.toHaveBeenCalled();
 
     fireEvent.pointerDown(swipeArea, {

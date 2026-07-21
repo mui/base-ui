@@ -237,7 +237,7 @@ describe('<Drawer.Popup />', () => {
     }
   });
 
-  it('tolerates a popup render function that produces no element', async () => {
+  it('does not throw when a popup render function produces no element', async () => {
     // @ts-expect-error - exercise resilience to a custom render component returning null.
     const popup = <Drawer.Popup render={() => null}>Drawer</Drawer.Popup>;
 

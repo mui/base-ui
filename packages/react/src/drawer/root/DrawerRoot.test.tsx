@@ -816,6 +816,17 @@ function NestedSwipeProgressProbe() {
   return <output data-testid="nested-swipe-progress">{progress}</output>;
 }
 
+function NestedSwipeProgressSubscriber({ onChange }: { onChange: () => void }) {
+  const { nestedSwipeProgressStore } = useDrawerRootContext();
+
+  React.useEffect(
+    () => nestedSwipeProgressStore.subscribe(onChange),
+    [nestedSwipeProgressStore, onChange],
+  );
+
+  return null;
+}
+
 function NestedSwipeProgressControls() {
   const { onNestedSwipeProgressChange } = useDrawerRootContext();
 
@@ -1185,9 +1196,11 @@ describe('<Drawer.Root />', () => {
   });
 
   it('normalizes invalid nested swipe progress without notifying for duplicate values', async () => {
+    const handleProgressChange = vi.fn();
     const { user } = await render(
       <Drawer.Root>
         <NestedSwipeProgressProbe />
+        <NestedSwipeProgressSubscriber onChange={handleProgressChange} />
         <Drawer.Root>
           <NestedSwipeProgressControls />
         </Drawer.Root>
@@ -1196,12 +1209,17 @@ describe('<Drawer.Root />', () => {
 
     await user.click(screen.getByRole('button', { name: 'Set nested progress' }));
     expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0.5');
+    expect(handleProgressChange).toHaveBeenCalledTimes(1);
+
+    handleProgressChange.mockClear();
 
     await user.click(screen.getByRole('button', { name: 'Set nested progress' }));
     expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0.5');
+    expect(handleProgressChange).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Set invalid nested progress' }));
     expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0');
+    expect(handleProgressChange).toHaveBeenCalledTimes(1);
   });
 
   it('throws a descriptive error when the root context is missing', async () => {
@@ -1227,10 +1245,10 @@ describe('<Drawer.Root />', () => {
         </Drawer.Provider>,
       );
 
-      expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
       await act(async () => {
         await waitSingleFrame();
       });
+      expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
     } finally {
       useIdMockState.returnUndefined = false;
     }
