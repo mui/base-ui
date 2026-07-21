@@ -107,7 +107,7 @@ Name specific case untested or under-asserted.
 Bundle size is a top constraint. Smallest correct implementation wins. Preserve
 public behavior, runtime performance, and maintainability.
 
-Always ask: “Can this ship with less code, state, branching, or abstraction?”
+Always ask: "Can this ship with less code, state, branching, or abstraction?"
 Measure real bundle effect when material. Source-line count proves nothing.
 
 Judge bugs by reachability and impact. Keep every valid bug. Demote to a note only
