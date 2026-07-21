@@ -5,6 +5,7 @@ import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
 export type State = {
   id: string | undefined;
@@ -19,6 +20,7 @@ export type State = {
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
+  isItemDisabled: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   value: any;
@@ -37,12 +39,14 @@ export type State = {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
+  virtualizerElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
 
   hasScrollArrows: boolean;
+  virtualizationRegistry: ListVirtualizationRegistry;
 };
 
 export type SelectStore = ReactStore<State>;
@@ -54,6 +58,7 @@ export const selectors = {
 
   items: createSelector((state: State) => state.items),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  isItemDisabled: createSelector((state: State) => state.isItemDisabled),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
@@ -109,6 +114,7 @@ export const selectors = {
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  virtualizerElement: createSelector((state: State) => state.virtualizerElement),
   popupSide: createSelector((state: State) => state.popupSide),
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),

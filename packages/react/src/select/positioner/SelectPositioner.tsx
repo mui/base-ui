@@ -4,7 +4,11 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
+import {
+  useSelectDerivedItemsContext,
+  useSelectRootContext,
+  useSelectFloatingContext,
+} from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -70,6 +74,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setValue,
   } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
+  const { flatItems, hasItems } = useSelectDerivedItemsContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -226,7 +231,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+    <CompositeList
+      elementsRef={listRef}
+      itemCount={hasItems ? flatItems.length : undefined}
+      labelsRef={hasItems ? undefined : labelsRef}
+      onMapChange={onMapChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}

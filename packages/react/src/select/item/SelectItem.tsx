@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { warn } from '@base-ui/utils/warn';
+import { useSelectDerivedItemsContext, useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
@@ -21,6 +22,8 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import { useSelectVirtualItemContext } from '../virtualizer/SelectVirtualItemContext';
+import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 
 /**
  * An individual option in the select popup.
@@ -39,13 +42,17 @@ export const SelectItem = React.memo(
       style,
       value: itemValue = null,
       label,
-      disabled = false,
+      disabled: disabledProp = false,
       nativeButton = false,
       ...elementProps
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
+    const virtualItem = useSelectVirtualItemContext();
+    const { hasItems } = useSelectDerivedItemsContext();
+    const insideList = useVirtualizationListContext();
     const listItem = useCompositeListItem({
+      index: virtualItem?.index,
       label,
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
@@ -70,14 +77,42 @@ export const SelectItem = React.memo(
     const selected = useStore(store, selectors.isSelected, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+    const isItemDisabled = useStore(store, selectors.isItemDisabled);
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
+    const disabled = disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // The build-time environment never changes during a component's lifetime.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useIsoLayoutEffect(() => {
+        if (virtualItem != null || !insideList) {
+          return undefined;
+        }
+
+        const registry = store.state.virtualizationRegistry;
+        registry.nonVirtualItemCount += 1;
+
+        if (registry.virtualizers.size > 0) {
+          warn(
+            '<Select.List> must not render static <Select.Item> elements alongside ' +
+              '<Select.Virtualizer>. Render every list item through the virtualizer.',
+          );
+        }
+
+        return () => {
+          registry.nonVirtualItemCount -= 1;
+        };
+      }, [insideList, store, virtualItem]);
+    }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
+      if (!hasRegistered || hasItems) {
         return undefined;
       }
 
@@ -87,7 +122,7 @@ export const SelectItem = React.memo(
       return () => {
         delete values[index];
       };
-    }, [hasRegistered, index, itemValue, valuesRef]);
+    }, [hasItems, hasRegistered, index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -240,7 +275,7 @@ export const SelectItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [itemProps, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(

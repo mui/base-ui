@@ -87,6 +87,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const virtualizerElement = useStore(store, selectors.virtualizerElement);
 
   const reachedMaxHeightRef = React.useRef(false);
   const initialPlacedRef = React.useRef(false);
@@ -288,7 +289,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
       const triggerHeight = triggerRect.height;
-      const scroller = listElement || popupElement;
+      const scroller = virtualizerElement || listElement || popupElement;
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
@@ -426,6 +427,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     setControlledAlignItemWithTrigger,
     scrollArrowFrame,
     listElement,
+    virtualizerElement,
     listRef,
     highlightItemOnHover,
     direction,
