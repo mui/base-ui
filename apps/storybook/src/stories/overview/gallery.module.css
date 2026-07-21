@@ -17,6 +17,13 @@
   border-radius: var(--ds-radius-card);
 }
 
+/* Yann 21 Jul: cards read white in light mode; dark keeps the card/page contrast */
+@media (prefers-color-scheme: light) {
+  .Card {
+    background-color: var(--ds-color-surface-page);
+  }
+}
+
 /* Doubled selector: outranks addon-docs' element-level text color inside .sbdocs */
 .CardName.CardName {
   margin: 0;
@@ -32,6 +39,10 @@
   align-items: center;
   overflow-x: auto;
   min-height: 4rem;
+  /* The focus/hover ring extends 4px beyond controls; without padding the
+     scroll container clips it (visible on Field/Input). 2xs so it clears the
+     ring even at the 14px small-screen root. */
+  padding: var(--ds-space-2xs);
 }
 
 /* The Story doc-block nests its own wrappers; let them shrink inside the card. */
