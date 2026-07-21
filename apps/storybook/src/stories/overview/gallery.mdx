@@ -1,0 +1,302 @@
+{/* Overview page. One card per component family, each rendering its hero story live
+    (or its most representative story where no Hero exists), so the whole Mealdrop
+    theming can be judged on a single page. Cards use semantic ds tokens only. */}
+
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+import styles from './gallery.module.css';
+
+import * as AccordionStories from '../accordion/accordion.stories';
+import * as AlertDialogStories from '../alert-dialog/alert-dialog.stories';
+import * as AutocompleteStories from '../autocomplete/autocomplete.stories';
+import * as AvatarStories from '../avatar/avatar.stories';
+import * as ButtonStories from '../button/button.stories';
+import * as CheckboxStories from '../checkbox/checkbox.stories';
+import * as CheckboxGroupStories from '../checkbox-group/checkbox-group.stories';
+import * as CollapsibleStories from '../collapsible/collapsible.stories';
+import * as ComboboxStories from '../combobox/combobox.stories';
+import * as ContextMenuStories from '../context-menu/context-menu.stories';
+import * as DialogStories from '../dialog/dialog.stories';
+import * as DirectionProviderStories from '../direction-provider/direction-provider.stories';
+import * as DrawerStories from '../drawer/drawer.stories';
+import * as FieldStories from '../field/field.stories';
+import * as FieldsetStories from '../fieldset/fieldset.stories';
+import * as FormStories from '../form/form.stories';
+import * as InputStories from '../input/input.stories';
+import * as MenuStories from '../menu/menu.stories';
+import * as MenubarStories from '../menubar/menubar.stories';
+import * as MergePropsStories from '../merge-props/merge-props.stories';
+import * as MeterStories from '../meter/meter.stories';
+import * as NavigationMenuStories from '../navigation-menu/navigation-menu.stories';
+import * as NumberFieldStories from '../number-field/number-field.stories';
+import * as OtpFieldStories from '../otp-field/otp-field.stories';
+import * as PopoverStories from '../popover/popover.stories';
+import * as PreviewCardStories from '../preview-card/preview-card.stories';
+import * as ProgressStories from '../progress/progress.stories';
+import * as RadioStories from '../radio/radio.stories';
+import * as ScrollAreaStories from '../scroll-area/scroll-area.stories';
+import * as SelectStories from '../select/select.stories';
+import * as SeparatorStories from '../separator/separator.stories';
+import * as SliderStories from '../slider/slider.stories';
+import * as SwitchStories from '../switch/switch.stories';
+import * as TabsStories from '../tabs/tabs.stories';
+import * as ToastStories from '../toast/toast.stories';
+import * as ToggleStories from '../toggle/toggle.stories';
+import * as ToggleGroupStories from '../toggle-group/toggle-group.stories';
+import * as ToolbarStories from '../toolbar/toolbar.stories';
+import * as TooltipStories from '../tooltip/tooltip.stories';
+import * as UseRenderStories from '../use-render/use-render.stories';
+
+<Meta title="Overview/Gallery" />
+
+# Gallery
+
+Every component family on one page, rendered live with the Mealdrop theme — a single
+visual perspective across the whole design system. Overlay components show their
+resting (closed) state; open each component's own docs page to interact with the rest.
+
+<div className={styles.Grid}>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Accordion</p>
+    <div className={styles.CardPreview}>
+      <Story of={AccordionStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Alert dialog</p>
+    <div className={styles.CardPreview}>
+      <Story of={AlertDialogStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Autocomplete</p>
+    <div className={styles.CardPreview}>
+      <Story of={AutocompleteStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Avatar</p>
+    <div className={styles.CardPreview}>
+      <Story of={AvatarStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Button</p>
+    <div className={styles.CardPreview}>
+      <Story of={ButtonStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Checkbox</p>
+    <div className={styles.CardPreview}>
+      <Story of={CheckboxStories.Basic} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Checkbox group</p>
+    <div className={styles.CardPreview}>
+      <Story of={CheckboxGroupStories.Basic} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Collapsible</p>
+    <div className={styles.CardPreview}>
+      <Story of={CollapsibleStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Combobox</p>
+    <div className={styles.CardPreview}>
+      <Story of={ComboboxStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Context menu</p>
+    <div className={styles.CardPreview}>
+      <Story of={ContextMenuStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Dialog</p>
+    <div className={styles.CardPreview}>
+      <Story of={DialogStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Direction provider</p>
+    <div className={styles.CardPreview}>
+      <Story of={DirectionProviderStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Drawer</p>
+    <div className={styles.CardPreview}>
+      <Story of={DrawerStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Field</p>
+    <div className={styles.CardPreview}>
+      <Story of={FieldStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Fieldset</p>
+    <div className={styles.CardPreview}>
+      <Story of={FieldsetStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Form</p>
+    <div className={styles.CardPreview}>
+      <Story of={FormStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Input</p>
+    <div className={styles.CardPreview}>
+      <Story of={InputStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Menu</p>
+    <div className={styles.CardPreview}>
+      <Story of={MenuStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Menubar</p>
+    <div className={styles.CardPreview}>
+      <Story of={MenubarStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>mergeProps</p>
+    <div className={styles.CardPreview}>
+      <Story of={MergePropsStories.HandlerOrderAndCancellation} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Meter</p>
+    <div className={styles.CardPreview}>
+      <Story of={MeterStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Navigation menu</p>
+    <div className={styles.CardPreview}>
+      <Story of={NavigationMenuStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Number field</p>
+    <div className={styles.CardPreview}>
+      <Story of={NumberFieldStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>OTP field</p>
+    <div className={styles.CardPreview}>
+      <Story of={OtpFieldStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Popover</p>
+    <div className={styles.CardPreview}>
+      <Story of={PopoverStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Preview card</p>
+    <div className={styles.CardPreview}>
+      <Story of={PreviewCardStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Progress</p>
+    <div className={styles.CardPreview}>
+      <Story of={ProgressStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Radio</p>
+    <div className={styles.CardPreview}>
+      <Story of={RadioStories.Basic} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Scroll area</p>
+    <div className={styles.CardPreview}>
+      <Story of={ScrollAreaStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Select</p>
+    <div className={styles.CardPreview}>
+      <Story of={SelectStories.Basic} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Separator</p>
+    <div className={styles.CardPreview}>
+      <Story of={SeparatorStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Slider</p>
+    <div className={styles.CardPreview}>
+      <Story of={SliderStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Switch</p>
+    <div className={styles.CardPreview}>
+      <Story of={SwitchStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Tabs</p>
+    <div className={styles.CardPreview}>
+      <Story of={TabsStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Toast</p>
+    <div className={styles.CardPreview}>
+      <Story of={ToastStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Toggle</p>
+    <div className={styles.CardPreview}>
+      <Story of={ToggleStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Toggle group</p>
+    <div className={styles.CardPreview}>
+      <Story of={ToggleGroupStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Toolbar</p>
+    <div className={styles.CardPreview}>
+      <Story of={ToolbarStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>Tooltip</p>
+    <div className={styles.CardPreview}>
+      <Story of={TooltipStories.Hero} inline />
+    </div>
+  </div>
+  <div className={styles.Card}>
+    <p className={styles.CardName}>useRender</p>
+    <div className={styles.CardPreview}>
+      <Story of={UseRenderStories.CustomComponent} inline />
+    </div>
+  </div>
+</div>
+
+---
+
+Not shown: **CSP Provider** — a docs-only page with no rendered component.

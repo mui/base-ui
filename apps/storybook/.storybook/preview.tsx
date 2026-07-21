@@ -32,7 +32,7 @@ const preview: Preview = {
       storySort: {
         order: [
           'Overview',
-          ['Introduction', 'Principles', 'Choosing components'],
+          ['Introduction', 'Gallery', 'Principles', 'Choosing components'],
           'Patterns',
           [
             'Build a validated form',

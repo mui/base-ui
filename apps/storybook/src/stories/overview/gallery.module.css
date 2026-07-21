@@ -1,0 +1,40 @@
+/* Overview/Gallery — every component family at a glance, on Mealdrop semantic tokens. */
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ds-space-xs);
+  margin-top: var(--ds-space-sm);
+}
+
+.Card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2xs);
+  padding: var(--ds-space-sm);
+  background-color: var(--ds-color-surface-card);
+  border: 1px solid var(--ds-color-border-subtle);
+  border-radius: var(--ds-radius-card);
+}
+
+.CardName {
+  margin: 0;
+  font-family: var(--ds-type-family-body);
+  font-size: var(--ds-type-size-xs);
+  font-weight: var(--ds-type-weight-regular);
+  color: var(--ds-color-text-secondary);
+}
+
+.CardPreview {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  overflow-x: auto;
+  min-height: 4rem;
+}
+
+/* The Story doc-block nests its own wrappers; let them shrink inside the card. */
+.CardPreview > * {
+  max-width: 100%;
+  margin: 0;
+}
