@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber } from '@base-ui/utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';

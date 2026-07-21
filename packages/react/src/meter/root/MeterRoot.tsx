@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { formatNumber } from '@base-ui/utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { formatNumber } from '../../utils/formatNumber';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

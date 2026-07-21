@@ -1,4 +1,4 @@
-import { clamp } from '../../internals/clamp';
+import { clamp } from '@base-ui/utils/clamp';
 
 /**
  * Returns a new array of slider values where attempting to move the thumb at `index`
