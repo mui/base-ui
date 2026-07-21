@@ -1,7 +1,28 @@
 import type { Preview } from '@storybook/react-vite';
+import { withThemeByDataAttribute } from '@storybook/addon-themes';
 import '../src/styles/theme.css';
 
 const preview: Preview = {
+  // Declares the `theme` global (same key the addon-themes preset registers) with
+  // light as the startup theme; also lets iframe URLs override it via
+  // &globals=theme:dark.
+  initialGlobals: {
+    theme: 'light',
+  },
+
+  decorators: [
+    // Toolbar theme picker + `theme` global. Stamps data-theme on <html>, which
+    // src/styles/theme.css keys the semantic --ds-color-* vars on.
+    withThemeByDataAttribute({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'light',
+      attributeName: 'data-theme',
+      parentSelector: 'html',
+    }),
+  ],
   parameters: {
     layout: 'centered',
 

@@ -22,6 +22,7 @@
     "@storybook/addon-a11y": "^10.5.3",
     "@storybook/addon-docs": "^10.5.3",
     "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/addon-themes": "10.5.3",
     "@storybook/addon-vitest": "^10.5.3",
     "@storybook/react-vite": "^10.5.3",
     "@types/react": "19.2.14",

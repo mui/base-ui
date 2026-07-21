@@ -168,6 +168,9 @@ importers:
       '@storybook/addon-mcp':
         specifier: ^0.7.0
         version: 0.7.0(@storybook/addon-vitest@10.5.3(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.11(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.8))(@vitest/runner@4.1.8)(react@19.2.5)(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))(vitest@4.1.8))(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))(typescript@6.0.3)
+      '@storybook/addon-themes':
+        specifier: 10.5.3
+        version: 10.5.3(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))
       '@storybook/addon-vitest':
         specifier: ^10.5.3
         version: 10.5.3(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.11(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.8))(@vitest/runner@4.1.8)(react@19.2.5)(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))(vitest@4.1.8)
@@ -4080,6 +4083,11 @@ packages:
     peerDependenciesMeta:
       '@storybook/addon-vitest':
         optional: true
+
+  '@storybook/addon-themes@10.5.3':
+    resolution: {integrity: sha512-bEHqMgkwqM6fENwYGptZz/lYzNs5SVdVnI8qTKqTC5S6mwkJ3mzTXF/5MPVZb4BelgfV/KzAWrRF9QR5OFitsA==}
+    peerDependencies:
+      storybook: ^10.5.3
 
   '@storybook/addon-vitest@10.5.3':
     resolution: {integrity: sha512-PY1nmTHPtHAjGO5rfSZP2VwGG1oUuu/mF7p7FOBpJX4St3ZV7TiakX9Z1Fv4zaUkeAgtv/Nq5o9ZGpKOE5wp8g==}
@@ -13834,6 +13842,11 @@ snapshots:
       - '@tmcp/auth'
       - typescript
 
+  '@storybook/addon-themes@10.5.3(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))':
+    dependencies:
+      storybook: 10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5)
+      ts-dedent: 2.3.0
+
   '@storybook/addon-vitest@10.5.3(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.11(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.8))(@vitest/runner@4.1.8)(react@19.2.5)(storybook@10.5.3(@types/react@19.2.14)(prettier@3.8.3)(react@19.2.5))(vitest@4.1.8)':
     dependencies:
       '@storybook/global': 5.0.0
@@ -20997,7 +21010,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.18.13
-      '@vitest/browser-playwright': 4.1.8(playwright@1.59.1)(vite@8.0.11(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.8)
+      '@vitest/browser-playwright': 4.1.8(playwright@1.61.1)(vite@8.0.11(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.8)
       '@vitest/coverage-istanbul': 4.1.8(vitest@4.1.8)
       '@vitest/ui': 4.1.8(vitest@4.1.8)
       jsdom: 27.4.0

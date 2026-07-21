@@ -36,6 +36,7 @@ const config: StorybookConfig = {
       },
     },
     getAbsolutePath('@storybook/addon-mcp'),
+    getAbsolutePath('@storybook/addon-themes'),
   ],
   framework: getAbsolutePath('@storybook/react-vite'),
   tags: {

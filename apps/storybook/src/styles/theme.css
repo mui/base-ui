@@ -1,10 +1,229 @@
 /*
- * Base look shared by all stories.
- * Values mirror the docs site's Tailwind @theme tokens (docs/src/css/index.css):
- * neutral-950 = oklch(14.5% 0 0deg), plain white background, system font stack
- * (the docs' licensed webfont is not shipped here).
- * Demos use raw oklch values in their own CSS Modules, per AGENTS.md.
+ * Neutral baseline theme (pre-Mealdrop look) exposing the full --ds-* var
+ * contract. Var NAMES and block structure are identical to the Mealdrop theme
+ * (theme branches change VALUES only): primitives as --ds-palette-* /
+ * --ds-type-* / --ds-space-* / --ds-radius-* / --ds-shadow-* / --ds-motion-* /
+ * --ds-breakpoint-*; color roles as --ds-color-*. Light and dark are both
+ * defined in full — the dark block redefines every semantic color.
+ * Breakpoint vars are documentation only: media queries cannot read custom
+ * properties, so queries use the literal px values.
  */
+
+:root {
+  /* ---- primitive: color.neutral ---- */
+  --ds-palette-neutral-0: white;
+  --ds-palette-neutral-50: oklch(98% 0 0deg);
+  --ds-palette-neutral-100: oklch(97% 0 0deg);
+  --ds-palette-neutral-150: oklch(92.2% 0 0deg);
+  --ds-palette-neutral-200: oklch(87% 0 0deg);
+  --ds-palette-neutral-300: oklch(75% 0 0deg);
+  --ds-palette-neutral-400: oklch(70.8% 0 0deg);
+  --ds-palette-neutral-500: oklch(60% 0 0deg);
+  --ds-palette-neutral-600: oklch(55.6% 0 0deg);
+  --ds-palette-neutral-700: oklch(43.9% 0 0deg);
+  --ds-palette-neutral-750: oklch(37.1% 0 0deg);
+  --ds-palette-neutral-800: oklch(26.9% 0 0deg);
+  --ds-palette-neutral-900: oklch(20% 0 0deg);
+  --ds-palette-neutral-950: oklch(14.5% 0 0deg);
+
+  /* ---- primitive: color.green (surface accent — never ink) ---- */
+  --ds-palette-green-100: oklch(98% 0 0deg);
+  --ds-palette-green-200: oklch(97% 0 0deg);
+  --ds-palette-green-300: oklch(92.2% 0 0deg);
+
+  /* ---- primitive: color.blue (surfaces; 400/700 = focus/review ink only) ---- */
+  --ds-palette-blue-100: oklch(87% 0 0deg);
+  --ds-palette-blue-200: oklch(70.8% 0 0deg);
+  --ds-palette-blue-400: oklch(14.5% 0 0deg);
+  --ds-palette-blue-700: oklch(43.9% 0 0deg);
+
+  /* ---- primitive: color.red (error only) ---- */
+  --ds-palette-red-300: oklch(70.4% 0.191 22.216deg);
+  --ds-palette-red-500: oklch(57.7% 0.245 27.325deg);
+  --ds-palette-red-700: oklch(50.5% 0.213 27.518deg);
+
+  /* ---- primitive: color.brand (mascot/loading/celebration only — never UI chrome) ---- */
+  --ds-palette-brand-shine: oklch(87% 0 0deg);
+  --ds-palette-brand-200: oklch(75% 0 0deg);
+  --ds-palette-brand-300: oklch(70.8% 0 0deg);
+  --ds-palette-brand-400: oklch(60% 0 0deg);
+  --ds-palette-brand-500: oklch(55.6% 0 0deg);
+  --ds-palette-brand-nose: oklch(87% 0 0deg);
+  --ds-palette-brand-dark-shine: oklch(97% 0 0deg);
+  --ds-palette-brand-dark-100: oklch(92.2% 0 0deg);
+  --ds-palette-brand-dark-200: oklch(87% 0 0deg);
+  --ds-palette-brand-dark-300: oklch(75% 0 0deg);
+  --ds-palette-brand-dark-400: oklch(70.8% 0 0deg);
+
+  /* ---- primitive: type ---- */
+  --ds-type-family-heading: system-ui, sans-serif;
+  --ds-type-family-body: system-ui, sans-serif;
+  --ds-type-size-2xs: 0.75rem;
+  --ds-type-size-xs: 0.875rem;
+  --ds-type-size-sm: 1rem;
+  --ds-type-size-md: 1rem;
+  --ds-type-size-lg: 1.25rem;
+  --ds-type-size-xl: 1.5rem;
+  --ds-type-size-2xl: 2rem;
+  --ds-type-size-3xl: 2.5rem;
+  --ds-type-weight-regular: 400;
+  --ds-type-weight-medium: 500;
+  --ds-type-weight-bold: 700;
+  --ds-type-weight-black: 900;
+  --ds-type-tracking-display: normal;
+  --ds-type-tracking-default: normal;
+
+  /* ---- primitive: space ---- */
+  --ds-space-3xs: 0.25rem;
+  --ds-space-2xs: 0.5rem;
+  --ds-space-xs: 1rem;
+  --ds-space-sm: 1.5rem;
+  --ds-space-md: 2rem;
+  --ds-space-lg: 3.25rem;
+  --ds-space-xl: 5.25rem;
+
+  /* ---- primitive: radius (ladder by floatiness) ---- */
+  --ds-radius-control: 0;
+  --ds-radius-card: 0;
+  --ds-radius-sheet: 0;
+  --ds-radius-pill: 9999px;
+  --ds-radius-round: 50%;
+
+  /* ---- primitive: shadow ---- */
+  --ds-shadow-lift: 0 1px 2px rgb(0 0 0 / 12%);
+  --ds-shadow-overlay: 0 4px 16px rgb(0 0 0 / 12%);
+
+  /* ---- primitive: motion ---- */
+  --ds-motion-fast: 150ms;
+  --ds-motion-base: 250ms;
+  --ds-motion-slow: 300ms;
+  --ds-motion-ease: ease-in;
+
+  /* ---- primitive: breakpoint (documentation only — use literal px in queries) ---- */
+  --ds-breakpoint-sm: 640px;
+  --ds-breakpoint-md: 768px;
+  --ds-breakpoint-lg: 1024px;
+  --ds-breakpoint-xl: 1440px;
+
+  /* ---- semantic: color (light) ---- */
+  --ds-color-surface-page: var(--ds-palette-neutral-0);
+  --ds-color-surface-card: var(--ds-palette-neutral-50);
+  --ds-color-surface-sunken: var(--ds-palette-neutral-100);
+  --ds-color-surface-overlay: var(--ds-palette-neutral-0);
+  --ds-color-surface-inverse: var(--ds-palette-neutral-900);
+  --ds-color-surface-highlight: var(--ds-palette-green-200);
+  --ds-color-surface-info: var(--ds-palette-blue-200);
+  --ds-color-text-primary: var(--ds-palette-neutral-900);
+  --ds-color-text-secondary: var(--ds-palette-neutral-700);
+  --ds-color-text-hint: var(--ds-palette-neutral-600);
+  --ds-color-text-label: var(--ds-palette-neutral-800);
+  --ds-color-text-label-active: var(--ds-palette-neutral-950);
+  --ds-color-text-on-inverse: var(--ds-palette-neutral-0);
+  --ds-color-text-error: var(--ds-palette-red-700);
+  --ds-color-text-review: var(--ds-palette-blue-700);
+  --ds-color-action-primary: var(--ds-palette-neutral-950);
+  --ds-color-action-primary-hover: var(--ds-palette-neutral-900);
+  --ds-color-action-on-primary: var(--ds-palette-neutral-0);
+  --ds-color-action-subtle-hover: var(--ds-palette-neutral-100);
+  --ds-color-action-progress: var(--ds-palette-neutral-950);
+  --ds-color-border-subtle: var(--ds-palette-neutral-150);
+  --ds-color-focus-ring: var(--ds-palette-blue-400);
+  --ds-color-focus-halo: var(--ds-palette-blue-100);
+  --ds-color-icon-default: var(--ds-palette-neutral-900);
+  --ds-color-skeleton-base: var(--ds-palette-neutral-150);
+  --ds-color-skeleton-highlight: var(--ds-palette-neutral-100);
+  --ds-color-chip-contrast-bg: var(--ds-palette-neutral-950);
+  --ds-color-chip-contrast-text: var(--ds-palette-neutral-0);
+
+  /* ---- composed: the single two-layer focus ring (principles rule 9) ---- */
+  --ds-shadow-focus: 0 0 0 1px var(--ds-color-focus-ring), 0 0 0 4px var(--ds-color-focus-halo);
+}
+
+/*
+ * =========================================================================
+ * DARK SEMANTIC LAYER — DEFINED TWICE BELOW; THE TWO BLOCKS MUST STAY IN SYNC.
+ * Block 1: :root[data-theme='dark'] — driven by the addon-themes toolbar
+ *          picker (withThemeByDataAttribute stamps data-theme on <html>).
+ * Block 2: @media (prefers-color-scheme: dark) fallback, guarded with
+ *          :not([data-theme=...]) so it applies only when nothing set an
+ *          explicit theme (e.g. contexts without the decorator).
+ * CSS custom properties can't be shared across the two conditions without a
+ * preprocessor — when a value changes, edit BOTH blocks.
+ * =========================================================================
+ */
+:root[data-theme='dark'] {
+  /* ---- semantic: color (dark) — every role redefined in full ---- */
+  --ds-color-surface-page: var(--ds-palette-neutral-950);
+  --ds-color-surface-card: var(--ds-palette-neutral-900);
+  --ds-color-surface-sunken: var(--ds-palette-neutral-800);
+  --ds-color-surface-overlay: var(--ds-palette-neutral-900);
+  --ds-color-surface-inverse: var(--ds-palette-neutral-900);
+  --ds-color-surface-highlight: var(--ds-palette-neutral-900);
+  --ds-color-surface-info: var(--ds-palette-neutral-900);
+  --ds-color-text-primary: var(--ds-palette-neutral-0);
+  --ds-color-text-secondary: var(--ds-palette-neutral-400);
+  --ds-color-text-hint: var(--ds-palette-neutral-400);
+  --ds-color-text-label: var(--ds-palette-neutral-150);
+  --ds-color-text-label-active: var(--ds-palette-neutral-0);
+  --ds-color-text-on-inverse: var(--ds-palette-neutral-0);
+  --ds-color-text-error: var(--ds-palette-red-300);
+  --ds-color-text-review: var(--ds-palette-blue-200);
+  --ds-color-action-primary: var(--ds-palette-green-200);
+  --ds-color-action-primary-hover: var(--ds-palette-green-300);
+  --ds-color-action-on-primary: var(--ds-palette-neutral-900);
+  --ds-color-action-subtle-hover: var(--ds-palette-neutral-800);
+  --ds-color-action-progress: var(--ds-palette-green-200);
+  --ds-color-border-subtle: var(--ds-palette-neutral-800);
+  --ds-color-focus-ring: var(--ds-palette-blue-700);
+  --ds-color-focus-halo: var(--ds-palette-blue-200);
+  --ds-color-icon-default: var(--ds-palette-neutral-0);
+  --ds-color-skeleton-base: var(--ds-palette-neutral-750);
+  --ds-color-skeleton-highlight: var(--ds-palette-neutral-700);
+  --ds-color-chip-contrast-bg: var(--ds-palette-neutral-950);
+  --ds-color-chip-contrast-text: var(--ds-palette-neutral-0);
+
+  /* dark ring widens to 2px (tokens.json focus.ring note) */
+  --ds-shadow-focus: 0 0 0 2px var(--ds-color-focus-ring), 0 0 0 4px var(--ds-color-focus-halo);
+}
+
+/* System-preference fallback — SAME values as :root[data-theme='dark'] above
+ * (see sync warning). Applies only when no explicit data-theme is set. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light'], [data-theme='dark']) {
+    /* ---- semantic: color (dark) — every role redefined in full ---- */
+    --ds-color-surface-page: var(--ds-palette-neutral-950);
+    --ds-color-surface-card: var(--ds-palette-neutral-900);
+    --ds-color-surface-sunken: var(--ds-palette-neutral-800);
+    --ds-color-surface-overlay: var(--ds-palette-neutral-900);
+    --ds-color-surface-inverse: var(--ds-palette-neutral-900);
+    --ds-color-surface-highlight: var(--ds-palette-neutral-900);
+    --ds-color-surface-info: var(--ds-palette-neutral-900);
+    --ds-color-text-primary: var(--ds-palette-neutral-0);
+    --ds-color-text-secondary: var(--ds-palette-neutral-400);
+    --ds-color-text-hint: var(--ds-palette-neutral-400);
+    --ds-color-text-label: var(--ds-palette-neutral-150);
+    --ds-color-text-label-active: var(--ds-palette-neutral-0);
+    --ds-color-text-on-inverse: var(--ds-palette-neutral-0);
+    --ds-color-text-error: var(--ds-palette-red-300);
+    --ds-color-text-review: var(--ds-palette-blue-200);
+    --ds-color-action-primary: var(--ds-palette-green-200);
+    --ds-color-action-primary-hover: var(--ds-palette-green-300);
+    --ds-color-action-on-primary: var(--ds-palette-neutral-900);
+    --ds-color-action-subtle-hover: var(--ds-palette-neutral-800);
+    --ds-color-action-progress: var(--ds-palette-green-200);
+    --ds-color-border-subtle: var(--ds-palette-neutral-800);
+    --ds-color-focus-ring: var(--ds-palette-blue-700);
+    --ds-color-focus-halo: var(--ds-palette-blue-200);
+    --ds-color-icon-default: var(--ds-palette-neutral-0);
+    --ds-color-skeleton-base: var(--ds-palette-neutral-750);
+    --ds-color-skeleton-highlight: var(--ds-palette-neutral-700);
+    --ds-color-chip-contrast-bg: var(--ds-palette-neutral-950);
+    --ds-color-chip-contrast-text: var(--ds-palette-neutral-0);
+
+    /* dark ring widens to 2px (tokens.json focus.ring note) */
+    --ds-shadow-focus: 0 0 0 2px var(--ds-color-focus-ring), 0 0 0 4px var(--ds-color-focus-halo);
+  }
+}
 
 *,
 *::before,
@@ -12,19 +231,29 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: oklch(14.5% 0 0deg);
-  background-color: white;
-  -webkit-font-smoothing: antialiased;
+/* 250ms theme cross-fade on theme switch. Scoped to
+ * color-ish properties only so layout/transform animations are unaffected. */
+* {
+  transition:
+    background-color var(--ds-motion-base) var(--ds-motion-ease),
+    color var(--ds-motion-base) var(--ds-motion-ease),
+    border-color var(--ds-motion-base) var(--ds-motion-ease);
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    color: white;
-    background-color: oklch(14.5% 0 0deg);
+body {
+  margin: 0;
+  font-family: var(--ds-type-family-body);
+  font-size: var(--ds-type-size-md);
+  line-height: 1.5;
+  color: var(--ds-color-text-primary);
+  background-color: var(--ds-color-surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Root font drops 16 -> 14px below the sm breakpoint (640px) */
+@media only screen and (max-width: 640px) {
+  html {
+    font-size: 14px;
   }
 }
