@@ -109,14 +109,17 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      try {
+        render(<App />);
 
-      expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
 
-      fireEvent.click(screen.getByText('Clear'));
+        fireEvent.click(screen.getByText('Clear'));
 
-      expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'false');
-      consoleError.mockRestore();
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'false');
+      } finally {
+        consoleError.mockRestore();
+      }
     });
   });
 
