@@ -224,6 +224,22 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Virtualized
+
+Use `<Select.Virtualizer>` for large flat collections. It renders only the visible items while coordinating Select keyboard navigation, scrolling, selection, and accessibility metadata.
+
+Pass an array of `{ value, label }` items to `<Select.Root>`, then use the virtualizer as the only item-rendering child of `<Select.List>`. The item renderer receives the item data and its logical index and must return exactly one `<Select.Item>`. Grouped collections are not currently supported.
+
+The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content and can be combined with `--available-height` from `<Select.Positioner>`.
+
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the value type. For primitive values, you can instead declare the type explicitly, such as `<Select.Virtualizer<string>>`. `estimatedItemHeight` can be a number or a function receiving the item data and its logical index, while `overscanPx` controls the extra pixel buffer around the visible range.
+
+When some items are disabled, pass `isItemDisabled` to `<Select.Root>` so keyboard navigation can skip disabled items before their rows are mounted. The `disabled` prop on `<Select.Item>` continues to apply to rendered rows.
+
+import { DemoSelectVirtualized } from './demos/virtualized';
+
+<DemoSelectVirtualized />
+
 ## API reference
 
 import { TypesSelect } from './types';
@@ -267,6 +283,10 @@ import { TypesSelect } from './types';
 ### List
 
 <TypesSelect.List />
+
+### Virtualizer
+
+<TypesSelect.Virtualizer />
 
 ### Arrow
 

@@ -8,6 +8,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
 import { selectors } from '../store';
+import { VirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 
 /**
  * A container for the select items.
@@ -44,10 +45,12 @@ export const SelectList = React.forwardRef(function SelectList(
 
   const setListElement = store.useStateSetter('listElement');
 
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
     props: [defaultProps, elementProps],
   });
+
+  return <VirtualizationListContext.Provider value>{element}</VirtualizationListContext.Provider>;
 });
 
 export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}

@@ -5,6 +5,7 @@ import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
 export type State = {
   id: string | undefined;
@@ -19,6 +20,7 @@ export type State = {
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
+  isItemDisabled: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   value: any;
@@ -37,12 +39,14 @@ export type State = {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
+  virtualizerElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
 
   hasScrollArrows: boolean;
+  virtualizationRegistry: ListVirtualizationRegistry;
 };
 
 export type SelectStore = ReactStore<State>;
@@ -54,6 +58,7 @@ export const selectors = {
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
 
   value: (state: State) => state.value,
@@ -109,6 +114,7 @@ export const selectors = {
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,
+  virtualizerElement: (state: State) => state.virtualizerElement,
   popupSide: (state: State) => state.popupSide,
 
   scrollUpArrowVisible: (state: State) => state.scrollUpArrowVisible,
