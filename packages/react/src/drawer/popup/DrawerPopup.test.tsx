@@ -65,7 +65,10 @@ describe('<Drawer.Popup />', () => {
 
   it('warns without relying on React owner-stack support', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(
@@ -84,7 +87,7 @@ describe('<Drawer.Popup />', () => {
         );
       });
     } finally {
-      ownerStackSpy.mockRestore();
+      ownerStackSpy?.mockRestore();
       consoleErrorSpy.mockRestore();
     }
   });
