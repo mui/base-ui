@@ -26,10 +26,10 @@ import {
   type FloatingTreeStore,
 } from '../floating-ui-react';
 import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
-import { useDirection } from '../internals/direction-context/DirectionContext';
+import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginConstants';
+import { hide } from '../utils/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';

@@ -2,7 +2,7 @@
 import type * as React from 'react';
 import { ComboboxTrigger } from '../../combobox/trigger/ComboboxTrigger';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**

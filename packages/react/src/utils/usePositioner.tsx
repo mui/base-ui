@@ -4,7 +4,7 @@ import {
   useRenderElement,
   type UseRenderElementComponentProps,
 } from '../internals/useRenderElement';
-import { getDisabledMountTransitionStyles } from './getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../internals/getDisabledMountTransitionStyles';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 
 interface UsePositionerOptions {

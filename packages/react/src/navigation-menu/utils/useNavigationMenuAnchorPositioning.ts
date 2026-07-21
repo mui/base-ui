@@ -4,7 +4,7 @@ import {
   useAnchorPositioningWithHook,
   type UseAnchorPositioningParameters,
   type UseAnchorPositioningReturnValue,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 
 /**
  * Positioning path for the Navigation Menu, whose active trigger supplies its root store after the

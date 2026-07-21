@@ -8,8 +8,8 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
-import { Align, Side } from '../../utils/useAnchorPositioning';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { Align, Side } from '../../internals/useAnchorPositioning';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 
 /**
  * A container for the navigation menu contents.

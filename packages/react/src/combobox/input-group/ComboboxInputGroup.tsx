@@ -8,7 +8,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
 import { useListEmpty, usePopupSide } from '../utils/parts';
