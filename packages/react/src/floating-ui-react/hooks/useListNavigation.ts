@@ -309,6 +309,9 @@ export function useListNavigation(
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
+        // Queued focus is only cancelled per element, so retire this hook's
+        // own previous request before queueing focus for another item.
+        cancelQueuedFocusRef.current?.();
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
