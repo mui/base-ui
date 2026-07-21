@@ -30,7 +30,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
-  const ranOnce = React.useRef(false);
+  const syncedInitialValueSourceRef = React.useRef<symbol | null>(null);
 
   const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
@@ -83,11 +83,12 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }
 
   function syncInitialValue() {
-    if (ranOnce.current) {
+    const source = activeFieldControlSourceRef.current;
+    if (syncedInitialValueSourceRef.current === source) {
       return;
     }
 
-    ranOnce.current = true;
+    syncedInitialValueSourceRef.current = source;
 
     const registration = registrationRef.current;
     if (!registration) {
@@ -96,9 +97,13 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
     const initialValue = getRegistrationValue(registration);
 
-    if (validityData.initialValue === null && initialValue !== null) {
-      setValidityData((prev) => ({ ...prev, initialValue }));
-    }
+    setValidityData((prev) => {
+      if (Object.is(prev.initialValue, initialValue)) {
+        return prev;
+      }
+
+      return { ...prev, initialValue };
+    });
   }
 
   useIsoLayoutEffect(() => {

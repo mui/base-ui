@@ -1492,6 +1492,196 @@ describe('<Field.Root />', () => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
       });
+
+      it('should clear [data-dirty] when a Select returns to its null initial value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Select.Root value={value} onValueChange={setValue}>
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="a" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                set
+              </button>
+              <button type="button" onClick={() => setValue(null)}>
+                clear
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('set'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('clear'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps [data-dirty] on a RadioGroup when returning to the first picked value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <RadioGroup value={value} onValueChange={(next) => setValue(next as string | null)}>
+                  <Radio.Root value="a" />
+                  <Radio.Root value="b" />
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                a
+              </button>
+              <button type="button" onClick={() => setValue('b')}>
+                b
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('a'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('b'));
+        fireEvent.click(screen.getByText('a'));
+
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+      });
+    });
+
+    describe('control swap', () => {
+      it('does not mark the field dirty immediately after swapping controls', async () => {
+        function App() {
+          const [swapped, setSwapped] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {swapped ? (
+                  <Field.Control data-testid="control" defaultValue="x" />
+                ) : (
+                  <NumberField.Root>
+                    <NumberField.Input />
+                  </NumberField.Root>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setSwapped(true)}>
+                swap
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('control')).not.toBe(null);
+        });
+        expect(root).not.toHaveAttribute('data-dirty');
+      });
+
+      it('captures the swapped-in control initial value as the baseline', async () => {
+        function App() {
+          const [swapped, setSwapped] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {swapped ? (
+                  <Field.Control data-testid="control" defaultValue="x" />
+                ) : (
+                  <NumberField.Root>
+                    <NumberField.Input />
+                  </NumberField.Root>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setSwapped(true)}>
+                swap
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('recaptures a non-null baseline when swapping controls', async () => {
+        function App() {
+          const [swapped, setSwapped] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {swapped ? (
+                  <Field.Control key="b" data-testid="control" defaultValue="x" />
+                ) : (
+                  <Field.Control key="a" defaultValue="a" />
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setSwapped(true)}>
+                swap
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
     });
 
     describe('filled', () => {
