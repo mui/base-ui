@@ -1328,6 +1328,37 @@ describe('<RadioGroup />', () => {
       expect(groupInputRef.current).toBe(input);
     });
 
+    it('updates inputRef when a plain native fieldset disabled state changes', async () => {
+      const groupInputRef = React.createRef<HTMLInputElement>();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <React.Fragment>
+            <fieldset disabled={disabled}>
+              <RadioGroup inputRef={groupInputRef}>
+                <Radio.Root value="a" data-testid="radio-a" />
+              </RadioGroup>
+            </fieldset>
+            <button type="button" onClick={() => setDisabled((value) => !value)}>
+              Toggle disabled
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+      expect(groupInputRef.current).toBe(input);
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(groupInputRef.current).toBe(null);
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(groupInputRef.current).toBe(input);
+    });
+
     it('labels the radio group from the fieldset legend', async () => {
       await render(
         <Field.Root name="test">

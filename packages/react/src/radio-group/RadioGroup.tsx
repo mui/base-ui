@@ -166,9 +166,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
-  useIsoLayoutEffect(() => {
-    updateRepresentativeInput();
-  }, [fieldsetContext?.disabled, updateRepresentativeInput]);
+  // Runs after every commit: the representative can go stale without any React-visible
+  // dependency changing (native `<fieldset disabled>` toggles, sibling reorders).
+  useIsoLayoutEffect(updateRepresentativeInput);
 
   const registerInputRef = useStableCallback((input: HTMLInputElement) => {
     // `useMergedRefs` uses this callback's cleanup instead of detaching it with `null`.
