@@ -9,19 +9,16 @@ import {
 
 describe('useInitialLiveRegionTextMutation', () => {
   const { render } = createRenderer();
-  const { render: renderWithFakeTimers, clock } = createRenderer({
-    clockOptions: { shouldAdvanceTime: true },
-  });
-
-  clock.withFakeTimers();
 
   it('does nothing when its ref is not attached', async () => {
     function Unattached() {
       useInitialLiveRegionTextMutation();
-      return null;
+      return <div data-testid="status">Status</div>;
     }
 
     await render(<Unattached />);
+
+    expect(screen.getByTestId('status')).toHaveTextContent('Status');
   });
 
   it('skips empty text nodes when finding the announcement text', async () => {
@@ -44,22 +41,30 @@ describe('useInitialLiveRegionTextMutation', () => {
     expect(empty.data).toBe('');
   });
 
-  it('does not overwrite text that changes before the reset', async () => {
-    function Status() {
-      const ref = useInitialLiveRegionTextMutation<HTMLDivElement>();
-      return (
-        <div ref={ref} data-testid="status">
-          Status
-        </div>
-      );
-    }
+  describe('with fake timers', () => {
+    const { render: renderWithFakeTimers, clock } = createRenderer({
+      clockOptions: { shouldAdvanceTime: true },
+    });
 
-    await renderWithFakeTimers(<Status />);
-    const status = screen.getByTestId('status');
-    status.firstChild!.nodeValue = 'Updated';
+    clock.withFakeTimers();
 
-    clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
+    it('does not overwrite text that changes before the reset', async () => {
+      function Status() {
+        const ref = useInitialLiveRegionTextMutation<HTMLDivElement>();
+        return (
+          <div ref={ref} data-testid="status">
+            Status
+          </div>
+        );
+      }
 
-    expect(status).toHaveTextContent('Updated');
+      await renderWithFakeTimers(<Status />);
+      const status = screen.getByTestId('status');
+      status.firstChild!.nodeValue = 'Updated';
+
+      clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
+
+      expect(status).toHaveTextContent('Updated');
+    });
   });
 });

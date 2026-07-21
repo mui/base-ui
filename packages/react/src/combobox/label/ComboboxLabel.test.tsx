@@ -45,6 +45,7 @@ describe('<Combobox.Label />', () => {
         expect.stringContaining('<Combobox.Label> labels <Combobox.Trigger> only.'),
       );
     } finally {
+      errorSpy.mockRestore();
       Object.defineProperty(SafeReact, 'captureOwnerStack', {
         configurable: true,
         value: captureOwnerStack,
@@ -55,6 +56,13 @@ describe('<Combobox.Label />', () => {
   it.skipIf(!isJSDOM)('does not run the development warning in production', async () => {
     const nodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
+    const captureOwnerStack = SafeReact.captureOwnerStack;
+    const captureOwnerStackSpy = vi.fn();
+    Object.defineProperty(SafeReact, 'captureOwnerStack', {
+      configurable: true,
+      value: captureOwnerStackSpy,
+    });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
       await render(
@@ -63,7 +71,15 @@ describe('<Combobox.Label />', () => {
           <Combobox.Input />
         </Combobox.Root>,
       );
+
+      expect(captureOwnerStackSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
     } finally {
+      errorSpy.mockRestore();
+      Object.defineProperty(SafeReact, 'captureOwnerStack', {
+        configurable: true,
+        value: captureOwnerStack,
+      });
       process.env.NODE_ENV = nodeEnv;
     }
   });

@@ -24,16 +24,21 @@ describe('Combobox part utilities', () => {
   it('clicks the rendered highlighted item with the originating event', () => {
     const click = vi.fn();
     const nativeEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+    let selectionEventAtClick: Event | null = null;
     const store = {
       state: {
         listRef: { current: [{ click }] },
         selectionEventRef: { current: null },
       },
     } as unknown as ComboboxStore;
+    click.mockImplementation(() => {
+      selectionEventAtClick = store.state.selectionEventRef.current;
+    });
 
     clickHighlightedItem(store, 0, nativeEvent);
 
     expect(click).toHaveBeenCalledOnce();
+    expect(selectionEventAtClick).toBe(nativeEvent);
     expect(store.state.selectionEventRef.current).toBe(null);
   });
 });

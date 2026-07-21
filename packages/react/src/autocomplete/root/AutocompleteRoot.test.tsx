@@ -1283,6 +1283,7 @@ describe('<Autocomplete.Root />', () => {
               </Autocomplete.Portal>
             </Autocomplete.Root>
           </form>
+          {/* Claims the shared validation ref so Autocomplete must fall back to its input form. */}
           <Switch.Root aria-label="Unrelated switch" />
         </React.Fragment>,
       );
