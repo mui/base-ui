@@ -9,11 +9,7 @@ import type { BaseUIEventReasons } from '../internals/reasons';
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
 ): UseCheckboxGroupParentReturnValue {
-  const {
-    allValues = EMPTY_ARRAY as string[],
-    value = EMPTY_ARRAY as string[],
-    onValueChange: onValueChangeProp,
-  } = params;
+  const { allValues = EMPTY_ARRAY as string[], value, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
@@ -116,7 +112,7 @@ export function useCheckboxGroupParent(
 
 export interface UseCheckboxGroupParentParameters {
   allValues?: string[] | undefined;
-  value?: string[] | undefined;
+  value: string[];
   onValueChange?:
     | ((
         value: string[],
@@ -146,5 +142,3 @@ export interface UseCheckboxGroupParentReturnValue {
     ) => void;
   };
 }
-
-export interface UseCheckboxGroupParentState {}
