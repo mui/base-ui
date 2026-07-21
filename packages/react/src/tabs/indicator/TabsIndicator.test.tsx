@@ -2,7 +2,7 @@ import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { CSPProvider } from '@base-ui/react/csp-provider';
-import { waitFor, screen } from '@mui/internal-test-utils';
+import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { script as generatedPrehydrationScript } from './prehydrationScript.min';
@@ -272,6 +272,106 @@ describe('<Tabs.Indicator />', () => {
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
       });
+    });
+
+    it('keeps observing a tab whose rendered element type changes', async () => {
+      function TestTabs({ asAnchor }: { asAnchor: boolean }) {
+        return (
+          <Tabs.Root value={2}>
+            <Tabs.List
+              data-testid="tab-list"
+              style={{ width: '300px', display: 'flex', overflow: 'hidden' }}
+            >
+              <Tabs.Tab
+                data-testid="first-tab"
+                value={1}
+                nativeButton={!asAnchor}
+                render={asAnchor ? <a href="#one" /> : undefined}
+                style={{ width: '100px', flexShrink: 0 }}
+              >
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ width: '100px', flexShrink: 0 }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestTabs asAnchor={false} />);
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+
+      await setProps({ asAnchor: true });
+
+      const swappedTab = screen.getByTestId('first-tab');
+      expect(swappedTab.tagName).toBe('A');
+
+      // Drain the resize entries the swap itself produces (the replaced element
+      // collapses to 0x0), so the assertion below can only be satisfied by the
+      // observer having followed the tab to its new element.
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve());
+          });
+        });
+      });
+
+      swappedTab.setAttribute('style', 'width: 160px; flex-shrink: 0;');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
+    it('falls back to offset positions when the tab list is scaled to zero', async () => {
+      await render(
+        <div style={{ transform: 'scale(0)' }}>
+          <Tabs.Root value={2}>
+            <Tabs.List
+              data-testid="tab-list"
+              style={{
+                position: 'relative',
+                width: '300px',
+                display: 'flex',
+                overflow: 'hidden',
+              }}
+            >
+              <Tabs.Tab value={1} style={{ width: '100px', flexShrink: 0 }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ width: '100px', flexShrink: 0 }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      // The collapsed bounding rects can't be divided by, so the indicator uses
+      // the untransformed offsets instead of producing `NaN` positions.
+      await waitFor(() => {
+        const bubbleComputedStyle = window.getComputedStyle(bubble);
+        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), activeTab.offsetLeft);
+      });
+
+      const bubbleComputedStyle = window.getComputedStyle(bubble);
+      assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), activeTab.offsetTop);
+      assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-width'), 100);
+      expect(bubble).not.toHaveAttribute('hidden');
     });
 
     it('updates position when a new tab is inserted and then resized', async () => {

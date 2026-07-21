@@ -68,7 +68,7 @@ export type State = {
     type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
   requestSubmit: () => void;
 
   name: string | undefined;

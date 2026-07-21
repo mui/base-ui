@@ -26,7 +26,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   rootId: string | undefined;
   activeIndex: number | null;
   hoverEnabled: boolean;
-  stickIfOpen: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
@@ -65,7 +64,6 @@ const selectors = {
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   highlightItemOnHover: createSelector((state: State<unknown>) => state.highlightItemOnHover),
-  stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
     if (state.parent.type === 'menu') {
@@ -211,7 +209,6 @@ function createInitialState<Payload>(): State<Payload> {
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,
-    stickIfOpen: true,
     parent: {
       type: undefined,
     },

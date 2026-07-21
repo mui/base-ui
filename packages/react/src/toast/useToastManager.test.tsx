@@ -886,6 +886,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.getByTestId('description')).toHaveTextContent('test success');
     });
 
+    it('accepts a function that returns full options for the success state', async () => {
+      function AddButton() {
+        const { promise } = useToastManager();
+        return (
+          <button
+            onClick={() =>
+              promise(
+                new Promise<string>((res) => {
+                  res('everything');
+                }),
+                {
+                  loading: 'loading',
+                  success: (data) => ({
+                    title: `saved ${data}`,
+                    description: 'done',
+                    timeout: 2000,
+                  }),
+                  error: 'error',
+                },
+              )
+            }
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      await tick(clock, 1000);
+
+      expect(screen.getByTestId('title')).toHaveTextContent('saved everything');
+      expect(screen.getByTestId('description')).toHaveTextContent('done');
+
+      // The `timeout` from the resolved options object is honored too.
+      await tick(clock, 1999);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await tick(clock, 2);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
     it('passes data when error is a function', async () => {
       function AddButton() {
         const { promise } = useToastManager();
@@ -1731,6 +1782,42 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+  });
+
+  describe('prop: timeout', () => {
+    const { clock, render } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('applies a changed timeout to toasts added afterwards', async () => {
+      function App(props: { timeout: number }) {
+        return (
+          <Toast.Provider timeout={props.timeout}>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>
+        );
+      }
+
+      function AddButton() {
+        const { add } = useToastManager();
+        return <button onClick={() => add({ title: 'test' })}>add</button>;
+      }
+
+      const { setProps } = await render(<App timeout={5000} />);
+
+      await setProps({ timeout: 1000 });
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      await tick(clock, 999);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await tick(clock, 2);
       expect(screen.queryByTestId('root')).toBe(null);
     });
   });

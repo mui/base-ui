@@ -202,6 +202,27 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).toHaveAttribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
   });
 
+  it('does not select a child without an identifying value', () => {
+    render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root id="standalone" data-testid="no-value" />
+        <Checkbox.Root value="a" data-testid="checkbox-a" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+    const noValue = screen.getByTestId('no-value');
+    const checkboxA = screen.getByTestId('checkbox-a');
+
+    fireEvent.click(parent);
+
+    expect(parent).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxA).toHaveAttribute('aria-checked', 'true');
+    expect(noValue).toHaveAttribute('aria-checked', 'false');
+    expect(noValue.nextElementSibling).toHaveAttribute('id', 'standalone');
+  });
+
   it('preserves initial state if mixed when parent is clicked', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);

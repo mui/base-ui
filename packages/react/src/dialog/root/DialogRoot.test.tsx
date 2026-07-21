@@ -3,12 +3,13 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from './DialogRootContext';
 
@@ -127,6 +128,61 @@ describe('<Dialog.Root />', () => {
       );
     });
 
+    it('keeps accessible names and descriptions in sync when label parts change', async () => {
+      function DynamicLabels() {
+        const [phase, setPhase] = React.useState(0);
+
+        return (
+          <React.Fragment>
+            {phase < 2 && <Dialog.Title key={`title-${phase}`}>Title {phase + 1}</Dialog.Title>}
+            {phase < 2 && (
+              <Dialog.Description key={`description-${phase}`}>
+                Description {phase + 1}
+              </Dialog.Description>
+            )}
+            <button onClick={() => setPhase((value) => value + 1)}>Change labels</button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(
+        <TestDialog
+          rootProps={{ modal: false, open: true }}
+          popupProps={{ children: <DynamicLabels /> }}
+        />,
+      );
+
+      const popup = screen.getByRole('dialog');
+      const firstTitleId = screen.getByText('Title 1').getAttribute('id');
+      const firstDescriptionId = screen.getByText('Description 1').getAttribute('id');
+
+      expect(popup.getAttribute('aria-labelledby')).toBe(firstTitleId);
+      expect(popup.getAttribute('aria-describedby')).toBe(firstDescriptionId);
+
+      await user.click(screen.getByRole('button', { name: 'Change labels' }));
+
+      const secondTitleId = screen.getByText('Title 2').getAttribute('id');
+      const secondDescriptionId = screen.getByText('Description 2').getAttribute('id');
+
+      await waitFor(() => {
+        expect(popup.getAttribute('aria-labelledby')).toBe(secondTitleId);
+      });
+      await waitFor(() => {
+        expect(popup.getAttribute('aria-describedby')).toBe(secondDescriptionId);
+      });
+      expect(secondTitleId).not.toBe(firstTitleId);
+      expect(secondDescriptionId).not.toBe(firstDescriptionId);
+
+      await user.click(screen.getByRole('button', { name: 'Change labels' }));
+
+      await waitFor(() => {
+        expect(popup).not.toHaveAttribute('aria-labelledby');
+      });
+      await waitFor(() => {
+        expect(popup).not.toHaveAttribute('aria-describedby');
+      });
+    });
+
     describe('prop: onOpenChange', () => {
       it('calls onOpenChange with the new open state', async () => {
         const handleOpenChange = vi.fn();
@@ -168,6 +224,34 @@ describe('<Dialog.Root />', () => {
 
         expect(handleOpenChange.mock.calls.length).toBe(2);
         expect(handleOpenChange.mock.calls[1][1].reason).toBe(REASONS.closePress);
+      });
+
+      it('reports no trigger when closing with an initial trigger id that is not mounted', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<Dialog.Root.Actions>();
+
+        await render(
+          <Dialog.Root
+            actionsRef={actionsRef}
+            defaultOpen
+            defaultTriggerId="missing-trigger"
+            modal={false}
+            onOpenChange={handleOpenChange}
+          >
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        await act(async () => {
+          actionsRef.current?.close();
+        });
+
+        expect(handleOpenChange.mock.calls.length).toBe(1);
+        expect(handleOpenChange.mock.calls[0][0]).toBe(false);
+        expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
+        expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
       });
 
       it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -1340,9 +1424,39 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  it('does not close on a right-button outside press', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Dialog.Root defaultOpen modal="trap-focus" onOpenChange={handleOpenChange}>
+          <Dialog.Portal>
+            <Dialog.Popup>Dialog</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </div>,
+    );
+
+    fireEvent.pointerDown(screen.getByTestId('outside'), {
+      bubbles: true,
+      button: 2,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    expect(screen.getByRole('dialog')).not.toBe(null);
+    expect(handleOpenChange.mock.calls.length).toBe(0);
+  });
+
   describe.skipIf(isJSDOM)('touch outside press', () => {
-    function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
-      return new Touch({ identifier: 1, target, ...point });
+    function createTouch(
+      target: EventTarget,
+      point: { clientX: number; clientY: number },
+      identifier = 1,
+    ) {
+      return new Touch({ identifier, target, ...point });
     }
 
     // Simulates a finger tapping outside the dialog: a `touchstart`, a small
@@ -1483,6 +1597,207 @@ describe('<Dialog.Root />', () => {
 
       expect(screen.queryByRole('dialog')).not.toBe(null);
       expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('does not close when multiple touches move past the drag dismissal threshold', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touch1Start = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touch2Start = createTouch(outside, { clientX: 70, clientY: 70 }, 2);
+      const touch1Move = createTouch(outside, { clientX: 50, clientY: 70 });
+      const touch2Move = createTouch(outside, { clientX: 70, clientY: 90 }, 2);
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touch1Start, touch2Start],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touch1Move, touch2Move],
+      });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('closes as soon as a single touch moves past the drag dismissal threshold', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Dialog.Root defaultOpen modal={false} onOpenChange={handleOpenChange}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      const touchStart = createTouch(outside, { clientX: 50, clientY: 50 });
+      const touchMove = createTouch(outside, { clientX: 50, clientY: 70 });
+
+      fireEvent.touchStart(outside, {
+        bubbles: true,
+        touches: [touchStart],
+      });
+
+      fireEvent.touchMove(outside, {
+        bubbles: true,
+        touches: [touchMove],
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    });
+  });
+
+  describe('external scroll lock handoff', () => {
+    afterEach(() => {
+      document.documentElement.removeAttribute('style');
+      document.body.removeAttribute('style');
+      document.body.removeAttribute('data-scroll-locked');
+    });
+
+    // Each entry reproduces a real third-party locker's exact DOM mechanism. Their cleanup is
+    // deferred past our own deferred lock, which is what an exit animation does in practice.
+    describe.skipIf(isJSDOM)('when a third-party overlay is still unlocking', () => {
+      describe.for([
+        {
+          name: 'react-remove-scroll, via an attribute and a stylesheet',
+          lock: () => {
+            const style = document.createElement('style');
+            style.textContent = 'body[data-scroll-locked]{overflow:hidden!important;}';
+            document.head.appendChild(style);
+            document.body.setAttribute('data-scroll-locked', '1');
+            return () => {
+              style.remove();
+              document.body.removeAttribute('data-scroll-locked');
+            };
+          },
+        },
+        {
+          name: 'silk-hq, via the <body> overflow shorthand',
+          lock: () => {
+            document.body.style.setProperty('overflow', 'hidden');
+            return () => document.body.style.removeProperty('overflow');
+          },
+        },
+        {
+          name: 'Ariakit, via <html> overflow longhands',
+          lock: () => {
+            const { style } = document.documentElement;
+            style.setProperty('scrollbar-gutter', 'stable');
+            style.setProperty('overflow-x', 'hidden');
+            style.setProperty('overflow-y', 'hidden');
+            return () => {
+              style.removeProperty('scrollbar-gutter');
+              style.removeProperty('overflow-x');
+              style.removeProperty('overflow-y');
+            };
+          },
+        },
+      ])('$name', ({ lock }) => {
+        it('keeps the page locked until it takes over, and unlocks on close', async () => {
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            const timeout = useTimeout();
+
+            return (
+              <React.Fragment>
+                <button
+                  onClick={() => {
+                    timeout.start(200, lock());
+                    setOpen(true);
+                  }}
+                >
+                  Open dialog
+                </button>
+                <Dialog.Root open={open} onOpenChange={setOpen}>
+                  <Dialog.Portal>
+                    <Dialog.Popup>
+                      <Dialog.Close>Close dialog</Dialog.Close>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </React.Fragment>
+            );
+          }
+
+          await render(<App />);
+          expect(`initial: ${isPageLocked()}`).toBe('initial: false');
+
+          fireEvent.click(screen.getByRole('button', { name: 'Open dialog' }));
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).not.toBe(null);
+          });
+
+          // Spans the external unlock at 200ms: there must be no gap where the page scrolls.
+          for (const at of [0, 120, 260, 400]) {
+            // eslint-disable-next-line no-await-in-loop
+            await act(async () => {
+              await wait(at === 0 ? 0 : 140);
+            });
+            expect(`t${at}: ${isPageLocked()}`).toBe(`t${at}: true`);
+          }
+
+          fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(`after close: ${isPageLocked()}`).toBe('after close: false');
+          });
+        });
+      });
+    });
+
+    it('locks immediately when an external <body> lock cannot affect the page', async () => {
+      // <html> owns the viewport scroll, so `overflow: hidden` on <body> leaves the page
+      // scrollable and must not be mistaken for an effective lock.
+      document.documentElement.style.overflowY = 'scroll';
+      document.body.style.overflowY = 'hidden';
+
+      await render(
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      // Flush the scroll locker's deferred lock, scheduled on a 0ms timeout.
+      await act(async () => {
+        await wait(0);
+      });
+
+      expect(hasOwnScrollLock(document)).toBe(true);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+      await waitFor(() => {
+        expect(hasOwnScrollLock(document)).toBe(false);
+      });
     });
   });
 
@@ -1732,6 +2047,22 @@ describe('<Dialog.Root />', () => {
     },
   );
 });
+
+// The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't
+// establish its own scroll container. Whichever one propagates decides if the user can scroll.
+function isPageLocked() {
+  const html = document.documentElement;
+  const { overflow, overflowX, overflowY } = getComputedStyle(html);
+  const htmlScrolls = /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX);
+  return /hidden|clip/.test(getComputedStyle(htmlScrolls ? html : document.body).overflowY);
+}
+
+// When <html> is the viewport scroller, Base UI hides its overflow to lock the page. An external
+// <body> lock never touches <html>, so this distinguishes a lock Base UI applied itself from one
+// it is still waiting to take over.
+function hasOwnScrollLock(doc: Document) {
+  return doc.documentElement.style.overflowX === 'hidden';
+}
 
 function DialogOpenChangeSpy(props: {
   onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;

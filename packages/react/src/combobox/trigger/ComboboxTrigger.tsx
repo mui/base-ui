@@ -223,7 +223,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           const doc = ownerDocument(event.currentTarget);
 
           function handleMouseUp(mouseEvent: MouseEvent) {
-            if (!triggerElement) {
+            const currentTriggerElement = store.state.triggerElement;
+            if (!currentTriggerElement) {
               return;
             }
 
@@ -232,14 +233,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             const list = store.state.listElement;
 
             if (
-              contains(triggerElement, mouseUpTarget) ||
+              contains(currentTriggerElement, mouseUpTarget) ||
               contains(positioner, mouseUpTarget) ||
               contains(list, mouseUpTarget)
             ) {
               return;
             }
 
-            if (isMouseWithinBounds(mouseEvent, triggerElement)) {
+            if (isMouseWithinBounds(mouseEvent, currentTriggerElement)) {
               return;
             }
 
@@ -251,7 +252,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onKeyDown(event) {
-          if (disabled || readOnly) {
+          if (readOnly) {
             return;
           }
 
