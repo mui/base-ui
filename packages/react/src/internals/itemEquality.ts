@@ -49,6 +49,18 @@ export function findItemIndex<Item, Value>(
   });
 }
 
+export function findSelectionIndex<Item, Value>(
+  itemValues: readonly Item[] | undefined | null,
+  selectedValue: Value | readonly Value[] | null | undefined,
+  comparer: ItemEqualityComparer<Item, Value>,
+): number | null {
+  const lastValue = Array.isArray(selectedValue)
+    ? selectedValue[selectedValue.length - 1]
+    : selectedValue;
+  const index = findItemIndex(itemValues, lastValue as Value, comparer);
+  return index === -1 ? null : index;
+}
+
 export function removeItem<Item, Value>(
   selectedValues: readonly Item[],
   itemValue: Value,

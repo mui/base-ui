@@ -60,7 +60,7 @@ import {
 import {
   compareItemEquality,
   defaultItemEquality,
-  findItemIndex,
+  findSelectionIndex,
   removeItem,
   selectedValueIncludes,
 } from '../../internals/itemEquality';
@@ -357,12 +357,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // doesn't move an existing highlight or scroll the list away.
     let initialSelectedIndex: number | null = null;
     if (inlineProp && open && hasItems && selectionMode !== 'none') {
-      const lastValue =
-        multiple && Array.isArray(selectedValue)
-          ? selectedValue[selectedValue.length - 1]
-          : selectedValue;
-      const index = findItemIndex(flatFilteredItems, lastValue, isItemEqualToValue);
-      initialSelectedIndex = index === -1 ? null : index;
+      initialSelectedIndex = findSelectionIndex(
+        flatFilteredItems,
+        selectedValue,
+        isItemEqualToValue,
+      );
     }
 
     return new Store<StoreState>({
@@ -870,26 +869,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // the index on the next open.
       const registry = hasItems ? flatItems : valuesRef.current;
 
-      if (multiple) {
-        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-      } else {
-        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
-        setIndices({ selectedIndex: index === -1 ? null : index });
-      }
+      setIndices({
+        selectedIndex: findSelectionIndex(registry, selectedValue, isItemEqualToValue),
+      });
     },
-    [
-      open,
-      selectedValue,
-      selectionMode,
-      hasItems,
-      flatItems,
-      multiple,
-      isItemEqualToValue,
-      setIndices,
-    ],
+    [open, selectedValue, selectionMode, hasItems, flatItems, isItemEqualToValue, setIndices],
   );
 
   useIsoLayoutEffect(() => {
@@ -949,12 +933,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             if (hasSelection || clearedBySelection) {
               const registry =
                 hasItems || hasFilteredItemsProp ? flatFilteredItems : valuesRef.current;
-              const index = hasSelection
-                ? findItemIndex(registry, lastSelectedValue, store.state.isItemEqualToValue)
-                : -1;
               // A selection that is no longer in the list drops the highlight rather than
               // leaving it on whichever item now occupies that index.
-              store.set('activeIndex', index === -1 ? null : index);
+              store.set(
+                'activeIndex',
+                hasSelection
+                  ? findSelectionIndex(
+                      registry,
+                      currentSelectedValue,
+                      store.state.isItemEqualToValue,
+                    )
+                  : null,
+              );
             } else if (autoHighlightMode === 'always') {
               store.set('activeIndex', 0);
             }
