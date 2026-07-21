@@ -133,15 +133,21 @@ function LateMountedItemApp({
   focusItemOnOpen,
   loopFocus,
   virtual,
+  initialActiveIndex = null,
+  initialMountedIndex = null,
+  onScrollIntoView,
 }: {
   selectedIndex?: number | null;
   focusItemOnOpen?: UseListNavigationProps['focusItemOnOpen'];
   loopFocus?: boolean;
   virtual?: boolean;
+  initialActiveIndex?: number | null;
+  initialMountedIndex?: number | null;
+  onScrollIntoView?: () => void;
 } = {}) {
   const [open, setOpen] = React.useState(false);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [mountedIndex, setMountedIndex] = React.useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(initialActiveIndex);
+  const [mountedIndex, setMountedIndex] = React.useState<number | null>(initialMountedIndex);
   const listRef = React.useRef<Array<HTMLButtonElement | null>>(Array(3).fill(null));
   const { refs, context } = useFloating({ open, onOpenChange: setOpen });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
@@ -171,10 +177,14 @@ function LateMountedItemApp({
             <button
               data-testid="late-item"
               data-index={mountedIndex}
+              data-active={activeIndex === mountedIndex ? '' : undefined}
               tabIndex={-1}
               {...getItemProps({
                 ref(node: HTMLButtonElement | null) {
                   listRef.current[mountedIndex] = node;
+                  if (node && onScrollIntoView) {
+                    node.scrollIntoView = onScrollIntoView;
+                  }
                 },
               })}
             />
@@ -401,6 +411,59 @@ describe('useListNavigation', () => {
 
     expect(scrollIntoView).toHaveBeenCalledOnce();
     expect(trigger).toHaveFocus();
+  });
+
+  it('expires keyboard-open focus intent when the initial active index is out of bounds', async () => {
+    const scrollIntoView = vi.fn();
+    render(
+      <LateMountedItemApp
+        selectedIndex={null}
+        virtual
+        initialActiveIndex={3}
+        initialMountedIndex={0}
+        onScrollIntoView={scrollIntoView}
+      />,
+    );
+    const trigger = screen.getByRole('button');
+    act(() => trigger.focus());
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+  });
+
+  it('expires keyboard-open focus intent when initial list population retries are exhausted', async ({
+    onTestFinished,
+  }) => {
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
+    const scrollIntoView = vi.fn();
+    render(
+      <LateMountedItemApp
+        selectedIndex={null}
+        virtual
+        initialMountedIndex={2}
+        onScrollIntoView={scrollIntoView}
+      />,
+    );
+    const trigger = screen.getByRole('button');
+    act(() => trigger.focus());
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+    act(animationFrames.flush);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    fireEvent.mouseMove(screen.getByTestId('late-item'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('late-item')).toHaveAttribute('data-active');
+    expect(scrollIntoView).toHaveBeenCalledOnce();
   });
 
   it('opens on ArrowUp and focuses last item', async () => {

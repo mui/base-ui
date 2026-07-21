@@ -293,7 +293,7 @@ export function useListNavigation(
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
-  const forceSyncFocusOnOpenRef = React.useRef(false);
+  const forceSyncFocusOnOpenRef = React.useRef<object | null>(null);
   const forceScrollIntoViewRef = React.useRef(false);
   const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
@@ -386,7 +386,7 @@ export function useListNavigation(
     }
     if (!open) {
       forceSyncFocusRef.current = false;
-      forceSyncFocusOnOpenRef.current = false;
+      forceSyncFocusOnOpenRef.current = null;
       return;
     }
     if (!floatingElement) {
@@ -397,7 +397,7 @@ export function useListNavigation(
     if (isInitialSync && focusItemOnOpenRef.current && keyRef.current != null) {
       // Preserve keyboard-open intent across the controlled `activeIndex` update so focus lands
       // with the highlighted state instead of waiting for the next animation frame.
-      forceSyncFocusOnOpenRef.current = true;
+      forceSyncFocusOnOpenRef.current = {};
     }
 
     if (activeIndex == null) {
@@ -420,6 +420,7 @@ export function useListNavigation(
         (keyRef.current != null || (focusItemOnOpenRef.current === true && keyRef.current == null))
       ) {
         let runs = 0;
+        const syncFocusOnOpenToken = forceSyncFocusOnOpenRef.current;
         const waitForListPopulated = () => {
           if (listRef.current[0] == null) {
             // Avoid letting the browser paint if possible on the first try,
@@ -430,6 +431,11 @@ export function useListNavigation(
                 ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
                 : queueMicrotask;
               scheduler(waitForListPopulated);
+            } else if (
+              syncFocusOnOpenToken != null &&
+              forceSyncFocusOnOpenRef.current === syncFocusOnOpenToken
+            ) {
+              forceSyncFocusOnOpenRef.current = null;
             }
             runs += 1;
           } else {
@@ -452,15 +458,17 @@ export function useListNavigation(
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
-      const forceSyncFocusOnOpen = forceSyncFocusOnOpenRef.current;
+      const forceSyncFocusOnOpen = forceSyncFocusOnOpenRef.current != null;
       if (forceSyncFocusOnOpen) {
         // Focus an already-registered item in this commit, but preserve the animation-frame
         // fallback for late registration and reveal it only after positioning has settled.
         forceSyncFocusRef.current = listRef.current[activeIndex] != null;
       }
       focusItem(forceSyncFocusOnOpen);
-      forceSyncFocusOnOpenRef.current = false;
+      forceSyncFocusOnOpenRef.current = null;
       forceScrollIntoViewRef.current = false;
+    } else {
+      forceSyncFocusOnOpenRef.current = null;
     }
   }, [
     enabled,
