@@ -1,9 +1,9 @@
-/* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { compareDocumentOrder } from '../../compareDocumentOrder';
 import { CompositeListContext, type CompositeListRegistration } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
@@ -114,7 +114,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
           continue;
         }
 
-        if (previousConnectedNode && sortByDocumentPosition(previousConnectedNode, node) > 0) {
+        if (previousConnectedNode && compareDocumentOrder(previousConnectedNode, node) > 0) {
           mutationObserver.disconnect();
           scheduleMapUpdate();
           return;
@@ -235,7 +235,7 @@ function getCompositeListSnapshot<Metadata>(
   });
 
   let nextAutomaticIndex = 0;
-  automaticItems.sort((a, b) => sortByDocumentPosition(a.element, b.element));
+  automaticItems.sort((a, b) => compareDocumentOrder(a.element, b.element));
 
   automaticItems.forEach((item) => {
     while (reservedIndices.has(nextAutomaticIndex)) {
@@ -276,12 +276,6 @@ function hasMovedNode(entries: MutationRecord[]) {
   }
 
   return false;
-}
-
-function sortByDocumentPosition(a: Element, b: Element) {
-  // `DOCUMENT_POSITION_CONTAINED_BY` is always reported alongside `FOLLOWING`, and `CONTAINS`
-  // alongside `PRECEDING`, so testing `FOLLOWING` alone orders siblings and nested items alike.
-  return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
 }
 
 export interface CompositeListState {}

@@ -816,9 +816,7 @@ describe('<CompositeList />', () => {
 
         const shadowItem = shadowContainer.querySelector('[data-testid="shadow"]');
         expect(shadowItem).not.toBe(null);
-        expect(elementsRef.current).toHaveLength(2);
-        expect(elementsRef.current).toContain(screen.getByTestId('light'));
-        expect(elementsRef.current).toContain(shadowItem);
+        expect(elementsRef.current).toEqual([screen.getByTestId('light'), shadowItem]);
 
         unmount();
         expect(elementsRef.current).toHaveLength(0);
