@@ -10,6 +10,7 @@ import { GalleryGrid } from './GalleryGrid';
 const meta = {
   title: 'Overview/All components',
   component: GalleryGrid,
+  tags: ['kitchen-sink'],
   parameters: {
     layout: 'padded',
   },
@@ -19,3 +20,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Grid: Story = {};
+
+/** Dark-theme variant of Grid — the whole dark semantic layer in one snapshot. */
+export const Dark: Story = {
+  ...Grid,
+  globals: { theme: 'dark' },
+};
