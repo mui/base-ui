@@ -472,6 +472,31 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
+  it('preserves the grab offset when dragging a vertical thumb', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <Slider.Root defaultValue={50} orientation="vertical" onValueChange={onValueChange}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    const thumb = screen.getByTestId('thumb');
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 10, 100));
+    vi.spyOn(thumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 40, 10, 20));
+
+    fireEvent.pointerDown(thumb, { button: 0, buttons: 1, clientX: 5, clientY: 60 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 5, clientY: 80 });
+
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      30,
+      expect.objectContaining({ activeThumbIndex: 0, reason: 'drag' }),
+    );
+  });
+
   describe('stacking order', () => {
     it('relies on DOM order before any thumb is used', async () => {
       await render(

@@ -185,13 +185,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     ) {
       event.preventDefault();
       nextIndex = renderedChipsCount > 0 ? renderedChipsCount - 1 : undefined;
-    } else if (
-      event.key === 'Backspace' &&
-      event.currentTarget.value === '' &&
-      selectedValue.length > 0
-    ) {
-      clearHighlight();
-      event.preventDefault();
     }
 
     return nextIndex;

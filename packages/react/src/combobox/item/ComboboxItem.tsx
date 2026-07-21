@@ -8,10 +8,7 @@ import {
   useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
@@ -51,9 +48,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
+    guess: true,
     index: indexProp,
     textRef,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const store = useComboboxRootContext();
@@ -65,8 +62,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
-  const hasRegistered = listItem.index !== -1;
+  const index = indexProp ?? indexFromFilter ?? listItem.index;
+  const hasRegistered = index !== -1;
 
   const rootId = useStore(store, selectors.id);
   const highlighted = useStore(store, selectors.isActive, index);

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
@@ -11,7 +12,6 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
-  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   usePopupRootStore,
@@ -19,7 +19,6 @@ import {
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { mergeProps } from '../../merge-props';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
@@ -96,17 +95,13 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
   const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
 
   usePopupInteractionProps(store, {
     // `enabled` is not passed to `useDismiss`, so its props are always defined,
     // and `trigger` is the same object as `reference`.
     activeTriggerProps: dismiss.reference!,
     inactiveTriggerProps: dismiss.trigger!,
-    popupProps,
+    popupProps: dismiss.floating ?? EMPTY_OBJECT,
   });
 
   return null;

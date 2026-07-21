@@ -9,7 +9,7 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-neutral-950 dark:text-white">
           Country
         </Combobox.Label>
-        <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white pl-2 pr-1 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
+        <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white pl-2 pr-1 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-pressed:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-pressed:bg-neutral-800">
           <Combobox.Value placeholder="Select country" />
           <Combobox.Icon className="text-neutral-950 dark:text-white">
             <CaretUpDownIcon />

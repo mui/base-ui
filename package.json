@@ -70,7 +70,7 @@
     "@mui/internal-code-infra": "0.0.4-canary.75",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",
-    "@next/eslint-plugin-next": "16.2.9",
+    "@next/eslint-plugin-next": "16.2.10",
     "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.4",
     "@testing-library/jest-dom": "6.9.1",

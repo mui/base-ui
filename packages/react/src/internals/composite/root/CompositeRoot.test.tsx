@@ -11,6 +11,8 @@ import {
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
+import { type CompositeMetadata } from '../list/CompositeList';
+import { useCompositeListItem } from '../list/useCompositeListItem';
 import { CompositeRoot } from './CompositeRoot';
 import { gridNavigation } from './gridNavigation';
 
@@ -19,6 +21,17 @@ const threeColsGrid = gridNavigation({ cols: 3 });
 describe('Composite', () => {
   const { render } = createRenderer();
   const gridItems = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  function IndexedItem(props: { index: number; active?: boolean; testId: string }) {
+    const { ref } = useCompositeListItem({ index: props.index });
+    return (
+      <div
+        ref={ref}
+        data-testid={props.testId}
+        data-composite-item-active={props.active ? '' : undefined}
+      />
+    );
+  }
 
   function TestGridItems() {
     return (
@@ -134,6 +147,21 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
+    it('uses an active item explicit index as the initial highlighted index', async () => {
+      const onHighlightedIndexChange = vi.fn();
+
+      await render(
+        <CompositeRoot highlightedIndex={0} onHighlightedIndexChange={onHighlightedIndexChange}>
+          <IndexedItem testId="two" index={2} active />
+          <IndexedItem testId="zero" index={0} />
+          <IndexedItem testId="one" index={1} />
+        </CompositeRoot>,
+        { strict: false },
+      );
+
+      expect(onHighlightedIndexChange).toHaveBeenCalledWith(2);
+    });
+
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {
       render(
         <CompositeRoot orientation="horizontal">
@@ -185,6 +213,33 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
       expect(item2).not.toHaveFocus();
     });
+
+    it.each([
+      { orientation: 'horizontal' as const, key: 'ArrowRight', prevented: true },
+      { orientation: 'horizontal' as const, key: 'ArrowDown', prevented: false },
+      { orientation: 'vertical' as const, key: 'ArrowDown', prevented: true },
+      { orientation: 'vertical' as const, key: 'ArrowRight', prevented: false },
+      { orientation: 'both' as const, key: 'ArrowRight', prevented: true },
+      { orientation: 'both' as const, key: 'ArrowDown', prevented: true },
+    ])(
+      'sets default prevention to $prevented for $key with $orientation orientation',
+      async ({ orientation, key, prevented }) => {
+        await render(
+          <CompositeRoot orientation={orientation}>
+            <CompositeItem data-testid="1">1</CompositeItem>
+            <CompositeItem data-testid="2">2</CompositeItem>
+          </CompositeRoot>,
+        );
+
+        const item1 = screen.getByTestId('1');
+        act(() => item1.focus());
+
+        const allowed = fireEvent.keyDown(item1, { key });
+        await flushMicrotasks();
+
+        expect(allowed).toBe(!prevented);
+      },
+    );
 
     it.skipIf(isJSDOM)('updates the order of items', async () => {
       function App(props: { items: string[] }) {
@@ -464,6 +519,22 @@ describe('Composite', () => {
   });
 
   describe('grid', () => {
+    it('prevents default for grid navigation outside the configured orientation', async () => {
+      await render(
+        <CompositeRoot grid={threeColsGrid} orientation="horizontal">
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      const allowed = fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(allowed).toBe(false);
+    });
+
     it('uniform 1x1 items', async () => {
       function App() {
         return (
@@ -1056,5 +1127,137 @@ describe('Composite', () => {
       await flushMicrotasks();
       expect(item3).toHaveFocus();
     });
+  });
+});
+
+interface NestedItemMetadata {
+  disabled: boolean;
+  focusableWhenDisabled: boolean;
+}
+
+const FOCUSABLE_DISABLED: NestedItemMetadata = {
+  disabled: true,
+  focusableWhenDisabled: true,
+};
+
+const UNFOCUSABLE_DISABLED: NestedItemMetadata = {
+  disabled: true,
+  focusableWhenDisabled: false,
+};
+
+const NestedItem = React.forwardRef(function NestedItem(
+  props: React.ComponentPropsWithoutRef<'button'>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  return (
+    <CompositeItem tag="button" metadata={UNFOCUSABLE_DISABLED} refs={[forwardedRef]} {...props} />
+  );
+});
+
+function NestedItemsRoot() {
+  const [itemMap, setItemMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<NestedItemMetadata>>(),
+  );
+  const disabledIndices = React.useMemo(() => {
+    const output: number[] = [];
+
+    itemMap.forEach((metadata) => {
+      if (metadata.disabled && !metadata.focusableWhenDisabled) {
+        output.push(metadata.index);
+      }
+    });
+
+    return output;
+  }, [itemMap]);
+
+  return (
+    <CompositeRoot
+      orientation="horizontal"
+      disabledIndices={disabledIndices}
+      onMapChange={setItemMap}
+    >
+      <CompositeItem tag="button" metadata={FOCUSABLE_DISABLED} data-testid="first" />
+      <CompositeItem
+        tag="button"
+        render={<NestedItem data-testid="second" />}
+        metadata={FOCUSABLE_DISABLED}
+      />
+      <CompositeItem
+        tag="button"
+        render={<NestedItem data-testid="third" />}
+        metadata={FOCUSABLE_DISABLED}
+      />
+    </CompositeRoot>
+  );
+}
+
+const DynamicNestedItem = React.forwardRef(function DynamicNestedItem(
+  props: React.ComponentPropsWithoutRef<'button'> & { revision: number },
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const { revision, ...other } = props;
+  // Only the inner registration data changes; the outer item's stays put.
+  const metadata = React.useMemo(() => ({ ...UNFOCUSABLE_DISABLED, revision }), [revision]);
+
+  return <CompositeItem tag="button" metadata={metadata} refs={[forwardedRef]} {...other} />;
+});
+
+function DynamicNestedRoot(props: { onMapChange: (map: Map<Node, any>) => void }) {
+  const [revision, setRevision] = React.useState(0);
+
+  return (
+    <React.Fragment>
+      <button type="button" onClick={() => setRevision((value) => value + 1)}>
+        Update inner
+      </button>
+      <CompositeRoot orientation="horizontal" onMapChange={props.onMapChange}>
+        <CompositeItem
+          tag="button"
+          render={<DynamicNestedItem data-testid="shared" revision={revision} />}
+          metadata={FOCUSABLE_DISABLED}
+        />
+      </CompositeRoot>
+    </React.Fragment>
+  );
+}
+
+describe.each([false, true])('nested Composite items (strict: %s)', (strict) => {
+  const { render } = createRenderer({ strict });
+
+  it('keeps outer metadata and focus navigation when items share a DOM node', async () => {
+    const { user } = await render(<NestedItemsRoot />);
+    const first = screen.getByTestId('first');
+    const second = screen.getByTestId('second');
+    const third = screen.getByTestId('third');
+
+    await user.tab();
+    expect(first).toHaveFocus();
+
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(second).toHaveFocus();
+    });
+
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(third).toHaveFocus();
+    });
+  });
+
+  it('keeps the outer registration when only the inner item updates', async () => {
+    const onMapChange = vi.fn();
+    const { user } = await render(<DynamicNestedRoot onMapChange={onMapChange} />);
+    const shared = screen.getByTestId('shared');
+    const publishedMetadata = () =>
+      (onMapChange.mock.lastCall?.[0] as Map<Node, NestedItemMetadata>)?.get(shared);
+
+    // Both items register the same node; the outer ref attaches last and owns the entry.
+    expect(publishedMetadata()).toMatchObject({ focusableWhenDisabled: true });
+
+    // Updating only the inner item must not hand it ownership. Registration precedence comes
+    // from ref attachment order, so the inner item cannot republish on its own.
+    await user.click(screen.getByRole('button', { name: 'Update inner' }));
+
+    expect(publishedMetadata()).toMatchObject({ focusableWhenDisabled: true });
   });
 });

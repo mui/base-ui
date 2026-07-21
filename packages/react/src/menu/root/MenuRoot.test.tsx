@@ -43,6 +43,54 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  function NestedMenuWithModalProp() {
+    const SubmenuRootWithModal = Menu.SubmenuRoot as React.ComponentType<
+      React.ComponentProps<typeof Menu.SubmenuRoot> & { modal: boolean }
+    >;
+
+    return (
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <SubmenuRootWithModal defaultOpen modal={false}>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup />
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </SubmenuRootWithModal>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    );
+  }
+
+  it('warns that nested menus ignore the modal prop', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await render(<NestedMenuWithModalProp />);
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+    );
+  });
+
+  it.skipIf(!isJSDOM)('does not emit the nested modal warning in production', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    try {
+      await render(<NestedMenuWithModalProp />);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
+
   // All these tests run for contained and detached triggers.
   // The rendered menu has the same structure in most cases.
   describe.for([
@@ -81,6 +129,56 @@ describe('<Menu.Root />', () => {
         await userEvent.keyboard('{ArrowUp}');
         await waitFor(() => {
           expect(item2).toHaveFocus();
+        });
+      });
+
+      it.skipIf(isJSDOM)('navigates across grouped items with arrow keys and text', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Group>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item>Cherry</Menu.Item>
+                  </Menu.Group>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('[Enter]');
+
+        const apple = screen.getByRole('menuitem', { name: 'Apple' });
+        const banana = screen.getByRole('menuitem', { name: 'Banana' });
+        const cherry = screen.getByRole('menuitem', { name: 'Cherry' });
+
+        await waitFor(() => {
+          expect(apple).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(banana).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+
+        await act(async () => {
+          apple.focus();
+        });
+        await user.keyboard('c');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
         });
       });
 
@@ -815,6 +913,54 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByTestId('level-3')).toBe(null);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'calls onOpenChange with false exactly once per menu when a submenu item is clicked',
+        async () => {
+          const rootOnOpenChange = vi.fn();
+          const submenuOnOpenChange = vi.fn();
+
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ onOpenChange: rootOnOpenChange }}
+              submenuProps={{ onOpenChange: submenuOnOpenChange }}
+              submenuTriggerProps={{ delay: 0, closeDelay: 50 }}
+            />,
+          );
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          await screen.findByTestId('menu');
+
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await user.hover(submenuTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).not.toBe(null);
+          });
+
+          // Schedule a delayed hover close, then click the item before it fires.
+          fireEvent.mouseLeave(submenuTrigger);
+          fireEvent.click(screen.getByTestId('item-4_1'));
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          // Wait out pending hover close timers; they must not refire a close.
+          await wait(100);
+
+          const rootCloseCalls = rootOnOpenChange.mock.calls.filter((args) => args[0] === false);
+          const submenuCloseCalls = submenuOnOpenChange.mock.calls.filter(
+            (args) => args[0] === false,
+          );
+          const staleHoverCloseCalls = submenuCloseCalls.filter(
+            (args) => args[1].reason === REASONS.triggerHover,
+          );
+          expect(rootCloseCalls.length).toBe(1);
+          expect(submenuCloseCalls.length).toBe(1);
+          expect(staleHoverCloseCalls.length).toBe(0);
+        },
+      );
 
       it.skipIf(isJSDOM)(
         'returns focus to submenu triggers when closing nested menus',

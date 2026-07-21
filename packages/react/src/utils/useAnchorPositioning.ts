@@ -10,10 +10,10 @@ import {
   flip,
   limitShift,
   offset,
-  shift,
-  useFloating,
+  shift as floatingShift,
   size,
   type UseFloatingOptions,
+  type UseFloatingReturn,
   type Placement,
   type FloatingRootContext,
   type VirtualElement,
@@ -25,10 +25,11 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
+import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
+import { DEFAULT_SIDES } from './adaptiveOriginConstants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';
@@ -117,12 +118,21 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
+type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
+
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
+  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
+): UseAnchorPositioningReturnValue {
+  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
+}
+
+export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
+  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -143,7 +153,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shiftCrossAxis = false,
+    shift,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -159,6 +169,8 @@ export function useAnchorPositioning(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
+  const shiftCrossAxis = shift?.crossAxis ?? false;
+  const shiftRootBoundary = shift?.rootBoundary;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -287,39 +299,40 @@ export function useAnchorPositioning(
         });
   const shiftMiddleware = shiftDisabled
     ? null
-    : shift(
-        (data) => {
-          const html = ownerDocument(data.elements.floating).documentElement;
-          return {
-            ...commonCollisionProps,
-            // Use the Layout Viewport to avoid shifting around when pinch-zooming
-            // for context menus.
-            rootBoundary: shiftCrossAxis
-              ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
-              : undefined,
-            mainAxis: collisionAvoidanceAlign !== 'none',
-            crossAxis: crossAxisShiftEnabled,
-            limiter:
-              sticky || shiftCrossAxis
-                ? undefined
-                : limitShift((limitData) => {
-                    if (!arrowRef.current) {
-                      return {};
-                    }
-                    const { width, height } = arrowRef.current.getBoundingClientRect();
-                    const sideAxis = getSideAxis(getSide(limitData.placement));
-                    const arrowSize = sideAxis === 'y' ? width : height;
-                    const offsetAmount =
-                      sideAxis === 'y'
-                        ? collisionPadding.left + collisionPadding.right
-                        : collisionPadding.top + collisionPadding.bottom;
-                    return {
-                      offset: arrowSize / 2 + offsetAmount / 2,
-                    };
-                  }),
-          };
+    : floatingShift(
+        {
+          ...commonCollisionProps,
+          // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+          rootBoundary: shiftRootBoundary,
+          mainAxis: collisionAvoidanceAlign !== 'none',
+          crossAxis: crossAxisShiftEnabled,
+          limiter:
+            sticky || shiftCrossAxis
+              ? undefined
+              : limitShift((limitData) => {
+                  if (!arrowRef.current) {
+                    return {};
+                  }
+                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const sideAxis = getSideAxis(getSide(limitData.placement));
+                  const arrowSize = sideAxis === 'y' ? width : height;
+                  const offsetAmount =
+                    sideAxis === 'y'
+                      ? collisionPadding.left + collisionPadding.right
+                      : collisionPadding.top + collisionPadding.bottom;
+                  return {
+                    offset: arrowSize / 2 + offsetAmount / 2,
+                  };
+                }),
         },
-        [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+        [
+          commonCollisionProps,
+          sticky,
+          shiftCrossAxis,
+          shiftRootBoundary,
+          collisionPadding,
+          collisionAvoidanceAlign,
+        ],
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
@@ -441,7 +454,7 @@ export function useAnchorPositioning(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloating({
+  } = useFloatingHook({
     rootContext: floatingRootContext,
     open: keepMounted ? mounted : undefined,
     placement,
@@ -747,7 +760,12 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shiftCrossAxis?: boolean | undefined;
+  shift?:
+    | {
+        crossAxis?: boolean | undefined;
+        rootBoundary?: 'layoutViewport' | undefined;
+      }
+    | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -766,7 +784,7 @@ export interface UseAnchorPositioningReturnValue {
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
-  refs: ReturnType<typeof useFloating>['refs'];
+  refs: UseFloatingReturn['refs'];
   context: FloatingContext;
   isPositioned: boolean;
   update: () => void;

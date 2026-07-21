@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**
  * An accessible label that is automatically associated with the fieldset.
@@ -20,14 +19,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const { disabled, setLegendId } = useFieldsetRootContext();
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setLegendId(id);
-    return () => {
-      setLegendId(undefined);
-    };
-  }, [setLegendId, id]);
+  const id = useRegisteredLabelId(idProp, setLegendId);
 
   const state: FieldsetLegendState = {
     disabled,

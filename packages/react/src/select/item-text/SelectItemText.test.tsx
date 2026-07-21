@@ -1,3 +1,4 @@
+import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -16,4 +17,24 @@ describe('<Select.ItemText />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Select.Item>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Select.Root open>
+            <Select.Positioner>
+              <Select.ItemText />
+            </Select.Positioner>
+          </Select.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: SelectItemContext is missing. SelectItem parts must be placed within <Select.Item>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

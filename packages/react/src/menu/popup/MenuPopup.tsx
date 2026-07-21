@@ -38,14 +38,13 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupProps = store.useState('popupProps');
   const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const openMethod = store.useState('openMethod');
@@ -82,12 +81,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -119,7 +113,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   let returnFocus = parent.type === undefined || isContextMenu;
   if (
-    triggerElement ||
+    activeTriggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
   ) {
     returnFocus = true;

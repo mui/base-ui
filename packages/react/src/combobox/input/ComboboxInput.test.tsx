@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
 
@@ -575,6 +575,299 @@ describe('<Combobox.Input />', () => {
       expect(input.value).toBe('abxxxycd');
       expect(input.selectionStart).toBe(6);
       expect(input.selectionEnd).toBe(6);
+    });
+
+    it('navigates an existing chip highlight when focus returns to the input', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+            <Combobox.Chip data-testid="chip-banana">banana</Combobox.Chip>
+            <Combobox.Chip data-testid="chip-cherry">cherry</Combobox.Chip>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      const apple = screen.getByTestId('chip-apple');
+      const banana = screen.getByTestId('chip-banana');
+      const cherry = screen.getByTestId('chip-cherry');
+
+      input.focus();
+      input.setSelectionRange(0, 0);
+      await user.keyboard('{ArrowLeft}');
+      expect(cherry).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('{ArrowLeft}');
+      expect(banana).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('{ArrowRight}');
+      expect(cherry).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
+
+      input.setSelectionRange(0, 0);
+      await user.keyboard('{ArrowLeft}');
+      input.focus();
+      await user.keyboard('{ArrowLeft}');
+      input.focus();
+      await user.keyboard('{ArrowLeft}');
+      expect(apple).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('{ArrowLeft}');
+      expect(input).toHaveFocus();
+
+      input.setSelectionRange(0, 0);
+      await user.keyboard('{ArrowLeft}');
+      input.focus();
+      await user.keyboard('{Delete}');
+      expect(banana).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('{Backspace}');
+      expect(banana).toHaveFocus();
+
+      input.focus();
+      await user.keyboard('x');
+      expect(input).toHaveValue('x');
+    });
+
+    it('keeps focus on the input when navigating toward chips but none are rendered', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple']}>
+          <Combobox.Chips>
+            <Combobox.Input />
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      input.focus();
+      input.setSelectionRange(0, 0);
+      await user.keyboard('{ArrowLeft}');
+
+      expect(input).toHaveFocus();
+    });
+
+    it('treats a null selectionStart as the beginning of a custom input', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple']}>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+            <Combobox.Input render={<input type="number" />} />
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      expect(input.selectionStart).toBe(null);
+      input.focus();
+      await user.keyboard('{ArrowLeft}');
+
+      expect(screen.getByTestId('chip')).toHaveFocus();
+    });
+
+    it('keeps the popup open after modified keyboard navigation', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      await user.keyboard('{Control>}{ArrowDown}{/Control}');
+      expect(screen.getByRole('listbox')).not.toBe(null);
+    });
+
+    it('does not select an item for an IME keydown without a highlight', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <Combobox.Root defaultOpen onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not restore an inline highlight after the highlighted slot is removed', async () => {
+      function Test() {
+        const [items, setItems] = React.useState(['apple']);
+        return (
+          <div>
+            <Combobox.Root inline open items={items}>
+              <Combobox.Input />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>
+            <button type="button" onClick={() => setItems([])}>
+              remove items
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('combobox');
+      input.focus();
+      await user.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute('aria-activedescendant');
+
+      await user.click(screen.getByRole('button', { name: 'remove items' }));
+      await user.click(input);
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('clears a closed multiple value on Escape and stops propagation', async () => {
+      const onValueChange = vi.fn();
+      const onOuterKeyDown = vi.fn();
+      const { user } = await render(
+        <div onKeyDown={onOuterKeyDown}>
+          <Combobox.Root multiple defaultValue={['apple']} onValueChange={onValueChange}>
+            <Combobox.Input />
+          </Combobox.Root>
+        </div>,
+      );
+
+      screen.getByRole('combobox').focus();
+      await user.keyboard('{Escape}');
+
+      expect(onValueChange).toHaveBeenCalledWith([], expect.anything());
+      expect(onOuterKeyDown).not.toHaveBeenCalled();
+    });
+
+    it('lets Escape propagate when a closed multiple value is already empty', async () => {
+      const onOuterKeyDown = vi.fn();
+      const { user } = await render(
+        <div onKeyDown={onOuterKeyDown}>
+          <Combobox.Root multiple defaultValue={[]}>
+            <Combobox.Input />
+          </Combobox.Root>
+        </div>,
+      );
+
+      screen.getByRole('combobox').focus();
+      await user.keyboard('{Escape}');
+
+      expect(onOuterKeyDown).toHaveBeenCalled();
+    });
+
+    it('lets Escape propagate from a closed inline combobox', async () => {
+      const onOuterKeyDown = vi.fn();
+      const { user } = await render(
+        <div onKeyDown={onOuterKeyDown}>
+          <Combobox.Root inline defaultValue="apple">
+            <Combobox.Input />
+          </Combobox.Root>
+        </div>,
+      );
+
+      screen.getByRole('combobox').focus();
+      await user.keyboard('{Escape}');
+
+      expect(onOuterKeyDown).toHaveBeenCalled();
+    });
+
+    it('closes on an empty composition update when input clicks do not open the popup', async () => {
+      await render(
+        <Combobox.Root
+          defaultOpen
+          defaultInputValue="x"
+          openOnInputClick={false}
+          filter={null}
+          items={['apple']}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '' } });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+    });
+
+    it('clears the highlight on an empty composition update while staying open', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen defaultInputValue="x" filter={null} items={['apple']}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+      await user.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute('aria-activedescendant');
+
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(screen.getByRole('listbox')).not.toBe(null);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
     it('removes the last rendered chip when pressing Backspace in an empty input', async () => {
