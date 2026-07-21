@@ -132,6 +132,7 @@
 
   &:focus-within {
     outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
