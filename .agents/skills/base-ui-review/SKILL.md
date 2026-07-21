@@ -29,8 +29,9 @@ branch name, or file path passed as argument, review that target instead.
   bias.
 - **medium** (default) — main agent reviews Bugs, Tests, Simplifications, Docs,
   and triggered API/performance concerns. Main agent verifies candidates. Large,
-  risky, fragile, shared, or cross-component diff? Add exactly one adversarial
-  bug hunter agent. Small, low-risk, isolated diff? No subagent. Precision bias.
+  risky, fragile, shared, or cross-component diff? Add exactly one
+  [adversarial bug hunter](#adversarial-bug-hunter) agent. Small, low-risk,
+  isolated diff? No subagent. Precision bias.
 - **high** — spawn 3 independent subagents: bugs/regressions, test gaps,
   simplifications. Main agent reviews the whole diff, including bugs, docs, and
   triggered API/performance concerns. Main agent dedups and sanity-checks. Large,
@@ -178,6 +179,15 @@ scripts, small reproducible measurement. If measuring not practical, state
 expected complexity or browser work and what would confirm it. Report runtime
 performance findings under Bugs when users can see lag, jank, hangs, excessive
 work, otherwise under Simplifications.
+
+### Adversarial bug hunter
+
+Subagent role added per [Effort levels](#effort-levels). Assume there are bugs
+in the diff a consumer will hit. Do not trust PR description, comments, or test
+names — verify against code. Attack changed invariants directly: construct
+concrete input, state, timing, or platform that makes new code wrong. Report
+every candidate with a nameable failure scenario; when none survive, report
+empty — never pad with weak findings to justify the hunt.
 
 ---
 
