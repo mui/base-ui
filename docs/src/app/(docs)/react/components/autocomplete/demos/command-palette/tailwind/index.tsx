@@ -31,8 +31,8 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <div className="relative z-1 flex items-center gap-2 bg-white ps-3 focus-within:outline-2 focus-within:outline-solid focus-within:outline-neutral-950 dark:bg-neutral-950 dark:focus-within:outline-white">
-                <SearchIcon
+              <Autocomplete.InputGroup className="relative z-1 flex items-center gap-2 bg-white pl-3 focus-within:outline-2 focus-within:outline-solid focus-within:outline-neutral-950 dark:bg-neutral-950 dark:focus-within:outline-white">
+                <MagnifyingGlassIcon
                   className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400"
                   aria-hidden
                 />
@@ -42,7 +42,7 @@ export default function ExampleAutocompleteCommandPalette() {
                   aria-describedby={shortcutsDescriptionId}
                   placeholder="Search for apps and commands…"
                 />
-              </div>
+              </Autocomplete.InputGroup>
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">
@@ -108,19 +108,20 @@ export default function ExampleAutocompleteCommandPalette() {
   );
 }
 
-function SearchIcon(props: React.ComponentProps<'svg'>) {
+function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
     >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
+      <path d="m11 11 3.5 3.5" />
+      <circle cx="7" cy="7" r="5.5" />
     </svg>
   );
 }

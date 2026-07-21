@@ -115,14 +115,14 @@
   }
 }
 
-.InputRow {
+.InputGroup {
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-inline-start: 0.75rem;
+  padding-left: 0.75rem;
   background-color: white;
 
   @media (prefers-color-scheme: dark) {
