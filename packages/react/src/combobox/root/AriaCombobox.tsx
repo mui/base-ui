@@ -902,9 +902,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
-      const active = open || inline;
+      // A directly rendered list remains visible when the popup state is closed, while a
+      // kept-mounted Positioner is hidden and should stay inert.
+      const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && active) {
+        if (autoHighlightMode && listIsNavigable) {
           store.set('activeIndex', 0);
         }
         pendingQueryHighlightRef.current = null;
@@ -912,8 +914,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
         pendingQueryHighlightRef.current = null;
-        if (active) {
+        if (listIsNavigable) {
           const clearedBySelection = pendingHighlight.selection;
+          if (
+            autoHighlightMode === 'always' &&
+            !clearedBySelection &&
+            store.state.selectionMode === 'none'
+          ) {
+            // There is no selection to restore in Autocomplete. Keep the first-item reset
+            // synchronous so list navigation sees it before a directly rendered list closes.
+            store.set('activeIndex', 0);
+          }
+
           // Items re-mounted by the clear publish their composite indices in a follow-up
           // commit, so the item registries are mid-update here. Defer past React's cascade.
           queueMicrotask(() => {
