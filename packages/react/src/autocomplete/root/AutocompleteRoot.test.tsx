@@ -113,7 +113,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(trigger);
 
       expect(await screen.findByTestId('input')).toHaveValue('alpha');
-      expect(screen.getByRole('option', { name: 'alpha' })).not.toBe(null);
+      expect(await screen.findByRole('option', { name: 'alpha' })).not.toBe(null);
 
       await user.keyboard('{Escape}');
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));

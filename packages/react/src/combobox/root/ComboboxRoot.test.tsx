@@ -443,6 +443,7 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup data-testid="popup" className="animation-test-popup">
                     <Combobox.Input data-testid="input" />
+                    <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
                       {(item: string) => (
                         <Combobox.Item key={item} value={item}>
@@ -470,6 +471,8 @@ describe('<Combobox.Root />', () => {
 
         await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
         expect(input).toHaveValue('apb');
+        expect(screen.getByRole('status')).toHaveTextContent('No matches');
+        expect(screen.queryByRole('option')).toBe(null);
       },
     );
   });
@@ -6504,11 +6507,12 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('keeps filtering responsive after selection when popup input and open are controlled', async () => {
+    it('releases filtering when a controlled popup ignores a close request', async () => {
       const items = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+      const onOpenChange = vi.fn();
 
       const { user } = await render(
-        <Combobox.Root items={items} open>
+        <Combobox.Root items={items} open onOpenChange={onOpenChange}>
           <Combobox.Trigger>Open</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -6537,14 +6541,17 @@ describe('<Combobox.Root />', () => {
 
       await user.click(screen.getByRole('option', { name: 'Apple' }));
 
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
       expect(screen.getByRole('dialog')).not.toBe(null);
 
       await user.clear(input);
       await user.type(input, 'ba');
 
+      expect(input).toHaveValue('ba');
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
       });
+      expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
     });
 
     it.skipIf(isJSDOM)(
