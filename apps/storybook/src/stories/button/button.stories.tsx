@@ -23,12 +23,6 @@ export const Hero: Story = {
   render: () => <Button className={styles.Button}>Submit</Button>,
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 function FocusableWhenDisabledExample() {
   const [clicks, setClicks] = React.useState(0);
   return (

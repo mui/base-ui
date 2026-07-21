@@ -147,12 +147,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 function TypeSuggestSelectExample() {
   const [lastChange, setLastChange] = React.useState('none yet');
   return (

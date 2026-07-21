@@ -124,12 +124,6 @@ export const Basic: Story = {
   ),
 };
 
-/** Dark-theme variant of Basic (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Basic,
-  globals: { theme: 'dark' },
-};
-
 function OpenSelectCloseExample() {
   const [lastChange, setLastChange] = React.useState('none yet');
   return (

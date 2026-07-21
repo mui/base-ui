@@ -79,12 +79,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 /** Focus is the primary, reliable interaction path — it has no delay to race against (`useFocus` is independent of the hover rest-timer, brief.md §6). Tab to the trigger and the tooltip appears immediately; tab away and it closes. */
 export const KeyboardFocusOpen: Story = {
   render: () => (

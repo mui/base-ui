@@ -89,12 +89,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 /**
  * Default activation semantics (`activateOnFocus={false}` on `Tabs.List`,
  * the default): arrow keys move roving focus between tabs, but the panel

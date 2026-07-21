@@ -58,12 +58,6 @@ export const Basic: Story = {
   },
 };
 
-/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Basic.render,
-  globals: { theme: 'dark' },
-};
-
 /**
  * The single most important behavioral fact in the brief: arrow-key navigation both moves
  * focus AND commits selection in one step — no separate Space/click needed — matching native

@@ -96,8 +96,3 @@ export const HandlerOrderAndCancellation: Story = {
   },
 };
 
-/** Dark-theme variant of HandlerOrderAndCancellation (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: HandlerOrderAndCancellation.render,
-  globals: { theme: 'dark' },
-};

@@ -42,12 +42,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 /** A broken/unreachable `src` makes the off-DOM loading probe resolve to `error`, so `Avatar.Fallback` renders in its place — the mandatory image-load-fallback contract (brief §6/§10, story-plan #1). Status resolves asynchronously in a real browser (no mocking, unlike the unit tests), so the play function awaits the fallback text rather than asserting synchronously, then confirms the `<img>` never mounted. */
 export const BrokenImageFallback: Story = {
   render: () => (

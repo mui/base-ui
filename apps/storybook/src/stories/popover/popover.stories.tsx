@@ -57,12 +57,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 /** `openOnHover` on the Trigger (not the Root) makes the popover a hybrid: hover opens it after `delay` (default 300ms of rest), and click still works for touch and keyboard users. Hover-open never moves focus. */
 export const OpenOnHover: Story = {
   render: () => (

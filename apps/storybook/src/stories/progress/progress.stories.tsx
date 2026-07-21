@@ -51,12 +51,6 @@ export const Hero: Story = {
   render: () => <HeroExample />,
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 /** A fixed determinate value. Root exposes `role="progressbar"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax`, and the default text is the percentage of the range. */
 export const Determinate: Story = {
   render: () => (

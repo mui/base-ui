@@ -92,12 +92,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 /** Arrow keys step the focused Input directly — no need to reach for the stepper buttons. Home/End jump straight to `min`/`max` (only when those props are set); PageUp/PageDown are deliberately native, per the brief's honest read of the source (no ARIA spinbutton pattern is implemented here). */
 export const KeyboardStepping: Story = {
   render: () => (

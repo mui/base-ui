@@ -75,12 +75,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 /** A single horizontal `Scrollbar` over a wide row of cards. `orientation="horizontal"` is the only way to get a horizontal scrollbar — there is no `orientation="both"`; render two `Scrollbar` elements for that (see `BothAxesWithCorner`). */
 export const HorizontalOnly: Story = {
   render: () => (

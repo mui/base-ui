@@ -88,12 +88,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 function ToolbarWithMenuExample() {
   return (
     <Toolbar.Root aria-label="Document actions" className={styles.Toolbar}>

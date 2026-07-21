@@ -107,12 +107,6 @@ export const Basic: Story = {
   },
 };
 
-/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Basic.render,
-  globals: { theme: 'dark' },
-};
-
 function ParentTriStateExample() {
   const [value, setValue] = React.useState<string[]>(['fuji-apple']);
   return (

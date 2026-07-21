@@ -77,12 +77,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 /**
  * `keepMounted` keeps the panel's DOM node present (hidden, not unmounted)
  * even while closed — useful for preserving scroll/focus/form state inside

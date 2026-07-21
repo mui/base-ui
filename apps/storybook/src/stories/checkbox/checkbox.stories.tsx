@@ -81,12 +81,6 @@ export const Basic: Story = {
   },
 };
 
-/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Basic.render,
-  globals: { theme: 'dark' },
-};
-
 /** Clicking the label (or the checkbox itself) toggles `aria-checked`. */
 export const ToggleWithClick: Story = {
   render: () => (

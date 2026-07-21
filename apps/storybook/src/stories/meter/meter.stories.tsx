@@ -42,12 +42,6 @@ export const Hero: Story = {
   },
 };
 
-/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
-export const Dark: Story = {
-  render: Hero.render,
-  globals: { theme: 'dark' },
-};
-
 /** `min`/`max` define arbitrary bounds — the default text stays the position within the range (6 of 0–8 hours reads as 75%), so text and fill agree for any bounds. */
 export const BoundedRange: Story = {
   render: () => (

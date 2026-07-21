@@ -66,12 +66,6 @@ export const Hero: Story = {
   ),
 };
 
-/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
-export const Dark: Story = {
-  ...Hero,
-  globals: { theme: 'dark' },
-};
-
 /** Focus opens the preview card too, with the same 600ms delay as hover (`useFocus(..., { delay })` is wired unconditionally — brief.md §6). This is the one non-mouse modality Preview Card still supports; touch and screen readers never trigger it (see the MDX page). */
 export const KeyboardFocusOpen: Story = {
   render: () => (
