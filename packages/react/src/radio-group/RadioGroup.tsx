@@ -121,23 +121,19 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   }
 
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    if (!input) {
+    if (!input || input.disabled) {
       return undefined;
     }
 
-    // `:disabled` also covers inputs disabled by an ancestor `<fieldset disabled>`,
-    // which the `disabled` property misses.
-    let cleanup: void | (() => void);
-    if (!input.matches(':disabled')) {
-      if (!firstEnabledInputRef.current) {
-        firstEnabledInputRef.current = input;
-      }
-
-      const currentInput = groupInputRef.current;
-      if (input.checked || currentInput == null || currentInput.matches(':disabled')) {
-        cleanup = setInputRef(input);
-      }
+    if (!firstEnabledInputRef.current) {
+      firstEnabledInputRef.current = input;
     }
+
+    const currentInput = groupInputRef.current;
+    const cleanup =
+      input.checked || currentInput == null || currentInput.disabled
+        ? setInputRef(input)
+        : undefined;
 
     // Detach when this input unmounts while still forwarded, so consumers don't
     // keep holding a disconnected node. The input may have become the forwarded
@@ -185,7 +181,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
-    if (checkedValue == null && fallbackInput && !fallbackInput.matches(':disabled')) {
+    if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
       // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
       void setInputRef(fallbackInput);
     }

@@ -1191,18 +1191,33 @@ describe('<RadioGroup />', () => {
   });
 
   describe('Fieldset', () => {
-    it('does not assign inputRef to a radio disabled by its fieldset', async () => {
+    it('keeps inputRef available after an ancestor fieldset is enabled', async () => {
       const groupInputRef = React.createRef<HTMLInputElement>();
 
-      await render(
-        <Fieldset.Root disabled>
-          <RadioGroup inputRef={groupInputRef}>
-            <Radio.Root value="a" />
-          </RadioGroup>
-        </Fieldset.Root>,
-      );
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
 
-      expect(groupInputRef.current).toBe(null);
+        return (
+          <React.Fragment>
+            <fieldset disabled={disabled}>
+              <RadioGroup inputRef={groupInputRef}>
+                <Radio.Root value="a" data-testid="radio-a" />
+              </RadioGroup>
+            </fieldset>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+
+      fireEvent.click(screen.getByText('Enable'));
+
+      expect(groupInputRef.current).toBe(input);
     });
 
     it('labels the radio group from the fieldset legend', async () => {
