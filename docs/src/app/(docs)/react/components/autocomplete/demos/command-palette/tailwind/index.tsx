@@ -119,6 +119,7 @@ function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <path d="m11 11 3.5 3.5" />
       <circle cx="7" cy="7" r="5.5" />
