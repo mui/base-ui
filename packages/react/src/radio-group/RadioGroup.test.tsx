@@ -525,6 +525,38 @@ describe('<RadioGroup />', () => {
     expect(groupInputRef.current).toBe(null);
   });
 
+  it('detaches inputRef when a radio selected after mount unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showSecond, setShowSecond] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+            {showSecond && <Radio.Root value="b" data-testid="radio-b" />}
+          </RadioGroup>
+          <button type="button" onClick={() => setShowSecond(false)}>
+            Remove second
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByTestId('radio-b'));
+    expect(groupInputRef.current).toBe(inputB);
+
+    fireEvent.click(screen.getByText('Remove second'));
+    expect(groupInputRef.current).toBe(null);
+  });
+
   it.skipIf(isJSDOM)(
     'should return null when no radio is selected (matching native behavior)',
     async () => {
