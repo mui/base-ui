@@ -164,7 +164,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ allowMouseEnter: false, stickIfOpen: true });
+    store.set('allowMouseEnter', false);
   });
 
   useIsoLayoutEffect(() => {
@@ -296,7 +296,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         open: nextOpen,
         openChangeReason: reason,
       };
-      openEventRef.current = eventDetails.event ?? null;
+      openEventRef.current = eventDetails.event;
 
       setPopupOpenState(
         updatedState,
