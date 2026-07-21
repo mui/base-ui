@@ -65,7 +65,7 @@ describe('<Form />', () => {
     }
   });
 
-  it('focuses the first invalid field in document order after a control re-registers', async () => {
+  it('keeps focusing the first invalid field after a control value changes', async () => {
     const { user } = render(
       <Form>
         <Field.Root name="a">
@@ -84,13 +84,45 @@ describe('<Form />', () => {
     await user.click(submit);
     expect(checkboxA).toHaveFocus();
 
-    // Toggling the checkbox re-registers its field control, which moves the field
-    // to the end of the internal registration Map.
+    // Toggling the checkbox updates its field control registration, which must not
+    // move the field to the end of the internal registration Map.
     await user.click(checkboxA);
     await user.click(checkboxA);
 
     await user.click(submit);
     expect(checkboxA).toHaveFocus();
+  });
+
+  it('focuses the first invalid field in document order when keyed fields are reordered', async () => {
+    function App() {
+      const [names, setNames] = React.useState(['a', 'b']);
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setNames(['b', 'a'])}>
+            Reorder
+          </button>
+          <Form>
+            {names.map((name) => (
+              <Field.Root key={name} name={name}>
+                <Checkbox.Root required data-testid={name} />
+              </Field.Root>
+            ))}
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>
+      );
+    }
+
+    // Strict Mode re-runs effects when a keyed subtree moves, which would re-register
+    // the fields in DOM order and mask the registration/DOM order divergence.
+    const { user } = render(<App />, { strict: false });
+
+    // Keyed reorder moves the DOM nodes without remounting, so the internal
+    // registration Map keeps the original order while the DOM order flips.
+    await user.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(screen.getByTestId('b')).toHaveFocus();
   });
 
   it('submits when a valid async validator is pending', async () => {

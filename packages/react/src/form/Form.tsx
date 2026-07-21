@@ -9,7 +9,6 @@ import {
 import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
-import { precedes } from '../internals/shadowDom';
 import { useRenderElement } from '../internals/useRenderElement';
 import { useValueChanged } from '../internals/useValueChanged';
 
@@ -45,8 +44,10 @@ export const Form = React.forwardRef(function Form<
     // A field can be invalid without a focusable control (for example a checkbox group whose
     // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
     // Keep submission blocked, but move focus to the first invalid field that has a usable control.
-    // The fields Map's insertion order drifts when a control re-registers on value change, so
-    // pick the first control by document position rather than registration order.
+    // Registration order can diverge from DOM order (keyed fields reordered without
+    // remounting, portals), so pick the first control by document position. For controls
+    // in disconnected trees (e.g. separate shadow roots), where document position is
+    // implementation-specific, keep registration order.
     let hasInvalid = false;
     let firstControl: HTMLElement | null = null;
     for (const field of formRef.current.fields.values()) {
@@ -55,8 +56,19 @@ export const Form = React.forwardRef(function Form<
       }
       hasInvalid = true;
       const control = field.controlRef.current;
-      if (control && (!firstControl || precedes(control, firstControl))) {
-        firstControl = control;
+      if (control) {
+        if (firstControl) {
+          const position = firstControl.compareDocumentPosition(control);
+          // eslint-disable-next-line no-bitwise
+          const isPreceding = (position & Node.DOCUMENT_POSITION_PRECEDING) !== 0;
+          // eslint-disable-next-line no-bitwise
+          const isDisconnected = (position & Node.DOCUMENT_POSITION_DISCONNECTED) !== 0;
+          if (isPreceding && !isDisconnected) {
+            firstControl = control;
+          }
+        } else {
+          firstControl = control;
+        }
       }
     }
     if (firstControl) {
