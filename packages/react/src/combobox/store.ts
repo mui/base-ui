@@ -1,4 +1,4 @@
-import { Store, createSelector } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -91,18 +91,18 @@ export type State = {
 export type ComboboxStore = Store<State>;
 
 export const selectors = {
-  id: createSelector((state: State) => state.id),
-  labelId: createSelector((state: State) => state.labelId),
+  id: (state: State) => state.id,
+  labelId: (state: State) => state.labelId,
 
-  items: createSelector((state: State) => state.items),
+  items: (state: State) => state.items,
 
-  selectedValue: createSelector((state: State) => state.selectedValue),
-  hasSelectionChips: createSelector((state: State) => {
+  selectedValue: (state: State) => state.selectedValue,
+  hasSelectionChips: (state: State) => {
     const selectedValue = state.selectedValue;
     return Array.isArray(selectedValue) && selectedValue.length > 0;
-  }),
+  },
 
-  hasSelectedValue: createSelector((state: State) => {
+  hasSelectedValue: (state: State) => {
     const { selectedValue, selectionMode } = state;
     if (selectedValue == null) {
       return false;
@@ -111,22 +111,22 @@ export const selectors = {
       return selectedValue.length > 0;
     }
     return true;
-  }),
+  },
 
-  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+  hasNullItemLabel: (state: State, enabled: boolean) => {
     return enabled ? hasNullItemLabel(state.items) : false;
-  }),
+  },
 
-  open: createSelector((state: State) => state.open),
-  mounted: createSelector((state: State) => state.mounted),
-  forceMounted: createSelector((state: State) => state.forceMounted),
+  open: (state: State) => state.open,
+  mounted: (state: State) => state.mounted,
+  forceMounted: (state: State) => state.forceMounted,
 
-  inline: createSelector((state: State) => state.inline),
+  inline: (state: State) => state.inline,
 
-  activeIndex: createSelector((state: State) => state.activeIndex),
-  selectedIndex: createSelector((state: State) => state.selectedIndex),
-  isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, itemValue: any) => {
+  activeIndex: (state: State) => state.activeIndex,
+  selectedIndex: (state: State) => state.selectedIndex,
+  isActive: (state: State, index: number) => state.activeIndex === index,
+  isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
     if (Array.isArray(selectedValue)) {
@@ -135,39 +135,39 @@ export const selectors = {
       );
     }
     return compareItemEquality(itemValue, selectedValue, comparer);
-  }),
+  },
 
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
+  transitionStatus: (state: State) => state.transitionStatus,
 
-  popupProps: createSelector((state: State) => state.popupProps),
-  inputProps: createSelector((state: State) => state.inputProps),
-  triggerProps: createSelector((state: State) => state.triggerProps),
-  itemProps: createSelector((state: State) => state.itemProps),
+  popupProps: (state: State) => state.popupProps,
+  inputProps: (state: State) => state.inputProps,
+  triggerProps: (state: State) => state.triggerProps,
+  itemProps: (state: State) => state.itemProps,
 
-  positionerElement: createSelector((state: State) => state.positionerElement),
-  listElement: createSelector((state: State) => state.listElement),
-  popupId: createSelector((state: State) => state.popupId),
-  triggerElement: createSelector((state: State) => state.triggerElement),
-  inputElement: createSelector((state: State) => state.inputElement),
-  inputGroupElement: createSelector((state: State) => state.inputGroupElement),
-  popupSide: createSelector((state: State) => state.popupSide),
+  positionerElement: (state: State) => state.positionerElement,
+  listElement: (state: State) => state.listElement,
+  popupId: (state: State) => state.popupId,
+  triggerElement: (state: State) => state.triggerElement,
+  inputElement: (state: State) => state.inputElement,
+  inputGroupElement: (state: State) => state.inputGroupElement,
+  popupSide: (state: State) => state.popupSide,
 
-  openMethod: createSelector((state: State) => state.openMethod),
+  openMethod: (state: State) => state.openMethod,
 
-  inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
-  inputOwnsFormValue: createSelector((state: State) => state.inputOwnsFormValue),
+  inputInsidePopup: (state: State) => state.inputInsidePopup,
+  inputOwnsFormValue: (state: State) => state.inputOwnsFormValue,
 
-  selectionMode: createSelector((state: State) => state.selectionMode),
+  selectionMode: (state: State) => state.selectionMode,
 
-  name: createSelector((state: State) => state.name),
-  form: createSelector((state: State) => state.form),
-  disabled: createSelector((state: State) => state.disabled),
-  readOnly: createSelector((state: State) => state.readOnly),
-  required: createSelector((state: State) => state.required),
-  grid: createSelector((state: State) => state.grid),
-  virtualized: createSelector((state: State) => state.virtualized),
-  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
-  modal: createSelector((state: State) => state.modal),
-  autoHighlight: createSelector((state: State) => state.autoHighlight),
+  name: (state: State) => state.name,
+  form: (state: State) => state.form,
+  disabled: (state: State) => state.disabled,
+  readOnly: (state: State) => state.readOnly,
+  required: (state: State) => state.required,
+  grid: (state: State) => state.grid,
+  virtualized: (state: State) => state.virtualized,
+  itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemEqualToValue: (state: State) => state.isItemEqualToValue,
+  modal: (state: State) => state.modal,
+  autoHighlight: (state: State) => state.autoHighlight,
 };
