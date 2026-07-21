@@ -16,14 +16,51 @@ import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation'
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
+function createAnimationFrameMock() {
+  let nextFrameId = 0;
+  const callbacks = new Map<number, FrameRequestCallback>();
+  const requestAnimationFrame = vi
+    .spyOn(window, 'requestAnimationFrame')
+    .mockImplementation((callback) => {
+      nextFrameId += 1;
+      callbacks.set(nextFrameId, callback);
+      return nextFrameId;
+    });
+  const cancelAnimationFrame = vi
+    .spyOn(window, 'cancelAnimationFrame')
+    .mockImplementation((id) => callbacks.delete(id));
+
+  return {
+    callbacks,
+    flush() {
+      let iterations = 0;
+      while (callbacks.size > 0) {
+        if (iterations > 10) {
+          throw new Error('Exceeded maximum animation frame flush iterations.');
+        }
+        const pending = Array.from(callbacks.values());
+        callbacks.clear();
+        pending.forEach((callback) => callback(performance.now()));
+        iterations += 1;
+      }
+    },
+    restore() {
+      requestAnimationFrame.mockRestore();
+      cancelAnimationFrame.mockRestore();
+    },
+  };
+}
+
 function App(
   inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
     disableFirstItem?: boolean;
     hideFirstItem?: boolean;
     firstItemStyle?: React.CSSProperties;
+    retainActiveIndexOnClose?: boolean;
   } = {},
 ) {
-  const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, firstItemStyle, retainActiveIndexOnClose, ...props } =
+    inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -38,6 +75,9 @@ function App(
       listRef,
       activeIndex,
       onNavigate(index) {
+        if (index == null && !open && retainActiveIndexOnClose) {
+          return;
+        }
         setActiveIndex(index);
         props.onNavigate?.(index, undefined);
       },
@@ -82,6 +122,63 @@ function App(
               );
             })}
           </ul>
+        </div>
+      )}
+    </React.Fragment>
+  );
+}
+
+function LateMountedItemApp({
+  selectedIndex = 1,
+  focusItemOnOpen,
+  loopFocus,
+  virtual,
+}: {
+  selectedIndex?: number | null;
+  focusItemOnOpen?: UseListNavigationProps['focusItemOnOpen'];
+  loopFocus?: boolean;
+  virtual?: boolean;
+} = {}) {
+  const [open, setOpen] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [mountedIndex, setMountedIndex] = React.useState<number | null>(null);
+  const listRef = React.useRef<Array<HTMLButtonElement | null>>(Array(3).fill(null));
+  const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
+    useClick(context),
+    useListNavigation(context, {
+      listRef,
+      activeIndex,
+      selectedIndex,
+      focusItemOnOpen,
+      loopFocus,
+      virtual,
+      onNavigate(index) {
+        setActiveIndex(index);
+        if (index != null) {
+          queueMicrotask(() => setMountedIndex(index));
+        }
+      },
+    }),
+  ]);
+
+  return (
+    <React.Fragment>
+      <button {...getReferenceProps({ ref: refs.setReference })} />
+      {open && (
+        <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
+          {mountedIndex != null && (
+            <button
+              data-testid="late-item"
+              data-index={mountedIndex}
+              tabIndex={-1}
+              {...getItemProps({
+                ref(node: HTMLButtonElement | null) {
+                  listRef.current[mountedIndex] = node;
+                },
+              })}
+            />
+          )}
         </div>
       )}
     </React.Fragment>
@@ -217,6 +314,93 @@ describe('useListNavigation', () => {
     await flushMicrotasks();
 
     expect(screen.getByTestId('item-1')).toHaveFocus();
+  });
+
+  it('focuses the ArrowUp keyboard-open item without waiting for an animation frame', async ({
+    onTestFinished,
+  }) => {
+    const requestAnimationFrame = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(() => 0);
+    onTestFinished(() => requestAnimationFrame.mockRestore());
+
+    render(<App />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('item-2')).toHaveFocus();
+  });
+
+  it('focuses a retained active item synchronously when reopening', async ({ onTestFinished }) => {
+    const requestAnimationFrame = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(() => 0);
+    onTestFinished(() => requestAnimationFrame.mockRestore());
+
+    render(<App retainActiveIndexOnClose />);
+
+    const trigger = screen.getByRole('button');
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+    expect(screen.getByTestId('item-0')).toHaveFocus();
+
+    fireEvent.click(trigger);
+    await flushMicrotasks();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    act(() => trigger.focus());
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+    expect(screen.getByTestId('item-0')).toHaveFocus();
+  });
+
+  it('retries focus when the selected item registers after the active index update', async ({
+    onTestFinished,
+  }) => {
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
+
+    render(<LateMountedItemApp />);
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    await flushMicrotasks();
+
+    const item = screen.getByTestId('late-item');
+    expect(item).not.toHaveFocus();
+
+    act(animationFrames.flush);
+    await flushMicrotasks();
+
+    expect(item).toHaveFocus();
+  });
+
+  it('preserves virtualizer deferral after opening without an initial focused item', async ({
+    onTestFinished,
+  }) => {
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
+
+    render(<LateMountedItemApp selectedIndex={null} focusItemOnOpen={false} loopFocus virtual />);
+    const trigger = screen.getByRole('button');
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await flushMicrotasks();
+
+    expect(trigger).toHaveFocus();
+
+    fireEvent.keyDown(trigger, { key: 'ArrowUp' });
+    await flushMicrotasks();
+    const item = screen.getByTestId('late-item');
+    expect(item).toHaveAttribute('data-index', '2');
+    const scrollIntoView = vi.fn();
+    item.scrollIntoView = scrollIntoView;
+    expect(animationFrames.callbacks.size).toBeGreaterThan(0);
+
+    act(animationFrames.flush);
+    await flushMicrotasks();
+
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(trigger).toHaveFocus();
   });
 
   it('opens on ArrowUp and focuses last item', async () => {

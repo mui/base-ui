@@ -305,7 +305,7 @@ export function useListNavigation(
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
 
-  const focusItem = useStableCallback(() => {
+  const focusItem = useStableCallback((deferReveal = false) => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
@@ -324,9 +324,10 @@ export function useListNavigation(
       runFocus(initialItem);
     }
 
-    const scheduler = forceSyncFocusRef.current
-      ? (callback: () => void) => callback()
-      : (callback: () => void) => focusFrame.request(callback);
+    const scheduler =
+      forceSyncFocusRef.current && !deferReveal
+        ? (callback: () => void) => callback()
+        : (callback: () => void) => focusFrame.request(callback);
 
     scheduler(() => {
       const waitedItem = listRef.current[indexRef.current] || initialItem;
@@ -394,15 +395,15 @@ export function useListNavigation(
       return;
     }
 
+    const isInitialSync = !previousOpenRef.current || !previousMountedRef.current;
+    if (isInitialSync && focusItemOnOpenRef.current && keyRef.current != null) {
+      // Preserve keyboard-open intent across the controlled `activeIndex` update so focus lands
+      // with the highlighted state instead of waiting for the next animation frame.
+      forceSyncFocusOnOpenRef.current = true;
+    }
+
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
-
-      const isInitialSync = !previousOpenRef.current || !previousMountedRef.current;
-      if (isInitialSync && keyRef.current != null) {
-        // Preserve keyboard-open intent across the controlled `activeIndex` update so focus lands
-        // with the highlighted state instead of waiting for the next animation frame.
-        forceSyncFocusOnOpenRef.current = true;
-      }
 
       if (selectedIndexRef.current != null) {
         return;
@@ -453,10 +454,13 @@ export function useListNavigation(
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
-      if (forceSyncFocusOnOpenRef.current) {
-        forceSyncFocusRef.current = true;
+      const forceSyncFocusOnOpen = forceSyncFocusOnOpenRef.current;
+      if (forceSyncFocusOnOpen) {
+        // Focus an already-registered item in this commit, but preserve the animation-frame
+        // fallback for late registration and reveal it only after positioning has settled.
+        forceSyncFocusRef.current = listRef.current[activeIndex] != null;
       }
-      focusItem();
+      focusItem(forceSyncFocusOnOpen);
       forceSyncFocusOnOpenRef.current = false;
       forceScrollIntoViewRef.current = false;
     }

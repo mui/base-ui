@@ -104,6 +104,53 @@ describe('<Select.Root />', () => {
       expect(option).toHaveAttribute('data-highlighted');
       expect(option).toHaveFocus();
     });
+
+    it.skipIf(isJSDOM)('reveals the keyboard-open item after the popup is positioned', async () => {
+      const items = Array.from({ length: 60 }, (_, index) => `Item ${index}`);
+
+      await render(
+        <Select.Root defaultValue="Item 40">
+          <Select.Trigger style={{ position: 'fixed', top: '50%', left: 100 }}>
+            Trigger
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false} sideOffset={4}>
+              <Select.Popup
+                style={{
+                  width: 200,
+                  maxHeight: 'var(--available-height)',
+                  overflowY: 'auto',
+                }}
+              >
+                {items.map((item) => (
+                  <Select.Item key={item} value={item} style={{ height: 32 }}>
+                    {item}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+
+      const popup = await screen.findByRole('listbox');
+      const option = screen.getByRole('option', { name: 'Item 40' });
+      await waitFor(() => expect(option).toHaveFocus());
+      await waitFor(() => {
+        const popupRect = popup.getBoundingClientRect();
+        const optionRect = option.getBoundingClientRect();
+        const isVisible = optionRect.top >= popupRect.top && optionRect.bottom <= popupRect.bottom;
+        expect(isVisible).toBe(true);
+      });
+      expect(option).toHaveFocus();
+    });
   });
 
   describe('prop: defaultValue', () => {
