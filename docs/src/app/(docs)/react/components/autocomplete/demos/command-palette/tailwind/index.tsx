@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.InputGroup className="relative z-1 flex items-center gap-2 bg-white pl-3 focus-within:outline-2 focus-within:outline-solid focus-within:outline-neutral-950 dark:bg-neutral-950 dark:focus-within:outline-white">
+              <Autocomplete.InputGroup className="relative z-1 flex cursor-text items-center gap-2 bg-white pl-3 focus-within:outline-2 focus-within:outline-solid focus-within:outline-neutral-950 dark:bg-neutral-950 dark:focus-within:outline-white">
                 <MagnifyingGlassIcon
                   className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400"
                   aria-hidden

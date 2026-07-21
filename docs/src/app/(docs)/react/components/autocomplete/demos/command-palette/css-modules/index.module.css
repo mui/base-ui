@@ -124,6 +124,7 @@
   gap: 0.5rem;
   padding-left: 0.75rem;
   background-color: white;
+  cursor: text;
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
