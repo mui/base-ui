@@ -77,6 +77,12 @@ export const Hero: Story = {
   ),
 };
 
+/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
+export const Dark: Story = {
+  ...Hero,
+  globals: { theme: 'dark' },
+};
+
 /** Set `openOnHover` on the Trigger (with an optional `delay`, default 100ms) for hover menus. Hover-opened menus are never modal, and impatient clicks within 500ms of a hover-open won't toggle the menu shut. */
 export const OpenOnHover: Story = {
   render: () => (

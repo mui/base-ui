@@ -58,6 +58,12 @@ export const CustomComponent: Story = {
   },
 };
 
+/** Dark-theme variant of CustomComponent (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: CustomComponent.render,
+  globals: { theme: 'dark' },
+};
+
 /* ------------------------------------------------------------------ */
 /* StateToDataAttributes — the docs' Counter example                    */
 /* ------------------------------------------------------------------ */

@@ -79,6 +79,12 @@ export const Hero: Story = {
   ),
 };
 
+/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
+export const Dark: Story = {
+  ...Hero,
+  globals: { theme: 'dark' },
+};
+
 /** Uncontrolled: `defaultPressed` seeds the initial state; clicking flips `aria-pressed` and `data-pressed`. */
 export const UncontrolledPressed: Story = {
   render: () => (

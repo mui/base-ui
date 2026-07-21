@@ -34,7 +34,14 @@ function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <line
+        x1="3"
+        y1="12"
+        x2="21"
+        y2="12"
+        stroke="currentColor"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -98,6 +105,12 @@ export const Basic: Story = {
       'true',
     );
   },
+};
+
+/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Basic.render,
+  globals: { theme: 'dark' },
 };
 
 function ParentTriStateExample() {
@@ -241,9 +254,7 @@ export const FormSubmitArray: Story = {
     await userEvent.click(canvas.getByRole('checkbox', { name: 'HTTPS' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() =>
-      expect(canvas.getByText('protocols=["http","https"]')).toBeVisible(),
-    );
+    await waitFor(() => expect(canvas.getByText('protocols=["http","https"]')).toBeVisible());
   },
 };
 
@@ -499,7 +510,9 @@ function NestedParentExample() {
           </label>
         </CheckboxGroup>
       </CheckboxGroup>
-      <output className={styles.Output}>manage-users in main: {String(mainValue.includes('manage-users'))}</output>
+      <output className={styles.Output}>
+        manage-users in main: {String(mainValue.includes('manage-users'))}
+      </output>
     </div>
   );
 }
@@ -520,14 +533,10 @@ export const NestedParentCheckbox: Story = {
     await userEvent.click(canvas.getByRole('checkbox', { name: 'Edit user' }));
 
     await waitFor(() => expect(manageUsersParent).toHaveAttribute('aria-checked', 'true'));
-    await waitFor(() =>
-      expect(canvas.getByText('manage-users in main: true')).toBeVisible(),
-    );
+    await waitFor(() => expect(canvas.getByText('manage-users in main: true')).toBeVisible());
 
     await userEvent.click(canvas.getByRole('checkbox', { name: 'Edit user' }));
-    await waitFor(() =>
-      expect(canvas.getByText('manage-users in main: false')).toBeVisible(),
-    );
+    await waitFor(() => expect(canvas.getByText('manage-users in main: false')).toBeVisible());
   },
 };
 
@@ -550,7 +559,9 @@ export const RequiredMeansAllMustBeChecked: Story = {
     // Checking the second one clears it.
     await userEvent.click(canvas.getByRole('checkbox', { name: 'Terms of service' }));
     await waitFor(() =>
-      expect(canvas.queryByText('You must agree to both before continuing.')).not.toBeInTheDocument(),
+      expect(
+        canvas.queryByText('You must agree to both before continuing.'),
+      ).not.toBeInTheDocument(),
     );
   },
 };

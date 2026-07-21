@@ -95,3 +95,9 @@ export const HandlerOrderAndCancellation: Story = {
     await expect(toggle).toHaveAttribute('data-pressed');
   },
 };
+
+/** Dark-theme variant of HandlerOrderAndCancellation (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: HandlerOrderAndCancellation.render,
+  globals: { theme: 'dark' },
+};

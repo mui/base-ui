@@ -53,6 +53,12 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 /** A two-thumb range slider. Each thumb needs its own distinguishing `aria-label`, since a single `Slider.Label` names the group, not any one thumb. */
 export const RangeTwoThumb: Story = {
   render: () => (

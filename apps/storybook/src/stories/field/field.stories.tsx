@@ -57,6 +57,12 @@ export const Hero: Story = {
   ),
 };
 
+/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
+export const Dark: Story = {
+  ...Hero,
+  globals: { theme: 'dark' },
+};
+
 /** All render-bearing parts in one field, plus the `Field.Validity` render prop. The play function asserts the a11y wiring: label association, `aria-describedby` joining Description (always) and Error (only while rendered), and the tri-state `aria-invalid`. */
 export const AnatomyAllParts: Story = {
   render: () => (

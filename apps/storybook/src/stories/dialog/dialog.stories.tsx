@@ -67,6 +67,12 @@ export const Hero: Story = {
   ),
 };
 
+/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
+export const Dark: Story = {
+  ...Hero,
+  globals: { theme: 'dark' },
+};
+
 /** The full interaction contract in one story: open on click (popup portals to `document.body`), focus moves inside the popup, the trigger reflects state, and closing returns focus to the trigger. */
 export const OpenCloseInteraction: Story = {
   render: () => (

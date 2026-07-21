@@ -75,6 +75,13 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  args: Hero.args,
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 function TypeToCompleteExample() {
   const id = React.useId();
   const [complete, setComplete] = React.useState<string | null>(null);

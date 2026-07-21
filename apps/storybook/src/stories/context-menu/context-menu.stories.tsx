@@ -85,6 +85,12 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 /* ------------------------------------------------------------------ */
 /* Nested submenu                                                      */
 /* ------------------------------------------------------------------ */
@@ -529,7 +535,9 @@ export const MixedMenuPartsComposition: Story = {
     const submenuTrigger = within(menu).getByRole('menuitem', { name: 'Transform' });
     await userEvent.click(submenuTrigger);
     const submenu = await body.findByRole('menu', { name: 'Transform' });
-    await waitFor(() => expect(within(submenu).getByRole('menuitem', { name: 'Rotate' })).toBeVisible());
+    await waitFor(() =>
+      expect(within(submenu).getByRole('menuitem', { name: 'Rotate' })).toBeVisible(),
+    );
 
     fireEvent.click(within(submenu).getByRole('menuitem', { name: 'Rotate' }));
     await waitFor(() => expect(menu).not.toBeInTheDocument());

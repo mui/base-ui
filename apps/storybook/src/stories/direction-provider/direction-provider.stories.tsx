@@ -39,6 +39,12 @@ export const Hero: Story = {
   ),
 };
 
+/** Dark-theme variant of Hero (Chromatic coverage of the dark semantic layer). */
+export const Dark: Story = {
+  ...Hero,
+  globals: { theme: 'dark' },
+};
+
 /** The behavior the provider exists for: composite keyboard navigation flips with direction. `useCompositeRoot` swaps the "forward" arrow key in RTL (`ArrowLeft` instead of `ArrowRight`) — this is a real interaction change, not a visual one, and it only happens because `DirectionProvider` tells the `ToggleGroup` its direction is RTL. */
 export const FlipCompositeRTL: Story = {
   render: () => (

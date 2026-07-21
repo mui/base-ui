@@ -40,6 +40,12 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 /** Every attribute in `InputDataAttributes.ts` populates on the `<input>` itself once nested in `Field.Root` — an empty required field turns invalid on blur, then valid once filled (brief §1, §8, verbatim restatement of Field's contract). */
 export const ValidationStates: Story = {
   render: () => (

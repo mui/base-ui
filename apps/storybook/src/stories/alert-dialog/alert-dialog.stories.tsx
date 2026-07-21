@@ -99,6 +99,12 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 /* ------------------------------------------------------------------ */
 /* No-outside-press dismissal (hard-coded contract)                    */
 /* ------------------------------------------------------------------ */
@@ -352,7 +358,9 @@ export const NestedCloseConfirmation: Story = {
     const alert = await body.findByRole('alertdialog');
     await waitFor(() => expect(alert).toBeVisible());
     await expect(dialog).toBeInTheDocument();
-    await expect(within(alert).getByText('Your edits to "Jane" have not been saved.')).toBeVisible();
+    await expect(
+      within(alert).getByText('Your edits to "Jane" have not been saved.'),
+    ).toBeVisible();
 
     await userEvent.click(within(alert).getByRole('button', { name: 'Discard' }));
     await waitFor(() => expect(alert).not.toBeInTheDocument());
@@ -567,14 +575,18 @@ function CustomRenderCompositionExample() {
         <AlertDialog.Popup
           className={styles.Popup}
           render={(props, state) => (
-            <section {...props} data-testid="custom-popup-element" data-nested={state.nested || undefined} />
+            <section
+              {...props}
+              data-testid="custom-popup-element"
+              data-nested={state.nested || undefined}
+            />
           )}
         >
           <div className={styles.Intro}>
             <AlertDialog.Title className={styles.Title}>Delete item?</AlertDialog.Title>
             <AlertDialog.Description className={styles.Description}>
-              The Trigger renders through a custom button component, and the Popup renders as
-              a native &lt;section&gt; instead of a &lt;div&gt; — both via the `render` prop.
+              The Trigger renders through a custom button component, and the Popup renders as a
+              native &lt;section&gt; instead of a &lt;div&gt; — both via the `render` prop.
             </AlertDialog.Description>
           </div>
           <div className={styles.Actions}>
@@ -751,7 +763,11 @@ function TrashIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M3 4h10M6 4V2.5h4V4M4.5 4l.5 9.5h6l.5-9.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 4h10M6 4V2.5h4V4M4.5 4l.5 9.5h6l.5-9.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

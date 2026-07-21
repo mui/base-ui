@@ -108,6 +108,12 @@ export const Hero: Story = {
   },
 };
 
+/** Dark-theme variant of Hero (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Hero.render,
+  globals: { theme: 'dark' },
+};
+
 /**
  * `multiple` allows more than one panel to be open simultaneously — opening
  * item 2 no longer replaces item 1's open state.

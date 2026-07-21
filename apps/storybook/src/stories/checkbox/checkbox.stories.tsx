@@ -33,7 +33,14 @@ function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <line
+        x1="3"
+        y1="12"
+        x2="21"
+        y2="12"
+        stroke="currentColor"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -72,6 +79,12 @@ export const Basic: Story = {
       'true',
     );
   },
+};
+
+/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Basic.render,
+  globals: { theme: 'dark' },
 };
 
 /** Clicking the label (or the checkbox itself) toggles `aria-checked`. */
@@ -165,22 +178,14 @@ function ControlledCheckedExample() {
   return (
     <div className={styles.Form}>
       <label className={styles.Label}>
-        <Checkbox.Root
-          checked={checked}
-          onCheckedChange={setChecked}
-          className={styles.Checkbox}
-        >
+        <Checkbox.Root checked={checked} onCheckedChange={setChecked} className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Accept terms and conditions
       </label>
-      <button
-        type="button"
-        className={styles.Button}
-        onClick={() => setChecked((prev) => !prev)}
-      >
+      <button type="button" className={styles.Button} onClick={() => setChecked((prev) => !prev)}>
         Toggle externally
       </button>
       <output className={styles.Output}>checked={String(checked)}</output>
@@ -236,7 +241,9 @@ export const InFieldWithValidation: Story = {
       expect(canvas.getByText('You must agree before continuing.')).toBeVisible(),
     );
 
-    await userEvent.click(canvas.getByRole('checkbox', { name: 'I agree to the terms of service' }));
+    await userEvent.click(
+      canvas.getByRole('checkbox', { name: 'I agree to the terms of service' }),
+    );
     await waitFor(() =>
       expect(canvas.queryByText('You must agree before continuing.')).not.toBeInTheDocument(),
     );

@@ -58,6 +58,12 @@ export const Basic: Story = {
   },
 };
 
+/** Dark-theme variant of Basic (visual only — the interaction assertions stay on the light story). */
+export const Dark: Story = {
+  render: Basic.render,
+  globals: { theme: 'dark' },
+};
+
 /**
  * The single most important behavioral fact in the brief: arrow-key navigation both moves
  * focus AND commits selection in one step — no separate Space/click needed — matching native
@@ -284,11 +290,7 @@ function ControlledValueExample() {
         </label>
       </RadioGroup>
       <div className={styles.Form} style={{ flexDirection: 'row' }}>
-        <button
-          type="button"
-          className={styles.Button}
-          onClick={() => setValue('fuji-apple')}
-        >
+        <button type="button" className={styles.Button} onClick={() => setValue('fuji-apple')}>
           Select Fuji externally
         </button>
         <button type="button" className={styles.Button} onClick={() => setValue(null)}>
@@ -309,19 +311,13 @@ export const ControlledValue: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Select Fuji externally' }));
     await waitFor(() => expect(canvas.getByText('value=fuji-apple')).toBeVisible());
     await waitFor(() =>
-      expect(canvas.getByRole('radio', { name: 'Fuji' })).toHaveAttribute(
-        'aria-checked',
-        'true',
-      ),
+      expect(canvas.getByRole('radio', { name: 'Fuji' })).toHaveAttribute('aria-checked', 'true'),
     );
 
     await userEvent.click(canvas.getByRole('button', { name: 'Clear externally' }));
     await waitFor(() => expect(canvas.getByText('value=null')).toBeVisible());
     await waitFor(() =>
-      expect(canvas.getByRole('radio', { name: 'Fuji' })).toHaveAttribute(
-        'aria-checked',
-        'false',
-      ),
+      expect(canvas.getByRole('radio', { name: 'Fuji' })).toHaveAttribute('aria-checked', 'false'),
     );
   },
 };
