@@ -17,7 +17,8 @@
   border-radius: var(--ds-radius-card);
 }
 
-.CardName {
+/* Doubled selector: outranks addon-docs' element-level text color inside .sbdocs */
+.CardName.CardName {
   margin: 0;
   font-family: var(--ds-type-family-body);
   font-size: var(--ds-type-size-xs);
