@@ -31,16 +31,30 @@
   -webkit-user-select: none;
   user-select: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
       background-color: oklch(97% 0 0deg);
 
-      @media (prefers-color-scheme: dark) {
+      :root[data-theme='dark'] & {
         background-color: oklch(26.9% 0 0deg);
+      }
+
+      /* system fallback when no data-theme is set — keep in sync with the block above */
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light'], [data-theme='dark']) & {
+          background-color: oklch(26.9% 0 0deg);
+        }
       }
     }
   }
@@ -48,8 +62,15 @@
   &:active:not([data-disabled]) {
     background-color: oklch(92.2% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(37.1% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(37.1% 0 0deg);
+      }
     }
   }
 
@@ -57,16 +78,30 @@
   &[data-popup-open] {
     background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(26.9% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 
   &[data-disabled] {
     color: oklch(55.6% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       color: oklch(70.8% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        color: oklch(70.8% 0 0deg);
+      }
     }
   }
 
@@ -75,9 +110,17 @@
     outline-offset: -1px;
     position: relative;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(26.9% 0 0deg);
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(26.9% 0 0deg);
+        outline-color: white;
+      }
     }
   }
 }
@@ -99,11 +142,21 @@
     transform 100ms ease-out,
     opacity 100ms ease-out;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+      box-shadow: none;
+    }
   }
 
   &[data-starting-style],
@@ -144,8 +197,15 @@
     position: relative;
     color: white;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       color: oklch(14.5% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        color: oklch(14.5% 0 0deg);
+      }
     }
   }
 
@@ -161,32 +221,60 @@
   &[data-popup-open]::before {
     background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(26.9% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 
   &[data-highlighted]::before {
     background-color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: white;
+      }
     }
   }
 
   &[data-highlighted][data-popup-open]::before {
     background-color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: white;
+      }
     }
   }
 
   &[data-disabled] {
     color: oklch(55.6% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       color: oklch(70.8% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        color: oklch(70.8% 0 0deg);
+      }
     }
   }
 }
@@ -200,8 +288,15 @@
   height: 1px;
   background-color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: white;
+    }
   }
 }
 
@@ -226,8 +321,15 @@
     position: relative;
     color: white;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       color: oklch(14.5% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        color: oklch(14.5% 0 0deg);
+      }
     }
   }
 
@@ -239,8 +341,15 @@
     inset-inline: 0.25rem;
     background-color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: white;
+      }
     }
   }
 }
@@ -265,9 +374,17 @@
   padding: 1px;
   width: fit-content;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      background-color: oklch(14.5% 0 0deg);
+    }
   }
 }
 
@@ -287,8 +404,15 @@
   -webkit-user-select: none;
   user-select: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 }
 
@@ -310,7 +434,14 @@
   font-size: 0.875rem;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }

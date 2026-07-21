@@ -5,8 +5,15 @@
   max-width: calc(100vw - 8rem);
   background-color: white;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: oklch(14.5% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: oklch(14.5% 0 0deg);
+    }
   }
 }
 
@@ -22,16 +29,30 @@
   height: 100%;
   border: 1px solid oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+    }
   }
 
   &:focus-visible {
     outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        outline-color: white;
+      }
     }
   }
 }
@@ -55,8 +76,15 @@
   line-height: 1.375rem;
   color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 }
 
@@ -79,9 +107,17 @@
   font-weight: 700;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: oklch(26.9% 0 0deg);
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: oklch(26.9% 0 0deg);
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }
 
@@ -104,9 +140,17 @@
   font-weight: 700;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: oklch(26.9% 0 0deg);
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: oklch(26.9% 0 0deg);
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }
 
@@ -120,8 +164,15 @@
   transition: opacity 150ms;
   pointer-events: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: rgb(255 255 255 / 12%);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: rgb(255 255 255 / 12%);
+    }
   }
 
   &[data-scrolling] {
@@ -147,16 +198,30 @@
   width: 100%;
   background-color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: white;
+    }
   }
 }
 
 .Corner {
   background-color: rgb(0 0 0 / 12%);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: rgb(255 255 255 / 12%);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: rgb(255 255 255 / 12%);
+    }
   }
 }
 
@@ -175,18 +240,34 @@
   /* Was 70.8% (fails AA color-contrast against the white page background). */
   color: oklch(50% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     color: oklch(43.9% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      color: oklch(43.9% 0 0deg);
+    }
   }
 
   &[data-active='true'] {
     color: oklch(14.5% 0 0deg);
     background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       color: white;
       background-color: oklch(26.9% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        color: white;
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 }
@@ -203,8 +284,15 @@
   opacity: 1;
   pointer-events: auto;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: rgb(255 255 255 / 12%);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: rgb(255 255 255 / 12%);
+    }
   }
 
   &[data-orientation='vertical'] {
@@ -228,8 +316,15 @@
   transition: opacity 150ms;
   pointer-events: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: rgb(255 255 255 / 12%);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: rgb(255 255 255 / 12%);
+    }
   }
 
   &[data-scrolling] {
@@ -257,8 +352,15 @@
   font-size: 0.75rem;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }
 
@@ -278,8 +380,15 @@
   mask-repeat: no-repeat;
   outline: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background: oklch(14.5% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background: oklch(14.5% 0 0deg);
+    }
   }
 }
 
@@ -300,10 +409,19 @@
   font-size: 0.875rem;
   color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border-color: white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border-color: white;
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+    }
   }
 }
 
@@ -318,10 +436,19 @@
   background-color: white;
   color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border-color: white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border-color: white;
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+    }
   }
 }
 
@@ -346,8 +473,15 @@
   &[data-highlighted] {
     background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(26.9% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 }

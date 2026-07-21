@@ -9,8 +9,15 @@
   font-weight: 400;
   color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 }
 
@@ -25,16 +32,31 @@
   background-color: white;
   transition: background-color 150ms ease;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      background-color: oklch(14.5% 0 0deg);
+    }
   }
 
   &[data-checked] {
     background-color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: white;
+      }
     }
   }
 
@@ -42,8 +64,15 @@
     outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: 2px;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        outline-color: white;
+      }
     }
   }
 
@@ -65,16 +94,30 @@
     translate 150ms ease,
     background-color 150ms ease;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     background-color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      background-color: white;
+    }
   }
 
   &[data-checked] {
     translate: 1rem 0;
     background-color: white;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       background-color: oklch(14.5% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        background-color: oklch(14.5% 0 0deg);
+      }
     }
   }
 
@@ -104,10 +147,19 @@
   font-size: 0.875rem;
   cursor: pointer;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border-color: white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border-color: white;
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+    }
   }
 }
 
@@ -115,7 +167,14 @@
   font-size: 0.875rem;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }

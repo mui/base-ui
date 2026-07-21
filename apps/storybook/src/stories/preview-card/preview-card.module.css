@@ -14,8 +14,15 @@
   color: oklch(14.5% 0 0deg);
   text-wrap: balance;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 }
 
@@ -27,17 +34,32 @@
   text-decoration-color: color-mix(in oklab, oklch(14.5% 0 0deg), transparent 40%);
   text-underline-offset: 2px;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
     text-decoration-color: color-mix(in oklab, white, transparent 40%);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+      text-decoration-color: color-mix(in oklab, white, transparent 40%);
+    }
   }
 
   @media (hover: hover) {
     &:hover {
       text-decoration-color: oklch(14.5% 0 0deg);
 
-      @media (prefers-color-scheme: dark) {
+      :root[data-theme='dark'] & {
         text-decoration-color: white;
+      }
+
+      /* system fallback when no data-theme is set — keep in sync with the block above */
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light'], [data-theme='dark']) & {
+          text-decoration-color: white;
+        }
       }
     }
   }
@@ -45,8 +67,15 @@
   &[data-popup-open] {
     text-decoration-color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       text-decoration-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        text-decoration-color: white;
+      }
     }
   }
 
@@ -54,8 +83,15 @@
     outline: 2px solid oklch(14.5% 0 0deg);
     text-decoration-line: none;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        outline-color: white;
+      }
     }
   }
 }
@@ -77,15 +113,29 @@
   -webkit-user-select: none;
   user-select: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 
   &:focus-visible {
     outline: 2px solid oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        outline-color: white;
+      }
     }
   }
 }
@@ -110,11 +160,21 @@
     transform 100ms ease-out,
     opacity 100ms ease-out;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      background-color: oklch(14.5% 0 0deg);
+      color: white;
+      box-shadow: none;
+    }
   }
 
   &[data-starting-style],
@@ -163,9 +223,17 @@
     background-color: white;
     transform: translate(-50%, 50%) rotate(45deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       border: 1px solid white;
       background-color: oklch(14.5% 0 0deg);
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        border: 1px solid white;
+        background-color: oklch(14.5% 0 0deg);
+      }
     }
   }
 }
@@ -194,8 +262,15 @@
   font-size: 0.875rem;
   color: oklch(43.9% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: oklch(70.8% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: oklch(70.8% 0 0deg);
+    }
   }
 }
 

@@ -9,9 +9,17 @@
   border: 1px solid oklch(14.5% 0 0deg);
   color: oklch(14.5% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border: 1px solid white;
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border: 1px solid white;
+      color: white;
+    }
   }
 }
 
@@ -19,8 +27,15 @@
   & + & {
     border-top: 1px solid oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       border-top: 1px solid white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        border-top: 1px solid white;
+      }
     }
   }
 }
@@ -50,16 +65,30 @@
   -webkit-user-select: none;
   user-select: none;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      color: white;
+    }
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
       background-color: oklch(97% 0 0deg);
 
-      @media (prefers-color-scheme: dark) {
+      :root[data-theme='dark'] & {
         background-color: oklch(26.9% 0 0deg);
+      }
+
+      /* system fallback when no data-theme is set — keep in sync with the block above */
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light'], [data-theme='dark']) & {
+          background-color: oklch(26.9% 0 0deg);
+        }
       }
     }
   }
@@ -69,8 +98,15 @@
     outline: 2px solid oklch(14.5% 0 0deg);
     z-index: 1;
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-theme='dark'] & {
       outline-color: white;
+    }
+
+    /* system fallback when no data-theme is set — keep in sync with the block above */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light'], [data-theme='dark']) & {
+        outline-color: white;
+      }
     }
   }
 
@@ -122,10 +158,19 @@
   font-family: inherit;
   font-size: 0.8125rem;
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border-color: white;
     background: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border-color: white;
+      background: oklch(14.5% 0 0deg);
+      color: white;
+    }
   }
 }
 
@@ -134,7 +179,14 @@
   margin-top: 0.5rem;
   border-top: 1px solid oklch(85% 0 0deg);
 
-  @media (prefers-color-scheme: dark) {
+  :root[data-theme='dark'] & {
     border-top-color: oklch(43.9% 0 0deg);
+  }
+
+  /* system fallback when no data-theme is set — keep in sync with the block above */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'], [data-theme='dark']) & {
+      border-top-color: oklch(43.9% 0 0deg);
+    }
   }
 }
