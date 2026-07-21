@@ -187,6 +187,38 @@ describe('useListNavigation', () => {
     });
   });
 
+  it('focuses the keyboard-open item without waiting for an animation frame', async ({
+    onTestFinished,
+  }) => {
+    const requestAnimationFrame = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(() => 0);
+    onTestFinished(() => requestAnimationFrame.mockRestore());
+
+    render(<App />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('item-0')).toHaveFocus();
+  });
+
+  it('focuses the selected keyboard-open item without waiting for an animation frame', async ({
+    onTestFinished,
+  }) => {
+    const requestAnimationFrame = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(() => 0);
+    onTestFinished(() => requestAnimationFrame.mockRestore());
+
+    render(<App selectedIndex={1} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('item-1')).toHaveFocus();
+  });
+
   it('opens on ArrowUp and focuses last item', async () => {
     render(<App />);
 

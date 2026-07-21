@@ -69,6 +69,43 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('keyboard navigation', () => {
+    it('focuses the highlighted item before the next animation frame when opening', async ({
+      onTestFinished,
+    }) => {
+      await render(
+        <Select.Root>
+          <Select.Trigger>Trigger</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const requestAnimationFrame = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation(() => 0);
+      onTestFinished(() => requestAnimationFrame.mockRestore());
+
+      const trigger = screen.getByRole('combobox');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      const option = screen.getByRole('option', { name: 'a' });
+      expect(option).toHaveAttribute('data-highlighted');
+      expect(option).toHaveFocus();
+    });
+  });
+
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
       await render(

@@ -293,6 +293,7 @@ export function useListNavigation(
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
+  const forceSyncFocusOnOpenRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
   const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
@@ -386,6 +387,7 @@ export function useListNavigation(
     }
     if (!open) {
       forceSyncFocusRef.current = false;
+      forceSyncFocusOnOpenRef.current = false;
       return;
     }
     if (!floatingElement) {
@@ -394,6 +396,13 @@ export function useListNavigation(
 
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
+
+      const isInitialSync = !previousOpenRef.current || !previousMountedRef.current;
+      if (isInitialSync && keyRef.current != null) {
+        // Preserve keyboard-open intent across the controlled `activeIndex` update so focus lands
+        // with the highlighted state instead of waiting for the next animation frame.
+        forceSyncFocusOnOpenRef.current = true;
+      }
 
       if (selectedIndexRef.current != null) {
         return;
@@ -407,7 +416,7 @@ export function useListNavigation(
 
       // Initial sync.
       if (
-        (!previousOpenRef.current || !previousMountedRef.current) &&
+        isInitialSync &&
         focusItemOnOpenRef.current &&
         (keyRef.current != null || (focusItemOnOpenRef.current === true && keyRef.current == null))
       ) {
@@ -444,7 +453,11 @@ export function useListNavigation(
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
+      if (forceSyncFocusOnOpenRef.current) {
+        forceSyncFocusRef.current = true;
+      }
       focusItem();
+      forceSyncFocusOnOpenRef.current = false;
       forceScrollIntoViewRef.current = false;
     }
   }, [
