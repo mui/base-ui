@@ -9,6 +9,7 @@ import {
 import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
+import { precedes } from '../internals/shadowDom';
 import { useRenderElement } from '../internals/useRenderElement';
 import { useValueChanged } from '../internals/useValueChanged';
 
@@ -54,12 +55,7 @@ export const Form = React.forwardRef(function Form<
       }
       hasInvalid = true;
       const control = field.controlRef.current;
-      if (
-        control &&
-        (!firstControl ||
-          // eslint-disable-next-line no-bitwise
-          firstControl.compareDocumentPosition(control) & Node.DOCUMENT_POSITION_PRECEDING)
-      ) {
+      if (control && (!firstControl || precedes(control, firstControl))) {
         firstControl = control;
       }
     }
