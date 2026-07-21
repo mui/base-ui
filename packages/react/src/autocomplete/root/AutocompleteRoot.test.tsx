@@ -6,6 +6,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
+import { Switch } from '@base-ui/react/switch';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -63,6 +64,106 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+    });
+  });
+
+  describe('input inside popup composition', () => {
+    // Vitest's browser runner cannot wrap mount-time adapter updates in React act.
+    // Keep the subtree mounted there while preserving unmount/remount coverage in jsdom.
+    const keepPopupMounted = !isJSDOM;
+
+    it('commits a keyboard selection, restores trigger focus, and preserves it on reopen', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'alpine', 'beta']} autoHighlight>
+          <Autocomplete.Trigger data-testid="trigger">
+            <Autocomplete.Value />
+          </Autocomplete.Trigger>
+          <Autocomplete.Portal keepMounted={keepPopupMounted}>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup aria-label="Commands">
+                <Autocomplete.Input data-testid="input" />
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+      await user.type(input, 'al');
+
+      const alpha = screen.getByRole('option', { name: 'alpha' });
+      await waitFor(() => expect(alpha).toHaveAttribute('data-highlighted'));
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      expect(trigger).toHaveFocus();
+      expect(trigger).toHaveTextContent('alpha');
+
+      await user.click(trigger);
+
+      expect(await screen.findByTestId('input')).toHaveValue('alpha');
+      expect(await screen.findByRole('option', { name: 'alpha' })).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+    });
+
+    it('preserves the typed value when the popup is dismissed with Escape', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'alpine', 'beta']} onValueChange={onValueChange}>
+          <Autocomplete.Trigger data-testid="trigger">
+            <Autocomplete.Value />
+          </Autocomplete.Trigger>
+          <Autocomplete.Portal keepMounted={keepPopupMounted}>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup aria-label="Commands">
+                <Autocomplete.Input data-testid="input" />
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+      await user.type(input, 'al');
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      expect(trigger).toHaveFocus();
+      expect(trigger).toHaveTextContent('al');
+      expect(onValueChange.mock.lastCall?.[0]).toBe('al');
+
+      await user.click(trigger);
+
+      expect(await screen.findByTestId('input')).toHaveValue('al');
+      expect(screen.getByRole('option', { name: 'alpha' })).not.toBe(null);
+      expect(screen.getByRole('option', { name: 'alpine' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'beta' })).toBe(null);
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
     });
   });
 
@@ -769,6 +870,47 @@ describe('<Autocomplete.Root />', () => {
       expect(input.value).toBe('alpha');
     });
 
+    it('mode="both": external controlled updates replace the temporary inline value', async () => {
+      const items = ['apple', 'banana'];
+
+      function Test() {
+        const [value, setValue] = React.useState('');
+        return (
+          <div>
+            <button type="button" onClick={() => setValue('ba')}>
+              update value
+            </button>
+            <Autocomplete.Root mode="both" items={items} value={value} onValueChange={setValue}>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await user.keyboard('{ArrowDown}');
+      expect(input.value).toBe('apple');
+
+      fireEvent.click(screen.getByText('update value'));
+      expect(input.value).toBe('ba');
+    });
+
     it('mode="inline": static items with inline overlay', async () => {
       const { user } = await render(
         <Autocomplete.Root mode="inline" openOnInputClick>
@@ -1011,6 +1153,28 @@ describe('<Autocomplete.Root />', () => {
     );
   });
 
+  describe('prop: value', () => {
+    it('treats a controlled null value as an empty query', async () => {
+      await render(
+        <Autocomplete.Root value={null as never} items={['apple']} defaultOpen>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).toHaveValue('');
+      expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
+    });
+  });
+
   describe('prop: submitOnItemClick', () => {
     it('prevents submit on Enter when an item is highlighted by default (false)', async () => {
       let submitted = 0;
@@ -1092,6 +1256,41 @@ describe('<Autocomplete.Root />', () => {
       await user.click(alphaButton);
 
       expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
+    });
+
+    it('uses the combobox input form when another unscoped control owns the validation ref', async () => {
+      let submitCount = 0;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submitCount += 1;
+      };
+
+      const { user } = await render(
+        <React.Fragment>
+          <form onSubmit={handleSubmit}>
+            <Autocomplete.Root items={['alpha']} submitOnItemClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </form>
+          {/* Claims the shared validation ref so Autocomplete must fall back to its input form. */}
+          <Switch.Root aria-label="Unrelated switch" />
+        </React.Fragment>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
       expect(submitCount).toBe(1);
     });
 
