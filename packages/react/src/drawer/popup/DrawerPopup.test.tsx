@@ -3,8 +3,27 @@ import * as React from 'react';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
+
+function setHeight(element: HTMLElement | null, getValue: () => number) {
+  if (element) {
+    Object.defineProperty(element, 'offsetHeight', { configurable: true, get: getValue });
+  }
+}
+
+function PopupHeightProbe() {
+  const { popupHeight, onNestedFrontmostHeightChange } = useDrawerRootContext();
+
+  return (
+    <React.Fragment>
+      <output data-testid="popup-height">{popupHeight}</output>
+      <button onClick={() => onNestedFrontmostHeightChange(200)}>Report nested height</button>
+    </React.Fragment>
+  );
+}
 
 describe('<Drawer.Popup />', () => {
   const { render } = createRenderer();
@@ -44,6 +63,32 @@ describe('<Drawer.Popup />', () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it('warns without relying on React owner-stack support', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+
+    try {
+      await render(
+        <Drawer.Root open>
+          <Drawer.Portal>
+            <Drawer.Popup>Drawer</Drawer.Popup>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Base UI: <Drawer.Popup> expected to be rendered within <Drawer.Viewport>. ' +
+            'Omitting the viewport disables drawer swipe handling and touch scroll locking. ' +
+            'Wrap <Drawer.Popup> in <Drawer.Viewport>.',
+        );
+      });
+    } finally {
+      ownerStackSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    }
+  });
+
   it('defaults initial focus to the popup element', async () => {
     await render(
       <div>
@@ -69,6 +114,183 @@ describe('<Drawer.Popup />', () => {
       expect(screen.getByTestId('popup')).toHaveFocus();
       expect(screen.getByTestId('popup-input')).not.toHaveFocus();
     });
+  });
+
+  it('leaves focus on the trigger when initial focus is disabled', async () => {
+    const { user } = await render(
+      <Drawer.Root modal={false}>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup initialFocus={false}>Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeVisible();
+    });
+    expect(trigger).toHaveFocus();
+  });
+
+  it('stops composite navigation keys from escaping the popup', async () => {
+    const handleKeyDown = vi.fn();
+    await render(
+      <div onKeyDown={handleKeyDown}>
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input aria-label="Field" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </div>,
+    );
+
+    const field = screen.getByRole('textbox', { name: 'Field' });
+    field.focus();
+    fireEvent.keyDown(field, { key: 'ArrowDown' });
+    expect(handleKeyDown).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(field, { key: 'a' });
+    expect(handleKeyDown).toHaveBeenCalled();
+  });
+
+  it('applies a negative snap point offset to upward drawers', async () => {
+    await render(
+      <Drawer.Root
+        defaultSnapPoint="100px"
+        open
+        modal={false}
+        snapPoints={['100px', '300px']}
+        swipeDirection="up"
+      >
+        <Drawer.Portal>
+          <Drawer.Viewport ref={(element) => setHeight(element, () => 400)}>
+            <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, () => 300)}>
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup').style.getPropertyValue('--drawer-snap-point-offset')).toBe(
+        '-200px',
+      );
+    });
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-swipe-direction', 'up');
+  });
+
+  it('keeps the last measured popup height while nested content stretches it', async () => {
+    const resizeCallbacks: ResizeObserverCallback[] = [];
+    const OriginalResizeObserver = globalThis.ResizeObserver;
+    let popupHeight = 100;
+
+    globalThis.ResizeObserver = class ResizeObserverStub {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallbacks.push(callback);
+      }
+
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+
+    try {
+      const { user } = await render(
+        <Drawer.Root open modal={false}>
+          <PopupHeightProbe />
+          <Drawer.Portal>
+            <Drawer.Viewport ref={(element) => setHeight(element, () => 400)}>
+              <Drawer.Popup ref={(element) => setHeight(element, () => popupHeight)}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup-height').textContent).toBe('100');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Report nested height' }));
+      popupHeight = 150;
+      await act(async () => {
+        resizeCallbacks.forEach((callback) => callback([], {} as ResizeObserver));
+      });
+
+      expect(screen.getByTestId('popup-height').textContent).toBe('100');
+    } finally {
+      globalThis.ResizeObserver = OriginalResizeObserver;
+    }
+  });
+
+  it('tolerates a popup render function that produces no element', async () => {
+    // @ts-expect-error - exercise resilience to a custom render component returning null.
+    const popup = <Drawer.Popup render={() => null}>Drawer</Drawer.Popup>;
+
+    await expect(
+      render(
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport>{popup}</Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      ),
+    ).resolves.toBeDefined();
+  });
+
+  it('ignores a queued measurement after the popup unmounts', async () => {
+    const resizeCallbacks: ResizeObserverCallback[] = [];
+    const OriginalResizeObserver = globalThis.ResizeObserver;
+
+    globalThis.ResizeObserver = class ResizeObserverStub {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallbacks.push(callback);
+      }
+
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+
+    function TestCase({ showPopup }: { showPopup: boolean }) {
+      return (
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              {showPopup && <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>}
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    try {
+      const { setProps } = await render(<TestCase showPopup />);
+      expect(screen.getByTestId('popup')).toBeVisible();
+      const callbacks = resizeCallbacks.slice();
+
+      await setProps({ showPopup: false });
+      expect(screen.queryByTestId('popup')).toBe(null);
+
+      await expect(
+        act(async () => {
+          callbacks.forEach((callback) => callback([], {} as ResizeObserver));
+        }),
+      ).resolves.toBeUndefined();
+    } finally {
+      globalThis.ResizeObserver = OriginalResizeObserver;
+    }
   });
 
   it.skipIf(isJSDOM)(

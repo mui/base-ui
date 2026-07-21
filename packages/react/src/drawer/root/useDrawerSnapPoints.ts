@@ -121,14 +121,11 @@ export function useDrawerSnapPoints() {
     }
 
     const maxHeight = Math.min(popupHeight, viewportHeight);
-    if (!Number.isFinite(maxHeight) || maxHeight <= 0) {
-      return [];
-    }
 
     const resolved = snapPoints
       .map((value): ResolvedDrawerSnapPoint | null => {
         const resolvedHeight = resolveSnapPointValue(value, viewportHeight, rootFontSize);
-        if (resolvedHeight === null || !Number.isFinite(resolvedHeight)) {
+        if (resolvedHeight === null) {
           return null;
         }
 
@@ -164,10 +161,6 @@ export function useDrawerSnapPoints() {
   }, [popupHeight, rootFontSize, snapPoints, viewportHeight]);
 
   const resolvedActiveSnapPoint = React.useMemo(() => {
-    if (activeSnapPoint === undefined) {
-      return resolvedSnapPoints[0];
-    }
-
     if (activeSnapPoint === null) {
       return undefined;
     }
@@ -179,7 +172,7 @@ export function useDrawerSnapPoints() {
 
     const maxHeight = Math.min(popupHeight, viewportHeight);
     const resolvedHeight = resolveSnapPointValue(activeSnapPoint, viewportHeight, rootFontSize);
-    if (resolvedHeight === null || !Number.isFinite(resolvedHeight)) {
+    if (resolvedHeight === null) {
       return undefined;
     }
 
