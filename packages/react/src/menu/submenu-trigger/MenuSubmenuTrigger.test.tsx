@@ -3,8 +3,10 @@ import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { SafeReact } from '@base-ui/utils/safeReact';
 
 type TextDirection = 'ltr' | 'rtl';
+const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
 
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
@@ -265,6 +267,43 @@ describe('<Menu.SubmenuTrigger />', () => {
       );
       expect(warnSpy.mock.lastCall?.[0]).not.toContain('undefined');
     });
+
+    it.skipIf(!hasCaptureOwnerStack)(
+      'warns without an owner stack when React cannot provide one',
+      async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+
+        try {
+          await render(
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger
+                        nativeButton
+                        render={<button type="button" disabled={true} />}
+                      >
+                        Open submenu
+                      </Menu.SubmenuTrigger>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          expect(warnSpy).toHaveBeenCalledTimes(1);
+          expect(warnSpy).toHaveBeenCalledWith(
+            'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+          );
+        } finally {
+          ownerStackSpy.mockRestore();
+          warnSpy.mockRestore();
+        }
+      },
+    );
 
     it.skipIf(!isJSDOM)('does not inspect rendered disabled elements in production', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
