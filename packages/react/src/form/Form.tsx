@@ -6,7 +6,6 @@ import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
 } from '../internals/createBaseUIEventDetails';
-import { compareDocumentOrder } from '../internals/compareDocumentOrder';
 import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
@@ -57,7 +56,7 @@ export const Form = React.forwardRef(function Form<
       }
       hasInvalid = true;
       const control = field.controlRef.current;
-      if (control && (!firstControl || compareDocumentOrder(control, firstControl) < 0)) {
+      if (control && (!firstControl || comesBeforeInSameTree(control, firstControl))) {
         firstControl = control;
       }
     }
@@ -235,4 +234,13 @@ export namespace Form {
   export type SubmitEventDetails = FormSubmitEventDetails;
 
   export type Values<FormValues extends Record<string, any> = Record<string, any>> = FormValues;
+}
+
+/* eslint-disable no-bitwise */
+function comesBeforeInSameTree(element: Node, reference: Node) {
+  const position = element.compareDocumentPosition(reference);
+  return (
+    (position & Node.DOCUMENT_POSITION_DISCONNECTED) === 0 &&
+    (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
 }
