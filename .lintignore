@@ -13,4 +13,4 @@ routeTree.gen.ts
 
 # TODO: fix lint violations and remove these ignores
 /CHANGELOG.old.md
-/CLAUDE.md
+/CLAUDE.mdstorybook-static/

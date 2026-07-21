@@ -47,3 +47,6 @@ test-results/
 
 # Benchmark results
 test/performance/benchmarks/results.json
+
+# Storybook build output
+storybook-static/
