@@ -5,6 +5,7 @@ import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils'
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useMenubarContext } from './MenubarContext';
 
 describe('<Menubar />', () => {
   beforeEach(() => {
@@ -19,6 +20,23 @@ describe('<Menubar />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when the menubar context is missing', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    function ContextConsumer() {
+      useMenubarContext();
+      return null;
+    }
+
+    try {
+      await expect(render(<ContextConsumer />)).rejects.toThrow(
+        'Base UI: MenubarContext is missing. Menubar parts must be placed within <Menubar>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('ignores a delayed touch click immediately after focus opens another menu', async () => {
     const { user } = await render(<ContainedTriggerMenubar />);
