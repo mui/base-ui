@@ -10,9 +10,8 @@ export enum MenuViewportDataAttributes {
   /**
    * Indicates the direction from which the popup was activated.
    * This can be used to create directional animations based on how the popup was triggered.
-   * Contains `forward` or `back` for transition-key changes, or space-separated values for both
-   * horizontal and vertical axes when switching triggers.
-   * @type {`${'left' | 'right' | ''} ${'down' | 'up' | ''}` | 'forward' | 'back'}
+   * Contains space-separated values for both horizontal and vertical axes.
+   * @type {`${'left' | 'right' | ''} ${'down' | 'up' | ''}`}
    */
   activationDirection = 'data-activation-direction',
   /**

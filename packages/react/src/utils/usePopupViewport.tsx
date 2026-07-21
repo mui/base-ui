@@ -35,16 +35,10 @@ export interface PopupViewportState {
    */
   activationDirection: string | undefined;
   /**
-   * Whether a transition-key change entered new content or returned to prior content.
-   */
-  transitionDirection: PopupViewportTransitionDirection | undefined;
-  /**
    * Whether the viewport is currently transitioning between contents.
    */
   transitioning: boolean;
 }
-
-export type PopupViewportTransitionDirection = 'forward' | 'back';
 
 type PopupViewportStore = Pick<ReactStore<any, any, any>, 'useState' | 'set'>;
 
@@ -65,18 +59,6 @@ export interface UsePopupViewportParameters {
    * A key that identifies the current content and triggers a transition when it changes.
    */
   transitionKey?: React.Key | undefined;
-  /**
-   * Called when the rendered content is swapped for different content.
-   * When provided, it replaces the default focus recovery (focusing the first tabbable
-   * element of the new content when focus was inside the previous content).
-   * Must be a stable function reference.
-   */
-  onContentSwap?:
-    | ((details: {
-        focusWasInside: boolean;
-        direction: PopupViewportTransitionDirection | undefined;
-      }) => void)
-    | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -95,7 +77,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children, transitionKey, onContentSwap } = parameters;
+  const { store, side, children, transitionKey } = parameters;
 
   const direction = useDirection();
 
@@ -172,17 +154,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
   const lastTransitionKeyRef = React.useRef(transitionKey);
-  const transitionKeyStackRef = React.useRef<Array<React.Key | undefined>>([transitionKey]);
   const transitionGenerationRef = React.useRef(0);
-  const [transitionDirection, setTransitionDirection] =
-    React.useState<PopupViewportTransitionDirection>();
 
   useIsoLayoutEffect(() => {
     if (!open || !mounted) {
       lastHandledTriggerRef.current = null;
       focusWasInsideRef.current = false;
-      transitionKeyStackRef.current = [transitionKey];
-      setTransitionDirection(undefined);
     }
     if (!mounted) {
       // A transition interrupted by closing cannot finish once the popup is hidden; reset it.
@@ -192,7 +169,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       setShowStartingStyleAttribute(false);
       capturedNodeRef.current = null;
     }
-  }, [open, mounted, cleanupFrame, transitionKey]);
+  }, [open, mounted, cleanupFrame]);
 
   useIsoLayoutEffect(() => {
     const triggerChanged =
@@ -205,28 +182,6 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       open && !triggerChanged && transitionKey !== lastTransitionKeyRef.current;
 
     lastTransitionKeyRef.current = transitionKey;
-
-    let contentSwapDirection: PopupViewportTransitionDirection | undefined;
-    if (transitionKeyChanged) {
-      const existingIndex = transitionKeyStackRef.current.findIndex((key) => key === transitionKey);
-      if (existingIndex === -1) {
-        transitionKeyStackRef.current.push(transitionKey);
-        contentSwapDirection = 'forward';
-      } else {
-        transitionKeyStackRef.current.length = existingIndex + 1;
-        contentSwapDirection = 'back';
-      }
-      setTransitionDirection(contentSwapDirection);
-    } else if (triggerChanged) {
-      setTransitionDirection(undefined);
-    }
-
-    if (triggerChanged || transitionKeyChanged) {
-      onContentSwap?.({
-        focusWasInside: focusWasInsideRef.current,
-        direction: contentSwapDirection,
-      });
-    }
 
     // When a trigger or the transition key changes, set the captured children HTML to state,
     // so we can render both new and old content.
@@ -274,16 +229,14 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     previousContentNode,
     onAnimationsFinished,
     cleanupFrame,
-    onContentSwap,
   ]);
 
   // Remounting the current container drops focus to `<body>` when it was inside the previous
   // content. Move it to the new content (or the popup itself) in that case; if focus is alive
   // elsewhere (e.g. placed by the new content via `autoFocus`), leave it alone.
-  // Skipped when `onContentSwap` is provided, as it owns focus recovery.
   useIsoLayoutEffect(() => {
     const container = currentContainerRef.current;
-    if (onContentSwap || !container || !focusWasInsideRef.current) {
+    if (!container || !focusWasInsideRef.current) {
       return;
     }
 
@@ -291,7 +244,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     if (focusedElement == null || focusedElement === ownerDocument(container).body) {
       (tabbable(container)[0] ?? popupElement)?.focus();
     }
-  }, [currentContentKey, popupElement, onContentSwap]);
+  }, [currentContentKey, popupElement]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -381,7 +334,6 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const state: PopupViewportState = {
     activationDirection: getActivationDirection(newTriggerOffset),
-    transitionDirection,
     transitioning: isTransitioning,
   };
 
