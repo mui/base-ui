@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -33,6 +33,18 @@ describe('<Checkbox.Indicator />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Checkbox.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Checkbox.Indicator />)).rejects.toThrow(
+        'Base UI: CheckboxRootContext is missing. Checkbox parts must be placed within <Checkbox.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('should not render indicator by default', async () => {
     await render(

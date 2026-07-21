@@ -1,10 +1,63 @@
 import { expect, vi } from 'vitest';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
 describe('<Field.Validity />', () => {
   const { render } = createRenderer();
+
+  ['onBlur', 'onSubmit'].forEach((validationMode) => {
+    it(`defers a required field's stale custom error until the ${validationMode} boundary`, () => {
+      const handleValidity = vi.fn();
+
+      render(
+        <Form>
+          <Field.Root
+            validationMode={validationMode as 'onBlur' | 'onSubmit'}
+            validate={() => 'custom error'}
+          >
+            <Field.Control required />
+            <Field.Validity>{handleValidity}</Field.Validity>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const establishInvalidState = () => {
+        if (validationMode === 'onBlur') {
+          fireEvent.blur(input);
+        } else {
+          act(() => input.focus());
+          fireEvent.keyDown(input, { key: 'Enter' });
+        }
+      };
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'invalid' } });
+      establishInvalidState();
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('invalid');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('invalid');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+
+      if (validationMode === 'onBlur') {
+        fireEvent.blur(input);
+      } else {
+        fireEvent.click(screen.getByText('submit'));
+      }
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('');
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
+    });
+  });
 
   describe('validationMode=onSubmit', () => {
     it('should pass validity data', () => {

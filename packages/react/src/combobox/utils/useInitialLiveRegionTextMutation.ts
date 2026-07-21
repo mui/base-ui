@@ -42,7 +42,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
       return undefined;
     }
 
-    const originalValue = textNode.nodeValue ?? '';
+    const originalValue = textNode.data;
     const markedValue = `${originalValue}${LIVE_REGION_MARKER}`;
     textNode.nodeValue = markedValue;
 

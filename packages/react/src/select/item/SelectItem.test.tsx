@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import {
   act,
@@ -20,6 +21,101 @@ describe('<Select.Item />', () => {
       return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
+
+  it('treats a null value as an empty selection in multiple mode', async () => {
+    const handleValueChange = vi.fn();
+
+    // A controlled multiple select can legitimately be handed `null` (for example while its
+    // value is still loading) instead of an array.
+    const { user } = await render(
+      <Select.Root multiple value={null} onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+
+    const option = await screen.findByRole('option', { name: 'one' });
+    expect(option).toHaveAttribute('aria-selected', 'false');
+
+    await user.click(option);
+
+    expect(handleValueChange).toHaveBeenCalledWith(['one'], expect.anything());
+  });
+
+  it('keeps the selection while grouped items are reordered and inserted', async () => {
+    // `useCompositeListItem({ guess: true })` guesses each index from render order and lets the
+    // commit flush correct it. Grouping, reordering and late insertion all invalidate the guess,
+    // so this pins that a corrected index still resolves back to the right item.
+    function App() {
+      const [items, setItems] = React.useState(['b', 'c']);
+      const [reversed, setReversed] = React.useState(false);
+      const ordered = reversed ? [...items].reverse() : items;
+
+      return (
+        <div>
+          <Select.Root open defaultValue="b">
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Group>
+                    <Select.GroupLabel>Group one</Select.GroupLabel>
+                    {ordered.map((itemValue) => (
+                      <Select.Item key={itemValue} value={itemValue}>
+                        <Select.ItemText>{itemValue}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.Group>
+                  <Select.Group>
+                    <Select.GroupLabel>Group two</Select.GroupLabel>
+                    <Select.Item value="z">
+                      <Select.ItemText>z</Select.ItemText>
+                    </Select.Item>
+                  </Select.Group>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="prepend" onClick={() => setItems((prev) => ['a', ...prev])}>
+            Prepend
+          </button>
+          <button data-testid="reverse" onClick={() => setReversed((prev) => !prev)}>
+            Reverse
+          </button>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    await user.click(screen.getByTestId('prepend'));
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'a' })).not.toBe(null);
+    });
+
+    await user.click(screen.getByTestId('reverse'));
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected');
+    });
+
+    await user.click(screen.getByTestId('reverse'));
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected');
+    });
+  });
 
   it('should select the item and close popup when clicked', async () => {
     ignoreActWarnings();
@@ -229,6 +325,62 @@ describe('<Select.Item />', () => {
     fireEvent.mouseUp(option);
     fireEvent.click(option, { detail: 1 });
 
+    await waitFor(() => {
+      expect(screen.getByTestId('value').textContent).toBe('two');
+    });
+  });
+
+  it('should highlight a hovered item and commit it with a mouse click', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <Select.Root onValueChange={onValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+              <Select.Item value="three">three</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseDown(trigger);
+    fireEvent.pointerUp(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseUp(trigger);
+    fireEvent.click(trigger);
+    await flushMicrotasks();
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+    });
+
+    const option = screen.getByRole('option', { name: 'two' });
+
+    fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+    fireEvent.mouseMove(option);
+
+    await waitFor(() => {
+      expect(option).toHaveAttribute('data-highlighted');
+    });
+
+    fireEvent.pointerDown(option, { pointerType: 'mouse' });
+    fireEvent.mouseDown(option);
+    fireEvent.pointerUp(option, { pointerType: 'mouse' });
+    fireEvent.mouseUp(option);
+    fireEvent.click(option);
+    await flushMicrotasks();
+
+    expect(onValueChange).toHaveBeenCalledOnce();
+    expect(onValueChange).toHaveBeenCalledWith('two', expect.anything());
     await waitFor(() => {
       expect(screen.getByTestId('value').textContent).toBe('two');
     });
@@ -468,6 +620,136 @@ describe('<Select.Item />', () => {
 
       await waitFor(() => expect(screen.getByTestId('value').textContent).toBe('one'));
       expect(handleClick).toHaveBeenCalledOnce();
+    });
+
+    it('does not fire click handlers on a disabled item during drag-to-select', async () => {
+      ignoreActWarnings();
+      const handleClick = vi.fn();
+
+      await renderFakeTimers(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one" disabled onClick={handleClick}>
+                  one
+                </Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      for (let i = 0; i < 4; i += 1) {
+        fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1, movementY: 2 });
+      }
+
+      await act(async () => {
+        await clock.tickAsync(100);
+      });
+      fireEvent.mouseUp(option);
+
+      await flushMicrotasks();
+
+      // Releasing over a disabled item must not synthesize a click on it at all.
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('should not select a disabled item via drag-to-select', async () => {
+      ignoreActWarnings();
+      const handleValueChange = vi.fn();
+
+      await renderFakeTimers(
+        <Select.Root onValueChange={handleValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one" disabled>
+                  one
+                </Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      for (let i = 0; i < 4; i += 1) {
+        fireEvent.pointerMove(option, {
+          pointerType: 'mouse',
+          buttons: 1,
+          movementY: 2,
+        });
+      }
+
+      await act(async () => {
+        await clock.tickAsync(100);
+      });
+      fireEvent.mouseUp(option);
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('value').textContent).toBe('Select font');
+    });
+
+    it('should not select on mouseup that follows a touch interaction', async () => {
+      ignoreActWarnings();
+      const handleValueChange = vi.fn();
+
+      await renderFakeTimers(
+        <Select.Root onValueChange={handleValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">one</Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      // A touch drag over the item: the synthesized mouseup must not commit a selection,
+      // otherwise scrolling the popup with a finger would pick whatever is released over.
+      fireEvent.pointerEnter(option, { pointerType: 'touch' });
+
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      fireEvent.mouseUp(option);
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('value').textContent).toBe('Select font');
     });
 
     it('should accumulate drag-to-select movement across items', async () => {

@@ -6,6 +6,7 @@ import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -25,7 +26,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   rootId: string | undefined;
   activeIndex: number | null;
   hoverEnabled: boolean;
-  stickIfOpen: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
@@ -34,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -64,7 +64,6 @@ const selectors = {
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   highlightItemOnHover: createSelector((state: State<unknown>) => state.highlightItemOnHover),
-  stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
     if (state.parent.type === 'menu') {
@@ -91,7 +90,9 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector(
+    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
+  ),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -208,7 +209,6 @@ function createInitialState<Payload>(): State<Payload> {
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,
-    stickIfOpen: true,
     parent: {
       type: undefined,
     },
@@ -223,6 +223,6 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
   };
 }

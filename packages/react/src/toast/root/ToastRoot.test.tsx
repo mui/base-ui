@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -86,6 +87,66 @@ describe('<Toast.Root />', () => {
     },
   }));
 
+  it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
+    function App() {
+      const [mode, setMode] = React.useState<'fallback' | 'explicit' | 'none' | 'restored'>(
+        'fallback',
+      );
+      const showLabels = mode !== 'none';
+      const explicit = mode === 'explicit';
+
+      return (
+        <Toast.Provider>
+          <button type="button" onClick={() => setMode('explicit')}>
+            explicit
+          </button>
+          <button type="button" onClick={() => setMode('none')}>
+            none
+          </button>
+          <button type="button" onClick={() => setMode('restored')}>
+            restore
+          </button>
+          <Toast.Viewport>
+            <Toast.Root toast={{ ...toast, description: 'Toast description' }} data-testid="root">
+              {showLabels && (
+                <React.Fragment>
+                  <Toast.Title data-testid="title">
+                    {explicit ? 'Explicit title' : undefined}
+                  </Toast.Title>
+                  <Toast.Description data-testid="description">
+                    {explicit ? 'Explicit description' : undefined}
+                  </Toast.Description>
+                </React.Fragment>
+              )}
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const root = screen.getByTestId('root');
+
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+
+    await user.click(screen.getByRole('button', { name: 'explicit' }));
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+    expect(screen.getByTestId('title')).toHaveTextContent('Explicit title');
+    expect(screen.getByTestId('description')).toHaveTextContent('Explicit description');
+
+    await user.click(screen.getByRole('button', { name: 'none' }));
+    expect(root).not.toHaveAttribute('aria-labelledby');
+    expect(root).not.toHaveAttribute('aria-describedby');
+
+    await user.click(screen.getByRole('button', { name: 'restore' }));
+    expect(root).toHaveAttribute('aria-labelledby', screen.getByTestId('title').id);
+    expect(root).toHaveAttribute('aria-describedby', screen.getByTestId('description').id);
+    expect(screen.getByTestId('title')).toHaveTextContent('Toast title');
+    expect(screen.getByTestId('description')).toHaveTextContent('Toast description');
+  });
+
   it.skipIf(isJSDOM)('recalculates height when content mutates', async () => {
     function ToastList() {
       return Toast.useToastManager().toasts.map((toastItem) => (
@@ -168,6 +229,466 @@ describe('<Toast.Root />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'clears the starting state and restores the height when re-adding an ending toast',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, close, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid="toast-root"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid="toast-root"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <button type="button" onClick={() => close('save')}>
+              close
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem) => (
+                <Toast.Root key={toastItem.id} toast={toastItem} data-testid="toast-root">
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        const toastRoot = screen.getByTestId('toast-root');
+        expect(toastRoot).not.toHaveAttribute('data-starting-style');
+        const initialHeight = toastRoot.style.getPropertyValue('--toast-height');
+        expect(initialHeight).not.toBe('');
+
+        await user.click(screen.getByRole('button', { name: 'close' }));
+        expect(toastRoot).toHaveAttribute('data-ending-style');
+        expect(toastRoot.style.getPropertyValue('--toast-height')).toBe('');
+
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        expect(screen.getByTestId('toast-root')).toBe(toastRoot);
+
+        await waitFor(() => {
+          expect(toastRoot).not.toHaveAttribute('data-starting-style');
+        });
+        await waitFor(() => {
+          expect(toastRoot.style.getPropertyValue('--toast-height')).toBe(initialHeight);
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('registers an active toast after its root remounts', async () => {
+    function App() {
+      const { add, toasts } = Toast.useToastManager();
+      const [showToasts, setShowToasts] = React.useState(true);
+      const [longTitle, setLongTitle] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+            add
+          </button>
+          <button type="button" onClick={() => setShowToasts(false)}>
+            hide
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLongTitle(true);
+              setShowToasts(true);
+            }}
+          >
+            show
+          </button>
+          <Toast.Viewport>
+            {showToasts
+              ? toasts.map((toastItem) => (
+                  <Toast.Root
+                    key={toastItem.id}
+                    toast={toastItem}
+                    data-testid="toast-root"
+                    style={{ width: 30 }}
+                  >
+                    <Toast.Title>
+                      {longTitle ? 'This title is much longer than before' : undefined}
+                    </Toast.Title>
+                  </Toast.Root>
+                ))
+              : null}
+          </Toast.Viewport>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <App />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    const initialRoot = screen.getByTestId('toast-root');
+    expect(initialRoot).not.toHaveAttribute('data-starting-style');
+    const initialHeight = parseInt(initialRoot.style.getPropertyValue('--toast-height'), 10);
+
+    await user.click(screen.getByRole('button', { name: 'hide' }));
+    expect(screen.queryByTestId('toast-root')).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'show' }));
+    const remountedRoot = screen.getByTestId('toast-root');
+    expect(remountedRoot).not.toBe(initialRoot);
+
+    await waitFor(() => {
+      const remountedHeight = parseInt(remountedRoot.style.getPropertyValue('--toast-height'), 10);
+      expect(remountedHeight).toBeGreaterThan(initialHeight);
+    });
+
+    await user.keyboard('{F6}');
+    await user.keyboard('{Tab}');
+
+    expect(remountedRoot).toHaveFocus();
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps stacking intact when re-adding an ending toast among other toasts',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, close, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="toast-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="toast-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ id: 't1', title: 'One', timeout: 0 })}>
+              add-1
+            </button>
+            <button type="button" onClick={() => add({ id: 't2', title: 'Two', timeout: 0 })}>
+              add-2
+            </button>
+            <button type="button" onClick={() => close('t1')}>
+              close-1
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem) => (
+                <Toast.Root
+                  key={toastItem.id}
+                  toast={toastItem}
+                  data-testid={`toast-${toastItem.id}`}
+                >
+                  <Toast.Content data-testid={`content-${toastItem.id}`}>
+                    <Toast.Title />
+                  </Toast.Content>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'add-1' }));
+        await user.click(screen.getByRole('button', { name: 'add-2' }));
+        await user.click(screen.getByRole('button', { name: 'close-1' }));
+
+        const toast1 = screen.getByTestId('toast-t1');
+        expect(toast1).toHaveAttribute('data-ending-style');
+
+        await user.click(screen.getByRole('button', { name: 'add-1' }));
+
+        await waitFor(() => {
+          expect(toast1).not.toHaveAttribute('data-starting-style');
+        });
+        await waitFor(() => {
+          expect(toast1.style.getPropertyValue('--toast-height')).not.toBe('');
+        });
+
+        // The revived toast is frontmost and its content is not hidden as "behind".
+        expect(toast1.style.getPropertyValue('--toast-index')).toBe('0');
+        expect(screen.getByTestId('content-t1')).not.toHaveAttribute('data-behind');
+
+        // The unrelated toast is unaffected and stacks behind the revived one.
+        const toast2 = screen.getByTestId('toast-t2');
+        expect(toast2).not.toHaveAttribute('data-ending-style');
+        expect(toast2.style.getPropertyValue('--toast-index')).toBe('1');
+        expect(screen.getByTestId('content-t2')).toHaveAttribute('data-behind');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('clears swipe state when re-adding a swipe-dismissed toast', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    function App() {
+      const { add, toasts } = Toast.useToastManager();
+
+      return (
+        <React.Fragment>
+          <style>
+            {`
+            [data-testid="toast-root"] {
+              opacity: 1;
+              transition: opacity 10s;
+            }
+
+            [data-testid="toast-root"][data-ending-style] {
+              opacity: 0;
+            }
+          `}
+          </style>
+          <button type="button" onClick={() => add({ id: 'save', title: 'Saved', timeout: 0 })}>
+            add
+          </button>
+          <Toast.Viewport>
+            {toasts.map((toastItem) => (
+              <Toast.Root
+                key={toastItem.id}
+                toast={toastItem}
+                data-testid="toast-root"
+                swipeDirection="right"
+              >
+                <Toast.Title />
+              </Toast.Root>
+            ))}
+          </Toast.Viewport>
+        </React.Fragment>
+      );
+    }
+
+    try {
+      const { user } = await render(
+        <Toast.Provider>
+          <App />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+      const toastRoot = screen.getByTestId('toast-root');
+      Object.defineProperty(toastRoot, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastRoot, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+
+      simulateSwipe(toastRoot, 100, 100, 160, 100);
+
+      expect(toastRoot).toHaveAttribute('data-ending-style');
+      expect(toastRoot).toHaveAttribute('data-swipe-direction', 'right');
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('toast-root')).toBe(toastRoot);
+
+      await waitFor(() => {
+        expect(toastRoot).not.toHaveAttribute('data-starting-style');
+      });
+      await waitFor(() => {
+        expect(toastRoot).not.toHaveAttribute('data-swipe-direction');
+      });
+      expect(toastRoot.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastRoot.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'clears swipe state when a retained root is reused for another toast',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="root-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="root-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem, index) => (
+                <Toast.Root
+                  key={index}
+                  toast={toastItem}
+                  data-testid={`root-${index}`}
+                  swipeDirection="right"
+                >
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        const addButton = screen.getByRole('button', { name: 'add' });
+        await user.click(addButton);
+        await user.click(addButton);
+        await user.click(addButton);
+
+        const swipedRoot = screen.getByTestId('root-1');
+        Object.defineProperty(swipedRoot, 'setPointerCapture', {
+          configurable: true,
+          value: () => {},
+        });
+        Object.defineProperty(swipedRoot, 'releasePointerCapture', {
+          configurable: true,
+          value: () => {},
+        });
+
+        simulateSwipe(swipedRoot, 100, 100, 160, 100);
+        expect(swipedRoot).toHaveAttribute('data-swipe-direction', 'right');
+
+        // Index keys shift every retained root onto a different toast, so this root now
+        // renders a toast that was never swiped.
+        await user.click(addButton);
+        expect(screen.getByTestId('root-1')).toBe(swipedRoot);
+
+        await waitFor(() => {
+          expect(swipedRoot).not.toHaveAttribute('data-swipe-direction');
+        });
+        expect(swipedRoot).not.toHaveAttribute('data-ending-style');
+        expect(swipedRoot.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+        expect(swipedRoot.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'moves focus to the next toast when closing in an index-keyed list',
+    async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function App() {
+        const { add, toasts } = Toast.useToastManager();
+
+        return (
+          <React.Fragment>
+            <style>
+              {`
+              [data-testid^="root-"] {
+                opacity: 1;
+                transition: opacity 10s;
+              }
+
+              [data-testid^="root-"][data-ending-style] {
+                opacity: 0;
+              }
+            `}
+            </style>
+            <button type="button" onClick={() => add({ title: 'Saved', timeout: 0 })}>
+              add
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem, index) => (
+                <Toast.Root key={index} toast={toastItem} data-testid={`root-${index}`}>
+                  <Toast.Title />
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider>
+            <App />
+          </Toast.Provider>,
+        );
+
+        // With index keys, each add shifts every retained root to a different toast,
+        // so the store refs must be re-registered per toast id.
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        await user.click(screen.getByRole('button', { name: 'add' }));
+        await user.click(screen.getByRole('button', { name: 'add' }));
+
+        await user.keyboard('{F6}');
+        await user.keyboard('{Tab}');
+        expect(screen.getByTestId('root-0')).toHaveFocus();
+
+        await user.keyboard('{Escape}');
+
+        // Focus hands off to the next active toast, not the one animating out.
+        await waitFor(() => {
+          expect(screen.getByTestId('root-1')).toHaveFocus();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    },
+  );
+
   // requires :focus-visible check
   it.skipIf(isJSDOM)('closes when pressing escape', async () => {
     const { user } = await render(
@@ -189,6 +710,40 @@ describe('<Toast.Root />', () => {
     await user.keyboard('{Escape}');
 
     expect(screen.queryByTestId('root')).toBe(null);
+  });
+
+  it('ignores Escape when focus is in portaled content', async () => {
+    function PortalList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
+          <Toast.Title>{toastItem.title}</Toast.Title>
+          {ReactDOM.createPortal(
+            <button type="button" data-testid="portaled">
+              portaled
+            </button>,
+            document.body,
+          )}
+        </Toast.Root>
+      ));
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <PortalList />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    // The button is a React child of the toast, so the key event bubbles to the
+    // toast, but it lives outside the toast in the DOM and owns the Escape key.
+    await act(async () => screen.getByTestId('portaled').focus());
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByTestId('root')).not.toBe(null);
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
@@ -232,6 +787,58 @@ describe('<Toast.Root />', () => {
         </Toast.Root>
       ));
     }
+
+    it.each([
+      ['left', -60, 0],
+      ['right', 60, 0],
+      ['up', 0, -60],
+      ['down', 0, 60],
+    ] as const)('dismisses with a real %s pointer swipe', async (direction, deltaX, deltaY) => {
+      const { user } = await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={direction} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add toast' }));
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastElement, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      const rect = toastElement.getBoundingClientRect();
+      const start = {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+      };
+
+      await user.pointer([
+        { target: toastElement, coords: start, keys: '[TouchA>]' },
+        {
+          target: toastElement,
+          pointerName: 'TouchA',
+          coords: {
+            clientX: start.clientX + Math.sign(deltaX),
+            clientY: start.clientY + Math.sign(deltaY),
+          },
+        },
+        {
+          target: toastElement,
+          pointerName: 'TouchA',
+          coords: { clientX: start.clientX + deltaX, clientY: start.clientY + deltaY },
+        },
+        { keys: '[/TouchA]' },
+      ]);
+
+      await waitFor(() => expect(screen.queryByTestId('toast-root')).toBe(null));
+    });
 
     it('closes toast when swiping in the specified direction beyond threshold', async () => {
       await render(
@@ -390,7 +997,7 @@ describe('<Toast.Root />', () => {
       });
     });
 
-    it('cancels swipe when direction is reversed beyond threshold', async () => {
+    it('cancels a vertical swipe when the pointer changes its mind', async () => {
       await render(
         <Toast.Provider>
           <Toast.Viewport>
@@ -404,13 +1011,182 @@ describe('<Toast.Root />', () => {
 
       const toastElement = screen.getByTestId('toast-root');
 
-      // Start swiping up
       fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
-      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 80, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 99,
+        movementY: -1,
+        pointerId: 1,
+      });
 
-      // Then reverse direction
-      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
-      fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
+      // Swipe up well past the dismiss threshold to arm the gesture.
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 10,
+        movementY: -89,
+        pointerId: 1,
+      });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'up');
+
+      // Reversing moves the cancel baseline to the turning point, so the swipe
+      // is now measured as zero progress from there rather than 50px from the
+      // original press, and the change of mind wins.
+      fireEvent.pointerMove(toastElement, {
+        clientX: 100,
+        clientY: 50,
+        movementY: 40,
+        pointerId: 1,
+      });
+      fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 50, pointerId: 1 });
+
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+    });
+
+    it('cancels a horizontal swipe when the pointer changes its mind', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection="right" />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 101,
+        clientY: 100,
+        movementX: 1,
+        pointerId: 1,
+      });
+
+      fireEvent.pointerMove(toastElement, {
+        clientX: 190,
+        clientY: 100,
+        movementX: 89,
+        pointerId: 1,
+      });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'right');
+
+      fireEvent.pointerMove(toastElement, {
+        clientX: 150,
+        clientY: 100,
+        movementX: -40,
+        pointerId: 1,
+      });
+      fireEvent.pointerUp(toastElement, { clientX: 150, clientY: 100, pointerId: 1 });
+
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+    });
+
+    it('locks the gesture to the horizontal axis when it starts sideways', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 100, pointerId: 1 });
+
+      // Mostly sideways, so the gesture locks to the horizontal axis.
+      fireEvent.pointerMove(toastElement, { clientX: 95, clientY: 98, pointerId: 1 });
+
+      // Left is not a dismissible direction, so nothing gets armed.
+      fireEvent.pointerMove(toastElement, { clientX: 90, clientY: 98, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Back at the origin the horizontal delta is exactly zero.
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 98, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Dragging far downwards and slightly right: without the axis lock the
+      // larger vertical delta would arm `down` instead.
+      fireEvent.pointerMove(toastElement, { clientX: 110, clientY: 220, pointerId: 1 });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'right');
+
+      fireEvent.pointerMove(toastElement, { clientX: 160, clientY: 220, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 160, clientY: 220, pointerId: 1 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('locks the gesture to the vertical axis when it starts upright', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 100, pointerId: 1 });
+
+      // Mostly upright, so the gesture locks to the vertical axis.
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 95, pointerId: 1 });
+
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 90, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      fireEvent.pointerMove(toastElement, { clientX: 98, clientY: 100, pointerId: 1 });
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+
+      // Dragging far to the right and slightly down: without the axis lock the
+      // larger horizontal delta would arm `right` instead.
+      fireEvent.pointerMove(toastElement, { clientX: 220, clientY: 110, pointerId: 1 });
+      expect(toastElement).toHaveAttribute('data-swipe-direction', 'down');
+
+      fireEvent.pointerMove(toastElement, { clientX: 220, clientY: 160, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 220, clientY: 160, pointerId: 1 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('does not start a swipe from a non-primary pointer button', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection="right" />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 2, pointerId: 1 });
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+
+      fireEvent.pointerMove(toastElement, { clientX: 200, clientY: 100, pointerId: 1 });
+      fireEvent.pointerUp(toastElement, { clientX: 200, clientY: 100, pointerId: 1 });
 
       expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });

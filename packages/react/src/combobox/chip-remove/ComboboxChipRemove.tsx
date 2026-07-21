@@ -100,20 +100,12 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
           event.preventDefault();
         },
         onClick(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-
           const eventDetails = removeChip(event);
           if (!eventDetails.isPropagationAllowed) {
             event.stopPropagation();
           }
         },
         onKeyDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-
           if (event.key === 'Enter' || event.key === ' ') {
             const eventDetails = removeChip(event);
             if (!eventDetails.isPropagationAllowed) {

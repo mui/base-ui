@@ -5,7 +5,7 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Form />', () => {
@@ -35,6 +35,33 @@ describe('<Form />', () => {
 
     expect(screen.getByTestId('error')).toBeInTheDocument();
     expect(onSubmit.mock.calls.length > 0).toBe(false);
+  });
+
+  it('blocks submit and focuses the first invalid field across custom and native validation', async () => {
+    const onFormSubmit = vi.fn();
+    const select = vi.spyOn(HTMLInputElement.prototype, 'select');
+
+    try {
+      const { user } = render(
+        <Form onFormSubmit={onFormSubmit}>
+          <Field.Root name="custom" validate={() => 'custom error'}>
+            <Field.Control data-testid="custom" />
+          </Field.Root>
+          <Field.Root name="native">
+            <Field.Control data-testid="native" required />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('custom')).toHaveFocus();
+      expect(select).toHaveBeenCalledTimes(1);
+    } finally {
+      select.mockRestore();
+    }
   });
 
   it('submits when a valid async validator is pending', async () => {
@@ -246,6 +273,9 @@ describe('<Form />', () => {
           <button type="button" onClick={() => setDisabled(true)}>
             Disable
           </button>
+          <button type="button" onClick={() => setDisabled(false)}>
+            Enable
+          </button>
           <button type="submit">Submit</button>
         </Form>
       );
@@ -269,6 +299,13 @@ describe('<Form />', () => {
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+
+    await user.click(screen.getByRole('button', { name: 'Enable' }));
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
   });
 
   it('clears invalid attributes when a field control becomes disabled', async () => {
@@ -383,6 +420,46 @@ describe('<Form />', () => {
 
       expect(screen.queryByTestId('error')).toBe(null);
       expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('focuses asynchronously replaced external errors and clears only the changed own property', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>();
+
+        return (
+          <Form
+            errors={errors}
+            onFormSubmit={() => {
+              const nextErrors = Object.create(null) as Record<string, string>;
+              nextErrors.first = 'First error';
+              nextErrors.second = 'Second error';
+              Promise.resolve().then(() => setErrors(nextErrors));
+            }}
+          >
+            <Field.Root name="first">
+              <Field.Control data-testid="first" />
+              <Field.Error data-testid="first-error" />
+            </Field.Root>
+            <Field.Root name="second">
+              <Field.Control data-testid="second" />
+              <Field.Error data-testid="second-error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+      await waitFor(() => expect(screen.getByTestId('first')).toHaveFocus());
+      expect(screen.getByTestId('first-error')).toHaveTextContent('First error');
+      expect(screen.getByTestId('second-error')).toHaveTextContent('Second error');
+
+      await user.type(screen.getByTestId('first'), 'a');
+
+      expect(screen.queryByTestId('first-error')).toBe(null);
+      expect(screen.getByTestId('second-error')).toHaveTextContent('Second error');
     });
 
     function App() {
@@ -747,6 +824,74 @@ describe('<Form />', () => {
       await user.click(screen.getByText('validate'));
 
       await expect(screen.queryByTestId('error')).toHaveTextContent('number field error');
+    });
+
+    it('targets only the current Strict Mode registration after name, id, and control replacement', async () => {
+      const initialValidate = vi.fn(() => null);
+      const renamedValidate = vi.fn(() => null);
+      const replacementValidate = vi.fn(() => null);
+
+      function App() {
+        const actionsRef = React.useRef<Form.Actions>(null);
+        const [step, setStep] = React.useState(0);
+        const visible = step !== 2;
+        const name = step === 0 ? 'initial' : 'current';
+        let validate = initialValidate;
+        if (step === 1) {
+          validate = renamedValidate;
+        } else if (step > 1) {
+          validate = replacementValidate;
+        }
+
+        return (
+          <React.Fragment>
+            <Form actionsRef={actionsRef}>
+              {visible && (
+                <Field.Root key={step} name={name} validate={validate}>
+                  <Field.Control id={`control-${step}`} />
+                </Field.Root>
+              )}
+            </Form>
+            <button type="button" onClick={() => setStep(1)}>
+              Rename
+            </button>
+            <button type="button" onClick={() => setStep(2)}>
+              Unmount
+            </button>
+            <button type="button" onClick={() => setStep(3)}>
+              Replace
+            </button>
+            <button type="button" onClick={() => actionsRef.current?.validate('initial')}>
+              Validate initial
+            </button>
+            <button type="button" onClick={() => actionsRef.current?.validate('current')}>
+              Validate current
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Rename' }));
+      await user.click(screen.getByRole('button', { name: 'Validate initial' }));
+      await user.click(screen.getByRole('button', { name: 'Validate current' }));
+
+      expect(initialValidate).not.toHaveBeenCalled();
+      expect(renamedValidate).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: 'Unmount' }));
+      await user.click(screen.getByRole('button', { name: 'Validate current' }));
+      expect(renamedValidate).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: 'Replace' }));
+      await user.click(screen.getByRole('button', { name: 'Validate current' }));
+
+      expect(replacementValidate).toHaveBeenCalledTimes(1);
     });
   });
 });

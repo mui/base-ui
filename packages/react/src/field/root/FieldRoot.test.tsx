@@ -1676,6 +1676,18 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
       expect(screen.getByTestId('error')).not.toBe(null);
     });
+
+    it('does not update controlled dirty state from user input', async () => {
+      await render(
+        <Field.Root data-testid="root" dirty={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'changed' } });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-dirty');
+    });
   });
 
   describe('prop: touched', () => {
@@ -1692,6 +1704,19 @@ describe('<Field.Root />', () => {
       ['root', 'control', 'label', 'description'].forEach((part) => {
         expect(screen.getByTestId(part)).toHaveAttribute('data-touched');
       });
+    });
+
+    it('does not update controlled touched state on blur', async () => {
+      await render(
+        <Field.Root data-testid="root" touched={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.focus(screen.getByRole('textbox'));
+      fireEvent.blur(screen.getByRole('textbox'));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-touched');
     });
   });
 
@@ -1719,6 +1744,28 @@ describe('<Field.Root />', () => {
       await user.click(screen.getByText('validate'));
 
       expect(screen.queryByTestId('error')).not.toBe(null);
+    });
+
+    it('validates a logical field without a mounted control', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root actionsRef={actionsRef} validate={() => 'Logical field error'}>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'validate' }));
+
+      expect(screen.getByText('Logical field error')).toBeVisible();
     });
 
     it('validates the current control value when the `validate` method is called', async () => {

@@ -14,7 +14,6 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRootState } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
-import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
   ...tabsStateAttributesMapping,
@@ -39,22 +38,11 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     orientation,
     tabActivationDirection,
     registerMountedTabPanel,
-    unregisterMountedTabPanel,
   } = useTabsRootContext();
 
   const id = useBaseUiId();
 
-  const metadata = React.useMemo(
-    () => ({
-      id,
-      value,
-    }),
-    [id, value],
-  );
-
-  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
-    metadata,
-  });
+  const { ref: listItemRef, index } = useCompositeListItem();
 
   const open = value === selectedValue;
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
@@ -82,7 +70,8 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
         role: 'tabpanel',
         tabIndex: open ? 0 : -1,
         inert: inertValue(!open),
-        [TabsPanelDataAttributes.index as string]: index,
+        // Computed key: a plain literal key fails the DOM-props excess property check.
+        ['data-index' as string]: index,
       },
       elementProps,
     ],
@@ -100,19 +89,15 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   });
 
   useIsoLayoutEffect(() => {
-    if (hidden && !keepMounted) {
+    // On React 17 `useId` resolves in a passive effect, so `id` is still
+    // undefined during this layout effect on the first commit. Skip the
+    // registration until the effect re-runs with the resolved id.
+    if (id == null || (hidden && !keepMounted)) {
       return undefined;
     }
 
-    if (id == null) {
-      return undefined;
-    }
-
-    registerMountedTabPanel(value, id);
-    return () => {
-      unregisterMountedTabPanel(value, id);
-    };
-  }, [hidden, keepMounted, value, id, registerMountedTabPanel, unregisterMountedTabPanel]);
+    return registerMountedTabPanel(value, id);
+  }, [hidden, keepMounted, value, id, registerMountedTabPanel]);
 
   const shouldRender = keepMounted || mounted;
   if (!shouldRender) {

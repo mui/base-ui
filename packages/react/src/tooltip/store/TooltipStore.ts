@@ -5,6 +5,7 @@ import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   applyPopupOpenChange,
   createPopupFloatingRootContext,
@@ -25,7 +26,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeOnClick: boolean;
   closeDelay: number;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -42,7 +43,9 @@ const selectors = {
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector(
+    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
+  ),
 };
 
 type Selectors = typeof selectors;
@@ -66,9 +69,9 @@ export class TooltipStore<Payload> extends ReactStore<
   Selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>>,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
@@ -133,7 +136,7 @@ function createInitialState<Payload>(
     openChangeReason: null,
     closeOnClick: true,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
     ...initialState,
   };
 

@@ -102,4 +102,92 @@ describe('<Select.ScrollUpArrow />', () => {
       vi.useRealTimers();
     }
   });
+
+  it('scrolls to the very top when no earlier item remains to land on', async () => {
+    let scrollTop = 100;
+
+    vi.useFakeTimers();
+    try {
+      await render(
+        <Select.Root open>
+          <Select.Trigger>Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.ScrollUpArrow keepMounted />
+                <Select.List
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollTop', {
+                      configurable: true,
+                      get: () => scrollTop,
+                      set: (value: number) => {
+                        scrollTop = value;
+                      },
+                    });
+                    Object.defineProperty(node, 'scrollHeight', {
+                      value: 600,
+                      configurable: true,
+                    });
+                    Object.defineProperty(node, 'clientHeight', {
+                      value: 200,
+                      configurable: true,
+                    });
+                  }}
+                >
+                  {/* Every item sits below the current viewport top, as it would with a tall
+                      group label or padding above the first item. */}
+                  {[300, 340, 380].map((offsetTop, index) => (
+                    <Select.Item
+                      key={index}
+                      value={`item-${index}`}
+                      ref={(node) => {
+                        if (!node) {
+                          return;
+                        }
+
+                        Object.defineProperty(node, 'offsetTop', {
+                          value: offsetTop,
+                          configurable: true,
+                        });
+                        Object.defineProperty(node, 'offsetHeight', {
+                          value: 40,
+                          configurable: true,
+                        });
+                      }}
+                    >
+                      Item {index}
+                    </Select.Item>
+                  ))}
+                </Select.List>
+                <Select.ScrollDownArrow keepMounted />
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const arrow = screen.getByText('▲');
+      Object.defineProperty(arrow, 'offsetHeight', {
+        value: 0,
+        configurable: true,
+      });
+
+      fireEvent.mouseMove(arrow, {
+        movementX: 0,
+        movementY: -1,
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(40);
+      });
+
+      expect(scrollTop).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

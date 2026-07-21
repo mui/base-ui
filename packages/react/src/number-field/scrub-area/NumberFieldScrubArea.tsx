@@ -14,7 +14,6 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
-import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getTarget } from '../../floating-ui-react/utils';
@@ -48,8 +47,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const {
     state,
     setIsScrubbing: setRootScrubbing,
-    disabled,
-    readOnly,
     inputRef,
     incrementValue,
     allowInputSyncRef,
@@ -58,6 +55,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     lastChangedValueRef,
     valueRef,
   } = useNumberFieldRootContext();
+  const { disabled, readOnly } = state;
 
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
@@ -66,7 +64,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const pointerDownTargetRef = React.useRef<EventTarget | null>(null);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
-  const visualScaleRef = React.useRef(1);
 
   const exitPointerLockTimeout = useTimeout();
 
@@ -74,18 +71,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
   const [isScrubbing, setIsScrubbing] = React.useState(false);
 
-  React.useEffect(() => {
-    if (!isScrubbing || !scrubAreaCursorRef.current) {
-      return undefined;
-    }
-
-    return subscribeToVisualViewportResize(scrubAreaCursorRef.current, visualScaleRef);
-  }, [isScrubbing]);
-
-  function updateCursorTransform(x: number, y: number) {
-    if (scrubAreaCursorRef.current) {
-      scrubAreaCursorRef.current.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / visualScaleRef.current})`;
-    }
+  function updateCursorTransform(virtualCursor: HTMLSpanElement, x: number, y: number) {
+    // Invert the visual viewport scale so the cursor matches the OS cursor, which doesn't
+    // scale with the content on pinch-zoom.
+    const scale = ownerWindow(virtualCursor).visualViewport?.scale ?? 1;
+    virtualCursor.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / scale})`;
   }
 
   const onScrub = useStableCallback(({ movementX, movementY }: PointerEvent) => {
@@ -99,29 +89,36 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     const rect = getViewportRect(teleportDistance, scrubAreaEl);
 
     const coords = virtualCursorCoords.current;
-    const newCoords = {
-      x: Math.round(coords.x + movementX),
-      y: Math.round(coords.y + movementY),
+
+    // Wrap the cursor to the opposite edge when its center crosses a viewport bound.
+    const wrap = (coord: number, halfSize: number, low: number, high: number) => {
+      if (coord + halfSize < low) {
+        return high - halfSize;
+      }
+      if (coord + halfSize > high) {
+        return low - halfSize;
+      }
+      return coord;
     };
 
-    const cursorWidth = virtualCursor.offsetWidth;
-    const cursorHeight = virtualCursor.offsetHeight;
-
-    if (newCoords.x + cursorWidth / 2 < rect.left) {
-      newCoords.x = rect.right - cursorWidth / 2;
-    } else if (newCoords.x + cursorWidth / 2 > rect.right) {
-      newCoords.x = rect.left - cursorWidth / 2;
-    }
-
-    if (newCoords.y + cursorHeight / 2 < rect.top) {
-      newCoords.y = rect.bottom - cursorHeight / 2;
-    } else if (newCoords.y + cursorHeight / 2 > rect.bottom) {
-      newCoords.y = rect.top - cursorHeight / 2;
-    }
+    const newCoords = {
+      x: wrap(
+        Math.round(coords.x + movementX),
+        virtualCursor.offsetWidth / 2,
+        rect.left,
+        rect.right,
+      ),
+      y: wrap(
+        Math.round(coords.y + movementY),
+        virtualCursor.offsetHeight / 2,
+        rect.top,
+        rect.bottom,
+      ),
+    };
 
     virtualCursorCoords.current = newCoords;
 
-    updateCursorTransform(newCoords.x, newCoords.y);
+    updateCursorTransform(virtualCursor, newCoords.x, newCoords.y);
   });
 
   const onScrubbingChange = useStableCallback(
@@ -143,7 +140,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       virtualCursorCoords.current = initialCoords;
 
-      updateCursorTransform(initialCoords.x, initialCoords.y);
+      updateCursorTransform(virtualCursor, initialCoords.x, initialCoords.y);
     },
   );
 
@@ -198,6 +195,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       function handleScrubPointerMove(event: PointerEvent) {
+        // The effects below can tear down and re-run without unmounting (`<Activity>`), which
+        // clears the ref while `isScrubbing` stays `true` and re-attaches this listener. The ref
+        // is the source of truth for whether a pointer is actually down.
         if (!isScrubbingRef.current) {
           return;
         }
@@ -299,8 +299,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     role: 'presentation',
     style: SCRUB_AREA_STYLE,
     async onPointerDown(event) {
-      const isMainButton = !event.button || event.button === 0;
-      if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+      if (event.defaultPrevented || readOnly || event.button || disabled) {
         return;
       }
 

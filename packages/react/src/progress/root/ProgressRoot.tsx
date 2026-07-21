@@ -86,15 +86,12 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
       formattedValue,
-      max,
-      min,
       percentageValue,
       setLabelId,
       state,
-      status,
       value,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, state, status, value],
+    [formattedValue, percentageValue, setLabelId, state, value],
   );
 
   const element = useRenderElement('div', componentProps, {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DialogInteractions } from './useDialogRoot';
-import { DialogRootContext, IsDrawerContext, useDialogRootContext } from './DialogRootContext';
+import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -14,8 +14,8 @@ import {
 } from '../../utils/popups';
 
 export function useRenderDialogRoot<Payload>(
+  mode: DialogRootMode,
   props: DialogRootProps<Payload>,
-  mode: DialogRootMode = 'dialog',
 ) {
   const {
     children,
@@ -89,18 +89,16 @@ export function useRenderDialogRoot<Payload>(
   const shouldRenderInteractions = open || mounted;
 
   return (
-    <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={store as DialogStore<unknown>}>
-        {shouldRenderInteractions && (
-          <DialogInteractions
-            store={store}
-            parentContext={parentStore?.context}
-            isDrawer={isDrawer}
-          />
-        )}
-        {typeof children === 'function' ? children({ payload }) : children}
-      </DialogRootContext.Provider>
-    </IsDrawerContext.Provider>
+    <DialogRootContext.Provider value={store as DialogStore<unknown>}>
+      {shouldRenderInteractions && (
+        <DialogInteractions
+          store={store}
+          parentContext={parentStore?.context}
+          isDrawer={isDrawer}
+        />
+      )}
+      {typeof children === 'function' ? children({ payload }) : children}
+    </DialogRootContext.Provider>
   );
 }
 

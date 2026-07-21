@@ -56,7 +56,7 @@ export type State = {
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
-  allValuesRef: React.RefObject<Array<any>>;
+  pointerDownItemRef: React.RefObject<Element | null>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
@@ -68,7 +68,7 @@ export type State = {
     type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
   requestSubmit: () => void;
 
   name: string | undefined;
