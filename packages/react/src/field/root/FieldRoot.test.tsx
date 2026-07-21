@@ -1467,6 +1467,31 @@ describe('<Field.Root />', () => {
         expect(label).not.toHaveAttribute('data-dirty');
         expect(description).not.toHaveAttribute('data-dirty');
       });
+
+      it('should clear [data-dirty] when a null-valued control returns to its empty initial value', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
     });
 
     describe('filled', () => {

@@ -31,6 +31,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
   const fallbackControlRef = React.useRef<any>(null);
+  const ranOnce = React.useRef(false);
 
   const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
@@ -83,6 +84,12 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }
 
   function syncInitialValue() {
+    if (ranOnce.current) {
+      return;
+    }
+
+    ranOnce.current = true;
+
     const registration = registrationRef.current;
     if (!registration) {
       return;
