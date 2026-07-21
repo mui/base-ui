@@ -2,7 +2,6 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
-import { Timeout } from '@base-ui/utils/useTimeout';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ContextMenu.Trigger />', () => {
@@ -494,43 +493,7 @@ describe('<ContextMenu.Trigger />', () => {
       expect(screen.queryByRole('menu')).toBe(null);
     });
 
-    it('ignores a queued long press callback after the touch ends', async () => {
-      const onOpenChange = vi.fn();
-      let runPendingLongPress: (() => void) | undefined;
-      const timeoutStartSpy = vi
-        .spyOn(Timeout.prototype, 'start')
-        .mockImplementation((_delay, callback) => {
-          runPendingLongPress = callback as () => void;
-        });
-
-      try {
-        await render(
-          <ContextMenu.Root onOpenChange={onOpenChange}>
-            <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
-            <ContextMenu.Portal>
-              <ContextMenu.Positioner>
-                <ContextMenu.Popup />
-              </ContextMenu.Positioner>
-            </ContextMenu.Portal>
-          </ContextMenu.Root>,
-        );
-
-        const trigger = screen.getByTestId('trigger');
-        fireEvent.touchStart(trigger, {
-          touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
-        });
-        fireEvent.touchEnd(trigger);
-
-        runPendingLongPress?.();
-
-        expect(onOpenChange).not.toHaveBeenCalled();
-        expect(screen.queryByRole('menu')).toBe(null);
-      } finally {
-        timeoutStartSpy.mockRestore();
-      }
-    });
-
-    it('ignores multi-touch gestures', async () => {
+    it('cancels a pending long press when the gesture becomes multi-touch', async () => {
       const onOpenChange = vi.fn();
 
       await render(
@@ -545,12 +508,23 @@ describe('<ContextMenu.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
+      const firstTouch = new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 });
       const touches = [
-        new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 }),
+        firstTouch,
         new Touch({ identifier: 1, target: trigger, clientX: 120, clientY: 100 }),
       ];
-      fireEvent.touchStart(trigger, { touches });
+
+      fireEvent.touchStart(trigger, { touches: [firstTouch] });
       fireEvent.touchMove(trigger, { touches });
+      fireEvent.touchMove(trigger, { touches: [firstTouch] });
+      clock.tick(500);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      fireEvent.touchEnd(trigger);
+      fireEvent.touchStart(trigger, { touches: [firstTouch] });
+      fireEvent.touchStart(trigger, { touches });
       clock.tick(500);
 
       expect(onOpenChange).not.toHaveBeenCalled();
