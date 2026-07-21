@@ -39,6 +39,41 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-themes'),
   ],
   framework: getAbsolutePath('@storybook/react-vite'),
+  viteFinal: async (config) => {
+    // The production docs bundle pulls React through several chunk layers (the
+    // docs renderer, @storybook/react's portable-stories entry used by
+    // GalleryGrid, addon preview presets). Rolldown's default chunking can
+    // split React across chunks with circular imports; depending on init
+    // order that surfaces as "Cannot read properties of undefined (reading
+    // 'createElement')" on every docs page (seen in CI/Chromatic builds while
+    // local builds happened to get a safe chunk layout). Force a single React
+    // instance and a single chunk for it.
+    config.resolve = {
+      ...config.resolve,
+      dedupe: [...(config.resolve?.dedupe ?? []), 'react', 'react-dom'],
+    };
+    // Applied via a plugin outputOptions hook so it survives any later merging
+    // of build.rollupOptions by the builder.
+    config.plugins = [
+      ...(config.plugins ?? []),
+      {
+        name: 'base-ui:react-singleton-chunk',
+        outputOptions(opts: Record<string, unknown>) {
+          (opts as { advancedChunks?: unknown }).advancedChunks = {
+            groups: [
+              {
+                name: 'react-singleton',
+                test: /node_modules[\\/](?:react|react-dom|scheduler)[\\/]/,
+                priority: 100,
+              },
+            ],
+          };
+          return opts;
+        },
+      },
+    ];
+    return config;
+  },
   tags: {
     // The Research section renders the project's research corpus (research/*.md) as
     // docs pages; hidden from the sidebar by default — enable via the tag filter menu.
