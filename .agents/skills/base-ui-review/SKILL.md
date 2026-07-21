@@ -5,15 +5,15 @@ description: 'Review the current diff for regressions, correctness bugs, tests, 
 
 # Base UI Review
 
-Review current diff. Report **regressions and correctness bugs** plus
-**cleanup** (reuse / simplification / efficiency). Effort default `medium`; use
-[Effort levels](#effort-levels) for depth, subagent fan-out, precision/recall bias.
+Review current diff. Find **regressions and correctness bugs** first. Also find
+**cleanup** (reuse / simplification / efficiency). Default effort: `medium`. See
+[Effort levels](#effort-levels) for depth and subagent fan-out.
 
 Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline]] [<target>]`
 
-Medium effort = **precision** bias: every finding actionable. **high**, **xhigh**,
-**max** shift to **recall**; missed bug ships. Surface uncertain findings when
-mechanism realistic, label clearly.
+`medium` = **precision**. Every finding actionable. `high`, `xhigh`, `max` =
+**recall**. Missed bug ships. Keep uncertain findings when mechanism is real;
+label them clearly.
 
 ## Scope
 
@@ -24,19 +24,22 @@ branch name, or file path passed as argument, review that target instead.
 
 ## Effort levels
 
-- **low** — fastest: bug-only hunk pass. Skip Tests, Simplifications, Docs,
-  test/fixture hunks. Flag only high-confidence runtime-correctness bugs visible
-  from hunk alone.
-- **medium** (default) — one agent reviews Bugs, Tests, Simplifications, Docs, plus
-  triggered API design/performance concerns, then verifies locally. Precision
-  bias. Add one bug/regression subagent only for large, risky, fragile diffs.
-- **high** — independent subagents review four areas, plus triggered API
-  design/performance specialists. Main agent dedups + sanity-checks. No verifier
-  subagents or sweep.
-- **xhigh** — `high` plus one fresh sweep for missed findings. No verifier
-  subagents.
-- **max** — `xhigh` plus verifier subagents for surviving candidates. Highest cost,
-  strongest recall bias.
+- **low** — bugs/regressions only. Flag all runtime-correctness bugs.
+- **medium** (default) — main agent reviews Bugs, Tests, Simplifications, Docs,
+  and triggered API/performance concerns. Main agent verifies candidates. Large,
+  risky, fragile, shared, or cross-component diff? Add exactly one adversarial
+  bug hunter agent. Small, low-risk, isolated diff? No subagent. Precision bias.
+- **high** — spawn 3 independent subagents: bugs/regressions, test gaps,
+  simplifications. Main agent reviews the whole diff, including bugs, docs, and
+  triggered API/performance concerns. Main agent dedups and sanity-checks. Large,
+  risky, fragile, shared, or cross-component diff? Add exactly one adversarial
+  bug hunter agent. No verifiers. No final sweep.
+- **xhigh** — `high` plus a docs subagent and one fresh missed-bug sweep. Fan out
+  adversarial bug hunting across affected code areas. Max two independent views
+  per area. No verifiers. Recall bias.
+- **max** — `xhigh` plus an independent verifier for every surviving candidate.
+  Cover every affected code area with adversarial bug hunters (max 6). Maximum
+  recall.
 
 ## Phase 1 - Find candidates
 
@@ -82,52 +85,48 @@ Core regression + correctness pass. Cover all sub-angles:
   precondition, changed return shape, new exception, timing/ordering
   dependency. Also check callees: parallel change in same PR make call
   unsafe?
-- **Language-pitfall specialist.** Scan classic pitfalls of diff's
-  language/framework — example: JS falsy-zero, `==` coercion, closure-captured
-  loop var; Python mutable default args, late-binding closures; Go nil-map write,
-  range-var capture; SQL injection; timezone/DST drift; float equality. Flag any
-  instance diff introduces.
-- **Wrapper/proxy correctness.** When PR adds/modifies type wrapping
-  another (cache, proxy, decorator, adapter): check every method routes to
-  wrapped instance not back through registry/session/global — example, caching
-  provider holding `delegate` field resolving IDs via
-  `session.get(...)` instead of `delegate.get(...)` will re-enter cache or
-  recurse. Also check wrapper forwards all methods callers actually
-  use.
 
 ### Area 2 - Tests
 
-Review test changes and tests that _should_ have changed. Flag: new/
-changed behavior with no test exercising it; assertions not actually pinning
-behavior (asserting mock called instead of result, snapshot-only coverage,
-asserting on value test itself computed); missing edge/error-path cases
-diff introduces (null, empty, boundary, failure, concurrency); setup/teardown
-asymmetry (state leaked between tests, fixtures not reset); over-mocking hiding
-real contract; tests deleted or weakened without justification. Name
-specific case untested or under-asserted.
+Review test changes and tests that _should_ have changed. Flag:
+
+- New/changed behavior with no test exercising it
+- Assertions not actually pinning behavior (asserting mock called instead of
+  result, snapshot-only coverage, asserting on value test itself computed)
+- Missing edge/error-path cases diff introduces (null, empty, boundary, failure,
+  concurrency)
+- Setup/teardown asymmetry (state leaked between tests, fixtures not reset)
+- Over-mocking hiding real contract
+- Tests deleted or weakened without justification
+- Tests whose names do not match what they assert, or whose names are misleading
+
+Name specific case untested or under-asserted.
 
 ### Area 3 - Simplifications
 
-Flag changes that can be simpler, smaller, at better altitude
-without changing intended behavior. Look for: heavy dependency pulled in for
-something a few lines (or existing util) would do; non-tree-shakeable or
-whole-package imports (`import _ from 'lodash'` vs single function, namespace
-imports of side-effectful modules); duplicated logic re-implementing something
-codebase already has — Grep shared/utility modules and files adjacent to
-change, name existing helper to call instead; dead code left behind;
-redundant or derivable state; polyfills/large constants/data inlined that could be
-loaded lazily or dropped; special cases layered on shared infrastructure when
-underlying mechanism should be generalized. Name smaller or better-shaped
-form doing same job, and approximate cost avoided.
+Bundle size is a top constraint. Smallest correct implementation wins. Preserve
+public behavior, runtime performance, and maintainability.
+
+Always ask: “Can this ship with less code, state, branching, or abstraction?”
+Measure real bundle effect when material. Source-line count proves nothing.
+
+Judge bugs by reachability and impact. Keep every valid bug. Demote to a note only
+when behavior is not realistically reachable, has no meaningful user impact, or
+is optional improvement rather than correctness defect.
 
 ### Area 4 - Docs
 
-Flag documentation and comments diff makes wrong or leaves stale: comments
-describing old behavior after code changed; JSDoc/docstrings whose params,
-return type, thrown errors no longer match signature; README / API docs /
-changelog entries contradicting change; examples no longer compile or run;
-TODO/FIXME change resolved but didn't remove; new non-obvious code with no
-explanation where warranted. Quote stale line and state what it should say.
+Flag documentation and comments diff makes wrong or leaves stale:
+
+- Comments describing old behavior after code changed
+- JSDoc/docstrings whose params, return type, thrown errors no longer match
+  signature
+- README / API docs / changelog entries contradicting change; examples no longer
+  compile or run
+- TODO/FIXME change resolved but didn't remove; new non-obvious code with no
+  explanation where warranted
+
+Quote stale line and state what it should say.
 
 ### Conditional specialist - API design
 
@@ -214,9 +213,16 @@ not open with generic target/base filler like "Reviewed `owner/repo#123` against
 `branch`." Only mention target or base branch when explaining specific
 finding or limitation.
 
-When findings exist, use exactly these `##` sections, in order: `Bugs`,
-`Tests`, `Simplifications`, `Docs`, `Verdict`. Any section whose count is
-`(0)`, write exactly `No findings.` under that heading.
+When any findings exist, include only the non-empty category sections, in this
+order: `Bugs`, `Tests`, `Simplifications`, `Docs`. Drop a category heading
+entirely when it has 0 findings; do not print its heading, count, or
+`No findings.` placeholder. Always end with `Verdict`.
+
+Before sending, verify every surviving finding is printed exactly once and each section count matches its numbered findings.
+
+When no findings exist anywhere, skip all four category headings and counts. Do
+not print `## Bugs (0)`, `## Tests (0)`, `## Simplifications (0)`, or `## Docs (0)`.
+Use the [No findings](#no-findings) format.
 
 ### Severity rubric
 
@@ -264,7 +270,7 @@ Follow verdict with one clause naming deciding factor.
 
 ### Finding format
 
-Use this structure:
+Use this structure. Omit any category block whose count is zero:
 
 ````md
 # PR review
@@ -319,9 +325,9 @@ related issues under one finding when they share same root cause.
 
 ### No findings
 
-If nothing survives verification, return `# PR review` followed by `No findings.`,
-brief note of any residual test gaps or risk, `## Verdict` of **Approve**, and
-`🤖 Review generated with ...` footer.
+If nothing survives verification, omit all category headings and counts. Return
+`# PR review`, `No findings.`, a brief note of residual test gaps or risk,
+`## Verdict` with **Approve**, and the `🤖 Review generated with ...` footer.
 
 Always close review with `---` horizontal rule, blank line, then
 `🤖 Review generated with {Claude Code | Codex}`. Use **Claude Code** when this
