@@ -72,7 +72,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
-  const menubarContext = useMenubarContext();
+  const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
   const parentFromContext: MenuParent = React.useMemo(() => {

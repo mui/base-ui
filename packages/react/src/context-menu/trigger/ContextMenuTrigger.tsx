@@ -129,7 +129,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       const touchPosition = { x: touch.clientX, y: touch.clientY };
       touchPositionRef.current = touchPosition;
       longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        handleLongPress(touchPosition.x, touchPosition.y, event.nativeEvent);
+        if (touchPositionRef.current === touchPosition) {
+          handleLongPress(touchPosition.x, touchPosition.y, event.nativeEvent);
+        }
       });
     }
   }

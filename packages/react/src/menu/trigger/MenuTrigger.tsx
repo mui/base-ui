@@ -376,7 +376,7 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
 }
 
 function useMenuParent() {
-  const menubarContext = useMenubarContext();
+  const menubarContext = useMenubarContext(true);
 
   const parent: MenuParent = React.useMemo(() => {
     if (menubarContext) {
