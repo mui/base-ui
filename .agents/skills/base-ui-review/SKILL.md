@@ -24,7 +24,9 @@ branch name, or file path passed as argument, review that target instead.
 
 ## Effort levels
 
-- **low** — bugs/regressions only. Flag all runtime-correctness bugs.
+- **low** — bugs only. Flag runtime-correctness bugs and regressions. Skip
+  Tests, Simplifications, Docs, and test/fixture hunks. No subagents. Precision
+  bias.
 - **medium** (default) — main agent reviews Bugs, Tests, Simplifications, Docs,
   and triggered API/performance concerns. Main agent verifies candidates. Large,
   risky, fragile, shared, or cross-component diff? Add exactly one adversarial
@@ -35,11 +37,12 @@ branch name, or file path passed as argument, review that target instead.
   risky, fragile, shared, or cross-component diff? Add exactly one adversarial
   bug hunter agent. No verifiers. No final sweep.
 - **xhigh** — `high` plus a docs subagent and one fresh missed-bug sweep. Fan out
-  adversarial bug hunting across affected code areas. Max two independent views
-  per area. No verifiers. Recall bias.
+  adversarial bug hunters across affected code regions (modules/components — not
+  the four review areas). Max two independent views per region. No verifiers.
+  Recall bias.
 - **max** — `xhigh` plus an independent verifier for every surviving candidate.
-  Cover every affected code area with adversarial bug hunters (max 6). Maximum
-  recall.
+  Cover every affected code region with adversarial bug hunters (max 6 hunters
+  total). Maximum recall.
 
 ## Phase 1 - Find candidates
 
@@ -105,14 +108,30 @@ Name specific case untested or under-asserted.
 ### Area 3 - Simplifications
 
 Bundle size is a top constraint. Smallest correct implementation wins. Preserve
-public behavior, runtime performance, and maintainability.
+public behavior, runtime performance, and maintainability. Treat every bundle
+size increase as suspect — new bytes must earn their place; flag increases the
+diff doesn't justify.
 
 Always ask: "Can this ship with less code, state, branching, or abstraction?"
-Measure real bundle effect when material. Source-line count proves nothing.
+Look for:
 
-Judge bugs by reachability and impact. Keep every valid bug. Demote to a note only
-when behavior is not realistically reachable, has no meaningful user impact, or
-is optional improvement rather than correctness defect.
+- Heavy dependency or new abstraction where a few lines or existing util does
+  the job
+- Code doing too much for an edge case almost no one hits — guards, branches,
+  state, or config for scenarios not realistically reachable in consumer usage;
+  weigh handling cost against edge-case likelihood and propose dropping or
+  cheapening it
+- Duplicated logic re-implementing what codebase already has — Grep
+  shared/utility modules and files adjacent to change; name existing helper to
+  call instead
+- Non-tree-shakeable or whole-package imports; namespace imports of
+  side-effectful modules
+- Dead code left behind; redundant or derivable state
+- Special cases layered on shared infrastructure when mechanism should
+  generalize
+
+Name smaller or better-shaped form doing same job. Measure real bundle effect
+when material. Source-line count proves nothing.
 
 ### Area 4 - Docs
 
@@ -172,7 +191,13 @@ review ordered.
 
 Dedup candidates pointing at same line/mechanism, keep one with
 most concrete failure scenario. Verify candidates locally in main agent by
-default. At `max` effort, also run **one verifier** as subagent for each
+default.
+
+Judge every candidate by reachability and impact. Keep every valid bug. Demote
+to ℹ️ note when behavior not realistically reachable in real consumer usage,
+has no meaningful user impact, or is optional improvement rather than
+correctness defect. Demotion is not refutation — demoted findings still print,
+at lower severity. At `max` effort, also run **one verifier** as subagent for each
 remaining candidate when subagents available and authorized: give it diff,
 relevant file(s), candidate, have it return exactly one of:
 
@@ -213,16 +238,12 @@ not open with generic target/base filler like "Reviewed `owner/repo#123` against
 `branch`." Only mention target or base branch when explaining specific
 finding or limitation.
 
-When any findings exist, include only the non-empty category sections, in this
-order: `Bugs`, `Tests`, `Simplifications`, `Docs`. Drop a category heading
-entirely when it has 0 findings; do not print its heading, count, or
-`No findings.` placeholder. Always end with `Verdict`.
-
-Before sending, verify every surviving finding is printed exactly once and each section count matches its numbered findings.
-
-When no findings exist anywhere, skip all four category headings and counts. Do
-not print `## Bugs (0)`, `## Tests (0)`, `## Simplifications (0)`, or `## Docs (0)`.
-Use the [No findings](#no-findings) format.
+Print only non-empty category sections, in this order: `Bugs`, `Tests`,
+`Simplifications`, `Docs`. A category with 0 findings gets nothing — no
+heading, no count, no `No findings.` placeholder. Always end with `Verdict`.
+Before sending, verify every surviving finding prints exactly once and each
+printed section count matches its numbered findings. When no findings exist
+anywhere, use the [No findings](#no-findings) format.
 
 ### Severity rubric
 
