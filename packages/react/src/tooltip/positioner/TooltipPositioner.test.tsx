@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -24,6 +24,34 @@ describe('<Tooltip.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Positioner />)).rejects.toThrow(
+        'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws a descriptive error when rendered outside <Tooltip.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Tooltip.Root open>
+            <Tooltip.Positioner />
+          </Tooltip.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Tooltip.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;
@@ -297,6 +325,43 @@ describe('<Tooltip.Positioner />', () => {
     const positioner = screen.getByTestId('positioner');
     await waitFor(() => {
       expect(positioner.style.transform).toBe('');
+    });
+  });
+
+  it.skipIf(isJSDOM)('updates positioning when Viewport mounts and unmounts', async () => {
+    function App() {
+      const [showViewport, setShowViewport] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <button onClick={() => setShowViewport((value) => !value)}>Toggle Viewport</button>
+          <Tooltip.Root open>
+            <Trigger style={triggerStyle}>Trigger</Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner data-testid="positioner">
+                <Tooltip.Popup style={popupStyle}>
+                  {showViewport ? <Tooltip.Viewport>Popup</Tooltip.Viewport> : 'Popup'}
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const positioner = screen.getByTestId('positioner');
+
+    expect(positioner.style.transform).not.toBe('');
+
+    await user.click(screen.getByRole('button', { name: 'Toggle Viewport' }));
+    await waitFor(() => {
+      expect(positioner.style.transform).toBe('');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Toggle Viewport' }));
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
     });
   });
 });

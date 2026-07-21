@@ -4,19 +4,12 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { Align, Side } from '../../utils/useAnchorPositioning';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the navigation menu contents.
@@ -71,7 +64,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return element;

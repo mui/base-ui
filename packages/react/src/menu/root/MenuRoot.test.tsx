@@ -43,6 +43,54 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  function NestedMenuWithModalProp() {
+    const SubmenuRootWithModal = Menu.SubmenuRoot as React.ComponentType<
+      React.ComponentProps<typeof Menu.SubmenuRoot> & { modal: boolean }
+    >;
+
+    return (
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <SubmenuRootWithModal defaultOpen modal={false}>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup />
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </SubmenuRootWithModal>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    );
+  }
+
+  it('warns that nested menus ignore the modal prop', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await render(<NestedMenuWithModalProp />);
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+    );
+  });
+
+  it.skipIf(!isJSDOM)('does not emit the nested modal warning in production', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    try {
+      await render(<NestedMenuWithModalProp />);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
+
   // All these tests run for contained and detached triggers.
   // The rendered menu has the same structure in most cases.
   describe.for([
@@ -82,6 +130,85 @@ describe('<Menu.Root />', () => {
         await waitFor(() => {
           expect(item2).toHaveFocus();
         });
+      });
+
+      it.skipIf(isJSDOM)('navigates across grouped items with arrow keys and text', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Group>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item>Cherry</Menu.Item>
+                  </Menu.Group>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('[Enter]');
+
+        const apple = screen.getByRole('menuitem', { name: 'Apple' });
+        const banana = screen.getByRole('menuitem', { name: 'Banana' });
+        const cherry = screen.getByRole('menuitem', { name: 'Cherry' });
+
+        await waitFor(() => {
+          expect(apple).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(banana).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+
+        await act(async () => {
+          apple.focus();
+        });
+        await user.keyboard('c');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+      });
+
+      it('closes with a `detail === 0` click event on keyboard item activation', async () => {
+        const openChangeSpy = vi.fn();
+
+        await render(<TestMenu rootProps={{ onOpenChange: openChangeSpy }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        const item1 = screen.getByTestId('item-1');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        await waitFor(() => {
+          expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
+        });
+
+        expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // Keyboard activation clicks carry `detail === 0`, which MenuRoot classifies
+        // as a keyboard (instant) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(0);
       });
 
       it('changes the highlighted item using the Home and End keys', async () => {
@@ -255,6 +382,43 @@ describe('<Menu.Root />', () => {
           });
 
           expect(hiddenItem).toHaveAttribute('tabindex', '-1');
+        });
+
+        it.skipIf(isJSDOM)('skips natively disabled items in text navigation', async () => {
+          const itemElements = [
+            <Menu.Item key="apple">Apple</Menu.Item>,
+            <Menu.Item
+              key="banana"
+              data-testid="item-banana"
+              nativeButton
+              render={<button type="button" disabled />}
+            >
+              Banana
+            </Menu.Item>,
+            <Menu.Item key="blueberry" data-testid="item-blueberry">
+              Blueberry
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const appleItem = screen.getByText('Apple');
+          const bananaItem = screen.getByTestId('item-banana');
+          const blueberryItem = screen.getByTestId('item-blueberry');
+
+          await act(async () => {
+            appleItem.focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(blueberryItem).toHaveFocus();
+          });
+
+          expect(bananaItem).toHaveAttribute('tabindex', '-1');
+          expect(bananaItem).not.toHaveAttribute('data-highlighted');
         });
 
         it.skipIf(!isJSDOM)(
@@ -641,6 +805,33 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
+      it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <TestMenu
+            rootProps={{ onOpenChange }}
+            triggerProps={{ render: <button id="custom-trigger" /> }}
+            submenuTriggerProps={{ openOnHover: false }}
+          />,
+        );
+
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
+
+        await screen.findByTestId('menu');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
+
+        await screen.findByTestId('submenu');
+
+        expect(screen.getByTestId('menu')).not.toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.siblingOpen }),
+        );
+      });
+
       it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
         const { user } = await render(<TestMenu />);
 
@@ -722,6 +913,54 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByTestId('level-3')).toBe(null);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'calls onOpenChange with false exactly once per menu when a submenu item is clicked',
+        async () => {
+          const rootOnOpenChange = vi.fn();
+          const submenuOnOpenChange = vi.fn();
+
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ onOpenChange: rootOnOpenChange }}
+              submenuProps={{ onOpenChange: submenuOnOpenChange }}
+              submenuTriggerProps={{ delay: 0, closeDelay: 50 }}
+            />,
+          );
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          await screen.findByTestId('menu');
+
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await user.hover(submenuTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).not.toBe(null);
+          });
+
+          // Schedule a delayed hover close, then click the item before it fires.
+          fireEvent.mouseLeave(submenuTrigger);
+          fireEvent.click(screen.getByTestId('item-4_1'));
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          // Wait out pending hover close timers; they must not refire a close.
+          await wait(100);
+
+          const rootCloseCalls = rootOnOpenChange.mock.calls.filter((args) => args[0] === false);
+          const submenuCloseCalls = submenuOnOpenChange.mock.calls.filter(
+            (args) => args[0] === false,
+          );
+          const staleHoverCloseCalls = submenuCloseCalls.filter(
+            (args) => args[1].reason === REASONS.triggerHover,
+          );
+          expect(rootCloseCalls.length).toBe(1);
+          expect(submenuCloseCalls.length).toBe(1);
+          expect(staleHoverCloseCalls.length).toBe(0);
+        },
+      );
 
       it.skipIf(isJSDOM)(
         'returns focus to submenu triggers when closing nested menus',
@@ -2222,6 +2461,58 @@ describe('<Menu.Root />', () => {
 
         expect(screen.queryByTestId('submenu')).not.toBe(null);
       });
+
+      it('cancels a pending submenu hover-open when the pointer leaves via mouseout', async () => {
+        // Chrome can drop a submenu trigger's non-bubbling `mouseleave` during a
+        // fast pointer sweep across adjacent triggers, but the bubbling
+        // `mouseout` still fires. The pending delayed open must be cancelled from
+        // that `mouseout`, otherwise a stale submenu opens for a trigger the
+        // pointer has already left (stranding the parent at
+        // `pointer-events: none`). See #5152.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        const otherItem = screen.getByTestId('item-1');
+
+        // Arm the submenu's delayed open, then leave the trigger via `mouseout`
+        // (with `relatedTarget` outside it) but without delivering `mouseleave`.
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseOut(submenuTrigger, { relatedTarget: otherItem });
+
+        // Let the open delay elapse.
+        clock.tick(200);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).toBe(null);
+      });
+
+      it('keeps a pending submenu hover-open when mouseout stays within the trigger', async () => {
+        // `mouseout` bubbles and fires as the pointer moves between elements
+        // inside the trigger's own subtree. Those crossings (where
+        // `relatedTarget` is still inside the trigger) must not cancel the
+        // pending open, otherwise a plain hover would never open the submenu.
+        // See #5152.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        // Arm the submenu's delayed open, then fire a `mouseout` whose
+        // `relatedTarget` is still inside the trigger (the trigger itself).
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseOut(submenuTrigger, { relatedTarget: submenuTrigger });
+
+        // Let the open delay elapse.
+        clock.tick(200);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.toBe(null);
+      });
     });
 
     describe.skipIf(isJSDOM)('mouse interaction', () => {
@@ -2279,6 +2570,9 @@ describe('<Menu.Root />', () => {
         expect(openChangeSpy.mock.calls[0][0]).toBe(true);
         expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
         expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        // The synthesized drag-release click must carry `detail: 1` so MenuRoot does
+        // not classify it as a keyboard (`detail === 0`) activation.
+        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
       });
 
       it('closes the menu on click, drag outside, release', async () => {

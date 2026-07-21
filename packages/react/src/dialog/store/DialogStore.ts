@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
@@ -33,21 +33,20 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
   readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
-  readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {
   ...popupStoreSelectors,
-  modal: createSelector((state: State<unknown>) => state.modal),
-  nested: createSelector((state: State<unknown>) => state.nested),
-  nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
-  nestedOpenDrawerCount: createSelector((state: State<unknown>) => state.nestedOpenDrawerCount),
-  disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
-  openMethod: createSelector((state: State<unknown>) => state.openMethod),
-  descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
-  titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
-  viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
-  role: createSelector((state: State<unknown>) => state.role),
+  modal: (state: State<unknown>) => state.modal,
+  nested: (state: State<unknown>) => state.nested,
+  nestedOpenDialogCount: (state: State<unknown>) => state.nestedOpenDialogCount,
+  nestedOpenDrawerCount: (state: State<unknown>) => state.nestedOpenDrawerCount,
+  disablePointerDismissal: (state: State<unknown>) => state.disablePointerDismissal,
+  openMethod: (state: State<unknown>) => state.openMethod,
+  descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
+  titleElementId: (state: State<unknown>) => state.titleElementId,
+  viewportElement: (state: State<unknown>) => state.viewportElement,
+  role: (state: State<unknown>) => state.role,
 };
 
 /**
@@ -63,9 +62,9 @@ export class DialogStore<Payload> extends ReactStore<
   typeof selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>> | undefined,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);
@@ -130,7 +129,6 @@ function createInitialState<Payload>(
     ...createInitialPopupStoreState<Payload>(),
     modal: true,
     disablePointerDismissal: false,
-    popupElement: null,
     viewportElement: null,
     descriptionElementId: undefined,
     titleElementId: undefined,

@@ -25,14 +25,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   componentProps: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render,
-    className,
-    style,
-    direction,
-    keepMounted = false,
-    ...elementProps
-  } = componentProps;
+  const { render, className, style, direction, keepMounted, ...elementProps } = componentProps;
 
   const isUp = direction === 'up';
 
@@ -56,13 +49,11 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   useIsoLayoutEffect(() => {
     scrollArrowsMountedCountRef.current += 1;
-    if (!store.state.hasScrollArrows) {
-      store.set('hasScrollArrows', true);
-    }
+    store.set('hasScrollArrows', true);
 
     return () => {
       scrollArrowsMountedCountRef.current = Math.max(0, scrollArrowsMountedCountRef.current - 1);
-      if (scrollArrowsMountedCountRef.current === 0 && store.state.hasScrollArrows) {
+      if (scrollArrowsMountedCountRef.current === 0) {
         store.set('hasScrollArrows', false);
       }
     };
@@ -105,7 +96,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         }
 
         store.set('activeIndex', null);
-        handleScrollArrowVisibility();
+        handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
         const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
@@ -114,11 +105,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
         if (scrollTop !== scroller.scrollTop) {
           scroller.scrollTop = scrollTop;
-        }
-
-        // Fallback when there are no items registered yet.
-        if (items.length === 0) {
-          store.set(isUp ? 'scrollUpArrowVisible' : 'scrollDownArrowVisible', !isScrolledToEdge);
         }
 
         if (isScrolledToEdge) {

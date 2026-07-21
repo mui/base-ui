@@ -70,13 +70,11 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
       formattedValue,
-      max,
-      min,
       percentageValue,
       setLabelId,
       value: valueProp,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, valueProp],
+    [formattedValue, percentageValue, setLabelId, valueProp],
   );
 
   const element = useRenderElement('div', componentProps, {

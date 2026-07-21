@@ -3,10 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
@@ -46,9 +43,9 @@ export const SelectItem = React.memo(
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
+      guess: true,
       label,
       textRef,
-      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const {
@@ -72,28 +69,19 @@ export const SelectItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const index = listItem.index;
-    const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
       const values = valuesRef.current;
       values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [hasRegistered, index, itemValue, valuesRef]);
+    }, [index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return;
-      }
-
       const selectedValue = store.state.value;
 
       let selectedCandidate = selectedValue;
@@ -115,9 +103,8 @@ export const SelectItem = React.memo(
           selectedItemTextRef.current = textRef.current;
         }
       }
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+    }, [index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
-    const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
 
@@ -163,15 +150,16 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        lastKeyRef.current = event.key;
         store.set('activeIndex', index);
 
         if (event.key === ' ' && typingRef.current) {
+          // `useButton` skips Space activation for `role="option"` items when the keydown
+          // is `defaultPrevented`, keeping typeahead spaces from committing a selection.
           event.preventDefault();
         }
       },
       onClick(event) {
-        const isMouseClick = event.type === 'click' && pointerTypeRef.current !== 'touch';
+        const isMouseClick = pointerTypeRef.current !== 'touch';
         const clickPointerType = (event.nativeEvent as PointerEvent).pointerType;
         const isVirtualMouseClick =
           isMouseClick &&
@@ -188,20 +176,10 @@ export const SelectItem = React.memo(
 
         allowMouseSelectionRef.current = false;
 
-        // Prevent double commit on {Enter}
-        if (event.type === 'keydown' && lastKeyRef.current === null) {
+        if (disabled || isInvalidMouseClick) {
           return;
         }
 
-        if (
-          disabled ||
-          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
-          isInvalidMouseClick
-        ) {
-          return;
-        }
-
-        lastKeyRef.current = null;
         commitSelection(event.nativeEvent);
       },
       onPointerEnter(event) {
@@ -259,9 +237,8 @@ export const SelectItem = React.memo(
         index,
         textRef,
         selectedByFocus,
-        hasRegistered,
       }),
-      [selected, index, textRef, selectedByFocus, hasRegistered],
+      [selected, index, textRef, selectedByFocus],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

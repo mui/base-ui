@@ -164,7 +164,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ allowMouseEnter: false, stickIfOpen: true });
+    store.set('allowMouseEnter', false);
   });
 
   useIsoLayoutEffect(() => {
@@ -229,6 +229,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     ) => {
       const reason = eventDetails.reason;
 
+      // Read the store directly, as relayed tree events and stale hover timers can request
+      // a close after the state changed but before this component re-rendered.
+      if (!nextOpen && !store.select('open')) {
+        return;
+      }
+
       if (
         open === nextOpen &&
         eventDetails.trigger === activeTriggerElement &&
@@ -278,17 +284,19 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         allowTouchToCloseTimeout.clear();
       }
 
+      // Keyboard and assistive-technology activations produce `detail === 0` clicks;
+      // mouse-gesture clicks (including the synthesized drag-release click from
+      // `useMenuItemCommonProps`) carry `detail >= 1`.
       const isKeyboardClick =
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
-        (nativeEvent as MouseEvent).detail === 0 &&
-        nativeEvent?.isTrusted;
+        (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       const updatedState: Partial<MenuStoreState<Payload>> = {
         open: nextOpen,
         openChangeReason: reason,
       };
-      openEventRef.current = eventDetails.event ?? null;
+      openEventRef.current = eventDetails.event;
 
       setPopupOpenState(
         updatedState,

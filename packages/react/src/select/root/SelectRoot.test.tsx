@@ -680,6 +680,94 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('ignores browser autofill in multiple mode', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Select.Root multiple name="select" onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    // Autofill only ever writes a single scalar, which can't be meaningfully applied to a
+    // multi-selection, so it must be dropped rather than collapsing the value to one item.
+    fireEvent.change(selectInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+  });
+
+  it('leaves the value untouched when autofill matches no item', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Select.Root name="select" defaultValue="a" onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    fireEvent.change(selectInput, { target: { value: 'not-an-option' } });
+    await flushMicrotasks();
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+    expect(trigger).toHaveTextContent('a');
+  });
+
+  it('redirects focus to the trigger when the hidden input is focused', async () => {
+    await render(
+      <Select.Root name="select">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    // Browsers can focus the visually hidden input (for example when validation reports an
+    // error on it); focus has to land on the visible control instead.
+    await act(async () => {
+      selectInput.focus();
+    });
+
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+  });
+
   it('should pass autoComplete to the hidden input', async () => {
     await render(
       <Select.Root name="country" autoComplete="country">
@@ -4967,6 +5055,52 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('listbox')).not.toBe(null);
     });
 
+    it('keeps the selection when items are added and none of the selected ones are removed', async () => {
+      const handleValueChange = vi.fn();
+
+      function App() {
+        const [items, setItems] = React.useState(['a', 'b']);
+
+        return (
+          <div>
+            <Select.Root multiple open defaultValue={['a']} onValueChange={handleValueChange}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="add" onClick={() => setItems((prev) => [...prev, 'c'])}>
+              Add C
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(await screen.findByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+
+      await user.click(screen.getByTestId('add'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
+      });
+
+      // Growing the list must not rewrite a still-valid selection.
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+    });
+
     it('should deselect items when clicked again in multiple mode', async () => {
       const handleValueChange = vi.fn();
 
@@ -5573,13 +5707,17 @@ describe('<Select.Root />', () => {
       const optionA = screen.getByRole('option', { name: 'a' });
       await user.hover(optionA);
 
+      const popup = screen.getByRole('listbox');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+
       await user.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(optionA).toHaveAttribute('data-highlighted');
       });
 
-      const popup = screen.getByRole('listbox');
       await user.unhover(popup);
 
       await waitFor(() => {

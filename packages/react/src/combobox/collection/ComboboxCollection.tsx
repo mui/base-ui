@@ -11,17 +11,13 @@ import { useGroupCollectionContext } from './GroupCollectionContext';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
+export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element {
   const { children } = props;
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
-
-  if (!itemsToRender) {
-    return null;
-  }
 
   return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
 }

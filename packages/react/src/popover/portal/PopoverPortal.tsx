@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
+import { type BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPortalContext } from './PopoverPortalContext';
 
@@ -17,7 +18,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
@@ -34,12 +35,21 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
 export interface PopoverPortalState {}
 
-export interface PopoverPortalProps extends FloatingPortal.Props<PopoverPortalState> {
+export interface PopoverPortalProps extends BaseUIComponentProps<'div', PopoverPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
   keepMounted?: boolean | undefined;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?:
+    | HTMLElement
+    | ShadowRoot
+    | React.RefObject<HTMLElement | ShadowRoot | null>
+    | null
+    | undefined;
 }
 
 export namespace PopoverPortal {

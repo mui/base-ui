@@ -1,9 +1,13 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 describe('<Combobox.Trigger />', () => {
   const { render } = createRenderer();
@@ -99,6 +103,24 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
+    it('ignores native keydown events on a disabled non-native trigger', async () => {
+      const onOpenChange = vi.fn();
+      await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Trigger disabled nativeButton={false} render={<div />} data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }),
+        );
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
     it('should prioritize local disabled over root disabled', async () => {
       await render(
         <Combobox.Root disabled={false}>
@@ -111,6 +133,96 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveAttribute('disabled');
     });
+  });
+
+  it.each([
+    {
+      name: 'single selection',
+      control: (
+        <Combobox.Root defaultValue="apple">
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>
+      ),
+      expectedValue: 'apple',
+    },
+    {
+      name: 'no selection',
+      control: (
+        <Autocomplete.Root defaultValue="query">
+          <Autocomplete.Trigger data-testid="trigger" />
+        </Autocomplete.Root>
+      ),
+      expectedValue: 'query',
+    },
+  ])('validates the $name value when blurred', async ({ control, expectedValue }) => {
+    const validate = vi.fn();
+    await render(
+      <Field.Root validationMode="onBlur" validate={validate}>
+        {control}
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.focus(trigger);
+    fireEvent.blur(trigger);
+
+    expect(validate).toHaveBeenCalledWith(expectedValue, expect.anything());
+  });
+
+  it('ignores a pending mouseup after the trigger unmounts', async () => {
+    const onOpenChange = vi.fn();
+
+    function Test({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Combobox.Root onOpenChange={onOpenChange}>
+          {showTrigger && <Combobox.Trigger data-testid="trigger" />}
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test showTrigger />);
+    fireEvent.mouseDown(screen.getByTestId('trigger'));
+
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(true, expect.anything()));
+    onOpenChange.mockClear();
+
+    await rerender(<Test showTrigger={false} />);
+
+    fireEvent.mouseUp(document.body, { clientX: 100, clientY: 100 });
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not select when closed typeahead matches a sparse label without a value', async () => {
+    const onValueChange = vi.fn();
+
+    function SparseRegistry() {
+      const store = useComboboxRootContext();
+      useIsoLayoutEffect(() => {
+        store.state.labelsRef.current[0] = 'apple';
+        delete store.state.valuesRef.current[0];
+      }, [store]);
+      return null;
+    }
+
+    const { user } = await render(
+      <Combobox.Root onValueChange={onValueChange}>
+        <SparseRegistry />
+        <Combobox.Trigger>Open</Combobox.Trigger>
+      </Combobox.Root>,
+    );
+
+    const trigger = screen.getByRole('combobox');
+    trigger.focus();
+    await user.keyboard('a');
+
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 
   describe('prop: readOnly', () => {
@@ -134,6 +246,32 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it.each(['ArrowDown', 'ArrowUp'])('does not open on %s when readOnly', async (key) => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root readOnly onOpenChange={onOpenChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.focus();
+      await user.keyboard(`{${key}}`);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
@@ -374,6 +512,111 @@ describe('<Combobox.Trigger />', () => {
       expect(handleValueChange.mock.calls[0][0]).toBe('beta');
     });
 
+    it.skipIf(isJSDOM)(
+      'does not double-commit when a non-primary touch lands on another item',
+      async () => {
+        const handleValueChange = vi.fn();
+
+        await render(
+          <Combobox.Root onValueChange={handleValueChange}>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                    <Combobox.Item value="beta">Beta</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(trigger, { button: 0 });
+
+        await screen.findByRole('listbox');
+        const alpha = await screen.findByRole('option', { name: 'Alpha' });
+        const beta = await screen.findByRole('option', { name: 'Beta' });
+
+        // Highlight Alpha so a stray drag-select would be able to commit it.
+        fireEvent.mouseMove(alpha, { pointerType: 'mouse' });
+        await waitFor(() => expect(alpha).toHaveAttribute('data-highlighted'));
+
+        // Primary touch presses Alpha; a second, non-primary touch lands on Beta.
+        // Without the `isPrimary` guard the shared ref would flip to Beta, making
+        // Alpha's release read as a drag-select and commit once on `mouseup` and
+        // again on the following `click`.
+        fireEvent.pointerDown(alpha, { pointerType: 'touch', isPrimary: true, button: 0 });
+        fireEvent.pointerDown(beta, { pointerType: 'touch', isPrimary: false, button: 0 });
+        fireEvent.mouseUp(alpha, { button: 0 });
+        fireEvent.click(alpha, { button: 0 });
+
+        await waitFor(() => {
+          expect(handleValueChange.mock.calls.length).toBe(1);
+        });
+        expect(handleValueChange.mock.calls[0][0]).toBe('alpha');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'commits a later drag-select onto an item whose earlier pointerdown never released',
+      async () => {
+        const handleValueChange = vi.fn();
+
+        const { user } = await render(
+          <Combobox.Root onValueChange={handleValueChange}>
+            <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                    <Combobox.Item value="beta">Beta</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        // Press an item, then close before any matching `mouseup` arrives. The
+        // closed-state effect must clear the shared pointerdown ref, otherwise the
+        // stale entry makes the next drag-select onto Alpha read as a same-item tap
+        // and never commit.
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(trigger, { button: 0 });
+        await screen.findByRole('listbox');
+        const alpha = await screen.findByRole('option', { name: 'Alpha' });
+        fireEvent.pointerDown(alpha, { pointerType: 'touch', isPrimary: true, button: 0 });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        // Reopen and drag-select onto Alpha (gesture starts on the trigger).
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(trigger, { button: 0 });
+        await screen.findByRole('listbox');
+        const alphaReopened = await screen.findByRole('option', { name: 'Alpha' });
+        fireEvent.mouseMove(alphaReopened, { pointerType: 'mouse' });
+        await waitFor(() => expect(alphaReopened).toHaveAttribute('data-highlighted'));
+        fireEvent.mouseUp(alphaReopened, { button: 0 });
+
+        await waitFor(() => {
+          expect(handleValueChange.mock.calls.length).toBe(1);
+        });
+        expect(handleValueChange.mock.calls[0][0]).toBe('alpha');
+      },
+    );
+
     it('does not commit selection if the pointer never hovers the item', async () => {
       const handleValueChange = vi.fn();
 
@@ -479,6 +722,38 @@ describe('<Combobox.Trigger />', () => {
       fireEvent.mouseUp(document.body, { button: 0, clientX: 1, clientY: 1 });
 
       expect(listbox.isConnected).toBe(true);
+    });
+
+    it('closes the popup when the release is more than 5px outside the trigger bounds', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.getBoundingClientRect = () =>
+        DOMRect.fromRect({ x: 100, y: 100, width: 100, height: 40 });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      await screen.findByRole('listbox');
+
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 94, clientY: 120 });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
     });
   });
 
@@ -633,6 +908,168 @@ describe('<Combobox.Trigger />', () => {
 
       await waitFor(() => {
         expect(trigger).toHaveTextContent('banana');
+      });
+    });
+
+    it.each([false, true])(
+      'cycles to the next matching item when typing after open/close (no items prop, keepMounted %s)',
+      async (keepMounted) => {
+        const { user } = await render(
+          <Combobox.Root defaultValue="apple">
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value data-testid="value" />
+            </Combobox.Trigger>
+            <Combobox.Portal keepMounted={keepMounted}>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="apricot">apricot</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await screen.findByRole('listbox');
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        // Typeahead starts matching after the selected item, like a native select.
+        await user.keyboard('a');
+        await waitFor(() => {
+          expect(trigger).toHaveTextContent('apricot');
+        });
+      },
+    );
+
+    it('cycles from the selected item after reordering items while closed (no items prop)', async () => {
+      function App() {
+        const [order, setOrder] = React.useState(['apple', 'apricot', 'banana']);
+
+        return (
+          <div>
+            <Combobox.Root defaultValue="apple">
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value data-testid="value" />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {order.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <button
+              type="button"
+              data-testid="reorder"
+              onClick={() => setOrder(['apricot', 'apple', 'banana'])}
+            >
+              reorder
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      // Open and close so the trigger path force-mounts the list.
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      // Reorder while closed: apple moves from index 0 to index 1.
+      fireEvent.click(screen.getByTestId('reorder'));
+      await flushMicrotasks();
+
+      // Typeahead starts after the selected item; from apple it wraps to apricot.
+      await user.keyboard('a');
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('apricot');
+      });
+    });
+
+    it('only matches mounted indexed item labels when typing on the focused trigger', async () => {
+      function TestComponent() {
+        const [showBanana, setShowBanana] = React.useState(true);
+
+        return (
+          <Combobox.Root>
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <button type="button" onClick={() => setShowBanana(false)}>
+              Remove banana
+            </button>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple" index={0}>
+                      Apple
+                    </Combobox.Item>
+                    {showBanana && (
+                      <Combobox.Item value="banana" index={1}>
+                        Banana
+                      </Combobox.Item>
+                    )}
+                    <Combobox.Item value="blueberry" index={2}>
+                      Blueberry
+                    </Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+
+      await user.click(screen.getByRole('button', { name: 'Remove banana' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('blueberry');
       });
     });
   });

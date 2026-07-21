@@ -122,13 +122,14 @@
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
+    "types:check": "api-extractor run --config api-extractor.json --typescript-compiler-folder ../../node_modules/typescript",
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.8",
-    "@floating-ui/utils": "^0.2.11",
+    "@floating-ui/react-dom": "^2.1.9",
+    "@floating-ui/utils": "^0.2.12",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {

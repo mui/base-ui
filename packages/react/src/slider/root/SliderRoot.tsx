@@ -36,23 +36,14 @@ import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../internals/reasons';
 
-function getSliderChangeEventReason(
-  event: React.KeyboardEvent | React.ChangeEvent,
-): SliderRootChangeEventReason {
-  return 'key' in event ? REASONS.keyboard : REASONS.inputChange;
-}
-
 function areValuesEqual(
   newValue: number | readonly number[],
   oldValue: number | readonly number[],
 ) {
-  if (typeof newValue === 'number' && typeof oldValue === 'number') {
-    return newValue === oldValue;
-  }
-  if (Array.isArray(newValue) && Array.isArray(oldValue)) {
-    return areArraysEqual(newValue, oldValue);
-  }
-  return false;
+  return (
+    newValue === oldValue ||
+    (Array.isArray(newValue) && Array.isArray(oldValue) && areArraysEqual(newValue, oldValue))
+  );
 }
 
 /**
@@ -133,8 +124,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  // The input element nested in the pressed thumb.
-  const pressedInputRef = React.useRef<HTMLInputElement>(null);
   // The px distance between the pointer and the center of a pressed thumb.
   const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
   // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
@@ -152,7 +141,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ThumbMetadata>>(),
   );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
@@ -202,21 +191,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   const setValue = useStableCallback(
-    (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
+    (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return false;
       }
-
-      const changeDetails =
-        details ??
-        createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      const nativeEvent = changeDetails.event;
-      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const nativeEvent = details.event;
+      const EventConstructor = nativeEvent.constructor as typeof Event;
       const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
@@ -224,15 +209,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         value: { value: newValue, name },
       });
 
-      changeDetails.event = clonedEvent;
+      details.event = clonedEvent;
 
-      onValueChange(newValue, changeDetails);
+      onValueChange(newValue, details);
 
-      if (changeDetails.isCanceled) {
+      if (details.isCanceled) {
         return false;
       }
 
-      lastChangeReasonRef.current = changeDetails.reason;
+      lastChangeReasonRef.current = details.reason;
 
       setValueUnwrapped(newValue as Value);
 
@@ -245,7 +230,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        const reason = getSliderChangeEventReason(event);
+        const reason = 'key' in event ? REASONS.keyboard : REASONS.inputChange;
         const applied = setValue(
           newValue,
           createChangeEventDetails(reason, event.nativeEvent, undefined, {
@@ -261,6 +246,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     if (min >= max) {
       warn('Slider `max` must be greater than `min`.');
@@ -268,18 +254,22 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   }
 
   useIsoLayoutEffect(() => {
+    if (!disabled) {
+      return;
+    }
+
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && contains(sliderRef.current, activeEl)) {
+    if (contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
       (activeEl as HTMLElement).blur();
     }
-  }, [disabled]);
 
-  if (disabled && active !== -1) {
-    setActive(-1);
-  }
+    if (active !== -1) {
+      setActive(-1);
+    }
+  }, [active, disabled, setActive]);
 
   const state: SliderRootState = React.useMemo(
     () => ({
@@ -332,7 +322,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       pressedValuesRef,
@@ -352,7 +341,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }),
     [
       active,
-      controlRef,
       ariaLabelledby,
       defaultLabelId,
       disabled,
@@ -363,7 +351,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       largeStep,
       lastUsedThumbIndex,
-      lastChangeReasonRef,
       form,
       locale,
       max,
@@ -372,22 +359,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      pressedInputRef,
-      pressedThumbCenterOffsetRef,
-      pressedThumbIndexRef,
-      pressedValuesRef,
       registerFieldControlRef,
       setActive,
-      setDragging,
-      setIndicatorPosition,
-      setLabelId,
       setValue,
       state,
       step,
       thumbCollisionBehavior,
       thumbAlignment,
       thumbMap,
-      thumbRefs,
       values,
     ],
   );

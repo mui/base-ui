@@ -1429,6 +1429,28 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.mock.calls.length).toBe(2);
     });
 
+    it('does not commit when a wheel step is a no-op at the boundary', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          max={5}
+          allowWheelScrub
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1 });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+      expect(input).toHaveValue('5');
+    });
+
     it('syncs the visible input value when using the mouse wheel after pasting', async () => {
       const onValueChange = vi.fn();
 
@@ -2275,6 +2297,61 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('hidden input', () => {
+    function getHiddenInput() {
+      const hiddenInput = document.querySelector<HTMLInputElement>(
+        'input[aria-hidden][type=number]',
+      );
+      if (!hiddenInput) {
+        throw new Error('Expected a hidden number input.');
+      }
+      return hiddenInput;
+    }
+
+    it('forwards focus to the visible input', async () => {
+      await render(<NumberField defaultValue={5} />);
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(screen.getByRole('textbox')).toHaveFocus();
+    });
+
+    it('clears the value when autofill empties the hidden input', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
+
+      fireEvent.change(getHiddenInput(), { target: { value: '' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+    });
+
+    it('applies an autofilled value to the visible input', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField onValueChange={onValueChange} />);
+
+      fireEvent.change(getHiddenInput(), { target: { value: '7' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('7');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(7);
+    });
+
+    it('validates the autofilled value even when the change is canceled', async () => {
+      const validate = vi.fn((_value: unknown) => null);
+
+      await render(
+        <Field.Root validate={validate} validationMode="onChange">
+          <NumberField onValueChange={(_value, details) => details.cancel()} />
+        </Field.Root>,
+      );
+
+      fireEvent.change(getHiddenInput(), { target: { value: '7' } });
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(validate.mock.lastCall?.[0]).toBe(7);
+    });
+  });
+
   describe('integration: exotic inputs and IME', () => {
     it('accepts Persian digit keyboard input', async () => {
       const onValueChange = vi.fn();
@@ -2296,6 +2373,38 @@ describe('<NumberField />', () => {
       await user.type(input, '۱۲۳');
 
       expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(123);
+    });
+
+    it.each([
+      ['Persian', '۱۲۳', 123],
+      ['Arabic-Indic', '١٢٣', 123],
+      ['fullwidth', '１２３', 123],
+      ['Han', '一二三', 123],
+    ] as const)('pastes %s numerals through the input contract', async (_label, text, value) => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={0} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, text);
+
+      expect(input).toHaveValue(text);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(value);
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.inputPaste);
+    });
+
+    it('rejects invalid pasted characters without changing the value contract', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={12} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('12');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('parses Persian digits and separators via change events', async () => {

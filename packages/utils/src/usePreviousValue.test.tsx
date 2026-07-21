@@ -74,6 +74,56 @@ describe('usePrevious', () => {
     expect(previousValue).toBe(true);
   });
 
+  it('should treat NaN as unchanged', () => {
+    let previousValue: any;
+    const { setProps } = render(
+      <TestComponent value={Number.NaN}>
+        {(previous) => {
+          previousValue = previous;
+          return null;
+        }}
+      </TestComponent>,
+    );
+
+    expect(previousValue).toBe(null);
+
+    setProps({ value: Number.NaN, unrelatedProp: 1 });
+    expect(previousValue).toBe(null);
+  });
+
+  it('should return the previous value when changing to NaN', () => {
+    let previousValue: any;
+    const { setProps } = render(
+      <TestComponent value={1}>
+        {(previous) => {
+          previousValue = previous;
+          return null;
+        }}
+      </TestComponent>,
+    );
+
+    setProps({ value: Number.NaN });
+    expect(previousValue).toBe(1);
+  });
+
+  it('should distinguish positive and negative zero', () => {
+    let previousValue: any;
+    const { setProps } = render(
+      <TestComponent value={0}>
+        {(previous) => {
+          previousValue = previous;
+          return null;
+        }}
+      </TestComponent>,
+    );
+
+    setProps({ value: -0 });
+    expect(previousValue).toBe(0);
+
+    setProps({ value: 0 });
+    expect(previousValue).toBe(-0);
+  });
+
   it('should ignore renders where the value does not change', () => {
     let previousValue: any;
     const { setProps } = render(

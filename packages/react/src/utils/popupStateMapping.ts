@@ -1,5 +1,9 @@
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { TransitionStatusDataAttributes } from '../internals/stateAttributesMapping';
+import {
+  TransitionStatusDataAttributes,
+  transitionStatusMapping,
+} from '../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
 
 export enum CommonPopupDataAttributes {
   /**
@@ -45,25 +49,27 @@ export enum CommonTriggerDataAttributes {
   pressed = 'data-pressed',
 }
 
+// Literal keys (instead of enum member references) keep the docs-only enums above
+// tree-shakeable: a runtime reference would retain the whole enum IIFE in every bundle.
 const TRIGGER_HOOK = {
-  [CommonTriggerDataAttributes.popupOpen]: '',
+  'data-popup-open': '',
 };
 
 const PRESSABLE_TRIGGER_HOOK = {
-  [CommonTriggerDataAttributes.popupOpen]: '',
-  [CommonTriggerDataAttributes.pressed]: '',
+  'data-popup-open': '',
+  'data-pressed': '',
 };
 
 const POPUP_OPEN_HOOK = {
-  [CommonPopupDataAttributes.open]: '',
+  'data-open': '',
 };
 
 const POPUP_CLOSED_HOOK = {
-  [CommonPopupDataAttributes.closed]: '',
+  'data-closed': '',
 };
 
 const ANCHOR_HIDDEN_HOOK = {
-  [CommonPopupDataAttributes.anchorHidden]: '',
+  'data-anchor-hidden': '',
 };
 
 export const triggerOpenStateMapping = {
@@ -98,3 +104,12 @@ export const popupStateMapping = {
     return null;
   },
 } satisfies StateAttributesMapping<{ open: boolean; anchorHidden: boolean }>;
+
+export const popupTransitionStateMapping = {
+  ...popupStateMapping,
+  ...transitionStatusMapping,
+} satisfies StateAttributesMapping<{
+  open: boolean;
+  anchorHidden: boolean;
+  transitionStatus: TransitionStatus;
+}>;

@@ -4,7 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -20,7 +20,7 @@ import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findItemIndex, selectedValueIncludes } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -38,17 +38,19 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 ) {
   const {
     anchor,
-    positionMethod = 'absolute',
     className,
     render,
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
+    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
+    // remain destructured to exclude the props from `elementProps`.
+    positionMethod,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding,
-    arrowPadding = 5,
-    sticky = false,
+    arrowPadding,
+    sticky,
     disableAnchorTracking,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
@@ -66,8 +68,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     initialValueRef,
     popupRef,
     setValue,
+    floatingContext: floatingRootContext,
   } = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -93,12 +95,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   useIsoLayoutEffect(() => {
     if (!mounted) {
-      if (selectors.scrollUpArrowVisible(store.state)) {
-        store.set('scrollUpArrowVisible', false);
-      }
-      if (selectors.scrollDownArrowVisible(store.state)) {
-        store.set('scrollDownArrowVisible', false);
-      }
+      store.update({ scrollUpArrowVisible: false, scrollDownArrowVisible: false });
     }
   }, [store, mounted]);
 
@@ -143,9 +140,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
 
-  const setPositionerElement = useStableCallback((element) => {
-    store.set('positionerElement', element);
-  });
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   const element = usePositioner(componentProps, state, {
     styles: positionerStyles,
@@ -160,10 +155,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const onMapChange = useStableCallback(
     (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (map.size === 0 && prevMapSizeRef.current === 0) {
-        return;
-      }
-
       if (valuesRef.current.length === 0) {
         return;
       }
@@ -195,16 +186,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       }
 
       if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const hasVisibleItem = (selectedItemValue: unknown) =>
-          findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1;
-        const nextValue = value.filter((selectedItemValue) => hasVisibleItem(selectedItemValue));
-        if (
-          nextValue.length !== value.length ||
-          nextValue.some(
-            (selectedItemValue) =>
-              !selectedValueIncludes(value, selectedItemValue, isItemEqualToValue),
-          )
-        ) {
+        const nextValue = value.filter(
+          (selectedItemValue) =>
+            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
+        );
+        if (nextValue.length !== value.length) {
           setValue(nextValue, eventDetails);
 
           if (nextValue.length === 0) {

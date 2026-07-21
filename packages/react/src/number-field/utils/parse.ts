@@ -1,59 +1,37 @@
 import { getFormatter } from '@base-ui/utils/formatNumber';
 
-export const HAN_NUMERALS = ['零', '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-// Map Han numeral characters to ASCII digits. Includes both forms of zero.
-export const HAN_NUMERAL_TO_DIGIT: Record<string, string> = {
-  零: '0',
-  〇: '0',
-  一: '1',
-  二: '2',
-  三: '3',
-  四: '4',
-  五: '5',
-  六: '6',
-  七: '7',
-  八: '8',
-  九: '9',
-};
-export const ARABIC_NUMERALS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-export const PERSIAN_NUMERALS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-export const FULLWIDTH_NUMERALS = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９'];
+// Han numerals in digit order, with both zero forms first ('零' at 0, '〇' at 1), so a
+// character's digit value is `max(indexOf - 1, 0)`.
+const HAN_NUMERALS = '零〇一二三四五六七八九';
+
+// Arabic-Indic (U+0660–0669), Persian (U+06F0–06F9), and fullwidth (U+FF10–FF19) digits are
+// contiguous ranges whose bases are divisible by 16, so `charCode % 16` is the digit value for
+// all three systems.
+const NON_ASCII_DIGIT_RE = /[٠-٩۰-۹０-９]/g;
+const HAN_RE = /[零〇一二三四五六七八九]/g;
 
 export const PERCENTAGES = ['%', '٪', '％', '﹪'];
 export const PERMILLE = ['‰', '؉'];
-
-export const UNICODE_MINUS_SIGNS = ['−', '－', '‒', '–', '—', '﹣'];
-export const UNICODE_PLUS_SIGNS = ['＋', '﹢'];
 
 // Fullwidth punctuation common in CJK inputs
 export const FULLWIDTH_DECIMAL = '．'; // U+FF0E
 export const FULLWIDTH_GROUP = '，'; // U+FF0C
 
-export const ARABIC_RE = new RegExp(`[${ARABIC_NUMERALS.join('')}]`, 'g');
-export const PERSIAN_RE = new RegExp(`[${PERSIAN_NUMERALS.join('')}]`, 'g');
-export const FULLWIDTH_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`, 'g');
-export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
-export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
-export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
-const PERCENT_GLOBAL_RE = new RegExp(PERCENT_RE.source, 'g');
-const PERMILLE_GLOBAL_RE = new RegExp(PERMILLE_RE.source, 'g');
+export const PERCENT_RE = /[%٪％﹪]/;
+export const PERMILLE_RE = /[‰؉]/;
+const PERCENT_GLOBAL_RE = /[%٪％﹪]/g;
+const PERMILLE_GLOBAL_RE = /[‰؉]/g;
 
-// Detection regexes (non-global to avoid lastIndex side effects), derived from the numeral arrays
-// so they can't drift out of sync.
-export const ARABIC_DETECT_RE = new RegExp(`[${ARABIC_NUMERALS.join('')}]`);
-export const PERSIAN_DETECT_RE = new RegExp(`[${PERSIAN_NUMERALS.join('')}]`);
-export const HAN_DETECT_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`);
-export const FULLWIDTH_DETECT_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`);
+// Detection regexes (non-global to avoid lastIndex side effects). Arabic-Indic and Persian
+// digits share one regex because both resolve to the `ar` locale heuristic.
+export const ARABIC_PERSIAN_DETECT_RE = /[٠-٩۰-۹]/;
+export const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
+
+const ANY_NUMERAL_DETECT_RE = /[0-9٠-٩۰-۹０-９零〇一二三四五六七八九]/;
 
 // Whether the character is a digit in any numeral system the field accepts.
 export function isNumeralChar(char: string) {
-  return (
-    (char >= '0' && char <= '9') ||
-    ARABIC_DETECT_RE.test(char) ||
-    PERSIAN_DETECT_RE.test(char) ||
-    HAN_DETECT_RE.test(char) ||
-    FULLWIDTH_DETECT_RE.test(char)
-  );
+  return ANY_NUMERAL_DETECT_RE.test(char);
 }
 
 export const BASE_NON_NUMERIC_SYMBOLS = [
@@ -69,27 +47,21 @@ export const SPACE_SEPARATOR_RE = /\p{Zs}/u;
 // currency signs). `parseNumber` strips these, so input validation must treat them as ignorable
 // rather than rejecting the typed string. Non-global so it's safe for repeated `.test(char)`.
 export const FORMAT_CONTROL_DETECT_RE = /\p{Cf}/u;
-const FORMAT_CONTROL_GLOBAL_RE = new RegExp(FORMAT_CONTROL_DETECT_RE.source, 'gu');
-export const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
-export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
+const FORMAT_CONTROL_GLOBAL_RE = /\p{Cf}/gu;
+export const PLUS_SIGNS_WITH_ASCII = ['+', '＋', '﹢'];
+export const MINUS_SIGNS_WITH_ASCII = ['-', '−', '－', '‒', '–', '—', '﹣'];
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
 
 function shiftDecimal(value: number, exponentDelta: number) {
   const [coefficient, exponent = '0'] = String(value).split('e');
   return Number(`${coefficient}e${Number(exponent) + exponentDelta}`);
 }
 
-const charClassFrom = (chars: string[]) => `[${chars.map(escapeClassChar).join('')}]`;
-
-const ANY_MINUS_CLASS = charClassFrom(['-'].concat(UNICODE_MINUS_SIGNS));
-const ANY_PLUS_CLASS = charClassFrom(['+'].concat(UNICODE_PLUS_SIGNS));
-
-export const ANY_MINUS_RE = new RegExp(ANY_MINUS_CLASS, 'gu');
-export const ANY_PLUS_RE = new RegExp(ANY_PLUS_CLASS, 'gu');
-export const ANY_MINUS_DETECT_RE = new RegExp(ANY_MINUS_CLASS);
-export const ANY_PLUS_DETECT_RE = new RegExp(ANY_PLUS_CLASS);
+export const ANY_MINUS_RE = /[-−－‒–—﹣]/gu;
+export const ANY_PLUS_RE = /[+＋﹢]/gu;
+export const ANY_MINUS_DETECT_RE = /[-−－‒–—﹣]/;
+export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 
 // A representative value with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
@@ -116,17 +88,20 @@ export function getNumberLocaleDetails(
   });
 
   // The formatting options may omit the decimal separator (e.g. integer formats), so resolve it
-  // from the plain locale formatter. This overrides any options-derived decimal too, which is
-  // safe because the separator is locale-determined and identical across format styles.
+  // from the plain locale formatter, which renders one for every locale and numbering system. This
+  // overrides any options-derived decimal too, which is safe because the separator is
+  // locale-determined and identical across format styles. The ASCII seed is a formality to keep
+  // the separator non-optional for callers; it is always replaced below.
+  let decimal = '.';
   getFormatter(locale)
     .formatToParts(0.1)
     .forEach((part) => {
       if (part.type === 'decimal') {
-        result[part.type] = part.value;
+        decimal = part.value;
       }
     });
 
-  return result;
+  return { ...result, decimal };
 }
 
 export function parseNumber(
@@ -134,39 +109,28 @@ export function parseNumber(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  if (formattedNumber == null) {
-    return null;
-  }
-
   // Normalize control characters and whitespace; remove bidi/format controls
-  let input = String(formattedNumber).replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
+  let input = formattedNumber.replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
 
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
 
   let isNegative = false;
 
-  // Trailing sign, e.g. "1234-" / "1234+"
-  const trailing = input.match(/([+-])\s*$/);
-  if (trailing) {
-    if (trailing[1] === '-') {
+  // Strips a matched sign (leading "-12" / trailing "1234-") while recording negativity.
+  const takeSign = (match: string, sign: string) => {
+    if (sign === '-') {
       isNegative = true;
     }
-    input = input.replace(/([+-])\s*$/, '');
-  }
-  // Leading sign
-  const leading = input.match(/^\s*([+-])/);
-  if (leading) {
-    if (leading[1] === '-') {
-      isNegative = true;
-    }
-    input = input.replace(/^\s*[+-]/, '');
-  }
+    return '';
+  };
+
+  input = input.replace(/([+-])\s*$/, takeSign).replace(/^\s*([+-])/, takeSign);
 
   // Heuristic locale detection
   let computedLocale = locale;
   if (computedLocale === undefined) {
-    if (ARABIC_DETECT_RE.test(input) || PERSIAN_DETECT_RE.test(input)) {
+    if (ARABIC_PERSIAN_DETECT_RE.test(input)) {
       computedLocale = 'ar';
     } else if (HAN_DETECT_RE.test(input)) {
       computedLocale = 'zh';
@@ -202,35 +166,24 @@ export function parseNumber(
     }
   }
 
-  const replacements: Array<{
-    regex: RegExp | null;
-    replacement: string | ((m: string) => string);
-  }> = [
-    { regex: groupRegex, replacement: '' },
-    { regex: decimal ? new RegExp(escapeRegExp(decimal), 'g') : null, replacement: '.' },
-    // Fullwidth punctuation
-    { regex: /．/g, replacement: '.' }, // FULLWIDTH_DECIMAL
-    { regex: /，/g, replacement: '' }, // FULLWIDTH_GROUP
-    // Arabic punctuation
-    { regex: /٫/g, replacement: '.' }, // ARABIC DECIMAL SEPARATOR (U+066B)
-    { regex: /٬/g, replacement: '' }, // ARABIC THOUSANDS SEPARATOR (U+066C)
+  const replacements: Array<[RegExp | null, string | ((m: string) => string)]> = [
+    [groupRegex, ''],
+    [new RegExp(escapeRegExp(decimal), 'g'), '.'],
+    // Fullwidth/Arabic punctuation
+    [/[．٫]/g, '.'], // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
+    [/[，٬]/g, ''], // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR (U+066C)
     // Currency & unit labels
-    { regex: currency ? new RegExp(escapeRegExp(currency), 'g') : null, replacement: '' },
-    { regex: unitRegex, replacement: '' },
-    { regex: PERCENT_GLOBAL_RE, replacement: '' },
-    { regex: PERMILLE_GLOBAL_RE, replacement: '' },
-    {
-      regex: exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null,
-      replacement: 'e',
-    },
+    [currency ? new RegExp(escapeRegExp(currency), 'g') : null, ''],
+    [unitRegex, ''],
+    [PERCENT_GLOBAL_RE, ''],
+    [PERMILLE_GLOBAL_RE, ''],
+    [exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null, 'e'],
     // Numeral systems to ASCII digits
-    { regex: ARABIC_RE, replacement: (ch) => String(ARABIC_NUMERALS.indexOf(ch)) },
-    { regex: PERSIAN_RE, replacement: (ch) => String(PERSIAN_NUMERALS.indexOf(ch)) },
-    { regex: FULLWIDTH_RE, replacement: (ch) => String(FULLWIDTH_NUMERALS.indexOf(ch)) },
-    { regex: HAN_RE, replacement: (ch) => HAN_NUMERAL_TO_DIGIT[ch] },
+    [NON_ASCII_DIGIT_RE, (ch: string) => String(ch.charCodeAt(0) % 16)],
+    [HAN_RE, (ch: string) => String(Math.max(HAN_NUMERALS.indexOf(ch) - 1, 0))],
   ];
 
-  let unformatted = replacements.reduce((acc, { regex, replacement }) => {
+  let unformatted = replacements.reduce((acc, [regex, replacement]) => {
     return regex ? acc.replace(regex, replacement as any) : acc;
   }, input);
 

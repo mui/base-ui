@@ -41,7 +41,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+  const submenuRootContext = useMenuSubmenuRootContext();
+  if (!submenuRootContext?.parentMenu) {
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
+  }
+
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
@@ -78,11 +83,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     },
     [store],
   );
-
-  const submenuRootContext = useMenuSubmenuRootContext();
-  if (!submenuRootContext?.parentMenu) {
-    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
-  }
 
   store.useSyncedValue('closeDelay', closeDelay);
 
@@ -144,6 +144,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isClosing: () => store.select('transitionStatus') === 'ending',
+    // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
+    // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
+    guardStaleOpen: true,
   });
 
   const click = useClick(floatingRootContext, {

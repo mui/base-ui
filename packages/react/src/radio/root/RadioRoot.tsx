@@ -2,15 +2,14 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -62,11 +61,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     touched = false,
     validation,
     name,
+    setCheckedValue = NOOP,
+    setTouched = NOOP,
+    registerInputRef = NOOP,
   } = groupContext ?? {};
-  const setCheckedValue = groupContext?.setCheckedValue ?? NOOP;
-  const setTouched = groupContext?.setTouched ?? NOOP;
-  const registerControlRef = groupContext?.registerControlRef ?? NOOP;
-  const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
     setTouched: setFieldTouched,
@@ -87,15 +85,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleControlRef = useStableCallback((element: HTMLElement | null) => {
-    if (!element) {
-      return;
-    }
-
-    registerControlRef(element, disabled);
-  });
-
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef);
+  const registerFieldInput = validation?.registerInput;
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement) =>
+      registerFieldInput?.(element, { controlRef: radioRef, value: undefined }),
+    [registerFieldInput],
+  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef, registerInput);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
@@ -113,12 +109,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       return;
     }
 
-    if (radioRef.current) {
-      registerControlRef(radioRef.current, disabled);
-    }
-
     registerInputRef(inputRef.current);
-  }, [checked, disabled, registerControlRef, registerInputRef]);
+  }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();
   const inputId = useLabelableId({
@@ -138,13 +130,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
-    'aria-required': required || undefined,
-    'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
+        // Radio only activates with Space. Preventing the keydown's default
+        // stops useButton from turning Enter into a click.
         event.preventDefault();
       }
     },
@@ -160,15 +152,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
         return;
       }
 
-      input.dispatchEvent(
-        new (ownerWindow(input).PointerEvent)('click', {
-          bubbles: true,
-          shiftKey: event.shiftKey,
-          ctrlKey: event.ctrlKey,
-          altKey: event.altKey,
-          metaKey: event.metaKey,
-        }),
-      );
+      dispatchClickWithModifiers(input, event);
     },
     onFocus(event) {
       if (event.defaultPrevented || disabled || readOnly || !touched) {
@@ -221,6 +205,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       setFieldTouched(true);
     },
+    onClick(event) {
+      // Clicks dispatched on the input from the root's `onClick` and `onFocus` are an
+      // implementation detail and must not reach ancestors.
+      event.stopPropagation();
+    },
     onFocus() {
       radioRef.current?.focus();
     },
@@ -241,7 +230,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
   const isRadioGroup = groupContext !== undefined;
 
-  const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
+  const refs = [forwardedRef, radioRef, buttonRef];
   const props = [
     rootProps,
     elementProps,

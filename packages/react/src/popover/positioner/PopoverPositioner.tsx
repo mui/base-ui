@@ -17,7 +17,6 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -36,21 +35,23 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     className,
     style,
     anchor,
-    positionMethod = 'absolute',
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
+    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
+    // remain destructured to exclude the props from `elementProps`.
+    positionMethod,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
+    collisionPadding,
+    arrowPadding,
+    sticky,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
@@ -64,7 +65,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -87,7 +88,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     nodeId,
     collisionAvoidance,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
   });
 
   const domReference = floatingRootContext.useState('domReferenceElement');
@@ -121,19 +122,16 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
+  const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
+
   useAnchoredPopupScrollLock(
-    open && modal === true && openReason !== REASONS.triggerHover,
+    open && trueModalNonHover,
     openMethod === 'touch',
     positionerElement,
     triggerElement,
   );
 
-  const setPositionerElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('positionerElement', element);
-    },
-    [store],
-  );
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   const state: PopoverPositionerState = {
     open,
@@ -154,12 +152,8 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioning}>
-      {mounted && modal === true && openReason !== REASONS.triggerHover && (
-        <InternalBackdrop
-          ref={store.context.internalBackdropRef}
-          inert={inertValue(!open)}
-          cutout={triggerElement}
-        />
+      {mounted && trueModalNonHover && (
+        <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>

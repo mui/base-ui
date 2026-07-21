@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import {
   applyPopupOpenChange,
   createPopupFloatingRootContext,
@@ -16,21 +16,24 @@ import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import { CLOSE_DELAY } from '../utils/constants';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
+  closeDelay: number;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
-  closeDelayRef: React.RefObject<number>;
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
   ...popupStoreSelectors,
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  instantType: (state: State<unknown>) => state.instantType,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
 };
 
 type Selectors = typeof selectors;
@@ -124,7 +127,8 @@ function createInitialState<Payload>(
   const state: State<Payload> = {
     ...createInitialPopupStoreState<Payload>(),
     instantType: undefined,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
+    closeDelay: CLOSE_DELAY,
     ...initialState,
   };
 
@@ -139,7 +143,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    closeDelayRef: { current: CLOSE_DELAY },
     inlineRectCoordsRef: { current: undefined },
   };
 }

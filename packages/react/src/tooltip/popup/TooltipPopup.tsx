@@ -4,19 +4,13 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
-
-const stateAttributesMapping: StateAttributesMapping<TooltipPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 /**
  * A container for the tooltip contents.
@@ -69,8 +63,13 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.context.popupRef, setPopupElement],
-    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    stateAttributesMapping,
+    props: [
+      FOCUSABLE_POPUP_PROPS,
+      popupProps,
+      getDisabledMountTransitionStyles(transitionStatus),
+      elementProps,
+    ],
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return element;

@@ -1,3 +1,6 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .CodeBlockRoot {
     align-self: stretch;
@@ -85,6 +88,11 @@
       outline: 2px solid var(--gray-t2);
       outline-offset: 0;
     }
+  }
+
+  .CodeBlockRoot > .CodeBlockPreContainer:first-child .CodeBlockViewport {
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
   }
 
   .CodeBlockPreInline {

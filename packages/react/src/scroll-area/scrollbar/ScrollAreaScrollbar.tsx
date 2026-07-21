@@ -7,8 +7,6 @@ import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getOffset } from '../utils/getOffset';
-import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
-import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
@@ -37,7 +35,6 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     scrollingX,
     scrollingY,
     hiddenState,
-    overflowEdges,
     scrollbarYRef,
     scrollbarXRef,
     viewportRef,
@@ -46,30 +43,25 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerDown,
     handlePointerUp,
     handleScroll,
+    disableViewportSnap,
     rootId,
     thumbSize,
     hasMeasuredScrollbar,
+    viewportState,
   } = useScrollAreaRootContext();
 
+  const vertical = orientation === 'vertical';
+
   const state: ScrollAreaScrollbarState = {
+    ...viewportState,
     hovering,
-    scrolling: {
-      horizontal: scrollingX,
-      vertical: scrollingY,
-    }[orientation],
+    scrolling: vertical ? scrollingY : scrollingX,
     orientation,
-    hasOverflowX: !hiddenState.x,
-    hasOverflowY: !hiddenState.y,
-    overflowXStart: overflowEdges.xStart,
-    overflowXEnd: overflowEdges.xEnd,
-    overflowYStart: overflowEdges.yStart,
-    overflowYEnd: overflowEdges.yEnd,
-    cornerHidden: hiddenState.corner,
   };
 
   const direction = useDirection();
   const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
-  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
+  const isHidden = vertical ? hiddenState.y : hiddenState.x;
   const shouldRender = keepMounted || !isHidden;
 
   React.useEffect(() => {
@@ -78,7 +70,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     }
 
     const viewportEl = viewportRef.current;
-    const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
+    const scrollbarEl = vertical ? scrollbarYRef.current : scrollbarXRef.current;
 
     if (!scrollbarEl) {
       return undefined;
@@ -89,7 +81,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      const horizontal = orientation === 'horizontal';
+      const horizontal = !vertical;
       const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
       const delta = horizontal ? event.deltaX : event.deltaY;
       if (delta === 0) {
@@ -121,15 +113,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     }
 
     return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
-  }, [
-    direction,
-    handleScroll,
-    orientation,
-    scrollbarXRef,
-    scrollbarYRef,
-    shouldRender,
-    viewportRef,
-  ]);
+  }, [direction, handleScroll, vertical, scrollbarXRef, scrollbarYRef, shouldRender, viewportRef]);
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
@@ -139,82 +123,70 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
 
       const target = getTarget(event.nativeEvent) as Element | null;
-      const thumb = orientation === 'vertical' ? thumbYRef.current : thumbXRef.current;
+      const thumbEl = vertical ? thumbYRef.current : thumbXRef.current;
 
       // Ignore clicks on thumb, including cases where React retargets the
       // synthetic event to the track host across a shadow boundary.
-      if (thumb && contains(thumb, target)) {
+      if (thumbEl && contains(thumbEl, target)) {
         return;
       }
 
-      if (!viewportRef.current) {
+      const viewportEl = viewportRef.current;
+      if (!viewportEl) {
         return;
       }
 
-      // Handle Y-axis (vertical) scroll
-      if (thumbYRef.current && scrollbarYRef.current && orientation === 'vertical') {
-        const thumbYOffset = getOffset(thumbYRef.current, 'margin', 'y');
-        const scrollbarYOffset = getOffset(scrollbarYRef.current, 'padding', 'y');
-        const thumbHeight = thumbYRef.current.offsetHeight;
-        const trackRectY = scrollbarYRef.current.getBoundingClientRect();
-        const clickY =
-          event.clientY - trackRectY.top - thumbHeight / 2 - scrollbarYOffset + thumbYOffset / 2;
+      const scrollbarEl = vertical ? scrollbarYRef.current : scrollbarXRef.current;
 
-        const scrollableContentHeight = viewportRef.current.scrollHeight;
-        const viewportHeight = viewportRef.current.clientHeight;
+      if (thumbEl && scrollbarEl) {
+        const axis = vertical ? 'y' : 'x';
+        const thumbOffset = getOffset(thumbEl, 'margin', axis);
+        const scrollbarOffset = getOffset(scrollbarEl, 'padding', axis);
+        const thumbSizePx = vertical ? thumbEl.offsetHeight : thumbEl.offsetWidth;
+        const trackRect = scrollbarEl.getBoundingClientRect();
+        const clickPosition = vertical
+          ? event.clientY - trackRect.top - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2
+          : event.clientX - trackRect.left - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2;
 
-        const maxThumbOffsetY =
-          scrollbarYRef.current.offsetHeight - thumbHeight - scrollbarYOffset - thumbYOffset;
-        // A short or heavily padded track can drive `maxThumbOffsetY` to zero or
+        const scrollableSize = vertical ? viewportEl.scrollHeight : viewportEl.scrollWidth;
+        const viewportSize = vertical ? viewportEl.clientHeight : viewportEl.clientWidth;
+        const trackSize = vertical ? scrollbarEl.offsetHeight : scrollbarEl.offsetWidth;
+
+        const maxThumbOffset = trackSize - thumbSizePx - scrollbarOffset - thumbOffset;
+        // A short or heavily padded track can drive `maxThumbOffset` to zero or
         // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
-        // would yield a non-finite (`Infinity`/`NaN`) or inverted `scrollTop`.
-        if (maxThumbOffsetY <= 0) {
+        // would yield a non-finite (`Infinity`/`NaN`) or inverted scroll position.
+        if (maxThumbOffset <= 0) {
           return;
         }
 
-        const scrollRatioY = clickY / maxThumbOffsetY;
-        const newScrollTop = scrollRatioY * (scrollableContentHeight - viewportHeight);
+        const scrollRatio = clickPosition / maxThumbOffset;
+        const maxScrollDistance = scrollableSize - viewportSize;
 
-        viewportRef.current.scrollTop = newScrollTop;
-      }
+        // Disable snapping before the jump-to-click assignment, or the
+        // assigned position quantizes to the nearest snap point and the thumb
+        // stays offset from the pointer for the whole drag. `handlePointerDown`
+        // below re-runs this as a guarded no-op for the thumb-drag path.
+        disableViewportSnap();
 
-      if (thumbXRef.current && scrollbarXRef.current && orientation === 'horizontal') {
-        const thumbXOffset = getOffset(thumbXRef.current, 'margin', 'x');
-        const scrollbarXOffset = getOffset(scrollbarXRef.current, 'padding', 'x');
-        const thumbWidth = thumbXRef.current.offsetWidth;
-        const trackRectX = scrollbarXRef.current.getBoundingClientRect();
-        const clickX =
-          event.clientX - trackRectX.left - thumbWidth / 2 - scrollbarXOffset + thumbXOffset / 2;
-
-        const scrollableContentWidth = viewportRef.current.scrollWidth;
-        const viewportWidth = viewportRef.current.clientWidth;
-
-        const maxThumbOffsetX =
-          scrollbarXRef.current.offsetWidth - thumbWidth - scrollbarXOffset - thumbXOffset;
-        // See the vertical case: guard against a non-positive offset.
-        if (maxThumbOffsetX <= 0) {
-          return;
-        }
-
-        const scrollRatioX = clickX / maxThumbOffsetX;
-
-        let newScrollLeft: number;
-        if (direction === 'rtl') {
+        if (vertical) {
+          viewportEl.scrollTop = scrollRatio * maxScrollDistance;
+        } else if (direction === 'rtl') {
           // In RTL, invert the scroll direction
-          newScrollLeft = (1 - scrollRatioX) * (scrollableContentWidth - viewportWidth);
+          let newScrollLeft = (1 - scrollRatio) * maxScrollDistance;
 
           // Adjust for browsers that use negative scrollLeft in RTL
-          if (viewportRef.current.scrollLeft <= 0) {
+          if (viewportEl.scrollLeft <= 0) {
             newScrollLeft = -newScrollLeft;
           }
-        } else {
-          newScrollLeft = scrollRatioX * (scrollableContentWidth - viewportWidth);
-        }
 
-        viewportRef.current.scrollLeft = newScrollLeft;
+          viewportEl.scrollLeft = newScrollLeft;
+        } else {
+          viewportEl.scrollLeft = scrollRatio * maxScrollDistance;
+        }
       }
 
-      handleScroll({ x: viewportRef.current.scrollLeft, y: viewportRef.current.scrollTop });
+      handleScroll({ x: viewportEl.scrollLeft, y: viewportEl.scrollTop });
 
       handlePointerDown(event);
     },
@@ -228,36 +200,35 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       WebkitUserSelect: 'none',
       userSelect: 'none',
       visibility: hideTrackUntilMeasured ? 'hidden' : undefined,
-      ...(orientation === 'vertical' && {
-        top: 0,
-        bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
-        insetInlineEnd: 0,
-        [ScrollAreaScrollbarCssVars.scrollAreaThumbHeight as string]: `${thumbSize.height}px`,
-      }),
-      ...(orientation === 'horizontal' && {
-        insetInlineStart: 0,
-        insetInlineEnd: `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
-        bottom: 0,
-        [ScrollAreaScrollbarCssVars.scrollAreaThumbWidth as string]: `${thumbSize.width}px`,
-      }),
+      ...(vertical
+        ? {
+            top: 0,
+            bottom: 'var(--scroll-area-corner-height)',
+            insetInlineEnd: 0,
+            ['--scroll-area-thumb-height' as string]: `${thumbSize.height}px`,
+          }
+        : {
+            insetInlineStart: 0,
+            insetInlineEnd: 'var(--scroll-area-corner-width)',
+            bottom: 0,
+            ['--scroll-area-thumb-width' as string]: `${thumbSize.width}px`,
+          }),
     },
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, orientation === 'vertical' ? scrollbarYRef : scrollbarXRef],
+    ref: [forwardedRef, vertical ? scrollbarYRef : scrollbarXRef],
     state,
     props: [props, elementProps],
     stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
-
-  const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
   if (!shouldRender) {
     return null;
   }
 
   return (
-    <ScrollAreaScrollbarContext.Provider value={contextValue}>
+    <ScrollAreaScrollbarContext.Provider value={orientation}>
       {element}
     </ScrollAreaScrollbarContext.Provider>
   );
