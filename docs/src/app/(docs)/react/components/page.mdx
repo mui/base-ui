@@ -1538,7 +1538,9 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Separator
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemDisabled, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Data Attributes: data-disabled, data-orientation
+    - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
   - Select - Trigger
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -1550,11 +1552,13 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-popup-open
   - Select - List
     - Props: className, render, style
+    - Data Attributes: data-activation-direction, data-orientation
   - Select - Portal
     - Props: className, container, render, style
   - Select - Backdrop
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+    - CSS Variables: --drawer-swipe-progress
   - Select - Positioner
     - Props: align, alignItemWithTrigger, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
@@ -1562,6 +1566,7 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
+    - CSS Variables: --nested-dialogs
   - Select - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
@@ -1570,12 +1575,15 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Select - Group
     - Props: className, render, style
+    - Data Attributes: data-disabled
   - Select - GroupLabel
     - Props: className, render, style
   - Select - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Select - Label
     - Props: className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Select - ItemText
     - Props: className, render, style
   - Select - ItemIndicator
@@ -1587,7 +1595,11 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+  - Select - Virtualizer
+    - Props: children, className, enabled, estimatedItemHeight, getItemKey, overscanPx, render, style
+    - Data Attributes: data-empty
+    - CSS Variables: --total-size
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State, Select.Virtualizer.Props, Select.Virtualizer.State
 
 </details>
 
