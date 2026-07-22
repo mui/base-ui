@@ -194,6 +194,100 @@ describe('<Menu.Viewport />', () => {
     });
   });
 
+  it('should restore the originating item when returning multiple levels at once', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<'main' | 'more' | 'deep'>('main');
+
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Viewport data-testid="viewport" transitionKey={view}>
+                  {view === 'main' && (
+                    <React.Fragment>
+                      <Menu.Item>New window</Menu.Item>
+                      <Menu.Item>Open file</Menu.Item>
+                      <Menu.Item
+                        closeOnClick={false}
+                        onKeyDown={(event) => {
+                          if (event.key === 'ArrowRight') {
+                            queueMicrotask(() => setView('more'));
+                          }
+                        }}
+                      >
+                        More tools
+                      </Menu.Item>
+                    </React.Fragment>
+                  )}
+                  {view === 'more' && (
+                    <React.Fragment>
+                      <Menu.Item closeOnClick={false} onClick={() => setView('main')}>
+                        Back
+                      </Menu.Item>
+                      <Menu.Item
+                        closeOnClick={false}
+                        onKeyDown={(event) => {
+                          if (event.key === 'ArrowRight') {
+                            queueMicrotask(() => setView('deep'));
+                          }
+                        }}
+                      >
+                        Deep tools
+                      </Menu.Item>
+                      <Menu.Item>Task manager</Menu.Item>
+                    </React.Fragment>
+                  )}
+                  {view === 'deep' && (
+                    <React.Fragment>
+                      <Menu.Item
+                        closeOnClick={false}
+                        onClick={() => queueMicrotask(() => setView('main'))}
+                      >
+                        Home
+                      </Menu.Item>
+                      <Menu.Item>Deep setting</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    // main -> more from "More tools" (index 2), then more -> deep from "Deep tools" (index 1).
+    const moreToolsItem = screen.getByRole('menuitem', { name: 'More tools' });
+    await act(async () => moreToolsItem.focus());
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Back' })).toHaveFocus();
+    });
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Deep tools' })).toHaveFocus();
+    });
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Home' })).toHaveFocus();
+    });
+
+    // Jump two levels back at once: deep -> main. The restored highlight must be
+    // "More tools" (index 2 in main), not the intermediate view's return index.
+    await user.keyboard('{Enter}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveFocus();
+    });
+    expect(screen.getByTestId('viewport')).toHaveAttribute('data-activation-direction', 'back');
+    expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveAttribute(
+      'data-highlighted',
+    );
+  });
+
   it('should focus the popup without highlighting an item when navigating with the pointer', async () => {
     function TestComponent() {
       const [view, setView] = React.useState<'main' | 'more'>('main');

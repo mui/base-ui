@@ -32,17 +32,19 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   const interactionTypeRef = React.useRef<{
     type: 'keyboard' | 'pointer';
   } | null>(null);
-  const returnIndexesRef = React.useRef<Array<number | null>>([]);
   const lastTransitionKeyRef = React.useRef(transitionKey);
-  const transitionKeyStackRef = React.useRef<Array<React.Key | undefined>>([transitionKey]);
+  // Each entry pairs a visited key with the highlight index to restore when
+  // returning to that view, so the two histories cannot desynchronize.
+  const viewHistoryRef = React.useRef<
+    Array<{ key: React.Key | undefined; returnIndex: number | null }>
+  >([{ key: transitionKey, returnIndex: null }]);
   const [transitionDirection, setTransitionDirection] = React.useState<TransitionDirection>();
 
   useIsoLayoutEffect(() => {
     if (!open) {
       interactionTypeRef.current = null;
-      returnIndexesRef.current = [];
       lastTransitionKeyRef.current = transitionKey;
-      transitionKeyStackRef.current = [transitionKey];
+      viewHistoryRef.current = [{ key: transitionKey, returnIndex: null }];
       setTransitionDirection(undefined);
     }
   }, [open, transitionKey]);
@@ -63,31 +65,27 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   // Keyboard navigation moves focus into the new view or back to the originating item, while
   // pointer navigation keeps focus on the popup and leaves all items unhighlighted.
   const handleContentSwap = useStableCallback(({ focusWasInside }: { focusWasInside: boolean }) => {
-    // A key seen earlier in the stack means the content is returning to prior content;
+    // A key seen earlier in the history means the content is returning to prior content;
     // an unseen key means it is entering new content. A swap without a key change is a
-    // trigger switch, which is not directional.
+    // trigger switch, which is not directional. Returning may jump multiple levels at
+    // once, so the destination entry's own return index is used rather than the last one.
     let direction: TransitionDirection | undefined;
+    let returnIndex: number | null = null;
     if (transitionKey !== lastTransitionKeyRef.current) {
       lastTransitionKeyRef.current = transitionKey;
-      const existingIndex = transitionKeyStackRef.current.indexOf(transitionKey);
+      const history = viewHistoryRef.current;
+      const existingIndex = history.findIndex((entry) => entry.key === transitionKey);
       if (existingIndex === -1) {
-        transitionKeyStackRef.current.push(transitionKey);
+        history[history.length - 1].returnIndex = store.select('activeIndex');
+        history.push({ key: transitionKey, returnIndex: null });
         direction = 'forward';
       } else {
-        transitionKeyStackRef.current.length = existingIndex + 1;
+        history.length = existingIndex + 1;
+        returnIndex = history[existingIndex].returnIndex;
         direction = 'back';
       }
     }
     setTransitionDirection(direction);
-
-    const activeIndex = store.select('activeIndex');
-    let returnIndex: number | null = null;
-
-    if (direction === 'forward') {
-      returnIndexesRef.current.push(activeIndex);
-    } else if (direction === 'back') {
-      returnIndex = returnIndexesRef.current.pop() ?? null;
-    }
 
     store.set('activeIndex', null);
     if (!focusWasInside) {
