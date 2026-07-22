@@ -10,6 +10,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import { activeElement, contains } from '../internals/shadowDom';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
+import { tabbable } from '../floating-ui-react/utils/tabbable';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
@@ -269,7 +270,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     if (onFocusRecovery) {
       onFocusRecovery(container);
     } else {
-      popupElement?.focus();
+      popupElement?.focus({ preventScroll: true });
     }
   }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
 
@@ -467,4 +468,13 @@ function usePopupContentKey(activeTriggerId: string | null, payload: unknown): s
   }, [activeTriggerId, payload]);
 
   return `${activeTriggerId ?? 'current'}-${contentKey}`;
+}
+
+/**
+ * Focuses the first tabbable element inside the container, falling back to the given element.
+ * Pass as `onFocusRecovery` rather than calling it from the hook itself, so that components
+ * without tabbable popup content (such as Tooltip) tree-shake the tabbable machinery away.
+ */
+export function focusFirstTabbable(container: HTMLElement, fallback: HTMLElement | null) {
+  (tabbable(container)[0] ?? fallback)?.focus({ preventScroll: true });
 }

@@ -5,8 +5,11 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { focusFirstTabbable } from '../../utils/focusFirstTabbable';
-import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
+import {
+  focusFirstTabbable,
+  popupViewportStateMapping,
+  usePopupViewport,
+} from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.

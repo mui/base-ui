@@ -5,8 +5,11 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { focusFirstTabbable } from '../../utils/focusFirstTabbable';
-import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
+import {
+  focusFirstTabbable,
+  popupViewportStateMapping,
+  usePopupViewport,
+} from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
