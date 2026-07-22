@@ -22,6 +22,7 @@ import {
   type ComboboxVirtualItemMetadata,
 } from '../virtualizer/ComboboxVirtualItemContext';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
+import { useNonVirtualizedItemRegistration } from '../../internals/virtualization/ListVirtualizerAdapter';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -299,29 +300,12 @@ export const ComboboxItem = React.memo(
     const virtualItem = useComboboxVirtualItemContext();
     const insideList = useVirtualizationListContext();
 
-    if (process.env.NODE_ENV !== 'production') {
-      // The build-time environment never changes during a component's lifetime.
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useIsoLayoutEffect(() => {
-        if (virtualItem != null || !insideList) {
-          return undefined;
-        }
-
-        const registry = store.state.virtualizationRegistry;
-        registry.nonVirtualItemCount += 1;
-
-        if (registry.virtualizers.size > 0) {
-          warn(
-            '<Combobox.List> must not render static <Combobox.Item> elements alongside ' +
-              '<Combobox.Virtualizer>. Render every list item through the virtualizer.',
-          );
-        }
-
-        return () => {
-          registry.nonVirtualItemCount -= 1;
-        };
-      }, [insideList, store, virtualItem]);
-    }
+    useNonVirtualizedItemRegistration({
+      componentName: 'Combobox',
+      insideList,
+      registry: store.state.virtualizationRegistry,
+      virtualized: virtualItem != null,
+    });
 
     // External virtualization and whether an item provides an explicit `index` must be stable
     // for an item's lifetime: the two branches return different component types, so flipping

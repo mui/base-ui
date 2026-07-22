@@ -1,17 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
-import type { BaseUIComponentProps } from '../../internals/types';
+import { ListVirtualizer } from '../../internals/virtualization/ListVirtualizer';
 import {
-  ListVirtualizer,
-  type ListVirtualizerRenderRowParameters,
-  type ListVirtualizerRow,
-} from '../../internals/virtualization/ListVirtualizer';
-import type { ListVirtualizerHandle } from '../../internals/virtualization/ListVirtualizationRegistry';
+  useListVirtualizerAdapter,
+  type ListVirtualizerAdapterProps,
+  type ListVirtualizerAdapterState,
+  type ListVirtualizerKeyProps,
+} from '../../internals/virtualization/ListVirtualizerAdapter';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 import {
   useComboboxDerivedItemsContext,
@@ -20,96 +17,6 @@ import {
 import { selectors } from '../store';
 import { ComboboxVirtualItemContext } from './ComboboxVirtualItemContext';
 import { ComboboxVirtualizerCssVars } from './ComboboxVirtualizerCssVars';
-
-type VirtualizerItemKey = string;
-
-interface ComboboxVirtualItemRowModel<Value> {
-  item: Value;
-  itemIndex: number;
-  type: 'item';
-  virtualRowIndex: number;
-}
-
-type ComboboxVirtualRowModel<Value> = ComboboxVirtualItemRowModel<Value>;
-
-interface ComboboxVirtualRowProps<Value> {
-  children: (item: Value, index: number) => React.ReactElement;
-  itemCount: number;
-  model: ComboboxVirtualRowModel<Value>;
-}
-
-/**
- * Renders a virtual row and provides its logical index and accessibility metadata to the
- * contained `<Combobox.Item>`.
- */
-function ComboboxVirtualRowImpl<Value>(props: ComboboxVirtualRowProps<Value>) {
-  const { children, itemCount, model } = props;
-
-  const registeredItemCountRef = React.useRef(0);
-
-  const registerItem = React.useCallback(() => {
-    registeredItemCountRef.current += 1;
-    return () => {
-      registeredItemCountRef.current -= 1;
-    };
-  }, []);
-
-  if (process.env.NODE_ENV !== 'production') {
-    // The build-time environment never changes during a component's lifetime.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      if (registeredItemCountRef.current !== 1) {
-        warn(
-          'Each <Combobox.Virtualizer> item renderer must render exactly one ' +
-            '<Combobox.Item>. Rendered ' +
-            `${registeredItemCountRef.current} items for the value at index ${model.itemIndex}.`,
-        );
-      }
-    });
-  }
-
-  const contextValue = React.useMemo(
-    () => ({
-      index: model.itemIndex,
-      props: {
-        'aria-posinset': model.itemIndex + 1,
-        'aria-setsize': itemCount,
-        'data-index': model.itemIndex,
-      },
-      registerItem: process.env.NODE_ENV === 'production' ? undefined : registerItem,
-    }),
-    [itemCount, model.itemIndex, registerItem],
-  );
-
-  const item = (
-    <ComboboxVirtualItemContext.Provider value={contextValue}>
-      {children(model.item, model.itemIndex)}
-    </ComboboxVirtualItemContext.Provider>
-  );
-
-  return item;
-}
-
-function areVirtualRowPropsEqual<Value>(
-  previous: ComboboxVirtualRowProps<Value>,
-  next: ComboboxVirtualRowProps<Value>,
-) {
-  return (
-    previous.children === next.children &&
-    previous.itemCount === next.itemCount &&
-    previous.model.item === next.model.item &&
-    previous.model.itemIndex === next.model.itemIndex &&
-    previous.model.virtualRowIndex === next.model.virtualRowIndex
-  );
-}
-
-/**
- * Memoized virtual row that avoids rerendering item content while its row metadata is unchanged.
- */
-const ComboboxVirtualRow = React.memo(
-  ComboboxVirtualRowImpl,
-  areVirtualRowPropsEqual,
-) as typeof ComboboxVirtualRowImpl;
 
 /**
  * Renders a window of visible and overscanned items in a flat combobox list.
@@ -145,122 +52,29 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const virtualizationState = useStore(store, selectors.virtualizationState);
   const insideList = useVirtualizationListContext();
 
-  const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
-  // These callbacks run during render, so use render-safe refs to keep their wrappers stable.
-  const getItemKeyRef = React.useRef(getItemKey);
-  getItemKeyRef.current = getItemKey;
-  const getItemKeyStable = React.useCallback((item: Value) => getItemKeyRef.current?.(item), []);
-  const hasGetItemKey = getItemKey != null;
-  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
-  estimatedItemHeightRef.current = estimatedItemHeight;
-
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill). Keep that mode reactive even if it begins before the virtualizer
   // has registered its imperative handle.
   const virtualizationEnabled = enabled && !virtualizationState.renderAllRows;
-
-  const getEstimatedItemHeight = React.useCallback((item: Value, index: number) => {
-    const currentEstimatedItemHeight = estimatedItemHeightRef.current;
-    const size =
-      typeof currentEstimatedItemHeight === 'function'
-        ? currentEstimatedItemHeight(item, index)
-        : currentEstimatedItemHeight;
-    return Math.max(1, size);
-  }, []);
-
-  const rows = React.useMemo<ListVirtualizerRow<ComboboxVirtualRowModel<Value>>[]>(() => {
-    const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
-
-    return flatFilteredItems.map((item, itemIndex) => {
-      // Row ids are both React keys and the MUI X Virtualizer measurement-cache identities. Normalize all
-      // supplied keys because React stringifies them (`1` and `"1"` would otherwise collide).
-      const rawKey = hasGetItemKey ? getItemKeyStable(item as Value) : undefined;
-      const key = hasGetItemKey
-        ? normalizeItemKey(rawKey)
-        : getDefaultItemKey(item as Value, objectKeyRegistry);
-
-      if (process.env.NODE_ENV !== 'production') {
-        if (isObjectValue(item) && !hasGetItemKey) {
-          warn(
-            '<Combobox.Virtualizer> requires `getItemKey` when item values are objects. ' +
-              'Return a stable string or number that uniquely identifies each item.',
-          );
-        }
-        if (keys?.has(key)) {
-          warn(
-            `<Combobox.Virtualizer> received the duplicate item key \`${String(rawKey ?? item)}\`. ` +
-              'Each item must have a unique key.',
-          );
-        }
-        keys?.add(key);
-      }
-
-      return {
-        id: key,
-        model: {
-          item,
-          itemIndex,
-          type: 'item',
-          virtualRowIndex: itemIndex,
-        },
-      };
-    });
-  }, [flatFilteredItems, getItemKeyStable, hasGetItemKey, objectKeyRegistry]);
-
-  // Item and virtual-row indexes are identical while grouped rows are unsupported.
-  const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
-  const pinnedRowIndexes = React.useMemo(
-    () => (focusedRowIndex == null ? [] : [focusedRowIndex]),
-    [focusedRowIndex],
-  );
-
-  const renderRow = React.useCallback(
-    (params: ListVirtualizerRenderRowParameters<ComboboxVirtualRowModel<Value>>) => (
-      <ComboboxVirtualRow itemCount={flatFilteredItems.length} model={params.row.model}>
-        {children}
-      </ComboboxVirtualRow>
-    ),
-    [children, flatFilteredItems.length],
-  );
-
-  const estimateRowHeight = React.useCallback(
-    (model: ComboboxVirtualRowModel<Value>) =>
-      getEstimatedItemHeight(model.item, model.virtualRowIndex),
-    [getEstimatedItemHeight],
-  );
-
-  const listVirtualizerRef = React.useRef<ListVirtualizerHandle | null>(null);
-  const getRowMetrics = useStableCallback(
-    (rowIndex: number) => listVirtualizerRef.current?.getRowMetrics(rowIndex) ?? null,
-  );
-  const resetScroll = useStableCallback(() => listVirtualizerRef.current?.resetScroll());
-  const virtualizerHandle = React.useMemo(
-    () => ({ getRowMetrics, resetScroll }),
-    [getRowMetrics, resetScroll],
-  );
-  const virtualizerId = useRefWithInit(() => Symbol('Base UI list virtualizer')).current;
-
-  useIsoLayoutEffect(() => {
-    const registry = store.state.virtualizationRegistry;
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (registry.virtualizers.size > 0) {
-        warn('<Combobox.Root> must not contain more than one <Combobox.Virtualizer>.');
-      }
-      if (registry.nonVirtualItemCount > 0) {
-        warn(
-          '<Combobox.List> must not render static <Combobox.Item> elements alongside ' +
-            '<Combobox.Virtualizer>. Render every list item through the virtualizer.',
-        );
-      }
-    }
-
-    registry.virtualizers.set(virtualizerId, virtualizerHandle);
-
-    return () => {
-      registry.virtualizers.delete(virtualizerId);
-    };
-  }, [store, virtualizerHandle, virtualizerId]);
+  const {
+    apiRef: listVirtualizerRef,
+    estimatedItemHeight: resolvedEstimatedItemHeight,
+    focusedRowIndex,
+    onUnconstrainedHeight: handleUnconstrainedHeight,
+    pinnedRowIndexes,
+    renderRow,
+    rows,
+  } = useListVirtualizerAdapter<Value, Value>({
+    activeIndex,
+    children,
+    componentName: 'Combobox',
+    estimatedItemHeight,
+    getItemKey,
+    getItemValue: getComboboxItemValue,
+    items: flatFilteredItems as ReadonlyArray<Value>,
+    registry: store.state.virtualizationRegistry,
+    virtualItemContext: ComboboxVirtualItemContext,
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -292,16 +106,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
   }
 
-  const handleUnconstrainedHeight = useStableCallback(() => {
-    warn(
-      '<Combobox.Virtualizer> must have a constrained height or maximum height. ' +
-        'Without one, all items are rendered and virtualization provides no benefit.',
-    );
-  });
-
   const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
-  const resolvedEstimatedItemHeight =
-    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : estimateRowHeight;
 
   return (
     <ListVirtualizer
@@ -326,137 +131,23 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   ): React.JSX.Element;
 };
 
-/**
- * Creates an identity registry used to generate stable keys for object and symbol item values.
- */
-function createObjectKeyRegistry() {
-  return {
-    // Objects and symbols cannot be represented injectively by String(value). Preserve identity
-    // for the lifetime of this virtualizer instead. Public object values still require getItemKey
-    // because recreated object instances need an application-level stable identity.
-    objectKeys: new WeakMap<object, number>(),
-    symbolKeys: new Map<symbol, number>(),
-    nextObjectKey: 0,
-    nextSymbolKey: 0,
-  };
-}
-
-/**
- * Returns a stable virtualizer key for an item when the consumer does not provide `getItemKey`.
- */
-function getDefaultItemKey<Value>(
-  item: Value,
-  registry: ReturnType<typeof createObjectKeyRegistry>,
-): VirtualizerItemKey {
-  if (isObjectValue(item)) {
-    const objectItem = item as object;
-    let key = registry.objectKeys.get(objectItem);
-    if (key === undefined) {
-      key = registry.nextObjectKey;
-      registry.nextObjectKey += 1;
-      registry.objectKeys.set(objectItem, key);
-    }
-    return `object:${key}`;
-  }
-
-  if (typeof item === 'symbol') {
-    let key = registry.symbolKeys.get(item);
-    if (key === undefined) {
-      key = registry.nextSymbolKey;
-      registry.nextSymbolKey += 1;
-      registry.symbolKeys.set(item, key);
-    }
-    return `symbol:${key}`;
-  }
-
-  return normalizeItemKey(item);
-}
-
-function normalizeItemKey(key: unknown): VirtualizerItemKey {
-  if (key === null) {
-    return 'null';
-  }
-  // React coerces keys to strings, so include the primitive type before that coercion happens.
-  return `${typeof key}:${String(key)}`;
-}
-
-function isObjectValue(value: unknown): value is object {
-  return (typeof value === 'object' && value !== null) || typeof value === 'function';
+function getComboboxItemValue<Value>(item: Value) {
+  return item;
 }
 
 /**
  * State metadata exposed to the `Combobox.Virtualizer` render props.
  */
-export interface ComboboxVirtualizerState {
-  /**
-   * Whether the virtualized collection has no items.
-   */
-  empty: boolean;
-  /**
-   * Total virtual content size in pixels.
-   */
-  totalSize: number;
-}
-
-interface ComboboxVirtualizerBaseProps<Value> extends Omit<
-  BaseUIComponentProps<'div', ComboboxVirtualizerState>,
-  'children'
-> {
-  /**
-   * Renders exactly one item for the given value and logical index.
-   */
-  children: (item: Value, index: number) => React.ReactElement;
-  /**
-   * Estimated item height in CSS pixels used before item elements have been measured.
-   */
-  estimatedItemHeight: number | ((item: Value, index: number) => number);
-  /**
-   * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated size of the first item.
-   */
-  overscanPx?: number | undefined;
-  /**
-   * Whether virtualization is enabled. When `false`, all items are rendered.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-}
-
-type ComboboxVirtualizerKeyProps<Value> = unknown extends Value
-  ? {
-      /**
-       * Returns a stable key for the item value.
-       *
-       * Primitive item values use the value itself by default. Required when item values are
-       * objects or the item type cannot be inferred.
-       */
-      getItemKey: (item: Value) => string | number;
-    }
-  : [Extract<Value, object>] extends [never]
-    ? {
-        /**
-         * Returns a stable key for the item value.
-         *
-         * Primitive item values use the value itself by default. Required when item values are
-         * objects.
-         */
-        getItemKey?: ((item: Value) => string | number) | undefined;
-      }
-    : {
-        /**
-         * Returns a stable key for the item value.
-         *
-         * Primitive item values use the value itself by default. Required when item values are
-         * objects.
-         */
-        getItemKey: (item: Value) => string | number;
-      };
+export interface ComboboxVirtualizerState extends ListVirtualizerAdapterState {}
 
 /**
  * Props for the `Combobox.Virtualizer` component.
  */
-export type ComboboxVirtualizerProps<Value = unknown> = ComboboxVirtualizerBaseProps<Value> &
-  ComboboxVirtualizerKeyProps<Value>;
+export type ComboboxVirtualizerProps<Value = unknown> = ListVirtualizerAdapterProps<
+  Value,
+  ComboboxVirtualizerState
+> &
+  ListVirtualizerKeyProps<Value, Value>;
 
 /**
  * Type helpers for the `Combobox.Virtualizer` component.

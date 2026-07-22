@@ -1,29 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { HTMLProps } from '../../internals/types';
+import type { ListVirtualizerItemMetadata } from '../../internals/virtualization/ListVirtualizerAdapter';
 
 /**
  * Metadata provided by `Combobox.Virtualizer` to each rendered `Combobox.Item`.
  */
-export interface ComboboxVirtualItemMetadata {
-  /**
-   * Logical index of the item in the full filtered collection.
-   */
-  index: number;
-  /**
-   * Accessibility and collection metadata applied to the item.
-   */
-  props: HTMLProps & {
-    /**
-     * Logical index exposed as a DOM data attribute.
-     */
-    'data-index': number;
-  };
-  /**
-   * Registers the item rendered for this virtual row.
-   */
-  registerItem: (() => () => void) | undefined;
-}
+export type ComboboxVirtualItemMetadata = ListVirtualizerItemMetadata;
 
 /**
  * Context used to pass virtual item metadata to `Combobox.Item`.
