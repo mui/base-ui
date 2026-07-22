@@ -87,6 +87,16 @@ export const SelectItem = React.memo(
       useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useIsoLayoutEffect(() => {
+        if (virtualItem != null && disabledProp && !isItemDisabled) {
+          warn(
+            'A virtualized <Select.Item> is disabled, but <Select.Root> does not have an ' +
+              '`isItemDisabled` prop. The disabled state will be unavailable while the item is ' +
+              'unmounted. Pass `isItemDisabled` to <Select.Root> so keyboard navigation can skip it.',
+          );
+        }
+      }, [disabledProp, isItemDisabled, virtualItem]);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useIsoLayoutEffect(() => {
         if (virtualItem != null || !insideList) {
           return undefined;
         }

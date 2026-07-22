@@ -9,6 +9,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { warn } from '@base-ui/utils/warn';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -1143,7 +1144,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     const itemValue = hasItems ? flatFilteredItems[index] : valuesRef.current[index];
-    return isItemDisabled?.(itemValue, index) === true;
+    const itemElement = listRef.current[index];
+    return (
+      isItemDisabled?.(itemValue, index) === true ||
+      (itemElement != null && isElementDisabled(itemElement))
+    );
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {

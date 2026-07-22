@@ -393,14 +393,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const dismiss = useDismiss(floatingContext);
 
   const isIndexDisabled = useStableCallback((index: number) => {
+    const itemElement = listRef.current[index];
+
     if (isItemDisabled) {
       const itemValue = resolvedItems.hasItems
         ? resolvedItems.flatItems[index]?.value
         : valuesRef.current[index];
-      return isItemDisabled(itemValue, index);
+      return (
+        isItemDisabled(itemValue, index) || (itemElement != null && isElementDisabled(itemElement))
+      );
     }
 
-    return isElementDisabled(listRef.current[index]);
+    return isElementDisabled(itemElement);
   });
 
   const listNavigation = useListNavigation(floatingContext, {

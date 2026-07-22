@@ -1483,6 +1483,37 @@ describe('<Combobox.Virtualizer />', () => {
     }
   });
 
+  it('warns when a virtualized item is disabled without isItemDisabled', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Combobox.Root defaultOpen items={['one']}>
+          <Combobox.List>
+            <Combobox.Virtualizer estimatedItemHeight={20}>
+              {(item: string) => (
+                <Combobox.Item value={item} disabled>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      expect(
+        warnSpy.mock.calls.some(([message]) =>
+          String(message).includes(
+            'virtualized <Combobox.Item> is disabled, but <Combobox.Root> does not have an ' +
+              '`isItemDisabled` prop',
+          ),
+        ),
+      ).toBe(true);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('warns about unsupported modes and invalid composition', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

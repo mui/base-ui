@@ -2115,6 +2115,38 @@ describe('<Combobox.Root />', () => {
       );
     });
 
+    it('combines isItemDisabled with rendered item disabled state', async () => {
+      const { user } = await render(
+        <Combobox.Root isItemDisabled={() => false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana" disabled>
+                    banana
+                  </Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
     it('opens, navigates with ArrowDown, and Enter selects', async () => {
       const items = ['apple', 'banana', 'cherry'];
 

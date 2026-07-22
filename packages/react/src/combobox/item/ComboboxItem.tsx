@@ -102,6 +102,16 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // The build-time environment never changes during a component's lifetime.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (virtualItem != null && disabledProp && !isItemDisabled) {
+        warn(
+          'A virtualized <Combobox.Item> is disabled, but <Combobox.Root> does not have an ' +
+            '`isItemDisabled` prop. The disabled state will be unavailable while the item is ' +
+            'unmounted. Pass `isItemDisabled` to <Combobox.Root> so keyboard navigation can skip it.',
+        );
+      }
+    }, [disabledProp, isItemDisabled, virtualItem]);
   }
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;

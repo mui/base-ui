@@ -4736,6 +4736,47 @@ describe('<Select.Root />', () => {
       expect(valueEl.textContent).toBe('avocado');
     });
 
+    it('combines isItemDisabled with rendered item disabled state', async () => {
+      const items = [
+        { value: 'apricot', label: 'apricot' },
+        { value: 'avocado', label: 'avocado' },
+      ];
+
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root
+            items={items}
+            value={value}
+            onValueChange={setValue}
+            isItemDisabled={() => false}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apricot" disabled>
+                    apricot
+                  </Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('value')).toHaveTextContent('avocado');
+    });
+
     it('commits typeahead on a closed trigger when items are provided', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
