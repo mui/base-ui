@@ -2,9 +2,17 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { areArraysEqual } from '../areArraysEqual';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form-context/FormContext';
 import type { FieldValidityData } from '../../field/root/FieldRoot';
+
+function areValuesEqual(a: unknown, b: unknown) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return areArraysEqual(a, b, Object.is);
+  }
+  return Object.is(a, b);
+}
 
 export interface FieldControlRegistration {
   controlRef: React.RefObject<any>;
@@ -20,6 +28,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     invalid,
     markedDirtyRef,
     name,
+    setDirty,
     setRegisteredFieldName,
     registeredFieldIdRef,
     setValidityData,
@@ -104,10 +113,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     // A new control instance registering with the previous instance's last known value is a
     // remount of the same logical control whose state lives above the mount boundary, so the
     // original baseline is kept. Any other value means a different control was swapped in and
-    // must capture its own baseline.
-    const isRemount =
-      syncedInitialValueSourceRef.current !== null &&
-      Object.is(initialValue, lastKnownValueRef.current);
+    // must capture its own baseline. Arrays are compared structurally because controlled
+    // array-valued controls may pass a newly allocated equivalent array on every render.
+    const hadPreviousControl = syncedInitialValueSourceRef.current !== null;
+    const isRemount = hadPreviousControl && areValuesEqual(initialValue, lastKnownValueRef.current);
 
     syncedInitialValueSourceRef.current = source;
     lastKnownValueRef.current = initialValue;
@@ -116,8 +125,12 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       return;
     }
 
+    if (hadPreviousControl) {
+      setDirty(false);
+    }
+
     setValidityData((prev) => {
-      if (Object.is(prev.initialValue, initialValue)) {
+      if (areValuesEqual(prev.initialValue, initialValue)) {
         return prev;
       }
 
@@ -192,6 +205,7 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
+  setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   setRegisteredFieldName: (name: string | undefined) => void;
   registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;

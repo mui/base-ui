@@ -1754,8 +1754,56 @@ describe('<Field.Root />', () => {
         fireEvent.click(screen.getByText('swap'));
         const control = screen.getByTestId('control');
 
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+
         fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
         fireEvent.change(control, { target: { value: 'x' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps the original baseline when an array-valued control remounts with a recreated array', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string[]>([]);
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root name="letters" data-testid="root">
+                {mounted && (
+                  <CheckboxGroup value={[...value]} onValueChange={setValue}>
+                    <Checkbox.Root name="a" data-testid="checkbox" />
+                  </CheckboxGroup>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByTestId('checkbox'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        fireEvent.click(screen.getByTestId('checkbox'));
         await waitFor(() => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
