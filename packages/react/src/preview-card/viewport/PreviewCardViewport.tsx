@@ -1,15 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  focusFirstTabbable,
-  popupViewportStateMapping,
-  usePopupViewport,
-} from '../../utils/usePopupViewport';
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -29,16 +24,11 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
   const instantType = store.useState('instantType');
 
-  const handleFocusRecovery = useStableCallback((container: HTMLElement) => {
-    focusFirstTabbable(container, store.select('popupElement'));
-  });
-
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
     children,
     transitionKey,
-    onFocusRecovery: handleFocusRecovery,
   });
 
   const state: PreviewCardViewportState = {
@@ -80,7 +70,7 @@ export interface PreviewCardViewportProps extends BaseUIComponentProps<
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content and moves focus to the first tabbable element if focus was inside the previous content.
+   * content and, if the swap dropped focus, moves focus to the popup.
    */
   transitionKey?: React.Key | undefined;
 }

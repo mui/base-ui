@@ -67,7 +67,7 @@ export interface TooltipViewportProps extends BaseUIComponentProps<'div', Toolti
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content and moves focus to the popup if focus was inside the previous content.
+   * content and, if the swap dropped focus, moves focus to the popup.
    */
   transitionKey?: React.Key | undefined;
 }

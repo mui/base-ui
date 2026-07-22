@@ -521,6 +521,11 @@ describe('<Popover.Viewport />', () => {
       }
 
       await render(<TestComponent />);
+
+      const popup = screen.getByTestId('popup');
+      // Before any morph the size vars idle at `auto`.
+      expect(popup.style.getPropertyValue('--popup-width')).toBe('auto');
+
       act(() => screen.getByRole('button', { name: 'Change view' }).click());
 
       const previousContainer = document.querySelector('[data-previous]');
@@ -531,7 +536,17 @@ describe('<Popover.Viewport />', () => {
       expect(currentContainer).toHaveTextContent('Content 1');
       expect(currentContainer).toHaveAttribute('data-starting-style');
       expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-activation-direction');
-      expect(screen.getByTestId('popup').style.getPropertyValue('--popup-width')).not.toBe('');
+
+      // The key change alone must re-measure the popup: the size vars leave `auto` and settle
+      // on the new content's pixel size (the old size is committed first as the transition start).
+      await waitFor(() => {
+        expect(popup.style.getPropertyValue('--popup-width')).toMatch(/px$/);
+      });
+      await waitFor(() => {
+        expect(parseFloat(popup.style.getPropertyValue('--popup-width'))).toBeGreaterThanOrEqual(
+          200,
+        );
+      });
 
       await waitFor(() => {
         expect(previousContainer).toHaveAttribute('data-ending-style');

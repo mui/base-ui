@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
@@ -29,16 +28,12 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const instantType = store.useState('instantType');
 
-  const handleFocusRecovery = useStableCallback((container: HTMLElement) => {
-    focusFirstTabbable(container, store.select('popupElement'));
-  });
-
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side,
     children,
     transitionKey,
-    onFocusRecovery: handleFocusRecovery,
+    onFocusRecovery: focusFirstTabbable,
   });
 
   const state: PopoverViewportState = {
@@ -77,7 +72,8 @@ export interface PopoverViewportProps extends BaseUIComponentProps<'div', Popove
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content and moves focus to the first tabbable element if focus was inside the previous content.
+   * content and, if the swap dropped focus, moves focus to the first tabbable element in the new
+   * content, falling back to the popup.
    */
   transitionKey?: React.Key | undefined;
 }

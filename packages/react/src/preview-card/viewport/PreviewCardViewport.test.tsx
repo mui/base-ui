@@ -94,6 +94,85 @@ describe('<PreviewCard.Viewport />', () => {
     expect(secondContainer).not.toBe(firstContainer);
   });
 
+  describe('transition key', () => {
+    it('should remount the `current` container when the transition key changes', async () => {
+      function TestComponent() {
+        const [view, setView] = React.useState<'overview' | 'details'>('overview');
+        return (
+          <React.Fragment>
+            <button type="button" data-testid="advance" onClick={() => setView('details')}>
+              advance
+            </button>
+            <PreviewCard.Root open>
+              <PreviewCard.Trigger>Trigger</PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>
+                    <PreviewCard.Viewport transitionKey={view}>
+                      <span data-testid={`content-${view}`}>{view}</span>
+                    </PreviewCard.Viewport>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const firstContainer = screen.getByTestId('content-overview').closest('[data-current]');
+      expect(firstContainer).not.toBe(null);
+
+      await user.click(screen.getByTestId('advance'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('content-details')).toBeVisible();
+      });
+      const secondContainer = screen.getByTestId('content-details').closest('[data-current]');
+      expect(secondContainer).not.toBe(null);
+      expect(secondContainer).not.toBe(firstContainer);
+    });
+
+    it('should move focus to the popup when the swap dropped focus', async () => {
+      function TestComponent() {
+        const [view, setView] = React.useState<'overview' | 'details'>('overview');
+        return (
+          <PreviewCard.Root open>
+            <PreviewCard.Trigger>Trigger</PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="popup">
+                  <PreviewCard.Viewport transitionKey={view}>
+                    {view === 'overview' ? (
+                      <button type="button" data-testid="inside" onClick={() => setView('details')}>
+                        advance
+                      </button>
+                    ) : (
+                      <button type="button" data-testid="details-tab">
+                        details tab
+                      </button>
+                    )}
+                  </PreviewCard.Viewport>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const inside = screen.getByTestId('inside');
+      await act(async () => inside.focus());
+      await user.click(inside);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveFocus();
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

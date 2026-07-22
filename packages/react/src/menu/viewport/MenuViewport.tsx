@@ -40,7 +40,6 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   const [transitionDirection, setTransitionDirection] = React.useState<TransitionDirection>();
 
   const interactionTypeRef = React.useRef<InteractionType | null>(null);
-  const lastTransitionKeyRef = React.useRef(transitionKey);
 
   // Each entry pairs a visited key with the highlight index to restore when returning to it,
   // so a jump back across several views restores the destination's own index.
@@ -51,7 +50,6 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   useIsoLayoutEffect(() => {
     if (!open) {
       interactionTypeRef.current = null;
-      lastTransitionKeyRef.current = transitionKey;
       viewHistoryRef.current = [{ key: transitionKey, returnIndex: null }];
       setTransitionDirection(undefined);
     }
@@ -62,72 +60,80 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   });
 
   const handleClickCapture = useStableCallback((event: React.MouseEvent) => {
+    // A click with `detail === 0` was synthesized by keyboard activation (Enter or Space)
+    // rather than dispatched by a real pointer.
     interactionTypeRef.current = event.detail === 0 ? 'keyboard' : 'pointer';
   });
 
   // The item list is rebuilt when the content swaps, so clear the previous highlight index.
   // Keyboard navigation moves focus into the new view or back to the originating item, while
   // pointer navigation keeps focus on the popup and leaves all items unhighlighted.
-  const handleContentSwap = useStableCallback(({ focusWasInside }: { focusWasInside: boolean }) => {
-    let direction: TransitionDirection | undefined;
-    let returnIndex: number | null = null;
+  const handleContentSwap = useStableCallback(
+    ({
+      focusWasInside,
+      transitionKeyChanged,
+    }: {
+      focusWasInside: boolean;
+      transitionKeyChanged: boolean;
+    }) => {
+      let direction: TransitionDirection | undefined;
+      let returnIndex: number | null = null;
 
-    // A key seen earlier in the history means the content is returning to prior content;
-    // an unseen key means it is entering new content. A swap without a key change is a
-    // trigger switch, which is not directional. Returning may jump multiple levels at
-    // once, so the destination entry's own return index is used rather than the last one.
-    if (transitionKey !== lastTransitionKeyRef.current) {
-      lastTransitionKeyRef.current = transitionKey;
+      // A key seen earlier in the history means the content is returning to prior content;
+      // an unseen key means it is entering new content. A trigger switch is not directional,
+      // so it keeps the positional direction the hook computed. Returning may jump multiple
+      // levels at once, so the destination entry's own return index is used, not the last one.
+      if (transitionKeyChanged) {
+        const history = viewHistoryRef.current;
+        const existingIndex = history.findIndex((entry) => entry.key === transitionKey);
 
-      const history = viewHistoryRef.current;
-      const existingIndex = history.findIndex((entry) => entry.key === transitionKey);
-
-      if (existingIndex === -1) {
-        history[history.length - 1].returnIndex = store.select('activeIndex');
-        history.push({ key: transitionKey, returnIndex: null });
-        direction = 'forward';
-      } else {
-        history.length = existingIndex + 1;
-        returnIndex = history[existingIndex].returnIndex;
-        direction = 'back';
+        if (existingIndex === -1) {
+          history[history.length - 1].returnIndex = store.select('activeIndex');
+          history.push({ key: transitionKey, returnIndex: null });
+          direction = 'forward';
+        } else {
+          history.length = existingIndex + 1;
+          returnIndex = history[existingIndex].returnIndex;
+          direction = 'back';
+        }
       }
-    }
 
-    setTransitionDirection(direction);
-    store.set('activeIndex', null);
+      setTransitionDirection(direction);
+      store.set('activeIndex', null);
 
-    if (!focusWasInside) {
-      interactionTypeRef.current = null;
-      return;
-    }
-
-    store.select('popupElement')?.focus({ preventScroll: true });
-
-    const wasKeyboardInteraction = interactionTypeRef.current === 'keyboard';
-    interactionTypeRef.current = null;
-
-    if (!wasKeyboardInteraction) {
-      return;
-    }
-
-    // The new items commit their list registrations after this effect. Once the list has
-    // settled, focus either the originating item when returning or the first item when entering.
-    queueMicrotask(() => {
-      if (!store.select('open')) {
+      if (!focusWasInside) {
+        interactionTypeRef.current = null;
         return;
       }
 
-      const nextIndex =
-        direction === 'back' ? returnIndex : getMinListIndex(store.context.itemDomElements);
+      store.select('popupElement')?.focus({ preventScroll: true });
 
-      if (
-        nextIndex != null &&
-        !isIndexOutOfListBounds(store.context.itemDomElements.current, nextIndex)
-      ) {
-        store.set('activeIndex', nextIndex);
+      const wasKeyboardInteraction = interactionTypeRef.current === 'keyboard';
+      interactionTypeRef.current = null;
+
+      if (!wasKeyboardInteraction) {
+        return;
       }
-    });
-  });
+
+      // The new items commit their list registrations after this effect. Once the list has
+      // settled, focus either the originating item when returning or the first item when entering.
+      queueMicrotask(() => {
+        if (!store.select('open')) {
+          return;
+        }
+
+        const nextIndex =
+          direction === 'back' ? returnIndex : getMinListIndex(store.context.itemDomElements);
+
+        if (
+          nextIndex != null &&
+          !isIndexOutOfListBounds(store.context.itemDomElements.current, nextIndex)
+        ) {
+          store.set('activeIndex', nextIndex);
+        }
+      });
+    },
+  );
 
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
@@ -180,8 +186,12 @@ export interface MenuViewportProps extends BaseUIComponentProps<'div', MenuViewp
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content. Keyboard navigation focuses the first item when entering and restores the originating
-   * item when returning. Pointer navigation focuses the popup without highlighting an item.
+   * content and clears the highlight, since the item list is rebuilt. Each key must be unique
+   * among the views shown while the menu stays open.
+   *
+   * When focus was inside the previous content, it moves to the popup. Keyboard navigation then
+   * highlights the first item when entering a view, or the originating item when returning to
+   * one, if that view had a highlighted item when it was left.
    */
   transitionKey?: React.Key | undefined;
 }

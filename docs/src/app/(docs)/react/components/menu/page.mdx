@@ -330,6 +330,7 @@ This is useful when different triggers display different content within the same
 
 To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
 This part renders a `div` with `data-activation-direction`, containing up to two space-separated tokens — a horizontal (`left` or `right`) and a vertical (`up` or `down`) value — so you can make direction-aware animations.
+When the content changes in place instead of by trigger, the attribute holds a single `forward` or `back` token — see [Content changes in place](#content-changes-in-place).
 
 Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
 
@@ -343,7 +344,8 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 #### Content changes in place
 
 To animate content that changes in place, such as a nested view that slides in, pass a `transitionKey` and update it whenever the content changes.
-The viewport sets `data-activation-direction` to `forward` or `back` for directional styling, and manages the highlight and keyboard focus across swaps.
+Each key must be unique among the views shown while the menu stays open.
+The viewport sets `data-activation-direction` to `forward` when entering a new view and `back` when returning to an earlier one, clears the highlight for the rebuilt item list, and restores it for keyboard navigation.
 
 import { DemoMenuTransitionKey } from './demos/transition-key';
 

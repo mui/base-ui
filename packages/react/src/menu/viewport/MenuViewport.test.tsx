@@ -288,6 +288,152 @@ describe('<Menu.Viewport />', () => {
     );
   });
 
+  it('should reset the view history when the menu closes', async () => {
+    function TestComponent() {
+      const [open, setOpen] = React.useState(true);
+      const [view, setView] = React.useState<'main' | 'more'>('main');
+
+      return (
+        <React.Fragment>
+          <button type="button" data-testid="toggle" onClick={() => setOpen((o) => !o)}>
+            toggle
+          </button>
+          <Menu.Root
+            open={open}
+            onOpenChangeComplete={(nextOpen) => {
+              if (!nextOpen) {
+                setView('main');
+              }
+            }}
+          >
+            <Menu.Trigger>Trigger</Menu.Trigger>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Viewport data-testid="viewport" transitionKey={view}>
+                    {view === 'main' ? (
+                      <Menu.Item
+                        closeOnClick={false}
+                        onKeyDown={(event) => {
+                          if (event.key === 'ArrowRight') {
+                            queueMicrotask(() => setView('more'));
+                          }
+                        }}
+                      >
+                        More tools
+                      </Menu.Item>
+                    ) : (
+                      <Menu.Item>Developer tools</Menu.Item>
+                    )}
+                  </Menu.Viewport>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await act(async () => moreTools.focus());
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(screen.getByTestId('viewport')).toHaveAttribute(
+        'data-activation-direction',
+        'forward',
+      );
+    });
+
+    // Close and reopen: the history must not remember the previous session's views.
+    await user.click(screen.getByTestId('toggle'));
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem')).toBe(null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-activation-direction');
+    });
+    await user.click(screen.getByTestId('toggle'));
+
+    const reopenedMoreTools = await screen.findByRole('menuitem', { name: 'More tools' });
+    await act(async () => reopenedMoreTools.focus());
+    await user.keyboard('{ArrowRight}');
+
+    // A stale history entry for 'more' would classify this as 'back'.
+    await waitFor(() => {
+      expect(screen.getByTestId('viewport')).toHaveAttribute(
+        'data-activation-direction',
+        'forward',
+      );
+    });
+  });
+
+  it('should restore the originating item at index 0 when navigating back', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<'main' | 'more'>('main');
+
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Viewport
+                  transitionKey={view}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowLeft' && view === 'more') {
+                      queueMicrotask(() => setView('main'));
+                    }
+                  }}
+                >
+                  {view === 'main' ? (
+                    <React.Fragment>
+                      <Menu.Item
+                        closeOnClick={false}
+                        onKeyDown={(event) => {
+                          if (event.key === 'ArrowRight') {
+                            queueMicrotask(() => setView('more'));
+                          }
+                        }}
+                      >
+                        More tools
+                      </Menu.Item>
+                      <Menu.Item>New window</Menu.Item>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Menu.Item>Developer tools</Menu.Item>
+                      <Menu.Item>Task manager</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    // The originating item sits at index 0 in its view.
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await act(async () => moreTools.focus());
+    await user.keyboard('{ArrowRight}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Developer tools' })).toHaveFocus();
+    });
+
+    await user.keyboard('{ArrowLeft}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveFocus();
+    });
+    expect(screen.getByRole('menuitem', { name: 'More tools' })).toHaveAttribute(
+      'data-highlighted',
+    );
+  });
+
   it('should focus the popup without highlighting an item when navigating with the pointer', async () => {
     function TestComponent() {
       const [view, setView] = React.useState<'main' | 'more'>('main');
@@ -325,7 +471,11 @@ describe('<Menu.Viewport />', () => {
     const { user } = await render(<TestComponent />);
     const popup = screen.getByTestId('popup');
 
-    await user.click(screen.getByRole('menuitem', { name: 'More tools' }));
+    // Establish focus inside the viewport explicitly rather than relying on the click
+    // implicitly focusing the item before the swap commits.
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await act(async () => moreTools.focus());
+    await user.click(moreTools);
 
     const backItem = await screen.findByRole('menuitem', { name: 'Back' });
     await waitFor(() => {

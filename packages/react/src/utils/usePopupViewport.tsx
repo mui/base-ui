@@ -62,15 +62,19 @@ export interface UsePopupViewportParameters {
   /**
    * Called when the rendered content is swapped for different content.
    * When provided, it replaces the default focus recovery entirely.
+   * `transitionKeyChanged` distinguishes a `transitionKey` change from a trigger switch.
    * Must be a stable function reference.
    */
-  onContentSwap?: ((details: { focusWasInside: boolean }) => void) | undefined;
+  onContentSwap?:
+    | ((details: { focusWasInside: boolean; transitionKeyChanged: boolean }) => void)
+    | undefined;
   /**
    * Called to move focus when a content swap dropped it (focus was inside the previous
-   * content and now sits on `<body>`). Defaults to focusing the popup element.
+   * content and now sits on `<body>`). Receives the new content container and the popup
+   * element to fall back to. Defaults to focusing the popup element.
    * Must be a stable function reference.
    */
-  onFocusRecovery?: ((container: HTMLElement) => void) | undefined;
+  onFocusRecovery?: ((container: HTMLElement, fallback: HTMLElement | null) => void) | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -85,7 +89,8 @@ export interface UsePopupViewportResult {
 }
 
 /**
- * Builds morphing viewport containers for popups that animate between trigger-based content.
+ * Builds morphing viewport containers for popups that animate between content changes, whether
+ * driven by a trigger switch or a `transitionKey` change.
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
@@ -132,11 +137,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     focusWasInsideRef.current = true;
   });
 
+  // Focus counts as "inside" only while it moves between elements within the current container.
   const handleBlurCapture = useStableCallback((event: React.FocusEvent<HTMLDivElement>) => {
-    focusWasInsideRef.current = contains(
-      event.currentTarget,
-      event.relatedTarget as Element | null,
-    );
+    focusWasInsideRef.current = contains(event.currentTarget, event.relatedTarget);
   });
 
   useIsoLayoutEffect(() => {
@@ -155,7 +158,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
     currentContainerRef.current?.style.removeProperty('animation');
-    currentContainerRef.current?.style.removeProperty('transition');
+
+    // While starting styles are applied, React owns the inline `transition` on this node.
+    // Removing it here would strip a value React believes it already committed, so React would
+    // never re-apply it and the suppressed inverse transition would run.
+    if (!showStartingStyleAttribute) {
+      currentContainerRef.current?.style.removeProperty('transition');
+    }
 
     previousContainerRef.current?.style.removeProperty('display');
 
@@ -166,7 +175,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
   const lastTransitionKeyRef = React.useRef(transitionKey);
-  const transitionGenerationRef = React.useRef(0);
+  const cleanupAbortRef = React.useRef<AbortController | null>(null);
 
   useIsoLayoutEffect(() => {
     if (!open || !mounted) {
@@ -177,6 +186,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     if (!mounted) {
       // A transition interrupted by closing cannot finish once the popup is hidden; reset it.
       cleanupFrame.cancel();
+      cleanupAbortRef.current?.abort();
       setPreviousContentNode(null);
       setPreviousContentDimensions(null);
       setShowStartingStyleAttribute(false);
@@ -198,7 +208,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     lastTransitionKeyRef.current = transitionKey;
 
     if (triggerChanged || transitionKeyChanged) {
-      onContentSwap?.({ focusWasInside: focusWasInsideRef.current });
+      onContentSwap?.({ focusWasInside: focusWasInsideRef.current, transitionKeyChanged });
     }
 
     // When a trigger or the transition key changes, set the captured children HTML to state,
@@ -213,26 +223,25 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
         triggerChanged ? calculateRelativePosition(previousActiveTrigger, activeTrigger) : null,
       );
 
-      // Invalidate the cleanup of any transition this one interrupts: its container is already
+      // Abort the cleanup of any transition this one interrupts: its container is already
       // detached, so its animations resolve immediately and would clear this transition early.
-      transitionGenerationRef.current += 1;
-      const generation = transitionGenerationRef.current;
+      cleanupAbortRef.current?.abort();
+      const abortController = new AbortController();
+      cleanupAbortRef.current = abortController;
 
       cleanupFrame.request(() => {
-        // The containers mounted after the last paint, so they have no computed style yet.
-        // Force a style recalc to commit their starting styles before the flip below;
-        // otherwise their first computed style is the final state and no transition starts.
+        // The starting styles were added in a commit that has not been recalculated yet. Force a
+        // recalc on the current container so they are committed before the flip below; otherwise
+        // its first computed style is the final state and no transition starts.
         currentContainerRef.current?.getBoundingClientRect();
         ReactDOM.flushSync(() => {
           setShowStartingStyleAttribute(false);
         });
         onAnimationsFinished(() => {
-          if (generation === transitionGenerationRef.current) {
-            setPreviousContentNode(null);
-            setPreviousContentDimensions(null);
-            capturedNodeRef.current = null;
-          }
-        });
+          setPreviousContentNode(null);
+          setPreviousContentDimensions(null);
+          capturedNodeRef.current = null;
+        }, abortController.signal);
       });
 
       if (triggerChanged) {
@@ -253,28 +262,37 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   // Remounting the current container drops focus to `<body>` when it was inside the previous
   // content. Move it to the new content (or the popup itself) in that case; if focus is alive
   // elsewhere (e.g. placed by the new content via `autoFocus`), leave it alone.
-  // Skipped when `onContentSwap` is provided, as it owns focus recovery.
   useIsoLayoutEffect(() => {
     const container = currentContainerRef.current;
-    if (onContentSwap || !container || !focusWasInsideRef.current) {
+    if (!container || !focusWasInsideRef.current) {
       return;
     }
 
-    const focusedElement = activeElement(ownerDocument(container));
-    const focusWasLost = focusedElement == null || focusedElement === ownerDocument(container).body;
+    const doc = ownerDocument(container);
+    const focusedElement = activeElement(doc);
+    const focusWasLost = focusedElement == null || focusedElement === doc.body;
 
-    if (!focusWasLost) {
+    // Re-derive the flag from where focus actually is now. Removing the focused node during a
+    // swap fires no blur event, so the flag would otherwise stay `true` for the rest of the open
+    // session once recovery parks focus on the popup (which sits outside this container), and a
+    // later swap would pull focus back from wherever the user had moved it.
+    focusWasInsideRef.current = focusedElement != null && contains(container, focusedElement);
+
+    // `onContentSwap` owns focus recovery when provided, but the flag above is still re-derived
+    // for it, since it reads the same ref on the next swap.
+    if (onContentSwap || !focusWasLost) {
       return;
     }
 
     if (onFocusRecovery) {
-      onFocusRecovery(container);
+      onFocusRecovery(container, popupElement);
     } else {
       popupElement?.focus({ preventScroll: true });
     }
   }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
 
-  // Capture a clone of the current content DOM subtree when not transitioning.
+  // Capture a clone of the current content DOM subtree on every commit, so the snapshot stays
+  // current even when the content mutates without a key change (an expanding Collapsible, say).
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
   useIsoLayoutEffect(() => {
     // When a transition is in progress, we store the next content in capturedNodeRef.
@@ -347,6 +365,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
+  // Including `transitionKey` is what makes the popup re-measure on an in-place content change;
+  // without it only trigger-driven payload changes would resize the popup.
   const resizeContent = React.useMemo(() => ({ payload, transitionKey }), [payload, transitionKey]);
 
   usePopupAutoResize({

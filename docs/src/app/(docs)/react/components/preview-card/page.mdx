@@ -188,6 +188,7 @@ import { DemoPreviewCardDetachedTriggersFull } from './demos/detached-triggers-f
 #### Content changes in place
 
 To animate content that changes in place, such as switching between tabs, pass a `transitionKey` and update it whenever the content changes.
+In-place changes are not directional, so no `data-activation-direction` is set — style them with `[data-current][data-starting-style]` and `[data-previous][data-ending-style]`, as the demo does.
 
 import { DemoPreviewCardTransitionKey } from './demos/transition-key';
 
