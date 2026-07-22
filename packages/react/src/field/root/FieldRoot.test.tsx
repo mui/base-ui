@@ -1683,6 +1683,84 @@ describe('<Field.Root />', () => {
         });
       });
 
+      it('recaptures the baseline when swapping controls after validating', async () => {
+        function App() {
+          const actionsRef = React.useRef<Field.Root.Actions>(null);
+          const [swapped, setSwapped] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root" actionsRef={actionsRef}>
+                {swapped ? (
+                  <Field.Control key="b" data-testid="control" defaultValue="x" />
+                ) : (
+                  <Field.Control key="a" defaultValue="a" />
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => actionsRef.current?.validate()}>
+                validate
+              </button>
+              <button type="button" onClick={() => setSwapped(true)}>
+                swap
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('validate'));
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('recaptures the baseline when swapping controls after the first control was dirtied', async () => {
+        function App() {
+          const [swapped, setSwapped] = React.useState(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {swapped ? (
+                  <Field.Control key="b" data-testid="control" defaultValue="x" />
+                ) : (
+                  <Field.Control key="a" data-testid="first" defaultValue="a" />
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setSwapped(true)}>
+                swap
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('first'), { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        fireEvent.change(control, { target: { value: 'x' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
       it('keeps the original baseline when a dirtied control unmounts and remounts', async () => {
         function App() {
           const [value, setValue] = React.useState<string | null>('a');

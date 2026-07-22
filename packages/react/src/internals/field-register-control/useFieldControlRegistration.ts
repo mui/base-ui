@@ -31,6 +31,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
   const syncedInitialValueSourceRef = React.useRef<symbol | null>(null);
+  const lastKnownValueRef = React.useRef<unknown>(undefined);
 
   const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
@@ -83,25 +84,37 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }
 
   function syncInitialValue() {
-    const source = activeFieldControlSourceRef.current;
-    if (syncedInitialValueSourceRef.current === source) {
-      return;
-    }
-
-    syncedInitialValueSourceRef.current = source;
-
-    // Once dirtied, treat a remounting control as the same logical field and keep the original
-    // baseline; otherwise an unmount/remount would reset it and leave `data-dirty` stuck.
-    if (markedDirtyRef.current) {
-      return;
-    }
-
     const registration = registrationRef.current;
     if (!registration) {
       return;
     }
 
+    const source = activeFieldControlSourceRef.current;
+
+    if (syncedInitialValueSourceRef.current === source) {
+      // The same control instance re-registering with a value update.
+      if (registration.value !== undefined) {
+        lastKnownValueRef.current = registration.value;
+      }
+      return;
+    }
+
     const initialValue = getRegistrationValue(registration);
+
+    // A new control instance registering with the previous instance's last known value is a
+    // remount of the same logical control whose state lives above the mount boundary, so the
+    // original baseline is kept. Any other value means a different control was swapped in and
+    // must capture its own baseline.
+    const isRemount =
+      syncedInitialValueSourceRef.current !== null &&
+      Object.is(initialValue, lastKnownValueRef.current);
+
+    syncedInitialValueSourceRef.current = source;
+    lastKnownValueRef.current = initialValue;
+
+    if (isRemount) {
+      return;
+    }
 
     setValidityData((prev) => {
       if (Object.is(prev.initialValue, initialValue)) {
