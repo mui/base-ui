@@ -1,14 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { HTMLProps } from '../../internals/types';
+import type { ListVirtualizerItemMetadata } from '../../internals/virtualization/ListVirtualizerAdapter';
 
-export interface SelectVirtualItemMetadata {
-  index: number;
-  props: HTMLProps & {
-    'data-index': number;
-  };
-  registerItem: (() => () => void) | undefined;
-}
+export type SelectVirtualItemMetadata = ListVirtualizerItemMetadata;
 
 export const SelectVirtualItemContext = React.createContext<SelectVirtualItemMetadata | undefined>(
   undefined,

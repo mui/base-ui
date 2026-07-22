@@ -758,7 +758,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
  */
 export interface ListVirtualizerState {
   /**
-   * Whether the virtual row collection is empty.
+   * Whether the virtualized collection has no items.
    */
   empty: boolean;
   /**

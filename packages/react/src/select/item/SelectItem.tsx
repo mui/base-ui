@@ -25,6 +25,7 @@ import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { useSelectVirtualItemContext } from '../virtualizer/SelectVirtualItemContext';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
+import { useNonVirtualizedItemRegistration } from '../../internals/virtualization/ListVirtualizerAdapter';
 
 /**
  * An individual option in the select popup.
@@ -91,6 +92,13 @@ export const SelectItem = React.memo(
     const hasRegistered = index !== -1;
     const disabled = disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
+    useNonVirtualizedItemRegistration({
+      componentName: 'Select',
+      insideList,
+      registry: store.state.virtualizationRegistry,
+      virtualized,
+    });
+
     if (process.env.NODE_ENV !== 'production') {
       // The build-time environment never changes during a component's lifetime.
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -105,26 +113,6 @@ export const SelectItem = React.memo(
           );
         }
       }, [disabledProp, isItemDisabled, virtualItem]);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useIsoLayoutEffect(() => {
-        if (virtualItem != null || !insideList) {
-          return undefined;
-        }
-
-        const registry = store.state.virtualizationRegistry;
-        registry.nonVirtualItemCount += 1;
-
-        if (registry.virtualizers.size > 0) {
-          warn(
-            '<Select.List> must not render static <Select.Item> elements alongside ' +
-              '<Select.Virtualizer>. Render every list item through the virtualizer.',
-          );
-        }
-
-        return () => {
-          registry.nonVirtualItemCount -= 1;
-        };
-      }, [insideList, store, virtualItem]);
     }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
