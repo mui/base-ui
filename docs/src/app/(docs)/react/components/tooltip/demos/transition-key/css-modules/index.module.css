@@ -1,3 +1,44 @@
+.Timeline {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  width: 16rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:focus-visible {
+      outline-color: white;
+    }
+  }
+}
+
+.Segment {
+  height: 0.375rem;
+  background-color: oklch(87% 0 0deg);
+
+  .Timeline:hover & {
+    background-color: oklch(70.8% 0 0deg);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(26.9% 0 0deg);
+
+    .Timeline:hover & {
+      background-color: oklch(43.9% 0 0deg);
+    }
+  }
+}
+
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
   --animation-duration: 0.35s;
@@ -47,26 +88,38 @@
 
 .Viewport {
   --viewport-padding: 0.5rem;
+  --direction: 1;
 
   box-sizing: border-box;
-  /* Required to clip the overflowing content during the cross-fade */
+  /* Required to clip the overflowing content during the slide */
   position: relative;
   overflow: clip;
   width: 100%;
   height: 100%;
   padding: 0.375rem var(--viewport-padding);
 
+  &[data-direction='back'] {
+    --direction: -1;
+  }
+
   [data-previous],
   [data-current] {
     /* Freeze each container to its own content width while transitioning */
     width: calc(var(--popup-width) - 2 * var(--viewport-padding));
     opacity: 1;
-    transition: opacity calc(var(--animation-duration) / 2) var(--easing);
+    transition:
+      opacity calc(var(--animation-duration) / 2) var(--easing),
+      transform var(--animation-duration) var(--easing);
   }
 
-  [data-previous][data-ending-style],
+  [data-previous][data-ending-style] {
+    opacity: 0;
+    transform: translateX(calc(-100% * var(--direction)));
+  }
+
   [data-current][data-starting-style] {
     opacity: 0;
+    transform: translateX(calc(100% * var(--direction)));
   }
 }
 

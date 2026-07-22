@@ -212,8 +212,9 @@ import { DemoTooltipDetachedTriggersFull } from './demos/detached-triggers-full'
 
 #### Content changes in place
 
-To animate content that changes in place, such as a status message that updates over time, pass a `transitionKey` and update it whenever the content changes.
+To animate content that changes in place, such as a chapter title that follows the pointer along a video timeline, pass a `transitionKey` and update it whenever the content changes.
 Use `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to style the incoming and outgoing content, as the demo does.
+In-place changes set no `data-activation-direction`, so the demo derives the slide direction from the chapter order and styles it through a custom `data-direction` attribute.
 
 import { DemoTooltipTransitionKey } from './demos/transition-key';
 
