@@ -1809,6 +1809,73 @@ describe('<Field.Root />', () => {
         });
       });
 
+      it('keeps the original baseline when an object-valued multiple Select remounts with recreated values', async () => {
+        const items = [{ id: 'a' }, { id: 'b' }];
+
+        function App() {
+          const [value, setValue] = React.useState<{ id: string }[]>([items[0]]);
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && (
+                  <Select.Root
+                    multiple
+                    value={value.map((currentValue) => ({ ...currentValue }))}
+                    onValueChange={setValue}
+                    isItemEqualToValue={(itemValue, selectedValue) =>
+                      itemValue.id === selectedValue.id
+                    }
+                    itemToStringValue={(itemValue) => itemValue.id}
+                  >
+                    <Select.Trigger />
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          {items.map((item) => (
+                            <Select.Item key={item.id} value={item} />
+                          ))}
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setValue([items[0], items[1]])}>
+                both
+              </button>
+              <button type="button" onClick={() => setValue([items[0]])}>
+                first
+              </button>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('both'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        fireEvent.click(screen.getByText('first'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
       it('keeps the original baseline when a dirtied control unmounts and remounts', async () => {
         function App() {
           const [value, setValue] = React.useState<string | null>('a');

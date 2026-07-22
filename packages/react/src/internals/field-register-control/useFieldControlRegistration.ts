@@ -20,6 +20,7 @@ export interface FieldControlRegistration {
   name?: string | undefined;
   getValue?: (() => unknown) | undefined;
   value: unknown;
+  isValueEqual?: ((a: unknown, b: unknown) => boolean) | undefined;
 }
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
@@ -109,14 +110,16 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     const initialValue = getRegistrationValue(registration);
+    const isValueEqual = registration.isValueEqual ?? areValuesEqual;
 
     // A new control instance registering with the previous instance's last known value is a
     // remount of the same logical control whose state lives above the mount boundary, so the
     // original baseline is kept. Any other value means a different control was swapped in and
-    // must capture its own baseline. Arrays are compared structurally because controlled
-    // array-valued controls may pass a newly allocated equivalent array on every render.
+    // must capture its own baseline. Values are compared with the control's own equality when
+    // provided, and structurally for arrays otherwise, because controlled array-valued controls
+    // may pass a newly allocated equivalent array on every render.
     const hadPreviousControl = syncedInitialValueSourceRef.current !== null;
-    const isRemount = hadPreviousControl && areValuesEqual(initialValue, lastKnownValueRef.current);
+    const isRemount = hadPreviousControl && isValueEqual(initialValue, lastKnownValueRef.current);
 
     syncedInitialValueSourceRef.current = source;
     lastKnownValueRef.current = initialValue;
@@ -130,7 +133,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     setValidityData((prev) => {
-      if (areValuesEqual(prev.initialValue, initialValue)) {
+      if (isValueEqual(prev.initialValue, initialValue)) {
         return prev;
       }
 

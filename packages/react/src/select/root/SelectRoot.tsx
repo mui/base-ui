@@ -192,6 +192,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
+  const isFieldValueEqual = useStableCallback((a: unknown, b: unknown) => {
+    if (Array.isArray(a) && Array.isArray(b)) {
+      return areArraysEqual(a, b, (itemValue, otherItemValue) =>
+        compareItemEquality(itemValue, otherItemValue, isItemEqualToValue),
+      );
+    }
+    return a === b;
+  });
+
   useRegisterFieldControl(
     controlRef,
     generatedId,
@@ -199,6 +208,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getStringifiedValueForForm,
     !disabled,
     nameProp,
+    isFieldValueEqual,
   );
 
   const initialValueRef = React.useRef(value);
@@ -242,15 +252,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   function isSelectedValueDirty(currentValue: unknown) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return currentValue !== initialValue;
+    return !isFieldValueEqual(currentValue, validityData.initialValue);
   }
 
   useValueChanged(value, () => {
