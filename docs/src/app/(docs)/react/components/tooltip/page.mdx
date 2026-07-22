@@ -210,16 +210,6 @@ import { DemoTooltipDetachedTriggersFull } from './demos/detached-triggers-full'
 
 <DemoTooltipDetachedTriggersFull />
 
-#### Content changes in place
-
-To animate content that changes in place, such as a chapter title that follows the pointer along a video timeline, pass a `transitionKey` and update it whenever the content changes.
-Use `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to style the incoming and outgoing content, as the demo does.
-When the change coincides with an `anchor` change on the positioner, `data-activation-direction` is derived from the anchor movement, using the same tokens as a trigger switch — the demo's slide direction comes from the hovered segment's position.
-
-import { DemoTooltipTransitionKey } from './demos/transition-key';
-
-<DemoTooltipTransitionKey />
-
 ## API reference
 
 import { TypesTooltip } from './types';
