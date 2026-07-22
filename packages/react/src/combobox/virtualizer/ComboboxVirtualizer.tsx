@@ -63,7 +63,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     estimatedItemHeight: resolvedEstimatedItemHeight,
     focusedRowIndex,
     onUnconstrainedHeight: handleUnconstrainedHeight,
-    pinnedRowIndexes,
     renderRow,
     rows,
   } = useListVirtualizerAdapter<Value, Value>({
@@ -119,7 +118,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
       estimatedItemHeight={resolvedEstimatedItemHeight}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
-      pinnedRowIndexes={pinnedRowIndexes}
+      pinnedRowIndex={focusedRowIndex}
       ref={forwardedRef}
       renderRow={renderRow}
       restoreViewportVersion={virtualizationState.renderAllRowsRestoreVersion}
