@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { focusFirstTabbable } from '../../utils/focusFirstTabbable';
 import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
@@ -24,11 +26,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const instantType = store.useState('instantType');
 
+  const handleFocusRecovery = useStableCallback((container: HTMLElement) => {
+    focusFirstTabbable(container, store.select('popupElement'));
+  });
+
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side,
     children,
     transitionKey,
+    onFocusRecovery: handleFocusRecovery,
   });
 
   const state: PopoverViewportState = {

@@ -10,7 +10,6 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import { activeElement, contains } from '../internals/shadowDom';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
-import { tabbable } from '../floating-ui-react/utils/tabbable';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
@@ -61,11 +60,16 @@ export interface UsePopupViewportParameters {
   transitionKey?: React.Key | undefined;
   /**
    * Called when the rendered content is swapped for different content.
-   * When provided, it replaces the default focus recovery (focusing the first tabbable
-   * element of the new content when focus was inside the previous content).
+   * When provided, it replaces the default focus recovery entirely.
    * Must be a stable function reference.
    */
   onContentSwap?: ((details: { focusWasInside: boolean }) => void) | undefined;
+  /**
+   * Called to move focus when a content swap dropped it (focus was inside the previous
+   * content and now sits on `<body>`). Defaults to focusing the popup element.
+   * Must be a stable function reference.
+   */
+  onFocusRecovery?: ((container: HTMLElement) => void) | undefined;
 }
 
 export interface UsePopupViewportResult {
@@ -84,7 +88,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children, transitionKey, onContentSwap } = parameters;
+  const { store, side, children, transitionKey, onContentSwap, onFocusRecovery } = parameters;
 
   const direction = useDirection();
 
@@ -255,9 +259,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
     const focusedElement = activeElement(ownerDocument(container));
     if (focusedElement == null || focusedElement === ownerDocument(container).body) {
-      (tabbable(container)[0] ?? popupElement)?.focus();
+      if (onFocusRecovery) {
+        onFocusRecovery(container);
+      } else {
+        popupElement?.focus();
+      }
     }
-  }, [currentContentKey, popupElement, onContentSwap]);
+  }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
