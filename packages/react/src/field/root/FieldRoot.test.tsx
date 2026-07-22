@@ -1418,30 +1418,6 @@ describe('<Field.Root />', () => {
       expect(screen.queryByText('old error')).toBe(null);
       expect(control).not.toHaveAttribute('aria-invalid');
     });
-
-    it('cancels debounced validation when swapping controls', async () => {
-      const validate = vi.fn(() => 'old error');
-
-      await renderFakeTimers(
-        <SwappableField
-          validationDebounceTime={100}
-          validationMode="onChange"
-          validate={validate}
-          firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
-          secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
-        >
-          <Field.Error />
-        </SwappableField>,
-      );
-
-      fireEvent.change(screen.getByTestId('first'), { target: { value: 'old' } });
-      fireEvent.click(screen.getByText('swap'));
-      clock.tick(100);
-
-      expect(validate).not.toHaveBeenCalled();
-      expect(screen.queryByText('old error')).toBe(null);
-      expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
-    });
   });
 
   describe('style hooks', () => {
@@ -1623,251 +1599,20 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('control swap', () => {
-      it('does not mark the field dirty immediately after swapping controls', async () => {
+    describe('control remount', () => {
+      it('keeps the original baseline when a controlled control remounts', async () => {
         function App() {
-          const [swapped, setSwapped] = React.useState(false);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {swapped ? (
-                  <Field.Control data-testid="control" defaultValue="x" />
-                ) : (
-                  <NumberField.Root>
-                    <NumberField.Input />
-                  </NumberField.Root>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setSwapped(true)}>
-                swap
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByText('swap'));
-
-        await waitFor(() => {
-          expect(screen.getByTestId('control')).not.toBe(null);
-        });
-        expect(root).not.toHaveAttribute('data-dirty');
-      });
-
-      it('captures the swapped-in control initial value as the baseline', async () => {
-        function App() {
-          const [swapped, setSwapped] = React.useState(false);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {swapped ? (
-                  <Field.Control data-testid="control" defaultValue="x" />
-                ) : (
-                  <NumberField.Root>
-                    <NumberField.Input />
-                  </NumberField.Root>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setSwapped(true)}>
-                swap
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByText('swap'));
-        const control = screen.getByTestId('control');
-
-        fireEvent.change(control, { target: { value: 'y' } });
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.change(control, { target: { value: 'x' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('recaptures a non-null baseline when swapping controls', async () => {
-        function App() {
-          const [swapped, setSwapped] = React.useState(false);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {swapped ? (
-                  <Field.Control key="b" data-testid="control" defaultValue="x" />
-                ) : (
-                  <Field.Control key="a" defaultValue="a" />
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setSwapped(true)}>
-                swap
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByText('swap'));
-        const control = screen.getByTestId('control');
-
-        fireEvent.change(control, { target: { value: 'y' } });
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.change(control, { target: { value: 'x' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('resets state when swapping different controls with the same value', async () => {
-        await render(
-          <SwappableField
-            data-testid="root"
-            validationMode="onBlur"
-            validate={(value) => (value == null ? 'old error' : null)}
-            firstControl={
-              <NumberField.Root defaultValue={1}>
-                <NumberField.Input data-testid="first" />
-              </NumberField.Root>
-            }
-            secondControl={
-              <Select.Root defaultValue={null}>
-                <Select.Trigger data-testid="control" />
-              </Select.Root>
-            }
-          >
-            <Field.Error />
-          </SwappableField>,
-        );
-
-        const first = screen.getByTestId('first');
-        fireEvent.change(first, { target: { value: '' } });
-        fireEvent.focus(first);
-        fireEvent.blur(first);
-
-        await waitFor(() => {
-          expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
-        });
-
-        fireEvent.click(screen.getByText('swap'));
-
-        const root = screen.getByTestId('root');
-        expect(root).not.toHaveAttribute('data-invalid');
-        expect(root).not.toHaveAttribute('data-dirty');
-        expect(root).not.toHaveAttribute('data-touched');
-        expect(screen.queryByText('old error')).toBe(null);
-      });
-
-      it('recaptures the baseline when swapping controls after validating', async () => {
-        function App() {
-          const actionsRef = React.useRef<Field.Root.Actions>(null);
-          const [swapped, setSwapped] = React.useState(false);
-          return (
-            <div>
-              <Field.Root data-testid="root" actionsRef={actionsRef}>
-                {swapped ? (
-                  <Field.Control key="b" data-testid="control" defaultValue="x" />
-                ) : (
-                  <Field.Control key="a" defaultValue="a" />
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => actionsRef.current?.validate()}>
-                validate
-              </button>
-              <button type="button" onClick={() => setSwapped(true)}>
-                swap
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByText('validate'));
-        fireEvent.click(screen.getByText('swap'));
-        const control = screen.getByTestId('control');
-
-        fireEvent.change(control, { target: { value: 'y' } });
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.change(control, { target: { value: 'x' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('recaptures the baseline when swapping controls after the first control was dirtied', async () => {
-        function App() {
-          const [swapped, setSwapped] = React.useState(false);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {swapped ? (
-                  <Field.Control key="b" data-testid="control" defaultValue="x" />
-                ) : (
-                  <Field.Control key="a" data-testid="first" defaultValue="a" />
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setSwapped(true)}>
-                swap
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.change(screen.getByTestId('first'), { target: { value: 'b' } });
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.click(screen.getByText('swap'));
-        const control = screen.getByTestId('control');
-
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-
-        fireEvent.change(control, { target: { value: 'y' } });
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.change(control, { target: { value: 'x' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('clears dirty state when an uncontrolled control remounts at its baseline', async () => {
-        function App() {
+          const [value, setValue] = React.useState('a');
           const [mounted, setMounted] = React.useState(true);
           return (
             <div>
               <Field.Root data-testid="root">
-                {mounted && <Field.Control data-testid="control" defaultValue="a" />}
+                {mounted && (
+                  <Field.Control data-testid="control" value={value} onValueChange={setValue} />
+                )}
               </Field.Root>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
+              <button type="button" onClick={() => setMounted((prev) => !prev)}>
+                toggle
               </button>
             </div>
           );
@@ -1881,47 +1626,65 @@ describe('<Field.Root />', () => {
           expect(root).toHaveAttribute('data-dirty', '');
         });
 
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
+        fireEvent.click(screen.getByText('toggle'));
+        fireEvent.click(screen.getByText('toggle'));
 
-        expect(screen.getByTestId('control')).toHaveValue('a');
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'a' } });
         await waitFor(() => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
       });
 
-      it('resets dirty validation history when swapping controls', async () => {
+      it('keeps the field baseline when the control is swapped', async () => {
         await render(
           <SwappableField
             data-testid="root"
-            validationMode="onBlur"
-            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
-            secondControl={<Field.Control key="b" data-testid="control" required />}
+            firstControl={<Field.Control key="a" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="x" />}
           />,
         );
         const root = screen.getByTestId('root');
 
-        fireEvent.change(screen.getByTestId('first'), { target: { value: 'b' } });
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
         await waitFor(() => {
           expect(root).toHaveAttribute('data-dirty', '');
         });
 
-        fireEvent.click(screen.getByText('swap'));
-
+        // The baseline is still the field's original value, not the swapped-in control's default.
+        fireEvent.change(control, { target: { value: 'a' } });
         await waitFor(() => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
+      });
 
+      it('captures the baseline only once in StrictMode', async () => {
+        await renderStrict(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+        const root = screen.getByTestId('root');
         const control = screen.getByTestId('control');
-        fireEvent.focus(control);
-        fireEvent.blur(control);
 
+        fireEvent.change(control, { target: { value: '5' } });
         await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-invalid');
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
         });
       });
 
-      it('clears focused state when swapping a focused control', async () => {
+      it('clears focused state when the focused control is removed', async () => {
         await render(
           <SwappableField
             data-testid="root"
@@ -1942,116 +1705,36 @@ describe('<Field.Root />', () => {
         expect(screen.getByTestId('control')).not.toHaveFocus();
       });
 
-      it('resets touched state when swapping controls', async () => {
-        await render(
-          <SwappableField
-            data-testid="root"
-            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
-            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
-          />,
-        );
+      it('keeps focused state when a still-mounted control unregisters', async () => {
+        function App() {
+          const [named, setNamed] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root" name={named ? 'group' : undefined}>
+                <CheckboxGroup defaultValue={[]}>
+                  <Checkbox.Root value="a" data-testid="control" />
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setNamed(false)}>
+                unname
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
         const root = screen.getByTestId('root');
-        const first = screen.getByTestId('first');
-
-        fireEvent.focus(first);
-        fireEvent.blur(first);
-        expect(root).toHaveAttribute('data-touched', '');
-
-        fireEvent.click(screen.getByText('swap'));
-
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-touched');
-        });
-      });
-
-      it('keeps focused state when the swapped-in control receives focus', async () => {
-        await render(
-          <SwappableField
-            data-testid="root"
-            firstControl={<Field.Control key="a" data-testid="first" />}
-            secondControl={<Field.Control key="b" data-testid="control" autoFocus />}
-          />,
-        );
-        fireEvent.focus(screen.getByTestId('first'));
-        fireEvent.click(screen.getByText('swap'));
-
         const control = screen.getByTestId('control');
-        expect(control).toHaveFocus();
-        await waitFor(() => {
-          expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
-        });
-      });
-
-      it('clears completed validation when swapping controls', async () => {
-        await render(
-          <SwappableField
-            data-testid="root"
-            validationMode="onChange"
-            validate={(value) => (value === 'bad' ? 'old error' : null)}
-            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
-            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
-          >
-            <Field.Error />
-          </SwappableField>,
-        );
-
-        fireEvent.change(screen.getByTestId('first'), { target: { value: 'bad' } });
-        await waitFor(() => {
-          expect(screen.queryByText('old error')).not.toBe(null);
-        });
-
-        fireEvent.click(screen.getByText('swap'));
-
-        await waitFor(() => {
-          expect(screen.queryByText('old error')).toBe(null);
-        });
-        expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
-      });
-
-      it('ignores async validation from a swapped-out control', async () => {
-        let resolveOld: ((value: string | null) => void) | undefined;
-        const validate = vi.fn((value) => {
-          if (value !== 'old') {
-            return null;
-          }
-
-          return new Promise<string | null>((resolve) => {
-            resolveOld = resolve;
-          });
-        });
-
-        await render(
-          <SwappableField
-            data-testid="root"
-            validationMode="onChange"
-            validate={validate}
-            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
-            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
-          >
-            <Field.Error />
-          </SwappableField>,
-        );
-
-        fireEvent.change(screen.getByTestId('first'), { target: { value: 'old' } });
-        expect(validate).toHaveBeenCalledTimes(1);
-        expect(resolveOld).not.toBeUndefined();
-        fireEvent.click(screen.getByText('swap'));
 
         await act(async () => {
-          resolveOld?.('old error');
-          await flushMicrotasks();
+          control.focus();
         });
+        expect(root).toHaveAttribute('data-focused', '');
 
-        expect(screen.queryByText('old error')).toBe(null);
-        const root = screen.getByTestId('root');
-        const control = screen.getByTestId('control');
-        expect(root).not.toHaveAttribute('data-invalid');
+        fireEvent.click(screen.getByText('unname'));
 
-        fireEvent.change(control, { target: { value: 'c' } });
-        fireEvent.change(control, { target: { value: 'b' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
+        expect(control).toHaveFocus();
+        expect(root).toHaveAttribute('data-focused', '');
       });
     });
 

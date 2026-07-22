@@ -68,12 +68,12 @@ function clearCustomValidity(element: HTMLInputElement | null, inputs: Registere
   for (const input of inputs.keys()) {
     input.setCustomValidity('');
   }
-  element?.setCustomValidity?.('');
+  element?.setCustomValidity('');
 }
 
 export function useFieldValidation(
   params: UseFieldValidationParameters,
-): readonly [UseFieldValidationReturnValue, FieldValidationReset] {
+): UseFieldValidationReturnValue {
   const { elementRef, formRef } = useFormContext();
 
   const {
@@ -323,23 +323,6 @@ export function useFieldValidation(
     }
   });
 
-  const reset = useStableCallback((value: unknown) => {
-    timeout.clear();
-    validationCommitIdRef.current += 1;
-    clearCustomValidity(inputRef.current, registeredInputs);
-
-    const nextValidityData: FieldValidityData = {
-      state: DEFAULT_VALIDITY_STATE,
-      error: '',
-      errors: [],
-      value,
-      initialValue: value,
-    };
-
-    setValidityData(nextValidityData);
-    return nextValidityData;
-  });
-
   const getValidationProps = React.useCallback(
     (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
@@ -351,7 +334,7 @@ export function useFieldValidation(
     [getDescriptionProps, state.disabled, state.valid],
   );
 
-  const validation = React.useMemo(
+  return React.useMemo(
     () => ({
       getValidationProps,
       inputRef,
@@ -363,8 +346,6 @@ export function useFieldValidation(
     }),
     [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
   );
-
-  return [validation, reset] as const;
 }
 
 export interface UseFieldValidationParameters {
@@ -391,9 +372,3 @@ export interface UseFieldValidationReturnValue {
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;
 }
-
-/**
- * Resets validity data to a pristine baseline for the given value, cancelling any pending
- * debounced or in-flight async validation.
- */
-export type FieldValidationReset = (value: unknown) => FieldValidityData;
