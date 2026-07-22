@@ -1,6 +1,6 @@
 .Positioner {
-  --easing: ease-out;
-  --animation-duration: 100ms;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
 
   width: var(--positioner-width);
   height: var(--positioner-height);
@@ -24,9 +24,11 @@
   /* These are required to make the size animations work */
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
-  transition-property: width, height, opacity, transform;
-  transition-timing-function: var(--easing);
-  transition-duration: var(--animation-duration);
+  transition:
+    width var(--animation-duration) var(--easing),
+    height var(--animation-duration) var(--easing),
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
 
   @media (prefers-color-scheme: dark) {
     border-color: white;

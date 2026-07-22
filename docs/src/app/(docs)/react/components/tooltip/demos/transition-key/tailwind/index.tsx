@@ -36,9 +36,9 @@ export default function TooltipTransitionKeyDemo() {
         <Tooltip.Portal>
           <Tooltip.Positioner
             sideOffset={8}
-            className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-100 ease-out"
+            className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
           >
-            <Tooltip.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-sm text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,opacity,scale] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+            <Tooltip.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-sm text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,scale,opacity] duration-[0.35s,0.35s,100ms,100ms] ease-[cubic-bezier(0.22,1,0.36,1),cubic-bezier(0.22,1,0.36,1),ease-out,ease-out] data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
               <Tooltip.Viewport
                 transitionKey={step}
                 className={`
@@ -46,14 +46,14 @@ export default function TooltipTransitionKeyDemo() {
                   [&_[data-current]]:w-[calc(var(--popup-width)-1rem)]
                   [&_[data-current]]:opacity-100
                   [&_[data-current]]:transition-opacity
-                  [&_[data-current]]:duration-[50ms]
-                  [&_[data-current]]:ease-out
+                  [&_[data-current]]:duration-[175ms]
+                  [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                   [&_[data-current][data-starting-style]]:opacity-0
                   [&_[data-previous]]:w-[calc(var(--popup-width)-1rem)]
                   [&_[data-previous]]:opacity-100
                   [&_[data-previous]]:transition-opacity
-                  [&_[data-previous]]:duration-[50ms]
-                  [&_[data-previous]]:ease-out
+                  [&_[data-previous]]:duration-[175ms]
+                  [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                   [&_[data-previous][data-ending-style]]:opacity-0`}
               >
                 <span className="block whitespace-nowrap">{MESSAGES[step]}</span>

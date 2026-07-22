@@ -35,9 +35,9 @@ export default function PreviewCardTransitionKeyDemo() {
       <PreviewCard.Portal>
         <PreviewCard.Positioner
           sideOffset={8}
-          className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-100 ease-out"
+          className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
         >
-          <PreviewCard.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,opacity,scale] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <PreviewCard.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,scale,opacity] duration-[0.35s,0.35s,100ms,100ms] ease-[cubic-bezier(0.22,1,0.36,1),cubic-bezier(0.22,1,0.36,1),ease-out,ease-out] data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <PreviewCard.Arrow className="relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
             <PreviewCard.Viewport
               transitionKey={view}
@@ -46,14 +46,14 @@ export default function PreviewCardTransitionKeyDemo() {
                 [&_[data-current]]:w-[calc(var(--popup-width)-1.5rem)]
                 [&_[data-current]]:opacity-100
                 [&_[data-current]]:transition-opacity
-                [&_[data-current]]:duration-[50ms]
-                [&_[data-current]]:ease-out
+                [&_[data-current]]:duration-[175ms]
+                [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                 [&_[data-current][data-starting-style]]:opacity-0
                 [&_[data-previous]]:w-[calc(var(--popup-width)-1.5rem)]
                 [&_[data-previous]]:opacity-100
                 [&_[data-previous]]:transition-opacity
-                [&_[data-previous]]:duration-[50ms]
-                [&_[data-previous]]:ease-out
+                [&_[data-previous]]:duration-[175ms]
+                [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                 [&_[data-previous][data-ending-style]]:opacity-0`}
             >
               {view === 'overview' ? (

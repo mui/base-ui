@@ -1,6 +1,6 @@
 .Positioner {
-  --easing: ease-out;
-  --animation-duration: 100ms;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
 
   width: var(--positioner-width);
   height: var(--positioner-height);
@@ -27,9 +27,11 @@
   max-width: 31.25rem;
 
   /* width and height are essential for the resize animation; opacity and transform handle the enter/exit animation */
-  transition-property: width, height, opacity, transform;
-  transition-timing-function: var(--easing);
-  transition-duration: var(--animation-duration);
+  transition:
+    width var(--animation-duration) var(--easing),
+    height var(--animation-duration) var(--easing),
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
