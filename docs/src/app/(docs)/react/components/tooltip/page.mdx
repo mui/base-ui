@@ -212,9 +212,7 @@ import { DemoTooltipDetachedTriggersFull } from './demos/detached-triggers-full'
 
 #### Content changes in place
 
-Content can also change under a single trigger while the tooltip stays open, such as a status message that updates over time.
-Pass a `transitionKey` to `<Tooltip.Viewport>` and update it whenever the content changes.
-When the key changes while the tooltip is open, the viewport runs the same transition as a trigger switch and the tooltip animates to the new content's size.
+To animate content that changes in place, such as a status message that updates over time, pass a `transitionKey` and update it whenever the content changes.
 
 import { DemoTooltipTransitionKey } from './demos/transition-key';
 

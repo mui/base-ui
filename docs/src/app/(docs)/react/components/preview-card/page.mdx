@@ -187,9 +187,7 @@ import { DemoPreviewCardDetachedTriggersFull } from './demos/detached-triggers-f
 
 #### Content changes in place
 
-Content can also change under a single trigger while the preview card stays open, such as when switching between tabs.
-Pass a `transitionKey` to `<PreviewCard.Viewport>` and update it whenever the content changes.
-When the key changes while the preview card is open, the viewport runs the same transition as a trigger switch and the popup animates to the new content's size.
+To animate content that changes in place, such as switching between tabs, pass a `transitionKey` and update it whenever the content changes.
 
 import { DemoPreviewCardTransitionKey } from './demos/transition-key';
 
