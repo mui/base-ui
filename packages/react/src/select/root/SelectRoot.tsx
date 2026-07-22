@@ -244,14 +244,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }
 
     valuesRef.current = resolvedItems.flatItems.map((item) => item.value);
-    labelsRef.current = resolvedItems.flatItems.map((item) => {
+    const renderedItems = listRef.current;
+    const renderedLabels = labelsRef.current;
+    labelsRef.current = resolvedItems.flatItems.map((item, index) => {
+      const renderedItem = renderedItems[index];
+      if (renderedItem != null) {
+        return renderedLabels[index] !== undefined
+          ? renderedLabels[index]
+          : renderedItem.textContent;
+      }
+
       if (typeof item.label === 'string' || typeof item.label === 'number') {
         return String(item.label);
       }
 
       return stringifyAsLabel(item.value, itemToStringLabel);
     });
-  }, [itemToStringLabel, resolvedItems]);
+  }, [itemToStringLabel, listRef, resolvedItems]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {

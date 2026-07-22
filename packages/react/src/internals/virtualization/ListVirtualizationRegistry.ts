@@ -1,7 +1,22 @@
+export interface ListVirtualizerRowMetrics {
+  /**
+   * Logical offset from the start of the virtualized content.
+   */
+  offset: number;
+  /**
+   * Logical row size, including estimates for rows that have not been measured yet.
+   */
+  size: number;
+}
+
 /**
  * Imperative operations exposed by a list virtualizer to its owning list root.
  */
 export interface ListVirtualizerHandle {
+  /**
+   * Returns the logical geometry for a row, including when it is outside the rendered window.
+   */
+  getRowMetrics: (rowIndex: number) => ListVirtualizerRowMetrics | null;
   /**
    * Resets the virtualizer's scroll position to the start of the list.
    */

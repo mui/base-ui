@@ -197,8 +197,14 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   );
 
   const listVirtualizerRef = React.useRef<ListVirtualizerHandle | null>(null);
+  const getRowMetrics = useStableCallback(
+    (rowIndex: number) => listVirtualizerRef.current?.getRowMetrics(rowIndex) ?? null,
+  );
   const resetScroll = useStableCallback(() => listVirtualizerRef.current?.resetScroll());
-  const virtualizerHandle = React.useMemo(() => ({ resetScroll }), [resetScroll]);
+  const virtualizerHandle = React.useMemo(
+    () => ({ getRowMetrics, resetScroll }),
+    [getRowMetrics, resetScroll],
+  );
   const virtualizerId = useRefWithInit(() => Symbol('Base UI list virtualizer')).current;
 
   useIsoLayoutEffect(() => {

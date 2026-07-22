@@ -63,6 +63,7 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
+      labelsRef,
       multiple,
       selectedItemTextRef,
       disabled: selectDisabled,
@@ -107,6 +108,23 @@ export const SelectItem = React.memo(
     }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
+
+    useIsoLayoutEffect(() => {
+      if (virtualItem && highlighted) {
+        itemRef.current?.focus({ preventScroll: true });
+      }
+    }, [highlighted, virtualItem]);
+
+    useIsoLayoutEffect(() => {
+      if (!hasItems || !hasRegistered) {
+        return;
+      }
+
+      labelsRef.current[index] =
+        label !== undefined
+          ? label
+          : (textRef.current?.textContent ?? itemRef.current?.textContent ?? null);
+    });
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || hasItems) {
