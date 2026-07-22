@@ -45,7 +45,11 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
-import { resolveSelectItems, type SelectItems } from '../utils/resolveSelectItems';
+import {
+  resolveSelectItems,
+  type ResolvedSelectItems,
+  type SelectItems,
+} from '../utils/resolveSelectItems';
 
 /**
  * Groups all parts of the select.
@@ -136,24 +140,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
   const resolvedItems = React.useMemo(() => resolveSelectItems<Value>(items), [items]);
-  const initialSelectedIndex = React.useMemo(() => {
-    if (!resolvedItems.hasItems) {
-      return null;
-    }
-
-    let selectedValue = value;
-    if (multiple) {
-      const selectedValues = Array.isArray(value) ? value : [];
-      if (selectedValues.length === 0) {
-        return null;
-      }
-      selectedValue = selectedValues[selectedValues.length - 1];
-    }
-
-    const itemValues = resolvedItems.flatItems.map((item) => item.value);
-    const index = findItemIndex(itemValues, selectedValue as Value, isItemEqualToValue);
-    return index === -1 ? null : index;
-  }, [isItemEqualToValue, multiple, resolvedItems, value]);
   const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
   const store = useRefWithInit(
@@ -176,7 +162,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         highlightType: 'none',
-        selectedIndex: initialSelectedIndex,
+        selectedIndex: getInitialSelectedIndex(resolvedItems, value, multiple, isItemEqualToValue),
         popupProps: {},
         triggerProps: {},
         triggerElement: null,
@@ -648,6 +634,34 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       {hiddenInputs}
     </SelectRootContext.Provider>
   );
+}
+
+function getInitialSelectedIndex<Value>(
+  resolvedItems: ResolvedSelectItems<Value>,
+  value: unknown,
+  multiple: boolean,
+  isItemEqualToValue: (itemValue: Value, value: Value) => boolean,
+) {
+  if (!resolvedItems.hasItems) {
+    return null;
+  }
+
+  let selectedValue = value;
+  if (multiple) {
+    const selectedValues = Array.isArray(value) ? value : [];
+    if (selectedValues.length === 0) {
+      return null;
+    }
+    selectedValue = selectedValues[selectedValues.length - 1];
+  }
+  const index = resolvedItems.flatItems.findIndex((item) => {
+    if (item.value === undefined) {
+      return false;
+    }
+    return compareItemEquality(item.value, selectedValue as Value, isItemEqualToValue);
+  });
+
+  return index === -1 ? null : index;
 }
 
 function getHighlightType(

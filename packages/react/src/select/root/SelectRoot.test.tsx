@@ -5660,6 +5660,22 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: isItemEqualToValue', () => {
+    it('does not recompute the initial selected index when the value changes', async () => {
+      const items = ['a', 'b', 'c', 'd'].map((value) => ({ value, label: value }));
+      const isItemEqualToValue = vi.fn((itemValue: string, value: string) => itemValue === value);
+
+      const { setProps } = await render(
+        <Select.Root items={items} value="a" isItemEqualToValue={isItemEqualToValue} />,
+      );
+      isItemEqualToValue.mockClear();
+
+      await setProps({ value: 'd' });
+
+      // Updating the current selected index requires one scan. The initial index is consumed by
+      // store creation and must not perform a second scan after the store already exists.
+      expect(isItemEqualToValue).toHaveBeenCalledTimes(items.length);
+    });
+
     it('matches object values using the provided comparator', async () => {
       const users = [
         { id: 1, name: 'Alice' },
