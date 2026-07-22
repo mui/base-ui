@@ -4658,6 +4658,71 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('prop: items', () => {
+    it('warns when the rendered item count does not match', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        await render(
+          <Select.Root
+            defaultOpen
+            items={[
+              { value: 'apple', label: 'Apple' },
+              { value: 'banana', label: 'Banana' },
+              { value: 'cherry', label: 'Cherry' },
+            ]}
+          >
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="apple">Apple</Select.Item>
+                <Select.Item value="banana">Banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Root>,
+        );
+
+        expect(
+          warnSpy.mock.calls.some(([message]) =>
+            String(message).includes('item count does not match the rendered <Select.Item>'),
+          ),
+        ).toBe(true);
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+
+    it('warns when the rendered item order does not match', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        await render(
+          <Select.Root
+            defaultOpen
+            items={[
+              { value: 'apple', label: 'Apple' },
+              { value: 'banana', label: 'Banana' },
+            ]}
+          >
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="banana">Banana</Select.Item>
+                <Select.Item value="apple">Apple</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Root>,
+        );
+
+        expect(
+          warnSpy.mock.calls.some(([message]) =>
+            String(message).includes('order does not match the rendered <Select.Item>'),
+          ),
+        ).toBe(true);
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+  });
+
   describe('typeahead', () => {
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',

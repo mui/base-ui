@@ -3,7 +3,11 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { useSelectDerivedItemsContext, useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectDerivedItemsContext,
+  useSelectRootContext,
+  type SelectItemMetadata,
+} from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -48,10 +52,16 @@ export const SelectItem = React.memo(
     const virtualItem = useSelectVirtualItemContext();
     const { hasItems } = useSelectDerivedItemsContext();
     const insideList = useVirtualizationListContext();
+    const virtualized = virtualItem != null;
+    const itemMetadata = React.useMemo<SelectItemMetadata>(
+      () => ({ value: itemValue, virtualized }),
+      [itemValue, virtualized],
+    );
     const listItem = useCompositeListItem({
       guess: true,
       index: virtualItem?.index,
       label,
+      metadata: itemMetadata,
       textRef,
     });
 
