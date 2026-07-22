@@ -121,7 +121,11 @@
 
 .BackItem {
   justify-content: flex-start;
-  gap: 0.5rem;
+  gap: 0.25rem;
+
+  .Caret {
+    margin-left: -0.25rem;
+  }
 }
 
 .Caret {

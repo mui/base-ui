@@ -81,11 +81,11 @@ export default function MenuTransitionKeyDemo() {
               ) : (
                 <div className="flex flex-col">
                   <Menu.Item
-                    className={`${itemClassName} gap-2`}
+                    className={`${itemClassName} gap-1`}
                     closeOnClick={false}
                     onClick={() => setView('main')}
                   >
-                    <CaretLeftIcon className="flex-none" />
+                    <CaretLeftIcon className="-ml-1 flex-none" />
                     Back
                   </Menu.Item>
                   <Menu.Separator className={separatorClassName} />
