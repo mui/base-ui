@@ -198,7 +198,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         compareItemEquality(itemValue, otherItemValue, isItemEqualToValue),
       );
     }
-    return a === b;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      return false;
+    }
+    return compareItemEquality(a as Value, b as Value, isItemEqualToValue);
   });
 
   useRegisterFieldControl(

@@ -8287,6 +8287,54 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('removes [data-dirty] when an equal single object value is selected', async () => {
+      const options = [
+        { id: 'a', label: 'a' },
+        { id: 'b', label: 'b' },
+      ];
+
+      const { user } = await render(
+        <Field.Root>
+          <Combobox.Root
+            defaultOpen
+            items={options}
+            defaultValue={{ id: 'a', label: 'a' }}
+            itemToStringLabel={(item) => item.label}
+            itemToStringValue={(item) => item.id}
+            isItemEqualToValue={(item, value) => item.id === value.id}
+          >
+            <Combobox.Trigger data-testid="trigger" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item) => (
+                      <Combobox.Item key={item.id} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-dirty', '');
+      });
+
+      await user.click(trigger);
+      await user.click(await screen.findByRole('option', { name: 'a' }));
+      await waitFor(() => {
+        expect(trigger).not.toHaveAttribute('data-dirty');
+      });
+    });
+
     it('removes [data-dirty] when an equal object value is reselected (different reference)', async () => {
       const options = [
         { id: 'a', label: 'a' },

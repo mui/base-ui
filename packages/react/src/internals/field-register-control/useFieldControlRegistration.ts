@@ -6,6 +6,7 @@ import { areArraysEqual } from '../areArraysEqual';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form-context/FormContext';
 import type { FieldValidityData } from '../../field/root/FieldRoot';
+import type { FieldValidationReset } from '../../field/root/useFieldValidation';
 
 function areValuesEqual(a: unknown, b: unknown) {
   if (Array.isArray(a) && Array.isArray(b)) {
@@ -25,14 +26,15 @@ export interface FieldControlRegistration {
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
   const {
+    clearFocused,
     commit,
     invalid,
     markedDirtyRef,
     name,
-    setDirty,
+    resetControlState,
+    resetValidation,
     setRegisteredFieldName,
     registeredFieldIdRef,
-    setValidityData,
     validityData,
   } = params;
 
@@ -72,7 +74,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     commit(getRegistrationValue(registration));
   });
 
-  function refreshRegistration() {
+  function refreshRegistration(nextValidityData: FieldValidityData) {
     const registration = registrationRef.current;
     if (!registration || !registration.id) {
       return;
@@ -82,7 +84,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       getValue: getValueForForm,
       name: name ?? registration.name,
       controlRef: registration.controlRef,
-      validityData: getCombinedFieldValidityData(validityData, invalid),
+      validityData: getCombinedFieldValidityData(nextValidityData, invalid),
       validate,
     });
   }
@@ -93,10 +95,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
   }
 
-  function syncInitialValue() {
+  function syncRegistrationState() {
     const registration = registrationRef.current;
     if (!registration) {
-      return;
+      return validityData;
     }
 
     const source = activeFieldControlSourceRef.current;
@@ -119,13 +121,11 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     lastKnownValueRef.current = initialValue;
 
     if (keepBaseline) {
-      return;
+      return validityData;
     }
 
-    setDirty(false);
-    setValidityData((prev) =>
-      isValueEqual(prev.initialValue, initialValue) ? prev : { ...prev, initialValue },
-    );
+    resetControlState();
+    return resetValidation(initialValue);
   }
 
   useIsoLayoutEffect(() => {
@@ -160,6 +160,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     (source: symbol, registration: FieldControlRegistration | undefined) => {
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
+          if (registrationRef.current) {
+            lastKnownValueRef.current = getRegistrationValue(registrationRef.current);
+          }
+          clearFocused();
           activeFieldControlSourceRef.current = null;
           deleteRegistration();
           registrationRef.current = null;
@@ -182,8 +186,8 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
         deleteRegistration(previousId);
       }
 
-      syncInitialValue();
-      refreshRegistration();
+      const nextValidityData = syncRegistrationState();
+      refreshRegistration(nextValidityData);
     },
   );
 
@@ -191,13 +195,14 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 }
 
 export interface UseFieldControlRegistrationParameters {
+  clearFocused: () => void;
   commit: (value: unknown) => void;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
-  setDirty: React.Dispatch<React.SetStateAction<boolean>>;
+  resetControlState: () => void;
+  resetValidation: FieldValidationReset;
   setRegisteredFieldName: (name: string | undefined) => void;
   registeredFieldIdRef: React.RefObject<string | undefined>;
-  setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;
 }

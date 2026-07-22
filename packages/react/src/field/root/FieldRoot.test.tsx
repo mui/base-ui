@@ -25,6 +25,29 @@ describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
 
+  function SwappableField({
+    firstControl,
+    secondControl,
+    children,
+    ...rootProps
+  }: React.ComponentProps<typeof Field.Root> & {
+    firstControl: React.ReactNode;
+    secondControl: React.ReactNode;
+  }) {
+    const [swapped, setSwapped] = React.useState(false);
+    return (
+      <div>
+        <Field.Root {...rootProps}>
+          {swapped ? secondControl : firstControl}
+          {children}
+        </Field.Root>
+        <button type="button" onClick={() => setSwapped(true)}>
+          swap
+        </button>
+      </div>
+    );
+  }
+
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
@@ -1395,6 +1418,71 @@ describe('<Field.Root />', () => {
       expect(screen.queryByText('old error')).toBe(null);
       expect(control).not.toHaveAttribute('aria-invalid');
     });
+
+    it('cancels debounced validation when swapping controls', async () => {
+      const validate = vi.fn(() => 'old error');
+
+      await renderFakeTimers(
+        <SwappableField
+          validationDebounceTime={100}
+          validationMode="onChange"
+          validate={validate}
+          firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
+          secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
+        >
+          <Field.Error />
+        </SwappableField>,
+      );
+
+      fireEvent.change(screen.getByTestId('first'), { target: { value: 'old' } });
+      fireEvent.click(screen.getByText('swap'));
+      clock.tick(100);
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(screen.queryByText('old error')).toBe(null);
+      expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('completes a pending debounced validation across a control remount', async () => {
+      const validate = vi.fn(() => 'error');
+
+      function App() {
+        const [value, setValue] = React.useState('a');
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <div>
+            <Field.Root validationMode="onChange" validationDebounceTime={100} validate={validate}>
+              {mounted && (
+                <Field.Control data-testid="control" value={value} onValueChange={setValue} />
+              )}
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              hide
+            </button>
+            <button type="button" onClick={() => setMounted(true)}>
+              show
+            </button>
+          </div>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'bad' } });
+      expect(validate).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByText('hide'));
+      fireEvent.click(screen.getByText('show'));
+
+      // The debounced validation survives the remount and fires on schedule for the
+      // still-current value.
+      expect(validate).not.toHaveBeenCalled();
+      clock.tick(100);
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('error')).not.toBe(null);
+    });
   });
 
   describe('style hooks', () => {
@@ -1925,6 +2013,317 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(screen.getByText('hide'));
         fireEvent.click(screen.getByText('show'));
+
+        fireEvent.click(screen.getByText('a'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('clears dirty state when an uncontrolled control remounts at its baseline', async () => {
+        function App() {
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && <Field.Control data-testid="control" defaultValue="a" />}
+              </Field.Root>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        expect(screen.getByTestId('control')).toHaveValue('a');
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('resets dirty validation history when swapping controls', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            validationMode="onBlur"
+            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" required />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('first'), { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('swap'));
+
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+
+        const control = screen.getByTestId('control');
+        fireEvent.focus(control);
+        fireEvent.blur(control);
+
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-invalid');
+        });
+      });
+
+      it('clears focused state when swapping a focused control', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={<Field.Control key="a" data-testid="first" />}
+            secondControl={<Field.Control key="b" data-testid="control" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.focus(screen.getByTestId('first'));
+        expect(root).toHaveAttribute('data-focused', '');
+
+        fireEvent.click(screen.getByText('swap'));
+
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-focused');
+        });
+        expect(screen.getByTestId('control')).not.toHaveFocus();
+      });
+
+      it('resets touched state when swapping controls', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+        const first = screen.getByTestId('first');
+
+        fireEvent.focus(first);
+        fireEvent.blur(first);
+        expect(root).toHaveAttribute('data-touched', '');
+
+        fireEvent.click(screen.getByText('swap'));
+
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-touched');
+        });
+      });
+
+      it('keeps focused state when the swapped-in control receives focus', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={<Field.Control key="a" data-testid="first" />}
+            secondControl={<Field.Control key="b" data-testid="control" autoFocus />}
+          />,
+        );
+        fireEvent.focus(screen.getByTestId('first'));
+        fireEvent.click(screen.getByText('swap'));
+
+        const control = screen.getByTestId('control');
+        expect(control).toHaveFocus();
+        await waitFor(() => {
+          expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        });
+      });
+
+      it('clears completed validation when swapping controls', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            validationMode="onChange"
+            validate={(value) => (value === 'bad' ? 'old error' : null)}
+            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
+          >
+            <Field.Error />
+          </SwappableField>,
+        );
+
+        fireEvent.change(screen.getByTestId('first'), { target: { value: 'bad' } });
+        await waitFor(() => {
+          expect(screen.queryByText('old error')).not.toBe(null);
+        });
+
+        fireEvent.click(screen.getByText('swap'));
+
+        await waitFor(() => {
+          expect(screen.queryByText('old error')).toBe(null);
+        });
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
+      });
+
+      it('ignores async validation from a swapped-out control', async () => {
+        let resolveOld: ((value: string | null) => void) | undefined;
+        const validate = vi.fn((value) => {
+          if (value !== 'old') {
+            return null;
+          }
+
+          return new Promise<string | null>((resolve) => {
+            resolveOld = resolve;
+          });
+        });
+
+        await render(
+          <SwappableField
+            data-testid="root"
+            validationMode="onChange"
+            validate={validate}
+            firstControl={<Field.Control key="a" data-testid="first" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="b" />}
+          >
+            <Field.Error />
+          </SwappableField>,
+        );
+
+        fireEvent.change(screen.getByTestId('first'), { target: { value: 'old' } });
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(resolveOld).not.toBeUndefined();
+        fireEvent.click(screen.getByText('swap'));
+
+        await act(async () => {
+          resolveOld?.('old error');
+          await flushMicrotasks();
+        });
+
+        expect(screen.queryByText('old error')).toBe(null);
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+        expect(root).not.toHaveAttribute('data-invalid');
+
+        fireEvent.change(control, { target: { value: 'c' } });
+        fireEvent.change(control, { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('applies an in-flight async validation across a control remount', async () => {
+        const resolvers: Array<(value: string | null) => void> = [];
+        const validate = vi.fn((value) => {
+          if (value !== 'old') {
+            return null;
+          }
+
+          return new Promise<string | null>((resolve) => {
+            resolvers.push(resolve);
+          });
+        });
+
+        function App() {
+          const [value, setValue] = React.useState('a');
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root" validationMode="onChange" validate={validate}>
+                {mounted && (
+                  <Field.Control data-testid="control" value={value} onValueChange={setValue} />
+                )}
+                <Field.Error />
+              </Field.Root>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'old' } });
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(resolvers.length).toBe(1);
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        // The remount is the same logical control at the same value, so the in-flight
+        // validation is not re-run and its result stays authoritative.
+        expect(validate).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          resolvers[0]('async error');
+          await flushMicrotasks();
+        });
+
+        expect(screen.queryByText('async error')).not.toBe(null);
+        expect(root).toHaveAttribute('data-invalid', '');
+        expect(root).toHaveAttribute('data-dirty', '');
+      });
+
+      it('uses custom equality when a single object-valued Select remounts', async () => {
+        function App() {
+          const [id, setId] = React.useState('a');
+          const [mounted, setMounted] = React.useState(true);
+          const value = { id };
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && (
+                  <Select.Root
+                    value={value}
+                    isItemEqualToValue={(itemValue, selectedValue) =>
+                      itemValue.id === selectedValue.id
+                    }
+                    itemToStringValue={(itemValue) => itemValue.id}
+                  >
+                    <Select.Trigger />
+                  </Select.Root>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setId('b')}>
+                b
+              </button>
+              <button type="button" onClick={() => setId('a')}>
+                a
+              </button>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('b'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        expect(root).toHaveAttribute('data-dirty', '');
 
         fireEvent.click(screen.getByText('a'));
         await waitFor(() => {

@@ -468,7 +468,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         compareItemEquality(itemValue, otherItemValue, isItemEqualToValue),
       );
     }
-    return a === b;
+    if (Array.isArray(a) || Array.isArray(b)) {
+      return false;
+    }
+    if (selectionMode === 'none') {
+      return Object.is(a, b);
+    }
+    return compareItemEquality(a as Value, b as Value, isItemEqualToValue);
   });
 
   useRegisterFieldControl(
