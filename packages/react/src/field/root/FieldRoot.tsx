@@ -137,7 +137,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     name,
-    setFocused,
     setRegisteredFieldName,
     registeredFieldIdRef,
     setValidityData,

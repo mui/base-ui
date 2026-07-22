@@ -2,10 +2,8 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form-context/FormContext';
-import { activeElement, contains } from '../shadowDom';
 import type { FieldValidityData } from '../../field/root/FieldRoot';
 
 export interface FieldControlRegistration {
@@ -22,7 +20,6 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     invalid,
     markedDirtyRef,
     name,
-    setFocused,
     setRegisteredFieldName,
     registeredFieldIdRef,
     setValidityData,
@@ -136,13 +133,6 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     (source: symbol, registration: FieldControlRegistration | undefined) => {
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
-          // A control that was removed fires no blur event, so the focused state has to be cleared
-          // here. A control can also unregister while still mounted and focused (`enabled: false`),
-          // in which case the field is still focused and must stay marked as such.
-          const control = registrationRef.current?.controlRef.current;
-          if (!contains(control, activeElement(ownerDocument(control)))) {
-            setFocused(false);
-          }
           activeFieldControlSourceRef.current = null;
           deleteRegistration();
           registrationRef.current = null;
@@ -178,7 +168,6 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
-  setFocused: (value: boolean) => void;
   setRegisteredFieldName: (name: string | undefined) => void;
   registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;

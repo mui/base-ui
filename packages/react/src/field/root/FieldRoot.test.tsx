@@ -1683,59 +1683,6 @@ describe('<Field.Root />', () => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
       });
-
-      it('clears focused state when the focused control is removed', async () => {
-        await render(
-          <SwappableField
-            data-testid="root"
-            firstControl={<Field.Control key="a" data-testid="first" />}
-            secondControl={<Field.Control key="b" data-testid="control" />}
-          />,
-        );
-        const root = screen.getByTestId('root');
-
-        fireEvent.focus(screen.getByTestId('first'));
-        expect(root).toHaveAttribute('data-focused', '');
-
-        fireEvent.click(screen.getByText('swap'));
-
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-focused');
-        });
-        expect(screen.getByTestId('control')).not.toHaveFocus();
-      });
-
-      it('keeps focused state when a still-mounted control unregisters', async () => {
-        function App() {
-          const [named, setNamed] = React.useState(true);
-          return (
-            <div>
-              <Field.Root data-testid="root" name={named ? 'group' : undefined}>
-                <CheckboxGroup defaultValue={[]}>
-                  <Checkbox.Root value="a" data-testid="control" />
-                </CheckboxGroup>
-              </Field.Root>
-              <button type="button" onClick={() => setNamed(false)}>
-                unname
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-        const control = screen.getByTestId('control');
-
-        await act(async () => {
-          control.focus();
-        });
-        expect(root).toHaveAttribute('data-focused', '');
-
-        fireEvent.click(screen.getByText('unname'));
-
-        expect(control).toHaveFocus();
-        expect(root).toHaveAttribute('data-focused', '');
-      });
     });
 
     describe('filled', () => {
