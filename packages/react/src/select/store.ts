@@ -7,6 +7,8 @@ import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
+export type HighlightType = 'none' | 'keyboard' | 'pointer';
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
@@ -32,6 +34,7 @@ export type State = {
   openMethod: InteractionType | null;
 
   activeIndex: number | null;
+  highlightType: HighlightType;
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -86,6 +89,7 @@ export const selectors = {
   openMethod: (state: State) => state.openMethod,
 
   activeIndex: (state: State) => state.activeIndex,
+  highlightType: (state: State) => state.highlightType,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
 
