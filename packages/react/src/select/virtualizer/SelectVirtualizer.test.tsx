@@ -194,6 +194,41 @@ describe('<Select.Virtualizer />', () => {
     }
   });
 
+  it('warns when a virtualized item is disabled without isItemDisabled', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Select.Root defaultOpen items={createItems(1)}>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.List>
+                <Select.Virtualizer<string> estimatedItemHeight={20}>
+                  {(item) => (
+                    <Select.Item value={item.value} disabled>
+                      {item.label}
+                    </Select.Item>
+                  )}
+                </Select.Virtualizer>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Root>,
+      );
+
+      expect(
+        warnSpy.mock.calls.some(([message]) =>
+          String(message).includes(
+            'virtualized <Select.Item> is disabled, but <Select.Root> does not have an ' +
+              '`isItemDisabled` prop',
+          ),
+        ),
+      ).toBe(true);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   function renderVirtualizedSelect(props: {
     items: Array<{ value: string; label: string }>;
     overscanPx?: number;
