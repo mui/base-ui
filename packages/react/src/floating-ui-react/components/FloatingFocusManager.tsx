@@ -721,7 +721,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // This focus is queued on the next animation frame. If the floating element has closed
           // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
           // onto the initial element after it has legitimately moved elsewhere.
-          if (!openRef.current || !elToFocus.isConnected) {
+          if (!openRef.current) {
             return false;
           }
 

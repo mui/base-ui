@@ -313,9 +313,6 @@ export function useListNavigation(
         const focusRoot = floatingElement ?? item;
         const activeElementWhenQueued = activeElementInRoot(focusRoot);
 
-        // Cancel this hook's previous request explicitly so a later navigation
-        // that needs to wait for its item cannot leave the old item eligible.
-        cancelQueuedFocusRef.current?.();
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,

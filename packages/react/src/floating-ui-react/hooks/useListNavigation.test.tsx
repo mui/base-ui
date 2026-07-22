@@ -16,41 +16,6 @@ import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation'
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
-function createAnimationFrameMock() {
-  let nextFrameId = 0;
-  const callbacks = new Map<number, FrameRequestCallback>();
-  const requestAnimationFrame = vi
-    .spyOn(window, 'requestAnimationFrame')
-    .mockImplementation((callback) => {
-      nextFrameId += 1;
-      callbacks.set(nextFrameId, callback);
-      return nextFrameId;
-    });
-  const cancelAnimationFrame = vi
-    .spyOn(window, 'cancelAnimationFrame')
-    .mockImplementation((id) => callbacks.delete(id));
-
-  return {
-    callbacks,
-    flush() {
-      let iterations = 0;
-      while (callbacks.size > 0) {
-        if (iterations > 10) {
-          throw new Error('Exceeded maximum animation frame flush iterations.');
-        }
-        const pending = Array.from(callbacks.values());
-        callbacks.clear();
-        pending.forEach((callback) => callback(performance.now()));
-        iterations += 1;
-      }
-    },
-    restore() {
-      requestAnimationFrame.mockRestore();
-      cancelAnimationFrame.mockRestore();
-    },
-  };
-}
-
 function App(
   inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
     disableFirstItem?: boolean;
@@ -141,21 +106,15 @@ function LateMountedItemApp({
   focusItemOnOpen,
   loopFocus,
   virtual,
-  initialActiveIndex = null,
-  initialMountedIndex = null,
-  onScrollIntoView,
 }: {
   selectedIndex?: number | null;
   focusItemOnOpen?: UseListNavigationProps['focusItemOnOpen'];
   loopFocus?: boolean;
   virtual?: boolean;
-  initialActiveIndex?: number | null;
-  initialMountedIndex?: number | null;
-  onScrollIntoView?: () => void;
 } = {}) {
   const [open, setOpen] = React.useState(false);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(initialActiveIndex);
-  const [mountedIndex, setMountedIndex] = React.useState<number | null>(initialMountedIndex);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [mountedIndex, setMountedIndex] = React.useState<number | null>(null);
   const listRef = React.useRef<Array<HTMLButtonElement | null>>(Array(3).fill(null));
   const { refs, context } = useFloating({ open, onOpenChange: setOpen });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
@@ -190,9 +149,6 @@ function LateMountedItemApp({
               {...getItemProps({
                 ref(node: HTMLButtonElement | null) {
                   listRef.current[mountedIndex] = node;
-                  if (node && onScrollIntoView) {
-                    node.scrollIntoView = onScrollIntoView;
-                  }
                 },
               })}
             />
@@ -305,8 +261,10 @@ describe('useListNavigation', () => {
   it('focuses the selected keyboard-open item on the next animation frame', async ({
     onTestFinished,
   }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
 
     render(<App selectedIndex={1} />);
 
@@ -318,7 +276,7 @@ describe('useListNavigation', () => {
     const item = screen.getByTestId('item-1');
     expect(item).not.toHaveFocus();
 
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
     await flushMicrotasks();
 
     expect(item).toHaveFocus();
@@ -327,8 +285,10 @@ describe('useListNavigation', () => {
   it('preserves consumer focus moved inside before keyboard-open item focus runs', async ({
     onTestFinished,
   }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
 
     render(
       <App selectedIndex={1}>
@@ -343,22 +303,24 @@ describe('useListNavigation', () => {
 
     const filter = screen.getByRole('textbox', { name: 'Filter' });
     act(() => filter.focus());
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
 
     expect(filter).toHaveFocus();
     expect(screen.getByTestId('item-1')).not.toHaveFocus();
   });
 
   it('focuses a retained active item after reopening', async ({ onTestFinished }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
 
     render(<App retainActiveIndexOnClose />);
 
     const trigger = screen.getByRole('button');
     fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     await flushMicrotasks();
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
     expect(screen.getByTestId('item-0')).toHaveFocus();
 
     fireEvent.click(trigger);
@@ -370,7 +332,7 @@ describe('useListNavigation', () => {
     await flushMicrotasks();
     expect(screen.getByTestId('item-0')).not.toHaveFocus();
 
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
     await flushMicrotasks();
 
     expect(screen.getByTestId('item-0')).toHaveFocus();
@@ -379,8 +341,10 @@ describe('useListNavigation', () => {
   it('retries focus when the selected item registers after the active index update', async ({
     onTestFinished,
   }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
 
     render(<LateMountedItemApp />);
     fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
@@ -389,7 +353,11 @@ describe('useListNavigation', () => {
     const item = screen.getByTestId('late-item');
     expect(item).not.toHaveFocus();
 
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
+    await flushMicrotasks();
+    expect(item).not.toHaveFocus();
+
+    act(() => vi.advanceTimersToNextFrame());
     await flushMicrotasks();
 
     expect(item).toHaveFocus();
@@ -398,8 +366,10 @@ describe('useListNavigation', () => {
   it('preserves virtualizer deferral after opening without an initial focused item', async ({
     onTestFinished,
   }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
 
     render(<LateMountedItemApp selectedIndex={null} focusItemOnOpen={false} loopFocus virtual />);
     const trigger = screen.getByRole('button');
@@ -415,9 +385,9 @@ describe('useListNavigation', () => {
     expect(item).toHaveAttribute('data-index', '2');
     const scrollIntoView = vi.fn();
     item.scrollIntoView = scrollIntoView;
-    expect(animationFrames.callbacks.size).toBeGreaterThan(0);
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
 
-    act(animationFrames.flush);
+    act(() => vi.advanceTimersToNextFrame());
     await flushMicrotasks();
 
     expect(scrollIntoView).toHaveBeenCalledOnce();

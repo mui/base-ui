@@ -158,6 +158,9 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
     };
     createdQueue[intentKind] = focusIntent;
     focusQueues.set(doc, createdQueue);
+    // The shared `AnimationFrame` scheduler is bound to the module's realm.
+    // Focus queues must instead follow the target document's window so iframe
+    // work is scheduled and cancelled in that document's rendering lifecycle.
     createdQueue.frameId = createdQueue.window.requestAnimationFrame(() =>
       flushFocusQueue(doc, createdQueue),
     );
