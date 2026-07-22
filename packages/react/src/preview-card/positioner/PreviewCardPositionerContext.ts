@@ -4,7 +4,7 @@ import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPosit
 
 export type PreviewCardPositionerContext = Pick<
   UseAnchorPositioningReturnValue,
-  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'anchor'
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles'
 >;
 
 export const PreviewCardPositionerContext = React.createContext<

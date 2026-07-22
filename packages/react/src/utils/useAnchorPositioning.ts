@@ -576,7 +576,6 @@ export function useAnchorPositioningWithHook(
       align: renderedAlign,
       physicalSide: renderedSide,
       anchorHidden,
-      anchor,
       refs,
       context,
       isPositioned,
@@ -591,7 +590,6 @@ export function useAnchorPositioningWithHook(
       renderedAlign,
       renderedSide,
       anchorHidden,
-      anchor,
       refs,
       context,
       isPositioned,
@@ -786,7 +784,6 @@ export interface UseAnchorPositioningReturnValue {
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
-  anchor: UseAnchorPositioningSharedParameters['anchor'];
   refs: UseFloatingReturn['refs'];
   context: FloatingContext;
   isPositioned: boolean;

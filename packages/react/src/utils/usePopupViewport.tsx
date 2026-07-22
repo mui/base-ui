@@ -12,8 +12,8 @@ import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { tabbable } from '../floating-ui-react/utils/tabbable';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
-import { Dimensions, VirtualElement } from '../floating-ui-react/types';
-import { Side, UseAnchorPositioningSharedParameters } from './useAnchorPositioning';
+import { Dimensions } from '../floating-ui-react/types';
+import { Side } from './useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';
 
@@ -59,12 +59,6 @@ export interface UsePopupViewportParameters {
    */
   transitionKey?: React.Key | undefined;
   /**
-   * The positioner's `anchor` prop. When a `transitionKey` change coincides with an anchor
-   * change, the activation direction is derived from the anchor movement, the same way a
-   * trigger switch derives it from the trigger movement.
-   */
-  anchor?: UseAnchorPositioningSharedParameters['anchor'] | undefined;
-  /**
    * Called when the rendered content is swapped for different content.
    * When provided, it replaces the default focus recovery entirely.
    * The second argument distinguishes a `transitionKey` change from a trigger switch.
@@ -97,8 +91,7 @@ export interface UsePopupViewportResult {
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
 export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children, transitionKey, anchor, onContentSwap, onFocusRecovery } =
-    parameters;
+  const { store, side, children, transitionKey, onContentSwap, onFocusRecovery } = parameters;
 
   const direction = useDirection();
 
@@ -120,7 +113,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
   const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
 
-  const [referenceOffset, setReferenceOffset] = React.useState<Offset | null>(null);
+  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
 
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
@@ -175,7 +168,6 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const previousActiveTriggerRef = React.useRef(open ? activeTrigger : null);
-  const previousAnchorRef = React.useRef<Element | VirtualElement | null>(null);
   const lastTransitionKeyRef = React.useRef(transitionKey);
   const cleanupAbortRef = React.useRef<AbortController | null>(null);
 
@@ -204,10 +196,6 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
     previousActiveTriggerRef.current = currentActiveTrigger;
 
-    const previousAnchor = previousAnchorRef.current;
-    const currentAnchor = open ? resolveAnchor(anchor) : null;
-    previousAnchorRef.current = currentAnchor;
-
     // Only while open, so a key change committed together with closing doesn't morph during exit.
     const transitionKeyChanged =
       open && !triggerChanged && transitionKey !== lastTransitionKeyRef.current;
@@ -225,23 +213,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       setPreviousContentNode(capturedNodeRef.current);
       setShowStartingStyleAttribute(true);
 
-      // A trigger switch derives the direction from the trigger movement; an in-place change
-      // whose anchor moved at the same time derives it from the anchor movement instead.
-      const anchorChanged =
-        transitionKeyChanged &&
-        previousAnchor != null &&
-        currentAnchor != null &&
-        currentAnchor !== previousAnchor &&
-        // A detached previous anchor measures a zero rect, which produces a garbage direction.
-        !('isConnected' in previousAnchor && !previousAnchor.isConnected);
-
-      let offset: Offset | null = null;
-      if (triggerChanged) {
-        offset = calculateRelativePosition(previousActiveTrigger, currentActiveTrigger);
-      } else if (anchorChanged) {
-        offset = calculateRelativePosition(previousAnchor, currentAnchor);
-      }
-      setReferenceOffset(offset);
+      // Calculate the relative position between the previous and new trigger,
+      // so we can pass it to the style hook for animation purposes.
+      setNewTriggerOffset(
+        triggerChanged
+          ? calculateRelativePosition(previousActiveTrigger, currentActiveTrigger)
+          : null,
+      );
 
       // Abort the cleanup of any transition this one interrupts: its container is already
       // detached, so its animations resolve immediately and would clear this transition early.
@@ -264,15 +242,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
         }, abortController.signal);
       });
     }
-  }, [
-    activeTrigger,
-    open,
-    transitionKey,
-    anchor,
-    onAnimationsFinished,
-    cleanupFrame,
-    onContentSwap,
-  ]);
+  }, [activeTrigger, open, transitionKey, onAnimationsFinished, cleanupFrame, onContentSwap]);
 
   // Remounting the current container drops focus to `<body>` when it was inside the previous
   // content. Let `onFocusRecovery` move it in that case; if focus is alive elsewhere (e.g.
@@ -387,7 +357,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const state: PopupViewportState = {
-    activationDirection: getActivationDirection(referenceOffset),
+    activationDirection: getActivationDirection(newTriggerOffset),
     transitioning: isTransitioning,
   };
 
@@ -429,22 +399,9 @@ function getDirection(value: number, positiveLabel: string, negativeLabel: strin
 }
 
 /**
- * Resolves the positioner's `anchor` prop to the underlying element (real or virtual).
- */
-function resolveAnchor(
-  anchor: UseAnchorPositioningSharedParameters['anchor'],
-): Element | VirtualElement | null {
-  const value = typeof anchor === 'function' ? anchor() : anchor;
-  return (value && 'current' in value ? value.current : value) ?? null;
-}
-
-/**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(
-  from: Element | VirtualElement,
-  to: Element | VirtualElement,
-): Offset {
+function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

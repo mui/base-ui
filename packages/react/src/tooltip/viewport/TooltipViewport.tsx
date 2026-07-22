@@ -29,7 +29,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     side: positioner.side,
     children,
     transitionKey,
-    anchor: positioner.anchor,
   });
 
   const state: TooltipViewportState = {
