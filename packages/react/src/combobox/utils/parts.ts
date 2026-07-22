@@ -2,7 +2,7 @@
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { selectors, type ComboboxStore } from '../store';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 
 /**
  * The popup side is only meaningful while the positioner is mounted, as the store retains the

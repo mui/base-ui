@@ -7,7 +7,7 @@ import {
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
