@@ -172,6 +172,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       lastHandledTriggerRef.current = null;
       focusWasInsideRef.current = false;
     }
+
     if (!mounted) {
       // A transition interrupted by closing cannot finish once the popup is hidden; reset it.
       cleanupFrame.cancel();
@@ -188,6 +189,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       previousActiveTrigger != null &&
       activeTrigger !== previousActiveTrigger &&
       lastHandledTriggerRef.current !== activeTrigger;
+
     // Only while open, so a key change committed together with closing doesn't morph during exit.
     const transitionKeyChanged =
       open && !triggerChanged && transitionKey !== lastTransitionKeyRef.current;
@@ -258,12 +260,16 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     }
 
     const focusedElement = activeElement(ownerDocument(container));
-    if (focusedElement == null || focusedElement === ownerDocument(container).body) {
-      if (onFocusRecovery) {
-        onFocusRecovery(container);
-      } else {
-        popupElement?.focus();
-      }
+    const focusWasLost = focusedElement == null || focusedElement === ownerDocument(container).body;
+
+    if (!focusWasLost) {
+      return;
+    }
+
+    if (onFocusRecovery) {
+      onFocusRecovery(container);
+    } else {
+      popupElement?.focus();
     }
   }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
 
