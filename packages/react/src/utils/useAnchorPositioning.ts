@@ -474,9 +474,18 @@ export function useAnchorPositioningWithHook(
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
-    const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
-      ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
-      : { position: resolvedPosition, ...originalFloatingStyles };
+    let base: React.CSSProperties & Record<string, unknown>;
+    if (!isPositioned) {
+      // Until a position for the current open is computed, ignore any coordinates retained from a
+      // previous open (or from a pass that measured the hidden popup as 0x0). Rendering the
+      // full-size popup at such stale coordinates can overflow the layout viewport, which makes
+      // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
+      base = { position: resolvedPosition, top: 0, left: 0 };
+    } else if (adaptiveOrigin) {
+      base = { position: resolvedPosition, [sideX]: x, [sideY]: y };
+    } else {
+      base = { ...originalFloatingStyles, position: resolvedPosition };
+    }
 
     // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
     // resolve to a valid length on the first positioning pass, before `size()` writes the real
