@@ -11,8 +11,6 @@ import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopu
 
 type TransitionDirection = 'forward' | 'back';
 
-type InteractionType = 'keyboard' | 'pointer';
-
 interface ViewHistoryEntry {
   key: React.Key | undefined;
   returnIndex: number | null;
@@ -39,7 +37,7 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
 
   const [transitionDirection, setTransitionDirection] = React.useState<TransitionDirection>();
 
-  const interactionTypeRef = React.useRef<InteractionType | null>(null);
+  const keyboardInteractionRef = React.useRef(false);
 
   // Each entry pairs a visited key with the highlight index to restore when returning to it,
   // so a jump back across several views restores the destination's own index.
@@ -49,33 +47,27 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
 
   useIsoLayoutEffect(() => {
     if (!open) {
-      interactionTypeRef.current = null;
+      keyboardInteractionRef.current = false;
       viewHistoryRef.current = [{ key: transitionKey, returnIndex: null }];
       setTransitionDirection(undefined);
     }
   }, [open, transitionKey]);
 
   const handleKeyDownCapture = useStableCallback(() => {
-    interactionTypeRef.current = 'keyboard';
+    keyboardInteractionRef.current = true;
   });
 
   const handleClickCapture = useStableCallback((event: React.MouseEvent) => {
     // A click with `detail === 0` was synthesized by keyboard activation (Enter or Space)
     // rather than dispatched by a real pointer.
-    interactionTypeRef.current = event.detail === 0 ? 'keyboard' : 'pointer';
+    keyboardInteractionRef.current = event.detail === 0;
   });
 
   // The item list is rebuilt when the content swaps, so clear the previous highlight index.
   // Keyboard navigation moves focus into the new view or back to the originating item, while
   // pointer navigation keeps focus on the popup and leaves all items unhighlighted.
   const handleContentSwap = useStableCallback(
-    ({
-      focusWasInside,
-      transitionKeyChanged,
-    }: {
-      focusWasInside: boolean;
-      transitionKeyChanged: boolean;
-    }) => {
+    (focusWasInside: boolean, transitionKeyChanged: boolean) => {
       let direction: TransitionDirection | undefined;
       let returnIndex: number | null = null;
 
@@ -102,14 +94,14 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
       store.set('activeIndex', null);
 
       if (!focusWasInside) {
-        interactionTypeRef.current = null;
+        keyboardInteractionRef.current = false;
         return;
       }
 
       store.select('popupElement')?.focus({ preventScroll: true });
 
-      const wasKeyboardInteraction = interactionTypeRef.current === 'keyboard';
-      interactionTypeRef.current = null;
+      const wasKeyboardInteraction = keyboardInteractionRef.current;
+      keyboardInteractionRef.current = false;
 
       if (!wasKeyboardInteraction) {
         return;
@@ -144,8 +136,8 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   });
 
   const state: MenuViewportState = {
+    ...viewportState,
     activationDirection: transitionDirection ?? viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
     instant: instantType,
   };
 

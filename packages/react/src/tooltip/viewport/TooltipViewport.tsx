@@ -32,8 +32,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   });
 
   const state: TooltipViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
+    ...viewportState,
     instant: instantType,
   };
 

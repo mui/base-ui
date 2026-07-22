@@ -32,8 +32,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   });
 
   const state: PreviewCardViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
+    ...viewportState,
     instant: instantType,
   };
 

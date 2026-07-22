@@ -37,8 +37,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 
   const state: PopoverViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
+    ...viewportState,
     instant: instantType,
   };
 
