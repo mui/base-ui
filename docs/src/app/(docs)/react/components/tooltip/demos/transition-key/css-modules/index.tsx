@@ -10,36 +10,9 @@ const CHAPTERS = [
   { title: 'Publishing', duration: 90 },
 ];
 
-const TOTAL_DURATION = CHAPTERS.reduce((total, chapter) => total + chapter.duration, 0);
-
 export default function TooltipTransitionKeyDemo() {
-  const [chapter, setChapter] = React.useState({ index: 0, direction: 'forward' });
-  const segmentRefs = React.useRef<Array<HTMLSpanElement | null>>([]);
-
-  // The pointer position along the timeline selects a chapter; `transitionKey`
-  // morphs the tooltip between chapter titles as the pointer crosses a boundary.
-  // In-place changes set no `data-activation-direction`, so the slide direction is
-  // derived from the chapter order instead and styled through a custom attribute.
-  function handlePointerMove(event: React.PointerEvent) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const position = (event.clientX - rect.left) / rect.width;
-
-    let index = CHAPTERS.length - 1;
-    let end = 0;
-    for (let i = 0; i < CHAPTERS.length; i += 1) {
-      end += CHAPTERS[i].duration / TOTAL_DURATION;
-      if (position < end) {
-        index = i;
-        break;
-      }
-    }
-
-    setChapter((previous) =>
-      previous.index === index
-        ? previous
-        : { index, direction: index > previous.index ? 'forward' : 'back' },
-    );
-  }
+  const [chapterIndex, setChapterIndex] = React.useState(0);
+  const segmentRefs = React.useRef(CHAPTERS.map(() => React.createRef<HTMLSpanElement>())).current;
 
   return (
     <Tooltip.Provider>
@@ -47,41 +20,32 @@ export default function TooltipTransitionKeyDemo() {
         onOpenChangeComplete={(nextOpen) => {
           // Reset after the exit animation so the content freezes in place while fading out
           if (!nextOpen) {
-            setChapter({ index: 0, direction: 'forward' });
+            setChapterIndex(0);
           }
         }}
       >
-        <Tooltip.Trigger
-          aria-label="Video timeline"
-          className={styles.Timeline}
-          onPointerMove={handlePointerMove}
-        >
+        <Tooltip.Trigger aria-label="Video timeline" className={styles.Timeline}>
           {CHAPTERS.map((chapter, index) => (
             <span
               key={chapter.title}
-              ref={(node) => {
-                segmentRefs.current[index] = node;
-              }}
+              ref={segmentRefs[index]}
               className={styles.Segment}
               style={{ flexGrow: chapter.duration }}
+              onPointerEnter={() => setChapterIndex(index)}
             />
           ))}
         </Tooltip.Trigger>
         <Tooltip.Portal>
-          {/* Anchoring to the hovered segment makes the tooltip glide between chapters
-              in sync with the width morph, since the positioner transitions its position */}
+          {/* Anchoring to the hovered segment makes the tooltip glide between chapters in sync
+              with the width morph, and gives the swap its `data-activation-direction` tokens */}
           <Tooltip.Positioner
-            anchor={segmentRefs.current[chapter.index] ?? undefined}
+            anchor={segmentRefs[chapterIndex]}
             sideOffset={8}
             className={styles.Positioner}
           >
             <Tooltip.Popup className={styles.Popup}>
-              <Tooltip.Viewport
-                className={styles.Viewport}
-                transitionKey={chapter.index}
-                data-direction={chapter.direction}
-              >
-                <span className={styles.Content}>{CHAPTERS[chapter.index].title}</span>
+              <Tooltip.Viewport className={styles.Viewport} transitionKey={chapterIndex}>
+                <span className={styles.Content}>{CHAPTERS[chapterIndex].title}</span>
               </Tooltip.Viewport>
             </Tooltip.Popup>
           </Tooltip.Positioner>

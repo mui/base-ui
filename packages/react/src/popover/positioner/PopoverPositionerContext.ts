@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { FloatingContext } from '../../floating-ui-react';
 
 export interface PopoverPositionerContext {
@@ -9,6 +13,7 @@ export interface PopoverPositionerContext {
   arrowRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
+  anchor: UseAnchorPositioningSharedParameters['anchor'];
   context: FloatingContext;
 }
 

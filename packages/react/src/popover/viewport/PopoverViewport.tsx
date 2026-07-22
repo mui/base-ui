@@ -24,7 +24,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const { render, className, style, children, transitionKey, ...elementProps } = componentProps;
 
   const store = usePopoverRootContext();
-  const { side } = usePopoverPositionerContext();
+  const { side, anchor } = usePopoverPositionerContext();
 
   const instantType = store.useState('instantType');
 
@@ -33,6 +33,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     side,
     children,
     transitionKey,
+    anchor,
     onFocusRecovery: focusFirstTabbable,
   });
 

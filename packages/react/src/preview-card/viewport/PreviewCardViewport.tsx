@@ -29,6 +29,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     side: positioner.side,
     children,
     transitionKey,
+    anchor: positioner.anchor,
   });
 
   const state: PreviewCardViewportState = {
