@@ -52,7 +52,7 @@ export default function MenuTransitionKeyDemo() {
               ) : (
                 <div className={styles.List}>
                   <Menu.Item
-                    className={styles.Item}
+                    className={`${styles.Item} ${styles.BackItem}`}
                     closeOnClick={false}
                     onClick={() => setView('main')}
                   >

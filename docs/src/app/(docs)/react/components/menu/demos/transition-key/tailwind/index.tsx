@@ -8,7 +8,7 @@ const triggerClassName =
   'flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal whitespace-nowrap text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 const itemClassName = `
-  flex cursor-default items-center justify-between gap-6 px-4 py-2
+  flex cursor-default items-center px-4 py-2
   text-sm leading-4 outline-none select-none
   data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white
   data-highlighted:before:absolute data-highlighted:before:inset-x-1
@@ -65,7 +65,7 @@ export default function MenuTransitionKeyDemo() {
                   <Menu.Item className={itemClassName}>Open file</Menu.Item>
                   <Menu.Separator className={separatorClassName} />
                   <Menu.Item
-                    className={itemClassName}
+                    className={`${itemClassName} justify-between gap-6`}
                     closeOnClick={false}
                     onClick={() => setView('more')}
                     onKeyDown={(event) => {
@@ -81,7 +81,7 @@ export default function MenuTransitionKeyDemo() {
               ) : (
                 <div className="flex flex-col">
                   <Menu.Item
-                    className={itemClassName}
+                    className={`${itemClassName} gap-2`}
                     closeOnClick={false}
                     onClick={() => setView('main')}
                   >

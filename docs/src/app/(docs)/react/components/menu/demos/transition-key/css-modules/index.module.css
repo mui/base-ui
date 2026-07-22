@@ -119,6 +119,11 @@
   }
 }
 
+.BackItem {
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
 .Caret {
   flex: none;
 }
