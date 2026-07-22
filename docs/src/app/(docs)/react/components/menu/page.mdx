@@ -340,6 +340,17 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+#### Content changes in place
+
+Content can also change under a single trigger while the menu stays open, such as a nested view that slides in.
+Pass a `transitionKey` to `<Menu.Viewport>` and update it whenever the content changes.
+When the key changes, `data-activation-direction` is set to `forward` when new content enters and `back` when returning to earlier content.
+The highlight resets for the rebuilt items: keyboard navigation focuses the first item when entering a view and restores the originating item when returning, while pointer navigation leaves items unhighlighted.
+
+import { DemoMenuTransitionKey } from './demos/transition-key';
+
+<DemoMenuTransitionKey />
+
 ## API reference
 
 import { TypesMenu } from './types';

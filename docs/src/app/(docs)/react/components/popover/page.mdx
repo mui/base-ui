@@ -192,6 +192,16 @@ import { DemoPopoverDetachedTriggersFull } from './demos/detached-triggers-full'
 
 <DemoPopoverDetachedTriggersFull />
 
+#### Content changes in place
+
+Content can also change under a single trigger while the popup stays open, such as when moving between steps of a flow.
+Pass a `transitionKey` to `<Popover.Viewport>` and update it whenever the content changes.
+When the key changes while the popup is open, the viewport runs the same transition as a trigger switch and the popup animates to the new content's size.
+
+import { DemoPopoverTransitionKey } from './demos/transition-key';
+
+<DemoPopoverTransitionKey />
+
 ## API reference
 
 import { TypesPopover } from './types';

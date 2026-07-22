@@ -1,32 +1,13 @@
-.Container {
-  display: grid;
-  min-height: 20rem;
-  place-items: center;
-}
-
-.Paragraph {
-  max-width: 20rem;
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: oklch(14.5% 0 0deg);
-  text-align: center;
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 0.35s;
+  --animation-duration: 0.35s;
 
   width: var(--positioner-width);
   height: var(--positioner-height);
   max-width: var(--available-width);
   transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
-  transition-duration: var(--duration);
+  transition-duration: var(--animation-duration);
 
   &[data-instant] {
     transition: none;
@@ -48,7 +29,7 @@
   height: var(--popup-height, auto);
   transition-property: width, height, opacity, transform;
   transition-timing-function: var(--easing);
-  transition-duration: var(--duration);
+  transition-duration: var(--animation-duration);
 
   @media (prefers-color-scheme: dark) {
     border-color: white;
@@ -68,42 +49,6 @@
   }
 }
 
-.Arrow {
-  display: block;
-  position: relative;
-  width: 12px;
-  height: 6px;
-  overflow: clip;
-
-  &[data-side='top'] {
-    bottom: -6px;
-    rotate: 180deg;
-  }
-
-  &[data-side='bottom'] {
-    top: -6px;
-    rotate: 0deg;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    box-sizing: border-box;
-    width: calc(6px * sqrt(2));
-    height: calc(6px * sqrt(2));
-    border: 1px solid oklch(14.5% 0 0deg);
-    background-color: white;
-    transform: translate(-50%, 50%) rotate(45deg);
-
-    @media (prefers-color-scheme: dark) {
-      border: 1px solid white;
-      background-color: oklch(14.5% 0 0deg);
-    }
-  }
-}
-
 .Viewport {
   --viewport-padding: 0.75rem;
 
@@ -117,9 +62,10 @@
 
   [data-previous],
   [data-current] {
+    /* Freeze each container to its own content width while transitioning */
     width: calc(var(--popup-width) - 2 * var(--viewport-padding));
     opacity: 1;
-    transition: opacity calc(var(--duration) / 2) var(--easing);
+    transition: opacity calc(var(--animation-duration) / 2) var(--easing);
   }
 
   [data-previous][data-ending-style],
@@ -216,97 +162,4 @@
 
 .StatValue {
   margin: 0;
-}
-
-.Collapsible {
-  display: flex;
-  align-self: stretch;
-  flex-direction: column;
-}
-
-.CollapsibleTrigger {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  height: 1.75rem;
-  padding: 0 0.5rem 0 0.75rem;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  background-color: white;
-  color: oklch(14.5% 0 0deg);
-  font-family: inherit;
-  font-size: 0.8125rem;
-  line-height: 1;
-  white-space: nowrap;
-  -webkit-user-select: none;
-  user-select: none;
-
-  @media (prefers-color-scheme: dark) {
-    border-color: white;
-    background-color: oklch(14.5% 0 0deg);
-    color: white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
-}
-
-.Caret {
-  transition: rotate 150ms ease-out;
-
-  [data-panel-open] & {
-    rotate: 90deg;
-  }
-}
-
-.CollapsiblePanel {
-  height: var(--collapsible-panel-height);
-  overflow: hidden;
-  transition: height 150ms ease-out;
-
-  &[data-starting-style],
-  &[data-ending-style] {
-    height: 0;
-  }
-}
-
-.CollapsibleContent {
-  margin: 0;
-  padding-top: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(43.9% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
-.Link {
-  outline: 0;
-  color: oklch(14.5% 0 0deg);
-  text-decoration-line: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    text-decoration-line: none;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
 }

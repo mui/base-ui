@@ -1,12 +1,6 @@
-.Container {
-  display: grid;
-  min-height: 20rem;
-  place-items: center;
-}
-
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 0.35s;
+  --animation-duration: 0.35s;
 
   width: var(--positioner-width);
   height: var(--positioner-height);
@@ -14,16 +8,18 @@
   outline: 0;
   transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
-  transition-duration: var(--duration);
+  transition-duration: var(--animation-duration);
+
+  &[data-instant] {
+    transition: none;
+  }
 }
 
 .Popup {
-  --popup-border-width: 1px;
-
   box-sizing: border-box;
   position: relative;
   outline: 0;
-  border: var(--popup-border-width) solid oklch(14.5% 0 0deg);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -34,7 +30,7 @@
   height: var(--popup-height, auto);
   transition-property: width, height, opacity, transform;
   transition-timing-function: var(--easing);
-  transition-duration: var(--duration);
+  transition-duration: var(--animation-duration);
 
   @media (prefers-color-scheme: dark) {
     border-color: white;
@@ -47,6 +43,10 @@
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.98);
+  }
+
+  &[data-instant] {
+    transition: none;
   }
 }
 
@@ -67,8 +67,9 @@
 
   [data-previous],
   [data-current] {
-    width: calc(var(--popup-width) - var(--popup-border-width) - var(--popup-border-width));
-    transition: transform var(--duration) var(--easing);
+    /* Freeze each container to the popup's content-box width (2px accounts for the borders) */
+    width: calc(var(--popup-width) - 2px);
+    transition: transform var(--animation-duration) var(--easing);
   }
 
   [data-previous][data-ending-style] {
@@ -126,76 +127,4 @@
 
 .Caret {
   flex: none;
-}
-
-.Separator {
-  margin: 0.25rem;
-  height: 1px;
-  background-color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    background-color: white;
-  }
-}
-
-.Button {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  height: 2rem;
-  padding: 0 0.75rem;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  background-color: white;
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1;
-  white-space: nowrap;
-  color: oklch(14.5% 0 0deg);
-  -webkit-user-select: none;
-  user-select: none;
-
-  @media (prefers-color-scheme: dark) {
-    border: 1px solid white;
-    background-color: oklch(14.5% 0 0deg);
-    color: white;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: oklch(97% 0 0deg);
-
-      @media (prefers-color-scheme: dark) {
-        background-color: oklch(26.9% 0 0deg);
-      }
-    }
-  }
-
-  &:active {
-    background-color: oklch(92.2% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(37.1% 0 0deg);
-    }
-  }
-
-  &[data-popup-open] {
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
 }
