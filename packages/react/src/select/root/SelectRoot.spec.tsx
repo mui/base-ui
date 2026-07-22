@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import { Select } from '@base-ui/react/select';
+import { Select, type SelectItemData, type SelectItems } from '@base-ui/react/select';
 import { mergeProps } from '../../merge-props';
 
 const objectItems = [
@@ -8,6 +8,29 @@ const objectItems = [
   { value: 'b', label: 'banana' },
   { value: 'c', label: 'cherry' },
 ];
+
+interface Country {
+  code: string;
+  name: string;
+}
+
+const countryItems: SelectItems<Country> = [
+  { value: { code: 'fr', name: 'France' }, label: 'France' },
+];
+
+function renderCountry(item: SelectItemData<Country>, index: number) {
+  return (
+    <Select.Item key={item.value.code} value={item.value}>
+      {index}: {item.label}
+    </Select.Item>
+  );
+}
+
+<Select.Root items={countryItems}>
+  <Select.Virtualizer estimatedItemHeight={32} getItemKey={(item) => item.value.code}>
+    {renderCountry}
+  </Select.Virtualizer>
+</Select.Root>;
 
 const objectItemsReadonly = [
   { value: 'a', label: 'apple' },
