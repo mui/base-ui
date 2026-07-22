@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 describe('<Select.Virtualizer />', () => {
@@ -50,6 +50,42 @@ describe('<Select.Virtualizer />', () => {
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
     expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
+  });
+
+  it('exposes imperative scrolling by logical item index', async () => {
+    const actionsRef = React.createRef<Select.Virtualizer.Actions>();
+    const handleScrollTo = vi.fn();
+
+    await render(
+      <Select.Root defaultOpen items={createItems(100)}>
+        <Select.Positioner alignItemWithTrigger={false}>
+          <Select.Popup>
+            <Select.List>
+              <Select.Virtualizer<string>
+                actionsRef={actionsRef}
+                estimatedItemHeight={20}
+                overscanPx={0}
+                render={
+                  <div
+                    ref={setElementScrollState({
+                      clientHeight: 60,
+                      getScrollTop: () => 0,
+                      scrollTo: handleScrollTo,
+                    })}
+                  />
+                }
+              >
+                {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+              </Select.Virtualizer>
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    act(() => actionsRef.current?.scrollToIndex(50, { align: 'start' }));
+
+    expect(handleScrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1000 });
   });
 
   it('passes logical collection metadata to items', async () => {

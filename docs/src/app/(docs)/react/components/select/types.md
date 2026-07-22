@@ -872,6 +872,7 @@ Requires the `items` prop on `<Select.Root>` and must be the only item-rendering
 
 | Prop                | Type                                                                                             | Default | Description                                                                                                                                                                                   |
 | :------------------ | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| actionsRef          | `React.RefObject<Select.Virtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                      |
 | enabled             | `boolean`                                                                                        | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
 | estimatedItemHeight | `number \| ((item: SelectItemData<Value>, index: number) => number)`                             | -       | Estimated item height in CSS pixels used before item elements have been measured.                                                                                                             |
 | getItemKey          | `((item: SelectItemData<Value>) => string \| number)`                                            | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                |
@@ -896,6 +897,19 @@ Requires the `items` prop on `<Select.Root>` and must be the only item-rendering
 ### Virtualizer.Props
 
 Re-export of [Virtualizer](#virtualizer) props.
+
+### Virtualizer.Actions
+
+```typescript
+type SelectVirtualizerActions = {
+  scrollToIndex: (
+    index: number,
+    options?: {
+      align?: 'auto' | 'center' | 'end' | 'start';
+    },
+  ) => void;
+};
+```
 
 ### Virtualizer.State
 

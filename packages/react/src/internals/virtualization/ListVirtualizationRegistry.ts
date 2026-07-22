@@ -9,6 +9,17 @@ export interface ListVirtualizerRowMetrics {
   size: number;
 }
 
+export type ListVirtualizerScrollAlignment = 'auto' | 'center' | 'end' | 'start';
+
+export interface ListVirtualizerScrollToIndexOptions {
+  /**
+   * Where to place the item in the scrollport. `auto` only scrolls when the item is outside the
+   * visible area.
+   * @default 'auto'
+   */
+  align?: ListVirtualizerScrollAlignment | undefined;
+}
+
 /**
  * Imperative operations exposed by a list virtualizer to its owning list root.
  */
@@ -17,6 +28,10 @@ export interface ListVirtualizerHandle {
    * Returns the logical geometry for a row, including when it is outside the rendered window.
    */
   getRowMetrics: (rowIndex: number) => ListVirtualizerRowMetrics | null;
+  /**
+   * Scrolls an item into view by its logical collection index.
+   */
+  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
   /**
    * Resets the virtualizer's scroll position to the start of the list.
    */

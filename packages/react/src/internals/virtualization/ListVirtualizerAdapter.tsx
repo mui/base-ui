@@ -13,6 +13,7 @@ import type {
 import type {
   ListVirtualizationRegistry,
   ListVirtualizerHandle,
+  ListVirtualizerScrollToIndexOptions,
 } from './ListVirtualizationRegistry';
 
 type ComponentName = 'Combobox' | 'Select';
@@ -118,6 +119,7 @@ const ListVirtualizerItemRow = React.memo(
 ) as typeof ListVirtualizerItemRowImpl;
 
 export interface UseListVirtualizerAdapterParameters<Value, Item> {
+  actionsRef: React.RefObject<ListVirtualizerAdapterActions | null> | undefined;
   activeIndex: number | null;
   children: (item: Item, index: number) => React.ReactElement;
   componentName: ComponentName;
@@ -136,6 +138,7 @@ export function useListVirtualizerAdapter<Value, Item>(
   parameters: UseListVirtualizerAdapterParameters<Value, Item>,
 ) {
   const {
+    actionsRef,
     activeIndex,
     children,
     componentName,
@@ -246,9 +249,13 @@ export function useListVirtualizerAdapter<Value, Item>(
     (rowIndex: number) => apiRef.current?.getRowMetrics(rowIndex) ?? null,
   );
   const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
+  const scrollToIndex = useStableCallback(
+    (index: number, options?: ListVirtualizerScrollToIndexOptions) =>
+      apiRef.current?.scrollToIndex(index, options),
+  );
   const virtualizerHandle = React.useMemo(
-    () => ({ getRowMetrics, resetScroll }),
-    [getRowMetrics, resetScroll],
+    () => ({ getRowMetrics, resetScroll, scrollToIndex }),
+    [getRowMetrics, resetScroll, scrollToIndex],
   );
   const virtualizerId = useRefWithInit(() => Symbol('Base UI list virtualizer')).current;
 
@@ -277,6 +284,8 @@ export function useListVirtualizerAdapter<Value, Item>(
     );
   });
 
+  React.useImperativeHandle(actionsRef, () => ({ scrollToIndex }), [scrollToIndex]);
+
   return {
     apiRef,
     estimatedItemHeight: resolvedEstimatedItemHeight,
@@ -286,6 +295,16 @@ export function useListVirtualizerAdapter<Value, Item>(
     renderRow,
     rows,
   };
+}
+
+/**
+ * Imperative actions exposed by a built-in list virtualizer.
+ */
+export interface ListVirtualizerAdapterActions {
+  /**
+   * Scrolls an item into view by its logical collection index.
+   */
+  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
 }
 
 export interface UseNonVirtualizedItemRegistrationParameters {

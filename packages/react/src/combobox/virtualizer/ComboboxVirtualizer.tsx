@@ -5,6 +5,7 @@ import { warn } from '@base-ui/utils/warn';
 import { ListVirtualizer } from '../../internals/virtualization/ListVirtualizer';
 import {
   useListVirtualizerAdapter,
+  type ListVirtualizerAdapterActions,
   type ListVirtualizerAdapterProps,
   type ListVirtualizerAdapterState,
   type ListVirtualizerKeyProps,
@@ -35,6 +36,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    actionsRef,
     children,
     estimatedItemHeight,
     getItemKey,
@@ -65,6 +67,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     renderRow,
     rows,
   } = useListVirtualizerAdapter<Value, Value>({
+    actionsRef,
     activeIndex,
     children,
     componentName: 'Combobox',
@@ -140,19 +143,30 @@ function getComboboxItemValue<Value>(item: Value) {
  */
 export interface ComboboxVirtualizerState extends ListVirtualizerAdapterState {}
 
+export interface ComboboxVirtualizerActions extends ListVirtualizerAdapterActions {}
+
 /**
  * Props for the `Combobox.Virtualizer` component.
  */
 export type ComboboxVirtualizerProps<Value = unknown> = ListVirtualizerAdapterProps<
   Value,
   ComboboxVirtualizerState
-> &
-  ListVirtualizerKeyProps<Value, Value>;
+> & {
+  /**
+   * A ref to imperative actions.
+   * - `scrollToIndex`: Scrolls an item into view by its logical collection index.
+   */
+  actionsRef?: React.RefObject<ComboboxVirtualizer.Actions | null> | undefined;
+} & ListVirtualizerKeyProps<Value, Value>;
 
 /**
  * Type helpers for the `Combobox.Virtualizer` component.
  */
 export namespace ComboboxVirtualizer {
+  /**
+   * Imperative actions exposed by the component.
+   */
+  export type Actions = ComboboxVirtualizerActions;
   /**
    * State metadata exposed to render props.
    */

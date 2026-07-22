@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import {
   ListVirtualizer,
   type ListVirtualizerRenderRowParameters,
   type ListVirtualizerRow,
 } from './ListVirtualizer';
+import type { ListVirtualizerHandle } from './ListVirtualizationRegistry';
 
 interface TestRowModel {
   label: string;
@@ -147,6 +148,60 @@ describe('<ListVirtualizer />', () => {
         top: 285,
       }),
     );
+  });
+
+  it('scrolls to an index with the requested alignment', async () => {
+    const apiRef = React.createRef<ListVirtualizerHandle>();
+    const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
+    let scrollTop = 0;
+
+    await render(
+      <ListVirtualizer
+        apiRef={apiRef}
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={
+          <div
+            ref={(element) => {
+              if (!element) {
+                return;
+              }
+
+              Object.defineProperty(element, 'clientHeight', {
+                configurable: true,
+                value: 100,
+              });
+              Object.defineProperty(element, 'scrollTop', {
+                configurable: true,
+                get: () => scrollTop,
+              });
+              Object.defineProperty(element, 'scrollTo', {
+                configurable: true,
+                value: (options: ScrollToOptions) => {
+                  scrollTop = options.top ?? scrollTop;
+                  scrollTo(options);
+                },
+              });
+            }}
+          />
+        }
+        renderRow={renderRow}
+        rows={createRows(100)}
+      />,
+    );
+
+    act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
+
+    act(() => apiRef.current?.scrollToIndex(10, { align: 'center' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 160 });
+
+    act(() => apiRef.current?.scrollToIndex(10, { align: 'end' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
+
+    scrollTop = 0;
+    act(() => apiRef.current?.scrollToIndex(10));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
   });
 });
 
