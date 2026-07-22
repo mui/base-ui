@@ -16,11 +16,15 @@ export function useRegisterFieldControl(
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = useRefWithInit(() => Symbol());
 
+  // Re-register without unregistering first: re-registration with the same id updates the
+  // form's fields Map entry in place, while a delete + re-add would move the field to the
+  // end of the Map every time its value changes.
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
 
     if (!enabled) {
-      return undefined;
+      registerFieldControl(source, undefined);
+      return;
     }
 
     const registration: FieldControlRegistration = {
@@ -33,10 +37,6 @@ export function useRegisterFieldControl(
     };
 
     registerFieldControl(source, registration);
-
-    return () => {
-      registerFieldControl(source, undefined);
-    };
   }, [
     controlRef,
     enabled,
@@ -48,4 +48,11 @@ export function useRegisterFieldControl(
     sourceRef,
     value,
   ]);
+
+  useIsoLayoutEffect(() => {
+    const source = sourceRef.current;
+    return () => {
+      registerFieldControl(source, undefined);
+    };
+  }, [registerFieldControl, sourceRef]);
 }

@@ -75,6 +75,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
   const scrollPositionRef = React.useRef(DEFAULT_COORDS);
+  const savedSnapTypeRef = React.useRef<string | null>(null);
 
   function startScrolling(vertical: boolean) {
     const setScrolling = vertical ? setScrollingY : setScrollingX;
@@ -101,6 +102,20 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
+  // CSS scroll snap forces every programmatic scroll to land on a snap
+  // point, making thumb dragging jump between snap points. Native
+  // scrollbars suppress snapping while dragging, so disable it until the
+  // pointer is released; restoring the value re-snaps the viewport. The
+  // save is guarded so a second pointer during an active drag can't
+  // clobber the saved value with `none`.
+  const disableViewportSnap = useStableCallback(() => {
+    const viewportEl = viewportRef.current;
+    if (viewportEl && savedSnapTypeRef.current === null) {
+      savedSnapTypeRef.current = viewportEl.style.scrollSnapType;
+      viewportEl.style.scrollSnapType = 'none';
+    }
+  });
+
   const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
     if (event.button !== 0) {
       return;
@@ -116,9 +131,11 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       | 'vertical'
       | 'horizontal';
 
-    if (viewportRef.current) {
-      startScrollTopRef.current = viewportRef.current.scrollTop;
-      startScrollLeftRef.current = viewportRef.current.scrollLeft;
+    const viewportEl = viewportRef.current;
+    if (viewportEl) {
+      startScrollTopRef.current = viewportEl.scrollTop;
+      startScrollLeftRef.current = viewportEl.scrollLeft;
+      disableViewportSnap();
     }
 
     const thumb =
@@ -172,6 +189,13 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
     thumbDraggingRef.current = false;
+
+    if (savedSnapTypeRef.current !== null) {
+      if (viewportRef.current) {
+        viewportRef.current.style.scrollSnapType = savedSnapTypeRef.current;
+      }
+      savedSnapTypeRef.current = null;
+    }
 
     const thumb =
       currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
@@ -237,6 +261,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handlePointerMove,
       handlePointerUp,
       handleScroll,
+      disableViewportSnap,
       cornerSize,
       setCornerSize,
       thumbSize,
@@ -269,6 +294,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handlePointerMove,
       handlePointerUp,
       handleScroll,
+      disableViewportSnap,
       cornerSize,
       thumbSize,
       hasMeasuredScrollbar,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -35,17 +35,16 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  disabled: createSelector((state: State<unknown>) => state.disabled),
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  isInstantPhase: createSelector((state: State<unknown>) => state.isInstantPhase),
-  trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
-  disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
-  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  adaptiveOrigin: createSelector(
-    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
-  ),
+  disabled: (state: State<unknown>) => state.disabled,
+  instantType: (state: State<unknown>) => state.instantType,
+  isInstantPhase: (state: State<unknown>) => state.isInstantPhase,
+  trackCursorAxis: (state: State<unknown>) => state.trackCursorAxis,
+  disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
+  lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
+  closeOnClick: (state: State<unknown>) => state.closeOnClick,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
 };
 
 type Selectors = typeof selectors;
