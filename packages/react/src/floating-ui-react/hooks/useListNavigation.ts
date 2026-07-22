@@ -21,6 +21,7 @@ import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
+  activeElementInRoot,
   contains,
   getFloatingFocusElement,
   getTarget,
@@ -293,7 +294,6 @@ export function useListNavigation(
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
-  const forceSyncFocusOnOpenRef = React.useRef<object | null>(null);
   const forceScrollIntoViewRef = React.useRef(false);
   const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
@@ -305,14 +305,40 @@ export function useListNavigation(
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
 
-  const focusItem = useStableCallback((deferReveal = false) => {
+  const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
+        const focusRoot = floatingElement ?? item;
+        const activeElementWhenQueued = activeElementInRoot(focusRoot);
+
+        // Cancel this hook's previous request explicitly so a later navigation
+        // that needs to wait for its item cannot leave the old item eligible.
+        cancelQueuedFocusRef.current?.();
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
+          shouldFocus: () => {
+            // The popup can close or the active index can change before the
+            // frame runs. In either case, focusing this item would revive stale
+            // intent.
+            if (!latestOpenRef.current || listRef.current[indexRef.current] !== item) {
+              return false;
+            }
+
+            const currentActiveElement = activeElementInRoot(focusRoot);
+            const focusMovedInside =
+              currentActiveElement !== activeElementWhenQueued &&
+              !contains(item, currentActiveElement) &&
+              contains(floatingElement, currentActiveElement);
+
+            // Consumer code may intentionally focus custom content after the
+            // popup opens but before this frame. Preserve that newer focus;
+            // keyboard navigation while already open is synchronous and has no
+            // intervening frame in which this condition can become true.
+            return !focusMovedInside;
+          },
         });
       }
     }
@@ -324,10 +350,9 @@ export function useListNavigation(
       runFocus(initialItem);
     }
 
-    const scheduler =
-      forceSyncFocusRef.current && !deferReveal
-        ? (callback: () => void) => callback()
-        : (callback: () => void) => focusFrame.request(callback);
+    const scheduler = forceSyncFocusRef.current
+      ? (callback: () => void) => callback()
+      : (callback: () => void) => focusFrame.request(callback);
 
     scheduler(() => {
       const waitedItem = listRef.current[indexRef.current] || initialItem;
@@ -386,18 +411,10 @@ export function useListNavigation(
     }
     if (!open) {
       forceSyncFocusRef.current = false;
-      forceSyncFocusOnOpenRef.current = null;
       return;
     }
     if (!floatingElement) {
       return;
-    }
-
-    const isInitialSync = !previousOpenRef.current || !previousMountedRef.current;
-    if (isInitialSync && focusItemOnOpenRef.current && keyRef.current != null) {
-      // Preserve keyboard-open intent across the controlled `activeIndex` update so focus lands
-      // with the highlighted state instead of waiting for the next animation frame.
-      forceSyncFocusOnOpenRef.current = {};
     }
 
     if (activeIndex == null) {
@@ -415,12 +432,11 @@ export function useListNavigation(
 
       // Initial sync.
       if (
-        isInitialSync &&
+        (!previousOpenRef.current || !previousMountedRef.current) &&
         focusItemOnOpenRef.current &&
         (keyRef.current != null || (focusItemOnOpenRef.current === true && keyRef.current == null))
       ) {
         let runs = 0;
-        const syncFocusOnOpenToken = forceSyncFocusOnOpenRef.current;
         const waitForListPopulated = () => {
           if (listRef.current[0] == null) {
             // Avoid letting the browser paint if possible on the first try,
@@ -431,11 +447,6 @@ export function useListNavigation(
                 ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
                 : queueMicrotask;
               scheduler(waitForListPopulated);
-            } else if (
-              syncFocusOnOpenToken != null &&
-              forceSyncFocusOnOpenRef.current === syncFocusOnOpenToken
-            ) {
-              forceSyncFocusOnOpenRef.current = null;
             }
             runs += 1;
           } else {
@@ -458,17 +469,8 @@ export function useListNavigation(
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
-      const forceSyncFocusOnOpen = forceSyncFocusOnOpenRef.current != null;
-      if (forceSyncFocusOnOpen) {
-        // Focus an already-registered item in this commit, but preserve the animation-frame
-        // fallback for late registration and reveal it only after positioning has settled.
-        forceSyncFocusRef.current = listRef.current[activeIndex] != null;
-      }
-      focusItem(forceSyncFocusOnOpen);
-      forceSyncFocusOnOpenRef.current = null;
+      focusItem();
       forceScrollIntoViewRef.current = false;
-    } else {
-      forceSyncFocusOnOpenRef.current = null;
     }
   }, [
     enabled,

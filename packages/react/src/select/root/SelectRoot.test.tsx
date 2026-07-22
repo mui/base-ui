@@ -70,11 +70,11 @@ describe('<Select.Root />', () => {
   });
 
   describe('keyboard navigation', () => {
-    it('focuses the highlighted item before the next animation frame when opening', async ({
+    it('does not focus the highlighted item before the next animation frame when opening', async ({
       onTestFinished,
     }) => {
       await render(
-        <Select.Root>
+        <Select.Root defaultValue="b">
           <Select.Trigger>Trigger</Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -87,22 +87,36 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const requestAnimationFrame = vi
-        .spyOn(window, 'requestAnimationFrame')
-        .mockImplementation(() => 0);
-      onTestFinished(() => requestAnimationFrame.mockRestore());
+      vi.useFakeTimers();
+      onTestFinished(() => {
+        vi.useRealTimers();
+      });
 
       const trigger = screen.getByRole('combobox');
       await act(async () => {
         trigger.focus();
       });
+      const focusTargets: EventTarget[] = [];
+      const onFocusIn = (event: FocusEvent) => focusTargets.push(event.target as EventTarget);
+      document.addEventListener('focusin', onFocusIn);
+      onTestFinished(() => document.removeEventListener('focusin', onFocusIn));
 
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
       await flushMicrotasks();
 
-      const option = screen.getByRole('option', { name: 'a' });
+      const option = screen.getByRole('option', { name: 'b' });
       expect(option).toHaveAttribute('data-highlighted');
+      expect(option).not.toHaveFocus();
+      expect(trigger).toHaveFocus();
+      expect(focusTargets).toEqual([]);
+
+      await act(async () => {
+        vi.advanceTimersToNextFrame();
+      });
+      await flushMicrotasks();
+
       expect(option).toHaveFocus();
+      expect(focusTargets).toEqual([option]);
     });
 
     it.skipIf(isJSDOM)('reveals the keyboard-open item after the popup is positioned', async () => {

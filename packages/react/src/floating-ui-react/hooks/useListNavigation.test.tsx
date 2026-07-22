@@ -57,10 +57,17 @@ function App(
     hideFirstItem?: boolean;
     firstItemStyle?: React.CSSProperties;
     retainActiveIndexOnClose?: boolean;
+    children?: React.ReactNode;
   } = {},
 ) {
-  const { disableFirstItem, hideFirstItem, firstItemStyle, retainActiveIndexOnClose, ...props } =
-    inProps;
+  const {
+    disableFirstItem,
+    hideFirstItem,
+    firstItemStyle,
+    retainActiveIndexOnClose,
+    children,
+    ...props
+  } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -89,6 +96,7 @@ function App(
       <button {...getReferenceProps({ ref: refs.setReference })} />
       {open && (
         <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
+          {children}
           <ul>
             {['one', 'two', 'three'].map((string, index) => {
               let style: React.CSSProperties | undefined;
@@ -294,65 +302,63 @@ describe('useListNavigation', () => {
     });
   });
 
-  it('focuses the keyboard-open item without waiting for an animation frame', async ({
+  it('focuses the selected keyboard-open item on the next animation frame', async ({
     onTestFinished,
   }) => {
-    const requestAnimationFrame = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation(() => 0);
-    onTestFinished(() => requestAnimationFrame.mockRestore());
-
-    render(<App />);
-
-    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-    await flushMicrotasks();
-
-    expect(screen.getByTestId('item-0')).toHaveFocus();
-  });
-
-  it('focuses the selected keyboard-open item without waiting for an animation frame', async ({
-    onTestFinished,
-  }) => {
-    const requestAnimationFrame = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation(() => 0);
-    onTestFinished(() => requestAnimationFrame.mockRestore());
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
 
     render(<App selectedIndex={1} />);
 
-    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    const trigger = screen.getByRole('button');
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     await flushMicrotasks();
 
-    expect(screen.getByTestId('item-1')).toHaveFocus();
+    const item = screen.getByTestId('item-1');
+    expect(item).not.toHaveFocus();
+
+    act(animationFrames.flush);
+    await flushMicrotasks();
+
+    expect(item).toHaveFocus();
   });
 
-  it('focuses the ArrowUp keyboard-open item without waiting for an animation frame', async ({
+  it('preserves consumer focus moved inside before keyboard-open item focus runs', async ({
     onTestFinished,
   }) => {
-    const requestAnimationFrame = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation(() => 0);
-    onTestFinished(() => requestAnimationFrame.mockRestore());
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
 
-    render(<App />);
+    render(
+      <App selectedIndex={1}>
+        <input aria-label="Filter" />
+      </App>,
+    );
 
-    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
+    const trigger = screen.getByRole('button');
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     await flushMicrotasks();
 
-    expect(screen.getByTestId('item-2')).toHaveFocus();
+    const filter = screen.getByRole('textbox', { name: 'Filter' });
+    act(() => filter.focus());
+    act(animationFrames.flush);
+
+    expect(filter).toHaveFocus();
+    expect(screen.getByTestId('item-1')).not.toHaveFocus();
   });
 
-  it('focuses a retained active item synchronously when reopening', async ({ onTestFinished }) => {
-    const requestAnimationFrame = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation(() => 0);
-    onTestFinished(() => requestAnimationFrame.mockRestore());
+  it('focuses a retained active item after reopening', async ({ onTestFinished }) => {
+    const animationFrames = createAnimationFrameMock();
+    onTestFinished(animationFrames.restore);
 
     render(<App retainActiveIndexOnClose />);
 
     const trigger = screen.getByRole('button');
     fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     await flushMicrotasks();
+    act(animationFrames.flush);
     expect(screen.getByTestId('item-0')).toHaveFocus();
 
     fireEvent.click(trigger);
@@ -362,6 +368,11 @@ describe('useListNavigation', () => {
 
     fireEvent.keyDown(trigger, { key: 'ArrowDown' });
     await flushMicrotasks();
+    expect(screen.getByTestId('item-0')).not.toHaveFocus();
+
+    act(animationFrames.flush);
+    await flushMicrotasks();
+
     expect(screen.getByTestId('item-0')).toHaveFocus();
   });
 
@@ -411,59 +422,6 @@ describe('useListNavigation', () => {
 
     expect(scrollIntoView).toHaveBeenCalledOnce();
     expect(trigger).toHaveFocus();
-  });
-
-  it('expires keyboard-open focus intent when the initial active index is out of bounds', async () => {
-    const scrollIntoView = vi.fn();
-    render(
-      <LateMountedItemApp
-        selectedIndex={null}
-        virtual
-        initialActiveIndex={3}
-        initialMountedIndex={0}
-        onScrollIntoView={scrollIntoView}
-      />,
-    );
-    const trigger = screen.getByRole('button');
-    act(() => trigger.focus());
-
-    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-    await flushMicrotasks();
-    expect(scrollIntoView).not.toHaveBeenCalled();
-
-    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-    await flushMicrotasks();
-
-    expect(scrollIntoView).toHaveBeenCalledOnce();
-  });
-
-  it('expires keyboard-open focus intent when initial list population retries are exhausted', async ({
-    onTestFinished,
-  }) => {
-    const animationFrames = createAnimationFrameMock();
-    onTestFinished(animationFrames.restore);
-    const scrollIntoView = vi.fn();
-    render(
-      <LateMountedItemApp
-        selectedIndex={null}
-        virtual
-        initialMountedIndex={2}
-        onScrollIntoView={scrollIntoView}
-      />,
-    );
-    const trigger = screen.getByRole('button');
-    act(() => trigger.focus());
-
-    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-    await flushMicrotasks();
-    act(animationFrames.flush);
-    expect(scrollIntoView).not.toHaveBeenCalled();
-
-    fireEvent.mouseMove(screen.getByTestId('late-item'));
-    await flushMicrotasks();
-
-    expect(screen.getByTestId('late-item')).toHaveAttribute('data-active');
-    expect(scrollIntoView).toHaveBeenCalledOnce();
   });
 
   it('opens on ArrowUp and focuses last item', async () => {

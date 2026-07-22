@@ -219,6 +219,56 @@ describe('FloatingFocusManager', () => {
         await flushMicrotasks();
         expect(screen.getByTestId('input')).toHaveFocus();
       });
+
+      test('recovers when focus falls back to the body before initial focus runs', async () => {
+        const animationFrameCallbacks: FrameRequestCallback[] = [];
+        vi.mocked(window.requestAnimationFrame).mockImplementation((callback) => {
+          animationFrameCallbacks.push(callback);
+          return animationFrameCallbacks.length;
+        });
+
+        function TestCase() {
+          const [open, setOpen] = React.useState(false);
+          const [showTransient, setShowTransient] = React.useState(true);
+          const initialFocusRef = React.useRef<HTMLButtonElement | null>(null);
+          const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+
+          return (
+            <React.Fragment>
+              <button ref={refs.setReference} onClick={() => setOpen(true)}>
+                Open
+              </button>
+              <button data-testid="hide-transient" onClick={() => setShowTransient(false)}>
+                Hide transient
+              </button>
+              {open && (
+                <FloatingFocusManager
+                  context={context}
+                  initialFocus={initialFocusRef}
+                  modal={false}
+                >
+                  <div ref={refs.setFloating}>
+                    {showTransient && <button data-testid="transient">Transient</button>}
+                    <button ref={initialFocusRef}>Initial focus</button>
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        render(<TestCase />);
+        fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+        act(() => screen.getByTestId('transient').focus());
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('hide-transient'));
+        expect(document.body).toHaveFocus();
+
+        act(() => animationFrameCallbacks.forEach((callback) => callback(performance.now())));
+
+        expect(screen.getByRole('button', { name: 'Initial focus' })).toHaveFocus();
+      });
     });
 
     describe('prop: returnFocus', () => {
@@ -770,8 +820,15 @@ describe('FloatingFocusManager', () => {
             innerRoot?.appendChild(iframe);
 
             // Properly open, write, and close the iframe document.
-            const iframeDoc = iframe.contentWindow?.document;
+            const iframeWindow = iframe.contentWindow;
+            const iframeDoc = iframeWindow?.document;
             if (iframeDoc) {
+              // Focus scheduling is scoped to the target document's window.
+              // Mirror this suite's synchronous frame mock in the iframe realm.
+              iframeWindow.requestAnimationFrame = (callback) => {
+                callback(0);
+                return 0;
+              };
               iframeDoc.open();
               iframeDoc.write(`<div id="rootIframe"></div>`);
               iframeDoc.close();
