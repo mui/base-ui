@@ -1130,6 +1130,7 @@ Grouped collections and grid mode are not currently supported.
 
 | Prop                | Type                                                                                               | Default | Description                                                                                                                                                                                   |
 | :------------------ | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| actionsRef          | `React.RefObject<Combobox.Virtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                      |
 | enabled             | `boolean`                                                                                          | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
 | estimatedItemHeight | `number \| ((item: Value, index: number) => number)`                                               | -       | Estimated item height in CSS pixels used before item elements have been measured.                                                                                                             |
 | getItemKey          | `((item: Value) => string \| number)`                                                              | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                |
@@ -1154,6 +1155,19 @@ Grouped collections and grid mode are not currently supported.
 ### Virtualizer.Props
 
 Re-export of [Virtualizer](#virtualizer) props.
+
+### Virtualizer.Actions
+
+```typescript
+type ComboboxVirtualizerActions = {
+  scrollToIndex: (
+    index: number,
+    options?: {
+      align?: 'auto' | 'center' | 'end' | 'start';
+    },
+  ) => void;
+};
+```
 
 ### Virtualizer.State
 

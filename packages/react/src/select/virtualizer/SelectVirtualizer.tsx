@@ -6,6 +6,7 @@ import { warn } from '@base-ui/utils/warn';
 import { ListVirtualizer } from '../../internals/virtualization/ListVirtualizer';
 import {
   useListVirtualizerAdapter,
+  type ListVirtualizerAdapterActions,
   type ListVirtualizerAdapterProps,
   type ListVirtualizerAdapterState,
   type ListVirtualizerKeyProps,
@@ -32,6 +33,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    actionsRef,
     children,
     estimatedItemHeight,
     getItemKey,
@@ -54,6 +56,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
     renderRow,
     rows,
   } = useListVirtualizerAdapter<Value, SelectItemData<Value>>({
+    actionsRef,
     activeIndex,
     children,
     componentName: 'Select',
@@ -124,13 +127,21 @@ function getSelectItemValue<Value>(item: SelectItemData<Value>) {
 
 export interface SelectVirtualizerState extends ListVirtualizerAdapterState {}
 
+export interface SelectVirtualizerActions extends ListVirtualizerAdapterActions {}
+
 export type SelectVirtualizerProps<Value = unknown> = ListVirtualizerAdapterProps<
   SelectItemData<Value>,
   SelectVirtualizerState
-> &
-  ListVirtualizerKeyProps<Value, SelectItemData<Value>>;
+> & {
+  /**
+   * A ref to imperative actions.
+   * - `scrollToIndex`: Scrolls an item into view by its logical collection index.
+   */
+  actionsRef?: React.RefObject<SelectVirtualizer.Actions | null> | undefined;
+} & ListVirtualizerKeyProps<Value, SelectItemData<Value>>;
 
 export namespace SelectVirtualizer {
+  export type Actions = SelectVirtualizerActions;
   export type State = SelectVirtualizerState;
   export type Props<Value = unknown> = SelectVirtualizerProps<Value>;
 }

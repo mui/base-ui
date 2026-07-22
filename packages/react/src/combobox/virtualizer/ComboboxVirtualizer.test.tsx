@@ -70,6 +70,38 @@ describe('<Combobox.Virtualizer />', () => {
     expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
   });
 
+  it('exposes imperative scrolling by logical item index', async () => {
+    const actionsRef = React.createRef<Combobox.Virtualizer.Actions>();
+    const handleScrollTo = vi.fn();
+
+    await render(
+      <Combobox.Root defaultOpen items={createItems(100)}>
+        <Combobox.List>
+          <Combobox.Virtualizer
+            actionsRef={actionsRef}
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 60,
+                  getScrollTop: () => 0,
+                  scrollTo: handleScrollTo,
+                })}
+              />
+            }
+          >
+            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    act(() => actionsRef.current?.scrollToIndex(50, { align: 'end' }));
+
+    expect(handleScrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 960 });
+  });
+
   it('passes virtual metadata to combobox items', async () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(10)}>

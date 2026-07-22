@@ -17,7 +17,11 @@ import {
 import type { StateAttributesMapping } from '../getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../types';
 import { useRenderElement } from '../useRenderElement';
-import type { ListVirtualizerHandle } from './ListVirtualizationRegistry';
+import type {
+  ListVirtualizerHandle,
+  ListVirtualizerScrollAlignment,
+  ListVirtualizerScrollToIndexOptions,
+} from './ListVirtualizationRegistry';
 
 /**
  * A row consumed by the internal list virtualizer.
@@ -397,11 +401,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     };
   });
 
-  React.useImperativeHandle(apiRefProp, () => ({ getRowMetrics, resetScroll }), [
-    getRowMetrics,
-    resetScroll,
-  ]);
-
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -541,68 +540,106 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     virtualizer.api,
   ]);
 
-  const scrollRowIntoView = useStableCallback((rowIndex: number, requireMeasurement = false) => {
-    const scrollElement = scrollElementRef.current;
-    const row = rowsRef.current[rowIndex];
-
-    if (!scrollElement || !row) {
-      return false;
-    }
-
-    const measured = !virtualizer.api.rowsMeta.getRowHeightEntry(row.id).needsFirstMeasurement;
-
-    // The first pass may scroll using estimates so the destination mounts. The retry waits for
-    // the real row measurement; treating an estimated position as final can leave only the
-    // zero-sized focus proxy mounted after row heights expand.
-    if (requireMeasurement && !measured) {
-      return false;
-    }
-
-    const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    const start = currentRowsMeta.positions[rowIndex];
-    const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
-
-    if (start == null || end == null) {
-      return false;
-    }
-
-    const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-    const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
-    const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
-    const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
-    const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
-    const viewportSize = Math.max(
-      0,
-      scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
-    );
-    const rowSize = end - start;
-    let nextScrollTop: number | null = null;
-
-    if (rowSize > viewportSize) {
-      nextScrollTop = start - scrollPaddingStart;
-    } else if (start < viewportStart) {
-      nextScrollTop = start - scrollPaddingStart;
-    } else if (end > viewportEnd) {
-      nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-    }
-
-    if (nextScrollTop != null) {
-      const maxScrollTop = Math.max(
-        0,
-        currentRowsMeta.currentPageTotalHeight - scrollElement.clientHeight,
-      );
-      scrollElement.scrollTo({
-        behavior: 'instant' as ScrollBehavior,
-        top: Math.max(0, Math.min(nextScrollTop, maxScrollTop)),
-      });
-    }
-
-    // `false` keeps the request pending even if an estimated scroll was performed.
-    return measured;
-  });
-
   const pendingScrollRowIndexRef = React.useRef<number | null>(null);
   const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
+  const pendingScrollAlignmentRef = React.useRef<ListVirtualizerScrollAlignment>('auto');
+
+  const scrollRowIntoView = useStableCallback(
+    (
+      rowIndex: number,
+      requireMeasurement = false,
+      align: ListVirtualizerScrollAlignment = 'auto',
+    ) => {
+      const scrollElement = scrollElementRef.current;
+      const row = rowsRef.current[rowIndex];
+
+      if (!scrollElement || !row) {
+        return false;
+      }
+
+      const measured = !virtualizer.api.rowsMeta.getRowHeightEntry(row.id).needsFirstMeasurement;
+
+      // The first pass may scroll using estimates so the destination mounts. The retry waits for
+      // the real row measurement; treating an estimated position as final can leave only the
+      // zero-sized focus proxy mounted after row heights expand.
+      if (requireMeasurement && !measured) {
+        return false;
+      }
+
+      const currentRowsMeta = virtualizer.store.state.rowsMeta;
+      const start = currentRowsMeta.positions[rowIndex];
+      const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
+
+      if (start == null || end == null) {
+        return false;
+      }
+
+      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
+      const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
+      const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
+      const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
+      const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
+      const viewportSize = Math.max(
+        0,
+        scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
+      );
+      const rowSize = end - start;
+      let nextScrollTop: number | null = null;
+
+      if (align === 'start') {
+        nextScrollTop = start - scrollPaddingStart;
+      } else if (align === 'center') {
+        nextScrollTop = start - scrollPaddingStart - (viewportSize - rowSize) / 2;
+      } else if (align === 'end') {
+        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
+      } else if (rowSize > viewportSize || start < viewportStart) {
+        nextScrollTop = start - scrollPaddingStart;
+      } else if (end > viewportEnd) {
+        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
+      }
+
+      if (nextScrollTop != null) {
+        const maxScrollTop = Math.max(
+          0,
+          currentRowsMeta.currentPageTotalHeight - scrollElement.clientHeight,
+        );
+        scrollElement.scrollTo({
+          behavior: 'instant' as ScrollBehavior,
+          top: Math.max(0, Math.min(nextScrollTop, maxScrollTop)),
+        });
+      }
+
+      // `false` keeps the request pending even if an estimated scroll was performed.
+      return measured;
+    },
+  );
+
+  const scrollToIndex = useStableCallback(
+    (rowIndex: number, options?: ListVirtualizerScrollToIndexOptions) => {
+      const row = rowsRef.current[rowIndex];
+
+      if (!Number.isInteger(rowIndex) || rowIndex < 0 || !row) {
+        return;
+      }
+
+      const align = options?.align ?? 'auto';
+      pendingScrollRowIndexRef.current = rowIndex;
+      pendingScrollRowIdRef.current = row.id;
+      pendingScrollAlignmentRef.current = align;
+
+      if (scrollRowIntoView(rowIndex, false, align)) {
+        pendingScrollRowIndexRef.current = null;
+        pendingScrollRowIdRef.current = null;
+      }
+    },
+  );
+
+  React.useImperativeHandle(apiRefProp, () => ({ getRowMetrics, resetScroll, scrollToIndex }), [
+    getRowMetrics,
+    resetScroll,
+    scrollToIndex,
+  ]);
+
   const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
 
   useIsoLayoutEffect(() => {
@@ -614,6 +651,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
     pendingScrollRowIndexRef.current = scrollToRowIndex;
     pendingScrollRowIdRef.current = scrollToRowId;
+    pendingScrollAlignmentRef.current = 'auto';
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the
     // rowsMeta effect below corrects the position once ResizeObserver updates it.
@@ -634,7 +672,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       return;
     }
 
-    if (rowIndex != null && scrollRowIntoView(rowIndex, true)) {
+    if (rowIndex != null && scrollRowIntoView(rowIndex, true, pendingScrollAlignmentRef.current)) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
     }
