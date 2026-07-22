@@ -230,6 +230,46 @@ describe('<Drawer.SwipeArea />', () => {
     expect(swipeArea).toHaveAttribute('data-open', '');
   });
 
+  it('captures the pointer immediately on pointer down', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+    const setPointerCapture = vi.fn();
+    Object.defineProperty(swipeArea, 'setPointerCapture', {
+      configurable: true,
+      value: setPointerCapture,
+    });
+    Object.defineProperty(swipeArea, 'releasePointerCapture', {
+      configurable: true,
+      value: () => {},
+    });
+
+    // The swipe area is a thin strip the pointer exits within a few pixels, so it must
+    // capture eagerly to keep receiving move events (unlike drag surfaces, which defer
+    // capture until the drag threshold to preserve clicks on interactive children).
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+
+    expect(setPointerCapture).toHaveBeenCalledTimes(1);
+
+    fireEvent.pointerUp(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+  });
+
   it('does not open when the swipe direction never locks to the open direction', async () => {
     const handleOpenChange = vi.fn();
 

@@ -30,6 +30,7 @@ type SwipeProgressDetailsInternal = {
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const MIN_DRAG_THRESHOLD = 1;
+const POINTER_CAPTURE_THRESHOLD = 5;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
@@ -182,6 +183,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
   const isSwipingRef = React.useRef(false);
   const dragStyleSnapshotRef = React.useRef<[string, string] | null>(null);
+  const pendingPointerCaptureIdRef = React.useRef<number | null>(null);
 
   const setSwiping = useStableCallback((nextSwiping: boolean) => {
     if (isSwipingRef.current === nextSwiping) {
@@ -322,6 +324,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     lastDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
+    pendingPointerCaptureIdRef.current = null;
     syncDragStyles(false);
   }, [setSwiping, swipeThresholdDefault, syncDragStyles, updateSwipeProgress]);
 
@@ -431,7 +434,18 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       recordDragSample({ x: transform.x, y: transform.y }, swipeStartTimeRef.current);
 
       if (!('touches' in event)) {
-        safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+        if (trackDrag) {
+          // Capturing the pointer here would make the browser retarget the eventual `click`
+          // to this element, so taps on non-native interactive children (e.g. a span with
+          // `role="radio"`) would never activate them. Defer capture until the pointer has
+          // actually moved far enough to signal a drag.
+          pendingPointerCaptureIdRef.current = event.pointerId;
+        } else {
+          // `trackDrag: false` surfaces (the swipe area) are thin strips the pointer exits
+          // within a few pixels, before deferred capture could engage; without immediate
+          // capture their move/up events would be lost mid-gesture.
+          safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+        }
       }
     }
 
@@ -474,6 +488,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     sawPrimaryButtonsOnMoveRef.current = false;
     syncDragStyles(false);
 
+    pendingPointerCaptureIdRef.current = null;
     const element = elementRef.current;
     if (element) {
       safelyChangePointerCapture(element, event.pointerId, 'releasePointerCapture');
@@ -648,6 +663,22 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
+    if (
+      !('touches' in event) &&
+      pendingPointerCaptureIdRef.current !== null &&
+      deltaX * deltaX + deltaY * deltaY >= POINTER_CAPTURE_THRESHOLD * POINTER_CAPTURE_THRESHOLD
+    ) {
+      const element = elementRef.current;
+      if (element) {
+        safelyChangePointerCapture(
+          element,
+          pendingPointerCaptureIdRef.current,
+          'setPointerCapture',
+        );
+      }
+      pendingPointerCaptureIdRef.current = null;
+    }
+
     let lockedDirection = lockedDirectionRef.current;
     if (lockedDirection === null && hasHorizontal && hasVertical) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -780,6 +811,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     lockedDirectionRef.current = null;
     resetPendingSwipeState();
     sawPrimaryButtonsOnMoveRef.current = false;
+    pendingPointerCaptureIdRef.current = null;
 
     const element = elementRef.current;
     if (element) {
