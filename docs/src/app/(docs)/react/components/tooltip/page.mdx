@@ -213,7 +213,7 @@ import { DemoTooltipDetachedTriggersFull } from './demos/detached-triggers-full'
 #### Content changes in place
 
 To animate content that changes in place, such as a status message that updates over time, pass a `transitionKey` and update it whenever the content changes.
-In-place changes are not directional, so no `data-activation-direction` is set — style them with `[data-current][data-starting-style]` and `[data-previous][data-ending-style]`, as the demo does.
+Use `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to style the incoming and outgoing content, as the demo does.
 
 import { DemoTooltipTransitionKey } from './demos/transition-key';
 

@@ -344,8 +344,10 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 #### Content changes in place
 
 To animate content that changes in place, such as a nested view that slides in, pass a `transitionKey` and update it whenever the content changes.
+
 Each key must be unique among the views shown while the menu stays open.
 The viewport sets `data-activation-direction` to `forward` when entering a new view and `back` when returning to an earlier one, clears the highlight for the rebuilt item list, and restores it for keyboard navigation.
+Use `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to style the incoming and outgoing content, as the demo does.
 
 import { DemoMenuTransitionKey } from './demos/transition-key';
 
