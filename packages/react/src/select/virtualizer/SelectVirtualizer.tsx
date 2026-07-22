@@ -126,30 +126,38 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   const highlightType = useStore(store, selectors.highlightType);
   const insideList = useVirtualizationListContext();
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
-
-  const getEstimatedItemHeight = React.useCallback(
-    (item: SelectItemData<Value>, index: number) => {
-      const size =
-        typeof estimatedItemHeight === 'function'
-          ? estimatedItemHeight(item, index)
-          : estimatedItemHeight;
-      return Math.max(1, size);
-    },
-    [estimatedItemHeight],
+  // These callbacks run during render, so use render-safe refs to keep their wrappers stable.
+  const getItemKeyRef = React.useRef(getItemKey);
+  getItemKeyRef.current = getItemKey;
+  const getItemKeyStable = React.useCallback(
+    (item: SelectItemData<Value>) => getItemKeyRef.current?.(item),
+    [],
   );
+  const hasGetItemKey = getItemKey != null;
+  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
+  estimatedItemHeightRef.current = estimatedItemHeight;
+
+  const getEstimatedItemHeight = React.useCallback((item: SelectItemData<Value>, index: number) => {
+    const currentEstimatedItemHeight = estimatedItemHeightRef.current;
+    const size =
+      typeof currentEstimatedItemHeight === 'function'
+        ? currentEstimatedItemHeight(item, index)
+        : currentEstimatedItemHeight;
+    return Math.max(1, size);
+  }, []);
 
   const rows = React.useMemo<ListVirtualizerRow<SelectVirtualRowModel<Value>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
     return flatItems.map((item, itemIndex) => {
       const typedItem = item as SelectItemData<Value>;
-      const rawKey = getItemKey ? getItemKey(typedItem) : undefined;
-      const key = getItemKey
+      const rawKey = hasGetItemKey ? getItemKeyStable(typedItem) : undefined;
+      const key = hasGetItemKey
         ? normalizeItemKey(rawKey)
         : getDefaultItemKey(typedItem.value, objectKeyRegistry);
 
       if (process.env.NODE_ENV !== 'production') {
-        if (isObjectValue(typedItem.value) && !getItemKey) {
+        if (isObjectValue(typedItem.value) && !hasGetItemKey) {
           warn(
             '<Select.Virtualizer> requires `getItemKey` when item values are objects. ' +
               'Return a stable string or number that uniquely identifies each item.',
@@ -174,7 +182,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
         },
       };
     });
-  }, [flatItems, getItemKey, objectKeyRegistry]);
+  }, [flatItems, getItemKeyStable, hasGetItemKey, objectKeyRegistry]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
   const pinnedRowIndexes = React.useMemo(

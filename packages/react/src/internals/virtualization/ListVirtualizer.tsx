@@ -602,45 +602,41 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   });
 
   const pendingScrollRowIndexRef = React.useRef<number | null>(null);
-  const pendingScrollRowsRef = React.useRef<ListVirtualizerRow<RowModel>[] | null>(null);
+  const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
+  const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
 
   useIsoLayoutEffect(() => {
-    if (
-      !enabled ||
-      scrollToRowIndex == null ||
-      scrollToRowIndex < 0 ||
-      rowsRef.current[scrollToRowIndex] == null
-    ) {
+    if (!enabled || scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
       pendingScrollRowIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
+      pendingScrollRowIdRef.current = null;
       return;
     }
 
     pendingScrollRowIndexRef.current = scrollToRowIndex;
-    pendingScrollRowsRef.current = rowsRef.current;
+    pendingScrollRowIdRef.current = scrollToRowId;
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the
     // rowsMeta effect below corrects the position once ResizeObserver updates it.
     if (scrollRowIntoView(scrollToRowIndex)) {
       pendingScrollRowIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
+      pendingScrollRowIdRef.current = null;
     }
-  }, [enabled, scrollRowIntoView, scrollToRowIndex]);
+  }, [enabled, scrollRowIntoView, scrollToRowId, scrollToRowIndex]);
 
   useIsoLayoutEffect(() => {
     const rowIndex = pendingScrollRowIndexRef.current;
 
-    // Replacing the row collection invalidates a pending correction even when the same index
-    // exists in the new collection.
-    if (pendingScrollRowsRef.current !== rows) {
+    // Array identity may change without the logical destination changing. Only invalidate a
+    // pending correction when a different row now occupies the requested collection index.
+    if (rowIndex != null && rowsRef.current[rowIndex]?.id !== pendingScrollRowIdRef.current) {
       pendingScrollRowIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
+      pendingScrollRowIdRef.current = null;
       return;
     }
 
     if (rowIndex != null && scrollRowIntoView(rowIndex, true)) {
       pendingScrollRowIndexRef.current = null;
-      pendingScrollRowsRef.current = null;
+      pendingScrollRowIdRef.current = null;
     }
   }, [rows, rowsMeta, scrollRowIntoView]);
 

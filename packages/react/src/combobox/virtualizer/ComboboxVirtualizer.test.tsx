@@ -411,14 +411,16 @@ describe('<Combobox.Virtualizer />', () => {
       const handleScrollTo = vi.fn((options: ScrollToOptions) => {
         scrollTop = options.top ?? scrollTop;
       });
+      const items = createItems(100);
 
-      try {
-        const { user } = await render(
-          <Combobox.Root defaultOpen items={createItems(100)}>
-            <Combobox.Input data-testid="input" />
+      function Test(props: { inputLabel: string }) {
+        return (
+          <Combobox.Root defaultOpen items={[...items]}>
+            <Combobox.Input aria-label={props.inputLabel} data-testid="input" />
             <Combobox.List>
               <Combobox.Virtualizer
-                estimatedItemHeight={20}
+                estimatedItemHeight={() => 20}
+                getItemKey={(item: string) => item}
                 overscanPx={0}
                 render={
                   <div
@@ -438,8 +440,12 @@ describe('<Combobox.Virtualizer />', () => {
                 )}
               </Combobox.Virtualizer>
             </Combobox.List>
-          </Combobox.Root>,
+          </Combobox.Root>
         );
+      }
+
+      try {
+        const { rerender, user } = await render(<Test inputLabel="initial" />);
 
         const input = screen.getByTestId('input');
         await user.click(input);
@@ -461,6 +467,8 @@ describe('<Combobox.Virtualizer />', () => {
         const activeItem = input.ownerDocument.getElementById(activeId as string);
         expect(activeItem).not.toBe(null);
         expect(activeItem).toHaveTextContent('Item 100');
+
+        await rerender(<Test inputLabel="updated" />);
         handleScrollTo.mockClear();
 
         await act(async () => resizeObserver.notify(activeItem?.parentElement as HTMLElement, 100));
@@ -842,6 +850,54 @@ describe('<Combobox.Virtualizer />', () => {
 
     await waitFor(() => expect(firstItem).toHaveAttribute('data-highlighted'));
     expect(renderItem).not.toHaveBeenCalled();
+  });
+
+  it('does not rebuild rows when inline configuration callbacks change identity', async () => {
+    type Item = { id: string; label: string; size: number };
+    const items: Item[] = Array.from({ length: 10 }, (_, index) => ({
+      id: String(index),
+      label: `Item ${index}`,
+      size: 20,
+    }));
+    const handleGetItemKey = vi.fn();
+    const handleEstimatedItemHeight = vi.fn();
+    const itemToStringLabel = (item: Item) => item.label;
+
+    function Test() {
+      return (
+        <Combobox.Root defaultOpen items={items} itemToStringLabel={itemToStringLabel}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimatedItemHeight={(item: Item) => {
+                handleEstimatedItemHeight(item);
+                return item.size;
+              }}
+              getItemKey={(item: Item) => {
+                handleGetItemKey(item);
+                return item.id;
+              }}
+              render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
+            >
+              {(item: Item) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<Test />);
+    await waitFor(() =>
+      expect(screen.getByTestId('virtualizer').style.getPropertyValue('--total-size')).toBe(
+        '200px',
+      ),
+    );
+    handleGetItemKey.mockClear();
+    handleEstimatedItemHeight.mockClear();
+
+    await rerender(<Test />);
+
+    expect(handleGetItemKey).not.toHaveBeenCalled();
+    expect(handleEstimatedItemHeight.mock.calls.length).toBeLessThan(items.length);
   });
 
   it('does not remount items when the built-in virtualizer takes over', async () => {

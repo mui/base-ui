@@ -6,6 +6,7 @@ import { createRenderer } from '#test-utils';
 
 describe('<Select.Virtualizer />', () => {
   const { render } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -41,6 +42,56 @@ describe('<Select.Virtualizer />', () => {
     expect(firstItem).toHaveAttribute('aria-posinset', '1');
     expect(firstItem).toHaveAttribute('aria-setsize', '10');
     expect(firstItem).toHaveAttribute('data-index', '0');
+  });
+
+  it('does not rebuild rows when inline configuration callbacks change identity', async () => {
+    type Value = { id: string; size: number };
+    const items = Array.from({ length: 10 }, (_, index) => ({
+      value: { id: String(index), size: 20 },
+      label: `Item ${index}`,
+    }));
+    const handleGetItemKey = vi.fn();
+    const handleEstimatedItemHeight = vi.fn();
+
+    function Test() {
+      return (
+        <Select.Root defaultOpen items={items}>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.List>
+                <Select.Virtualizer<Value>
+                  estimatedItemHeight={(item) => {
+                    handleEstimatedItemHeight(item);
+                    return item.value.size;
+                  }}
+                  getItemKey={(item) => {
+                    handleGetItemKey(item);
+                    return item.value.id;
+                  }}
+                  render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
+                >
+                  {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+                </Select.Virtualizer>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<Test />);
+    await waitFor(() =>
+      expect(screen.getByTestId('virtualizer').style.getPropertyValue('--total-size')).toBe(
+        '200px',
+      ),
+    );
+    handleGetItemKey.mockClear();
+    handleEstimatedItemHeight.mockClear();
+
+    await rerender(<Test />);
+
+    expect(handleGetItemKey).not.toHaveBeenCalled();
+    expect(handleEstimatedItemHeight.mock.calls.length).toBeLessThan(items.length);
   });
 
   it('navigates to and selects offscreen items', async () => {

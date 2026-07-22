@@ -146,22 +146,27 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const insideList = useVirtualizationListContext();
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
+  // These callbacks run during render, so use render-safe refs to keep their wrappers stable.
+  const getItemKeyRef = React.useRef(getItemKey);
+  getItemKeyRef.current = getItemKey;
+  const getItemKeyStable = React.useCallback((item: Value) => getItemKeyRef.current?.(item), []);
+  const hasGetItemKey = getItemKey != null;
+  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
+  estimatedItemHeightRef.current = estimatedItemHeight;
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill). Keep that mode reactive even if it begins before the virtualizer
   // has registered its imperative handle.
   const virtualizationEnabled = enabled && !virtualizationState.renderAllRows;
 
-  const getEstimatedItemHeight = React.useCallback(
-    (item: Value, index: number) => {
-      const size =
-        typeof estimatedItemHeight === 'function'
-          ? estimatedItemHeight(item, index)
-          : estimatedItemHeight;
-      return Math.max(1, size);
-    },
-    [estimatedItemHeight],
-  );
+  const getEstimatedItemHeight = React.useCallback((item: Value, index: number) => {
+    const currentEstimatedItemHeight = estimatedItemHeightRef.current;
+    const size =
+      typeof currentEstimatedItemHeight === 'function'
+        ? currentEstimatedItemHeight(item, index)
+        : currentEstimatedItemHeight;
+    return Math.max(1, size);
+  }, []);
 
   const rows = React.useMemo<ListVirtualizerRow<ComboboxVirtualRowModel<Value>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
@@ -169,13 +174,13 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     return flatFilteredItems.map((item, itemIndex) => {
       // Row ids are both React keys and the MUI X Virtualizer measurement-cache identities. Normalize all
       // supplied keys because React stringifies them (`1` and `"1"` would otherwise collide).
-      const rawKey = getItemKey ? getItemKey(item as Value) : undefined;
-      const key = getItemKey
+      const rawKey = hasGetItemKey ? getItemKeyStable(item as Value) : undefined;
+      const key = hasGetItemKey
         ? normalizeItemKey(rawKey)
         : getDefaultItemKey(item as Value, objectKeyRegistry);
 
       if (process.env.NODE_ENV !== 'production') {
-        if (isObjectValue(item) && !getItemKey) {
+        if (isObjectValue(item) && !hasGetItemKey) {
           warn(
             '<Combobox.Virtualizer> requires `getItemKey` when item values are objects. ' +
               'Return a stable string or number that uniquely identifies each item.',
@@ -200,7 +205,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
         },
       };
     });
-  }, [flatFilteredItems, getItemKey, objectKeyRegistry]);
+  }, [flatFilteredItems, getItemKeyStable, hasGetItemKey, objectKeyRegistry]);
 
   // Item and virtual-row indexes are identical while grouped rows are unsupported.
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
