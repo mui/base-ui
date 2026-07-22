@@ -1600,6 +1600,31 @@ describe('<Field.Root />', () => {
     });
 
     describe('control remount', () => {
+      it('clears dirty after an empty text control returns to empty following a null-valued control', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={
+              <NumberField.Root>
+                <NumberField.Input />
+              </NumberField.Root>
+            }
+            secondControl={<Field.Control data-testid="control" defaultValue="" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+        expect(root).not.toHaveAttribute('data-dirty');
+      });
+
       it('keeps the original baseline when a controlled control remounts', async () => {
         function App() {
           const [value, setValue] = React.useState('a');
