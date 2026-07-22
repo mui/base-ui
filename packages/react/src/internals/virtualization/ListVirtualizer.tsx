@@ -378,7 +378,29 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     handleScrollChange({ top: 0 });
   });
 
-  React.useImperativeHandle(apiRefProp, () => ({ resetScroll }), [resetScroll]);
+  const getRowMetrics = useStableCallback((rowIndex: number) => {
+    if (rowsRef.current[rowIndex] == null) {
+      return null;
+    }
+
+    const currentRowsMeta = virtualizer.store.state.rowsMeta;
+    const offset = currentRowsMeta.positions[rowIndex];
+    const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
+
+    if (offset == null || end == null) {
+      return null;
+    }
+
+    return {
+      offset,
+      size: end - offset,
+    };
+  });
+
+  React.useImperativeHandle(apiRefProp, () => ({ getRowMetrics, resetScroll }), [
+    getRowMetrics,
+    resetScroll,
+  ]);
 
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime

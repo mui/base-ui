@@ -923,6 +923,44 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('matches browser autofill against rendered ReactNode labels when items are provided', async () => {
+    const items = [
+      { value: 'US', label: <strong>United States</strong> },
+      { value: 'CA', label: <strong>Canada</strong> },
+    ];
+    const { user } = await render(
+      <Select.Root name="country" items={items}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              {items.map((item) => (
+                <Select.Item key={item.value} value={item.value}>
+                  <Select.ItemText>{item.label}</Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+    fireEvent.change(selectInput, { target: { value: 'canada' } });
+    await flushMicrotasks();
+
+    await user.click(screen.getByTestId('trigger'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).toHaveAttribute(
+        'data-selected',
+        '',
+      );
+    });
+  });
+
   it('matches browser autofill by serialized value before an earlier rendered label', async () => {
     const { user } = await render(
       <Select.Root name="country">
@@ -4732,6 +4770,43 @@ describe('<Select.Root />', () => {
       await act(async () => trigger.focus());
       await user.keyboard('c');
       expect(valueEl.textContent).toBe('Cherry');
+    });
+
+    it('uses rendered ReactNode labels for typeahead when items are provided', async () => {
+      const items = [
+        { value: 'first', label: <strong>Apple</strong> },
+        { value: 'second', label: <strong>Cherry</strong> },
+      ];
+
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root items={items} value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  {items.map((item) => (
+                    <Select.Item key={item.value} value={item.value}>
+                      <Select.ItemText>{item.label}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Apple');
     });
 
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
