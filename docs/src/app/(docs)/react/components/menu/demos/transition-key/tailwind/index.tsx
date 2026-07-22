@@ -34,9 +34,9 @@ export default function MenuTransitionKeyDemo() {
       <Menu.Portal>
         <Menu.Positioner
           sideOffset={8}
-          className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] outline-none transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] outline-none transition-[top,left,right,bottom,transform] duration-100 ease-out"
         >
-          <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,opacity,scale] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <Menu.Viewport
               transitionKey={view}
               onKeyDown={(event) => {
@@ -48,14 +48,14 @@ export default function MenuTransitionKeyDemo() {
                 relative h-full w-full overflow-clip py-1
                 [&_[data-current]]:w-[calc(var(--popup-width)-2px)]
                 [&_[data-current]]:transition-[translate]
-                [&_[data-current]]:duration-[350ms]
-                [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                [&_[data-current]]:duration-100
+                [&_[data-current]]:ease-out
                 data-[activation-direction='forward']:[&_[data-current][data-starting-style]]:translate-x-full
                 data-[activation-direction='back']:[&_[data-current][data-starting-style]]:-translate-x-full
                 [&_[data-previous]]:w-[calc(var(--popup-width)-2px)]
                 [&_[data-previous]]:transition-[translate]
-                [&_[data-previous]]:duration-[350ms]
-                [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                [&_[data-previous]]:duration-100
+                [&_[data-previous]]:ease-out
                 data-[activation-direction='forward']:[&_[data-previous][data-ending-style]]:-translate-x-full
                 data-[activation-direction='back']:[&_[data-previous][data-ending-style]]:translate-x-full`}
             >
