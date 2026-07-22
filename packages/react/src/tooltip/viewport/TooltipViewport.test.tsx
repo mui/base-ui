@@ -161,7 +161,7 @@ describe('<Tooltip.Viewport />', () => {
       expect(secondContainer).not.toBe(firstContainer);
     });
 
-    it('should move focus to the popup when the swap dropped focus', async () => {
+    it('should not move focus when the swap drops it', async () => {
       function TestComponent() {
         const [step, setStep] = React.useState(0);
         return (
@@ -176,7 +176,7 @@ describe('<Tooltip.Viewport />', () => {
                         advance
                       </button>
                     ) : (
-                      <span>static content</span>
+                      <span data-testid="static">static content</span>
                     )}
                   </Tooltip.Viewport>
                 </Tooltip.Popup>
@@ -193,8 +193,10 @@ describe('<Tooltip.Viewport />', () => {
       await user.click(inside);
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveFocus();
+        expect(screen.getByTestId('static')).toBeVisible();
       });
+      expect(screen.getByTestId('popup')).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
     });
   });
 

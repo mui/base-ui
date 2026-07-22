@@ -71,7 +71,7 @@ export interface UsePopupViewportParameters {
   /**
    * Called to move focus when a content swap dropped it (focus was inside the previous
    * content and now sits on `<body>`). Receives the new content container and the popup
-   * element to fall back to. Defaults to focusing the popup element.
+   * element to fall back to. When omitted, focus is left where it landed.
    * Must be a stable function reference.
    */
   onFocusRecovery?: ((container: HTMLElement, fallback: HTMLElement | null) => void) | undefined;
@@ -260,8 +260,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   ]);
 
   // Remounting the current container drops focus to `<body>` when it was inside the previous
-  // content. Move it to the new content (or the popup itself) in that case; if focus is alive
-  // elsewhere (e.g. placed by the new content via `autoFocus`), leave it alone.
+  // content. Let `onFocusRecovery` move it in that case; if focus is alive elsewhere (e.g.
+  // placed by the new content via `autoFocus`), or no recovery callback was provided (tooltips
+  // and preview cards leave focus alone), do nothing.
   useIsoLayoutEffect(() => {
     const container = currentContainerRef.current;
     if (!container || !focusWasInsideRef.current) {
@@ -280,15 +281,11 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
     // `onContentSwap` owns focus recovery when provided, but the flag above is still re-derived
     // for it, since it reads the same ref on the next swap.
-    if (onContentSwap || !focusWasLost) {
+    if (!onFocusRecovery || onContentSwap || !focusWasLost) {
       return;
     }
 
-    if (onFocusRecovery) {
-      onFocusRecovery(container, popupElement);
-    } else {
-      popupElement?.focus({ preventScroll: true });
-    }
+    onFocusRecovery(container, popupElement);
   }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
 
   // Capture a clone of the current content DOM subtree on every commit, so the snapshot stays

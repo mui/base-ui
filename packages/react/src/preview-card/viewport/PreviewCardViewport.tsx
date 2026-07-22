@@ -70,7 +70,7 @@ export interface PreviewCardViewportProps extends BaseUIComponentProps<
   children?: React.ReactNode;
   /**
    * A key that identifies the current content. When it changes, the viewport animates to the new
-   * content and, if the swap dropped focus, moves focus to the popup.
+   * content. Focus is not moved.
    */
   transitionKey?: React.Key | undefined;
 }

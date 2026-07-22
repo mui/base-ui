@@ -44,6 +44,25 @@ describe('<Popover.Viewport />', () => {
     expect(currentContainer!.textContent).toBe('Content');
   });
 
+  it('should not crash when a render prop does not render the viewport children', async () => {
+    await render(
+      <Popover.Root open>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Popover.Viewport render={() => <div data-testid="custom" />}>
+                <div>Content</div>
+              </Popover.Viewport>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    expect(screen.getByTestId('custom')).toBeVisible();
+  });
+
   it('should remount the `current` container when the active trigger changes', async () => {
     const { user } = await render(
       <Popover.Root>

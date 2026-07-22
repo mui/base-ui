@@ -492,6 +492,130 @@ describe('<Menu.Viewport />', () => {
     expect(moreToolsItem).not.toHaveAttribute('data-highlighted');
   });
 
+  it('should not highlight an item when returning to a view that had no highlight', async () => {
+    function TestComponent() {
+      const [view, setView] = React.useState<'main' | 'more'>('main');
+
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup
+                data-testid="popup"
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowRight' && view === 'main') {
+                    queueMicrotask(() => setView('more'));
+                  }
+                }}
+              >
+                <Menu.Viewport
+                  transitionKey={view}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowLeft' && view === 'more') {
+                      queueMicrotask(() => setView('main'));
+                    }
+                  }}
+                >
+                  {view === 'main' ? (
+                    <React.Fragment>
+                      <Menu.Item>New window</Menu.Item>
+                      <Menu.Item>More tools</Menu.Item>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Menu.Item>Back</Menu.Item>
+                      <Menu.Item>Developer tools</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    // Leaving the main view from the popup itself (no item interaction) stores no highlight
+    // to restore when returning to it.
+    await act(async () => screen.getByTestId('popup').focus());
+    await user.keyboard('{ArrowRight}');
+
+    const backItem = await screen.findByRole('menuitem', { name: 'Back' });
+    await act(async () => backItem.focus());
+    await user.keyboard('{ArrowLeft}');
+
+    const moreTools = await screen.findByRole('menuitem', { name: 'More tools' });
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+    expect(moreTools).not.toHaveAttribute('data-highlighted');
+    expect(screen.getByRole('menuitem', { name: 'New window' })).not.toHaveAttribute(
+      'data-highlighted',
+    );
+  });
+
+  it('should not highlight an item when the menu closes before the swap settles', async () => {
+    function CloseOnMount({ close }: { close: () => void }) {
+      React.useLayoutEffect(() => close(), [close]);
+      return null;
+    }
+
+    function TestComponent() {
+      const [open, setOpen] = React.useState(true);
+      const [view, setView] = React.useState<'main' | 'more'>('main');
+      const close = React.useCallback(() => setOpen(false), []);
+
+      return (
+        <Menu.Root open={open} onOpenChange={setOpen}>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Viewport transitionKey={view}>
+                  {view === 'main' ? (
+                    <Menu.Item
+                      closeOnClick={false}
+                      onKeyDown={(event) => {
+                        if (event.key === 'ArrowRight') {
+                          queueMicrotask(() => setView('more'));
+                        }
+                      }}
+                    >
+                      More tools
+                    </Menu.Item>
+                  ) : (
+                    <React.Fragment>
+                      <CloseOnMount close={close} />
+                      <Menu.Item>Developer tools</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await act(async () => moreTools.focus());
+    // The new view closes the menu in a layout effect, before the highlight re-seed settles.
+    await user.keyboard('{ArrowRight}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+    });
+    expect(screen.getByText('Developer tools')).not.toHaveAttribute('data-highlighted');
+  });
+
   it('should keep list navigation in sync after the content swaps', async () => {
     function TestComponent() {
       const [view, setView] = React.useState<'main' | 'more'>('main');

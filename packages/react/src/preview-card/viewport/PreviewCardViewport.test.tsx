@@ -134,7 +134,7 @@ describe('<PreviewCard.Viewport />', () => {
       expect(secondContainer).not.toBe(firstContainer);
     });
 
-    it('should move focus to the popup when the swap dropped focus', async () => {
+    it('should not move focus when the swap drops it', async () => {
       function TestComponent() {
         const [view, setView] = React.useState<'overview' | 'details'>('overview');
         return (
@@ -168,8 +168,10 @@ describe('<PreviewCard.Viewport />', () => {
       await user.click(inside);
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveFocus();
+        expect(screen.getByTestId('details-tab')).toBeVisible();
       });
+      expect(screen.getByTestId('popup')).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
     });
   });
 
