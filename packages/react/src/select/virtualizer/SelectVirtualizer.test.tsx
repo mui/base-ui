@@ -21,6 +21,23 @@ describe('<Select.Virtualizer />', () => {
     });
   });
 
+  it('does not warn about the intentionally windowed item collection', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await renderVirtualizedSelect({ items: createItems(100) });
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(5));
+
+      expect(
+        warnSpy.mock.calls.some(([message]) =>
+          String(message).includes('does not match the rendered <Select.Item>'),
+        ),
+      ).toBe(false);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('only renders the visible select items', async () => {
     await renderVirtualizedSelect({ items: createItems(100) });
 

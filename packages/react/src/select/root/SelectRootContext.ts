@@ -46,6 +46,11 @@ export interface SelectDerivedItemsContext {
   isGrouped: boolean;
 }
 
+export interface SelectItemMetadata {
+  value: any;
+  virtualized: boolean;
+}
+
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
 
 export const SelectDerivedItemsContext = React.createContext<SelectDerivedItemsContext>({
