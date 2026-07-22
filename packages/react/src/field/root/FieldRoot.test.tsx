@@ -1682,6 +1682,62 @@ describe('<Field.Root />', () => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
       });
+
+      it('keeps the original baseline when a dirtied control unmounts and remounts', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>('a');
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && (
+                  <Select.Root value={value} onValueChange={setValue}>
+                    <Select.Trigger />
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          <Select.Item value="a" />
+                          <Select.Item value="b" />
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setValue('b')}>
+                b
+              </button>
+              <button type="button" onClick={() => setValue('a')}>
+                a
+              </button>
+              <button type="button" onClick={() => setMounted(false)}>
+                hide
+              </button>
+              <button type="button" onClick={() => setMounted(true)}>
+                show
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('b'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('hide'));
+        fireEvent.click(screen.getByText('show'));
+
+        fireEvent.click(screen.getByText('a'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
     });
 
     describe('filled', () => {

@@ -90,6 +90,12 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
     syncedInitialValueSourceRef.current = source;
 
+    // Once dirtied, treat a remounting control as the same logical field and keep the original
+    // baseline; otherwise an unmount/remount would reset it and leave `data-dirty` stuck.
+    if (markedDirtyRef.current) {
+      return;
+    }
+
     const registration = registrationRef.current;
     if (!registration) {
       return;
