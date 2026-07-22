@@ -87,6 +87,55 @@ describe('<Select.Virtualizer />', () => {
     expect(screen.getByRole('option', { name: 'Item 2' })).toHaveAttribute('aria-disabled', 'true');
   });
 
+  it('does not scroll pointer highlights and resumes scrolling for keyboard highlights', async () => {
+    const handleScrollTo = vi.fn();
+
+    const { user } = await render(
+      <Select.Root defaultOpen items={createItems(10)}>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Positioner alignItemWithTrigger={false}>
+          <Select.Popup>
+            <Select.List>
+              <Select.Virtualizer<string>
+                estimatedItemHeight={20}
+                overscanPx={0}
+                render={
+                  <div
+                    ref={setElementScrollState({
+                      clientHeight: 40,
+                      getScrollTop: () => 0,
+                      scrollTo: handleScrollTo,
+                    })}
+                  />
+                }
+              >
+                {(item) => (
+                  <Select.Item value={item.value} style={{ height: 20 }}>
+                    {item.label}
+                  </Select.Item>
+                )}
+              </Select.Virtualizer>
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const lastRenderedItem = await screen.findByRole('option', { name: 'Item 3' });
+    await user.hover(lastRenderedItem);
+
+    await waitFor(() => expect(lastRenderedItem).toHaveAttribute('data-highlighted'));
+    expect(handleScrollTo).not.toHaveBeenCalled();
+
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() =>
+      expect(handleScrollTo).toHaveBeenLastCalledWith({
+        behavior: 'instant',
+        top: 40,
+      }),
+    );
+  });
+
   it('supports object values with stable keys', async () => {
     const items = [
       { value: { id: 'a' }, label: 'Alpha' },
@@ -215,6 +264,32 @@ function setElementClientHeight(clientHeight: number) {
       value: (options: ScrollToOptions) => {
         element.scrollTop = options.top ?? element.scrollTop;
       },
+    });
+  };
+}
+
+function setElementScrollState(options: {
+  clientHeight: number;
+  getScrollTop: () => number;
+  scrollTo: (options: ScrollToOptions) => void;
+}) {
+  return (element: HTMLDivElement | null) => {
+    if (!element) {
+      return;
+    }
+
+    element.style.height = `${options.clientHeight}px`;
+    Object.defineProperty(element, 'clientHeight', {
+      configurable: true,
+      value: options.clientHeight,
+    });
+    Object.defineProperty(element, 'scrollTop', {
+      configurable: true,
+      get: options.getScrollTop,
+    });
+    Object.defineProperty(element, 'scrollTo', {
+      configurable: true,
+      value: options.scrollTo,
     });
   };
 }

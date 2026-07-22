@@ -208,7 +208,7 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        store.set('activeIndex', index);
+        store.update({ activeIndex: index, highlightType: 'keyboard' });
 
         if (event.key === ' ' && typingRef.current) {
           // `useButton` skips Space activation for `role="option"` items when the keydown

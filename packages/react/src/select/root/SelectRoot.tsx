@@ -24,7 +24,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, type HighlightType, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -175,6 +175,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         forceMount: false,
         openMethod: null,
         activeIndex: null,
+        highlightType: 'none',
         selectedIndex: initialSelectedIndex,
         popupProps: {},
         triggerProps: {},
@@ -336,7 +337,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.update({ activeIndex: null, openMethod: null });
+    store.update({ activeIndex: null, highlightType: 'none', openMethod: null });
     onOpenChangeComplete?.(false);
   });
 
@@ -408,13 +409,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     activeIndex,
     selectedIndex,
     disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
-    onNavigate(nextActiveIndex) {
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
-      store.set('activeIndex', nextActiveIndex);
+      store.update({
+        activeIndex: nextActiveIndex,
+        highlightType: getHighlightType(event, store.state.highlightType),
+      });
     },
     focusItemOnHover: highlightItemOnHover,
   });
@@ -427,7 +431,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     disabledIndices: isIndexDisabled,
     onMatch(index) {
       if (open) {
-        store.set('activeIndex', index);
+        store.update({ activeIndex: index, highlightType: 'keyboard' });
       } else {
         setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
@@ -640,6 +644,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       {hiddenInputs}
     </SelectRootContext.Provider>
   );
+}
+
+function getHighlightType(
+  event: React.SyntheticEvent | undefined,
+  currentType: HighlightType,
+): HighlightType {
+  if (!event) {
+    return 'none';
+  }
+  if (event.type.startsWith('key')) {
+    return 'keyboard';
+  }
+  if (event.type.startsWith('mouse') || event.type.startsWith('pointer')) {
+    return 'pointer';
+  }
+  return currentType;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true

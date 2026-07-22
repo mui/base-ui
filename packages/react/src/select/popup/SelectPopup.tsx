@@ -438,7 +438,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {
-        store.set('activeIndex', 0);
+        store.update({ activeIndex: 0, highlightType: 'none' });
       }
     } finally {
       restoreTransformStyles();

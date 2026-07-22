@@ -123,6 +123,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   const { store, scrollHandlerRef } = useSelectRootContext();
   const { flatItems, hasItems, isGrouped } = useSelectDerivedItemsContext();
   const activeIndex = useStore(store, selectors.activeIndex);
+  const highlightType = useStore(store, selectors.highlightType);
   const insideList = useVirtualizationListContext();
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
 
@@ -266,6 +267,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   );
   const resolvedEstimatedItemHeight =
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : estimateRowHeight;
+  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
 
   return (
     <ListVirtualizer
@@ -279,7 +281,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
       ref={mergedRef}
       renderRow={renderRow}
       rows={rows}
-      scrollToRowIndex={focusedRowIndex}
+      scrollToRowIndex={scrollToRowIndex}
       totalSizeCssVariable={SelectVirtualizerCssVars.totalSize}
     />
   );

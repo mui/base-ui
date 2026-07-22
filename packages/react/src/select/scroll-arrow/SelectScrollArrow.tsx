@@ -88,7 +88,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      store.set('activeIndex', null);
+      store.update({ activeIndex: null, highlightType: 'pointer' });
 
       function scrollNextItem() {
         const scroller = virtualizerElement ?? store.state.listElement ?? popupRef.current;
@@ -96,7 +96,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        store.set('activeIndex', null);
+        store.update({ activeIndex: null, highlightType: 'pointer' });
         handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
