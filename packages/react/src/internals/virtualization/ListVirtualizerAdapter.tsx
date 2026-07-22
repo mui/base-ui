@@ -25,8 +25,6 @@ type VirtualizerItemKey = string;
 export interface ListVirtualizerItemRowModel<Item> {
   item: Item;
   itemIndex: number;
-  type: 'item';
-  virtualRowIndex: number;
 }
 
 /**
@@ -108,7 +106,6 @@ function areListVirtualizerItemRowPropsEqual<Item>(
     previous.itemCount === next.itemCount &&
     previous.model.item === next.model.item &&
     previous.model.itemIndex === next.model.itemIndex &&
-    previous.model.virtualRowIndex === next.model.virtualRowIndex &&
     previous.virtualItemContext === next.virtualItemContext
   );
 }
@@ -159,17 +156,12 @@ export function useListVirtualizerAdapter<Value, Item>(
   getItemValueRef.current = getItemValue;
   const getItemValueStable = React.useCallback((item: Item) => getItemValueRef.current(item), []);
   const hasGetItemKey = getItemKey != null;
-  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
-  estimatedItemHeightRef.current = estimatedItemHeight;
-
-  const getEstimatedItemHeight = React.useCallback((item: Item, index: number) => {
-    const currentEstimatedItemHeight = estimatedItemHeightRef.current;
-    const size =
-      typeof currentEstimatedItemHeight === 'function'
-        ? currentEstimatedItemHeight(item, index)
-        : currentEstimatedItemHeight;
-    return Math.max(1, size);
-  }, []);
+  const estimatedItemHeightFunctionRef = React.useRef(
+    typeof estimatedItemHeight === 'function' ? estimatedItemHeight : undefined,
+  );
+  if (typeof estimatedItemHeight === 'function') {
+    estimatedItemHeightFunctionRef.current = estimatedItemHeight;
+  }
 
   const rows = React.useMemo<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
@@ -202,8 +194,6 @@ export function useListVirtualizerAdapter<Value, Item>(
         model: {
           item,
           itemIndex,
-          type: 'item',
-          virtualRowIndex: itemIndex,
         },
       };
     });
@@ -217,10 +207,6 @@ export function useListVirtualizerAdapter<Value, Item>(
   ]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
-  const pinnedRowIndexes = React.useMemo(
-    () => (focusedRowIndex == null ? [] : [focusedRowIndex]),
-    [focusedRowIndex],
-  );
 
   const renderRow = React.useCallback(
     (params: ListVirtualizerRenderRowParameters<ListVirtualizerItemRowModel<Item>>) => (
@@ -237,9 +223,11 @@ export function useListVirtualizerAdapter<Value, Item>(
   );
 
   const estimateRowHeight = React.useCallback(
-    (model: ListVirtualizerItemRowModel<Item>) =>
-      getEstimatedItemHeight(model.item, model.virtualRowIndex),
-    [getEstimatedItemHeight],
+    (model: ListVirtualizerItemRowModel<Item>, rowIndex: number) => {
+      const estimate = estimatedItemHeightFunctionRef.current;
+      return estimate ? estimate(model.item, rowIndex) : 1;
+    },
+    [],
   );
   const resolvedEstimatedItemHeight =
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : estimateRowHeight;
@@ -291,7 +279,6 @@ export function useListVirtualizerAdapter<Value, Item>(
     estimatedItemHeight: resolvedEstimatedItemHeight,
     focusedRowIndex,
     onUnconstrainedHeight,
-    pinnedRowIndexes,
     renderRow,
     rows,
   };

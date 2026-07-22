@@ -177,7 +177,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     estimatedItemHeight,
     onUnconstrainedHeight,
     overscanPx,
-    pinnedRowIndexes,
+    pinnedRowIndex,
     render,
     renderRow: renderRowProp,
     restoreViewportVersion = 0,
@@ -236,30 +236,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const rowsRef = React.useRef(rows);
   rowsRef.current = rows;
 
-  const validPinnedRowIndexes = React.useMemo(() => {
-    const seen = new Set<number>();
-    return (pinnedRowIndexes ?? []).filter((rowIndex) => {
-      if (rowIndex < 0 || rows[rowIndex] == null || seen.has(rowIndex)) {
-        return false;
-      }
-      seen.add(rowIndex);
-      return true;
-    });
-  }, [pinnedRowIndexes, rows]);
-
-  const primaryPinnedRowIndex = validPinnedRowIndexes[0];
+  const validPinnedRowIndex =
+    pinnedRowIndex != null && pinnedRowIndex >= 0 && rows[pinnedRowIndex] != null
+      ? pinnedRowIndex
+      : undefined;
   const focusedVirtualCellRef = React.useRef<{
     columnIndex: number;
     id: React.Key;
     rowIndex: number;
   } | null>(null);
   focusedVirtualCellRef.current =
-    primaryPinnedRowIndex == null
+    validPinnedRowIndex == null
       ? null
       : {
           columnIndex: 0,
-          id: rows[primaryPinnedRowIndex].id,
-          rowIndex: primaryPinnedRowIndex,
+          id: rows[validPinnedRowIndex].id,
+          rowIndex: validPinnedRowIndex,
         };
 
   const getFocusedVirtualCell = React.useCallback(() => focusedVirtualCellRef.current, []);
@@ -682,32 +674,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     renderContext: overscannedRenderContext,
   });
 
-  validPinnedRowIndexes.forEach((rowIndex) => {
-    if (
-      rowIndex >= overscannedRenderContext.firstRowIndex &&
-      rowIndex < overscannedRenderContext.lastRowIndex
-    ) {
-      return;
-    }
-    if (
-      rowIndex === primaryPinnedRowIndex &&
-      (rowIndex < overscannedRenderContext.firstRowIndex ||
-        rowIndex > overscannedRenderContext.lastRowIndex)
-    ) {
-      return;
-    }
-
-    const row = rows[rowIndex];
-    renderedRows.push(
-      renderRow({
-        id: row.id,
-        model: row.model,
-        rowIndex,
-        isVirtualFocusRow: true,
-      }),
-    );
-  });
-
   const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
   const { style: contentStyle, ...restContentProps } = contentProps;
   const renderedRangeEnd =
@@ -833,10 +799,9 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
    */
   overscanPx?: number | undefined;
   /**
-   * Rows retained outside the rendered range for component-specific focus or measurement
-   * semantics.
+   * Row retained outside the rendered range for component-specific focus semantics.
    */
-  pinnedRowIndexes?: readonly number[] | undefined;
+  pinnedRowIndex?: number | undefined;
   /**
    * Renders the component-specific semantic content for a virtual row.
    */

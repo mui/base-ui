@@ -55,29 +55,24 @@ describe('<ListVirtualizer />', () => {
     expect(virtualizer.style.getPropertyValue('--list-size')).toBe('2000px');
   });
 
-  it('retains multiple pinned rows outside the rendered window', async () => {
+  it('retains a pinned row outside the rendered window', async () => {
     await render(
       <ListVirtualizer
         estimatedItemHeight={20}
         overscanPx={0}
-        pinnedRowIndexes={[50, 75]}
+        pinnedRowIndex={50}
         render={<div ref={setElementClientHeight(40)} />}
         renderRow={renderRow}
         rows={createRows(100)}
       />,
     );
 
-    const firstPinnedRow = await screen.findByText('Item 51');
-    const secondPinnedRow = await screen.findByText('Item 76');
+    const pinnedRow = await screen.findByText('Item 51');
 
-    expect(firstPinnedRow.parentElement).toHaveStyle({
+    expect(pinnedRow.parentElement).toHaveStyle({
       position: 'absolute',
     });
-    expect(firstPinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
-    expect(secondPinnedRow.parentElement).toHaveStyle({
-      position: 'absolute',
-    });
-    expect(secondPinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
+    expect(pinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
   });
 
   it('does not rerender rows retained between virtual windows', async () => {

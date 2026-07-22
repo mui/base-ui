@@ -52,7 +52,6 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
     estimatedItemHeight: resolvedEstimatedItemHeight,
     focusedRowIndex,
     onUnconstrainedHeight: handleUnconstrainedHeight,
-    pinnedRowIndexes,
     renderRow,
     rows,
   } = useListVirtualizerAdapter<Value, SelectItemData<Value>>({
@@ -107,7 +106,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
       estimatedItemHeight={resolvedEstimatedItemHeight}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
-      pinnedRowIndexes={pinnedRowIndexes}
+      pinnedRowIndex={focusedRowIndex}
       ref={mergedRef}
       renderRow={renderRow}
       rows={rows}
