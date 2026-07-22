@@ -972,10 +972,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
-  function isSelectedValueDirty(value: Value | Value[] | null) {
-    return !isFieldValueEqual(value, validityData.initialValue);
-  }
-
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -997,7 +993,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(isSelectedValueDirty(selectedValue));
+    setDirty(!isFieldValueEqual(selectedValue, validityData.initialValue));
 
     validation.change(selectedValue);
 

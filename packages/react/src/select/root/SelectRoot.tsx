@@ -251,13 +251,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, open, value, isItemEqualToValue, store],
   );
 
-  function isSelectedValueDirty(currentValue: unknown) {
-    return !isFieldValueEqual(currentValue, validityData.initialValue);
-  }
-
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(isSelectedValueDirty(value));
+    setDirty(!isFieldValueEqual(value, validityData.initialValue));
 
     validation.change(value);
   });

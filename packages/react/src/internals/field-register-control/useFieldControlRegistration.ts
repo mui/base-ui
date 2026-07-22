@@ -9,7 +9,7 @@ import type { FieldValidityData } from '../../field/root/FieldRoot';
 
 function areValuesEqual(a: unknown, b: unknown) {
   if (Array.isArray(a) && Array.isArray(b)) {
-    return areArraysEqual(a, b, Object.is);
+    return areArraysEqual(a, b);
   }
   return Object.is(a, b);
 }
@@ -100,45 +100,32 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     const source = activeFieldControlSourceRef.current;
-
-    if (syncedInitialValueSourceRef.current === source) {
-      // The same control instance re-registering with a value update.
-      if (registration.value !== undefined) {
-        lastKnownValueRef.current = registration.value;
-      }
-      return;
-    }
-
+    const previousSource = syncedInitialValueSourceRef.current;
     const initialValue = getRegistrationValue(registration);
     const isValueEqual = registration.isValueEqual ?? areValuesEqual;
 
-    // A new control instance registering with the previous instance's last known value is a
-    // remount of the same logical control whose state lives above the mount boundary, so the
-    // original baseline is kept. Any other value means a different control was swapped in and
-    // must capture its own baseline. Values are compared with the control's own equality when
-    // provided, and structurally for arrays otherwise, because controlled array-valued controls
-    // may pass a newly allocated equivalent array on every render.
-    const hadPreviousControl = syncedInitialValueSourceRef.current !== null;
-    const isRemount = hadPreviousControl && isValueEqual(initialValue, lastKnownValueRef.current);
+    // Keep the baseline for the same control instance re-registering, and for a new instance
+    // registering with the previous instance's last known value: that is a remount of the same
+    // logical control whose state lives above the mount boundary. Any other value means a
+    // different control was swapped in and must capture its own baseline. Values are compared
+    // with the control's own equality when provided, and structurally for arrays otherwise,
+    // because controlled array-valued controls may pass a newly allocated equivalent array on
+    // every render.
+    const keepBaseline =
+      previousSource === source ||
+      (previousSource !== null && isValueEqual(initialValue, lastKnownValueRef.current));
 
     syncedInitialValueSourceRef.current = source;
     lastKnownValueRef.current = initialValue;
 
-    if (isRemount) {
+    if (keepBaseline) {
       return;
     }
 
-    if (hadPreviousControl) {
-      setDirty(false);
-    }
-
-    setValidityData((prev) => {
-      if (isValueEqual(prev.initialValue, initialValue)) {
-        return prev;
-      }
-
-      return { ...prev, initialValue };
-    });
+    setDirty(false);
+    setValidityData((prev) =>
+      isValueEqual(prev.initialValue, initialValue) ? prev : { ...prev, initialValue },
+    );
   }
 
   useIsoLayoutEffect(() => {
