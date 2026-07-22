@@ -2,18 +2,10 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { areArraysEqual } from '../areArraysEqual';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form-context/FormContext';
 import type { FieldValidityData } from '../../field/root/FieldRoot';
 import type { FieldValidationReset } from '../../field/root/useFieldValidation';
-
-function areValuesEqual(a: unknown, b: unknown) {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return areArraysEqual(a, b);
-  }
-  return Object.is(a, b);
-}
 
 export interface FieldControlRegistration {
   controlRef: React.RefObject<any>;
@@ -21,7 +13,6 @@ export interface FieldControlRegistration {
   name?: string | undefined;
   getValue?: (() => unknown) | undefined;
   value: unknown;
-  isValueEqual?: ((a: unknown, b: unknown) => boolean) | undefined;
 }
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
@@ -31,8 +22,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     invalid,
     markedDirtyRef,
     name,
-    resetControlState,
-    resetValidation,
+    resetControl,
     setRegisteredFieldName,
     registeredFieldIdRef,
     validityData,
@@ -43,7 +33,6 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
   const syncedInitialValueSourceRef = React.useRef<symbol | null>(null);
-  const lastKnownValueRef = React.useRef<unknown>(undefined);
 
   const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
@@ -104,28 +93,15 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     const source = activeFieldControlSourceRef.current;
     const previousSource = syncedInitialValueSourceRef.current;
     const initialValue = getRegistrationValue(registration);
-    const isValueEqual = registration.isValueEqual ?? areValuesEqual;
-
-    // Keep the baseline for the same control instance re-registering, and for a new instance
-    // registering with the previous instance's last known value: that is a remount of the same
-    // logical control whose state lives above the mount boundary. Any other value means a
-    // different control was swapped in and must capture its own baseline. Values are compared
-    // with the control's own equality when provided, and structurally for arrays otherwise,
-    // because controlled array-valued controls may pass a newly allocated equivalent array on
-    // every render.
-    const keepBaseline =
-      previousSource === source ||
-      (previousSource !== null && isValueEqual(initialValue, lastKnownValueRef.current));
+    const keepBaseline = previousSource === source;
 
     syncedInitialValueSourceRef.current = source;
-    lastKnownValueRef.current = initialValue;
 
     if (keepBaseline) {
       return validityData;
     }
 
-    resetControlState();
-    return resetValidation(initialValue);
+    return resetControl(initialValue);
   }
 
   useIsoLayoutEffect(() => {
@@ -160,9 +136,6 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     (source: symbol, registration: FieldControlRegistration | undefined) => {
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
-          if (registrationRef.current) {
-            lastKnownValueRef.current = getRegistrationValue(registrationRef.current);
-          }
           clearFocused();
           activeFieldControlSourceRef.current = null;
           deleteRegistration();
@@ -200,8 +173,7 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
-  resetControlState: () => void;
-  resetValidation: FieldValidationReset;
+  resetControl: FieldValidationReset;
   setRegisteredFieldName: (name: string | undefined) => void;
   registeredFieldIdRef: React.RefObject<string | undefined>;
   validityData: FieldValidityData;

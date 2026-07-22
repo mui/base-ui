@@ -11,7 +11,6 @@ export function useRegisterFieldControl(
   getFormValueOverride?: FieldControlRegistration['getValue'],
   enabled = true,
   name?: FieldControlRegistration['name'],
-  isValueEqual?: FieldControlRegistration['isValueEqual'],
 ) {
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = useRefWithInit(() => Symbol());
@@ -31,23 +30,12 @@ export function useRegisterFieldControl(
       controlRef,
       getValue: getFormValueOverride,
       id,
-      isValueEqual,
       name,
       value,
     };
 
     registerFieldControl(source, registration);
-  }, [
-    controlRef,
-    enabled,
-    getFormValueOverride,
-    id,
-    isValueEqual,
-    name,
-    registerFieldControl,
-    sourceRef,
-    value,
-  ]);
+  }, [controlRef, enabled, getFormValueOverride, id, name, registerFieldControl, sourceRef, value]);
 
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;

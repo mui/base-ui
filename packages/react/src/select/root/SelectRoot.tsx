@@ -192,18 +192,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  const isFieldValueEqual = useStableCallback((a: unknown, b: unknown) => {
-    if (Array.isArray(a) && Array.isArray(b)) {
-      return areArraysEqual(a, b, (itemValue, otherItemValue) =>
-        compareItemEquality(itemValue, otherItemValue, isItemEqualToValue),
-      );
-    }
-    if (Array.isArray(a) || Array.isArray(b)) {
-      return false;
-    }
-    return compareItemEquality(a as Value, b as Value, isItemEqualToValue);
-  });
-
   useRegisterFieldControl(
     controlRef,
     generatedId,
@@ -211,7 +199,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getStringifiedValueForForm,
     !disabled,
     nameProp,
-    isFieldValueEqual,
   );
 
   const initialValueRef = React.useRef(value);
@@ -254,9 +241,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, open, value, isItemEqualToValue, store],
   );
 
+  function isSelectedValueDirty(currentValue: unknown) {
+    const initialValue = validityData.initialValue;
+
+    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
+        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
+      );
+    }
+
+    return currentValue !== initialValue;
+  }
+
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(!isFieldValueEqual(value, validityData.initialValue));
+    setDirty(isSelectedValueDirty(value));
 
     validation.change(value);
   });

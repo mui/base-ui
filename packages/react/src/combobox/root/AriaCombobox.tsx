@@ -462,21 +462,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  const isFieldValueEqual = useStableCallback((a: unknown, b: unknown) => {
-    if (Array.isArray(a) && Array.isArray(b)) {
-      return areArraysEqual(a, b, (itemValue, otherItemValue) =>
-        compareItemEquality(itemValue, otherItemValue, isItemEqualToValue),
-      );
-    }
-    if (Array.isArray(a) || Array.isArray(b)) {
-      return false;
-    }
-    if (selectionMode === 'none') {
-      return Object.is(a, b);
-    }
-    return compareItemEquality(a as Value, b as Value, isItemEqualToValue);
-  });
-
   useRegisterFieldControl(
     inputInsidePopup ? triggerRef : inputRef,
     id,
@@ -484,7 +469,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getStringifiedValueForForm,
     !disabled,
     nameProp,
-    isFieldValueEqual,
   );
 
   const forceMount = useStableCallback(() => {
@@ -978,6 +962,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
+  function isSelectedValueDirty(value: Value | Value[] | null) {
+    const initialValue = validityData.initialValue;
+
+    if (Array.isArray(value) && Array.isArray(initialValue)) {
+      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
+        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
+      );
+    }
+
+    return value !== initialValue;
+  }
+
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -999,7 +995,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(!isFieldValueEqual(selectedValue, validityData.initialValue));
+    setDirty(isSelectedValueDirty(selectedValue));
 
     validation.change(selectedValue);
 

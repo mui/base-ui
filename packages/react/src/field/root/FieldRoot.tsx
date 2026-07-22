@@ -77,16 +77,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     setDirtyUnwrapped(value);
   });
 
-  const resetControlState = useStableCallback(() => {
-    markedDirtyRef.current = dirtyProp ?? false;
-    if (dirtyProp === undefined) {
-      setDirtyUnwrapped(false);
-    }
-    if (touchedProp === undefined) {
-      setTouchedUnwrapped(false);
-    }
-  });
-
   const clearFocused = useStableCallback(() => {
     setFocused(false);
   });
@@ -146,14 +136,24 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     registeredFieldIdRef,
   });
 
+  const resetControl = useStableCallback((value: unknown) => {
+    markedDirtyRef.current = dirtyProp ?? false;
+    if (dirtyProp === undefined) {
+      setDirtyUnwrapped(false);
+    }
+    if (touchedProp === undefined) {
+      setTouchedUnwrapped(false);
+    }
+    return resetValidation(value);
+  });
+
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
     clearFocused,
     commit: validation.commit,
     invalid,
     markedDirtyRef,
     name,
-    resetControlState,
-    resetValidation,
+    resetControl,
     setRegisteredFieldName,
     registeredFieldIdRef,
     validityData,

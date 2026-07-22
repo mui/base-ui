@@ -1442,47 +1442,6 @@ describe('<Field.Root />', () => {
       expect(screen.queryByText('old error')).toBe(null);
       expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
     });
-
-    it('completes a pending debounced validation across a control remount', async () => {
-      const validate = vi.fn(() => 'error');
-
-      function App() {
-        const [value, setValue] = React.useState('a');
-        const [mounted, setMounted] = React.useState(true);
-        return (
-          <div>
-            <Field.Root validationMode="onChange" validationDebounceTime={100} validate={validate}>
-              {mounted && (
-                <Field.Control data-testid="control" value={value} onValueChange={setValue} />
-              )}
-              <Field.Error />
-            </Field.Root>
-            <button type="button" onClick={() => setMounted(false)}>
-              hide
-            </button>
-            <button type="button" onClick={() => setMounted(true)}>
-              show
-            </button>
-          </div>
-        );
-      }
-
-      await renderFakeTimers(<App />);
-
-      fireEvent.change(screen.getByTestId('control'), { target: { value: 'bad' } });
-      expect(validate).not.toHaveBeenCalled();
-
-      fireEvent.click(screen.getByText('hide'));
-      fireEvent.click(screen.getByText('show'));
-
-      // The debounced validation survives the remount and fires on schedule for the
-      // still-current value.
-      expect(validate).not.toHaveBeenCalled();
-      clock.tick(100);
-
-      expect(validate).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('error')).not.toBe(null);
-    });
   });
 
   describe('style hooks', () => {
@@ -1771,6 +1730,45 @@ describe('<Field.Root />', () => {
         });
       });
 
+      it('resets state when swapping different controls with the same value', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            validationMode="onBlur"
+            validate={(value) => (value == null ? 'old error' : null)}
+            firstControl={
+              <NumberField.Root defaultValue={1}>
+                <NumberField.Input data-testid="first" />
+              </NumberField.Root>
+            }
+            secondControl={
+              <Select.Root defaultValue={null}>
+                <Select.Trigger data-testid="control" />
+              </Select.Root>
+            }
+          >
+            <Field.Error />
+          </SwappableField>,
+        );
+
+        const first = screen.getByTestId('first');
+        fireEvent.change(first, { target: { value: '' } });
+        fireEvent.focus(first);
+        fireEvent.blur(first);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
+        });
+
+        fireEvent.click(screen.getByText('swap'));
+
+        const root = screen.getByTestId('root');
+        expect(root).not.toHaveAttribute('data-invalid');
+        expect(root).not.toHaveAttribute('data-dirty');
+        expect(root).not.toHaveAttribute('data-touched');
+        expect(screen.queryByText('old error')).toBe(null);
+      });
+
       it('recaptures the baseline when swapping controls after validating', async () => {
         function App() {
           const actionsRef = React.useRef<Field.Root.Actions>(null);
@@ -1852,169 +1850,6 @@ describe('<Field.Root />', () => {
         });
 
         fireEvent.change(control, { target: { value: 'x' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('keeps the original baseline when an array-valued control remounts with a recreated array', async () => {
-        function App() {
-          const [value, setValue] = React.useState<string[]>([]);
-          const [mounted, setMounted] = React.useState(true);
-          return (
-            <div>
-              <Field.Root name="letters" data-testid="root">
-                {mounted && (
-                  <CheckboxGroup value={[...value]} onValueChange={setValue}>
-                    <Checkbox.Root name="a" data-testid="checkbox" />
-                  </CheckboxGroup>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByTestId('checkbox'));
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
-
-        fireEvent.click(screen.getByTestId('checkbox'));
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('keeps the original baseline when an object-valued multiple Select remounts with recreated values', async () => {
-        const items = [{ id: 'a' }, { id: 'b' }];
-
-        function App() {
-          const [value, setValue] = React.useState<{ id: string }[]>([items[0]]);
-          const [mounted, setMounted] = React.useState(true);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {mounted && (
-                  <Select.Root
-                    multiple
-                    value={value.map((currentValue) => ({ ...currentValue }))}
-                    onValueChange={setValue}
-                    isItemEqualToValue={(itemValue, selectedValue) =>
-                      itemValue.id === selectedValue.id
-                    }
-                    itemToStringValue={(itemValue) => itemValue.id}
-                  >
-                    <Select.Trigger />
-                    <Select.Portal>
-                      <Select.Positioner>
-                        <Select.Popup>
-                          {items.map((item) => (
-                            <Select.Item key={item.id} value={item} />
-                          ))}
-                        </Select.Popup>
-                      </Select.Positioner>
-                    </Select.Portal>
-                  </Select.Root>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setValue([items[0], items[1]])}>
-                both
-              </button>
-              <button type="button" onClick={() => setValue([items[0]])}>
-                first
-              </button>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        expect(root).not.toHaveAttribute('data-dirty');
-
-        fireEvent.click(screen.getByText('both'));
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
-
-        fireEvent.click(screen.getByText('first'));
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('keeps the original baseline when a dirtied control unmounts and remounts', async () => {
-        function App() {
-          const [value, setValue] = React.useState<string | null>('a');
-          const [mounted, setMounted] = React.useState(true);
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {mounted && (
-                  <Select.Root value={value} onValueChange={setValue}>
-                    <Select.Trigger />
-                    <Select.Portal>
-                      <Select.Positioner>
-                        <Select.Popup>
-                          <Select.Item value="a" />
-                          <Select.Item value="b" />
-                        </Select.Popup>
-                      </Select.Positioner>
-                    </Select.Portal>
-                  </Select.Root>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setValue('b')}>
-                b
-              </button>
-              <button type="button" onClick={() => setValue('a')}>
-                a
-              </button>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        expect(root).not.toHaveAttribute('data-dirty');
-
-        fireEvent.click(screen.getByText('b'));
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
-
-        fireEvent.click(screen.getByText('a'));
         await waitFor(() => {
           expect(root).not.toHaveAttribute('data-dirty');
         });
@@ -2214,118 +2049,6 @@ describe('<Field.Root />', () => {
 
         fireEvent.change(control, { target: { value: 'c' } });
         fireEvent.change(control, { target: { value: 'b' } });
-        await waitFor(() => {
-          expect(root).not.toHaveAttribute('data-dirty');
-        });
-      });
-
-      it('applies an in-flight async validation across a control remount', async () => {
-        const resolvers: Array<(value: string | null) => void> = [];
-        const validate = vi.fn((value) => {
-          if (value !== 'old') {
-            return null;
-          }
-
-          return new Promise<string | null>((resolve) => {
-            resolvers.push(resolve);
-          });
-        });
-
-        function App() {
-          const [value, setValue] = React.useState('a');
-          const [mounted, setMounted] = React.useState(true);
-          return (
-            <div>
-              <Field.Root data-testid="root" validationMode="onChange" validate={validate}>
-                {mounted && (
-                  <Field.Control data-testid="control" value={value} onValueChange={setValue} />
-                )}
-                <Field.Error />
-              </Field.Root>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.change(screen.getByTestId('control'), { target: { value: 'old' } });
-        expect(validate).toHaveBeenCalledTimes(1);
-        expect(resolvers.length).toBe(1);
-
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
-
-        // The remount is the same logical control at the same value, so the in-flight
-        // validation is not re-run and its result stays authoritative.
-        expect(validate).toHaveBeenCalledTimes(1);
-
-        await act(async () => {
-          resolvers[0]('async error');
-          await flushMicrotasks();
-        });
-
-        expect(screen.queryByText('async error')).not.toBe(null);
-        expect(root).toHaveAttribute('data-invalid', '');
-        expect(root).toHaveAttribute('data-dirty', '');
-      });
-
-      it('uses custom equality when a single object-valued Select remounts', async () => {
-        function App() {
-          const [id, setId] = React.useState('a');
-          const [mounted, setMounted] = React.useState(true);
-          const value = { id };
-          return (
-            <div>
-              <Field.Root data-testid="root">
-                {mounted && (
-                  <Select.Root
-                    value={value}
-                    isItemEqualToValue={(itemValue, selectedValue) =>
-                      itemValue.id === selectedValue.id
-                    }
-                    itemToStringValue={(itemValue) => itemValue.id}
-                  >
-                    <Select.Trigger />
-                  </Select.Root>
-                )}
-              </Field.Root>
-              <button type="button" onClick={() => setId('b')}>
-                b
-              </button>
-              <button type="button" onClick={() => setId('a')}>
-                a
-              </button>
-              <button type="button" onClick={() => setMounted(false)}>
-                hide
-              </button>
-              <button type="button" onClick={() => setMounted(true)}>
-                show
-              </button>
-            </div>
-          );
-        }
-
-        await render(<App />);
-        const root = screen.getByTestId('root');
-
-        fireEvent.click(screen.getByText('b'));
-        await waitFor(() => {
-          expect(root).toHaveAttribute('data-dirty', '');
-        });
-
-        fireEvent.click(screen.getByText('hide'));
-        fireEvent.click(screen.getByText('show'));
-
-        expect(root).toHaveAttribute('data-dirty', '');
-
-        fireEvent.click(screen.getByText('a'));
         await waitFor(() => {
           expect(root).not.toHaveAttribute('data-dirty');
         });

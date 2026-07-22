@@ -68,7 +68,7 @@ function clearCustomValidity(element: HTMLInputElement | null, inputs: Registere
   for (const input of inputs.keys()) {
     input.setCustomValidity('');
   }
-  element?.setCustomValidity('');
+  element?.setCustomValidity?.('');
 }
 
 export function useFieldValidation(
