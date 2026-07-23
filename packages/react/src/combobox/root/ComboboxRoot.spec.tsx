@@ -33,6 +33,14 @@ const groupItemsReadonly = [
   },
 ] as const;
 
+<Combobox.Root items={objectItems} defaultValue={objectItems[0]}>
+  <Combobox.List>
+    {(item: (typeof objectItems)[number]) => (
+      <Combobox.Item key={item.value}>{item.label}</Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>;
+
 <Combobox.Root
   items={objectItems}
   itemToStringValue={(item) => {
@@ -271,6 +279,48 @@ mergeProps<typeof Combobox.Root<any>>(
   },
   {},
 );
+
+function UseItemsApp() {
+  const userItems = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ];
+
+  const collection = Combobox.useItems(userItems, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+
+  collection.each((item, value, index) => {
+    item.name;
+    value.toFixed();
+    index.toFixed();
+    return null;
+  });
+
+  const matched: Array<{ id: number; name: string }> = collection.matches('a', {
+    filterMode: 'startsWith',
+  });
+  matched.length;
+
+  return (
+    <Combobox.Root
+      items={collection}
+      defaultValue={1}
+      onValueChange={(value) => value?.toFixed()}
+    />
+  );
+}
+
+const itemsPayload = Combobox.items([{ id: 1, name: 'Alice' }], {
+  value: (item) => item.id,
+  label: (item) => item.name,
+});
+
+function PayloadApp() {
+  const collection = Combobox.useItems(itemsPayload);
+  return <Combobox.Root items={collection} defaultValue={1} />;
+}
 
 export function Wrapper<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,

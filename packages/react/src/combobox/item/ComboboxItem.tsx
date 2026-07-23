@@ -16,6 +16,7 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { NO_COMBOBOX_ITEM_VALUE, useComboboxItemValueContext } from './ComboboxItemValueContext';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -39,12 +40,15 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     render,
     className,
     style,
-    value: itemValue = null,
+    value: valueProp,
     index: indexProp,
     disabled = false,
     nativeButton = false,
     ...elementProps
   } = componentProps;
+  const collectionItemValue = useComboboxItemValueContext();
+  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
+  const itemValue = valueProp !== undefined ? valueProp : fallbackValue;
 
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
@@ -221,13 +225,23 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const itemToValue = useStore(store, selectors.itemToValue);
   const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const collectionItemValue = useComboboxItemValueContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  // Inside a collection the source item's value is the positional identity, regardless of
+  // any explicit `value` prop.
+  const lookupValue =
+    collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
+      ? collectionItemValue
+      : (componentProps.value ?? null);
+  // `flatFilteredItems` holds source items; project them when a `useItems()` collection
+  // derives the values.
+  const indexFromFilter = itemToValue
+    ? flatFilteredItems.findIndex((item) =>
+        compareItemEquality(itemToValue(item), lookupValue, isItemEqualToValue),
+      )
+    : findItemIndex(flatFilteredItems, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
@@ -302,7 +316,8 @@ export interface ComboboxItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item.
+   * A unique value that identifies this item. When omitted inside a collection, the source item
+   * is used as the value.
    * @default null
    */
   value?: any;

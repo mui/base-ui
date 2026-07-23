@@ -1,7 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
+import { useStore } from '@base-ui/utils/store';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
+import { ComboboxItemValueContext } from '../item/ComboboxItemValueContext';
+import { selectors } from '../store';
 
 /**
  * Renders filtered list items.
@@ -16,10 +22,26 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
+  const store = useComboboxRootContext();
+  const itemToValue = useStore(store, selectors.itemToValue);
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
 
-  return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
+  return (
+    <React.Fragment>
+      {itemsToRender.map((item, index) => {
+        const child = children(item, index);
+        return (
+          <ComboboxItemValueContext.Provider
+            key={React.isValidElement(child) ? (child.key ?? index) : index}
+            value={itemToValue ? itemToValue(item) : item}
+          >
+            {child}
+          </ComboboxItemValueContext.Provider>
+        );
+      })}
+    </React.Fragment>
+  );
 }
 
 export interface ComboboxCollectionState {}

@@ -30,7 +30,7 @@ Doesn't render its own HTML element.
 | grid                 | `boolean`                                                                                                       | `false`  | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | inline               | `boolean`                                                                                                       | `false`  | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Autocomplete.Root inline open>`                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | itemToStringValue    | `((itemValue: ItemValue) => string)`                                                                            | -        | When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                    |
-| items                | `({ items: any[] })[] \| ItemValue[]`                                                                           | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| items                | `({ items: any[] })[] \| ItemValue[] \| AutocompleteItemCollection<any, ItemValue>`                             | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | limit                | `number`                                                                                                        | `-1`     | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | locale               | `Intl.LocalesArgument`                                                                                          | -        | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | loopFocus            | `boolean`                                                                                                       | `true`   | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                              |
@@ -632,7 +632,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                                                             |
 | :----------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                           | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
+| value        | `any`                                                                                           | `null`  | A unique value that identifies this item. When omitted inside a collection, the source item&#xA;is used as the value.                                                                                                                   |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
 | index        | `number`                                                                                        | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
 | nativeButton | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
@@ -920,6 +920,26 @@ type AutocompleteInputGroupState = {
 };
 ```
 
+### items
+
+Normalizes items into a serializable payload for the `useItems()` hook.
+A hook-free variant of `useItems()` usable in React Server Components: the accessors run
+eagerly here, and passing the result to `useItems()` on the client re-brands it into a
+collection for `Combobox.Root`'s `items` prop.
+
+**Parameters:**
+
+| Parameter | Type                                    | Default | Description |
+| :-------- | :-------------------------------------- | :------ | :---------- |
+| data      | `Item[]`                                | -       | -           |
+| options?  | `AutocompleteItemsOptions<Item, Value>` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = AutocompleteItemsPayload<Item, Value>;
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -946,6 +966,24 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
+### useItems
+
+Normalizes items into a collection for `Combobox.Root`'s `items` prop, deriving each item's
+selection value and label before rendering.
+
+**Parameters:**
+
+| Parameter | Type                                                                                         | Default | Description |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :---------- |
+| data      | `Item[] \| AutocompleteItemCollection<Item, Value> \| AutocompleteItemsPayload<Item, Value>` | -       | -           |
+| options?  | `UseAutocompleteItemsOptions<Item, Value>`                                                   | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = AutocompleteItemCollection<Item, Value>;
+```
+
 ## Additional Types
 
 ### AutocompleteFilter
@@ -970,6 +1008,113 @@ type AutocompleteFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+};
+```
+
+### AutocompleteItemCollection
+
+Normalized items created by `useItems()`, accepted by the `items` prop of `Combobox.Root`.
+
+```typescript
+type AutocompleteItemCollection<Item, Value = Item> = {
+  /**
+   * Maps the items to an array, calling `callback` with each item, its derived value, and
+   * its index.
+   */
+  each: each;
+  /**
+   * Returns the items whose labels match the query.
+   * Uses `Intl.Collator` matching by default, or the `matches` option when provided.
+   */
+  matches: matches;
+  /** The number of items. */
+  length: number;
+};
+```
+
+### AutocompleteItemsFilterMode
+
+```typescript
+type AutocompleteItemsFilterMode = ComboboxItemsFilterMode;
+```
+
+### AutocompleteItemsMatchOptions
+
+```typescript
+type AutocompleteItemsMatchOptions = {
+  /**
+   * How the query is matched against each item's label.
+   * @default 'contains'
+   */
+  filterMode?: ComboboxItemsFilterMode;
+};
+```
+
+### AutocompleteItemsOptions
+
+```typescript
+type AutocompleteItemsOptions<Item, Value = Item> = {
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   */
+  value?: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and when matching
+   * the typed query.
+   * By default, the item's derived value is stringified.
+   */
+  label?: (item: Item) => string;
+  /**
+   * The locale used for query matching.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: string | string[];
+};
+```
+
+### AutocompleteItemsPayload
+
+Serializable normalized items produced by `Combobox.items()`. Re-branded into a collection
+by passing it to `useItems()` on the client.
+
+```typescript
+type AutocompleteItemsPayload<Item = any, Value = any> = {
+  items: Item[];
+  values: Value[];
+  labels: string[];
+  locale?: string | string[];
+  __baseUIItems: true;
+};
+```
+
+### UseAutocompleteItemsOptions
+
+```typescript
+type UseAutocompleteItemsOptions<Item, Value = Item> = {
+  /**
+   * Replaces the default query matching used by the collection's `matches()` method.
+   * Returns the items that match the query.
+   */
+  matches?: ComboboxItemsMatcher<Item>;
+  /**
+   * The locale used for query matching.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * Projects an item to the label string that represents it in the input and when matching
+   * the typed query.
+   * By default, the item's derived value is stringified.
+   */
+  label?: (item: Item) => string;
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   */
+  value?: (item: Item) => Value;
 };
 ```
 
@@ -1010,6 +1155,36 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
+### ComboboxItemsFilterMode
+
+```typescript
+type ComboboxItemsFilterMode = 'contains' | 'startsWith' | 'endsWith';
+```
+
+### ComboboxItemsMatcher
+
+```typescript
+type ComboboxItemsMatcher = (
+  query: string,
+  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
+) => unknown;
+```
+
+### each
+
+```typescript
+type each = (callback: unknown) => unknown;
+```
+
+### matches
+
+```typescript
+type matches = (
+  query: string,
+  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
+) => unknown;
+```
+
 ## Export Groups
 
 - `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
@@ -1035,7 +1210,9 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Autocomplete.useItems`
+- `Autocomplete.items`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `AutocompleteItemsMatchOptions`, `AutocompleteItemsFilterMode`, `UseAutocompleteItemsOptions`, `AutocompleteItemsOptions`, `AutocompleteItemsPayload`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
