@@ -26,6 +26,11 @@ describe('Toast enum sync', () => {
     expect(Object.keys(emitted!)[0]).toBe(ToastRootDataAttributes.swipeDirection);
   });
 
+  it('names the group attribute per ToastRootDataAttributes', () => {
+    const emitted = toastRootStateAttributesMapping.group!('top-right');
+    expect(Object.keys(emitted!)[0]).toBe(ToastRootDataAttributes.group);
+  });
+
   it('names the root CSS variables per ToastRootCssVars', async () => {
     const { user } = await render(
       <Toast.Provider>

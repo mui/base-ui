@@ -64,6 +64,92 @@ describe('ToastStore', () => {
     expectToastMetadataToMatchToasts(store);
   });
 
+  it('computes stacking metadata per group', () => {
+    // Ordered newest-first, matching how `addToast` prepends. Two toasts in the
+    // `top` group interleaved with two in the default (unnamed) group.
+    const store = createStore([
+      { id: 'd', height: 10, group: 'top' },
+      { id: 'c', height: 20 },
+      { id: 'b', height: 30, group: 'top' },
+      { id: 'a', height: 40 },
+    ]);
+
+    // The default group ignores the `top` toasts entirely.
+    expect(selectors.toastVisibleIndex(store.state, 'c')).toBe(0);
+    expect(selectors.toastVisibleIndex(store.state, 'a')).toBe(1);
+    expect(selectors.toastOffsetY(store.state, 'c')).toBe(0);
+    expect(selectors.toastOffsetY(store.state, 'a')).toBe(20);
+    expect(selectors.toastFrontmostHeight(store.state, 'a')).toBe(20);
+
+    // ...and vice versa.
+    expect(selectors.toastVisibleIndex(store.state, 'd')).toBe(0);
+    expect(selectors.toastVisibleIndex(store.state, 'b')).toBe(1);
+    expect(selectors.toastOffsetY(store.state, 'd')).toBe(0);
+    expect(selectors.toastOffsetY(store.state, 'b')).toBe(10);
+    expect(selectors.toastFrontmostHeight(store.state, 'b')).toBe(10);
+
+    // DOM indices stay global; stack indices are per group.
+    expect(selectors.toastIndex(store.state, 'b')).toBe(2);
+    expect(selectors.toastStackIndex(store.state, 'b')).toBe(1);
+    expect(selectors.toastIndex(store.state, 'a')).toBe(3);
+    expect(selectors.toastStackIndex(store.state, 'a')).toBe(1);
+
+    // An ending toast keeps holding space in its own group only.
+    store.closeToast('d');
+    expect(selectors.toastVisibleIndex(store.state, 'd')).toBe(-1);
+    expect(selectors.toastVisibleIndex(store.state, 'b')).toBe(0);
+    expect(selectors.toastVisibleIndex(store.state, 'c')).toBe(0);
+    expect(selectors.toastVisibleIndex(store.state, 'a')).toBe(1);
+  });
+
+  it('measures the frontmost height from the newest toast that is not ending', () => {
+    const store = createStore([
+      { id: 'b', height: 10, group: 'top' },
+      { id: 'a', height: 30, group: 'top' },
+    ]);
+
+    // Closing the frontmost toast zeroes its height; the toast behind it is now
+    // the one collapsed stacks should size against.
+    store.closeToast('b');
+    expect(selectors.toastFrontmostHeight(store.state, 'a')).toBe(30);
+    expect(selectors.toastFrontmostHeight(store.state, 'b')).toBe(30);
+  });
+
+  it('applies the limit per group', () => {
+    const store = createStore([
+      { id: 'f', group: 'top' },
+      { id: 'e' },
+      { id: 'd', group: 'top' },
+      { id: 'c' },
+      { id: 'b', group: 'top' },
+      { id: 'a' },
+    ]);
+
+    store.syncProviderProps(0, 2);
+    expect(selectors.toast(store.state, 'f')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'd')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'b')?.limited).toBe(true);
+    expect(selectors.toast(store.state, 'e')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'a')?.limited).toBe(true);
+  });
+
+  it('recomputes limited flags when a toast moves between groups', () => {
+    const store = createStore([{ id: 'b', group: 'top' }, { id: 'a' }]);
+    store.syncProviderProps(0, 1);
+    expect(selectors.toast(store.state, 'b')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'a')?.limited).toBe(false);
+
+    // Moving `b` into the default group exceeds its limit of 1.
+    store.updateToast('b', { group: undefined });
+    expect(selectors.toast(store.state, 'b')?.limited).toBe(false);
+    expect(selectors.toast(store.state, 'a')?.limited).toBe(true);
+
+    // Moving it back frees the slot again.
+    store.updateToast('b', { group: 'top' });
+    expect(selectors.toast(store.state, 'a')?.limited).toBe(false);
+  });
+
   it('ignores height recalculations while a toast is transitioning out', () => {
     const store = createStore([{ id: 'a', height: 40 }]);
 

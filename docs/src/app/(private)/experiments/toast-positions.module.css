@@ -1,0 +1,192 @@
+.viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.root {
+  --dir: -1;
+  --gap: 0.75rem;
+  --peek: 0.75rem;
+  --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
+  --offset-y: calc(
+    (var(--toast-offset-y) + (var(--toast-index) * var(--gap))) * var(--dir) +
+      var(--toast-swipe-movement-y)
+  );
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  box-sizing: border-box;
+  width: 20rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: bottom center;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s,
+    height 0.15s;
+  cursor: default;
+  z-index: calc(1000 - var(--toast-index));
+  height: var(--height);
+  transform: translateX(var(--toast-swipe-movement-x))
+    translateY(
+      calc(
+        var(--toast-swipe-movement-y) +
+          ((var(--toast-index) * var(--peek)) + (var(--shrink) * var(--height))) * var(--dir)
+      )
+    )
+    scale(var(--scale));
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-expanded] {
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+    height: var(--toast-height);
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateY(calc(var(--dir) * -150%));
+  }
+
+  &[data-limited] {
+    opacity: 0;
+  }
+
+  &[data-ending-style] {
+    opacity: 0;
+
+    &[data-swipe-direction='up'] {
+      transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+    }
+    &[data-swipe-direction='left'] {
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+    }
+    &[data-swipe-direction='right'] {
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+    }
+    &[data-swipe-direction='down'] {
+      transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    left: 0;
+    height: calc(var(--gap) + 1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.root[data-group='bottom-left'] {
+  right: auto;
+  left: 1.5rem;
+}
+
+.root[data-group='top-right'] {
+  --dir: 1;
+  bottom: auto;
+  top: 1.5rem;
+  transform-origin: top center;
+
+  &::after {
+    top: auto;
+    bottom: 100%;
+  }
+}
+
+.content {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+  padding: 0.75rem;
+  overflow: hidden;
+  transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &[data-behind] {
+    opacity: 0;
+  }
+
+  &[data-expanded] {
+    opacity: 1;
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+}
+
+.close,
+.button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 2rem;
+}
