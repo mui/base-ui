@@ -221,13 +221,10 @@ describe('<ScrollArea.Scrollbar />', () => {
         </ScrollArea.Root>,
       );
 
-      expect(() =>
-        fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
-          button: 0,
-          clientY: 100,
-          pointerId: 1,
-        }),
-      ).not.toThrow();
+      const scrollbar = screen.getByTestId('scrollbar');
+      fireEvent.pointerDown(scrollbar, { button: 0, clientY: 100, pointerId: 1 });
+
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
     });
 
     it('does not start a track gesture without a thumb', async () => {

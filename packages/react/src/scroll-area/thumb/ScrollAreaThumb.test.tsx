@@ -62,8 +62,14 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    expect(() => fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 })).not.toThrow();
-    expect(() => fireEvent.pointerUp(thumb, { pointerId: 1 })).not.toThrow();
+    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 });
+
+    // Without a viewport there is nothing to scroll, so the drag never consumes the move.
+    expect(thumb).not.toHaveAttribute('data-scrolling');
+    expect(thumb.style.transform).toBe('');
+
+    fireEvent.pointerUp(thumb, { pointerId: 1 });
+    expect(thumb).not.toHaveAttribute('data-scrolling');
   });
 
   it('handles the scrollbar unmounting from a user pointer-move callback', async () => {

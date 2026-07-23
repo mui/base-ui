@@ -64,10 +64,7 @@ describe('<ScrollArea.Content />', () => {
     await render(
       <ScrollArea.Root>
         <ScrollArea.Viewport>
-          <ScrollArea.Content
-            data-testid="content"
-            render={<ContentWithoutRef data-testid="content" />}
-          />
+          <ScrollArea.Content data-testid="content" render={<ContentWithoutRef />} />
         </ScrollArea.Viewport>
       </ScrollArea.Root>,
     );
