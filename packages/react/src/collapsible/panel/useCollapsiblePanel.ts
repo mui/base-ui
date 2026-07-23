@@ -5,7 +5,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { HTMLProps } from '../../internals/types';
@@ -66,10 +65,6 @@ export function useCollapsiblePanel(
   const pendingTemporaryStyleRestoreRef = React.useRef<(() => void) | null>(null);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
-  const latestStateRef = useValueAsRef({
-    mounted,
-    open,
-  });
   // Only used to handle panel close
   const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
 
@@ -206,25 +201,21 @@ export function useCollapsiblePanel(
         return restoreLayoutStyles;
       }
 
-      if (animationType === 'css-animation') {
-        setDimensions(getDimensions(panel));
+      setDimensions(getDimensions(panel));
 
-        if (!skipNextOpen) {
-          const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-          restoreAnimationName();
-
-          return undefined;
-        }
-
-        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-        const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
-
+      const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
+      if (!skipNextOpen) {
         restoreAnimationName();
-        setPendingTemporaryStyleRestore(restoreAnimationDuration);
-        setForcePanelIdle(true);
-
         return undefined;
       }
+
+      const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
+
+      restoreAnimationName();
+      setPendingTemporaryStyleRestore(restoreAnimationDuration);
+      setForcePanelIdle(true);
+
+      return undefined;
     }
 
     // Capture the current size as soon as close is requested, before the
@@ -248,13 +239,8 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    if (animationType === 'none') {
-      setMounted(false);
-      return undefined;
-    }
-
     const nextDimensions = getDimensions(panel);
-    const hasMeasuredSize = (nextDimensions.height ?? 0) > 0 || (nextDimensions.width ?? 0) > 0;
+    const hasMeasuredSize = nextDimensions.height > 0 || nextDimensions.width > 0;
 
     if (!hasMeasuredSize) {
       setMounted(false);
@@ -285,10 +271,6 @@ export function useCollapsiblePanel(
     open: true,
     ref: panelRef,
     onComplete() {
-      if (!open) {
-        return;
-      }
-
       setDimensions(EMPTY_DIMENSIONS, false);
     },
   });
@@ -313,18 +295,12 @@ export function useCollapsiblePanel(
     let endingStyleFrame = -1;
 
     function handleComplete() {
-      if (latestStateRef.current.open) {
-        return;
-      }
-
       setMounted(false);
       setDimensions(EMPTY_DIMENSIONS, false);
     }
 
     endingStyleFrame = AnimationFrame.request(() => {
-      if (!abortController.signal.aborted) {
-        runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
-      }
+      runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
     });
 
     return () => {
@@ -332,7 +308,6 @@ export function useCollapsiblePanel(
       abortController.abort();
     };
   }, [
-    latestStateRef,
     mounted,
     open,
     panelTransitionStatus,
@@ -398,7 +373,7 @@ export function useCollapsiblePanel(
   };
 }
 
-function getDimensions(element: HTMLElement): Dimensions {
+function getDimensions(element: HTMLElement) {
   return {
     height: element.scrollHeight,
     width: element.scrollWidth,
@@ -407,7 +382,7 @@ function getDimensions(element: HTMLElement): Dimensions {
 
 function getAnimationType(
   element: HTMLElement,
-  hasSuppressedMountAnimation: boolean = false,
+  hasSuppressedMountAnimation: boolean,
 ): AnimationType {
   const panelStyles = ownerWindow(element).getComputedStyle(element);
   const hasAnimation =
@@ -420,6 +395,7 @@ function getAnimationType(
   const hasTransition = hasNonZeroDuration(panelStyles.transitionDuration);
 
   if (hasAnimation && hasTransition) {
+    /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
     if (process.env.NODE_ENV !== 'production') {
       warn(
         'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',

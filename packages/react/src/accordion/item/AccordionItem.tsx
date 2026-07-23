@@ -55,19 +55,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = React.useMemo(() => {
-    if (!openValues) {
-      return false;
-    }
-
-    for (let i = 0; i < openValues.length; i += 1) {
-      if (openValues[i] === value) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [openValues, value]);
+  const isOpen = openValues.indexOf(value) !== -1;
 
   const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {

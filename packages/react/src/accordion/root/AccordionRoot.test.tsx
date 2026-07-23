@@ -16,6 +16,27 @@ describe('<Accordion.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('warns when hiddenUntilFound overrides keepMounted={false}', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Accordion.Root hiddenUntilFound keepMounted={false}>
+          <Accordion.Item>
+            <Accordion.Panel>Panel</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Base UI: The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
+      );
+      expect(screen.getByText('Panel').getAttribute('hidden')).toBe('until-found');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   describe('ARIA attributes', () => {
     it('renders correct ARIA attributes', async () => {
       await render(
@@ -558,6 +579,32 @@ describe('<Accordion.Root />', () => {
       expect(onValueChange.mock.calls.length).toBe(1);
     });
 
+    it('onValueChange cancel() prevents closing while uncontrolled', async () => {
+      const onValueChange = vi.fn((_value, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      await render(
+        <Accordion.Root defaultValue={[0]} onValueChange={onValueChange}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.click(trigger);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(onValueChange).toHaveBeenCalledOnce();
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([]);
+    });
+
     it('onOpenChange cancel() prevents onValueChange while controlled', async () => {
       const onValueChange = vi.fn();
 
@@ -709,6 +756,13 @@ describe('<Accordion.Root />', () => {
       expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
       expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
       expect(trigger1).toHaveAttribute('data-panel-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.getByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
       expect(trigger2).toHaveAttribute('data-panel-open');
     });
 
