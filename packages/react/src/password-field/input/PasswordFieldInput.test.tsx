@@ -1,6 +1,6 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -135,7 +135,9 @@ describe('<PasswordField.Input />', () => {
 
     fireEvent.reset(input.form!);
 
-    expect(document.querySelector('input')).toHaveAttribute('type', 'password');
+    await waitFor(() =>
+      expect(document.querySelector('input')).toHaveAttribute('type', 'password'),
+    );
   });
 
   describe('Field integration', () => {
@@ -165,12 +167,20 @@ describe('<PasswordField.Input />', () => {
       expect(screen.getByTestId('input')).toHaveAttribute('data-filled');
     });
 
-    it('supports a controlled value', async () => {
+    it('supports a controlled value with onValueChange', async () => {
+      const onValueChange = vi.fn();
+
       function App() {
         const [value, setValue] = React.useState('');
         return (
           <PasswordField.Root>
-            <PasswordField.Input value={value} onChange={(event) => setValue(event.target.value)} />
+            <PasswordField.Input
+              value={value}
+              onValueChange={(nextValue, eventDetails) => {
+                onValueChange(nextValue, eventDetails);
+                setValue(nextValue);
+              }}
+            />
           </PasswordField.Root>
         );
       }
@@ -181,6 +191,9 @@ describe('<PasswordField.Input />', () => {
       fireEvent.change(input, { target: { value: 'secret' } });
 
       expect(input.value).toBe('secret');
+      expect(onValueChange.mock.lastCall?.[0]).toBe('secret');
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe('none');
+      expect(onValueChange.mock.lastCall?.[1].event).toBeInstanceOf(Event);
     });
   });
 });

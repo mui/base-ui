@@ -91,6 +91,19 @@ describe('<PasswordField.Toggle />', () => {
 
       expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'pwd');
     });
+
+    it('points aria-controls at the generated input id', async () => {
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      expect(input.id).not.toBe('');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', input.id);
+    });
   });
 
   describe('accessible label', () => {

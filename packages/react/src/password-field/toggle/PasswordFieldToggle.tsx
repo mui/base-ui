@@ -51,7 +51,10 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
           event.preventDefault();
         },
         onClick(event) {
-          setVisible(!visible, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          setVisible(
+            !visible,
+            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent, event.currentTarget),
+          );
         },
       },
       elementProps,
