@@ -11,7 +11,7 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
-import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
+import * as TabsIndicatorCssVars from './TabsIndicatorCssVars';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,

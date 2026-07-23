@@ -21,8 +21,8 @@ import {
   LEGACY_SWIPE_IGNORE_SELECTOR,
 } from '../../internals/constants';
 import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
-import { ToastRootCssVars } from './ToastRootCssVars';
-import { ToastRootDataAttributes } from './ToastRootDataAttributes';
+import * as ToastRootCssVars from './ToastRootCssVars';
+import * as ToastRootDataAttributes from './ToastRootDataAttributes';
 
 export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,

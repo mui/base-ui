@@ -1,10 +1,8 @@
-export enum MenuItemDataAttributes {
-  /**
-   * Present when the menu item is highlighted.
-   */
-  highlighted = 'data-highlighted',
-  /**
-   * Present when the menu item is disabled.
-   */
-  disabled = 'data-disabled',
-}
+/**
+ * Present when the menu item is highlighted.
+ */
+export const highlighted = 'data-highlighted';
+/**
+ * Present when the menu item is disabled.
+ */
+export const disabled = 'data-disabled';

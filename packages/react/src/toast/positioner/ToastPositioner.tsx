@@ -16,7 +16,7 @@ import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { usePositioner } from '../../utils/usePositioner';
-import { ToastRootCssVars } from '../root/ToastRootCssVars';
+import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
  * Positions the toast against the anchor.

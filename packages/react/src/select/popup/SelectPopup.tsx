@@ -33,7 +33,7 @@ import { clamp } from '../../internals/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { SelectPositionerCssVars } from '../positioner/SelectPositionerCssVars';
+import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,

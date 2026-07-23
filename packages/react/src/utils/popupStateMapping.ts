@@ -1,53 +1,10 @@
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import {
-  TransitionStatusDataAttributes,
-  transitionStatusMapping,
-} from '../internals/stateAttributesMapping';
+import { transitionStatusMapping } from '../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
+import * as CommonPopupDataAttributes from './CommonPopupDataAttributes';
+import * as CommonTriggerDataAttributes from './CommonTriggerDataAttributes';
 
-export enum CommonPopupDataAttributes {
-  /**
-   * Present when the popup is open.
-   */
-  open = 'data-open',
-  /**
-   * Present when the popup is closed.
-   */
-  closed = 'data-closed',
-  /**
-   * Present when the popup begins animating in.
-   */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
-  /**
-   * Present when the popup is animating out.
-   */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
-  /**
-   * Present when the anchor is hidden.
-   */
-  anchorHidden = 'data-anchor-hidden',
-  /**
-   * Indicates which side the popup is positioned relative to the trigger.
-   * @type { 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
-   */
-  side = 'data-side',
-  /**
-   * Indicates how the popup is aligned relative to specified side.
-   * @type {'start' | 'center' | 'end'}
-   */
-  align = 'data-align',
-}
-
-export enum CommonTriggerDataAttributes {
-  /**
-   * Present when the popup is open.
-   */
-  popupOpen = 'data-popup-open',
-  /**
-   * Present when a pressable trigger is pressed.
-   */
-  pressed = 'data-pressed',
-}
+export { CommonPopupDataAttributes, CommonTriggerDataAttributes };
 
 const TRIGGER_HOOK = {
   [CommonTriggerDataAttributes.popupOpen]: '',

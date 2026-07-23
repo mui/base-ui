@@ -1,6 +1,6 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { ScrollAreaRootState } from './ScrollAreaRoot';
-import { ScrollAreaRootDataAttributes } from './ScrollAreaRootDataAttributes';
+import * as ScrollAreaRootDataAttributes from './ScrollAreaRootDataAttributes';
 
 const attr = (name: string) => (value: boolean) => (value ? { [name]: '' } : null);
 

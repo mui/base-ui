@@ -30,7 +30,7 @@ import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from '../utils/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
-import { CommonPositionerCssVars } from '../utils/CommonPositionerCssVars';
+import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
 
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;

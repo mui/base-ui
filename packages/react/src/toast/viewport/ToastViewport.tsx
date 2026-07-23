@@ -11,7 +11,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
-import { ToastViewportCssVars } from './ToastViewportCssVars';
+import * as ToastViewportCssVars from './ToastViewportCssVars';
 
 /**
  * A container viewport for toasts.

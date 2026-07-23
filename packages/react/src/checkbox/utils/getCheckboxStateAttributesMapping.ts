@@ -1,7 +1,7 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { CheckboxRootState } from '../root/CheckboxRoot';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import { CheckboxRootDataAttributes } from '../root/CheckboxRootDataAttributes';
+import * as CheckboxRootDataAttributes from '../root/CheckboxRootDataAttributes';
 
 export function getCheckboxStateAttributesMapping(
   state: CheckboxRootState,

@@ -1,20 +1,18 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum PreviewCardBackdropDataAttributes {
-  /**
-   * Present when the preview card is open.
-   */
-  open = CommonPopupDataAttributes.open,
-  /**
-   * Present when the preview card is closed.
-   */
-  closed = CommonPopupDataAttributes.closed,
-  /**
-   * Present when the preview card begins animating in.
-   */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
-  /**
-   * Present when the preview card is animating out.
-   */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-}
+/**
+ * Present when the preview card is open.
+ */
+export const open = CommonPopupDataAttributes.open;
+/**
+ * Present when the preview card is closed.
+ */
+export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the preview card begins animating in.
+ */
+export const startingStyle = CommonPopupDataAttributes.startingStyle;
+/**
+ * Present when the preview card is animating out.
+ */
+export const endingStyle = CommonPopupDataAttributes.endingStyle;

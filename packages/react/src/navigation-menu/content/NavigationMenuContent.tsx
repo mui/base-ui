@@ -19,7 +19,7 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { NavigationMenuContentDataAttributes } from './NavigationMenuContentDataAttributes';
+import * as NavigationMenuContentDataAttributes from './NavigationMenuContentDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,

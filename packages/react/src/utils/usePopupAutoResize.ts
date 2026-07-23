@@ -8,8 +8,8 @@ import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from '../internals/useAnchorPositioning';
-import { CommonPopupCssVars } from './CommonPopupCssVars';
-import { CommonPositionerCssVars } from './CommonPositionerCssVars';
+import * as CommonPopupCssVars from './CommonPopupCssVars';
+import * as CommonPositionerCssVars from './CommonPositionerCssVars';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.

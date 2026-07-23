@@ -1,4 +1,4 @@
-import { FieldControlDataAttributes } from '../../field/control/FieldControlDataAttributes';
+import * as FieldControlDataAttributes from '../../field/control/FieldControlDataAttributes';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 
 export const DEFAULT_VALIDITY_STATE = {

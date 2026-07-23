@@ -1,1 +1,1 @@
-export { MenuViewportDataAttributes as CommonViewportDataAttributes } from '../menu/viewport/MenuViewportDataAttributes';
+export * from '../menu/viewport/MenuViewportDataAttributes';

@@ -1,1 +1,1 @@
-export { MenuViewportCssVars as CommonPopupCssVars } from '../menu/viewport/MenuViewportCssVars';
+export * from '../menu/viewport/MenuViewportCssVars';

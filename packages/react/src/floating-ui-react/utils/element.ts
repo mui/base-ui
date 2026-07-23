@@ -3,7 +3,7 @@ import { platform } from '@base-ui/utils/platform';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { activeElement, contains, getTarget } from '../../internals/shadowDom';
-import { TooltipTriggerDataAttributes } from '../../tooltip/trigger/TooltipTriggerDataAttributes';
+import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
 export { activeElement, contains, getTarget };
 

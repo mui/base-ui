@@ -39,7 +39,7 @@ import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
+import * as SliderThumbDataAttributes from './SliderThumbDataAttributes';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 

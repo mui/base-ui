@@ -10,8 +10,8 @@ import { getOffset } from '../utils/getOffset';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
-import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
-import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
+import * as ScrollAreaRootCssVars from '../root/ScrollAreaRootCssVars';
+import * as ScrollAreaScrollbarCssVars from './ScrollAreaScrollbarCssVars';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.

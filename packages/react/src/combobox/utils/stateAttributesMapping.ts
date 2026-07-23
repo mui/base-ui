@@ -2,7 +2,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import { ComboboxInputDataAttributes } from '../input/ComboboxInputDataAttributes';
+import * as ComboboxInputDataAttributes from '../input/ComboboxInputDataAttributes';
 
 export const triggerStateAttributesMapping = {
   ...pressableTriggerOpenStateMapping,

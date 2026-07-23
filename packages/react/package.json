@@ -123,7 +123,7 @@
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
-    "build": "cross-env MUI_INLINE_METADATA_ENUMS=true code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
+    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo --experimental-rolldown",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",

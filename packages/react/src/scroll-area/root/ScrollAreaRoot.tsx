@@ -12,8 +12,8 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
-import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
-import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
+import * as ScrollAreaRootCssVars from './ScrollAreaRootCssVars';
+import * as ScrollAreaScrollbarDataAttributes from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };

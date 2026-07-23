@@ -23,7 +23,7 @@ import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
-import { SelectTriggerDataAttributes } from './SelectTriggerDataAttributes';
+import * as SelectTriggerDataAttributes from './SelectTriggerDataAttributes';
 
 const SELECTED_DELAY = 400;
 

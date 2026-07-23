@@ -16,8 +16,8 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
-import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
-import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
+import * as ScrollAreaViewportCssVars from './ScrollAreaViewportCssVars';
+import * as ScrollAreaScrollbarCssVars from '../scrollbar/ScrollAreaScrollbarCssVars';
 
 const OVERFLOW_EDGE_VARS = [
   ScrollAreaViewportCssVars.scrollAreaOverflowXStart,

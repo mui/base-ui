@@ -25,7 +25,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
 const blockedReturnFocusReasons = new Set<string>([

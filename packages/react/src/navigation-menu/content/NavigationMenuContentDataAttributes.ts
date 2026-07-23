@@ -1,25 +1,23 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum NavigationMenuContentDataAttributes {
-  /**
-   * Present when the popup is open.
-   */
-  open = CommonPopupDataAttributes.open,
-  /**
-   * Present when the popup is closed.
-   */
-  closed = CommonPopupDataAttributes.closed,
-  /**
-   * Present when the content begins animating in.
-   */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
-  /**
-   * Present when the content is animating out.
-   */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-  /**
-   * Which direction another trigger was activated from.
-   * @type {'left' | 'right' | 'up' | 'down'}
-   */
-  activationDirection = 'data-activation-direction',
-}
+/**
+ * Present when the popup is open.
+ */
+export const open = CommonPopupDataAttributes.open;
+/**
+ * Present when the popup is closed.
+ */
+export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the content begins animating in.
+ */
+export const startingStyle = CommonPopupDataAttributes.startingStyle;
+/**
+ * Present when the content is animating out.
+ */
+export const endingStyle = CommonPopupDataAttributes.endingStyle;
+/**
+ * Which direction another trigger was activated from.
+ * @type {'left' | 'right' | 'up' | 'down'}
+ */
+export const activationDirection = 'data-activation-direction';

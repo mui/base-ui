@@ -15,8 +15,8 @@ import { Dimensions } from '../floating-ui-react/types';
 import { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';
-import { CommonPopupCssVars } from './CommonPopupCssVars';
-import { CommonViewportDataAttributes } from './CommonViewportDataAttributes';
+import * as CommonPopupCssVars from './CommonPopupCssVars';
+import * as CommonViewportDataAttributes from './CommonViewportDataAttributes';
 
 export const popupViewportStateMapping: StateAttributesMapping<{
   activationDirection: string | undefined;

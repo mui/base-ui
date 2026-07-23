@@ -10,7 +10,7 @@ import type { StateAttributesMapping } from '../internals/getStateAttributesProp
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
-import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
+import * as ToggleGroupDataAttributes from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 

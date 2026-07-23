@@ -1,1 +1,1 @@
-export { MenuPositionerCssVars as CommonPositionerCssVars } from '../menu/positioner/MenuPositionerCssVars';
+export * from '../menu/positioner/MenuPositionerCssVars';
