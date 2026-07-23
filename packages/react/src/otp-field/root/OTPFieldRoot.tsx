@@ -172,7 +172,9 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   function requestSubmit() {
-    let formElement = validation.inputRef.current?.form ?? null;
+    // The hidden validation input only renders for a valid `length`, but the slots always do,
+    // so fall back to the owning form of the first slot.
+    let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
       const associatedElement = ownerDocument(rootRef.current).getElementById(form);
