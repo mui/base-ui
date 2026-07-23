@@ -22,7 +22,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import {
