@@ -386,6 +386,36 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy.mock.lastCall?.[0]).toBe(inputB);
   });
 
+  it('does not detach a stable inputRef callback on unrelated re-renders', async () => {
+    const inputRefSpy = vi.fn();
+
+    function App() {
+      const [, forceRender] = React.useState(0);
+      const inputRef = React.useCallback((input: HTMLInputElement | null) => {
+        inputRefSpy(input);
+      }, []);
+
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={inputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+          </RadioGroup>
+          <button type="button" onClick={() => forceRender((value) => value + 1)}>
+            Re-render
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const callCountAfterMount = inputRefSpy.mock.calls.length;
+
+    fireEvent.click(screen.getByText('Re-render'));
+
+    expect(inputRefSpy).toHaveBeenCalledTimes(callCountAfterMount);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
@@ -464,6 +494,67 @@ describe('<RadioGroup />', () => {
     fireEvent.click(screen.getByText('Clear'));
 
     expect(groupInputRef.current).toBe(inputA);
+  });
+
+  it('detaches inputRef when its current radio unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showFirst, setShowFirst] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            {showFirst && <Radio.Root value="a" data-testid="radio-a" />}
+            <Radio.Root value="b" data-testid="radio-b" />
+          </RadioGroup>
+          <button type="button" onClick={() => setShowFirst(false)}>
+            Remove first
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByText('Remove first'));
+
+    expect(groupInputRef.current).toBe(null);
+  });
+
+  it('detaches inputRef when a radio selected after mount unmounts', async () => {
+    const groupInputRef = React.createRef<HTMLInputElement>();
+
+    function App() {
+      const [showSecond, setShowSecond] = React.useState(true);
+      return (
+        <React.Fragment>
+          <RadioGroup inputRef={groupInputRef}>
+            <Radio.Root value="a" data-testid="radio-a" />
+            {showSecond && <Radio.Root value="b" data-testid="radio-b" />}
+          </RadioGroup>
+          <button type="button" onClick={() => setShowSecond(false)}>
+            Remove second
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    const inputA = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+    const inputB = screen.getByTestId('radio-b').nextElementSibling as HTMLInputElement;
+
+    expect(groupInputRef.current).toBe(inputA);
+
+    fireEvent.click(screen.getByTestId('radio-b'));
+    expect(groupInputRef.current).toBe(inputB);
+
+    fireEvent.click(screen.getByText('Remove second'));
+    expect(groupInputRef.current).toBe(null);
   });
 
   it.skipIf(isJSDOM)(
@@ -1065,10 +1156,70 @@ describe('<RadioGroup />', () => {
         expect(radioB).toHaveAttribute('data-checked', '');
         expect(radioGroup).not.toHaveAttribute('aria-invalid');
       });
+
+      it('onBlur validates only when focus leaves the group', async () => {
+        const validate = vi.fn((value) => (value === 'a' ? 'error' : null));
+
+        await render(
+          <React.Fragment>
+            <Field.Root validationMode="onBlur" validate={validate}>
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="radio-a" />
+                <Radio.Root value="b" data-testid="radio-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button">Outside</button>
+          </React.Fragment>,
+        );
+
+        const group = screen.getByRole('radiogroup');
+        const radioA = screen.getByTestId('radio-a');
+        const radioB = screen.getByTestId('radio-b');
+
+        fireEvent.focus(radioA);
+        fireEvent.blur(group, { relatedTarget: radioB });
+
+        expect(validate).not.toHaveBeenCalled();
+
+        fireEvent.blur(group, { relatedTarget: screen.getByText('Outside') });
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(validate.mock.calls[0][0]).toBe('a');
+        expect(group).toHaveAttribute('aria-invalid', 'true');
+      });
     });
   });
 
   describe('Fieldset', () => {
+    it('keeps inputRef available after an ancestor fieldset is enabled', async () => {
+      const groupInputRef = React.createRef<HTMLInputElement>();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <fieldset disabled={disabled}>
+              <RadioGroup inputRef={groupInputRef}>
+                <Radio.Root value="a" data-testid="radio-a" />
+              </RadioGroup>
+            </fieldset>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByTestId('radio-a').nextElementSibling as HTMLInputElement;
+
+      fireEvent.click(screen.getByText('Enable'));
+
+      expect(groupInputRef.current).toBe(input);
+    });
+
     it('labels the radio group from the fieldset legend', async () => {
       await render(
         <Field.Root name="test">

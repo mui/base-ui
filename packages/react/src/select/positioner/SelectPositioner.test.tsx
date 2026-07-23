@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -279,6 +279,42 @@ describe('<Select.Positioner />', () => {
 
       // correctly flips the side in the browser
       expect(side).toBe('inline-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('kept-mounted positioner', () => {
+    it('does not retain stale coordinates while closed', async () => {
+      const { user } = await render(
+        <Select.Root defaultOpen>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Select.Portal>
+            <Select.Positioner data-testid="positioner" alignItemWithTrigger={false}>
+              <Select.Popup style={popupStyle}>Popup</Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      expect(positioner.style.transform).not.toBe('');
+
+      await user.keyboard('{Escape}');
+
+      // The portal can remount around the close, so re-query the kept-mounted node.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').hidden).toBe(true);
+      });
+
+      // Rendering the full-size popup at coordinates computed for the hidden (zero-size)
+      // positioner can overflow the layout viewport on the next open, making mobile Chrome
+      // zoom the page out. The positioner must sit at the viewport origin until positioned.
+      const closedPositioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(closedPositioner.style.position).toBe('fixed');
+      });
+      expect(closedPositioner.style.transform).toBe('');
+      expect(closedPositioner.style.top).toBe('0px');
+      expect(closedPositioner.style.left).toBe('0px');
     });
   });
 });

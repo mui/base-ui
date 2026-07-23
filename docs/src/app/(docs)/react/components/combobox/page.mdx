@@ -75,21 +75,58 @@ import { Combobox } from '@base-ui/react/combobox';
 
 Combobox infers the selected value type from `defaultValue`, `value`, or the return value of `itemToValue`.
 
-Use `itemToValue` to derive selection values automatically when rendering a collection. Mapped values should be defined and unique; `undefined` is normalized to `null` with a development warning. Collection items use the mapped value; manually rendered items must specify a `value` with the same type as the root's selected value.
+By default, each item in the `items` array is also its selection value. Use object selection when selection state and change handlers need the full object. The selected value should reference an object from the `items` array unless `isItemEqualToValue` provides custom equality.
 
-For example, the source `items` can be user objects while selection uses only their `id`s. A `label` field is used automatically for display and filtering. For other shapes, `itemToStringLabel` receives the mapped value and the matching source item:
-
-```tsx title="Mapping source items to selection values"
+```tsx title="Selecting an object"
 const users = [
-  { id: 'u1', name: 'Alice Johnson', email: 'alice@example.com' },
-  { id: 'u2', name: 'Bob Smith', email: 'bob@example.com' },
+  { id: 'some-id', label: 'Alice Johnson', email: 'alice@example.com' },
+  { id: 'other-id', label: 'Bob Smith', email: 'bob@example.com' },
 ];
 
+// @highlight-start
+<Combobox.Root defaultValue={users[0]} items={users}>
+  {/* @highlight-end */}
+  <Combobox.List>
+    {(user) => <Combobox.Item key={user.id}>{user.label}</Combobox.Item>}
+  </Combobox.List>
+</Combobox.Root>;
+```
+
+Use `itemToValue` when selection should instead contain a stable primitive key, such as for form submission, serialization, or controlled state that does not depend on object identity. The source objects remain available for rendering, display, and filtering.
+
+```tsx title="Selecting a primitive key"
+// @highlight-start
+<Combobox.Root defaultValue="some-id" items={users} itemToValue={(user) => user.id}>
+  {/* @highlight-end */}
+  <Combobox.List>
+    {(user) => <Combobox.Item key={user.id}>{user.label}</Combobox.Item>}
+  </Combobox.List>
+</Combobox.Root>;
+```
+
+`itemToStringLabel` is useful with either selection shape when items do not have a `label` field. With object selection, it receives the item object. With `itemToValue`, it receives the mapped value and the matching source item:
+
+```tsx title="Deriving labels"
+const users = [
+  { id: 'some-id', name: 'Alice Johnson' },
+  { id: 'other-id', name: 'Bob Smith' },
+];
+
+// @highlight-start
+<Combobox.Root items={users} itemToStringLabel={(user) => user.name}>
+  {/* @highlight-end */}
+  <Combobox.List>
+    {(user) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+  </Combobox.List>
+</Combobox.Root>;
+
+// @highlight-start
 <Combobox.Root
   items={users}
   itemToValue={(user) => user.id}
   itemToStringLabel={(id, user) => user?.name ?? id}
 >
+  {/* @highlight-end */}
   <Combobox.List>
     {(user) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
   </Combobox.List>

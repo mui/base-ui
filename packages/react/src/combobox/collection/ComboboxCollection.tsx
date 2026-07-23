@@ -15,7 +15,7 @@ import { useGroupCollectionContext } from './GroupCollectionContext';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
+export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element {
   const { children } = props;
 
   const { filteredItems, itemToValue, mappedValues } = useComboboxDerivedItemsContext();
@@ -23,10 +23,6 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
   const tupleCache = React.useRef(new Map<any, { value: any; context: readonly [any] }>());
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
-
-  if (!itemsToRender) {
-    return null;
-  }
 
   // The outer pass of a grouped collection renders group records. Only the nested collections
   // render leaf items, which are the values accepted by `itemToValue`.
