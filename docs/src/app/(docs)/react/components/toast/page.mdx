@@ -220,12 +220,62 @@ import { DemoToastAnchored } from './demos/anchored';
 
 The position of the toasts is controlled by your own CSS.
 To change the toasts' position, you can modify the `.Viewport` and `.Root` styles.
-A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
 The following shows a top-center position:
 
 import { DemoToastPosition } from './demos/position';
 
 <DemoToastPosition />
+
+### Multiple positions
+
+To render independently stacked toasts in multiple screen positions, assign each toast to a `group`.
+Toasts with the same group share stacking indices and offsets, and `<Toast.Root>` exposes the group as a `data-group` attribute for positioning with CSS.
+Toasts without a group share the default stack.
+
+```tsx title="Adding grouped toasts"
+toastManager.add({
+  title: 'Settings saved',
+  group: 'top-right',
+});
+
+toastManager.add({
+  title: 'Message sent',
+  group: 'bottom-left',
+});
+```
+
+Render every group in the same provider and viewport:
+
+```tsx title="Rendering grouped toasts"
+function Toasts() {
+  const { toasts } = Toast.useToastManager();
+
+  return toasts.map((toast) => (
+    <Toast.Root key={toast.id} toast={toast} className="Toast">
+      {/* ... */}
+    </Toast.Root>
+  ));
+}
+```
+
+```css title="Positioning grouped toasts"
+.Toast {
+  position: absolute;
+}
+
+.Toast[data-group='top-right'] {
+  top: 0;
+  right: 0;
+}
+
+.Toast[data-group='bottom-left'] {
+  bottom: 0;
+  left: 0;
+}
+```
+
+The provider's `limit` applies independently to each group.
+Hover or focus expansion and timeout pausing remain shared by all groups in the viewport.
 
 ### Undo action
 

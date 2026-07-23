@@ -24,6 +24,7 @@ Renders a `<div>` element.
 | Attribute            | Type                                  | Description                                                              |
 | :------------------- | :------------------------------------ | :----------------------------------------------------------------------- |
 | data-expanded        | `boolean`                             | Present when the toast is expanded in the viewport.                      |
+| data-group           | `string`                              | The named stack the toast belongs to.                                    |
 | data-limited         | `boolean`                             | Present when the toast was limited because the toast limit was exceeded. |
 | data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
 | data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
@@ -57,6 +58,8 @@ type ToastRootState = {
   limited: boolean;
   /** The type of the toast. */
   type: string | undefined;
+  /** The named stack the toast belongs to. */
+  group: string | undefined;
   /** Whether the toast is being swiped. */
   swiping: boolean;
   /** The direction the toast is being swiped. */
@@ -94,6 +97,14 @@ type ToastRootToastObject<Data extends {} = any> = {
    * @default 'low'
    */
   priority?: 'low' | 'high';
+  /**
+   * The named stack the toast belongs to. Toasts with the same group stack
+   * together: stacking indices and offsets are computed per group, letting a
+   * single provider render toasts in multiple screen positions within one
+   * viewport. The value is exposed as the `data-group` attribute on
+   * `Toast.Root` for anchoring each stack with CSS.
+   */
+  group?: string;
   /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
@@ -124,12 +135,12 @@ Provides a context for creating and managing toasts.
 
 **Provider Props:**
 
-| Prop         | Type              | Default | Description                                                                                                                                                                                                                              |
-| :----------- | :---------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once.&#xA;When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`&#xA;attribute) rather than removed, so they can be hidden or animated out. |
-| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                                                                                                         |
-| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.                                                                                       |
-| children     | `React.ReactNode` | -       | -                                                                                                                                                                                                                                        |
+| Prop         | Type              | Default | Description                                                                                                                                                                                                                                                                                           |
+| :----------- | :---------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| limit        | `number`          | `3`     | The maximum number of toasts that can be displayed at once in each group&#xA;(toasts without a `group` share one stack).&#xA;When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`&#xA;attribute) rather than removed, so they can be hidden or animated out. |
+| toastManager | `ToastManager`    | -       | A global manager for toasts to use outside of a React component.                                                                                                                                                                                                                                      |
+| timeout      | `number`          | `5000`  | The default amount of time (in ms) before a toast is auto dismissed.&#xA;A value of `0` will prevent the toast from being dismissed automatically.                                                                                                                                                    |
+| children     | `React.ReactNode` | -       | -                                                                                                                                                                                                                                                                                                     |
 
 ### Provider.Props
 
@@ -553,6 +564,14 @@ type ToastObject<Data extends {}> = {
    * @default 'low'
    */
   priority?: 'low' | 'high';
+  /**
+   * The named stack the toast belongs to. Toasts with the same group stack
+   * together: stacking indices and offsets are computed per group, letting a
+   * single provider render toasts in multiple screen positions within one
+   * viewport. The value is exposed as the `data-group` attribute on
+   * `Toast.Root` for anchoring each stack with CSS.
+   */
+  group?: string;
   /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
@@ -623,6 +642,14 @@ type ToastManagerAddOptions<Data extends {}> = {
    * @default 'low'
    */
   priority?: 'low' | 'high';
+  /**
+   * The named stack the toast belongs to. Toasts with the same group stack
+   * together: stacking indices and offsets are computed per group, letting a
+   * single provider render toasts in multiple screen positions within one
+   * viewport. The value is exposed as the `data-group` attribute on
+   * `Toast.Root` for anchoring each stack with CSS.
+   */
+  group?: string;
   /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
   /** Callback function to be called when the toast is closed. */
@@ -845,6 +872,14 @@ type ToastManagerUpdateOptions<Data extends {}> = {
    * @default 'low'
    */
   priority?: 'low' | 'high';
+  /**
+   * The named stack the toast belongs to. Toasts with the same group stack
+   * together: stacking indices and offsets are computed per group, letting a
+   * single provider render toasts in multiple screen positions within one
+   * viewport. The value is exposed as the `data-group` attribute on
+   * `Toast.Root` for anchoring each stack with CSS.
+   */
+  group?: string;
   /** Callback function to be called when the toast is closed. */
   onClose?: () => void;
   /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
