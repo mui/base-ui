@@ -14,7 +14,7 @@ import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
 import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
-import { useIdleCallback } from '@base-ui/utils/useIdleCallback';
+import { loadSandboxesModule, useDemoPreloads } from 'docs/src/utils/useDemoPreloads';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -27,21 +27,12 @@ import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
-const importSandboxesModule = () => import('docs/src/utils/demoSandboxes');
-let sandboxesModule: ReturnType<typeof importSandboxesModule> | undefined;
-
-function loadSandboxesModule() {
-  sandboxesModule ??= importSandboxesModule();
-  return sandboxesModule;
-}
-
 export type DemoProps = ContentProps<{
   className?: string;
   preloadSources?: boolean;
 }>;
 
 export function Demo({ className, preloadSources = false, ...demoProps }: DemoProps) {
-  const rootRef = React.useRef<HTMLDivElement>(null);
   const collapsibleTriggerRef = React.useRef<HTMLSpanElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
@@ -86,35 +77,11 @@ export function Demo({ className, preloadSources = false, ...demoProps }: DemoPr
     copy: { onCopied },
   });
   const loadDeferredSources = demo.loadDeferredSources;
-  const sandboxesIdleCallback = useIdleCallback();
-
-  React.useEffect(() => {
-    if (!demoProps.code.deferredUrl) {
-      return undefined;
-    }
-    if (preloadSources) {
-      void loadDeferredSources();
-      return undefined;
-    }
-    const root = rootRef.current;
-    if (!root || typeof IntersectionObserver === 'undefined') {
-      return undefined;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        observer.disconnect();
-        void loadDeferredSources();
-      }
-    });
-    observer.observe(root);
-    return () => observer.disconnect();
-  }, [demoProps.code.deferredUrl, loadDeferredSources, preloadSources]);
-
-  React.useEffect(() => {
-    sandboxesIdleCallback.start(() => {
-      void loadSandboxesModule();
-    });
-  }, [sandboxesIdleCallback]);
+  const rootRef = useDemoPreloads({
+    deferredUrl: demoProps.code.deferredUrl,
+    preloadSources,
+    loadDeferredSources,
+  });
 
   const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
   React.useEffect(() => {
