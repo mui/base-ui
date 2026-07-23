@@ -68,7 +68,6 @@ export default function ExampleAutocompleteCommandPalette() {
                             {(item: Item) => (
                               <Autocomplete.Item
                                 key={item.value}
-                                value={item}
                                 onClick={handleItemClick}
                                 className="group grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-6 text-sm font-normal leading-[1.25] outline-none select-none [scroll-margin-block:0.25rem] data-highlighted:bg-neutral-200 dark:data-highlighted:bg-neutral-700"
                               >

@@ -176,7 +176,7 @@ export default function ExampleAsyncMultipleCombobox() {
               </Combobox.Empty>
               <Combobox.List>
                 {(user: DirectoryUser) => (
-                  <Combobox.Item key={user.id} className={styles.Item} value={user}>
+                  <Combobox.Item key={user.id} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon />
                     </Combobox.ItemIndicator>

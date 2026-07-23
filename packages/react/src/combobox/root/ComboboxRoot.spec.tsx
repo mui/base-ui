@@ -33,6 +33,14 @@ const groupItemsReadonly = [
   },
 ] as const;
 
+<Combobox.Root items={objectItems} defaultValue={objectItems[0]}>
+  <Combobox.List>
+    {(item: (typeof objectItems)[number]) => (
+      <Combobox.Item key={item.value}>{item.label}</Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>;
+
 <Combobox.Root
   items={objectItems}
   itemToStringValue={(item) => {

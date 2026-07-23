@@ -24,7 +24,7 @@ export default function ExamplePopoverCombobox() {
                 </Combobox.Empty>
                 <Combobox.List className={styles.List}>
                   {(country: Country) => (
-                    <Combobox.Item key={country.code} value={country} className={styles.Item}>
+                    <Combobox.Item key={country.code} className={styles.Item}>
                       <Combobox.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon />
                       </Combobox.ItemIndicator>

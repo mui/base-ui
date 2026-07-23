@@ -31,7 +31,6 @@ export default function ExampleFuzzyMatchingAutocomplete() {
               {(item: FuzzyItem) => (
                 <Autocomplete.Item
                   key={item.title}
-                  value={item}
                   className="flex cursor-default py-3 pr-2 pl-2 text-sm leading-6 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-100 dark:data-highlighted:before:bg-neutral-800"
                 >
                   <Autocomplete.Value>

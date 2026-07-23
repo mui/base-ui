@@ -63,7 +63,7 @@ function ExampleForm() {
                 <Combobox.List>
                   {(region: string) => {
                     return (
-                      <Combobox.Item key={region} value={region}>
+                      <Combobox.Item key={region}>
                         <Combobox.ItemIndicator>
                           <CheckIcon />
                         </Combobox.ItemIndicator>
