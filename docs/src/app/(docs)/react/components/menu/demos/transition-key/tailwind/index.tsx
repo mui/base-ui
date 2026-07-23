@@ -46,13 +46,13 @@ export default function MenuTransitionKeyDemo() {
               }}
               className={`
                 relative h-full w-full overflow-clip py-1
-                [&_[data-current]]:w-[calc(var(--popup-width)-2px)]
+                [&_[data-current]]:w-max
                 [&_[data-current]]:transition-[translate]
                 [&_[data-current]]:duration-[350ms]
                 [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                 data-[activation-direction='forward']:[&_[data-current][data-starting-style]]:translate-x-full
                 data-[activation-direction='back']:[&_[data-current][data-starting-style]]:-translate-x-full
-                [&_[data-previous]]:w-[calc(var(--popup-width)-2px)]
+                [&_[data-previous]]:w-max
                 [&_[data-previous]]:transition-[translate]
                 [&_[data-previous]]:duration-[350ms]
                 [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]

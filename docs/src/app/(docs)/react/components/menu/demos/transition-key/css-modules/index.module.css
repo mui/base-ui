@@ -61,8 +61,10 @@
 
   [data-previous],
   [data-current] {
-    /* Freeze each container to the popup's content-box width (2px accounts for the borders) */
-    width: calc(var(--popup-width) - 2px);
+    /* Freeze each container to its content's natural width so the animating popup width
+       never reflows it (subtracting the borders from `--popup-width` instead breaks at
+       fractional browser zoom, where 1px borders don't render as exactly 1px) */
+    width: max-content;
     transition: transform var(--animation-duration) var(--easing);
   }
 
