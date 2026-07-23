@@ -23,7 +23,7 @@ Doesn't render its own HTML element.
 | defaultOpen          | `boolean`                                                                                             | `false` | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | open                 | `boolean`                                                                                             | -       | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                           | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| autoHighlight        | `boolean`                                                                                             | `false` | Whether the first matching item is highlighted automatically while filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| autoHighlight        | `boolean \| ((itemValue: Value, query: string) => boolean)`                                           | `false` | Whether the first matching item is highlighted automatically while filtering.&#xA;A function receives the first matching item and the current query; return `true` to&#xA;highlight it or `false` to leave the highlight cleared.                                                                                                                                                                                                                                                                                                                                     |
 | highlightItemOnHover | `boolean`                                                                                             | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
 | actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | autoComplete         | `string`                                                                                              | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -159,25 +159,6 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Combobox.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Trigger Data Attributes:**
-
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the trigger is pressed.                                               |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-required    | -                                                                                  | Present when the component is required.                                            |
-| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
-
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
@@ -246,24 +227,6 @@ Renders an `<input>` element.
 | className | `string \| ((state: Combobox.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Combobox.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Input Data Attributes:**
-
-| Attribute       | Type                                                                               | Description                                                                        |
-| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed    | -                                                                                  | Present when the input is pressed.                                                 |
-| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused    | -                                                                                  | Present when the input is focused (when wrapped in Field.Root).                    |
 
 ### Input.Props
 
@@ -334,16 +297,6 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Combobox.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | keepMounted  | `boolean`                                                                                    | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Clear Data Attributes:**
-
-| Attribute           | Type | Description                                   |
-| :------------------ | :--- | :-------------------------------------------- |
-| data-popup-open     | -    | Present when the corresponding popup is open. |
-| data-disabled       | -    | Present when the button is disabled.          |
-| data-visible        | -    | Present when the clear button is visible.     |
-| data-starting-style | -    | Present when the button begins animating in.  |
-| data-ending-style   | -    | Present when the button is animating out.     |
 
 ### Clear.Props
 
@@ -430,15 +383,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Combobox.Backdrop.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Backdrop.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Backdrop Data Attributes:**
-
-| Attribute           | Type | Description                                 |
-| :------------------ | :--- | :------------------------------------------ |
-| data-open           | -    | Present when the popup is open.             |
-| data-closed         | -    | Present when the popup is closed.           |
-| data-starting-style | -    | Present when the popup begins animating in. |
-| data-ending-style   | -    | Present when the popup is animating out.    |
-
 ### Backdrop.Props
 
 Re-export of [Backdrop](#backdrop) props.
@@ -511,27 +455,6 @@ Renders a `<div>` element.
 />
 ```
 
-**Positioner Data Attributes:**
-
-| Attribute          | Type                                                                       | Description                                                           |
-| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open          | -                                                                          | Present when the popup is open.                                       |
-| data-closed        | -                                                                          | Present when the popup is closed.                                     |
-| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
-| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-empty         | -                                                                          | Present when the items list is empty.                                 |
-| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-
-**Positioner CSS Variables:**
-
-| Variable             | Type     | Description                                                                            |
-| :------------------- | :------- | :------------------------------------------------------------------------------------- |
-| `--anchor-height`    | `number` | The anchor's height.                                                                   |
-| `--anchor-width`     | `number` | The anchor's width.                                                                    |
-| `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
-| `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
-| `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
-
 ### Positioner.Props
 
 Re-export of [Positioner](#positioner) props.
@@ -568,19 +491,6 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: Combobox.Popup.State) => React.CSSProperties \| undefined)`                                  | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                               |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Popup.State) => ReactElement)`                                           | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                             |
 
-**Popup Data Attributes:**
-
-| Attribute           | Type                                                                       | Description                                                           |
-| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open           | -                                                                          | Present when the popup is open.                                       |
-| data-closed         | -                                                                          | Present when the popup is closed.                                     |
-| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
-| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-empty          | -                                                                          | Present when the items list is empty.                                 |
-| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
-| data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
-
 ### Popup.Props
 
 Re-export of [Popup](#popup) props.
@@ -616,16 +526,6 @@ Renders a `<div>` element.
 | className | `string \| ((state: Combobox.Arrow.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Combobox.Arrow.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Arrow.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute       | Type                                                                       | Description                                                           |
-| :-------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open       | -                                                                          | Present when the popup is open.                                       |
-| data-closed     | -                                                                          | Present when the popup is closed.                                     |
-| data-uncentered | -                                                                          | Present when the arrow is uncentered.                                 |
-| data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 ### Arrow.Props
 
@@ -665,14 +565,6 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: Combobox.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                             |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
 
-**Item Data Attributes:**
-
-| Attribute        | Type | Description                           |
-| :--------------- | :--- | :------------------------------------ |
-| data-selected    | -    | Present when the item is selected.    |
-| data-highlighted | -    | Present when the item is highlighted. |
-| data-disabled    | -    | Present when the item is disabled.    |
-
 ### Item.Props
 
 Re-export of [Item](#item) props.
@@ -703,24 +595,6 @@ Renders a `<div>` element.
 | className | `string \| ((state: Combobox.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Combobox.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Group Data Attributes:**
-
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
 
 ### Group.Props
 
@@ -1013,13 +887,6 @@ Renders a `<span>` element.
 | keepMounted | `boolean`                                                                                            | `false` | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
 | render      | `ReactElement \| ((props: HTMLProps, state: Combobox.ItemIndicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**ItemIndicator Data Attributes:**
-
-| Attribute           | Type | Description                                     |
-| :------------------ | :--- | :---------------------------------------------- |
-| data-starting-style | -    | Present when the indicator begins animating in. |
-| data-ending-style   | -    | Present when the indicator is animating out.    |
-
 ### ItemIndicator.Props
 
 Re-export of [ItemIndicator](#itemindicator) props.
@@ -1088,24 +955,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Combobox.InputGroup.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.InputGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**InputGroup Data Attributes:**
-
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
-
 ### InputGroup.Props
 
 Re-export of [InputGroup](#inputgroup) props.
@@ -1147,7 +996,7 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 | Parameter | Type                    | Default | Description |
 | :-------- | :---------------------- | :------ | :---------- |
-| options?  | `ComboboxFilterOptions` | `{}`    | -           |
+| options?  | `ComboboxFilterOptions` | -       | -           |
 
 **Return Value:**
 
