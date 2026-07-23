@@ -452,7 +452,7 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 0 }));
       });
 
-      expect(screen.getByRole('textbox')).toHaveValue('3.5');
+      expect(screen.getByRole('textbox')).toHaveValue(new Intl.NumberFormat().format(3.5));
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
