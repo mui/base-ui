@@ -25,12 +25,12 @@ To see the latest updates, check out the [releases](https://base-ui.com/react/ov
 ## Team
 
 - **Colm Tuite** [@colmtuite](https://x.com/colmtuite)
+- **Marija Najdova** [@marijanajdova](https://x.com/marijanajdova)
+- **Flavien Delangle**
 - **James Nelson** [@atomiksdev](https://x.com/atomiksdev)
 - **Michał Dudak** [@michaldudak](https://x.com/michaldudak)
-- **Marija Najdova** [@marijanajdova](https://x.com/marijanajdova)
-- **Albert Yu** [@mj12albert](https://github.com/mj12albert)
-- **Lukas Tyla** [@LukasTy](https://github.com/LukasTy)
 - **Jenna Smith** [@jjenzz](https://x.com/jjenzz)
+- **Aarón García** [@aarongarciah](https://github.com/aarongarciah)
 
 ## License
 
