@@ -4,7 +4,8 @@ import type {
   VariantExtraFiles,
   VariantSource,
 } from '@mui/internal-docs-infra/CodeHighlighter/types';
-import { ExportConfig } from '@mui/internal-docs-infra/useDemo';
+import type { ExportConfig } from '@mui/internal-docs-infra/useDemo';
+import type { CreateStackBlitzOptions } from '@mui/internal-docs-infra/lite/runtime';
 
 const defaultStylesLink = `<link rel="stylesheet" href="demo.css" />`;
 const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultStylesLink;
@@ -37,7 +38,7 @@ const tailwindSetup = `
 const tailwindNote = `
 
 <!-- Inject classes used so that Tailwind loaded from the CDN can pre-render them. -->
-<!-- This is for the CodeSandbox example only. You don't need this in your app. -->
+<!-- This is for the exported example only. You don't need this in your app. -->
 `;
 
 function addClassNames(classNames: Set<string>, classes: string) {
@@ -644,6 +645,20 @@ const htmlHeadTemplate: ExportConfig['headTemplate'] = (props) => {
   return head.filter(Boolean).join('\n');
 };
 
+function getTailwindHead(files: Record<string, string>) {
+  let head = tailwindSetup;
+  const classNames = new Set<string>();
+
+  Object.values(files).forEach((file) => collectTailwindClassNames(file, classNames));
+
+  if (classNames.size > 0) {
+    head += tailwindNote;
+    head += `<meta name="custom" class="${escapeHtmlAttribute(Array.from(classNames).join(' '))}" />`;
+  }
+
+  return head;
+}
+
 // Transform Demo Files at Export
 const transformVariant: ExportConfig['transformVariant'] = (variant, variantName, globals) => {
   globals = { ...globals };
@@ -720,6 +735,35 @@ export function resolveDependencies(packageName: string): Record<string, string>
         [packageName]: 'latest',
       };
   }
+}
+
+interface DemoSandboxContext {
+  variantName: string;
+  files: Record<string, string>;
+  title: string;
+}
+
+type DemoSandboxOptions = Omit<CreateStackBlitzOptions, 'files' | 'entryFileName' | 'exportName'>;
+
+export function getDemoSandboxOptions({
+  variantName,
+  files,
+  title,
+}: DemoSandboxContext): DemoSandboxOptions {
+  const dependencies = resolveDependencies('@base-ui/react');
+  if (Object.values(files).some((file) => file.includes('@base-ui/utils'))) {
+    Object.assign(dependencies, resolveDependencies('@base-ui/utils'));
+  }
+
+  return {
+    title: `${title} - Base UI Example`,
+    description: `${title} demo`,
+    dependencies,
+    extraFiles: { 'public/demo.css': demoCss },
+    htmlHead: [defaultStylesLink, variantName === 'Tailwind' ? getTailwindHead(files) : '']
+      .filter(Boolean)
+      .join('\n'),
+  };
 }
 
 const tsconfigOptions = {

@@ -5,22 +5,20 @@ import { Collapsible } from '@base-ui/react/collapsible';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import * as Menu from 'docs/src/components/Menu';
 import { usePathname } from 'next/navigation';
-import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
-import { useDemo } from '@mui/internal-docs-infra/useDemo';
+import { useDemo, type ContentProps } from '@mui/internal-docs-infra/lite/runtime';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
-import kebabCase from 'es-toolkit/compat/kebabCase';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
-import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
-import { platform } from '@base-ui/utils/platform';
+import { useIdleCallback } from '@base-ui/utils/useIdleCallback';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
@@ -29,22 +27,29 @@ import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
+const importSandboxesModule = () => import('docs/src/utils/demoSandboxes');
+let sandboxesModule: ReturnType<typeof importSandboxesModule> | undefined;
+
+function loadSandboxesModule() {
+  sandboxesModule ??= importSandboxesModule();
+  return sandboxesModule;
+}
+
 export type DemoProps = ContentProps<{
   className?: string;
+  preloadSources?: boolean;
 }>;
 
-export function Demo({ className, ...demoProps }: DemoProps) {
+export function Demo({ className, preloadSources = false, ...demoProps }: DemoProps) {
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const collapsibleTriggerRef = React.useRef<HTMLSpanElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
   const ga = useGoogleAnalytics();
   const pathname = usePathname();
-  const demoSlug = React.useMemo(
-    () => demoProps.slug || (demoProps.name ? kebabCase(demoProps.name) : undefined),
-    [demoProps.slug, demoProps.name],
-  );
-  const demoId = demoSlug ? `${pathname}#${demoSlug}` : pathname;
+  const demoSlug = demoProps.slug;
+  const demoId = `${pathname}#${demoSlug}`;
   const hasLoggedInteraction = React.useRef(false);
 
   const onPlaygroundInteraction = React.useCallback(() => {
@@ -79,9 +84,44 @@ export function Demo({ className, ...demoProps }: DemoProps) {
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
-    export: exportOpts,
-    exportCodeSandbox,
   });
+  const loadDeferredSources = demo.loadDeferredSources;
+  const sandboxesIdleCallback = useIdleCallback();
+
+  React.useEffect(() => {
+    if (!demoProps.code.deferredUrl) {
+      return undefined;
+    }
+    if (preloadSources) {
+      void loadDeferredSources();
+      return undefined;
+    }
+    const root = rootRef.current;
+    if (!root || typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        observer.disconnect();
+        void loadDeferredSources();
+      }
+    });
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [demoProps.code.deferredUrl, loadDeferredSources, preloadSources]);
+
+  React.useEffect(() => {
+    sandboxesIdleCallback.start(() => {
+      void loadSandboxesModule();
+    });
+  }, [sandboxesIdleCallback]);
+
+  const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
+  React.useEffect(() => {
+    if (platform.engine.webkit) {
+      setFallbackToCodeSandbox(true);
+    }
+  }, []);
 
   const githubUrl = getGitHubDemoUrl(demoProps.url, demo.selectedVariant);
 
@@ -151,20 +191,40 @@ export function Demo({ className, ...demoProps }: DemoProps) {
     demo.selectFileName(fileName);
   });
 
-  const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
-  React.useEffect(() => {
-    if (platform.engine.webkit) {
-      setFallbackToCodeSandbox(true);
-    }
-  }, []);
+  const onOpenStackBlitz = useStableCallback(async () => {
+    const [{ openDemoStackBlitz }, deferredSources] = await Promise.all([
+      loadSandboxesModule(),
+      loadDeferredSources(),
+    ]);
+    openDemoStackBlitz(demoProps.code, demo.selectedVariant, demoProps.name, deferredSources);
+  });
+
+  const onOpenCodeSandbox = useStableCallback(async () => {
+    const [{ openDemoCodeSandbox }, deferredSources] = await Promise.all([
+      loadSandboxesModule(),
+      loadDeferredSources(),
+    ]);
+    openDemoCodeSandbox(demoProps.code, demo.selectedVariant, demoProps.name, deferredSources);
+  });
+
+  const onSelectVariant = useStableCallback((variantName: string | null) => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'variant_select',
+      label: demoId,
+      params: { variant_select: variantName ?? 'default', slug: demoSlug || '' },
+    });
+    demo.selectVariant(variantName);
+    demo.expand();
+  });
 
   const externalPlaygroundLink = fallbackToCodeSandbox ? (
-    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={demo.openCodeSandbox}>
+    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={onOpenCodeSandbox}>
       CodeSandbox
       <ExternalLinkIcon />
     </GhostButton>
   ) : (
-    <GhostButton aria-label="Open in StackBlitz" type="button" onClick={demo.openStackBlitz}>
+    <GhostButton aria-label="Open in StackBlitz" type="button" onClick={onOpenStackBlitz}>
       StackBlitz
       <ExternalLinkIcon />
     </GhostButton>
@@ -174,10 +234,9 @@ export function Demo({ className, ...demoProps }: DemoProps) {
     <React.Fragment>
       {demo.variants.length > 1 && (
         <DemoVariantSelector
-          onVariantChange={demo.expand}
+          onVariantChange={onSelectVariant}
           variants={demo.variants}
-          selectedVariant={demo.selectedVariant}
-          selectVariant={demo.selectVariant as any}
+          variant={demo.selectedVariant}
         />
       )}
       {externalPlaygroundLink}
@@ -215,7 +274,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
   );
 
   return (
-    <div className={clsx('DemoRoot', className)}>
+    <div ref={rootRef} className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
         <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
@@ -251,6 +310,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
             selectedFileLines={demo.selectedFileLines}
+            reserveHeight={demo.loading || demo.expanded}
             collapsibleOpen={demo.expanded}
             collapsibleTriggerRef={collapsibleTriggerRef}
             copyButton={

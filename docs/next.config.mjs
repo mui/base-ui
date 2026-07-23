@@ -38,6 +38,7 @@ const withMdx = nextMdx({
           },
         },
       ],
+      ['@mui/internal-docs-infra/lite/buildtime/transformMarkdownDemos', { preloadSources: 1 }],
       'remark-typography',
       localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
       '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
@@ -82,6 +83,12 @@ const typesGenerationOptions = {
   ],
 };
 
+const DEMO_LOADER_OPTIONS = {
+  emphasisOptions: {
+    focusFramesMaxSize: 6,
+  },
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
@@ -105,8 +112,8 @@ const nextConfig = {
         as: '*.ts',
         loaders: [
           {
-            loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-            options: { emphasisOptions: { focusFramesMaxSize: 6 } },
+            loader: '@mui/internal-docs-infra/lite/loaders/demo',
+            options: DEMO_LOADER_OPTIONS,
           },
         ],
       },
@@ -133,13 +140,10 @@ const nextConfig = {
       use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
     });
     config.module.rules.push({
-      test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
+      test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
       use: [
         defaultLoaders.babel,
-        {
-          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-          options: { emphasisOptions: { focusFramesMaxSize: 6 } },
-        },
+        { loader: '@mui/internal-docs-infra/lite/loaders/demo', options: DEMO_LOADER_OPTIONS },
       ],
     });
     config.module.rules.push({
