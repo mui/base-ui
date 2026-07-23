@@ -306,7 +306,7 @@ describe('<Combobox.Root />', () => {
       const reopenedInput = await screen.findByTestId('input');
       expect(reopenedInput).toHaveValue('');
 
-      const banana = screen.getByRole('option', { name: 'Banana' });
+      const banana = await screen.findByRole('option', { name: 'Banana' });
       expect(banana).toHaveAttribute('aria-selected', 'true');
       await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
     });
@@ -352,11 +352,11 @@ describe('<Combobox.Root />', () => {
       await user.click(trigger);
 
       expect(await screen.findByTestId('input')).toHaveValue('');
-      expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute(
+      expect(await screen.findByRole('option', { name: 'Apple' })).toHaveAttribute(
         'aria-selected',
         'true',
       );
-      expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
+      expect(await screen.findByRole('option', { name: 'Banana' })).not.toBe(null);
     });
 
     it('keeps filtering responsive when the selection close is canceled', async () => {
