@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { HTMLProps } from '../../internals/types';
@@ -65,6 +66,7 @@ export function useCollapsiblePanel(
   const pendingTemporaryStyleRestoreRef = React.useRef<(() => void) | null>(null);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
+  const latestOpenRef = useValueAsRef(open);
   // Only used to handle panel close
   const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
 
@@ -239,6 +241,14 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
+    // Reachable when `transitionStatus` already flipped to `ending` before this effect ran, so
+    // the close branch above was skipped. Without motion there is nothing to wait for, so unmount
+    // here instead of deferring to the animation-finished path below.
+    if (animationType === 'none') {
+      setMounted(false);
+      return undefined;
+    }
+
     const nextDimensions = getDimensions(panel);
     const hasMeasuredSize = nextDimensions.height > 0 || nextDimensions.width > 0;
 
@@ -271,6 +281,15 @@ export function useCollapsiblePanel(
     open: true,
     ref: panelRef,
     onComplete() {
+      // `useOpenChangeComplete` only aborts from its effect cleanup, which React runs in the
+      // post-paint passive flush. An animation's `finished` microtask can resolve after the render
+      // that set `open` to `false` but before that cleanup, so re-check the latest value here.
+      // Clearing the measured size in that window would make the close transition start from
+      // `height: 0` instead of the expanded pixel height.
+      if (!open) {
+        return;
+      }
+
       setDimensions(EMPTY_DIMENSIONS, false);
     },
   });
@@ -295,6 +314,13 @@ export function useCollapsiblePanel(
     let endingStyleFrame = -1;
 
     function handleComplete() {
+      // Same post-paint race as the `useOpenChangeComplete` callback above, except `open` is
+      // captured by this effect's closure and always `false` here, so read the latest value from
+      // a ref. Unmounting a panel that has already reopened would drop it from the DOM.
+      if (latestOpenRef.current) {
+        return;
+      }
+
       setMounted(false);
       setDimensions(EMPTY_DIMENSIONS, false);
     }
@@ -308,6 +334,7 @@ export function useCollapsiblePanel(
       abortController.abort();
     };
   }, [
+    latestOpenRef,
     mounted,
     open,
     panelTransitionStatus,
