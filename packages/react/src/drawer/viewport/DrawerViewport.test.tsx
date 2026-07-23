@@ -1640,6 +1640,97 @@ describe('<Drawer.Viewport />', () => {
     expect(backdrop).not.toHaveAttribute('data-swiping');
   });
 
+  it('keeps damped snap-point styles when a duplicate-coordinate pointermove arrives', async () => {
+    await render(
+      <Drawer.Root open snapPoints={['100px', 1]}>
+        <Drawer.Portal>
+          <Drawer.Backdrop />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.pointerDown(viewport, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 100,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      // The first move only re-anchors the drag origin.
+      fireEvent.pointerMove(viewport, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 100,
+        pointerType: 'mouse',
+      });
+
+      // Drag upward past the fully-open edge; the snap-point progress handler replaces the raw
+      // frozen transform with square-root-damped movement on every processed move.
+      fireEvent.pointerMove(viewport, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(popup.style.transform).toBe('');
+      const dampedMovementY = popup.style.getPropertyValue('--drawer-swipe-movement-y');
+      expect(dampedMovementY).toBe('-10px');
+
+      // A cursor pinned at a screen edge during an off-screen drag produces
+      // duplicate-coordinate moves. They must not reinstate the raw frozen transform, which
+      // would jump the popup to the undamped position.
+      fireEvent.pointerMove(viewport, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(popup.style.transform).toBe('');
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe(dampedMovementY);
+
+      // Only vertical directions are enabled, so horizontal jitter while the vertical
+      // position is pinned leaves the drag offset unchanged. Such moves must not reinstate
+      // the raw frozen transform either.
+      fireEvent.pointerMove(viewport, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 5,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(popup.style.transform).toBe('');
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe(dampedMovementY);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not start an opposite-direction swipe from scroll right edge for right drawers', async () => {
     await render(
       <Drawer.Root open swipeDirection="right">
