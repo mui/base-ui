@@ -7460,6 +7460,54 @@ describe('<Combobox.Root />', () => {
       expect(document.getElementById(activeId!)?.textContent).toBe('cherry');
     });
 
+    it('restores an array-valued single selection when the query is cleared', async () => {
+      const items = [
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ];
+
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          defaultValue={items[1]}
+          itemToStringLabel={(item: number[]) => item.join('-')}
+        >
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup aria-label="Select item">
+                <Combobox.Input aria-label="Search" />
+                <Combobox.List>
+                  {(item: number[]) => (
+                    <Combobox.Item key={item.join('-')} value={item}>
+                      {item.join('-')}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Search' });
+
+      // The array is a single-select value, not a list of selected values.
+      const selected = screen.getByRole('option', { name: '3-4' });
+      await waitFor(() => expect(selected).toHaveAttribute('data-highlighted'));
+
+      await user.type(input, '1');
+      await screen.findByRole('option', { name: '1-2' });
+
+      await user.clear(input);
+      const restored = await screen.findByRole('option', { name: '3-4' });
+      await waitFor(() => expect(restored).toHaveAttribute('data-highlighted'));
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', restored.id));
+    });
+
     it('does not highlight anything when there is no selected item', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']}>

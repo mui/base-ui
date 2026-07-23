@@ -53,10 +53,13 @@ export function findSelectionIndex<Item, Value>(
   itemValues: readonly Item[] | undefined | null,
   selectedValue: Value | readonly Value[] | null | undefined,
   comparer: ItemEqualityComparer<Item, Value>,
+  multiple: boolean,
 ): number | null {
-  const lastValue = Array.isArray(selectedValue)
-    ? selectedValue[selectedValue.length - 1]
-    : selectedValue;
+  // Only unwrap in multiple mode: an array can itself be a valid single-select value.
+  const lastValue =
+    multiple && Array.isArray(selectedValue)
+      ? selectedValue[selectedValue.length - 1]
+      : selectedValue;
   const index = findItemIndex(itemValues, lastValue as Value, comparer);
   return index === -1 ? null : index;
 }

@@ -361,6 +361,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         flatFilteredItems,
         selectedValue,
         isItemEqualToValue,
+        multiple,
       );
     }
 
@@ -870,10 +871,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const registry = hasItems ? flatItems : valuesRef.current;
 
       setIndices({
-        selectedIndex: findSelectionIndex(registry, selectedValue, isItemEqualToValue),
+        selectedIndex: findSelectionIndex(registry, selectedValue, isItemEqualToValue, multiple),
       });
     },
-    [open, selectedValue, selectionMode, hasItems, flatItems, isItemEqualToValue, setIndices],
+    [
+      open,
+      selectedValue,
+      selectionMode,
+      multiple,
+      hasItems,
+      flatItems,
+      isItemEqualToValue,
+      setIndices,
+    ],
   );
 
   useIsoLayoutEffect(() => {
@@ -925,9 +935,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             // pass an inline `isItemEqualToValue` or a fresh `selectedValue` array without
             // re-running this effect on every render.
             const currentSelectedValue = store.state.selectedValue;
-            const lastSelectedValue = Array.isArray(currentSelectedValue)
-              ? currentSelectedValue[currentSelectedValue.length - 1]
-              : currentSelectedValue;
+            const isMultiple = store.state.selectionMode === 'multiple';
+            const lastSelectedValue =
+              isMultiple && Array.isArray(currentSelectedValue)
+                ? currentSelectedValue[currentSelectedValue.length - 1]
+                : currentSelectedValue;
             const hasSelection = store.state.selectionMode !== 'none' && lastSelectedValue != null;
 
             if (hasSelection || clearedBySelection) {
@@ -942,6 +954,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                       registry,
                       currentSelectedValue,
                       store.state.isItemEqualToValue,
+                      isMultiple,
                     )
                   : null,
               );
