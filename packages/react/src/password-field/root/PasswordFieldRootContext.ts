@@ -16,10 +16,6 @@ export interface PasswordFieldRootContext {
    */
   disabled: boolean;
   /**
-   * Ref to the password input element.
-   */
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  /**
    * The resolved id of the input, used by the toggle's `aria-controls`.
    */
   inputId: string | undefined;

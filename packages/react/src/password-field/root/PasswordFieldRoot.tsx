@@ -7,7 +7,12 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import type { BaseUIComponentProps } from '../../internals/types';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { PasswordFieldRootContext } from './PasswordFieldRootContext';
+
+const stateAttributesMapping: StateAttributesMapping<PasswordFieldRootState> = {
+  visible: () => null,
+};
 
 /**
  * Groups the password input and its visibility toggle.
@@ -41,8 +46,6 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     state: 'visible',
   });
 
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-
   // The input registers its resolved id here so the toggle's `aria-controls` can reference it.
   // Seeding `undefined` means `aria-controls` is omitted until an input actually mounts.
   const [inputId, setInputId] = React.useState<string | undefined>(undefined);
@@ -59,16 +62,16 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     },
   );
 
-  // Visibility lives on the toggle (`data-pressed`/`aria-pressed`) and the input's native
-  // `type`; the root only exposes whether the whole field is disabled.
-  const state: PasswordFieldRoot.State = React.useMemo(() => ({ disabled }), [disabled]);
+  const state: PasswordFieldRoot.State = React.useMemo(
+    () => ({ disabled, visible }),
+    [disabled, visible],
+  );
 
   const contextValue: PasswordFieldRootContext = React.useMemo(
     () => ({
       visible,
       setVisible,
       disabled,
-      inputRef,
       inputId,
       setInputId,
     }),
@@ -79,6 +82,7 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     ref: forwardedRef,
     state,
     props: elementProps,
+    stateAttributesMapping,
   });
 
   return (
@@ -93,6 +97,10 @@ export interface PasswordFieldRootState {
    * Whether the field should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the password is currently revealed as plain text.
+   */
+  visible: boolean;
 }
 
 export interface PasswordFieldRootProps extends BaseUIComponentProps<
@@ -126,7 +134,7 @@ export interface PasswordFieldRootProps extends BaseUIComponentProps<
   disabled?: boolean | undefined;
 }
 
-export type PasswordFieldRootChangeEventReason = typeof REASONS.none;
+export type PasswordFieldRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 export type PasswordFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<PasswordFieldRoot.ChangeEventReason>;
 

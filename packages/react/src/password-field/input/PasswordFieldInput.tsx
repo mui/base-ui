@@ -4,6 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -24,15 +25,12 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
 ) {
   const { id: idProp, disabled: disabledProp = false, ...elementProps } = componentProps;
 
-  const {
-    visible,
-    setVisible,
-    disabled: rootDisabled,
-    inputRef,
-    setInputId,
-  } = usePasswordFieldRootContext();
+  const { visible, setVisible, disabled: rootDisabled, setInputId } = usePasswordFieldRootContext();
 
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
   const mergedRef = useMergedRefs(forwardedRef, inputRef);
+  const resetTimeout = useTimeout();
+
   // Resolve (or generate) the input id and register it so the toggle's `aria-controls`
   // tracks it (with cleanup on unmount). Field uses the same id to wire up `Field.Label`.
   const id = useRegisteredLabelId(idProp, setInputId);
@@ -49,15 +47,18 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     // never persists after a submission attempt.
     return mergeCleanups(
       addEventListener(form, 'reset', (event) => {
-        if (!event.defaultPrevented) {
-          setVisible(false, createChangeEventDetails(REASONS.none, event));
-        }
+        resetTimeout.start(0, () => {
+          if (!event.defaultPrevented) {
+            setVisible(false, createChangeEventDetails(REASONS.none, event));
+          }
+        });
       }),
       addEventListener(form, 'submit', (event) => {
+        resetTimeout.clear();
         setVisible(false, createChangeEventDetails(REASONS.none, event));
       }),
     );
-  }, [inputRef, setVisible]);
+  }, [inputRef, resetTimeout, setVisible]);
 
   return (
     <Field.Control
@@ -84,12 +85,27 @@ export interface PasswordFieldInputProps extends BaseUIComponentProps<
   PasswordFieldInputState
 > {
   /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange?:
+    | ((value: string, eventDetails: PasswordFieldInput.ChangeEventDetails) => void)
+    | undefined;
+  /**
    * The default value of the input. Use when uncontrolled.
    */
   defaultValue?: Field.Control.Props['defaultValue'] | undefined;
+  /**
+   * The value of the input. Use when controlled.
+   */
+  value?: React.ComponentProps<'input'>['value'] | undefined;
 }
+
+export type PasswordFieldInputChangeEventReason = Field.Control.ChangeEventReason;
+export type PasswordFieldInputChangeEventDetails = Field.Control.ChangeEventDetails;
 
 export namespace PasswordFieldInput {
   export type State = PasswordFieldInputState;
   export type Props = PasswordFieldInputProps;
+  export type ChangeEventReason = PasswordFieldInputChangeEventReason;
+  export type ChangeEventDetails = PasswordFieldInputChangeEventDetails;
 }
