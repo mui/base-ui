@@ -191,6 +191,7 @@
   align-items: center;
   gap: 0.5rem;
   min-height: 2rem;
+  padding-block: 0.5rem;
   padding-inline: 0.75rem;
   color: var(--color-gray-900);
   font-size: 0.875rem;
@@ -206,7 +207,14 @@
   }
 }
 
+.ItemLarge {
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
 .ItemText {
+  display: flex;
+  flex-direction: column;
   grid-column-start: 2;
 }
 

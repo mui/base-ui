@@ -2,9 +2,24 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './virtualizer.module.css';
 
+interface Settings {
+  varyingHeights: boolean;
+}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  varyingHeights: {
+    type: 'boolean',
+    label: 'Vary row heights',
+    default: true,
+  },
+};
+
 export default function ComboboxVirtualizerExperiment() {
+  const { settings } = useExperimentSettings<Settings>();
+
   return (
     <div className={styles.Root}>
       <header className={styles.Header}>
@@ -21,7 +36,7 @@ export default function ComboboxVirtualizerExperiment() {
             <h2>Built in</h2>
             <code>@mui/x-virtualizer</code>
           </div>
-          <BuiltInVirtualizer />
+          <BuiltInVirtualizer varyingHeights={settings.varyingHeights} />
         </section>
 
         <section className={styles.Panel}>
@@ -29,14 +44,14 @@ export default function ComboboxVirtualizerExperiment() {
             <h2>Third party</h2>
             <code>@tanstack/react-virtual</code>
           </div>
-          <TanStackVirtualizer />
+          <TanStackVirtualizer varyingHeights={settings.varyingHeights} />
         </section>
       </div>
     </div>
   );
 }
 
-function BuiltInVirtualizer() {
+function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
   return (
     <Combobox.Root items={virtualizedItems} itemToStringLabel={getItemLabel}>
       <ComboboxField label="Search the built-in list" />
@@ -51,7 +66,9 @@ function BuiltInVirtualizer() {
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >
-                {(item: VirtualizedItem) => <VirtualizedItemRow item={item} />}
+                {(item: VirtualizedItem) => (
+                  <VirtualizedItemRow item={item} varyingHeights={props.varyingHeights} />
+                )}
               </Combobox.Virtualizer>
             </Combobox.List>
           </Combobox.Popup>
@@ -61,7 +78,7 @@ function BuiltInVirtualizer() {
   );
 }
 
-function TanStackVirtualizer() {
+function TanStackVirtualizer(props: { varyingHeights: boolean }) {
   const virtualizerRef = React.useRef<TanStackVirtualizerInstance | null>(null);
 
   return (
@@ -93,7 +110,10 @@ function TanStackVirtualizer() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <TanStackVirtualizedList virtualizerRef={virtualizerRef} />
+              <TanStackVirtualizedList
+                virtualizerRef={virtualizerRef}
+                varyingHeights={props.varyingHeights}
+              />
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -122,8 +142,10 @@ function ComboboxField(props: { label: string }) {
 
 function TanStackVirtualizedList({
   virtualizerRef,
+  varyingHeights,
 }: {
   virtualizerRef: React.RefObject<TanStackVirtualizerInstance | null>;
+  varyingHeights: boolean;
 }) {
   const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
@@ -182,7 +204,7 @@ function TanStackVirtualizedList({
               data-index={virtualItem.index}
               ref={virtualizer.measureElement}
               value={item}
-              className={styles.Item}
+              className={getItemClassName(item, varyingHeights)}
               aria-setsize={filteredItems.length}
               aria-posinset={virtualItem.index + 1}
               style={{
@@ -190,11 +212,10 @@ function TanStackVirtualizedList({
                 top: 0,
                 left: 0,
                 width: '100%',
-                height: virtualItem.size,
                 transform: `translateY(${virtualItem.start}px)`,
               }}
             >
-              <ItemContent item={item} />
+              <ItemContent item={item} varyingHeights={varyingHeights} />
             </Combobox.Item>
           );
         })}
@@ -203,23 +224,35 @@ function TanStackVirtualizedList({
   );
 }
 
-function VirtualizedItemRow(props: { item: VirtualizedItem }) {
+function VirtualizedItemRow(props: { item: VirtualizedItem; varyingHeights: boolean }) {
   return (
-    <Combobox.Item value={props.item} className={styles.Item}>
-      <ItemContent item={props.item} />
+    <Combobox.Item
+      value={props.item}
+      className={getItemClassName(props.item, props.varyingHeights)}
+    >
+      <ItemContent item={props.item} varyingHeights={props.varyingHeights} />
     </Combobox.Item>
   );
 }
 
-function ItemContent(props: { item: VirtualizedItem }) {
+function ItemContent(props: { item: VirtualizedItem; varyingHeights: boolean }) {
   return (
     <React.Fragment>
       <Combobox.ItemIndicator className={styles.ItemIndicator}>
         <CheckIcon />
       </Combobox.ItemIndicator>
-      <span className={styles.ItemText}>{props.item.name}</span>
+      <span className={styles.ItemText}>
+        <span>{props.item.name}</span>
+        {props.varyingHeights && props.item.hasTwoLines && (
+          <span>Additional details for this item</span>
+        )}
+      </span>
     </React.Fragment>
   );
+}
+
+function getItemClassName(item: VirtualizedItem, varyingHeights: boolean) {
+  return varyingHeights && item.hasLargeText ? `${styles.Item} ${styles.ItemLarge}` : styles.Item;
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
@@ -241,6 +274,8 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 interface VirtualizedItem {
   id: string;
   name: string;
+  hasLargeText: boolean;
+  hasTwoLines: boolean;
 }
 
 function getItemLabel(item: VirtualizedItem | null) {
@@ -250,7 +285,12 @@ function getItemLabel(item: VirtualizedItem | null) {
 const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
   const id = String(index + 1);
   const indexLabel = id.padStart(4, '0');
-  return { id, name: `Item ${indexLabel}` };
+  return {
+    id,
+    name: `Item ${indexLabel}`,
+    hasLargeText: (index + 1) % 3 === 0,
+    hasTwoLines: (index + 1) % 5 === 0,
+  };
 });
 
 type TanStackVirtualizerInstance = ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
