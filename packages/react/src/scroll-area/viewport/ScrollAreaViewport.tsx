@@ -278,12 +278,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   });
 
   useIsoLayoutEffect(() => {
-    if (!viewportRef.current) {
-      return;
-    }
-
     removeCSSVariableInheritance();
-  }, [viewportRef]);
+  }, []);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
@@ -344,9 +340,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         return;
       }
 
-      Promise.allSettled(animations.map((animation) => animation.finished))
-        .then(computeThumbPosition)
-        .catch(() => {});
+      void Promise.allSettled(animations.map((animation) => animation.finished)).then(
+        computeThumbPosition,
+      );
     });
 
     return () => {
