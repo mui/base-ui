@@ -77,7 +77,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     }
 
     function handleWheel(event: WheelEvent) {
-      if (!viewportEl || !scrollbarEl || event.ctrlKey) {
+      if (!viewportEl || event.ctrlKey) {
         return;
       }
 
@@ -138,52 +138,46 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
       const scrollbarEl = vertical ? scrollbarYRef.current : scrollbarXRef.current;
 
-      if (thumbEl && scrollbarEl) {
-        const axis = vertical ? 'y' : 'x';
-        const thumbOffset = getOffset(thumbEl, 'margin', axis);
-        const scrollbarOffset = getOffset(scrollbarEl, 'padding', axis);
-        const thumbSizePx = vertical ? thumbEl.offsetHeight : thumbEl.offsetWidth;
-        const trackRect = scrollbarEl.getBoundingClientRect();
-        const clickPosition = vertical
-          ? event.clientY - trackRect.top - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2
-          : event.clientX - trackRect.left - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2;
+      if (!thumbEl || !scrollbarEl) {
+        return;
+      }
 
-        const scrollableSize = vertical ? viewportEl.scrollHeight : viewportEl.scrollWidth;
-        const viewportSize = vertical ? viewportEl.clientHeight : viewportEl.clientWidth;
-        const trackSize = vertical ? scrollbarEl.offsetHeight : scrollbarEl.offsetWidth;
+      const axis = vertical ? 'y' : 'x';
+      const thumbOffset = getOffset(thumbEl, 'margin', axis);
+      const scrollbarOffset = getOffset(scrollbarEl, 'padding', axis);
+      const thumbSizePx = vertical ? thumbEl.offsetHeight : thumbEl.offsetWidth;
+      const trackRect = scrollbarEl.getBoundingClientRect();
+      const clickPosition = vertical
+        ? event.clientY - trackRect.top - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2
+        : event.clientX - trackRect.left - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2;
 
-        const maxThumbOffset = trackSize - thumbSizePx - scrollbarOffset - thumbOffset;
-        // A short or heavily padded track can drive `maxThumbOffset` to zero or
-        // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
-        // would yield a non-finite (`Infinity`/`NaN`) or inverted scroll position.
-        if (maxThumbOffset <= 0) {
-          return;
-        }
+      const scrollableSize = vertical ? viewportEl.scrollHeight : viewportEl.scrollWidth;
+      const viewportSize = vertical ? viewportEl.clientHeight : viewportEl.clientWidth;
+      const trackSize = vertical ? scrollbarEl.offsetHeight : scrollbarEl.offsetWidth;
 
-        const scrollRatio = clickPosition / maxThumbOffset;
-        const maxScrollDistance = scrollableSize - viewportSize;
+      const maxThumbOffset = trackSize - thumbSizePx - scrollbarOffset - thumbOffset;
+      // A short or heavily padded track can drive `maxThumbOffset` to zero or
+      // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
+      // would yield a non-finite (`Infinity`/`NaN`) or inverted scroll position.
+      if (maxThumbOffset <= 0) {
+        return;
+      }
 
-        // Disable snapping before the jump-to-click assignment, or the
-        // assigned position quantizes to the nearest snap point and the thumb
-        // stays offset from the pointer for the whole drag. `handlePointerDown`
-        // below re-runs this as a guarded no-op for the thumb-drag path.
-        disableViewportSnap();
+      const scrollRatio = clickPosition / maxThumbOffset;
+      const maxScrollDistance = scrollableSize - viewportSize;
 
-        if (vertical) {
-          viewportEl.scrollTop = scrollRatio * maxScrollDistance;
-        } else if (direction === 'rtl') {
-          // In RTL, invert the scroll direction
-          let newScrollLeft = (1 - scrollRatio) * maxScrollDistance;
+      // Disable snapping before the jump-to-click assignment, or the
+      // assigned position quantizes to the nearest snap point and the thumb
+      // stays offset from the pointer for the whole drag. `handlePointerDown`
+      // below re-runs this as a guarded no-op for the thumb-drag path.
+      disableViewportSnap();
 
-          // Adjust for browsers that use negative scrollLeft in RTL
-          if (viewportEl.scrollLeft <= 0) {
-            newScrollLeft = -newScrollLeft;
-          }
-
-          viewportEl.scrollLeft = newScrollLeft;
-        } else {
-          viewportEl.scrollLeft = scrollRatio * maxScrollDistance;
-        }
+      if (vertical) {
+        viewportEl.scrollTop = scrollRatio * maxScrollDistance;
+      } else if (direction === 'rtl') {
+        viewportEl.scrollLeft = -(1 - scrollRatio) * maxScrollDistance;
+      } else {
+        viewportEl.scrollLeft = scrollRatio * maxScrollDistance;
       }
 
       handleScroll({ x: viewportEl.scrollLeft, y: viewportEl.scrollTop });

@@ -1,4 +1,5 @@
-import { expect } from 'vitest';
+import * as React from 'react';
+import { expect, vi } from 'vitest';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
@@ -14,6 +15,28 @@ describe('<ScrollArea.Scrollbar />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('supports a custom scrollbar renderer that does not forward its ref', async () => {
+    function ScrollbarWithoutRef({
+      ref: ignoredRef,
+      ...props
+    }: React.ComponentPropsWithRef<'div'>) {
+      return <div {...props} />;
+    }
+
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport />
+        <ScrollArea.Scrollbar
+          data-testid="scrollbar"
+          keepMounted
+          render={<ScrollbarWithoutRef />}
+        />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toBeInTheDocument();
+  });
 
   describe('data-scrolling attribute', () => {
     const { render: renderWithClock, clock } = createRenderer();
@@ -79,6 +102,50 @@ describe('<ScrollArea.Scrollbar />', () => {
   });
 
   describe('data-hovering attribute', () => {
+    it('detects a viewport that is already hovered on mount', async () => {
+      const originalMatches = Element.prototype.matches;
+      const matchesSpy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function matches(
+        this: Element,
+        selector: string,
+      ) {
+        if (selector === ':hover' && (this as HTMLElement).dataset.testid === 'viewport') {
+          return true;
+        }
+        return originalMatches.call(this, selector);
+      });
+
+      try {
+        await render(
+          <ScrollArea.Root>
+            <ScrollArea.Viewport data-testid="viewport" />
+            <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+          </ScrollArea.Root>,
+        );
+
+        await waitFor(() =>
+          expect(screen.getByTestId('scrollbar')).toHaveAttribute('data-hovering'),
+        );
+      } finally {
+        matchesSpy.mockRestore();
+      }
+    });
+
+    it('does not enter hover state for touch pointers', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const scrollbar = screen.getByTestId('scrollbar');
+
+      fireEvent.pointerEnter(viewport, { pointerType: 'touch' });
+
+      expect(scrollbar).not.toHaveAttribute('data-hovering');
+    });
+
     it('adds [data-hovering] when the synthetic pointer target differs from the native path', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
@@ -124,6 +191,64 @@ describe('<ScrollArea.Scrollbar />', () => {
   });
 
   describe('track pointer down', () => {
+    it('ignores non-primary pointer presses', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" style={{ scrollSnapType: 'y mandatory' }} />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
+        button: 2,
+        clientY: 100,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBe(0);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
+    it('handles a track press when no viewport is mounted', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      expect(() =>
+        fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
+          button: 0,
+          clientY: 100,
+          pointerId: 1,
+        }),
+      ).not.toThrow();
+    });
+
+    it('does not start a track gesture without a thumb', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" style={{ scrollSnapType: 'y mandatory' }} />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
+        button: 0,
+        clientY: 100,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBe(0);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
     it('ignores thumb clicks when the native path differs from the synthetic target', async () => {
       await render(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
@@ -666,6 +791,17 @@ describe('<ScrollArea.Scrollbar />', () => {
       });
 
       expect(fireEvent.wheel(scrollbar, { deltaY: 0 })).toBe(true);
+      expect(viewport.scrollTop).toBe(400);
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('does not intercept browser zoom gestures', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({
+        orientation: 'vertical',
+        scrollTop: 400,
+      });
+
+      expect(fireEvent.wheel(scrollbar, { ctrlKey: true, deltaY: 50 })).toBe(true);
       expect(viewport.scrollTop).toBe(400);
       expect(scrollbar).not.toHaveAttribute('data-scrolling');
     });
