@@ -7,7 +7,7 @@ import {
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';

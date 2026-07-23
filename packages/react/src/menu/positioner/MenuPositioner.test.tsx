@@ -9,9 +9,9 @@ import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../../utils/useAnchorPositioning', async () => {
-  const actual = await vi.importActual<typeof import('../../utils/useAnchorPositioning')>(
-    '../../utils/useAnchorPositioning',
+vi.mock('../../internals/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
+    '../../internals/useAnchorPositioning',
   );
 
   return {
