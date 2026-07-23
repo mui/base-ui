@@ -129,9 +129,12 @@ export const adaptiveOrigin: Middleware = {
         (!updateY || Number.isFinite(fromY))
       ) {
         const floatingStyle = floating.style;
-        const inlineTransition = floatingStyle.transition;
+        // Override the `transition-duration` longhand rather than the `transition`
+        // shorthand, which would clear any transition longhands set inline by consumers.
+        const inlineDuration = floatingStyle.getPropertyValue('transition-duration');
+        const inlineDurationPriority = floatingStyle.getPropertyPriority('transition-duration');
         if (!animate) {
-          floatingStyle.transition = 'none';
+          floatingStyle.setProperty('transition-duration', '0s');
         }
         if (updateX) {
           floatingStyle.right = '';
@@ -146,7 +149,15 @@ export const adaptiveOrigin: Middleware = {
         // Flush styles so the intermediate position is committed before the new styles apply.
         floating.getBoundingClientRect();
         if (!animate) {
-          floatingStyle.transition = inlineTransition;
+          if (inlineDuration) {
+            floatingStyle.setProperty(
+              'transition-duration',
+              inlineDuration,
+              inlineDurationPriority,
+            );
+          } else {
+            floatingStyle.removeProperty('transition-duration');
+          }
         }
       }
     }

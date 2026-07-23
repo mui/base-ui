@@ -630,13 +630,15 @@ describe('<Popover.Positioner />', () => {
       // its position may never change abruptly between frames (the 10s linear
       // transition moves it by roughly 1px per frame).
       let previousTop = initialTop;
-      for (let i = 0; i < 20; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(requestAnimationFrame);
-        const { top } = positioner.getBoundingClientRect();
-        expect(Math.abs(top - previousTop)).toBeLessThan(20);
-        previousTop = top;
-      }
+      await act(async () => {
+        for (let i = 0; i < 20; i += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await waitSingleFrame();
+          const { top } = positioner.getBoundingClientRect();
+          expect(Math.abs(top - previousTop)).toBeLessThan(20);
+          previousTop = top;
+        }
+      });
 
       expect(positioner).toHaveAttribute('data-side', 'top');
     });
@@ -697,6 +699,73 @@ describe('<Popover.Positioner />', () => {
       const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
       const positionerRect = positioner.getBoundingClientRect();
       expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
+    });
+
+    it('preserves inline transition longhands when a same-anchor flip disables the transition', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid="positioner"] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+              }
+            `}
+          </style>
+          <div
+            data-testid="scroller"
+            style={{ height: 400, overflow: 'auto', position: 'relative' }}
+          >
+            <div style={{ height: 1200 }}>
+              <Popover.Root>
+                <Popover.Trigger
+                  data-testid="trigger"
+                  style={{ position: 'absolute', top: 300, left: 10, width: 100, height: 50 }}
+                >
+                  Trigger
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
+                    <Popover.Popup style={popupStyle}>
+                      <Popover.Viewport>Popup</Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          </div>
+        </div>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'top');
+      });
+      // Wait for the mount-time `transition: none` style to be removed, since React
+      // clears the inline longhands when it removes the shorthand.
+      await waitFor(() => {
+        expect(positioner.style.transition).toBe('');
+      });
+
+      // Transitions configured through individual inline longhands rather than
+      // the `transition` shorthand.
+      positioner.style.transitionProperty = 'top, bottom, left, right';
+      positioner.style.transitionDuration = '10s';
+      positioner.style.transitionTimingFunction = 'linear';
+
+      // Scrolling moves the anchor near the top of its clipping container,
+      // flipping the popup below it and taking the transition-disabling path.
+      screen.getByTestId('scroller').scrollTop = 280;
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'bottom');
+      });
+
+      expect(positioner.style.transitionProperty).toBe('top, bottom, left, right');
+      expect(positioner.style.transitionDuration).toBe('10s');
+      expect(positioner.style.transitionTimingFunction).toBe('linear');
     });
 
     it('keeps an unchanged-axis transition running when the side flips during a trigger change', async () => {
