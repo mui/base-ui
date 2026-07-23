@@ -12,9 +12,9 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
 import type { ClientRectObject } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -28,7 +28,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { clamp } from '../../internals/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
@@ -64,6 +64,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollHandlerRef,
     listRef,
     highlightItemOnHover,
+    floatingContext: floatingRootContext,
   } = useSelectRootContext();
   const {
     side,
@@ -73,7 +74,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     setControlledAlignItemWithTrigger,
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
-  const floatingRootContext = useSelectFloatingContext();
   const direction = useDirection();
 
   const { nonce, disableStyleElements } = useCSPContext();
@@ -107,7 +107,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       !alignItemWithTriggerActive ||
       (!isTopPositioned && !isBottomPositioned)
     ) {
-      handleScrollArrowVisibility();
+      handleScrollArrowVisibility(scroller);
       return;
     }
 
@@ -151,7 +151,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EDGE_TOLERANCE_PX) {
         reachedMaxHeightRef.current = true;
       }
-      handleScrollArrowVisibility();
+      handleScrollArrowVisibility(scroller);
       return;
     }
 
@@ -182,7 +182,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       reachedMaxHeightRef.current = true;
     }
 
-    handleScrollArrowVisibility();
+    handleScrollArrowVisibility(scroller);
   });
 
   React.useImperativeHandle(scrollHandlerRef, () => handleScroll, [handleScroll]);
@@ -257,7 +257,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     popupElement.style.removeProperty('--transform-origin');
 
     if (!alignItemWithTriggerActive) {
-      scrollArrowFrame.request(handleScrollArrowVisibility);
+      // The wrapper supplies the scroller: the list owns scrolling once it has mounted, and
+      // this effect re-runs (cancelling the stale frame) when that happens.
+      scrollArrowFrame.request(() => handleScrollArrowVisibility(listElement || popupElement));
       return;
     }
 
@@ -399,7 +401,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         reachedMaxHeightRef.current = true;
       }
 
-      handleScrollArrowVisibility();
+      handleScrollArrowVisibility(scroller);
 
       if (
         highlightItemOnHover &&

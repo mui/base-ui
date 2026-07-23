@@ -12,7 +12,7 @@ import {
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
@@ -125,8 +125,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     disableAnchorTracking,
     collisionAvoidance,
-    shiftCrossAxis:
-      contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+    shift: contextMenu
+      ? {
+          crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+          rootBoundary: 'layoutViewport',
+        }
+      : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
   });

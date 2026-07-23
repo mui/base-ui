@@ -67,6 +67,60 @@ describe('<CheckboxGroup />', () => {
       expect(green).toHaveAttribute('aria-checked', 'false');
       expect(blue).toHaveAttribute('aria-checked', 'true');
     });
+
+    it('supports an empty string item value', () => {
+      function App() {
+        const [value, setValue] = React.useState(['']);
+        return (
+          <CheckboxGroup value={value} onValueChange={setValue}>
+            <Checkbox.Root value="" data-testid="empty" />
+            <Checkbox.Root value="other" data-testid="other" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const empty = screen.getByTestId('empty');
+      const other = screen.getByTestId('other');
+
+      expect(empty).toHaveAttribute('aria-checked', 'true');
+      expect(other).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(empty);
+
+      expect(empty).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('treats a controlled value that becomes undefined as an empty array', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App() {
+        const [value, setValue] = React.useState<string[] | undefined>(['red']);
+        return (
+          <React.Fragment>
+            <CheckboxGroup value={value}>
+              <Checkbox.Root value="red" data-testid="red" />
+            </CheckboxGroup>
+            <button type="button" onClick={() => setValue(undefined)}>
+              Clear
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        render(<App />);
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
+
+        fireEvent.click(screen.getByText('Clear'));
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'false');
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
   });
 
   describe('prop: onValueChange', () => {

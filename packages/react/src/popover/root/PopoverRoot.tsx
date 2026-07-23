@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
@@ -238,11 +237,13 @@ function PopoverInteractions({
     },
   });
 
+  // `useDismiss` is not given an `enabled` option, so it always returns both prop bags. Restore
+  // the `EMPTY_OBJECT` fallbacks if that ever changes: the store fields are non-optional.
   // `dismiss.trigger` is always the same object as `dismiss.reference`.
-  const triggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const triggerProps = dismiss.reference!;
   // PopoverPopup already spreads `FOCUSABLE_POPUP_PROPS` directly, so the popup
   // props only need to carry the dismiss handlers.
-  const popupProps = dismiss.floating ?? EMPTY_OBJECT;
+  const popupProps = dismiss.floating!;
 
   usePopupInteractionProps(store, {
     activeTriggerProps: triggerProps,

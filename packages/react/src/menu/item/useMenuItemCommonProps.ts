@@ -38,10 +38,9 @@ export interface UseMenuItemCommonPropsParameters {
    */
   itemRef: React.RefObject<HTMLElement | null>;
   /**
-   * Optional metadata for checking item type before triggering click.
-   * If provided, click will only be triggered for 'regular-item' type.
+   * Metadata for checking item type before triggering click.
    */
-  itemMetadata?: UseMenuItemMetadata | undefined;
+  itemMetadata: UseMenuItemMetadata;
 }
 
 /**
@@ -111,7 +110,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
         ) {
           // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
           // We trigger the click and override the `closeOnClick` preference to always close the menu.
-          if (!itemMetadata || itemMetadata.type === 'regular-item') {
+          if (itemMetadata.type === 'regular-item') {
             // `detail: 1` marks this as a mouse-gesture click so MenuRoot doesn't
             // treat it as a keyboard activation (`detail === 0` → `data-instant`).
             dispatchClickWithModifiers(itemRef.current, event, { detail: 1 });
