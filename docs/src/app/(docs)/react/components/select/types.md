@@ -55,20 +55,6 @@ const items = {
 
 - See [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete)
 
-**Root Data Attributes:**
-
-| Attribute        | Type | Description                                 |
-| :--------------- | :--- | :------------------------------------------ |
-| data-orientation | -    | Indicates the orientation of the accordion. |
-| data-disabled    | -    | Present when the accordion is disabled.     |
-
-**Root CSS Variables:**
-
-| Variable                      | Type     | Description                      |
-| :---------------------------- | :------- | :------------------------------- |
-| `--scroll-area-corner-height` | `number` | The scroll area's corner height. |
-| `--scroll-area-corner-width`  | `number` | The scroll area's corner width.  |
-
 ### Root.Props
 
 Re-export of [Root](#root) props.
@@ -281,13 +267,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Select.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Select.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**List Data Attributes:**
-
-| Attribute                 | Type                                            | Description                                                                   |
-| :------------------------ | :---------------------------------------------- | :---------------------------------------------------------------------------- |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                        |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous active tab). |
-
 ### List.Props
 
 Re-export of [List](#list) props.
@@ -344,12 +323,6 @@ Renders a `<div>` element.
 | data-closed         | -    | Present when the select is closed.           |
 | data-starting-style | -    | Present when the select begins animating in. |
 | data-ending-style   | -    | Present when the select is animating out.    |
-
-**Backdrop CSS Variables:**
-
-| Variable                  | Type     | Description                               |
-| :------------------------ | :------- | :---------------------------------------- |
-| `--drawer-swipe-progress` | `number` | The swipe progress of the drawer gesture. |
 
 ### Backdrop.Props
 
@@ -489,12 +462,6 @@ Renders a `<div>` element.
 | data-starting-style | -                                                                                    | Present when the select begins animating in.                          |
 | data-ending-style   | -                                                                                    | Present when the select is animating out.                             |
 
-**Popup CSS Variables:**
-
-| Variable           | Type     | Description                                   |
-| :----------------- | :------- | :-------------------------------------------- |
-| `--nested-dialogs` | `number` | Indicates how many dialogs are nested within. |
-
 ### Popup.Props
 
 Re-export of [Popup](#popup) props.
@@ -612,12 +579,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Select.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Select.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Group Data Attributes:**
-
-| Attribute     | Type | Description                                  |
-| :------------ | :--- | :------------------------------------------- |
-| data-disabled | -    | Present when the checkbox group is disabled. |
-
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -665,12 +626,6 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Separator Data Attributes:**
-
-| Attribute        | Type                         | Description                                 |
-| :--------------- | :--------------------------- | :------------------------------------------ |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
-
 ### Separator.Props
 
 Re-export of [Separator](#separator) props.
@@ -696,18 +651,6 @@ Renders a `<div>` element.
 | className | `string \| ((state: Select.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Select.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Select.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Label Data Attributes:**
-
-| Attribute     | Type | Description                                    |
-| :------------ | :--- | :--------------------------------------------- |
-| data-disabled | -    | Present when the field is disabled.            |
-| data-valid    | -    | Present when the field is in a valid state.    |
-| data-invalid  | -    | Present when the field is in an invalid state. |
-| data-dirty    | -    | Present when the field's value has changed.    |
-| data-touched  | -    | Present when the field has been touched.       |
-| data-filled   | -    | Present when the field is filled.              |
-| data-focused  | -    | Present when the field control is focused.     |
 
 ### Label.Props
 
@@ -870,17 +813,17 @@ Requires the `items` prop on `<Select.Root>` and must be the only item-rendering
 
 **Virtualizer Props:**
 
-| Prop                | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :------------------ | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| actionsRef          | `React.RefObject<Select.Virtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                      |
-| enabled             | `boolean`                                                                                        | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                      |
-| estimatedItemHeight | `number \| ((item: SelectItemData<Value>, index: number) => number)`                             | -       | Estimated item height in CSS pixels used before item elements have been measured.                                                                                                             |
-| getItemKey          | `((item: SelectItemData<Value>) => string \| number)`                                            | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                |
-| overscanPx          | `number`                                                                                         | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the larger of 150px and the estimated size of the first item.                                                       |
-| children            | `((item: SelectItemData<Value>, index: number) => ReactElement)`                                 | -       | Renders exactly one item for the given value and logical index.                                                                                                                               |
-| className           | `string \| ((state: Select.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style               | `React.CSSProperties \| ((state: Select.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render              | `ReactElement \| ((props: HTMLProps, state: Select.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                | Type                                                                                             | Default | Description                                                                                                                                                                                                                           |
+| :------------------ | :----------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| actionsRef          | `React.RefObject<Select.Virtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                              |
+| enabled             | `boolean`                                                                                        | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                                                              |
+| estimatedItemHeight | `number \| ((item: SelectItemData<Value>, index: number) => number)`                             | -       | Estimated item height in CSS pixels used before item elements have been measured.                                                                                                                                                     |
+| getItemKey          | `((item: SelectItemData<Value>) => string \| number)`                                            | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                                                        |
+| overscanPx          | `number`                                                                                         | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the larger of 150px and the estimated size of the first item. The render buffer&#xA;always includes at least one estimated row, even when this prop is `0`. |
+| children            | `((item: SelectItemData<Value>, index: number) => ReactElement)`                                 | -       | Renders exactly one item for the given value and logical index.                                                                                                                                                                       |
+| className           | `string \| ((state: Select.Virtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                              |
+| style               | `React.CSSProperties \| ((state: Select.Virtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                           |
+| render              | `ReactElement \| ((props: HTMLProps, state: Select.Virtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                         |
 
 **Virtualizer Data Attributes:**
 
@@ -898,19 +841,6 @@ Requires the `items` prop on `<Select.Root>` and must be the only item-rendering
 
 Re-export of [Virtualizer](#virtualizer) props.
 
-### Virtualizer.Actions
-
-```typescript
-type SelectVirtualizerActions = {
-  scrollToIndex: (
-    index: number,
-    options?: {
-      align?: 'auto' | 'center' | 'end' | 'start';
-    },
-  ) => void;
-};
-```
-
 ### Virtualizer.State
 
 ```typescript
@@ -919,6 +849,15 @@ type SelectVirtualizerState = {
   empty: boolean;
   /** Total virtual content size in pixels. */
   totalSize: number;
+};
+```
+
+### Virtualizer.Actions
+
+```typescript
+type SelectVirtualizerActions = {
+  /** Scrolls an item into view by its logical collection index. */
+  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
 };
 ```
 
@@ -990,7 +929,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Positioner`: `Select.Positioner`, `Select.Positioner.State`, `Select.Positioner.Props`
 - `Select.Popup`: `Select.Popup`, `Select.Popup.Props`, `Select.Popup.State`
 - `Select.List`: `Select.List`, `Select.List.Props`, `Select.List.State`
-- `Select.Virtualizer`: `Select.Virtualizer`, `Select.Virtualizer.State`, `Select.Virtualizer.Props`
+- `Select.Virtualizer`: `Select.Virtualizer`, `Select.Virtualizer.Actions`, `Select.Virtualizer.State`, `Select.Virtualizer.Props`
 - `Select.Item`: `Select.Item`, `Select.Item.State`, `Select.Item.Props`
 - `Select.ItemIndicator`: `Select.ItemIndicator`, `Select.ItemIndicator.State`, `Select.ItemIndicator.Props`
 - `Select.ItemText`: `Select.ItemText`, `Select.ItemText.State`, `Select.ItemText.Props`
@@ -1000,7 +939,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectItemData`, `SelectItems`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectVirtualizerState`, `SelectVirtualizerProps`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
+- `Default`: `SelectItemData`, `SelectItems`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectVirtualizerState`, `SelectVirtualizerActions`, `SelectVirtualizerProps`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
 
 ## Canonical Types
 
@@ -1029,6 +968,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.Popup.State`: `SelectPopupState`
 - `Select.List.Props`: `SelectListProps`
 - `Select.List.State`: `SelectListState`
+- `Select.Virtualizer.Actions`: `SelectVirtualizerActions`
 - `Select.Virtualizer.State`: `SelectVirtualizerState`
 - `Select.Virtualizer.Props`: `SelectVirtualizerProps`
 - `Select.Item.State`: `SelectItemState`

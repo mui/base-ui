@@ -910,7 +910,11 @@ describe('<Combobox.Virtualizer />', () => {
               }}
               render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
             >
-              {(item: Item) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+              {(item: Item) => (
+                <Combobox.Item value={item} style={{ height: item.size }}>
+                  {item.label}
+                </Combobox.Item>
+              )}
             </Combobox.Virtualizer>
           </Combobox.List>
         </Combobox.Root>
@@ -1393,7 +1397,8 @@ describe('<Combobox.Virtualizer />', () => {
 
     const { rerender, user } = await render(<Test filteredItems={allItems} />);
     await user.click(screen.getByTestId('input'));
-    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+    await waitFor(() => expect(handleScrollTo).toHaveBeenCalled());
 
     handleScrollTo.mockClear();
     scrollTop = 100;
@@ -1720,6 +1725,94 @@ describe('<Combobox.Virtualizer />', () => {
     await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
   });
 
+  it.skipIf(isJSDOM)(
+    'restores an open max-height virtual window after rendered-label autofill',
+    async () => {
+      vi.restoreAllMocks();
+      const items = Array.from({ length: 100 }, (_, index) => `V${index + 1}`);
+      const onValueChange = vi.fn();
+
+      await render(
+        <Combobox.Root
+          defaultOpen
+          filter={null}
+          name="country"
+          items={items}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input />
+          <Combobox.List>
+            <Combobox.Virtualizer<string>
+              estimatedItemHeight={20}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
+            >
+              {(item: string, index) => (
+                <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                  {`Country ${index + 1}`}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.clientHeight).toBe(60));
+      await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
+
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+      fireEvent.change(hiddenInput, { target: { value: 'Country 50' } });
+      await flushMicrotasks();
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        'V50',
+        expect.objectContaining({ reason: 'none' }),
+      );
+      await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
+      await waitFor(() => expect(virtualizer.clientHeight).toBe(60));
+      expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
+    },
+  );
+
+  it('collects rendered labels from large non-virtualized lists for browser autofill', async () => {
+    const items = Array.from({ length: 1001 }, (_, index) => `V${index + 1}`);
+    const onValueChange = vi.fn();
+
+    await render(
+      <Combobox.Root name="country" items={items} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {items.map((item, index) => (
+                  <Combobox.Item key={item} value={item}>
+                    {`Country ${index + 1}`}
+                  </Combobox.Item>
+                ))}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+    fireEvent.change(hiddenInput, { target: { value: 'Country 1001' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).toHaveBeenCalledWith(
+      'V1001',
+      expect.objectContaining({ reason: 'none' }),
+    );
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
   it('does not render every item for an unmatched large autofill value', async () => {
     const items = Array.from({ length: 1001 }, (_, index) => `V${index + 1}`);
     const renderItem = vi.fn((item: string, index: number) => (
@@ -1756,11 +1849,13 @@ describe('<Combobox.Virtualizer />', () => {
 
       fireEvent.change(hiddenInput, { target: { value: 'Country 1000' } });
 
-      expect(renderItem).not.toHaveBeenCalled();
+      expect(renderItem).toHaveBeenCalled();
+      expect(renderItem.mock.calls.length).toBeLessThan(items.length);
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Browser autofill could not match a rendered item label'),
       );
       await flushMicrotasks();
+      expect(screen.queryByRole('listbox')).toBe(null);
     } finally {
       warnSpy.mockRestore();
     }

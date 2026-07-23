@@ -224,14 +224,14 @@ The virtualizer is the scroll container, so constrain its height or maximum heig
 ```css
 .Scroller {
   height: min(22.5rem, var(--total-size));
-  max-height: var(--available-height);
+  max-height: calc(var(--available-height) - 0.5rem);
   overflow: auto;
 }
 ```
 
-Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range (defaulting to the larger of 150px and the estimated item height). CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` can be a number or a function receiving the item and its filtered index, while `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
 
-When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
+When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. Its index argument is the item's index in the filtered and limited collection. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
