@@ -20,14 +20,12 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
 
   const { state } = useProgressRootContext();
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
     stateAttributesMapping: progressStateAttributesMapping,
   });
-
-  return element;
 });
 
 export interface ProgressTrackState extends ProgressRootState {}

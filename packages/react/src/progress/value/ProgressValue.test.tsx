@@ -63,19 +63,19 @@ describe('<Progress.Value />', () => {
         expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
       });
 
-      it('indeterminate value', async () => {
+      it.each([null, Number.NaN])('indeterminate value %s', async (value) => {
         const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
         };
         await render(
-          <Progress.Root value={null} format={format}>
+          <Progress.Root value={value} format={format}>
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
         expect(renderSpy.mock.lastCall?.[0]).toEqual('indeterminate');
-        expect(renderSpy.mock.lastCall?.[1]).toEqual(null);
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(value);
       });
     });
   });
