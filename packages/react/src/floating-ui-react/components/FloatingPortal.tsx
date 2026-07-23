@@ -64,6 +64,11 @@ export interface UseFloatingPortalNodeProps {
 
 export interface UseFloatingPortalNodeResult {
   portalNode: HTMLElement | null;
+  /**
+   * The `id` attribute of the portal node. On React 17 it is `undefined` until the `useId`
+   * polyfill assigns it in an effect after the node has been created.
+   */
+  portalNodeId: string | undefined;
   portalSubtree: React.ReactPortal | null;
 }
 
@@ -102,11 +107,6 @@ export function useFloatingPortalNode(
       return;
     }
 
-    // React 17 does not use React.useId().
-    if (uniqueId == null) {
-      return;
-    }
-
     const resolvedContainer =
       (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
       parentPortalNode ??
@@ -126,7 +126,7 @@ export function useFloatingPortalNode(
       setPortalNode(null);
       setContainerElement(resolvedContainer);
     }
-  }, [containerProp, parentPortalNode, uniqueId]);
+  }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],
@@ -148,6 +148,7 @@ export function useFloatingPortalNode(
 
   return {
     portalNode,
+    portalNodeId: uniqueId,
     portalSubtree,
   };
 }
@@ -167,7 +168,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 ) {
   const { render, className, style, children, container, ...elementProps } = componentProps;
 
-  const { portalNode, portalSubtree } = useFloatingPortalNode({
+  const { portalNode, portalNodeId, portalSubtree } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -261,7 +262,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
+          <span aria-owns={portalNodeId} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
