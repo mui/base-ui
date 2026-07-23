@@ -38,12 +38,18 @@ branch name, or file path passed as argument, review that target instead.
   risky, fragile, shared, or cross-component diff? Add exactly one adversarial
   bug hunter agent. No verifiers. No final sweep.
 - **xhigh** — `high` plus a docs subagent and one fresh missed-bug sweep. Fan out
-  adversarial bug hunters across affected code regions (modules/components — not
-  the four review areas). Max two independent views per region. No verifiers.
-  Recall bias.
+  adversarial bug hunters across the highest-risk affected code regions
+  (modules/components — not the four review areas). Max 2 adversarial bug
+  hunters total, including the hunter inherited from `high`. Other role
+  subagents do not count toward this cap. No verifiers. Recall bias.
 - **max** — `xhigh` plus an independent verifier for every surviving candidate.
-  Cover every affected code region with adversarial bug hunters (max 6 hunters
-  total). Maximum recall.
+  Cover every affected code region across max 6 adversarial bug hunters total,
+  including hunters inherited from `xhigh`; other role and verifier subagents do
+  not count toward this cap. When there are more than 6 regions, give the
+  highest-risk regions dedicated hunters and group related remaining regions
+  into shared assignments. Prioritize public runtime code, shared utilities,
+  cross-component invariants, and fragile state/timing boundaries. Maximum
+  recall.
 
 ## Phase 1 - Find candidates
 
