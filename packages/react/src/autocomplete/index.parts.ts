@@ -23,3 +23,5 @@ export { AutocompleteSeparator as Separator } from './separator/AutocompleteSepa
 
 export { useCoreFilter as useFilter } from '../combobox/root/utils/useFilter';
 export { useFilteredItems } from '../combobox/root/utils/useFilteredItems';
+export { useComboboxItems as useItems } from '../combobox/items/useItems';
+export { comboboxItems as items } from '../combobox/items/comboboxItems';

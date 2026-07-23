@@ -71,10 +71,11 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Item values
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, its source item is automatically used as its value, so the `value` prop on `<Combobox.Item>` can be omitted. Items rendered manually without a collection require an explicit `value` prop.
+
+To use a primitive value that differs from the source item—such as an ID held in an object—normalize the `items` array with the `Combobox.useItems` hook, which derives each item's value and label before rendering.
 
 ## Examples
 
@@ -91,6 +92,30 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 ): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
+```
+
+### Value selection with IDs
+
+When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is also used for filtering, typeahead, and form submission.
+
+Each item's derived value is used as its selection value automatically, so `defaultValue`, `value`, and `onValueChange` all work with plain IDs. The label is resolved from the collection even while the items are unmounted, so the input can display the selected item's label when the popup is closed.
+
+import { DemoComboboxUseItems } from './demos/use-items';
+
+<DemoComboboxUseItems />
+
+In React Server Components, use the hook-free `Combobox.items()` variant. It applies the accessors eagerly on the server and returns a serializable result. Pass that result through `useItems()` in the client component that renders the combobox:
+
+```tsx title="Normalizing items on the server"
+// page.tsx (server)
+const serverItems = Combobox.items(fruits, {
+  value: (fruit) => fruit.id,
+  label: (fruit) => fruit.label,
+});
+// Pass `serverItems` as a prop to a client component.
+
+// picker.tsx ('use client')
+const items = Combobox.useItems(props.serverItems);
 ```
 
 ### Multiple select
@@ -226,7 +251,7 @@ interface Fruit {
 
 const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
   return (
-    <Combobox.Item value={item}>
+    <Combobox.Item>
       <Combobox.ItemIndicator />
       <span>{item.label}</span>
     </Combobox.Item>
@@ -357,6 +382,19 @@ Pass the result to the `filter` prop of `<Combobox.Root>`.
 Returns the internally filtered items when called inside `<Combobox.Root>`.
 
 <TypesCombobox.useFilteredItems hideDescription />
+
+## useItems
+
+Normalizes items into a collection for the `items` prop of `<Combobox.Root>`, deriving each item's selection value and label before rendering.
+
+<TypesCombobox.useItems hideDescription />
+
+## items
+
+A hook-free variant of `useItems` for React Server Components.
+It applies the accessors eagerly and returns a serializable result accepted by the `items` prop.
+
+<TypesCombobox.items hideDescription />
 
 export const metadata = {
   keywords: [

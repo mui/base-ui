@@ -2,10 +2,15 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export default function ExampleCombobox() {
+export default function ExampleUseItemsCombobox() {
   const id = React.useId();
+  const items = Combobox.useItems(fruits, {
+    value: (fruit) => fruit.id,
+    label: (fruit) => fruit.name,
+  });
+
   return (
-    <Combobox.Root items={fruits}>
+    <Combobox.Root items={items} defaultValue="banana">
       <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-950 dark:text-white">
         <label htmlFor={id}>Choose a fruit</label>
         <Combobox.InputGroup className="relative h-8 w-56 border border-neutral-950 bg-white dark:bg-neutral-950 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white dark:border-white [&>input]:pr-[calc(0.5rem+2rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
@@ -42,13 +47,13 @@ export default function ExampleCombobox() {
             <Combobox.List className="max-h-[min(22.5rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0">
               {(item: Fruit) => (
                 <Combobox.Item
-                  key={item.value}
+                  key={item.id}
                   className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                 >
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon />
                   </Combobox.ItemIndicator>
-                  <span className="col-start-2">{item.label}</span>
+                  <span className="col-start-2">{item.name}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -109,34 +114,25 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 interface Fruit {
-  label: string;
-  value: string;
+  id: string;
+  name: string;
 }
 
 const fruits: Fruit[] = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Orange', value: 'orange' },
-  { label: 'Pineapple', value: 'pineapple' },
-  { label: 'Grape', value: 'grape' },
-  { label: 'Mango', value: 'mango' },
-  { label: 'Strawberry', value: 'strawberry' },
-  { label: 'Blueberry', value: 'blueberry' },
-  { label: 'Raspberry', value: 'raspberry' },
-  { label: 'Blackberry', value: 'blackberry' },
-  { label: 'Cherry', value: 'cherry' },
-  { label: 'Peach', value: 'peach' },
-  { label: 'Pear', value: 'pear' },
-  { label: 'Plum', value: 'plum' },
-  { label: 'Kiwi', value: 'kiwi' },
-  { label: 'Watermelon', value: 'watermelon' },
-  { label: 'Cantaloupe', value: 'cantaloupe' },
-  { label: 'Honeydew', value: 'honeydew' },
-  { label: 'Papaya', value: 'papaya' },
-  { label: 'Guava', value: 'guava' },
-  { label: 'Lychee', value: 'lychee' },
-  { label: 'Pomegranate', value: 'pomegranate' },
-  { label: 'Apricot', value: 'apricot' },
-  { label: 'Grapefruit', value: 'grapefruit' },
-  { label: 'Passionfruit', value: 'passionfruit' },
+  { id: 'apple', name: 'Apple' },
+  { id: 'banana', name: 'Banana' },
+  { id: 'orange', name: 'Orange' },
+  { id: 'pineapple', name: 'Pineapple' },
+  { id: 'grape', name: 'Grape' },
+  { id: 'mango', name: 'Mango' },
+  { id: 'strawberry', name: 'Strawberry' },
+  { id: 'blueberry', name: 'Blueberry' },
+  { id: 'raspberry', name: 'Raspberry' },
+  { id: 'blackberry', name: 'Blackberry' },
+  { id: 'cherry', name: 'Cherry' },
+  { id: 'peach', name: 'Peach' },
+  { id: 'pear', name: 'Pear' },
+  { id: 'plum', name: 'Plum' },
+  { id: 'kiwi', name: 'Kiwi' },
+  { id: 'watermelon', name: 'Watermelon' },
 ];

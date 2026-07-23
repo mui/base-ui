@@ -35,7 +35,7 @@ Doesn't render its own HTML element.
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                         | -       | Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                    |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                    |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                         |
-| items                | `any[] \| Group[]`                                                                                      | -       | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| items                | `any[] \| Group[] \| ComboboxItemCollection<any, Value>`                                                | -       | The items to be displayed in the list.&#xA;Can be a flat array of items, an array of groups with items, or a collection created by&#xA;the `useItems()` hook, which derives each item's selection value and label.                                                                                                                                                                                                                                                                                                                                                    |
 | limit                | `number`                                                                                                | `-1`    | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | locale               | `Intl.LocalesArgument`                                                                                  | -       | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | loopFocus            | `boolean`                                                                                               | `true`  | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp. |
@@ -77,7 +77,6 @@ type ComboboxRootActions = { unmount: () => void };
 ```typescript
 type ComboboxRootChangeEventReason =
   | 'trigger-press'
-  | 'input-press'
   | 'outside-press'
   | 'item-press'
   | 'close-press'
@@ -88,7 +87,6 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
-  | 'cancel-open'
   | 'none';
 ```
 
@@ -98,7 +96,6 @@ type ComboboxRootChangeEventReason =
 type ComboboxRootChangeEventDetails = (
   | { reason: 'none'; event: Event }
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
-  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
@@ -109,7 +106,6 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
-  | { reason: 'cancel-open'; event: MouseEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -648,7 +644,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                             |
 | :----------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                       | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
+| value        | `any`                                                                                       | `null`  | A unique value that identifies this item. When omitted inside a collection, the source item&#xA;is used as the value.                                                                                                                   |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`              | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
 | index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
 | nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
@@ -750,17 +746,17 @@ type ComboboxGroupLabelState = {};
 
 ### Separator
 
-A visual separator between items or groups.
+A separator element accessible to screen readers.
 Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                                             | Default        | Description                                                                                                                                                                                   |
-| :---------- | :----------------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                                    | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
-| className   | `string \| ((state: Combobox.Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: Combobox.Separator.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                          | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Separator.Props
 
@@ -1092,6 +1088,26 @@ type ComboboxInputGroupState = {
 };
 ```
 
+### items
+
+Normalizes items into a serializable payload for the `useItems()` hook.
+A hook-free variant of `useItems()` usable in React Server Components: the accessors run
+eagerly here, and passing the result to `useItems()` on the client re-brands it into a
+collection for `Combobox.Root`'s `items` prop.
+
+**Parameters:**
+
+| Parameter | Type                                | Default | Description |
+| :-------- | :---------------------------------- | :------ | :---------- |
+| data      | `Item[]`                            | -       | -           |
+| options?  | `ComboboxItemsOptions<Item, Value>` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = ComboboxItemsPayload<Item, Value>;
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -1116,6 +1132,24 @@ Returns the internally filtered items.
 
 ```tsx
 type ReturnValue = T[];
+```
+
+### useItems
+
+Normalizes items into a collection for `Combobox.Root`'s `items` prop, deriving each item's
+selection value and label before rendering.
+
+**Parameters:**
+
+| Parameter | Type                                                                                 | Default | Description |
+| :-------- | :----------------------------------------------------------------------------------- | :------ | :---------- |
+| data      | `Item[] \| ComboboxItemCollection<Item, Value> \| ComboboxItemsPayload<Item, Value>` | -       | -           |
+| options?  | `UseComboboxItemsOptions<Item, Value>`                                               | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = ComboboxItemCollection<Item, Value>;
 ```
 
 ## Additional Types
@@ -1149,6 +1183,113 @@ type ComboboxFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+};
+```
+
+### ComboboxItemCollection
+
+Normalized items created by `useItems()`, accepted by the `items` prop of `Combobox.Root`.
+
+```typescript
+type ComboboxItemCollection<Item, Value = Item> = {
+  /**
+   * Maps the items to an array, calling `callback` with each item, its derived value, and
+   * its index.
+   */
+  each: each;
+  /**
+   * Returns the items whose labels match the query.
+   * Uses `Intl.Collator` matching by default, or the `matches` option when provided.
+   */
+  matches: matches;
+  /** The number of items. */
+  length: number;
+};
+```
+
+### ComboboxItemsFilterMode
+
+```typescript
+type ComboboxItemsFilterMode = 'contains' | 'startsWith' | 'endsWith';
+```
+
+### ComboboxItemsMatchOptions
+
+```typescript
+type ComboboxItemsMatchOptions = {
+  /**
+   * How the query is matched against each item's label.
+   * @default 'contains'
+   */
+  filterMode?: ComboboxItemsFilterMode;
+};
+```
+
+### ComboboxItemsOptions
+
+```typescript
+type ComboboxItemsOptions<Item, Value = Item> = {
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   */
+  value?: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and when matching
+   * the typed query.
+   * By default, the item's derived value is stringified.
+   */
+  label?: (item: Item) => string;
+  /**
+   * The locale used for query matching.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: string | string[];
+};
+```
+
+### ComboboxItemsPayload
+
+Serializable normalized items produced by `Combobox.items()`. Re-branded into a collection
+by passing it to `useItems()` on the client.
+
+```typescript
+type ComboboxItemsPayload<Item = any, Value = any> = {
+  items: Item[];
+  values: Value[];
+  labels: string[];
+  locale?: string | string[];
+  __baseUIItems: true;
+};
+```
+
+### UseComboboxItemsOptions
+
+```typescript
+type UseComboboxItemsOptions<Item, Value = Item> = {
+  /**
+   * Replaces the default query matching used by the collection's `matches()` method.
+   * Returns the items that match the query.
+   */
+  matches?: ComboboxItemsMatcher<Item>;
+  /**
+   * The locale used for query matching.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * Projects an item to the label string that represents it in the input and when matching
+   * the typed query.
+   * By default, the item's derived value is stringified.
+   */
+  label?: (item: Item) => string;
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   */
+  value?: (item: Item) => Value;
 };
 ```
 
@@ -1189,6 +1330,30 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
+### ComboboxItemsMatcher
+
+```typescript
+type ComboboxItemsMatcher = (
+  query: string,
+  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
+) => unknown;
+```
+
+### each
+
+```typescript
+type each = (callback: unknown) => unknown;
+```
+
+### matches
+
+```typescript
+type matches = (
+  query: string,
+  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
+) => unknown;
+```
+
 ## Export Groups
 
 - `Combobox.Root`: `Combobox.Root`, `Combobox.Root.Props`, `Combobox.Root.State`, `Combobox.Root.Actions`, `Combobox.Root.ChangeEventReason`, `Combobox.Root.ChangeEventDetails`, `Combobox.Root.HighlightEventReason`, `Combobox.Root.HighlightEventDetails`
@@ -1219,7 +1384,9 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
+- `Combobox.useItems`
+- `Combobox.items`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxItemsMatchOptions`, `ComboboxItemsFilterMode`, `UseComboboxItemsOptions`, `ComboboxItemsOptions`, `ComboboxItemsPayload`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1280,5 +1447,3 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Empty.Props`: `ComboboxEmptyProps`
 - `Combobox.Clear.State`: `ComboboxClearState`
 - `Combobox.Clear.Props`: `ComboboxClearProps`
-- `Combobox.Separator.Props`: `ComboboxSeparatorProps`
-- `Combobox.Separator.State`: `ComboboxSeparatorState`

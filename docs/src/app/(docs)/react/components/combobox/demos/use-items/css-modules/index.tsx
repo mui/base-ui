@@ -3,10 +3,15 @@ import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import styles from './index.module.css';
 
-export default function ExampleCombobox() {
+export default function ExampleUseItemsCombobox() {
   const id = React.useId();
+  const items = Combobox.useItems(fruits, {
+    value: (fruit) => fruit.id,
+    label: (fruit) => fruit.name,
+  });
+
   return (
-    <Combobox.Root items={fruits}>
+    <Combobox.Root items={items} defaultValue="banana">
       <div className={styles.Label}>
         <label htmlFor={id}>Choose a fruit</label>
         <Combobox.InputGroup className={styles.InputGroup}>
@@ -30,11 +35,11 @@ export default function ExampleCombobox() {
             </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: Fruit) => (
-                <Combobox.Item key={item.value} className={styles.Item}>
+                <Combobox.Item key={item.id} className={styles.Item}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>
-                  <span className={styles.ItemText}>{item.label}</span>
+                  <span className={styles.ItemText}>{item.name}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -95,34 +100,25 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 interface Fruit {
-  label: string;
-  value: string;
+  id: string;
+  name: string;
 }
 
 const fruits: Fruit[] = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Orange', value: 'orange' },
-  { label: 'Pineapple', value: 'pineapple' },
-  { label: 'Grape', value: 'grape' },
-  { label: 'Mango', value: 'mango' },
-  { label: 'Strawberry', value: 'strawberry' },
-  { label: 'Blueberry', value: 'blueberry' },
-  { label: 'Raspberry', value: 'raspberry' },
-  { label: 'Blackberry', value: 'blackberry' },
-  { label: 'Cherry', value: 'cherry' },
-  { label: 'Peach', value: 'peach' },
-  { label: 'Pear', value: 'pear' },
-  { label: 'Plum', value: 'plum' },
-  { label: 'Kiwi', value: 'kiwi' },
-  { label: 'Watermelon', value: 'watermelon' },
-  { label: 'Cantaloupe', value: 'cantaloupe' },
-  { label: 'Honeydew', value: 'honeydew' },
-  { label: 'Papaya', value: 'papaya' },
-  { label: 'Guava', value: 'guava' },
-  { label: 'Lychee', value: 'lychee' },
-  { label: 'Pomegranate', value: 'pomegranate' },
-  { label: 'Apricot', value: 'apricot' },
-  { label: 'Grapefruit', value: 'grapefruit' },
-  { label: 'Passionfruit', value: 'passionfruit' },
+  { id: 'apple', name: 'Apple' },
+  { id: 'banana', name: 'Banana' },
+  { id: 'orange', name: 'Orange' },
+  { id: 'pineapple', name: 'Pineapple' },
+  { id: 'grape', name: 'Grape' },
+  { id: 'mango', name: 'Mango' },
+  { id: 'strawberry', name: 'Strawberry' },
+  { id: 'blueberry', name: 'Blueberry' },
+  { id: 'raspberry', name: 'Raspberry' },
+  { id: 'blackberry', name: 'Blackberry' },
+  { id: 'cherry', name: 'Cherry' },
+  { id: 'peach', name: 'Peach' },
+  { id: 'pear', name: 'Pear' },
+  { id: 'plum', name: 'Plum' },
+  { id: 'kiwi', name: 'Kiwi' },
+  { id: 'watermelon', name: 'Watermelon' },
 ];

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import type { ComboboxItemCollection } from '../../combobox/items/itemCollection';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
@@ -24,9 +25,10 @@ export function AutocompleteRoot<ItemValue>(
   props: Omit<AutocompleteRoot.Props<ItemValue>, 'items'> & {
     /**
      * The items to be displayed in the list.
-     * Can be either a flat array of items or an array of groups with items.
+     * Can be a flat array of items, an array of groups with items, or a collection created
+     * by the `useItems()` hook.
      */
-    items?: readonly ItemValue[] | undefined;
+    items?: readonly ItemValue[] | ComboboxItemCollection<any, ItemValue> | undefined;
   },
 ): React.JSX.Element;
 export function AutocompleteRoot<ItemValue>(
