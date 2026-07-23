@@ -19,11 +19,13 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
 
   const { value, formattedValue, state } = useProgressRootContext();
 
+  // Follow `status` rather than re-deriving it: a non-finite `value` is also indeterminate, and
+  // has no formatted text to show.
   const indeterminate = state.status === 'indeterminate';
   const formattedValueArg = indeterminate ? 'indeterminate' : formattedValue;
   const formattedValueDisplay = indeterminate ? null : formattedValue;
 
-  return useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -38,6 +40,8 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
     ],
     stateAttributesMapping: progressStateAttributesMapping,
   });
+
+  return element;
 });
 
 export interface ProgressValueState extends ProgressRootState {}
