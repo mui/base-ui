@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
@@ -199,6 +200,77 @@ describe('<OTPField.Input />', () => {
 
     expect(firstInput.selectionStart).toBe(0);
     expect(firstInput.selectionEnd).toBe(1);
+  });
+
+  it('allows a composed mousedown handler to prevent focus', async () => {
+    await render(
+      <OTPField.Root length={2}>
+        <OTPField.Input
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+        />
+        <OTPField.Input />
+      </OTPField.Root>,
+    );
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    expect(fireEvent.mouseDown(firstInput)).toBe(false);
+    expect(firstInput).not.toHaveFocus();
+  });
+
+  it('allows a composed focus handler to prevent internal focus state', async () => {
+    await render(
+      <OTPField.Root data-testid="root" length={1}>
+        <OTPField.Input
+          onFocus={(event) => {
+            event.preventDefault();
+          }}
+        />
+      </OTPField.Root>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    expect(input).toHaveFocus();
+    expect(root).not.toHaveAttribute('data-focused');
+  });
+
+  it('allows a composed blur handler to preserve internal focus state', async () => {
+    await render(
+      <React.Fragment>
+        <OTPField.Root data-testid="root" length={1}>
+          <OTPField.Input
+            onBlur={(event) => {
+              event.preventDefault();
+            }}
+          />
+        </OTPField.Root>
+        <button type="button">Outside</button>
+      </React.Fragment>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const outside = screen.getByRole('button', { name: 'Outside' });
+
+    await act(async () => {
+      input.focus();
+    });
+    expect(root).toHaveAttribute('data-focused', '');
+
+    await act(async () => {
+      outside.focus();
+    });
+
+    expect(outside).toHaveFocus();
+    expect(root).toHaveAttribute('data-focused', '');
   });
 
   it('moves focus to the next slot when typing the same character into a filled slot', async () => {
@@ -458,6 +530,7 @@ describe('<OTPField.Input />', () => {
 
   it('warns in development when clipboard text cannot be read during paste handling', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
 
     try {
       await render(<OTPFieldTest defaultValue="12" />);
@@ -476,8 +549,19 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> could not read clipboard text during paste handling.',
       );
     } finally {
+      ownerStackSpy.mockRestore();
       warnSpy.mockRestore();
     }
+  });
+
+  it('ignores a paste event when clipboard text is unavailable', async () => {
+    await render(<OTPFieldTest defaultValue="12" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+
+    expect(inputs[1].dispatchEvent(pasteEvent)).toBe(false);
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
   });
 
   it('allows tabbing out of the field from the active slot', async () => {
@@ -727,6 +811,7 @@ describe('<OTPField.Input />', () => {
 
   it('warns when aria-label is provided on the first slot without an associated label', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
 
     try {
       await render(
@@ -745,6 +830,7 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> ignores `aria-label` on the first input.',
       );
     } finally {
+      ownerStackSpy.mockRestore();
       warnSpy.mockRestore();
     }
   });
