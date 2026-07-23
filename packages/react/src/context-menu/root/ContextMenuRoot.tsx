@@ -26,6 +26,9 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = React.useRef(true);
   const initialCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  const openCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  const suppressReopenRef = React.useRef(false);
+  const openedWithTouchRef = React.useRef(false);
   const id = useId();
 
   const contextValue: ContextMenuRootContext = React.useMemo(
@@ -38,6 +41,9 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       positionerRef,
       allowMouseUpTriggerRef,
       initialCursorPointRef,
+      openCursorPointRef,
+      suppressReopenRef,
+      openedWithTouchRef,
       rootId: id,
     }),
     [anchor, id],

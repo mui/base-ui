@@ -297,6 +297,67 @@ describe('<ContextMenu.Root />', () => {
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
     });
 
+    it('keeps repeat-right-click toggling after interacting with a persistent item', async () => {
+      const onOpenChange = vi.fn();
+
+      const { user } = await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.CheckboxItem defaultChecked={false} data-testid="context-item">
+                  Option
+                </ContextMenu.CheckboxItem>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      await user.click(screen.getByTestId('context-item'));
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, { button: 2, clientX: 11, clientY: 12 });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { button: 2, clientX: 11, clientY: 12 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('opens on macOS Control-click', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Control-click me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+        button: 0,
+        buttons: 1,
+        ctrlKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+    });
+
     it('closes when right-clicking again within the move threshold', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
@@ -415,6 +476,132 @@ describe('<ContextMenu.Root />', () => {
 
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('does not reopen when a dismissing macOS Control-click is within the move threshold', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 0,
+        ctrlKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, {
+        button: 0,
+        buttons: 1,
+        ctrlKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('clears reopen suppression when no contextmenu event follows the dismissing press', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 2,
+        shiftKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      // Firefox deliberately omits `contextmenu` for Shift+right-click. The next
+      // ordinary right click is a new gesture and must not inherit suppression.
+      fireEvent.pointerDown(trigger, { button: 2, clientX: 11, clientY: 12 });
+      fireEvent.contextMenu(trigger, { button: 2, clientX: 11, clientY: 12 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+    });
+
+    it('does not apply stale pointer suppression to a keyboard contextmenu event', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, {
+        button: 2,
+        shiftKey: true,
+        clientX: 11,
+        clientY: 12,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { button: 0, buttons: 0 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
     });
 
     it('stays open when right-clicking again outside the move threshold', async () => {

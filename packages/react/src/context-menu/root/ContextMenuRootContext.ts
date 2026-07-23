@@ -13,6 +13,9 @@ export interface ContextMenuRootContext {
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   initialCursorPointRef: React.RefObject<{ x: number; y: number } | null>;
+  openCursorPointRef: React.RefObject<{ x: number; y: number } | null>;
+  suppressReopenRef: React.RefObject<boolean>;
+  openedWithTouchRef: React.RefObject<boolean>;
   rootId: string | undefined;
 }
 

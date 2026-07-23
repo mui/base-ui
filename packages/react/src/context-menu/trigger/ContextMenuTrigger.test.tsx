@@ -139,7 +139,7 @@ describe('<ContextMenu.Trigger />', () => {
 
     const trigger = screen.getByTestId('trigger');
     // Left button (1) still held while the right click fires.
-    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, buttons: 3 });
+    fireEvent.contextMenu(trigger, { button: 2, clientX: 10, clientY: 10, buttons: 3 });
 
     expect(onOpenChange.mock.calls.length).toBe(0);
   });
@@ -646,6 +646,83 @@ describe('<ContextMenu.Trigger />', () => {
       // popup. It must not toggle the menu closed.
       const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
       fireEvent.contextMenu(backdrop, { clientX: 100, clientY: 100 });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    });
+
+    it('ignores a touch contextmenu event retargeted to the trigger after a long press', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+      clock.tick(500);
+
+      const positioner = await screen.findByTestId('positioner');
+      const initialTop = positioner.getBoundingClientRect().top;
+
+      trigger.dispatchEvent(
+        new PointerEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          button: 2,
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'touch',
+        }),
+      );
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+      expect(positioner.getBoundingClientRect().top).toBe(initialTop);
+      expect(onOpenChange.mock.calls.length).toBe(1);
+    });
+
+    it('shares touch gesture state between multiple triggers in one root', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="first-trigger">First surface</ContextMenu.Trigger>
+          <ContextMenu.Trigger>Second surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('first-trigger');
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+      clock.tick(500);
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      backdrop.dispatchEvent(
+        new PointerEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          button: 2,
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'touch',
+        }),
+      );
       await flushMicrotasks();
 
       expect(screen.queryByRole('menu')).not.toBe(null);

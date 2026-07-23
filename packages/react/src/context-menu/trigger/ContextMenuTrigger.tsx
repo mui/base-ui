@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -16,6 +17,14 @@ import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
+
+function isMacControlClick(event: Pick<MouseEvent, 'button' | 'ctrlKey'>) {
+  return platform.os.mac && event.button === 0 && event.ctrlKey;
+}
+
+function isContextMenuPress(event: Pick<MouseEvent, 'button' | 'ctrlKey'>) {
+  return event.button === 2 || isMacControlClick(event);
+}
 
 /**
  * An area that opens the menu on right click or long press.
@@ -37,6 +46,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     positionerRef,
     allowMouseUpTriggerRef,
     initialCursorPointRef,
+    openCursorPointRef,
+    suppressReopenRef,
+    openedWithTouchRef,
     rootId,
   } = useContextMenuRootContext(false);
 
@@ -46,14 +58,13 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
-  const suppressReopenRef = React.useRef(false);
-  const openedWithTouchRef = React.useRef(false);
   const longPressTimeout = useTimeout();
   const pressTimeStampRef = React.useRef(0);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
   function handleLongPress(rawX: number, rawY: number, event: MouseEvent | TouchEvent) {
-    const isTouchEvent = event.type.startsWith('touch');
+    const isTouchEvent =
+      event.type.startsWith('touch') || (event as PointerEvent).pointerType === 'touch';
 
     // The event coordinates are precise floats, but the system draws the cursor at
     // the floored device pixel. Snap the anchor to that grid so the popup sits at an
@@ -63,6 +74,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     const y = Math.floor(rawY * dpr) / dpr;
 
     initialCursorPointRef.current = { x, y };
+    openCursorPointRef.current = { x, y };
     openedWithTouchRef.current = isTouchEvent;
 
     setAnchor({
@@ -84,22 +96,38 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       return;
     }
 
+    if (
+      (event.nativeEvent as PointerEvent).pointerType === 'touch' &&
+      store.select('open') &&
+      openedWithTouchRef.current
+    ) {
+      stopEvent(event);
+      return;
+    }
+
     // The right click that just dismissed the menu (its `pointerdown` triggered
     // outside-press while within the box around the opening point) bubbles a
     // `contextmenu` event to the trigger once the backdrop unmounts. Suppress it so
     // right-clicking in place toggles the menu closed instead of reopening it.
     if (suppressReopenRef.current) {
       suppressReopenRef.current = false;
-      stopEvent(event);
-      return;
+      if (isContextMenuPress(event.nativeEvent)) {
+        stopEvent(event);
+        return;
+      }
     }
 
     // A right click while another mouse button is already held down is part of a
     // chorded gesture (e.g. a left-drag plus right click), not a context menu
     // request. `buttons` is 2 while only the right button is held, or 0 on
-    // platforms where `contextmenu` fires on its release.
+    // platforms where `contextmenu` fires on its release. macOS Control-click uses
+    // the primary button and reports `buttons` as 1.
     const { buttons } = event.nativeEvent;
-    if (buttons !== 0 && buttons !== 2) {
+    if (
+      buttons !== 0 &&
+      buttons !== 2 &&
+      !(isMacControlClick(event.nativeEvent) && buttons === 1)
+    ) {
       event.preventDefault();
       return;
     }
@@ -137,7 +165,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         // surface, where it must still be able to activate an item.
         if (
           isWithinThreshold(
-            initialCursorPointRef.current,
+            openCursorPointRef.current,
             mouseEvent.clientX,
             mouseEvent.clientY,
             CONTEXT_MENU_MOVE_THRESHOLD,
@@ -223,12 +251,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     // not on the popup itself, where right-clicking is not a toggle gesture — flag
     // it so `handleContextMenu` doesn't immediately reopen the menu.
     function handleDocumentPointerDown(event: PointerEvent) {
-      if (event.button !== 2 || !store.select('open')) {
+      if (!store.select('open')) {
+        suppressReopenRef.current = false;
+        return;
+      }
+      if (!isContextMenuPress(event)) {
         return;
       }
       if (
         isWithinThreshold(
-          initialCursorPointRef.current,
+          openCursorPointRef.current,
           event.clientX,
           event.clientY,
           CONTEXT_MENU_MOVE_THRESHOLD,
@@ -265,7 +297,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         !openedWithTouchRef.current &&
         onBackdrop &&
         isWithinThreshold(
-          initialCursorPointRef.current,
+          openCursorPointRef.current,
           event.clientX,
           event.clientY,
           CONTEXT_MENU_MOVE_THRESHOLD,
@@ -294,9 +326,11 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     backdropRef,
     disabled,
     internalBackdropRef,
-    initialCursorPointRef,
+    openCursorPointRef,
+    openedWithTouchRef,
     positionerRef,
     store,
+    suppressReopenRef,
   ]);
 
   const state: ContextMenuTriggerState = {
