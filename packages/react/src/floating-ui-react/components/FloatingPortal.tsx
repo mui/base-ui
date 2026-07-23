@@ -150,7 +150,9 @@ export function useFloatingPortalNode(
     portalNode,
     // `id` and `render` props can override or remove the generated ID. Use the exact
     // rendered value so `aria-owns` never points at an ID absent from the DOM.
-    portalNodeId: (portalElement as React.ReactElement<{ id?: string | undefined }>).props.id,
+    portalNodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
+      ? portalElement.props.id
+      : undefined,
     portalSubtree,
   };
 }
