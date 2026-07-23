@@ -188,6 +188,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlightMode = autoHighlight ? 'input-change' : false;
   }
 
+  const hasAutoHighlightPredicate = typeof autoHighlight === 'function';
+  const autoHighlightPredicate = useStableCallback((itemValue: Value, highlightQuery: string) =>
+    typeof autoHighlight === 'function' ? autoHighlight(itemValue, highlightQuery) : true,
+  );
+
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
     default: multiple ? (defaultSelectedValue ?? EMPTY_ARRAY) : defaultSelectedValue,
@@ -593,6 +598,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           if (
             hasQuery &&
             autoHighlightMode &&
+            // With a predicate, the decision depends on the first item filtered by the new
+            // query, which hasn't been derived yet. Defer to the layout effect below.
+            !hasAutoHighlightPredicate &&
             store.state.activeIndex == null &&
             (open || inline)
           ) {
@@ -901,7 +909,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode && listIsNavigable) {
-          store.set('activeIndex', 0);
+          let nextIndex: number | null = 0;
+          if (hasAutoHighlightPredicate) {
+            const firstItem = (
+              hasItems || hasFilteredItemsProp ? flatFilteredItems : valuesRef.current
+            )[0];
+            // Use the live typed value: `query` can still hold a stale `closeQuery` frozen
+            // for an exit animation when typing reopens the popup.
+            const highlight =
+              firstItem !== undefined &&
+              autoHighlightPredicate(firstItem, String(inputValue).trim());
+            nextIndex = highlight ? 0 : null;
+          }
+          store.set('activeIndex', nextIndex);
         }
         pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
@@ -1005,6 +1025,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [
     activeIndex,
     autoHighlightMode,
+    autoHighlightPredicate,
+    hasAutoHighlightPredicate,
     emitHighlight,
     hasFilteredItemsProp,
     hasItems,
@@ -1554,9 +1576,15 @@ interface ComboboxRootProps<ItemValue> {
    * - `false`: do not highlight automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: highlight the first item as soon as the list opens.
+   * - A function: called with the first matching item and the current query after the user
+   *   types; return `true` to highlight it or `false` to leave the highlight cleared.
    * @default false
    */
-  autoHighlight?: boolean | 'always' | undefined;
+  autoHighlight?:
+    | boolean
+    | 'always'
+    | ((itemValue: ItemValue, query: string) => boolean)
+    | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false

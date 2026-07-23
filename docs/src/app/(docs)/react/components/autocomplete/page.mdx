@@ -132,7 +132,7 @@ import { DemoAutocompleteLimit } from './demos/limit';
 
 ### Auto highlight
 
-The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
+The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog. Passing a function of the form `(itemValue, query) => boolean` decides on each query change whether the first matching item should be highlighted, which is useful when only certain matches, such as exact ones, should be selected when pressing <kbd>Enter</kbd>.
 
 The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
 
