@@ -75,6 +75,21 @@ describe('<ListVirtualizer />', () => {
     expect(pinnedRow.parentElement?.style.transform).toBe('translateX(-10000px)');
   });
 
+  it('renders a pinned row at the half-open bottom boundary', async () => {
+    await render(
+      <ListVirtualizer
+        estimatedItemHeight={20}
+        overscanPx={0}
+        pinnedRowIndex={3}
+        render={<div ref={setElementClientHeight(40)} />}
+        renderRow={renderRow}
+        rows={createRows(100)}
+      />,
+    );
+
+    expect(await screen.findByText('Item 4')).not.toBe(null);
+  });
+
   it('does not rerender rows retained between virtual windows', async () => {
     const renderRowSpy = vi.fn(renderRow);
 

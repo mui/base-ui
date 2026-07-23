@@ -127,6 +127,7 @@ function getOverscannedRenderContext(
   renderContext: RenderContext,
   rowPositions: readonly number[],
   rowCount: number,
+  pinnedRowIndex: number | undefined,
   overscanPx: number,
   scrollTop: number,
   viewportHeight: number,
@@ -145,6 +146,12 @@ function getOverscannedRenderContext(
     (rowPositions[lastRowIndex] ?? Number.POSITIVE_INFINITY) <= overscanEnd
   ) {
     lastRowIndex += 1;
+  }
+
+  // MUI X renders a half-open range but only retains a focused row when it is strictly beyond
+  // the end index. Include the pinned row when it lands exactly on that boundary.
+  if (lastRowIndex === pinnedRowIndex) {
+    lastRowIndex = Math.min(rowCount, lastRowIndex + 1);
   }
 
   return {
@@ -359,6 +366,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     renderContext,
     rowsMeta.positions,
     rows.length,
+    validPinnedRowIndex,
     renderBufferPx,
     currentScrollTop,
     dimensions.viewportInnerSize.height,

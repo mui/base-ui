@@ -181,6 +181,59 @@ describe('<Select.Virtualizer />', () => {
     expect(handleValueChange.mock.lastCall?.[0]).toBe('Item 9');
   });
 
+  it('matches offscreen items with typeahead', async () => {
+    const items = [...createItems(100), { value: 'zebra', label: 'Zebra' }];
+    const { user } = await render(
+      <Select.Root defaultOpen items={items}>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Positioner alignItemWithTrigger={false}>
+          <Select.Popup>
+            <Select.List>
+              <Select.Virtualizer<string>
+                estimatedItemHeight={20}
+                overscanPx={0}
+                render={<div ref={setElementClientHeight(60)} />}
+              >
+                {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+              </Select.Virtualizer>
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByRole('combobox');
+    act(() => trigger.focus());
+    await user.keyboard('z');
+
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Zebra' })).toHaveFocus());
+  });
+
+  it('matches item labels with typeahead while the popup is closed', async () => {
+    const handleValueChange = vi.fn();
+    const items = [...createItems(100), { value: 'zebra', label: 'Zebra' }];
+    const { user } = await render(
+      <Select.Root items={items} onValueChange={handleValueChange}>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Positioner alignItemWithTrigger={false}>
+          <Select.Popup>
+            <Select.List>
+              <Select.Virtualizer<string> estimatedItemHeight={20}>
+                {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+              </Select.Virtualizer>
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByRole('combobox');
+    act(() => trigger.focus());
+    await user.keyboard('z');
+
+    expect(handleValueChange.mock.lastCall?.[0]).toBe('zebra');
+  });
+
   it('skips disabled offscreen items using isItemDisabled', async () => {
     const { user } = await render(
       <VirtualizedSelect

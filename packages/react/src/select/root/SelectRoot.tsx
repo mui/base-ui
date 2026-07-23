@@ -400,6 +400,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       );
     }
 
+    if (resolvedItems.hasItems || store.state.virtualizationRegistry.virtualizers.size > 0) {
+      return itemElement != null && isElementDisabled(itemElement);
+    }
+
     return isElementDisabled(itemElement);
   });
 
