@@ -105,6 +105,10 @@ export const adaptiveOrigin: Middleware = {
     if (prev && prev.side !== currentSide) {
       const anchorChanged = prev.anchor !== reference;
       const animate = anchorChanged || hasRunningInsetTransition(floating);
+      const swappedX = (prev.side === 'left') !== (currentSide === 'left');
+      const swappedY = (prev.side === 'top') !== (currentSide === 'top');
+      const updateX = !animate || swappedX;
+      const updateY = !animate || swappedY;
       let fromX = x;
       let fromY = y;
       if (animate) {
@@ -112,27 +116,33 @@ export const adaptiveOrigin: Middleware = {
         // update runs. On a swapped axis the popup is anchored at the opposite edge, so the
         // size change shifted the captured inset by the size delta. Compensate so the
         // popup's visible content starts from its last painted position.
-        const swappedX = (prev.side === 'left') !== (currentSide === 'left');
-        const swappedY = (prev.side === 'top') !== (currentSide === 'top');
-        fromX =
-          parseFloat(styles[sideX]) +
-          (swappedX && anchorChanged ? floatRect.width - prev.width : 0);
-        fromY =
-          parseFloat(styles[sideY]) +
-          (swappedY && anchorChanged ? floatRect.height - prev.height : 0);
+        if (swappedX) {
+          fromX = parseFloat(styles[sideX]) + (anchorChanged ? floatRect.width - prev.width : 0);
+        }
+        if (swappedY) {
+          fromY = parseFloat(styles[sideY]) + (anchorChanged ? floatRect.height - prev.height : 0);
+        }
       }
-      if (Number.isFinite(fromX) && Number.isFinite(fromY)) {
+      if (
+        (updateX || updateY) &&
+        (!updateX || Number.isFinite(fromX)) &&
+        (!updateY || Number.isFinite(fromY))
+      ) {
         const floatingStyle = floating.style;
         const inlineTransition = floatingStyle.transition;
         if (!animate) {
           floatingStyle.transition = 'none';
         }
-        floatingStyle.top = '';
-        floatingStyle.right = '';
-        floatingStyle.bottom = '';
-        floatingStyle.left = '';
-        floatingStyle[sideX] = `${fromX}px`;
-        floatingStyle[sideY] = `${fromY}px`;
+        if (updateX) {
+          floatingStyle.right = '';
+          floatingStyle.left = '';
+          floatingStyle[sideX] = `${fromX}px`;
+        }
+        if (updateY) {
+          floatingStyle.top = '';
+          floatingStyle.bottom = '';
+          floatingStyle[sideY] = `${fromY}px`;
+        }
         // Flush styles so the intermediate position is committed before the new styles apply.
         floating.getBoundingClientRect();
         if (!animate) {

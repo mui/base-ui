@@ -698,5 +698,86 @@ describe('<Popover.Positioner />', () => {
       const positionerRect = positioner.getBoundingClientRect();
       expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
     });
+
+    it('keeps an unchanged-axis transition running when the side flips during a trigger change', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid="positioner"] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+                transition: top 1s linear, bottom 1s linear, left 1s linear, right 1s linear;
+              }
+            `}
+          </style>
+          <div
+            data-testid="scroller"
+            style={{ height: 400, overflow: 'auto', position: 'relative' }}
+          >
+            <div style={{ height: 1200, position: 'relative' }}>
+              <Popover.Root>
+                <Popover.Trigger
+                  data-testid="trigger1"
+                  style={{ position: 'absolute', top: 300, left: 10, width: 100, height: 50 }}
+                >
+                  Trigger 1
+                </Popover.Trigger>
+                <Popover.Trigger
+                  data-testid="trigger2"
+                  style={{ position: 'absolute', top: 300, left: 300, width: 100, height: 50 }}
+                >
+                  Trigger 2
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
+                    <Popover.Popup style={popupStyle}>
+                      <Popover.Viewport>Popup</Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          </div>
+        </div>,
+      );
+
+      await user.click(screen.getByTestId('trigger1'));
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'top');
+      });
+
+      await user.click(screen.getByTestId('trigger2'));
+
+      await waitFor(() => {
+        expect(
+          positioner
+            .getAnimations()
+            .some(
+              (animation) =>
+                (animation as CSSTransition).transitionProperty === 'left' &&
+                animation.playState === 'running',
+            ),
+        ).toBe(true);
+      });
+
+      const scroller = screen.getByTestId('scroller');
+      scroller.scrollTop = 280;
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'bottom');
+      });
+
+      const triggerRect = screen.getByTestId('trigger2').getBoundingClientRect();
+      const targetLeft = triggerRect.left + (triggerRect.width - popupWidth) / 2;
+      await waitFor(
+        () => {
+          expect(Math.abs(positioner.getBoundingClientRect().left - targetLeft)).toBeLessThan(2);
+        },
+        { timeout: 2000 },
+      );
+    });
   });
 });
