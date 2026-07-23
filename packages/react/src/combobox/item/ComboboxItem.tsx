@@ -228,10 +228,9 @@ function ComboboxItemVirtualizedIndex(props: {
   const { flatFilteredItems } = useComboboxDerivedItemsContext();
   const collectionItemValue = useComboboxItemValueContext();
 
-  // Inside a collection the source item is the positional identity, regardless of any
-  // explicit `value` prop.
+  // Inside a collection the source item is the positional identity when `value` is omitted.
   const lookupValue =
-    collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
+    componentProps.value === undefined && collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
       ? collectionItemValue
       : (componentProps.value ?? null);
   const indexFromFilter = findItemIndex(flatFilteredItems, lookupValue, isItemEqualToValue);

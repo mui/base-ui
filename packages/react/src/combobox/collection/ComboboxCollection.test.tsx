@@ -60,11 +60,17 @@ describe('<Combobox.Collection />', () => {
     const items = ['alpha', 'beta'];
     const onValueChange = vi.fn();
     const { user } = await render(
-      <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
+      <Combobox.Root
+        items={items}
+        virtualized
+        defaultOpen
+        onValueChange={onValueChange}
+        isItemEqualToValue={(item, value) => item.toUpperCase() === value}
+      >
         <Combobox.Input />
         <Combobox.List>
           {(item: string) => (
-            <Combobox.Item key={item} value={`explicit-${item}`}>
+            <Combobox.Item key={item} value={item.toUpperCase()}>
               {item}
             </Combobox.Item>
           )}
@@ -72,9 +78,10 @@ describe('<Combobox.Collection />', () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByRole('option', { name: 'beta' }));
+    await user.click(screen.getByRole('combobox'));
+    await user.keyboard('{ArrowDown}{Enter}');
 
-    expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-beta');
+    expect(onValueChange.mock.lastCall?.[0]).toBe('ALPHA');
   });
 
   it('keeps an omitted value on a static item using the existing null fallback', async () => {
