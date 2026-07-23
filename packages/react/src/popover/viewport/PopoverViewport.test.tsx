@@ -1,8 +1,8 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Viewport />', () => {
   const { render } = createRenderer();
@@ -648,15 +648,17 @@ describe('<Popover.Viewport />', () => {
       // instead of detaching (the 10s linear transitions move it by ~1px per frame).
       let previousTop = initialRect.top;
       let previousLeft = initialRect.left;
-      for (let i = 0; i < 20; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(requestAnimationFrame);
-        const rect = popup.getBoundingClientRect();
-        expect(Math.abs(rect.top - previousTop)).toBeLessThan(20);
-        expect(Math.abs(rect.left - previousLeft)).toBeLessThan(20);
-        previousTop = rect.top;
-        previousLeft = rect.left;
-      }
+      await act(async () => {
+        for (let i = 0; i < 20; i += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await waitSingleFrame();
+          const rect = popup.getBoundingClientRect();
+          expect(Math.abs(rect.top - previousTop)).toBeLessThan(20);
+          expect(Math.abs(rect.left - previousLeft)).toBeLessThan(20);
+          previousTop = rect.top;
+          previousLeft = rect.left;
+        }
+      });
 
       expect(positioner).toHaveAttribute('data-side', 'top');
     });
