@@ -49,7 +49,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord" prefetch={false}>
                   Discord
                 </Link>
               </nav>
@@ -77,7 +77,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord" prefetch={false}>
                   Discord
                 </Link>
                 <Link className="Text sz-1" href="https://www.npmjs.com/package/@base-ui/react">
