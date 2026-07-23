@@ -9,14 +9,6 @@ import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 
-function getDefaultAriaValueText(formattedValue: string, value: number | null) {
-  if (value == null || !Number.isFinite(value)) {
-    return 'indeterminate progress';
-  }
-
-  return formattedValue;
-}
-
 /**
  * Groups all parts of the progress bar and provides the task completion status to screen readers.
  * Renders a `<div>` element.
@@ -29,7 +21,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 ) {
   const {
     format,
-    getAriaValueText = getDefaultAriaValueText,
+    getAriaValueText,
     locale,
     max = 100,
     min = 0,
@@ -51,6 +43,8 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   let percentageValue: number | null = null;
   let clampedValue: number | null = null;
   let formattedValue = '';
+  // Derived alongside `status` so the indeterminate condition is not restated anywhere else.
+  let defaultAriaValueText = 'indeterminate progress';
 
   if (value != null && Number.isFinite(value)) {
     const rawPercentage = valueToPercent(value, min, max);
@@ -62,6 +56,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     formattedValue = format
       ? formatNumber(value, locale, format)
       : formatNumber(percentageValue / 100, locale, { style: 'percent' });
+    defaultAriaValueText = formattedValue;
   }
 
   const state: ProgressRootState = React.useMemo(() => ({ status }), [status]);
@@ -71,7 +66,9 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-valuemax': max,
     'aria-valuemin': min,
     'aria-valuenow': clampedValue ?? undefined,
-    'aria-valuetext': getAriaValueText(formattedValue, value),
+    'aria-valuetext': getAriaValueText
+      ? getAriaValueText(formattedValue, value)
+      : defaultAriaValueText,
     role: 'progressbar',
     children: (
       <React.Fragment>
@@ -127,7 +124,7 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   /**
    * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
    */
-  getAriaValueText?: ((formattedValue: string | null, value: number | null) => string) | undefined;
+  getAriaValueText?: ((formattedValue: string, value: number | null) => string) | undefined;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.

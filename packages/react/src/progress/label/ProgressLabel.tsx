@@ -23,7 +23,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
 
   const id = useRegisteredLabelId(idProp, setLabelId);
 
-  return useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -35,6 +35,8 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
     ],
     stateAttributesMapping: progressStateAttributesMapping,
   });
+
+  return element;
 });
 
 export interface ProgressLabelState extends ProgressRootState {}
