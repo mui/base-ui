@@ -1049,6 +1049,69 @@ describe('<Combobox.Root />', () => {
         expect(onInputValueChange.mock.lastCall?.[1].reason).toBe('none');
       });
 
+      it.skipIf(isJSDOM)(
+        'filters by the live input value when typing reopens the popup during the close animation',
+        async ({ onTestFinished }) => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          onTestFinished(() => {
+            globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+          });
+
+          const style = `
+            @keyframes combobox-close-test {
+              to {
+                opacity: 0;
+              }
+            }
+
+            .animation-test-popup[data-ending-style] {
+              animation: combobox-close-test 100ms linear;
+            }
+          `;
+
+          const { user } = await render(
+            <React.Fragment>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <Combobox.Root items={['apple', 'apricot', 'banana']}>
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                      <Combobox.List>
+                        {(item) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>,
+          );
+
+          const input = screen.getByTestId('input');
+          await user.type(input, 'ap');
+          await screen.findByRole('option', { name: 'apple' });
+
+          // Close with a typed query and no highlighted item to freeze it for the exit animation.
+          await user.keyboard('{Enter}');
+
+          const popup = screen.getByTestId('popup');
+          await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+          await user.type(input, 'r', { skipClick: true });
+
+          await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+          expect(input).toHaveValue('apr');
+          expect(await screen.findByRole('option', { name: 'apricot' })).not.toBe(null);
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
+        },
+      );
+
       it('should not auto-close during browser autofill', async () => {
         const items = ['apple', 'banana', 'cherry'];
 

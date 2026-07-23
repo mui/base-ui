@@ -639,12 +639,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // If reopening interrupts the close animation, handleUnmount won't run to clear the
       // frozen closeQuery and pending popup input.
-      if (nextOpen && inputInsidePopup && !inline && closeQuery !== null) {
-        setQueryChangedAfterOpen(false);
+      if (nextOpen && closeQuery !== null) {
         setCloseQuery(null);
 
-        if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+        if (inputInsidePopup && !inline) {
+          setQueryChangedAfterOpen(false);
+
+          if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 
