@@ -92,9 +92,9 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 }
 ```
 
-### Value selection with IDs
+### Working with stored IDs
 
-The value of each combobox item is the element held in the `items` array when rendering a collection.
+By default, an item rendered by a collection uses the corresponding element in the `items` array as its value.
 
 When your app stores values as IDs, find the full item object using the `id` to pass to `defaultValue` for initial selection. The full item object is also passed in the `onValueChange` callback, so you can extract the `id` to save in your state or backend.
 
