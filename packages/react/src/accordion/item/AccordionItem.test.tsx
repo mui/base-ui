@@ -7,9 +7,15 @@ describe('<Accordion.Item />', () => {
   const { render } = createRenderer();
 
   it('throws when rendered outside an Accordion.Root', async () => {
-    await expect(render(<Accordion.Item />)).rejects.toThrow(
-      'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',
-    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Accordion.Item />)).rejects.toThrow(
+        'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   describeConformance(<Accordion.Item />, () => ({
