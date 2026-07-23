@@ -37,23 +37,24 @@ Re-export of [Root](#root) props.
 type PasswordFieldPreviewRootState = {
   /** Whether the field should ignore user interaction. */
   disabled: boolean;
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
 };
 ```
 
 ### Root.ChangeEventReason
 
 ```typescript
-type PasswordFieldPreviewRootChangeEventReason = 'none';
+type PasswordFieldPreviewRootChangeEventReason = 'trigger-press' | 'none';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
-type PasswordFieldPreviewRootChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
-  /** The native event associated with the custom event. */
-  event: Event;
+type PasswordFieldPreviewRootChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'none'; event: Event }
+) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
   /** Allows the event to propagate in cases where Base UI will stop the propagation. */
@@ -75,12 +76,14 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue | `string \| number \| string[]`                                                                  | -       | The default value of the input. Use when uncontrolled.                                                                                                                                        |
-| className    | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :------------ | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string \| number \| string[]`                                                                  | -       | The default value of the input. Use when uncontrolled.                                                                                                                                        |
+| value         | `string \| string[] \| number`                                                                  | -       | The value of the input. Use when controlled.                                                                                                                                                  |
+| onValueChange | `((value: string, eventDetails: PasswordFieldPreview.Input.ChangeEventDetails) => void)`        | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -114,6 +117,33 @@ type PasswordFieldPreviewInputState = {
   filled: boolean;
   /** Whether the field is focused. */
   focused: boolean;
+};
+```
+
+### Input.ChangeEventReason
+
+```typescript
+type PasswordFieldPreviewInputChangeEventReason = 'none';
+```
+
+### Input.ChangeEventDetails
+
+```typescript
+type PasswordFieldPreviewInputChangeEventDetails = {
+  /** The reason for the event. */
+  reason: 'none';
+  /** The native event associated with the custom event. */
+  event: Event;
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
 };
 ```
 
@@ -155,12 +185,22 @@ type PasswordFieldPreviewToggleState = {
 
 ## Additional Types
 
+### PasswordFieldInputChangeEventReason
+
+```typescript
+type PasswordFieldInputChangeEventReason = 'none';
+```
+
 ### PasswordFieldInputProps
 
 ```typescript
 type PasswordFieldInputProps = {
+  /** Callback fired when the `value` changes. Use when controlled. */
+  onValueChange?: (value: string, eventDetails: PasswordFieldInput.ChangeEventDetails) => void;
   /** The default value of the input. Use when uncontrolled. */
   defaultValue?: string | number | string[];
+  /** The value of the input. Use when controlled. */
+  value?: string | string[] | number;
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
@@ -205,7 +245,7 @@ type PasswordFieldInputState = {
 ### PasswordFieldRootChangeEventReason
 
 ```typescript
-type PasswordFieldRootChangeEventReason = 'none';
+type PasswordFieldRootChangeEventReason = 'trigger-press' | 'none';
 ```
 
 ### PasswordFieldRootProps
@@ -261,6 +301,8 @@ type PasswordFieldRootProps = {
 type PasswordFieldRootState = {
   /** Whether the field should ignore user interaction. */
   disabled: boolean;
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
 };
 ```
 
@@ -311,12 +353,13 @@ type PasswordFieldToggleState = {
 ## Export Groups
 
 - `PasswordFieldPreview.Root`: `PasswordFieldPreview.Root`, `PasswordFieldPreview.Root.State`, `PasswordFieldPreview.Root.Props`, `PasswordFieldPreview.Root.ChangeEventReason`, `PasswordFieldPreview.Root.ChangeEventDetails`
-- `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`
+- `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`, `PasswordFieldPreview.Input.ChangeEventReason`, `PasswordFieldPreview.Input.ChangeEventDetails`
 - `PasswordFieldPreview.Toggle`: `PasswordFieldPreview.Toggle`, `PasswordFieldPreview.Toggle.State`, `PasswordFieldPreview.Toggle.Props`
-- `Default`: `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`
+- `Default`: `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `PasswordFieldRoot.ChangeEventDetails`: `PasswordFieldRootChangeEventDetails`
+- `PasswordFieldInput.ChangeEventDetails`: `PasswordFieldInputChangeEventDetails`

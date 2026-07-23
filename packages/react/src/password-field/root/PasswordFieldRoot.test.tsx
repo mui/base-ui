@@ -74,14 +74,19 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
-    it('does not emit data-visible on the root (reserved for element visibility)', async () => {
+    it('exposes visible to render callbacks without emitting data-visible', async () => {
       await render(
-        <PasswordField.Root data-testid="root" defaultVisible>
+        <PasswordField.Root
+          data-testid="root"
+          defaultVisible
+          className={(state) => (state.visible ? 'visible' : 'hidden')}
+        >
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
       );
 
+      expect(screen.getByTestId('root')).toHaveClass('visible');
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-visible');
     });
   });
@@ -102,8 +107,9 @@ describe('<PasswordField.Root />', () => {
 
       expect(onVisibleChange.mock.calls.length).toBe(1);
       expect(onVisibleChange.mock.calls[0][0]).toBe(true);
-      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.none);
+      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
       expect(onVisibleChange.mock.calls[0][1].event).toBeInstanceOf(MouseEvent);
+      expect(onVisibleChange.mock.calls[0][1].trigger).toBe(screen.getByRole('button'));
     });
 
     it('does not change visibility when the event is canceled', async () => {
@@ -166,9 +172,13 @@ describe('<PasswordField.Root />', () => {
   });
 
   describe('form integration', () => {
+    const { render: renderForm, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
     it('hides the password and fires onVisibleChange when the form is reset', async () => {
       const onVisibleChange = vi.fn();
-      await render(
+      await renderForm(
         <form>
           <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
@@ -181,6 +191,9 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'text');
 
       fireEvent.reset(input.form!);
+      await act(async () => {
+        clock.tick(0);
+      });
 
       expect(input).toHaveAttribute('type', 'password');
       expect(onVisibleChange.mock.calls[0][0]).toBe(false);
@@ -188,9 +201,10 @@ describe('<PasswordField.Root />', () => {
     });
 
     it('does not hide when the reset is canceled', async () => {
-      await render(
-        <form>
-          <PasswordField.Root defaultVisible>
+      const onVisibleChange = vi.fn();
+      await renderForm(
+        <form onReset={(event) => event.preventDefault()}>
+          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -198,17 +212,19 @@ describe('<PasswordField.Root />', () => {
       );
 
       const input = document.querySelector('input')!;
-      // A capture-phase listener cancels the reset before the component observes it.
-      input.form!.addEventListener('reset', (event) => event.preventDefault(), { capture: true });
 
       fireEvent.reset(input.form!);
+      await act(async () => {
+        clock.tick(0);
+      });
 
       expect(input).toHaveAttribute('type', 'text');
+      expect(onVisibleChange).not.toHaveBeenCalled();
     });
 
     it('hides the password when the form is submitted, even if the submit is prevented', async () => {
       const onVisibleChange = vi.fn();
-      await render(
+      await renderForm(
         <form onSubmit={(event) => event.preventDefault()}>
           <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
