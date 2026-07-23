@@ -118,7 +118,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
           const inputValue = event.currentTarget.value;
           onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
-          setDirty(inputValue !== validityData.initialValue);
+          setDirty(inputValue !== (validityData.initialValue ?? ''));
           setFilled(inputValue !== '');
 
           // Workaround for https://github.com/react/react/issues/9023
