@@ -5344,6 +5344,50 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('');
     });
 
+    it.each(['outside the popup', 'inside the popup', 'inline'] as const)(
+      'preserves the filter after selection with `keepFilterText` when the input is %s',
+      async (placement) => {
+        const inline = placement === 'inline';
+        const input = <Combobox.Input data-testid="input" />;
+        const list = (
+          <Combobox.List>
+            <Combobox.Item value="apple">apple</Combobox.Item>
+            <Combobox.Item value="banana">banana</Combobox.Item>
+          </Combobox.List>
+        );
+        const { user } = await render(
+          <Combobox.Root
+            defaultOpen={!inline}
+            inline={inline}
+            open={inline ? true : undefined}
+            multiple
+            keepFilterText
+          >
+            {placement !== 'inside the popup' && input}
+            {inline ? (
+              list
+            ) : (
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    {placement === 'inside the popup' && input}
+                    {list}
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            )}
+          </Combobox.Root>,
+        );
+
+        const inputElement = screen.getByTestId('input');
+        await user.type(inputElement, 'app');
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+
+        expect(inputElement).toHaveValue('app');
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      },
+    );
+
     it('keeps the popup input focused through keyboard selection and restores the last selection', async () => {
       const items = ['apple', 'apricot', 'banana'];
       const { user } = await render(

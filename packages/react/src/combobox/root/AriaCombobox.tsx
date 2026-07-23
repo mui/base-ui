@@ -752,8 +752,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           return;
         }
 
-        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (!wasFiltering) {
+        if (!inputRef.current?.value.trim() || props.keepFilterText) {
           return;
         }
 
@@ -1562,6 +1561,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default false
    */
   keepHighlight?: boolean | undefined;
+  /**
+   * Whether the filter text should be preserved after selecting an item in multiple mode.
+   * @default false
+   */
+  keepFilterText?: boolean | undefined;
   /**
    * Whether moving the pointer over items should highlight them.
    * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
