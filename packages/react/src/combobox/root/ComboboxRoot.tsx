@@ -52,6 +52,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
+  | 'virtualized'
   // Different names
   | 'selectionMode'
   | 'defaultSelectedValue'
@@ -85,7 +86,10 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   highlightItemOnHover?: boolean | undefined;
   /**
-   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * Converts an item value to the string used for filtering and display in the input.
+   * Provide this for object values and for primitive values whose rendered labels differ from
+   * their values, especially in large or virtualized collections, so browser autofill can match
+   * labels without mounting every item.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
@@ -94,6 +98,12 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
+  /**
+   * Whether the items are being virtualized by an external, third-party virtualizer.
+   * Do not set this when using the built-in `<Combobox.Virtualizer>`.
+   * @default false
+   */
+  virtualized?: boolean | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.

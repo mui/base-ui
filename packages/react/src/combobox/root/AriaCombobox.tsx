@@ -1420,12 +1420,56 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             let collectedRenderedLabels = false;
+            let restoreRenderAllRows = false;
+            let restoreForceMounted = false;
+
+            function mountRenderedLabels(renderAllRows: boolean) {
+              const shouldRenderAllRows =
+                renderAllRows && !store.state.virtualizationState.renderAllRows;
+              // `forceMounted` also enables rendered-label registration for lists that are
+              // already open, so it is needed independently of the popup's mounted state.
+              const shouldForceMount = !store.state.forceMounted;
+
+              restoreRenderAllRows ||= shouldRenderAllRows;
+              restoreForceMounted ||= shouldForceMount;
+
+              if (!shouldRenderAllRows && !shouldForceMount) {
+                return;
+              }
+
+              ReactDOM.flushSync(() => {
+                if (shouldRenderAllRows) {
+                  setVirtualizationRenderAllRows(store, true);
+                }
+                if (shouldForceMount) {
+                  store.set('forceMounted', true);
+                }
+              });
+            }
 
             function restoreRenderedLabels() {
-              ReactDOM.flushSync(() => {
-                setVirtualizationRenderAllRows(store, false);
-                store.set('forceMounted', false);
-              });
+              // Restore the virtual window before releasing a temporary mount. Keeping these in
+              // separate commits lets an open max-height list recover its measured viewport before
+              // a closed list is removed again.
+              if (restoreRenderAllRows) {
+                ReactDOM.flushSync(() => {
+                  setVirtualizationRenderAllRows(store, false);
+                });
+              }
+              if (restoreForceMounted) {
+                ReactDOM.flushSync(() => {
+                  store.set('forceMounted', false);
+                });
+              }
+            }
+
+            function warnAboutLargeVirtualizedCollection() {
+              warn(
+                'Browser autofill could not match a rendered item label in a collection with ' +
+                  `more than ${MAX_RENDERED_AUTOFILL_ITEMS} items. Provide the ` +
+                  '`itemToStringLabel` prop so labels can be matched without rendering the ' +
+                  'entire collection.',
+              );
             }
 
             // Only single-selection autofill matches against the registered values/labels.
@@ -1434,28 +1478,36 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             if (single) {
               forceMount();
               if (items && findSerializedMatchIndex() === -1) {
-                if (flatFilteredItems.length <= MAX_RENDERED_AUTOFILL_ITEMS) {
-                  // `forceMount` only refreshes labels derived from the `items` prop. For smaller
-                  // collections, mount the list once so custom rendered text remains available to
-                  // browser autofill. Larger collections must provide `itemToStringLabel` so an
-                  // autofill event cannot synchronously mount thousands of rows.
-                  collectedRenderedLabels = true;
-                  try {
-                    ReactDOM.flushSync(() => {
-                      setVirtualizationRenderAllRows(store, true);
-                      store.set('forceMounted', true);
-                    });
-                  } catch (error) {
-                    restoreRenderedLabels();
-                    throw error;
+                try {
+                  if (flatFilteredItems.length <= MAX_RENDERED_AUTOFILL_ITEMS) {
+                    // `forceMount` only refreshes labels derived from the `items` prop. For smaller
+                    // collections, mount the list once so custom rendered text remains available to
+                    // browser autofill.
+                    mountRenderedLabels(true);
+                    collectedRenderedLabels = true;
+                  } else if (store.state.externallyVirtualized) {
+                    warnAboutLargeVirtualizedCollection();
+                  } else {
+                    // A built-in virtualizer is not registered while its closed popup is
+                    // unmounted. Briefly mount the list to distinguish it from a regular static
+                    // collection without ever disabling its virtual window.
+                    mountRenderedLabels(false);
+
+                    if (store.state.virtualizationRegistry.virtualizers.size > 0) {
+                      warnAboutLargeVirtualizedCollection();
+                    } else {
+                      // Static lists retain their legacy rendered-label matching regardless of
+                      // collection size. Their items are already all mounted at this point.
+                      collectedRenderedLabels = true;
+                    }
+
+                    // A temporarily mounted built-in virtualizer must also be released after the
+                    // queued match reads its bounded set of registered labels.
+                    collectedRenderedLabels ||= restoreForceMounted;
                   }
-                } else {
-                  warn(
-                    'Browser autofill could not match a rendered item label in a collection with ' +
-                      `more than ${MAX_RENDERED_AUTOFILL_ITEMS} items. Provide the ` +
-                      '`itemToStringLabel` prop so labels can be matched without rendering the ' +
-                      'entire collection.',
-                  );
+                } catch (error) {
+                  restoreRenderedLabels();
+                  throw error;
                 }
               }
             }
@@ -1667,7 +1719,10 @@ interface ComboboxRootProps<ItemValue> {
       ) => boolean)
     | undefined;
   /**
-   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * Converts an item value to the string used for filtering and display in the input.
+   * Provide this for object values and for primitive values whose rendered labels differ from
+   * their values, especially in large or virtualized collections, so browser autofill can match
+   * labels without mounting every item.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
   itemToStringLabel?: ((itemValue: ItemValue) => string) | undefined;
@@ -1677,8 +1732,8 @@ interface ComboboxRootProps<ItemValue> {
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
-   * Determines whether an item is disabled from its value and logical index for keyboard
-   * navigation.
+   * Determines whether an item is disabled from its value and logical index in the filtered,
+   * limited collection used for keyboard navigation.
    *
    * Use this prop when disabled state must be known before an item is rendered, such as when
    * virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what
@@ -1691,7 +1746,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
   /**
-   * Whether the items are being externally virtualized.
+   * Whether the items are being virtualized by an external, third-party virtualizer.
    * @default false
    */
   virtualized?: boolean | undefined;

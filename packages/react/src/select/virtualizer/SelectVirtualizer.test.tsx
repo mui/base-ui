@@ -75,7 +75,11 @@ describe('<Select.Virtualizer />', () => {
                   />
                 }
               >
-                {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+                {(item) => (
+                  <Select.Item value={item.value} style={{ height: 20 }}>
+                    {item.label}
+                  </Select.Item>
+                )}
               </Select.Virtualizer>
             </Select.List>
           </Select.Popup>
@@ -123,7 +127,11 @@ describe('<Select.Virtualizer />', () => {
                   }}
                   render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
                 >
-                  {(item) => <Select.Item value={item.value}>{item.label}</Select.Item>}
+                  {(item) => (
+                    <Select.Item value={item.value} style={{ height: item.value.size }}>
+                      {item.label}
+                    </Select.Item>
+                  )}
                 </Select.Virtualizer>
               </Select.List>
             </Select.Popup>

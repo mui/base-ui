@@ -348,7 +348,8 @@ export interface ListVirtualizerAdapterProps<
   estimatedItemHeight: number | ((item: Item, index: number) => number);
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated size of the first item.
+   * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
+   * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
   /** Whether virtualization is enabled. When `false`, all items are rendered. @default true */

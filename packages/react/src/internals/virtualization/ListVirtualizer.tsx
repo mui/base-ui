@@ -670,8 +670,15 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     }
   }, [rows, rowsMeta, scrollRowIntoView]);
 
+  const rowsRenderContext: RenderContext = enabled
+    ? overscannedRenderContext
+    : {
+        ...overscannedRenderContext,
+        firstRowIndex: 0,
+        lastRowIndex: rows.length,
+      };
   const renderedRows = virtualizer.api.getters.getRows({
-    renderContext: overscannedRenderContext,
+    renderContext: rowsRenderContext,
   });
 
   const { ref: containerRef, style: containerStyle, ...restContainerProps } = containerProps;
@@ -795,7 +802,8 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
   onUnconstrainedHeight?: (() => void) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated item height.
+   * Defaults to the larger of 150px and the estimated item height. The render buffer always
+   * includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
   /**
