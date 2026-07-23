@@ -146,21 +146,23 @@
     opacity: 0;
   }
 
-  &[data-starting-style] {
-    &[data-activation-direction='left'] {
-      transform: translateX(-50%);
+  @media (prefers-reduced-motion: no-preference) {
+    &[data-starting-style] {
+      &[data-activation-direction='left'] {
+        transform: translateX(-50%);
+      }
+      &[data-activation-direction='right'] {
+        transform: translateX(50%);
+      }
     }
-    &[data-activation-direction='right'] {
-      transform: translateX(50%);
-    }
-  }
 
-  &[data-ending-style] {
-    &[data-activation-direction='left'] {
-      transform: translateX(50%);
-    }
-    &[data-activation-direction='right'] {
-      transform: translateX(-50%);
+    &[data-ending-style] {
+      &[data-activation-direction='left'] {
+        transform: translateX(50%);
+      }
+      &[data-activation-direction='right'] {
+        transform: translateX(-50%);
+      }
     }
   }
 }

@@ -35,9 +35,9 @@ const tabClassName =
 
 const panelClassName =
   'col-start-1 row-start-1 flex w-full items-center justify-center p-4 text-center text-sm text-neutral-950 outline-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white ' +
-  'transition-[opacity,transform] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ' +
+  '[transition:opacity_175ms_ease,translate_350ms_cubic-bezier(0.22,1,0.36,1)] ' +
   'data-starting-style:opacity-0 data-ending-style:opacity-0 ' +
-  'data-starting-style:data-[activation-direction=left]:translate-x-[-50%] ' +
-  'data-starting-style:data-[activation-direction=right]:translate-x-[50%] ' +
-  'data-ending-style:data-[activation-direction=left]:translate-x-[50%] ' +
-  'data-ending-style:data-[activation-direction=right]:translate-x-[-50%]';
+  'motion-safe:data-starting-style:data-[activation-direction=left]:translate-x-[-50%] ' +
+  'motion-safe:data-starting-style:data-[activation-direction=right]:translate-x-[50%] ' +
+  'motion-safe:data-ending-style:data-[activation-direction=left]:translate-x-[50%] ' +
+  'motion-safe:data-ending-style:data-[activation-direction=right]:translate-x-[-50%]';
