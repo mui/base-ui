@@ -566,4 +566,137 @@ describe('<Popover.Positioner />', () => {
       expect(screen.getByTestId('positioner').style.transform).toBe('');
     });
   });
+
+  describe.skipIf(isJSDOM)('rendered side change transitions', () => {
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('transitions the position when a trigger change swaps the rendered side', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid="positioner"] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+                transition: top 10s linear, bottom 10s linear, left 10s linear, right 10s linear;
+              }
+            `}
+          </style>
+          <Popover.Root>
+            <Popover.Trigger
+              data-testid="trigger1"
+              style={{ position: 'fixed', top: 10, left: 10, width: 100, height: 50 }}
+            >
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger
+              data-testid="trigger2"
+              style={{ position: 'fixed', bottom: 10, left: 10, width: 100, height: 50 }}
+            >
+              Trigger 2
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup style={popupStyle}>
+                  <Popover.Viewport>Popup</Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      // Trigger 1 has space below it (side `bottom`); trigger 2 sits at the bottom
+      // of the viewport, so the popup flips to side `top` when moving to it.
+      await user.click(screen.getByTestId('trigger1'));
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'bottom');
+      });
+
+      const initialTop = positioner.getBoundingClientRect().top;
+
+      await user.click(screen.getByTestId('trigger2'));
+
+      // The positioning property swaps from `top` to `bottom`. The popup must
+      // transition from its previous visual position instead of teleporting, so
+      // its position may never change abruptly between frames (the 10s linear
+      // transition moves it by roughly 1px per frame).
+      let previousTop = initialTop;
+      for (let i = 0; i < 20; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(requestAnimationFrame);
+        const { top } = positioner.getBoundingClientRect();
+        expect(Math.abs(top - previousTop)).toBeLessThan(20);
+        previousTop = top;
+      }
+
+      expect(positioner).toHaveAttribute('data-side', 'top');
+    });
+
+    it('does not transition the position when the side flips for the same anchor', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid="positioner"] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+                transition: top 10s linear, bottom 10s linear, left 10s linear, right 10s linear;
+              }
+            `}
+          </style>
+          <div
+            data-testid="scroller"
+            style={{ height: 400, overflow: 'auto', position: 'relative' }}
+          >
+            <div style={{ height: 1200 }}>
+              <Popover.Root>
+                <Popover.Trigger
+                  data-testid="trigger"
+                  style={{ position: 'absolute', top: 300, left: 10, width: 100, height: 50 }}
+                >
+                  Trigger
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
+                    <Popover.Popup style={popupStyle}>
+                      <Popover.Viewport>Popup</Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          </div>
+        </div>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'top');
+      });
+
+      // Scrolling moves the anchor near the top of its clipping container,
+      // flipping the popup below it.
+      screen.getByTestId('scroller').scrollTop = 280;
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'bottom');
+      });
+
+      // A same-anchor collision flip applies instantly instead of gliding across the anchor.
+      const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+      expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
+    });
+  });
 });
