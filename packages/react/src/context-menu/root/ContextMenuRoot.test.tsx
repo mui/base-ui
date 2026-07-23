@@ -298,6 +298,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('keeps repeat-right-click toggling after interacting with a persistent item', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = vi.fn();
 
       const { user } = await render(
@@ -479,6 +483,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('does not reopen when a dismissing macOS Control-click is within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = vi.fn();
 
       await render(
@@ -524,6 +532,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('clears reopen suppression when no contextmenu event follows the dismissing press', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = vi.fn();
 
       await render(
@@ -566,6 +578,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('does not apply stale pointer suppression to a keyboard contextmenu event', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = vi.fn();
 
       await render(
