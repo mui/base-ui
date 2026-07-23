@@ -52,6 +52,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
   const keepMounted = keepMountedProp ?? contextKeepMounted;
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {

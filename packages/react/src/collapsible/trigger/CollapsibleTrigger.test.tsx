@@ -6,6 +6,12 @@ import { describeConformance } from '../../../test/describeConformance';
 describe('<Collapsible.Trigger />', () => {
   const { render } = createRenderer();
 
+  it('throws when rendered outside a Collapsible.Root', () => {
+    expect(() => render(<Collapsible.Trigger />)).toThrow(
+      'Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.',
+    );
+  });
+
   describeConformance(<Collapsible.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     testComponentPropWith: 'button',
