@@ -1,14 +1,20 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { ProgressRoot } from './ProgressRoot';
 
+function formatPercent(value: number) {
+  return value.toLocaleString(undefined, { style: 'percent' });
+}
+
 function TestProgress(props: ProgressRoot.Props) {
   return (
     <Progress.Root {...props}>
-      <Progress.Track>
-        <Progress.Indicator />
+      <Progress.Label data-testid="label">Upload progress</Progress.Label>
+      <Progress.Value data-testid="value" />
+      <Progress.Track data-testid="track">
+        <Progress.Indicator data-testid="indicator" />
       </Progress.Track>
     </Progress.Root>
   );
@@ -56,28 +62,59 @@ describe('<Progress.Root />', () => {
   });
 
   describe('data attributes', () => {
-    it('keeps exactly one status data attribute through the state cycle', async () => {
+    it('keeps every composed part synchronized through the status cycle', async () => {
       const { setProps } = await render(<TestProgress value={null} />);
       const progressbar = screen.getByRole('progressbar');
+      const value = screen.getByTestId('value');
+      const indicator = screen.getByTestId('indicator');
+      const parts = [
+        progressbar,
+        screen.getByTestId('label'),
+        value,
+        screen.getByTestId('track'),
+        indicator,
+      ];
 
-      expect(progressbar).toHaveAttribute('data-indeterminate');
-      expect(progressbar).not.toHaveAttribute('data-progressing');
-      expect(progressbar).not.toHaveAttribute('data-complete');
+      parts.forEach((part) => {
+        expect(part).toHaveAttribute('data-indeterminate');
+        expect(part).not.toHaveAttribute('data-progressing');
+        expect(part).not.toHaveAttribute('data-complete');
+      });
+      expect(progressbar).not.toHaveAttribute('aria-valuenow');
+      expect(progressbar).toHaveAttribute('aria-valuetext', 'indeterminate progress');
+      expect(value).toBeEmptyDOMElement();
+      expect(indicator.style.width).toBe('');
 
       await setProps({ value: 50 });
-      expect(progressbar).not.toHaveAttribute('data-indeterminate');
-      expect(progressbar).toHaveAttribute('data-progressing');
-      expect(progressbar).not.toHaveAttribute('data-complete');
+      parts.forEach((part) => {
+        expect(part).not.toHaveAttribute('data-indeterminate');
+        expect(part).toHaveAttribute('data-progressing');
+        expect(part).not.toHaveAttribute('data-complete');
+      });
+      expect(progressbar).toHaveAttribute('aria-valuenow', '50');
+      expect(value).toHaveTextContent(formatPercent(0.5));
+      expect(indicator.style.width).toBe('50%');
 
       await setProps({ value: 100 });
-      expect(progressbar).not.toHaveAttribute('data-indeterminate');
-      expect(progressbar).not.toHaveAttribute('data-progressing');
-      expect(progressbar).toHaveAttribute('data-complete');
+      parts.forEach((part) => {
+        expect(part).not.toHaveAttribute('data-indeterminate');
+        expect(part).not.toHaveAttribute('data-progressing');
+        expect(part).toHaveAttribute('data-complete');
+      });
+      expect(progressbar).toHaveAttribute('aria-valuenow', '100');
+      expect(value).toHaveTextContent(formatPercent(1));
+      expect(indicator.style.width).toBe('100%');
 
       await setProps({ value: null });
-      expect(progressbar).toHaveAttribute('data-indeterminate');
-      expect(progressbar).not.toHaveAttribute('data-progressing');
-      expect(progressbar).not.toHaveAttribute('data-complete');
+      parts.forEach((part) => {
+        expect(part).toHaveAttribute('data-indeterminate');
+        expect(part).not.toHaveAttribute('data-progressing');
+        expect(part).not.toHaveAttribute('data-complete');
+      });
+      expect(progressbar).not.toHaveAttribute('aria-valuenow');
+      expect(progressbar).toHaveAttribute('aria-valuetext', 'indeterminate progress');
+      expect(value).toBeEmptyDOMElement();
+      expect(indicator.style.width).toBe('');
     });
   });
 
@@ -120,6 +157,26 @@ describe('<Progress.Root />', () => {
       expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
 
+    it('clamps aria-valuenow, the value text, and the indicator when the value undershoots min', async () => {
+      const expected = (0).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={20} max={40} value={10}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '20');
+      expect(progressbar).toHaveAttribute('aria-valuemin', '20');
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
+
     it('reports complete when the value reaches or exceeds max', async () => {
       await render(
         <Progress.Root min={0} max={40} value={45}>
@@ -149,6 +206,46 @@ describe('<Progress.Root />', () => {
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
       expect(screen.getByTestId('value')).toHaveTextContent(expected);
       expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
+
+    it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+      'keeps non-finite value %s indeterminate',
+      async (value) => {
+        await render(<TestProgress value={value} />);
+
+        const progressbar = screen.getByRole('progressbar');
+        expect(progressbar).toHaveAttribute('data-indeterminate');
+        expect(progressbar).not.toHaveAttribute('aria-valuenow');
+        expect(progressbar).toHaveAttribute('aria-valuetext', 'indeterminate progress');
+        expect(screen.getByTestId('value')).toBeEmptyDOMElement();
+        expect(screen.getByTestId('indicator').style.width).toBe('');
+      },
+    );
+  });
+
+  describe('prop: getAriaValueText', () => {
+    it('receives the formatted and raw values for determinate and indeterminate states', async () => {
+      const getAriaValueText = vi.fn((formattedValue: string | null, value: number | null) =>
+        value == null ? 'Waiting to start' : `${formattedValue} uploaded`,
+      );
+
+      const { setProps } = await render(
+        <Progress.Root value={30} getAriaValueText={getAriaValueText}>
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      const formattedValue = formatPercent(0.3);
+      expect(getAriaValueText).toHaveBeenLastCalledWith(formattedValue, 30);
+      expect(progressbar).toHaveAttribute('aria-valuetext', `${formattedValue} uploaded`);
+      expect(screen.getByTestId('value')).toHaveTextContent(formattedValue);
+
+      await setProps({ value: null });
+
+      expect(getAriaValueText).toHaveBeenLastCalledWith('', null);
+      expect(progressbar).toHaveAttribute('aria-valuetext', 'Waiting to start');
+      expect(screen.getByTestId('value')).toBeEmptyDOMElement();
     });
   });
 

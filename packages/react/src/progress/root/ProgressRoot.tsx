@@ -9,12 +9,12 @@ import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 
-function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
-  if (value == null) {
+function getDefaultAriaValueText(formattedValue: string, value: number | null) {
+  if (value == null || !Number.isFinite(value)) {
     return 'indeterminate progress';
   }
 
-  return formattedValue ?? '';
+  return formattedValue;
 }
 
 /**
