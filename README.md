@@ -28,8 +28,8 @@ To see the latest updates, check out the [releases](https://base-ui.com/react/ov
 - **Marija Najdova** [@marijanajdova](https://x.com/marijanajdova)
 - **Flavien Delangle**
 - **James Nelson** [@atomiksdev](https://x.com/atomiksdev)
-- **Michał Dudak** [@michaldudak](https://x.com/michaldudak)
 - **Jenna Smith** [@jjenzz](https://x.com/jjenzz)
+- **Michał Dudak** [@michaldudak](https://x.com/michaldudak)
 - **Aarón García** [@aarongarciah](https://github.com/aarongarciah)
 
 ## License
