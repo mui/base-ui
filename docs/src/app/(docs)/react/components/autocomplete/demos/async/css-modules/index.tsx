@@ -89,7 +89,7 @@ export default function ExampleAsyncAutocomplete() {
               </Autocomplete.Status>
               <Autocomplete.List>
                 {(movie: Movie) => (
-                  <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
+                  <Autocomplete.Item key={movie.id} className={styles.Item}>
                     <span className={styles.MovieItem}>
                       <span className={styles.MovieName}>{movie.title}</span>
                       <span className={styles.MovieYear}>{movie.year}</span>

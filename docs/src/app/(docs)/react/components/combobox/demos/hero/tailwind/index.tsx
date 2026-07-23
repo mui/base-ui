@@ -43,7 +43,6 @@ export default function ExampleCombobox() {
               {(item: Fruit) => (
                 <Combobox.Item
                   key={item.value}
-                  value={item}
                   className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                 >
                   <Combobox.ItemIndicator className="col-start-1">

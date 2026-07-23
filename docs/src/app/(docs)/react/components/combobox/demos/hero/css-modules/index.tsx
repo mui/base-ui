@@ -30,7 +30,7 @@ export default function ExampleCombobox() {
             </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: Fruit) => (
-                <Combobox.Item key={item.value} value={item} className={styles.Item}>
+                <Combobox.Item key={item.value} className={styles.Item}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>

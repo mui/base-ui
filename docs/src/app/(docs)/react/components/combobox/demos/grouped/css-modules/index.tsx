@@ -36,7 +36,7 @@ export default function ExampleGroupedCombobox() {
                   </Combobox.GroupLabel>
                   <Combobox.Collection>
                     {(item: Produce) => (
-                      <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                      <Combobox.Item key={item.id} className={styles.Item}>
                         <Combobox.ItemIndicator className={styles.ItemIndicator}>
                           <CheckIcon />
                         </Combobox.ItemIndicator>
