@@ -95,13 +95,11 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
 
   const dismiss = useDismiss(floatingRootContext);
 
-  // `useDismiss` is not given an `enabled` option, so it always returns both prop bags.
-  // `dismiss.trigger` is always the same object as `dismiss.reference`.
+  // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
+  // `dismiss.trigger` is the same object as `dismiss.reference`.
   usePopupInteractionProps(store, {
     activeTriggerProps: dismiss.reference!,
     inactiveTriggerProps: dismiss.trigger!,
-    // PreviewCardPopup spreads `FOCUSABLE_POPUP_PROPS` directly, so the popup
-    // props only need to carry the dismiss handlers.
     popupProps: dismiss.floating!,
   });
 
