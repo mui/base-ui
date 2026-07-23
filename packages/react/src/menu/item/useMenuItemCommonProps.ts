@@ -6,7 +6,6 @@ import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import { isWithinThreshold } from '../../context-menu/utils/constants';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 export interface UseMenuItemCommonPropsParameters {
@@ -86,22 +85,24 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       },
       onMouseUp(event: React.MouseEvent) {
         if (contextMenuContext) {
-          const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
-          contextMenuContext.initialCursorPointRef.current = null;
-          // A release within a pixel of the opening point is still the opening right
-          // click. Kept much tighter than the move threshold: a deliberate
-          // press-drag-release onto a nearby item (which highlights it) must still
-          // activate it.
-          if (
-            isContextMenu &&
-            isWithinThreshold(initialCursorPoint, event.clientX, event.clientY, 1)
-          ) {
-            return;
+          const gesture = contextMenuContext.gestureRef.current;
+          if (!gesture.consumed) {
+            gesture.consumed = true;
+            // A release within a pixel of the opening point is still the opening right
+            // click. Kept much tighter than the move threshold: a deliberate
+            // press-drag-release onto a nearby item (which highlights it) must still
+            // activate it.
+            if (
+              Math.abs(event.clientX - gesture.x) <= 1 &&
+              Math.abs(event.clientY - gesture.y) <= 1
+            ) {
+              return;
+            }
           }
 
           // On non-macOS platforms, this mouseup belongs to the right-click gesture
           // that opened the context menu, so it must not activate an item.
-          if (isContextMenu && !platform.os.mac && event.button === 2) {
+          if (!platform.os.mac && event.button === 2) {
             return;
           }
         }
