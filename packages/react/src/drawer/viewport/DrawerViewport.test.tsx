@@ -2992,6 +2992,72 @@ describe('<Drawer.Viewport />', () => {
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
 
+  it('falls back to regular dismissal when all snap points are invalid', async () => {
+    const handleOpenChange = vi.fn();
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} snapPoints={['50%']}>
+        <Drawer.Portal>
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup
+              data-testid="popup"
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetHeight', {
+                    configurable: true,
+                    value: 200,
+                  });
+                }
+              }}
+            >
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.pointerDown(viewport, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 1,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 140,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerUp(viewport, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 140,
+        pointerType: 'mouse',
+      });
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
+  });
+
   it('ends swipe drag when the primary mouse button is released mid-gesture', async () => {
     await render(
       <Drawer.Root open>

@@ -469,9 +469,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return undefined;
       }
 
-      if (!popupHeight || resolvedSnapPoints.length === 0) {
+      if (!popupHeight) {
         clearSwipeRelease();
         return false;
+      }
+
+      if (resolvedSnapPoints.length === 0) {
+        clearSwipeRelease();
+        return undefined;
       }
 
       const dragDelta = swipeDirection === 'down' ? deltaY : -deltaY;
