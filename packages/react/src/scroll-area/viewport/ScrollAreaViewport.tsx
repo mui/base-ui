@@ -340,9 +340,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         return;
       }
 
-      void Promise.allSettled(animations.map((animation) => animation.finished)).then(
-        computeThumbPosition,
-      );
+      // `allSettled` never rejects, but `computeThumbPosition` can still run against a
+      // torn-down tree once the animations resolve. Swallow instead of leaking an unhandled
+      // rejection; `void` alone would only silence the floating-promise lint.
+      Promise.allSettled(animations.map((animation) => animation.finished))
+        .then(computeThumbPosition)
+        .catch(() => {});
     });
 
     return () => {
