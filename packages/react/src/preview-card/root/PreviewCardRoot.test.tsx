@@ -4,6 +4,7 @@ import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 describe('<PreviewCard.Root />', () => {
@@ -490,6 +491,34 @@ describe('<PreviewCard.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('positioner')).toBe(null);
         });
+      });
+
+      it('closes the preview card when the `close` method is called', async () => {
+        const onOpenChange = vi.fn();
+        const actionsRef = React.createRef<PreviewCard.Root.Actions>();
+
+        const { user } = await render(
+          <TestPreviewCard rootProps={{ actionsRef, onOpenChange }} triggerProps={{ delay: 0 }} />,
+        );
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+        await user.hover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        await act(async () => actionsRef.current?.close());
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).toBe(null);
+        });
+
+        expect(trigger).not.toHaveAttribute('data-popup-open');
+        expect(onOpenChange).toHaveBeenLastCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.imperativeAction }),
+        );
       });
     });
 
