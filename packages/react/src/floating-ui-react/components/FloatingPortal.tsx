@@ -63,13 +63,13 @@ export interface UseFloatingPortalNodeProps {
 }
 
 export interface UseFloatingPortalNodeResult {
-  portalNode: HTMLElement | null;
+  node: HTMLElement | null;
   /**
    * The `id` attribute of the portal node. On React 17 it is `undefined` until the `useId`
    * polyfill assigns it in an effect after the node has been created.
    */
-  portalNodeId: string | undefined;
-  portalSubtree: React.ReactPortal | null;
+  nodeId: string | undefined;
+  subtree: React.ReactPortal | null;
 }
 
 export function useFloatingPortalNode(
@@ -147,13 +147,13 @@ export function useFloatingPortalNode(
       : null;
 
   return {
-    portalNode,
+    node: portalNode,
     // `id` and `render` props can override or remove the generated ID. Use the exact
     // rendered value so `aria-owns` never points at an ID absent from the DOM.
-    portalNodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
+    nodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
       ? portalElement.props.id
       : undefined,
-    portalSubtree,
+    subtree: portalSubtree,
   };
 }
 
@@ -172,7 +172,11 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 ) {
   const { render, className, style, children, container, ...elementProps } = componentProps;
 
-  const { portalNode, portalNodeId, portalSubtree } = useFloatingPortalNode({
+  const {
+    node: portalNode,
+    nodeId: portalNodeId,
+    subtree: portalSubtree,
+  } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
