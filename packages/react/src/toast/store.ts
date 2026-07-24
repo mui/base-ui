@@ -37,30 +37,61 @@ export type State = {
 type ToastMetadata = {
   value: StoredToast;
   domIndex: number;
+  stackIndex: number;
   visibleIndex: number;
   offsetY: number;
+  frontmostHeight: number;
 };
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
+type StackCounters = {
+  stackIndex: number;
+  visibleIndex: number;
+  offsetY: number;
+};
+
+// Stacking indices and offsets are computed per group so a single provider
+// can render toasts in multiple screen positions within one viewport. Toasts
+// without a `group` all share the same (default) stack.
 function createToastMetadata(toasts: StoredToast[]) {
   const metadata = new Map<string, ToastMetadata>();
-  let visibleIndex = 0;
-  let offsetY = 0;
+  const stacks = new Map<string, StackCounters>();
+
+  // The frontmost toast of each group is the newest one that isn't animating
+  // out: ending toasts have their height forced to 0, and the toast behind them
+  // is already the one collapsed stacks should size against.
+  const frontmostHeights = new Map<string, number>();
+  for (const toast of toasts) {
+    const group = toast.group ?? '';
+    if (!frontmostHeights.has(group) && toast.transitionStatus !== 'ending') {
+      frontmostHeights.set(group, toast.height || 0);
+    }
+  }
 
   toasts.forEach((toast, toastIndex) => {
+    const group = toast.group ?? '';
+    let stack = stacks.get(group);
+    if (!stack) {
+      stack = { stackIndex: 0, visibleIndex: 0, offsetY: 0 };
+      stacks.set(group, stack);
+    }
+
     const isEnding = toast.transitionStatus === 'ending';
     metadata.set(toast.id, {
       value: toast,
       domIndex: toastIndex,
-      visibleIndex: isEnding ? -1 : visibleIndex,
-      offsetY,
+      stackIndex: stack.stackIndex,
+      visibleIndex: isEnding ? -1 : stack.visibleIndex,
+      offsetY: stack.offsetY,
+      frontmostHeight: frontmostHeights.get(group) ?? 0,
     });
 
-    offsetY += toast.height || 0;
+    stack.stackIndex += 1;
+    stack.offsetY += toast.height || 0;
 
     if (!isEnding) {
-      visibleIndex += 1;
+      stack.visibleIndex += 1;
     }
   });
 
@@ -68,17 +99,19 @@ function createToastMetadata(toasts: StoredToast[]) {
 }
 
 // Marks the active (non-ending) toasts beyond `limit` as limited. Callers pass
-// toasts in newest-first order, so the newest `limit` toasts stay visible and
-// the rest are flagged. Returns the same toast reference when its `limited`
-// flag is unchanged to avoid unnecessary re-renders.
+// toasts in newest-first order, so the newest `limit` toasts of each group
+// stay visible and the rest are flagged. Returns the same toast reference
+// when its `limited` flag is unchanged to avoid unnecessary re-renders.
 function applyLimited(toasts: StoredToast[], limit: number): StoredToast[] {
-  let activeIndex = 0;
+  const activeCounts = new Map<string, number>();
   return toasts.map((toast) => {
     if (toast.transitionStatus === 'ending') {
       return toast;
     }
+    const group = toast.group ?? '';
+    const activeIndex = activeCounts.get(group) ?? 0;
+    activeCounts.set(group, activeIndex + 1);
     const limited = activeIndex >= limit;
-    activeIndex += 1;
     return toast.limited === limited ? toast : { ...toast, limited };
   });
 }
@@ -88,8 +121,11 @@ export const selectors = {
   isEmpty: (state: State) => state.toasts.length === 0,
   toast: (state: State, id: string) => state.toastMetadata.get(id)?.value,
   toastIndex: (state: State, id: string) => state.toastMetadata.get(id)?.domIndex ?? -1,
+  toastStackIndex: (state: State, id: string) => state.toastMetadata.get(id)?.stackIndex ?? -1,
   toastOffsetY: (state: State, id: string) => state.toastMetadata.get(id)?.offsetY ?? 0,
   toastVisibleIndex: (state: State, id: string) => state.toastMetadata.get(id)?.visibleIndex ?? -1,
+  toastFrontmostHeight: (state: State, id: string) =>
+    state.toastMetadata.get(id)?.frontmostHeight ?? 0,
   focused: (state: State) => state.focused,
   expanded: (state: State) => state.hovering || state.focused,
   expandedOrOutOfFocus: (state: State) => state.hovering || state.focused || !state.isWindowFocused,
@@ -233,7 +269,11 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       }),
     };
 
-    this.setToasts(toasts.map((toast) => (toast.id === id ? nextToast : toast)));
+    const newToasts = toasts.map((toast) => (toast.id === id ? nextToast : toast));
+    // Moving a toast between groups changes which toasts fall outside each
+    // group's limit, so the `limited` flags must be recomputed.
+    const groupChanged = Object.hasOwn(updates, 'group') && prevToast.group !== nextToast.group;
+    this.setToasts(groupChanged ? applyLimited(newToasts, this.state.limit) : newToasts);
 
     const nextTimeout = nextToast.timeout ?? timeout;
     const prevTimeout = prevToast.timeout ?? timeout;

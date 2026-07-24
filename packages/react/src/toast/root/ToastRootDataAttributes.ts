@@ -17,6 +17,11 @@ export enum ToastRootDataAttributes {
    */
   type = 'data-type',
   /**
+   * The named stack the toast belongs to.
+   * @type {string}
+   */
+  group = 'data-group',
+  /**
    * Present when the toast is being swiped.
    * @type {boolean}
    */

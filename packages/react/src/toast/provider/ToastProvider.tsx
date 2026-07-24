@@ -76,7 +76,8 @@ export interface ToastProviderProps {
    */
   timeout?: number | undefined;
   /**
-   * The maximum number of toasts that can be displayed at once.
+   * The maximum number of toasts that can be displayed at once in each group
+   * (toasts without a `group` share one stack).
    * When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`
    * attribute) rather than removed, so they can be hidden or animated out.
    * @default 3

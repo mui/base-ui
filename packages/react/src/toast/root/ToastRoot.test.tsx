@@ -87,6 +87,55 @@ describe('<Toast.Root />', () => {
     },
   }));
 
+  it('exposes the group and computes stacking indices per group', async () => {
+    function AddButtons() {
+      const { add } = Toast.useToastManager();
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => add({ title: 'top toast', group: 'top' })}>
+            add top
+          </button>
+          <button type="button" onClick={() => add({ title: 'bottom toast' })}>
+            add bottom
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    function GroupList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root key={toastItem.id} toast={toastItem} data-testid={toastItem.group ?? 'default'}>
+          <Toast.Title />
+        </Toast.Root>
+      ));
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <GroupList />
+        </Toast.Viewport>
+        <AddButtons />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add top' }));
+    await user.click(screen.getByRole('button', { name: 'add top' }));
+    await user.click(screen.getByRole('button', { name: 'add bottom' }));
+
+    const [newestTop, oldestTop] = screen.getAllByTestId('top');
+    const defaultToast = screen.getByTestId('default');
+
+    expect(newestTop).toHaveAttribute('data-group', 'top');
+    expect(oldestTop).toHaveAttribute('data-group', 'top');
+    expect(defaultToast).not.toHaveAttribute('data-group');
+
+    // Each group stacks independently: both frontmost toasts have index 0.
+    expect(newestTop.style.getPropertyValue('--toast-index')).toBe('0');
+    expect(oldestTop.style.getPropertyValue('--toast-index')).toBe('1');
+    expect(defaultToast.style.getPropertyValue('--toast-index')).toBe('0');
+  });
+
   it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
     function App() {
       const [mode, setMode] = React.useState<'fallback' | 'explicit' | 'none' | 'restored'>(

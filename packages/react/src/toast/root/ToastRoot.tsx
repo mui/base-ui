@@ -27,6 +27,9 @@ export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootSt
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
   },
+  group(value) {
+    return value ? { 'data-group': value } : null;
+  },
 };
 
 const SWIPE_THRESHOLD = 40;
@@ -93,9 +96,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const activePointerIdRef = React.useRef<number | null>(null);
   const dragAbortControllerRef = React.useRef<AbortController | null>(null);
 
-  const domIndex = store.useState('toastIndex', toast.id);
+  const stackIndex = store.useState('toastStackIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
   const offsetY = store.useState('toastOffsetY', toast.id);
+  const frontmostHeight = store.useState('toastFrontmostHeight', toast.id);
   const focused = store.useState('focused');
   const expanded = store.useState('expanded');
 
@@ -471,9 +475,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? stackIndex : visibleIndex,
       ['--toast-offset-y' as string]: `${offsetY}px`,
       ['--toast-height' as string]: toast.height ? `${toast.height}px` : undefined,
+      // Shadows the viewport-level variable so each group collapses to the
+      // height of its own frontmost toast. `initial` (rather than omitting the
+      // variable) keeps a group without a measured height from inheriting
+      // another group's value through the viewport.
+      ['--toast-frontmost-height' as string]: frontmostHeight ? `${frontmostHeight}px` : 'initial',
     },
   };
 
@@ -494,6 +503,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     expanded,
     limited: toast.limited || false,
     type: toast.type,
+    group: toast.group,
     swiping: isSwiping,
     swipeDirection: currentSwipeDirection,
   };
@@ -527,6 +537,10 @@ export interface ToastRootState {
    * The type of the toast.
    */
   type: string | undefined;
+  /**
+   * The named stack the toast belongs to.
+   */
+  group: string | undefined;
   /**
    * Whether the toast is being swiped.
    */
