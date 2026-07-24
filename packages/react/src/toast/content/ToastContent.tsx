@@ -22,14 +22,10 @@ export const ToastContent = React.forwardRef(function ToastContent(
   const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
-    const node = contentRef.current;
-    if (!node) {
-      return undefined;
-    }
-
     recalculateHeight();
 
-    if (typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
+    const node = contentRef.current;
+    if (!node || typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
       return undefined;
     }
 
@@ -52,13 +48,11 @@ export const ToastContent = React.forwardRef(function ToastContent(
     behind,
   };
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentRef],
     state,
     props: elementProps,
   });
-
-  return element;
 });
 
 export interface ToastContentState {

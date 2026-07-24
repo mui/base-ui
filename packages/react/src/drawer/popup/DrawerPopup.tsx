@@ -99,7 +99,7 @@ const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
     return value ? { [DrawerPopupDataAttributes.nestedDrawerSwiping]: '' } : null;
   },
   swipeDirection(value) {
-    return value ? { [DrawerPopupDataAttributes.swipeDirection]: value } : null;
+    return { [DrawerPopupDataAttributes.swipeDirection]: value };
   },
   swiping(value) {
     return value ? { [DrawerPopupDataAttributes.swiping]: '' } : null;
@@ -149,7 +149,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const popupId = elementProps.id ?? floatingId;
 
-  const swipe = useDrawerViewportContext(true);
+  const swipe = useDrawerViewportContext();
   useDialogPortalContext();
   const { snapPoints, activeSnapPoint, activeSnapPointOffset } = useDrawerSnapPoints();
 
@@ -160,6 +160,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const [popupHeight, setPopupHeight] = React.useState(0);
   const popupHeightRef = React.useRef(0);
 
+  /* istanbul ignore else -- process.env.NODE_ENV is a build-time constant. */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -333,7 +334,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   if (shouldApplySnapPoints && swipeDirection === 'down') {
     const baseOffset = activeSnapPointOffset ?? 0;
     const movementValue = Number.parseFloat(
-      String((dragStyles as Record<string, string>)[DrawerPopupCssVars.swipeMovementY] ?? 0),
+      String((dragStyles as Record<string, string>)[DrawerPopupCssVars.swipeMovementY]),
     );
 
     if (swiping && Number.isFinite(movementValue)) {

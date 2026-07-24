@@ -90,6 +90,11 @@
     }
   }
 
+  .CodeBlockRoot > .CodeBlockPreContainer:first-child .CodeBlockViewport {
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
+  }
+
   .CodeBlockPreInline {
     font-size: 0.8125rem; /* 13px */
     line-height: 1.25rem; /* 20px */

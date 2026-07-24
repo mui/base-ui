@@ -67,14 +67,23 @@
     user-select: none;
     overflow: hidden;
 
-    /* Draw the separator without taking space from the 2.25rem toolbar row. */
+    /* Draw both separators behind the tabs without affecting toolbar layout.
+       Active tab fills cover the bottom separator. */
     &::before {
       content: '';
       position: absolute;
-      inset: 0 0 auto;
-      z-index: 1;
-      height: 1px;
-      background-color: var(--color-border);
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(var(--color-border), var(--color-border)),
+        linear-gradient(var(--color-border), var(--color-border));
+      background-position:
+        0 0,
+        0 100%;
+      background-repeat: no-repeat;
+      background-size:
+        100% 1px,
+        100% 1px;
       pointer-events: none;
     }
   }
@@ -88,14 +97,6 @@
     flex: 1 1 auto;
     min-width: 0;
     align-self: stretch;
-
-    /* Shift 1px left (keeping the right edge flush) so the active first tab's left
-       border lands on top of the card's 1px left border instead of 1px inboard.
-       This lives on the (non-scrolling) Root rather than the scrolling viewport so
-       it doesn't inflate the viewport's scrollWidth and falsely trip
-       `data-has-overflow-x`. */
-    width: calc(100% + 1px);
-    margin-left: -1px;
   }
 
   /* The viewport is focusable, but its own outline is unusable here: an inset
@@ -125,18 +126,16 @@
     /* Edge-fade scroll indicators at every viewport, driven by the
        distance-from-edge ScrollArea exposes (`--scroll-area-overflow-x-*`), so
        each fade is absent at rest and grows in only once scrolled past that
-       edge. The second mask layer keeps the bottom 1px opaque so the active
-       tab's background can bridge the border into the code block below. */
+       edge. */
     --demo-tabs-fade: 1.5rem;
-    mask-image:
-      linear-gradient(
-        to right,
-        transparent,
-        #000 min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-start, 0px)),
-        #000 calc(100% - min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-end, 0px))),
-        transparent
-      ),
-      linear-gradient(#000, #000);
+    --demo-tabs-mask: linear-gradient(
+      to right,
+      transparent,
+      #000 min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-start, 0px)),
+      #000 calc(100% - min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-end, 0px))),
+      transparent
+    );
+    mask-image: var(--demo-tabs-mask), linear-gradient(#000, #000);
     mask-repeat: no-repeat;
     mask-position:
       0 0,
@@ -155,6 +154,14 @@
       /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
       overscroll-behavior-x: contain;
     }
+  }
+
+  /* Fade the focused tab's complete outline, including its bottom edge. */
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  .DemoToolbarScrollAreaRoot:has(.DemoTab:focus-visible) .DemoToolbarViewport {
+    mask-image: var(--demo-tabs-mask);
+    mask-position: 0 0;
+    mask-size: 100% 100%;
   }
 
   .DemoToolbarActions {
@@ -218,11 +225,11 @@
     }
 
     @media (hover: hover) {
-      &:hover:not([data-active]) {
+      &:hover:not([data-active], :focus-visible) {
         &::before {
           content: '';
           position: absolute;
-          inset: 0 -1px 1px;
+          inset: 1px -1px;
           background-color: var(--gray-c1);
           background-clip: padding-box;
           pointer-events: none;
@@ -231,14 +238,21 @@
     }
 
     &[data-active] {
-      background-color: var(--gray-s2);
-
       &::before {
         content: '';
         position: absolute;
-        inset: 1px -1px 0;
+        /* Stop before the bottom bridge so translucent borders never overlap,
+           and the focused tab's bottom outline remains visible. */
+        inset: 1px -1px;
+        background-color: var(--gray-s2);
+        background-clip: padding-box;
         border-inline: 1px solid var(--color-border);
         pointer-events: none;
+      }
+
+      /* The card owns the outer edge next to the first tab. */
+      &:first-child::before {
+        border-inline-start-width: 0;
       }
 
       &::after {
@@ -251,6 +265,12 @@
         background-color: var(--gray-s2);
         pointer-events: none;
       }
+    }
+
+    &[data-active]:focus-visible::before {
+      /* Keep the active fill inside the complete 2px focus outline. */
+      inset: 2px;
+      border: 0;
     }
 
     &:focus-visible {
@@ -280,10 +300,8 @@
     position: relative;
     isolation: isolate;
     outline: 0;
-    border-top: 1px solid var(--color-border);
     border-bottom-left-radius: var(--demo-radius);
     border-bottom-right-radius: var(--demo-radius);
-    margin-top: -1px;
     background-color: var(--gray-s2);
 
     &[data-closed] {

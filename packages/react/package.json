@@ -84,6 +84,7 @@
     "./internals/filter": "./src/internals/filter.ts",
     "./internals/itemEquality": "./src/internals/itemEquality.ts",
     "./internals/form-context": "./src/internals/form-context/index.ts",
+    "./internals/getDisabledMountTransitionStyles": "./src/internals/getDisabledMountTransitionStyles.ts",
     "./internals/getStateAttributesProps": "./src/internals/getStateAttributesProps.ts",
     "./internals/labelable-provider": "./src/internals/labelable-provider/index.ts",
     "./internals/noop": "./src/internals/noop.ts",
@@ -100,6 +101,7 @@
     "./internals/types": "./src/internals/types.ts",
     "./internals/use-button": "./src/internals/use-button/index.ts",
     "./internals/useBaseUiId": "./src/internals/useBaseUiId.ts",
+    "./internals/useAnchorPositioning": "./src/internals/useAnchorPositioning.ts",
     "./internals/useAnimationsFinished": "./src/internals/useAnimationsFinished.ts",
     "./internals/useOpenChangeComplete": "./src/internals/useOpenChangeComplete.tsx",
     "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
@@ -125,13 +127,14 @@
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
+    "types:check": "api-extractor run --config api-extractor.json --typescript-compiler-folder ../../node_modules/typescript",
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.8",
-    "@floating-ui/utils": "^0.2.11",
+    "@floating-ui/react-dom": "^2.1.9",
+    "@floating-ui/utils": "^0.2.12",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {

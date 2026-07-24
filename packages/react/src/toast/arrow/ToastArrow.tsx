@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useToastPositionerContext } from '../positioner/ToastPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -25,13 +25,11 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
     uncentered: arrowUncentered,
   };
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
   });
-
-  return element;
 });
 
 export interface ToastArrowState {

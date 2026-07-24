@@ -41,7 +41,7 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(formatValue(30));
+      expect(value.textContent).toBe(formatValue(30));
     });
 
     describe('it accepts a render function', () => {

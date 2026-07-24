@@ -35,6 +35,7 @@ export default function ExampleEmojiPicker() {
         <input
           ref={textInputRef}
           type="text"
+          aria-label="Message"
           className="-mr-px h-8 flex-1 border border-r-0 border-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-white dark:bg-neutral-950 focus:relative focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
           placeholder="iMessage"
           value={textValue}
@@ -55,7 +56,7 @@ export default function ExampleEmojiPicker() {
           }}
         >
           <Autocomplete.Trigger
-            className="flex size-8 items-center justify-center border border-neutral-950 bg-transparent text-xl leading-none text-neutral-950 outline-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-solid focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-popup-open:bg-neutral-100 dark:border-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800"
+            className="flex size-8 items-center justify-center border border-neutral-950 bg-transparent text-xl leading-none text-neutral-950 outline-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-solid focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-pressed:bg-neutral-100 dark:border-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-pressed:bg-neutral-800"
             aria-label="Choose emoji"
           >
             😀
@@ -67,6 +68,7 @@ export default function ExampleEmojiPicker() {
                 aria-label="Select emoji"
               >
                 <Autocomplete.Input
+                  aria-label="Search emojis"
                   placeholder="Search emojis…"
                   className="h-8 w-64 max-w-full border border-neutral-950 bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white"
                 />

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -56,31 +55,27 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     allowInputSyncRef,
-    disabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
     id,
     incrementValue,
     inputMode,
-    inputValue,
     max,
     min,
     name,
     nameProp,
-    readOnly,
-    required,
     setValue,
     state,
     setInputValue,
     locale,
     inputRef,
-    value,
     onValueCommitted,
     lastChangedValueRef,
     hasPendingCommitRef,
     valueRef,
   } = useNumberFieldRootContext();
+  const { disabled, readOnly, required, value, inputValue } = state;
 
   const { clearErrors } = useFormContext();
   const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
@@ -223,7 +218,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           blockRevalidationRef.current = false;
           return;
         }
-        committedValue = lastChangedValueRef.current ?? committed;
+        committedValue = lastChangedValueRef.current;
         // If validation normalized back to the current value, `useValueChanged` won't fire to
         // reset the flag, so reset it here or the next external change won't revalidate.
         if (committedValue === value) {
@@ -342,8 +337,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (event.key === symbol) {
           const symbolIndex = inputValue.indexOf(symbol);
           const isSymbolHighlighted = selectionContainsIndex(symbolIndex);
-          isAllowedNonNumericKey =
-            !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+          isAllowedNonNumericKey = symbolIndex === -1 || isAllSelected || isSymbolHighlighted;
         }
       });
 
@@ -366,12 +360,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const willSetHome = event.key === 'Home' && min != null;
-      const willSetEnd = event.key === 'End' && max != null;
+      // Home/End jump to the corresponding bound, but only when that bound is defined.
+      let boundaryValue: number | null = null;
+      if (event.key === 'Home' && min != null) {
+        boundaryValue = min;
+      } else if (event.key === 'End' && max != null) {
+        boundaryValue = max;
+      }
 
       // Let the browser handle multi-character keys we don't act on (PageUp, Insert, F-keys,
       // Home/End without min/max); invalid single characters are still blocked below.
-      if (event.key.length > 1 && !isStepKey && !willSetHome && !willSetEnd) {
+      if (event.key.length > 1 && !isStepKey && boundaryValue === null) {
         return;
       }
 
@@ -386,14 +385,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const amount = getStepAmount(event);
 
       // Prevent insertion of text or caret from moving.
-      stopEvent(event);
+      event.preventDefault();
+      event.stopPropagation();
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
       let changed = false;
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      if (isStepKey || boundaryValue !== null) {
         allowInputSyncRef.current = true;
-
+      }
+      if (isStepKey) {
         // When stepping from the synced numeric state, refresh the commit ref to the current
         // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
         // earlier change (mirrors the button path).
@@ -407,16 +408,14 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-      } else if (willSetHome) {
-        allowInputSyncRef.current = true;
-        changed = setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
-      } else if (willSetEnd) {
-        allowInputSyncRef.current = true;
-        changed = setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      } else if (boundaryValue !== null) {
+        changed = setValue(boundaryValue, createChangeEventDetails(REASONS.keyboard, nativeEvent));
       }
 
+      // `changed` is only true when `setValue` applied the change, which records the stored
+      // (clamped/snapped) value, so commit that rather than the pre-validation input.
       if (changed) {
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+        onValueCommitted(lastChangedValueRef.current, commitDetails);
       }
     },
     onPaste(event) {
@@ -429,6 +428,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       try {
         pastedData = event.clipboardData?.getData('text/plain') ?? '';
       } catch {
+        /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           warn(
@@ -445,9 +445,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Insert the pasted text at the caret/selection instead of replacing the entire value,
       // matching native input behavior (e.g. pasting "5" into "123|" yields "1235").
+      // The component renders `type="text"`, which always reports a selection range. Overriding
+      // `type` with a selection-less one (`email`, `number`) is unsupported either way: the caret
+      // restore above throws on those, so there is no working behavior to preserve here.
       const input = event.currentTarget;
-      const selectionStart = input.selectionStart ?? inputValue.length;
-      const selectionEnd = input.selectionEnd ?? inputValue.length;
+      const selectionStart = input.selectionStart!;
+      const selectionEnd = input.selectionEnd!;
       const nextText =
         inputValue.slice(0, selectionStart) + pastedData + inputValue.slice(selectionEnd);
 

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.build.json",
+  // Keep internals available to workspace project references. The published package build uses
+  // `tsconfig.build.json`, where `stripInternal` is enabled.
+  "compilerOptions": {
+    "stripInternal": false
+  },
+  "references": [{ "path": "../utils/tsconfig.build.json" }]
+}

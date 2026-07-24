@@ -10,14 +10,13 @@ import {
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -66,7 +65,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
-  const hasViewport = store.useState('hasViewport');
+  const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -89,7 +88,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     nodeId,
     collisionAvoidance,
-    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    adaptiveOrigin,
   });
 
   const domReference = floatingRootContext.useState('domReferenceElement');

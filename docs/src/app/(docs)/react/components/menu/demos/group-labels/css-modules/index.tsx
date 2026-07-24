@@ -15,7 +15,7 @@ export default function ExampleMenu() {
         View <CaretDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+        <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
           <Menu.Popup className={styles.Popup}>
             <Menu.RadioGroup value={value} onValueChange={setValue}>
               <Menu.GroupLabel className={styles.GroupLabel}>Sort</Menu.GroupLabel>

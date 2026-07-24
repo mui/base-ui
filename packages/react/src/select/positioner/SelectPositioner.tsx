@@ -4,7 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -12,7 +12,7 @@ import {
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
@@ -68,8 +68,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     initialValueRef,
     popupRef,
     setValue,
+    floatingContext: floatingRootContext,
   } = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);

@@ -13,13 +13,13 @@ import {
   useDrawerRootContext,
   type DrawerSnapPoint,
 } from './DrawerRootContext';
-import { Dialog } from '../../dialog';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
@@ -232,26 +232,21 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       </React.Fragment>
     );
 
-  return (
-    <DrawerRootContext.Provider value={contextValue}>
-      <IsDrawerContext.Provider value>
-        <Dialog.Root
-          open={openProp}
-          defaultOpen={defaultOpen}
-          onOpenChange={handleOpenChange}
-          onOpenChangeComplete={onOpenChangeComplete}
-          disablePointerDismissal={disablePointerDismissal}
-          modal={modal}
-          actionsRef={actionsRef}
-          handle={handle}
-          triggerId={triggerIdProp}
-          defaultTriggerId={defaultTriggerIdProp}
-        >
-          {resolvedChildren}
-        </Dialog.Root>
-      </IsDrawerContext.Provider>
-    </DrawerRootContext.Provider>
-  );
+  const dialog = useRenderDialogRoot('drawer', {
+    open: openProp,
+    defaultOpen,
+    onOpenChange: handleOpenChange,
+    onOpenChangeComplete,
+    disablePointerDismissal,
+    modal,
+    actionsRef,
+    handle,
+    triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp,
+    children: resolvedChildren,
+  });
+
+  return <DrawerRootContext.Provider value={contextValue}>{dialog}</DrawerRootContext.Provider>;
 }
 
 export interface DrawerRootState {}
@@ -424,7 +419,7 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 function DrawerProviderReporter() {
   const drawerId = useId();
 
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
   const store = useDialogRootContext(false);
 
   const open = store.useState('open');

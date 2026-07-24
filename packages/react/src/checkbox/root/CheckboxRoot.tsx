@@ -9,7 +9,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
-import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -88,8 +88,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { labelId, controlId, registerControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
-  const parentContext = groupContext?.parent;
-  const isGroupedWithParent = parentContext && groupContext.allValues;
+  const parentContext = groupContext?.allValues === undefined ? undefined : groupContext.parent;
+  const isGroupedWithParent = parentContext !== undefined;
 
   const disabled =
     rootDisabled || fieldItemContext.disabled || groupContext?.disabled || disabledProp;
@@ -98,20 +98,24 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId();
 
-  const parentId = useBaseUiId();
-  let inputId = controlId;
+  const generatedInputId = useBaseUiId();
+  let inputId = idProp || controlId;
   if (isGroupedWithParent) {
-    inputId = parent ? parentId : `${parentContext.id}-${value}`;
-  } else if (idProp) {
-    inputId = idProp;
+    if (parent) {
+      inputId = generatedInputId;
+    } else if (value !== undefined) {
+      inputId = `${parentContext.id}-${value}`;
+    } else {
+      inputId ||= generatedInputId;
+    }
   }
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
-      groupProps = groupContext.parent.getParentProps();
-    } else if (value) {
-      groupProps = groupContext.parent.getChildProps(value);
+      groupProps = parentContext.getParentProps();
+    } else if (value !== undefined) {
+      groupProps = parentContext.getChildProps(value);
     }
   }
 
@@ -123,11 +127,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   } = groupProps;
 
   const groupValue = groupContext?.value;
-  const setGroupValue = groupContext?.setValue;
-  const defaultGroupValue = groupContext?.defaultValue;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const controlSourceRef = useRefWithInit(() => Symbol('checkbox-control'));
+  const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -138,9 +140,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const validation = groupContext?.validation ?? localValidation;
 
   const [checked, setCheckedState] = useControlled({
-    controlled: value && groupValue && !parent ? groupValue.includes(value) : groupChecked,
-    default:
-      value && defaultGroupValue && !parent ? defaultGroupValue.includes(value) : defaultChecked,
+    controlled:
+      value !== undefined && groupValue !== undefined && !parent
+        ? groupValue.includes(value)
+        : groupChecked,
+    default: defaultChecked,
     name: 'Checkbox',
     state: 'checked',
   });
@@ -178,7 +182,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.registerInput);
+  const registerFieldInput = validation.registerInput;
+  const registeredInputValue = groupContext ? value : undefined;
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement) =>
+      registerFieldInput(element, { controlRef, value: registeredInputValue }),
+    [registerFieldInput, registeredInputValue],
+  );
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, parent ? undefined : registerInput);
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -252,12 +263,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
         setCheckedState(nextChecked);
 
-        if (value && groupValue && setGroupValue && !parent && !isGroupedWithParent) {
+        if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
           const nextGroupValue = nextChecked
-            ? [...groupValue, value]
-            : groupValue.filter((item) => item !== value);
+            ? [...groupContext.value, value]
+            : groupContext.value.filter((item) => item !== value);
 
-          setGroupValue(nextGroupValue, details);
+          groupContext.setValue(nextGroupValue, details);
         }
       },
       onClick(event) {
@@ -279,7 +290,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   );
 
   React.useEffect(() => {
-    if (!parentContext || !value) {
+    if (!parentContext || value === undefined) {
       return undefined;
     }
 
@@ -303,11 +314,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const stateAttributesMapping = useStateAttributesMapping(state);
+  const stateAttributesMapping = getCheckboxStateAttributesMapping(state);
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
+    ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
         id: nativeButton ? (inputId ?? undefined) : id,

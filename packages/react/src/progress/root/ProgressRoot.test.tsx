@@ -55,6 +55,32 @@ describe('<Progress.Root />', () => {
     });
   });
 
+  describe('data attributes', () => {
+    it('keeps exactly one status data attribute through the state cycle', async () => {
+      const { setProps } = await render(<TestProgress value={null} />);
+      const progressbar = screen.getByRole('progressbar');
+
+      expect(progressbar).toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+
+      await setProps({ value: 50 });
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
+      expect(progressbar).toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+
+      await setProps({ value: 100 });
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).toHaveAttribute('data-complete');
+
+      await setProps({ value: null });
+      expect(progressbar).toHaveAttribute('data-indeterminate');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+    });
+  });
+
   describe('range', () => {
     it('normalizes the formatted value, aria-valuetext, and indicator within a custom range', async () => {
       const expected = (0.5).toLocaleString(undefined, { style: 'percent' });
@@ -147,7 +173,7 @@ describe('<Progress.Root />', () => {
 
       const value = screen.getByTestId('value');
       const progressbar = screen.getByRole('progressbar');
-      expect(value).toHaveTextContent(formatValue(30));
+      expect(value.textContent).toBe(formatValue(30));
       expect(progressbar).toHaveAttribute('aria-valuetext', formatValue(30));
     });
 
@@ -165,10 +191,10 @@ describe('<Progress.Root />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(formatValue(30, usd));
+      expect(value.textContent).toBe(formatValue(30, usd));
 
       await setProps({ format: eur });
-      expect(value).toHaveTextContent(formatValue(30, eur));
+      expect(value.textContent).toBe(formatValue(30, eur));
     });
   });
 

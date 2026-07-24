@@ -17,6 +17,22 @@ describe('<Switch.Root />', () => {
   }));
 
   describe('interactions', () => {
+    it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {
+      await render(
+        <Switch.Root
+          ref={(element) => {
+            if (element) {
+              element.focus();
+              element.blur();
+              element.click();
+            }
+          }}
+        />,
+      );
+
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should change its state when clicked', async () => {
       await render(<Switch.Root />);
       const switchElement = screen.getByRole('switch');
@@ -69,6 +85,21 @@ describe('<Switch.Root />', () => {
       });
 
       expect(switchElement).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('ignores a hidden input click canceled before React handles it', async () => {
+      const handleCheckedChange = vi.fn();
+      await render(<Switch.Root onCheckedChange={handleCheckedChange} />);
+
+      const switchElement = screen.getByRole('switch');
+      const input = screen.getByRole('checkbox', { hidden: true });
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      event.preventDefault();
+
+      fireEvent(input, event);
+
+      expect(handleCheckedChange).not.toHaveBeenCalled();
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
 
     ['Enter', 'Space'].forEach((key) => {
@@ -494,6 +525,68 @@ describe('<Switch.Root />', () => {
   });
 
   describe('Form', () => {
+    it.skipIf(isJSDOM)(
+      'preserves Field validation props through canceled changes, submit, and reset',
+      async () => {
+        let cancelChanges = true;
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="notifications">
+              <Switch.Root
+                required
+                aria-describedby="external-description"
+                onCheckedChange={(_, details) => {
+                  if (cancelChanges) {
+                    details.cancel();
+                  }
+                }}
+              />
+              <Field.Description data-testid="description">Choose a setting</Field.Description>
+              <Field.Error match="valueMissing" data-testid="error">
+                required
+              </Field.Error>
+            </Field.Root>
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const description = screen.getByTestId('description');
+        expect(switchElement).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${description.id}`,
+        );
+
+        await user.click(switchElement);
+        expect(switchElement).toHaveAttribute('aria-checked', 'false');
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+        expect(submitSpy).not.toHaveBeenCalled();
+        expect(switchElement).toHaveAttribute('aria-invalid', 'true');
+        expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+        cancelChanges = false;
+        await user.click(switchElement);
+        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+        expect(switchElement).not.toHaveAttribute('aria-invalid');
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+        expect(submitSpy).toHaveBeenCalledTimes(1);
+
+        await user.click(screen.getByRole('button', { name: 'Reset' }));
+        // Switch state is React-managed, so a native form reset does not change it.
+        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+        expect(switchElement).not.toHaveAttribute('aria-invalid');
+        expect(switchElement).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${description.id}`,
+        );
+      },
+    );
+
     // FormData is not available in JSDOM
     it.skipIf(isJSDOM)(
       'should include the switch value in form submission, matching native checkbox behavior',
@@ -917,6 +1010,20 @@ describe('<Switch.Root />', () => {
       expect(button).toHaveAttribute('data-focused', '');
 
       fireEvent.blur(button);
+
+      expect(button).not.toHaveAttribute('data-focused');
+    });
+
+    it('does not set [data-focused] when disabled', async () => {
+      await render(
+        <Field.Root>
+          <Switch.Root disabled data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      fireEvent.focus(button);
 
       expect(button).not.toHaveAttribute('data-focused');
     });

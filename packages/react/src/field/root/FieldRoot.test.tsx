@@ -25,6 +25,29 @@ describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
 
+  function SwappableField({
+    firstControl,
+    secondControl,
+    children,
+    ...rootProps
+  }: React.ComponentProps<typeof Field.Root> & {
+    firstControl: React.ReactNode;
+    secondControl: React.ReactNode;
+  }) {
+    const [swapped, setSwapped] = React.useState(false);
+    return (
+      <div>
+        <Field.Root {...rootProps}>
+          {swapped ? secondControl : firstControl}
+          {children}
+        </Field.Root>
+        <button type="button" onClick={() => setSwapped(true)}>
+          swap
+        </button>
+      </div>
+    );
+  }
+
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
@@ -1467,6 +1490,224 @@ describe('<Field.Root />', () => {
         expect(label).not.toHaveAttribute('data-dirty');
         expect(description).not.toHaveAttribute('data-dirty');
       });
+
+      it('should clear [data-dirty] when a null-valued control returns to its empty initial value', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('should clear [data-dirty] when a Select returns to its null initial value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Select.Root value={value} onValueChange={setValue}>
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="a" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                set
+              </button>
+              <button type="button" onClick={() => setValue(null)}>
+                clear
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('set'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('clear'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps [data-dirty] on a RadioGroup when returning to the first picked value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <RadioGroup value={value} onValueChange={(next) => setValue(next as string | null)}>
+                  <Radio.Root value="a" />
+                  <Radio.Root value="b" />
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                a
+              </button>
+              <button type="button" onClick={() => setValue('b')}>
+                b
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('a'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('b'));
+        fireEvent.click(screen.getByText('a'));
+
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+      });
+    });
+
+    describe('control remount', () => {
+      it('clears dirty after an empty text control returns to empty following a null-valued control', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={
+              <NumberField.Root>
+                <NumberField.Input />
+              </NumberField.Root>
+            }
+            secondControl={<Field.Control data-testid="control" defaultValue="" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+        expect(root).not.toHaveAttribute('data-dirty');
+      });
+
+      it('keeps the original baseline when a controlled control remounts', async () => {
+        function App() {
+          const [value, setValue] = React.useState('a');
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && (
+                  <Field.Control data-testid="control" value={value} onValueChange={setValue} />
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setMounted((prev) => !prev)}>
+                toggle
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('toggle'));
+        fireEvent.click(screen.getByText('toggle'));
+
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'a' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps the field baseline when the control is swapped', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={<Field.Control key="a" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="x" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        // The baseline is still the field's original value, not the swapped-in control's default.
+        fireEvent.change(control, { target: { value: 'a' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('captures the baseline only once in StrictMode', async () => {
+        await renderStrict(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
     });
 
     describe('filled', () => {
@@ -1651,6 +1892,18 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
       expect(screen.getByTestId('error')).not.toBe(null);
     });
+
+    it('does not update controlled dirty state from user input', async () => {
+      await render(
+        <Field.Root data-testid="root" dirty={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'changed' } });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-dirty');
+    });
   });
 
   describe('prop: touched', () => {
@@ -1667,6 +1920,19 @@ describe('<Field.Root />', () => {
       ['root', 'control', 'label', 'description'].forEach((part) => {
         expect(screen.getByTestId(part)).toHaveAttribute('data-touched');
       });
+    });
+
+    it('does not update controlled touched state on blur', async () => {
+      await render(
+        <Field.Root data-testid="root" touched={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.focus(screen.getByRole('textbox'));
+      fireEvent.blur(screen.getByRole('textbox'));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-touched');
     });
   });
 
@@ -1694,6 +1960,28 @@ describe('<Field.Root />', () => {
       await user.click(screen.getByText('validate'));
 
       expect(screen.queryByTestId('error')).not.toBe(null);
+    });
+
+    it('validates a logical field without a mounted control', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root actionsRef={actionsRef} validate={() => 'Logical field error'}>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'validate' }));
+
+      expect(screen.getByText('Logical field error')).toBeVisible();
     });
 
     it('validates the current control value when the `validate` method is called', async () => {
