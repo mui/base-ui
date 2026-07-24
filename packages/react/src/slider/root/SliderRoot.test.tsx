@@ -2802,10 +2802,10 @@ describe('<Slider.Root />', () => {
   describe('prop: format', () => {
     it('formats the value', async () => {
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+        return new Intl.NumberFormat('en-US', USD_NUMBER_FORMAT).format(v);
       }
 
-      await render(<TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} />);
+      await render(<TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} locale="en-US" />);
 
       const value = screen.getByTestId('value');
       const slider = screen.getByRole('slider');
@@ -2830,10 +2830,12 @@ describe('<Slider.Root />', () => {
 
     it('formats range values', async () => {
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+        return new Intl.NumberFormat('en-US', USD_NUMBER_FORMAT).format(v);
       }
 
-      await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
+      await render(
+        <TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} locale="en-US" />,
+      );
 
       const value = screen.getByTestId('value');
       expect(value.textContent).toBe(`${formatValue(50)} – ${formatValue(75)}`);
