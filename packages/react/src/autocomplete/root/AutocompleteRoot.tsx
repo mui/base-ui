@@ -199,9 +199,15 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
+   * - A function: called with the first matching item and the current query after the user
+   *   types; return `true` to highlight it or `false` to leave the highlight cleared.
    * @default false
    */
-  autoHighlight?: boolean | 'always' | undefined;
+  autoHighlight?:
+    | boolean
+    | 'always'
+    | ((itemValue: ItemValue, query: string) => boolean)
+    | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false

@@ -6569,6 +6569,127 @@ describe('<Combobox.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    describe('predicate function', () => {
+      function PredicateCombobox() {
+        return (
+          <Combobox.Root
+            items={['2', '4', '32', '64']}
+            autoHighlight={(item, query) => item === query}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      it('does not highlight the first match when the predicate returns false', async () => {
+        const { user } = await render(<PredicateCombobox />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, '3');
+
+        expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it('highlights the first match when the predicate returns true', async () => {
+        const { user } = await render(<PredicateCombobox />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, '32');
+
+        const option = screen.getByRole('option', { name: '32' });
+        await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+        await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', option.id));
+      });
+
+      it('clears the highlight when the query stops satisfying the predicate', async () => {
+        const { user } = await render(<PredicateCombobox />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, '32');
+        await waitFor(() =>
+          expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted'),
+        );
+
+        await user.type(input, '{Backspace}');
+
+        expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it('evaluates the predicate again after closing and reopening', async () => {
+        const { user } = await render(<PredicateCombobox />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, '3');
+        // Enter with no highlight closes the popup without selecting.
+        await user.keyboard('{Enter}');
+        await user.type(input, '32');
+
+        const option = await screen.findByRole('option', { name: '32' });
+        await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+      });
+
+      it('applies the predicate when items are rendered individually', async () => {
+        function App() {
+          const [query, setQuery] = React.useState('');
+          const visible = ['2', '4', '32', '64'].filter((item) => item.includes(query.trim()));
+          return (
+            <Combobox.Root onInputValueChange={setQuery} autoHighlight={(item, q) => item === q}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {visible.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const input = screen.getByTestId('input');
+
+        await user.type(input, '3');
+        expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute('data-highlighted');
+
+        await user.type(input, '2');
+        const option = screen.getByRole('option', { name: '32' });
+        await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+      });
+
+      it('still allows keyboard navigation when the predicate returns false', async () => {
+        const { user } = await render(<PredicateCombobox />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, '3');
+        await user.keyboard('{ArrowDown}');
+
+        const option = screen.getByRole('option', { name: '32' });
+        await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+      });
+    });
+
     it('shows the selected item as selected on initial open (no active highlight)', async () => {
       await render(
         <Combobox.Root
