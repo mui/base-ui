@@ -71,3 +71,8 @@ export type {
   Filter as AutocompleteFilter,
   UseFilterOptions as AutocompleteFilterOptions,
 } from '../combobox/root/utils/useFilter';
+
+export type {
+  ComboboxItemCollection as AutocompleteItemCollection,
+  UseComboboxItemsOptions as UseAutocompleteItemsOptions,
+} from '../combobox/items/useItems';

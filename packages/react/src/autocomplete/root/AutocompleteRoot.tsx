@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import {
+  getItemCollection,
+  type ComboboxItemCollection,
+} from '../../combobox/items/itemCollection';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
@@ -24,9 +28,10 @@ export function AutocompleteRoot<ItemValue>(
   props: Omit<AutocompleteRoot.Props<ItemValue>, 'items'> & {
     /**
      * The items to be displayed in the list.
-     * Can be either a flat array of items or an array of groups with items.
+     * Can be a flat array of items, an array of groups with items, or a collection created
+     * by the `useItems()` hook.
      */
-    items?: readonly ItemValue[] | undefined;
+    items?: readonly ItemValue[] | ComboboxItemCollection<any, ItemValue> | undefined;
   },
 ): React.JSX.Element;
 export function AutocompleteRoot<ItemValue>(
@@ -44,6 +49,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
+  const collection = getItemCollection(other.items);
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
@@ -113,11 +119,12 @@ export function AutocompleteRoot<ItemValue>(
 
     setInlineInputValue(
       enableInline && highlightedValue != null
-        ? stringifyAsLabel(highlightedValue, itemToStringValue)
+        ? stringifyAsLabel(highlightedValue, itemToStringValue ?? collection?.resolveLabel)
         : '',
     );
   }
 
+  // Inline completion temporarily changes the displayed input without changing the query.
   return (
     <AriaCombobox
       {...other}
@@ -126,6 +133,7 @@ export function AutocompleteRoot<ItemValue>(
       selectionMode="none"
       fillInputOnItemPress
       filter={resolvedFilter}
+      filterQuery={mode === 'both' ? resolvedQuery : undefined}
       autoComplete={mode}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}

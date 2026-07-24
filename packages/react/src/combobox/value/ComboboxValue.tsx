@@ -17,12 +17,13 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const store = useComboboxRootContext();
 
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const itemToValue = useStore(store, selectors.itemToValue);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
   const multiple = useStore(store, selectors.selectionMode) === 'multiple';
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
-  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const shouldCheckNullItemLabel = !hasSelectedValue && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   let children = null;
@@ -30,10 +31,12 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
     children = childrenProp(selectedValue);
   } else if (childrenProp != null) {
     children = childrenProp;
+  } else if (!hasSelectedValue && hasNullLabel && itemToStringLabel) {
+    children = itemToStringLabel(selectedValue);
   } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
     children = placeholder;
   } else if (multiple && Array.isArray(selectedValue)) {
-    children = resolveMultipleLabels(selectedValue, items, itemToStringLabel);
+    children = resolveMultipleLabels(selectedValue, items, itemToStringLabel, itemToValue != null);
   } else {
     children = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
   }

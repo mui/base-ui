@@ -60,10 +60,14 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 </Autocomplete.Root>;
 ```
 
-## TypeScript inference
+## Item values
 
-Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
-The `value` prop on `<Autocomplete.Item>` must match the type of an item in the `items` array, which also ensures that props like `itemToStringValue` infer the correct item type.
+When an item is rendered by the function child of `<Autocomplete.List>` or `<Autocomplete.Collection>`, the collection provides its value, so the `value` prop on `<Autocomplete.Item>` can be omitted. Ordinary collections use the source item as the value.
+Items rendered manually without a collection require an explicit `value`.
+
+To derive a different value or label from each item, normalize the `items` array (flat or grouped) with the `Autocomplete.useItems` hook. Its derived value is authoritative, so omit the `value` prop from rendered items.
+
+Render callbacks and `useFilteredItems()` receive the source items, while the root `filter` function receives the derived values. Filtering remains configured on `<Autocomplete.Root>`: `itemToStringLabel` overrides the collection's label accessor, and `locale` and `limit` apply normally.
 
 ## Examples
 
@@ -177,7 +181,7 @@ interface Suggestion {
 
 const SuggestionItem = React.memo(function SuggestionItem({ item }: { item: Suggestion }) {
   return (
-    <Autocomplete.Item value={item}>
+    <Autocomplete.Item>
       <span>{item.label}</span>
       <span>{item.description}</span>
     </Autocomplete.Item>
@@ -289,6 +293,12 @@ This hook is used when externally filtering items.
 Returns the internally filtered items when called inside `<Autocomplete.Root>`.
 
 <TypesAutocomplete.useFilteredItems hideDescription />
+
+## useItems
+
+Normalizes items into a collection for the `items` prop of `<Autocomplete.Root>`, deriving each item's value and label before rendering.
+
+<TypesAutocomplete.useItems hideDescription />
 
 export const metadata = {
   keywords: [

@@ -12,6 +12,12 @@ export type State = {
   labelId: string | undefined;
 
   items: readonly any[] | undefined;
+  /**
+   * Projects a source item to its selection value when the `items` prop is a collection
+   * created by `useItems()`. `undefined` for plain arrays, where the item is the value.
+   */
+  itemToValue: ((item: any) => any) | undefined;
+  hasItemValue: ((value: any) => boolean) | undefined;
 
   selectedValue: any;
 
@@ -95,6 +101,7 @@ export const selectors = {
   labelId: (state: State) => state.labelId,
 
   items: (state: State) => state.items,
+  itemToValue: (state: State) => state.itemToValue,
 
   selectedValue: (state: State) => state.selectedValue,
   hasSelectionChips: (state: State) => {
@@ -114,7 +121,14 @@ export const selectors = {
   },
 
   hasNullItemLabel: (state: State, enabled: boolean) => {
-    return enabled ? hasNullItemLabel(state.items) : false;
+    if (!enabled) {
+      return false;
+    }
+    if (state.itemToValue && state.hasItemValue && state.itemToStringLabel) {
+      const value = state.selectedValue;
+      return value == null && state.hasItemValue(value) && state.itemToStringLabel(value) != null;
+    }
+    return hasNullItemLabel(state.items);
   },
 
   open: (state: State) => state.open,

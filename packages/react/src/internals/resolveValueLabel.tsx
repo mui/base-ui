@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { serializeValue } from './serializeValue';
+import { serializeValue, stringifyAsDefaultLabel } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
@@ -61,15 +61,7 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
   if (itemToStringLabel && item != null) {
     return itemToStringLabel(item) ?? '';
   }
-  if (item && typeof item === 'object') {
-    if ('label' in item && item.label != null) {
-      return String(item.label);
-    }
-    if ('value' in item) {
-      return String(item.value);
-    }
-  }
-  return serializeValue(item);
+  return stringifyAsDefaultLabel(item);
 }
 
 export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => string) {
@@ -86,12 +78,13 @@ export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  resolveNullLabel = false,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
   }
 
-  if (itemToStringLabel && value != null) {
+  if (itemToStringLabel && (value != null || resolveNullLabel)) {
     return itemToStringLabel(value);
   }
 
@@ -136,6 +129,7 @@ export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  resolveNullLabels = false,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {
@@ -143,7 +137,7 @@ export function resolveMultipleLabels(
     }
     acc.push(
       <React.Fragment key={index}>
-        {resolveSelectedLabel(value, items, itemToStringLabel)}
+        {resolveSelectedLabel(value, items, itemToStringLabel, resolveNullLabels)}
       </React.Fragment>,
     );
     return acc;

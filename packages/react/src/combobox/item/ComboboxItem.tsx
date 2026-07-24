@@ -16,6 +16,7 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { NO_COMBOBOX_ITEM_VALUE, useComboboxItemValueContext } from './ComboboxItemValueContext';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -39,7 +40,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     render,
     className,
     style,
-    value: itemValue = null,
+    value: valueProp,
     index: indexProp,
     disabled = false,
     nativeButton = false,
@@ -56,10 +57,18 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
+  const collectionItemValue = useComboboxItemValueContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const itemToValue = useStore(store, selectors.itemToValue);
+
+  const hasCollectionItemValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE;
+  const itemValue =
+    hasCollectionItemValue && (itemToValue || valueProp === undefined)
+      ? collectionItemValue
+      : (valueProp ?? null);
 
   const selectable = selectionMode !== 'none';
   const index = indexProp ?? indexFromFilter ?? listItem.index;
@@ -221,13 +230,16 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues } = useComboboxDerivedItemsContext();
+  const collectionItemValue = useComboboxItemValueContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  // Inside a collection the source item's value is the positional identity, regardless of
+  // any explicit `value` prop.
+  const lookupValue =
+    collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
+      ? collectionItemValue
+      : (componentProps.value ?? null);
+  const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
@@ -302,8 +314,11 @@ export interface ComboboxItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item.
-   * @default null
+   * A unique value that identifies this item. When omitted inside a collection, the
+   * collection-provided value is used. This is the source item for ordinary collections and the
+   * `value` accessor result for collections created by `useItems()`.
+   *
+   * Collections created by `useItems()` always use their derived value.
    */
   value?: any;
   /**

@@ -35,7 +35,7 @@ Doesn't render its own HTML element.
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                         | -       | Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                    |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                    |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                         |
-| items                | `any[] \| Group[]`                                                                                      | -       | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| items                | `any[] \| Group[] \| ComboboxItemCollection<any, Value>`                                                | -       | The items to be displayed in the list.&#xA;Can be a flat array of items, an array of groups with items, or a collection created by&#xA;the `useItems()` hook, which derives each item's selection value and label.                                                                                                                                                                                                                                                                                                                                                    |
 | limit                | `number`                                                                                                | `-1`    | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | locale               | `Intl.LocalesArgument`                                                                                  | -       | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | loopFocus            | `boolean`                                                                                               | `true`  | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp. |
@@ -642,17 +642,17 @@ Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                             |
-| :----------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                       | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
-| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`              | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
-| index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
-| nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
-| disabled     | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
-| children     | `React.ReactNode`                                                                           | -       | -                                                                                                                                                                                                                                       |
-| className    | `string \| ((state: Combobox.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                |
-| style        | `React.CSSProperties \| ((state: Combobox.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
+| Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                                                                                                              |
+| :----------- | :------------------------------------------------------------------------------------------ | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                                       | -       | A unique value that identifies this item. When omitted inside a collection, the&#xA;collection-provided value is used. This is the source item for ordinary collections and the&#xA;`value` accessor result for collections created by `useItems()`. Collections created by `useItems()` always use their derived value. |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`              | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.                                                                                  |
+| index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                                                                                                           |
+| nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                                                                     |
+| disabled     | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                    |
+| children     | `React.ReactNode`                                                                           | -       | -                                                                                                                                                                                                                                                                                                                        |
+| className    | `string \| ((state: Combobox.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                 |
+| style        | `React.CSSProperties \| ((state: Combobox.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                              |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                            |
 
 **Item Data Attributes:**
 
@@ -1024,6 +1024,10 @@ type ComboboxItemIndicatorState = {
 };
 ```
 
+### ComboboxItemCollection
+
+Normalized items created by `useItems()`, accepted by the root's `items` prop.
+
 ### InputGroup
 
 A wrapper for the input and its associated controls.
@@ -1114,6 +1118,26 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
+### useItems
+
+Normalizes items into a collection for the root's `items` prop, deriving each item's
+selection value and label before rendering.
+Accepts a flat array of items or an array of groups with items; the `value` and `label`
+accessors always receive individual items, never groups.
+
+**Parameters:**
+
+| Parameter | Type                                                  | Default | Description |
+| :-------- | :---------------------------------------------------- | :------ | :---------- |
+| data      | `ItemOrGroup[]`                                       | -       | -           |
+| options?  | `UseComboboxItemsOptions<Item \| ItemOrGroup, Value>` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = ComboboxItemCollection<Item | ItemOrGroup, Value>;
+```
+
 ## Additional Types
 
 ### ComboboxFilter
@@ -1145,6 +1169,27 @@ type ComboboxFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+};
+```
+
+### UseComboboxItemsOptions
+
+```typescript
+type UseComboboxItemsOptions<Item, Value = Item> = {
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   * Keep this function reference stable to preserve collection memoization.
+   */
+  value?: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
+   * By default, the item's derived value is stringified.
+   * Keep this function reference stable to preserve collection memoization.
+   */
+  label?: (item: Item) => string;
 };
 ```
 
@@ -1215,7 +1260,8 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Combobox.useItems`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `UseComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 

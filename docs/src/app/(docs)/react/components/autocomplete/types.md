@@ -30,7 +30,7 @@ Doesn't render its own HTML element.
 | grid                 | `boolean`                                                                                                       | `false`  | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | inline               | `boolean`                                                                                                       | `false`  | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Autocomplete.Root inline open>`                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | itemToStringValue    | `((itemValue: ItemValue) => string)`                                                                            | -        | When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                    |
-| items                | `({ items: any[] })[] \| ItemValue[]`                                                                           | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| items                | `({ items: any[] })[] \| ItemValue[] \| AutocompleteItemCollection<any, ItemValue>`                             | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | limit                | `number`                                                                                                        | `-1`     | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | locale               | `Intl.LocalesArgument`                                                                                          | -        | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | loopFocus            | `boolean`                                                                                                       | `true`   | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                              |
@@ -630,17 +630,17 @@ Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                                                             |
-| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                           | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
-| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
-| index        | `number`                                                                                        | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
-| nativeButton | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
-| disabled     | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
-| children     | `React.ReactNode`                                                                               | -       | -                                                                                                                                                                                                                                       |
-| className    | `string \| ((state: Autocomplete.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                |
-| style        | `React.CSSProperties \| ((state: Autocomplete.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
+| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                                                                                                                                              |
+| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                                           | `null`  | A unique value that identifies this item. When omitted inside a collection, the&#xA;collection-provided value is used. This is the source item for ordinary collections and the&#xA;`value` accessor result for collections created by `useItems()`. Collections created by `useItems()` always use their derived value. |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.                                                                                  |
+| index        | `number`                                                                                        | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                                                                                                           |
+| nativeButton | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                                                                     |
+| disabled     | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                    |
+| children     | `React.ReactNode`                                                                               | -       | -                                                                                                                                                                                                                                                                                                                        |
+| className    | `string \| ((state: Autocomplete.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                 |
+| style        | `React.CSSProperties \| ((state: Autocomplete.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                              |
+| render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                            |
 
 **Item Data Attributes:**
 
@@ -859,6 +859,10 @@ Re-export of [Row](#row) props.
 type AutocompleteRowState = {};
 ```
 
+### AutocompleteItemCollection
+
+Normalized items created by `useItems()`, accepted by the root's `items` prop.
+
 ### InputGroup
 
 A wrapper for the input and its associated controls.
@@ -946,6 +950,26 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
+### useItems
+
+Normalizes items into a collection for the root's `items` prop, deriving each item's
+selection value and label before rendering.
+Accepts a flat array of items or an array of groups with items; the `value` and `label`
+accessors always receive individual items, never groups.
+
+**Parameters:**
+
+| Parameter | Type                                                      | Default | Description |
+| :-------- | :-------------------------------------------------------- | :------ | :---------- |
+| data      | `ItemOrGroup[]`                                           | -       | -           |
+| options?  | `UseAutocompleteItemsOptions<Item \| ItemOrGroup, Value>` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = AutocompleteItemCollection<Item | ItemOrGroup, Value>;
+```
+
 ## Additional Types
 
 ### AutocompleteFilter
@@ -970,6 +994,27 @@ type AutocompleteFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+};
+```
+
+### UseAutocompleteItemsOptions
+
+```typescript
+type UseAutocompleteItemsOptions<Item, Value = Item> = {
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   * By default, the item itself is used as the value.
+   * Keep this function reference stable to preserve collection memoization.
+   */
+  value?: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
+   * By default, the item's derived value is stringified.
+   * Keep this function reference stable to preserve collection memoization.
+   */
+  label?: (item: Item) => string;
 };
 ```
 
@@ -1035,7 +1080,8 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Autocomplete.useItems`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `UseAutocompleteItemsOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
