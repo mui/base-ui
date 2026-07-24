@@ -25,7 +25,15 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = React.useRef(true);
-  const initialCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  // NaN coordinates make every distance check fail until a gesture opens the menu
+  // (e.g. it is open by default or opened programmatically).
+  const gestureRef: ContextMenuRootContext['gestureRef'] = React.useRef({
+    x: NaN,
+    y: NaN,
+    consumed: true,
+    touch: false,
+    suppressReopen: false,
+  });
   const id = useId();
 
   const contextValue: ContextMenuRootContext = React.useMemo(
@@ -37,7 +45,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       internalBackdropRef,
       positionerRef,
       allowMouseUpTriggerRef,
-      initialCursorPointRef,
+      gestureRef,
       rootId: id,
     }),
     [anchor, id],
