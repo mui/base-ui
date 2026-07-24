@@ -1,48 +1,33 @@
-import { getFilter } from '../../internals/filter';
 import { serializeValue, stringifyAsDefaultLabel } from '../../internals/serializeValue';
-import type { ComboboxItemsPayload } from './comboboxItems';
-import {
-  ITEM_COLLECTION,
-  type ComboboxItemsMatchOptions,
-  type ItemCollection,
-} from './itemCollection';
-
-export type ComboboxItemsMatcher<Item> = (
-  query: string,
-  options?: ComboboxItemsMatchOptions,
-) => Item[];
+import type { ItemsPayload } from './comboboxItems';
+import { ITEM_COLLECTION, type ItemCollection } from './itemCollection';
 
 export interface ItemCollectionConfig<Item, Value> {
   data: readonly Item[];
   itemToValue: (item: Item) => Value;
   itemToLabel: (item: Item) => string;
-  /**
-   * Returns the user-provided collection-level matcher, if any. Read per call so the latest
-   * matcher is used without recreating the collection.
-   */
-  getMatches?: (() => ComboboxItemsMatcher<Item> | undefined) | undefined;
-  getLocale?: (() => Intl.LocalesArgument | undefined) | undefined;
 }
 
 export function createItemCollection<Item, Value>(
   config: ItemCollectionConfig<Item, Value>,
 ): ItemCollection<Item, Value> {
-  const { data, itemToValue, itemToLabel, getMatches, getLocale } = config;
+  const { data, itemToValue, itemToLabel } = config;
 
-  // Built on first use and kept for the collection's lifetime. `useItems()` recreates the
-  // collection whenever the data or accessors change.
-  let valueToLabel: Map<any, string> | null = null;
+  // Filled in source order as labels are requested. This preserves the root's `limit`
+  // short-circuit without repeatedly scanning items.
+  const valueToLabel = new Map<any, string>();
+  let indexedItems = 0;
 
   function resolveLabel(valueOrItem: any): string {
-    if (valueToLabel === null) {
-      valueToLabel = new Map();
-      for (const item of data) {
-        const value = itemToValue(item);
-        if (!valueToLabel.has(value)) {
-          valueToLabel.set(value, itemToLabel(item));
-        }
+    while (!valueToLabel.has(valueOrItem) && indexedItems < data.length) {
+      const item = data[indexedItems];
+      indexedItems += 1;
+      const value = itemToValue(item);
+      if (!valueToLabel.has(value)) {
+        valueToLabel.set(value, itemToLabel(item));
       }
     }
+
     if (valueToLabel.has(valueOrItem)) {
       return valueToLabel.get(valueOrItem)!;
     }
@@ -56,40 +41,6 @@ export function createItemCollection<Item, Value>(
     itemToValue,
     itemToLabel,
     resolveLabel,
-    each(callback) {
-      return data.map((item, index) => callback(item, itemToValue(item), index));
-    },
-    matches(query, options, limit = -1) {
-      if (limit === 0) {
-        return [];
-      }
-      const customMatches = getMatches?.();
-      if (customMatches) {
-        const matched = customMatches(query, options);
-        return limit > -1 ? matched.slice(0, limit) : matched;
-      }
-      if (!query) {
-        return limit > -1 ? data.slice(0, limit) : data.slice();
-      }
-      const filter = getFilter({ locale: getLocale?.() });
-      const filterFn = filter[options?.filterMode ?? 'contains'];
-      const matched: Item[] = [];
-      for (const item of data) {
-        if (filterFn(item, query, itemToLabel)) {
-          matched.push(item);
-          if (matched.length === limit) {
-            break;
-          }
-        }
-      }
-      return matched;
-    },
-    get length() {
-      return data.length;
-    },
-    [Symbol.iterator]() {
-      return data[Symbol.iterator]();
-    },
   };
 }
 
@@ -97,11 +48,9 @@ export function createItemCollection<Item, Value>(
  * Re-brands a serialized `Combobox.items()` payload into a collection on the client.
  */
 export function collectionFromPayload<Item, Value>(
-  payload: ComboboxItemsPayload<Item, Value>,
-  getMatches?: (() => ComboboxItemsMatcher<Item> | undefined) | undefined,
-  getLocale?: (() => Intl.LocalesArgument | undefined) | undefined,
+  payload: ItemsPayload<Item, Value>,
 ): ItemCollection<Item, Value> {
-  const { items: data, values, labels, locale } = payload;
+  const { items: data, values, labels } = payload;
 
   const indices = new Map<Item, number>();
   data.forEach((item, index) => {
@@ -120,7 +69,5 @@ export function collectionFromPayload<Item, Value>(
       const index = indices.get(item);
       return index === undefined ? stringifyAsDefaultLabel(item) : labels[index];
     },
-    getMatches,
-    getLocale: () => getLocale?.() ?? locale,
   });
 }

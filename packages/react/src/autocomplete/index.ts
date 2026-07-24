@@ -79,8 +79,6 @@ export type {
 
 export type {
   ComboboxItemCollection as AutocompleteItemCollection,
-  ComboboxItemsMatchOptions as AutocompleteItemsMatchOptions,
-  ComboboxItemsFilterMode as AutocompleteItemsFilterMode,
   UseComboboxItemsOptions as UseAutocompleteItemsOptions,
 } from '../combobox/items/useItems';
 export type {

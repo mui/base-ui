@@ -301,12 +301,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return EMPTY_ARRAY;
     }
 
-    if (collection && filterProp === undefined) {
-      // Collection-level matching: collator-based by default, or the collection's custom
-      // `matches`. Collections hold flat data, so the grouped pipeline below never applies.
-      return collection.matches(filterQuery, undefined, limit) as Value[];
-    }
-
     if (isGrouped) {
       const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
@@ -370,7 +364,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     shouldIgnoreExternalFiltering,
     items,
     collection,
-    filterProp,
     isGrouped,
     filterQuery,
     limit,
@@ -1136,7 +1129,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation.change(inputValue);
   });
 
-  useValueChanged(items, () => {
+  useValueChanged(collection ?? items, () => {
     if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }

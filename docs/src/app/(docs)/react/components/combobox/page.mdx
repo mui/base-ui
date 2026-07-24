@@ -73,9 +73,9 @@ import { Combobox } from '@base-ui/react/combobox';
 
 ## Item values
 
-When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, its source item is automatically used as its value, so the `value` prop on `<Combobox.Item>` can be omitted. Items rendered manually without a collection require an explicit `value` prop.
+When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, the collection provides its value, so the `value` prop on `<Combobox.Item>` can be omitted. Ordinary collections use the source item as the value. Items rendered manually without a collection require an explicit `value` prop.
 
-To use a primitive value that differs from the source item—such as an ID held in an object—normalize the `items` array with the `Combobox.useItems` hook, which derives each item's value and label before rendering.
+To use a primitive value that differs from the source item—such as an ID held in an object—normalize a flat `items` array with the `Combobox.useItems` hook, which derives each item's value and label before rendering. Its derived value is authoritative, so omit the `value` prop from rendered items.
 
 ## Examples
 
@@ -96,15 +96,17 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 
 ### Value selection with IDs
 
-When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is also used for filtering and typeahead.
+When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is used by default for filtering and typeahead.
 
 Each item's derived value is used as its selection value automatically, so `defaultValue`, `value`, and `onValueChange` all work with plain IDs. The label is resolved from the collection even while the items are unmounted, so the input can display the selected item's label when the popup is closed.
+
+Render callbacks and `useFilteredItems()` receive the source items, while selection props, change events, and the root `filter` function receive the derived values. Filtering remains configured on `<Combobox.Root>`: `itemToStringLabel` overrides the collection's label accessor, and `locale` and `limit` apply normally.
 
 import { DemoComboboxUseItems } from './demos/use-items';
 
 <DemoComboboxUseItems />
 
-In React Server Components, use the hook-free `Combobox.items()` variant. It applies the accessors eagerly on the server and returns a serializable result. Pass that result through `useItems()` in the client component that renders the combobox:
+In React Server Components, use the hook-free `Combobox.items()` variant. It applies the accessors eagerly on the server and returns a serializable result. The source items and their derived values and labels must all be serializable. Pass that result through `useItems()` in the client component that renders the combobox:
 
 ```tsx title="Normalizing items on the server"
 // page.tsx (server)

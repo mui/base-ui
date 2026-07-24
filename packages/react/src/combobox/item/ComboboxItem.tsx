@@ -46,9 +46,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     nativeButton = false,
     ...elementProps
   } = componentProps;
-  const collectionItemValue = useComboboxItemValueContext();
-  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
-  const itemValue = valueProp !== undefined ? valueProp : fallbackValue;
 
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
@@ -60,11 +57,21 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
+  const collectionItemValue = useComboboxItemValueContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const itemToValue = useStore(store, selectors.itemToValue);
+
+  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
+  let itemValue = fallbackValue;
+  if (itemToValue && collectionItemValue !== NO_COMBOBOX_ITEM_VALUE) {
+    itemValue = collectionItemValue;
+  } else if (valueProp !== undefined) {
+    itemValue = valueProp;
+  }
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
@@ -318,8 +325,11 @@ export interface ComboboxItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item. When omitted inside a collection, the source item
-   * is used as the value.
+   * A unique value that identifies this item. When omitted inside a collection, the
+   * collection-provided value is used. This is the source item for ordinary collections and the
+   * `value` accessor result for collections created by `useItems()`.
+   *
+   * Collections created by `useItems()` always use their derived value.
    * @default null
    */
   value?: any;

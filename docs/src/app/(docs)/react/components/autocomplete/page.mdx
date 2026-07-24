@@ -62,10 +62,12 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 
 ## Item values
 
-When an item is rendered by the function child of `<Autocomplete.List>` or `<Autocomplete.Collection>`, its source item is automatically used as its value, so the `value` prop on `<Autocomplete.Item>` can be omitted.
+When an item is rendered by the function child of `<Autocomplete.List>` or `<Autocomplete.Collection>`, the collection provides its value, so the `value` prop on `<Autocomplete.Item>` can be omitted. Ordinary collections use the source item as the value.
 Items rendered manually without a collection require an explicit `value`.
 
-To derive a different value or label from each item, normalize the `items` array with the `Autocomplete.useItems` hook (or its server-compatible `Autocomplete.items()` variant), which derives each item's value and label before rendering.
+To derive a different value or label from each item, normalize a flat `items` array with the `Autocomplete.useItems` hook (or its server-compatible `Autocomplete.items()` variant). Its derived value is authoritative, so omit the `value` prop from rendered items.
+
+Render callbacks and `useFilteredItems()` receive the source items, while the root `filter` function receives the derived values. Filtering remains configured on `<Autocomplete.Root>`: `itemToStringLabel` overrides the collection's label accessor, and `locale` and `limit` apply normally. For React Server Components, the source items and their derived values and labels must all be serializable.
 
 ## TypeScript inference
 

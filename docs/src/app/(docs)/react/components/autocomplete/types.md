@@ -630,17 +630,17 @@ Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                                                             |
-| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                           | `null`  | A unique value that identifies this item. When omitted inside a collection, the source item&#xA;is used as the value.                                                                                                                   |
-| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
-| index        | `number`                                                                                        | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
-| nativeButton | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
-| disabled     | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
-| children     | `React.ReactNode`                                                                               | -       | -                                                                                                                                                                                                                                       |
-| className    | `string \| ((state: Autocomplete.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                |
-| style        | `React.CSSProperties \| ((state: Autocomplete.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
+| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                                                                                                                                              |
+| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                                           | `null`  | A unique value that identifies this item. When omitted inside a collection, the&#xA;collection-provided value is used. This is the source item for ordinary collections and the&#xA;`value` accessor result for collections created by `useItems()`. Collections created by `useItems()` always use their derived value. |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.                                                                                  |
+| index        | `number`                                                                                        | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                                                                                                           |
+| nativeButton | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                                                                     |
+| disabled     | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                    |
+| children     | `React.ReactNode`                                                                               | -       | -                                                                                                                                                                                                                                                                                                                        |
+| className    | `string \| ((state: Autocomplete.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                 |
+| style        | `React.CSSProperties \| ((state: Autocomplete.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                              |
+| render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                            |
 
 **Item Data Attributes:**
 
@@ -859,6 +859,15 @@ Re-export of [Row](#row) props.
 type AutocompleteRowState = {};
 ```
 
+### AutocompleteItemCollection
+
+Normalized items created by `useItems()`, accepted by the root's `items` prop.
+
+### AutocompleteItemsPayload
+
+Serializable normalized items produced by `items()`. Re-branded into a collection
+by passing it to `useItems()` on the client.
+
 ### InputGroup
 
 A wrapper for the input and its associated controls.
@@ -973,10 +982,10 @@ selection value and label before rendering.
 
 **Parameters:**
 
-| Parameter | Type                                                                                         | Default | Description |
-| :-------- | :------------------------------------------------------------------------------------------- | :------ | :---------- |
-| data      | `Item[] \| AutocompleteItemCollection<Item, Value> \| AutocompleteItemsPayload<Item, Value>` | -       | -           |
-| options?  | `UseAutocompleteItemsOptions<Item, Value>`                                                   | -       | -           |
+| Parameter | Type                                       | Default | Description |
+| :-------- | :----------------------------------------- | :------ | :---------- |
+| data      | `Item[]`                                   | -       | -           |
+| options?  | `UseAutocompleteItemsOptions<Item, Value>` | -       | -           |
 
 **Return Value:**
 
@@ -1011,45 +1020,6 @@ type AutocompleteFilterOptions = {
 };
 ```
 
-### AutocompleteItemCollection
-
-Normalized items created by `useItems()`, accepted by the root's `items` prop.
-
-```typescript
-type AutocompleteItemCollection<Item, Value = Item> = {
-  /**
-   * Maps the items to an array, calling `callback` with each item, its derived value, and
-   * its index.
-   */
-  each: each;
-  /**
-   * Returns the items whose labels match the query.
-   * Uses `Intl.Collator` matching by default, or the `matches` option when provided.
-   */
-  matches: matches;
-  /** The number of items. */
-  length: number;
-};
-```
-
-### AutocompleteItemsFilterMode
-
-```typescript
-type AutocompleteItemsFilterMode = ComboboxItemsFilterMode;
-```
-
-### AutocompleteItemsMatchOptions
-
-```typescript
-type AutocompleteItemsMatchOptions = {
-  /**
-   * How the query is matched against each item's label.
-   * @default 'contains'
-   */
-  filterMode?: ComboboxItemsFilterMode;
-};
-```
-
 ### AutocompleteItemsOptions
 
 ```typescript
@@ -1061,31 +1031,11 @@ type AutocompleteItemsOptions<Item, Value = Item> = {
    */
   value?: (item: Item) => Value;
   /**
-   * Projects an item to the label string that represents it in the input and when matching
-   * the typed query.
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
    * By default, the item's derived value is stringified.
    */
   label?: (item: Item) => string;
-  /**
-   * The locale used for query matching.
-   * Defaults to the user's runtime locale.
-   */
-  locale?: string | string[];
-};
-```
-
-### AutocompleteItemsPayload
-
-Serializable normalized items produced by `items()`. Re-branded into a collection
-by passing it to `useItems()` on the client.
-
-```typescript
-type AutocompleteItemsPayload<Item = any, Value = any> = {
-  items: Item[];
-  values: Value[];
-  labels: string[];
-  locale?: string | string[];
-  __baseUIItems: true;
 };
 ```
 
@@ -1094,27 +1044,17 @@ type AutocompleteItemsPayload<Item = any, Value = any> = {
 ```typescript
 type UseAutocompleteItemsOptions<Item, Value = Item> = {
   /**
-   * Replaces the default query matching used by the collection's `matches()` method.
-   * Returns the items that match the query.
-   */
-  matches?: ComboboxItemsMatcher<Item>;
-  /**
-   * The locale used for query matching.
-   * Defaults to the user's runtime locale.
-   */
-  locale?: Intl.LocalesArgument;
-  /**
-   * Projects an item to the label string that represents it in the input and when matching
-   * the typed query.
-   * By default, the item's derived value is stringified.
-   */
-  label?: (item: Item) => string;
-  /**
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    * By default, the item itself is used as the value.
    */
   value?: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
+   * By default, the item's derived value is stringified.
+   */
+  label?: (item: Item) => string;
 };
 ```
 
@@ -1155,36 +1095,6 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
-### ComboboxItemsFilterMode
-
-```typescript
-type ComboboxItemsFilterMode = 'contains' | 'startsWith' | 'endsWith';
-```
-
-### ComboboxItemsMatcher
-
-```typescript
-type ComboboxItemsMatcher = (
-  query: string,
-  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
-) => unknown;
-```
-
-### each
-
-```typescript
-type each = (callback: unknown) => unknown;
-```
-
-### matches
-
-```typescript
-type matches = (
-  query: string,
-  options?: { filterMode?: 'contains' | 'startsWith' | 'endsWith' | undefined } | undefined,
-) => unknown;
-```
-
 ## Export Groups
 
 - `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
@@ -1212,7 +1122,7 @@ type matches = (
 - `Autocomplete.useFilteredItems`
 - `Autocomplete.useItems`
 - `Autocomplete.items`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `AutocompleteItemsMatchOptions`, `AutocompleteItemsFilterMode`, `UseAutocompleteItemsOptions`, `AutocompleteItemsOptions`, `AutocompleteItemsPayload`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `UseAutocompleteItemsOptions`, `AutocompleteItemsOptions`, `AutocompleteItemsPayload`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
