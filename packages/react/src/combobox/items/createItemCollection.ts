@@ -1,6 +1,6 @@
 import { getFilter } from '../../internals/filter';
-import { serializeValue } from '../../internals/serializeValue';
-import { defaultItemLabel, type ComboboxItemsPayload } from './comboboxItems';
+import { serializeValue, stringifyAsDefaultLabel } from '../../internals/serializeValue';
+import type { ComboboxItemsPayload } from './comboboxItems';
 import {
   ITEM_COLLECTION,
   type ComboboxItemsMatchOptions,
@@ -29,9 +29,8 @@ export function createItemCollection<Item, Value>(
 ): ItemCollection<Item, Value> {
   const { data, itemToValue, itemToLabel, getMatches, getLocale } = config;
 
-  // Built on first use and kept for the collection's lifetime. The collection is recreated
-  // whenever `data` changes, so only an accessor whose semantics change without a new data
-  // array reads stale here — accessors must be pure projections of their item.
+  // Built on first use and kept for the collection's lifetime. `useItems()` recreates the
+  // collection whenever the data or accessors change.
   let valueToLabel: Map<any, string> | null = null;
 
   function resolveLabel(valueOrItem: any): string {
@@ -47,10 +46,8 @@ export function createItemCollection<Item, Value>(
     if (valueToLabel.has(valueOrItem)) {
       return valueToLabel.get(valueOrItem)!;
     }
-    // Values outside the collection (e.g. creatable inputs) label as themselves when the
-    // custom label accessor can't handle them.
-    const label = itemToLabel(valueOrItem);
-    return label == null ? serializeValue(valueOrItem) : label;
+    // Values outside the collection (e.g. creatable inputs) label as themselves.
+    return serializeValue(valueOrItem);
   }
 
   return {
@@ -62,17 +59,30 @@ export function createItemCollection<Item, Value>(
     each(callback) {
       return data.map((item, index) => callback(item, itemToValue(item), index));
     },
-    matches(query, options) {
+    matches(query, options, limit = -1) {
+      if (limit === 0) {
+        return [];
+      }
       const customMatches = getMatches?.();
       if (customMatches) {
-        return customMatches(query, options);
+        const matched = customMatches(query, options);
+        return limit > -1 ? matched.slice(0, limit) : matched;
       }
       if (!query) {
-        return data as Item[];
+        return limit > -1 ? data.slice(0, limit) : data.slice();
       }
       const filter = getFilter({ locale: getLocale?.() });
       const filterFn = filter[options?.filterMode ?? 'contains'];
-      return data.filter((item) => filterFn(item, query, itemToLabel));
+      const matched: Item[] = [];
+      for (const item of data) {
+        if (filterFn(item, query, itemToLabel)) {
+          matched.push(item);
+          if (matched.length === limit) {
+            break;
+          }
+        }
+      }
+      return matched;
     },
     get length() {
       return data.length;
@@ -88,6 +98,8 @@ export function createItemCollection<Item, Value>(
  */
 export function collectionFromPayload<Item, Value>(
   payload: ComboboxItemsPayload<Item, Value>,
+  getMatches?: (() => ComboboxItemsMatcher<Item> | undefined) | undefined,
+  getLocale?: (() => Intl.LocalesArgument | undefined) | undefined,
 ): ItemCollection<Item, Value> {
   const { items: data, values, labels, locale } = payload;
 
@@ -106,8 +118,9 @@ export function collectionFromPayload<Item, Value>(
     },
     itemToLabel(item) {
       const index = indices.get(item);
-      return index === undefined ? defaultItemLabel(item) : labels[index];
+      return index === undefined ? stringifyAsDefaultLabel(item) : labels[index];
     },
-    getLocale: () => locale,
+    getMatches,
+    getLocale: () => getLocale?.() ?? locale,
   });
 }

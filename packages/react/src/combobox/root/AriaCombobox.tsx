@@ -74,18 +74,25 @@ import { isItemsPayload } from '../items/comboboxItems';
 /**
  * @internal
  */
+type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaComboboxProps<
+  Value,
+  Mode
+> & {
+  filterQuery?: string | undefined;
+};
+
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
+  props: Omit<InternalAriaComboboxProps<Value, Mode>, 'items'> & {
     items: readonly Group<any>[];
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
+  props: Omit<InternalAriaComboboxProps<Value, Mode>, 'items'> & {
     items?: readonly any[] | ComboboxItemCollection<any, any> | undefined;
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
-  props: AriaComboboxProps<Value, Mode>,
+  props: InternalAriaComboboxProps<Value, Mode>,
 ): React.JSX.Element {
   const {
     id: idProp,
@@ -109,6 +116,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     items: itemsProp,
     filteredItems: filteredItemsProp,
     filter: filterProp,
+    filterQuery: filterQueryProp,
     openOnInputClick = true,
     autoHighlight = false,
     keepHighlight = false,
@@ -271,7 +279,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectedLabelString.length === query.length &&
     collatorFilter.contains(selectedLabelString, query);
 
-  const filterQuery = shouldBypassFiltering ? '' : query;
+  const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
   const flatItems: readonly any[] = React.useMemo(() => {
@@ -298,9 +306,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (collection && filterProp === undefined) {
       // Collection-level matching: collator-based by default, or the collection's custom
       // `matches`. Collections hold flat data, so the grouped pipeline below never applies.
-      const matched =
-        filterQuery === '' ? (flatItems as Value[]) : (collection.matches(filterQuery) as Value[]);
-      return limit > -1 ? matched.slice(0, limit) : matched;
+      return collection.matches(filterQuery, undefined, limit) as Value[];
     }
 
     if (isGrouped) {
@@ -354,7 +360,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, filterQuery, itemToStringLabel)) {
+      const itemValue = collection ? collection.itemToValue(item) : item;
+      if (filter(itemValue, filterQuery, itemToStringLabel)) {
         limitedItems.push(item);
       }
     }

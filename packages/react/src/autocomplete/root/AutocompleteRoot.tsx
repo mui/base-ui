@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
-import type { ComboboxItemCollection } from '../../combobox/items/itemCollection';
+import {
+  getItemCollection,
+  type ComboboxItemCollection,
+} from '../../combobox/items/itemCollection';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
@@ -46,6 +49,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
+  const collection = getItemCollection(other.items);
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
@@ -71,23 +75,26 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
+  const baseFilter = React.useMemo<typeof other.filter>(() => {
     if (other.filter !== undefined) {
       return other.filter;
     }
-    return collator.contains;
-  }, [other.filter, collator]);
+    return collection ? undefined : collator.contains;
+  }, [other.filter, collection, collator]);
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
 
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
+    if (staticItems) {
+      return null;
+    }
     if (mode !== 'both') {
-      return staticItems ? null : baseFilter;
+      return baseFilter;
     }
 
-    if (baseFilter === null) {
-      return null;
+    if (baseFilter == null) {
+      return baseFilter;
     }
 
     return (item, _query, toString) => {
@@ -115,7 +122,7 @@ export function AutocompleteRoot<ItemValue>(
 
     setInlineInputValue(
       enableInline && highlightedValue != null
-        ? stringifyAsLabel(highlightedValue, itemToStringValue)
+        ? stringifyAsLabel(highlightedValue, collection?.resolveLabel ?? itemToStringValue)
         : '',
     );
   }
@@ -128,6 +135,7 @@ export function AutocompleteRoot<ItemValue>(
       selectionMode="none"
       fillInputOnItemPress
       filter={resolvedFilter}
+      filterQuery={mode === 'both' ? resolvedQuery : undefined}
       autoComplete={mode}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}

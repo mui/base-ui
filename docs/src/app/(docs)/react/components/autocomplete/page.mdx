@@ -296,6 +296,19 @@ Returns the internally filtered items when called inside `<Autocomplete.Root>`.
 
 <TypesAutocomplete.useFilteredItems hideDescription />
 
+## useItems
+
+Normalizes items into a collection for the `items` prop of `<Autocomplete.Root>`, deriving each item's value and label before rendering.
+
+<TypesAutocomplete.useItems hideDescription />
+
+## items
+
+A hook-free variant of `useItems` for React Server Components.
+It applies the accessors eagerly and returns a serializable result to pass through `useItems()` on the client.
+
+<TypesAutocomplete.items hideDescription />
+
 export const metadata = {
   keywords: [
     'React Autocomplete',

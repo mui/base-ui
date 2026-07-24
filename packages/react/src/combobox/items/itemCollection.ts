@@ -16,7 +16,7 @@ export interface ComboboxItemsMatchOptions {
 }
 
 /**
- * Normalized items created by `useItems()`, accepted by the `items` prop of `Combobox.Root`.
+ * Normalized items created by `useItems()`, accepted by the root's `items` prop.
  */
 export interface ComboboxItemCollection<Item, Value = Item> extends Iterable<Item> {
   /**
@@ -48,6 +48,7 @@ export interface ItemCollection<Item = any, Value = any> extends ComboboxItemCol
   itemToValue: (item: Item) => Value;
   itemToLabel: (item: Item) => string;
   resolveLabel: (valueOrItem: any) => string;
+  matches(query: string, options?: ComboboxItemsMatchOptions, limit?: number): Item[];
 }
 
 /**

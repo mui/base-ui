@@ -120,7 +120,13 @@ export const selectors = {
   },
 
   hasNullItemLabel: (state: State, enabled: boolean) => {
-    return enabled ? hasNullItemLabel(state.items) : false;
+    if (!enabled) {
+      return false;
+    }
+    if (state.itemToValue && Array.isArray(state.items)) {
+      return state.items.some((item) => state.itemToValue?.(item) == null);
+    }
+    return hasNullItemLabel(state.items);
   },
 
   open: (state: State) => state.open,
