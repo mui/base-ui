@@ -31,7 +31,6 @@ export interface UseFocusProps {
   enabled?: boolean | undefined;
   /**
    * Waits for the specified time before opening.
-   * @default undefined
    */
   delay?: number | (() => number | undefined) | undefined;
 }
@@ -56,6 +55,9 @@ export function useFocus(
   const blockedReferenceRef = React.useRef<Element | null>(null);
   const keyboardModalityRef = React.useRef(true);
 
+  // A single timer reused for both the delayed focus-open and the 0ms blur-close.
+  // `start()` replaces any pending callback, so a blur cancels a pending delayed
+  // open (and vice versa), which is relied upon to avoid the two racing.
   const timeout = useTimeout();
 
   React.useEffect(() => {
@@ -67,9 +69,10 @@ export function useFocus(
 
     const win = getWindow(domReference);
 
-    // If the reference was focused and the user left the tab/window, and the
-    // floating element was not open, the focus should be blocked when they
-    // return to the tab/window.
+    // If the reference was focused and the user left the tab/window while the
+    // floating element was closed, block the reopen that fires when the browser
+    // restores focus to the same reference on return. Record which reference is
+    // blocked so `onFocus` only suppresses that element (other triggers may open).
     function onBlur() {
       const currentDomReference = store.select('domReferenceElement');
       if (
@@ -78,6 +81,7 @@ export function useFocus(
         currentDomReference === activeElement(ownerDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
+        blockedReferenceRef.current = currentDomReference;
       }
     }
 
