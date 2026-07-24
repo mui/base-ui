@@ -4,8 +4,9 @@ async function main() {
   const { issues } = await crawl({
     startCommand: 'pnpm serve --no-request-logging -p 3001',
     host: 'http://localhost:3001/',
-    // Target paths to ignore during link checking
-    ignoredPaths: [],
+    // Target paths to ignore during link checking.
+    // Netlify redirects are unavailable on the local static server.
+    ignoredPaths: [/^\/r\/discord$/],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
     htmlValidate: [
