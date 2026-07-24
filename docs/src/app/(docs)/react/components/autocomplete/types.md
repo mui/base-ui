@@ -863,11 +863,6 @@ type AutocompleteRowState = {};
 
 Normalized items created by `useItems()`, accepted by the root's `items` prop.
 
-### AutocompleteItemsPayload
-
-Serializable normalized items produced by `items()`. Re-branded into a collection
-by passing it to `useItems()` on the client.
-
 ### InputGroup
 
 A wrapper for the input and its associated controls.
@@ -927,26 +922,6 @@ type AutocompleteInputGroupState = {
   /** Whether the field is focused. */
   focused: boolean;
 };
-```
-
-### items
-
-Normalizes items into a serializable payload for the `useItems()` hook.
-A hook-free variant of `useItems()` usable in React Server Components: the accessors run
-eagerly here, and passing the result to `useItems()` on the client re-brands it into a
-collection for the root's `items` prop.
-
-**Parameters:**
-
-| Parameter | Type                                    | Default | Description |
-| :-------- | :-------------------------------------- | :------ | :---------- |
-| data      | `Item[]`                                | -       | -           |
-| options?  | `AutocompleteItemsOptions<Item, Value>` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = AutocompleteItemsPayload<Item, Value>;
 ```
 
 ### useFilter
@@ -1017,25 +992,6 @@ type AutocompleteFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
-};
-```
-
-### AutocompleteItemsOptions
-
-```typescript
-type AutocompleteItemsOptions<Item, Value = Item> = {
-  /**
-   * Projects an item to the primitive value that identifies it, used as the item's
-   * selection value.
-   * By default, the item itself is used as the value.
-   */
-  value?: (item: Item) => Value;
-  /**
-   * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
-   * By default, the item's derived value is stringified.
-   */
-  label?: (item: Item) => string;
 };
 ```
 
@@ -1121,8 +1077,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
 - `Autocomplete.useItems`
-- `Autocomplete.items`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `UseAutocompleteItemsOptions`, `AutocompleteItemsOptions`, `AutocompleteItemsPayload`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteItemCollection`, `UseAutocompleteItemsOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 

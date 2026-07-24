@@ -29,4 +29,3 @@ export { ComboboxSeparator as Separator } from './separator/ComboboxSeparator';
 export { useComboboxFilter as useFilter } from './root/utils/useFilter';
 export { useFilteredItems } from './root/utils/useFilteredItems';
 export { useComboboxItems as useItems } from './items/useItems';
-export { comboboxItems as items } from './items/comboboxItems';

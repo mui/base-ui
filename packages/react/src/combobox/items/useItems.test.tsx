@@ -341,36 +341,4 @@ describe('Combobox.useItems', () => {
       expect(getLabel.mock.calls.length).toBeLessThan(manyUsers.length);
     });
   });
-
-  describe('Combobox.items', () => {
-    it('produces a serializable payload usable through useItems', async () => {
-      const payload = Combobox.items(users, {
-        value: (user) => user.id,
-        label: (user) => user.name,
-      });
-
-      // Simulate crossing the server/client boundary.
-      const serialized = JSON.parse(JSON.stringify(payload)) as typeof payload;
-      const onValueChange = vi.fn();
-
-      function App() {
-        const items = Combobox.useItems(serialized);
-        return (
-          <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
-            <Combobox.Input data-testid="input" />
-            <Combobox.List>
-              {(item: User) => <Combobox.Item key={item.id}>{item.name}</Combobox.Item>}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      await user.click(screen.getByRole('option', { name: 'Bob' }));
-
-      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
-      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Bob');
-    });
-  });
 });

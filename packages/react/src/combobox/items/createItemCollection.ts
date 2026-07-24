@@ -1,5 +1,4 @@
-import { serializeValue, stringifyAsDefaultLabel } from '../../internals/serializeValue';
-import type { ItemsPayload } from './comboboxItems';
+import { serializeValue } from '../../internals/serializeValue';
 import { ITEM_COLLECTION, type ItemCollection } from './itemCollection';
 
 export interface ItemCollectionConfig<Item, Value> {
@@ -42,32 +41,4 @@ export function createItemCollection<Item, Value>(
     itemToLabel,
     resolveLabel,
   };
-}
-
-/**
- * Re-brands a serialized `Combobox.items()` payload into a collection on the client.
- */
-export function collectionFromPayload<Item, Value>(
-  payload: ItemsPayload<Item, Value>,
-): ItemCollection<Item, Value> {
-  const { items: data, values, labels } = payload;
-
-  const indices = new Map<Item, number>();
-  data.forEach((item, index) => {
-    if (!indices.has(item)) {
-      indices.set(item, index);
-    }
-  });
-
-  return createItemCollection<Item, Value>({
-    data,
-    itemToValue(item) {
-      const index = indices.get(item);
-      return (index === undefined ? item : values[index]) as Value;
-    },
-    itemToLabel(item) {
-      const index = indices.get(item);
-      return index === undefined ? stringifyAsDefaultLabel(item) : labels[index];
-    },
-  });
 }

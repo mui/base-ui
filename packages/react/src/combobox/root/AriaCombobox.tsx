@@ -11,7 +11,6 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { warn } from '@base-ui/utils/warn';
 import {
   ElementProps,
   getOverflowAncestors,
@@ -69,7 +68,6 @@ import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { getItemCollection, type ComboboxItemCollection } from '../items/itemCollection';
-import { isItemsPayload } from '../items/comboboxItems';
 
 type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaComboboxProps<
   Value,
@@ -163,15 +161,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     | readonly Group<any>[]
     | undefined;
   const itemToStringLabel = itemToStringLabelProp ?? collection?.resolveLabel;
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (isItemsPayload(itemsProp)) {
-      warn(
-        'A serialized `Combobox.items()` payload was passed to the `items` prop directly.',
-        'Pass it through `Combobox.useItems()` on the client first.',
-      );
-    }
-  }
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);

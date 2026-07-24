@@ -1028,11 +1028,6 @@ type ComboboxItemIndicatorState = {
 
 Normalized items created by `useItems()`, accepted by the root's `items` prop.
 
-### ComboboxItemsPayload
-
-Serializable normalized items produced by `items()`. Re-branded into a collection
-by passing it to `useItems()` on the client.
-
 ### InputGroup
 
 A wrapper for the input and its associated controls.
@@ -1095,26 +1090,6 @@ type ComboboxInputGroupState = {
   /** Whether the field is focused. */
   focused: boolean;
 };
-```
-
-### items
-
-Normalizes items into a serializable payload for the `useItems()` hook.
-A hook-free variant of `useItems()` usable in React Server Components: the accessors run
-eagerly here, and passing the result to `useItems()` on the client re-brands it into a
-collection for the root's `items` prop.
-
-**Parameters:**
-
-| Parameter | Type                                | Default | Description |
-| :-------- | :---------------------------------- | :------ | :---------- |
-| data      | `Item[]`                            | -       | -           |
-| options?  | `ComboboxItemsOptions<Item, Value>` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = ComboboxItemsPayload<Item, Value>;
 ```
 
 ### useFilter
@@ -1192,25 +1167,6 @@ type ComboboxFilterOptions = {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
-};
-```
-
-### ComboboxItemsOptions
-
-```typescript
-type ComboboxItemsOptions<Item, Value = Item> = {
-  /**
-   * Projects an item to the primitive value that identifies it, used as the item's
-   * selection value.
-   * By default, the item itself is used as the value.
-   */
-  value?: (item: Item) => Value;
-  /**
-   * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
-   * By default, the item's derived value is stringified.
-   */
-  label?: (item: Item) => string;
 };
 ```
 
@@ -1301,8 +1257,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.useItems`
-- `Combobox.items`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `UseComboboxItemsOptions`, `ComboboxItemsOptions`, `ComboboxItemsPayload`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `UseComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
