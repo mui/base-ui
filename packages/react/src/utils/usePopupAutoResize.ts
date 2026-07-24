@@ -7,7 +7,7 @@ import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
-import { Side } from './useAnchorPositioning';
+import { Side } from '../internals/useAnchorPositioning';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.

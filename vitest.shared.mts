@@ -35,7 +35,11 @@ function getBrowserConfig(): BrowserModeConfig {
 
   return {
     enabled: true,
-    provider: playwright(),
+    provider: playwright({
+      contextOptions: {
+        timezoneId: 'UTC',
+      },
+    }),
     screenshotFailures: false,
     headless: true,
     instances,
