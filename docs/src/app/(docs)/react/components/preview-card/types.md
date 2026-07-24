@@ -457,6 +457,83 @@ Closes the preview card.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### PreviewCardArrowDataAttributes
+
+| Member     | Value             | Description                                                           |
+| :--------- | :---------------- | :-------------------------------------------------------------------- |
+| open       | `data-open`       | Present when the preview card is open.                                |
+| closed     | `data-closed`     | Present when the preview card is closed.                              |
+| side       | `data-side`       | Indicates which side the popup is positioned relative to the trigger. |
+| align      | `data-align`      | Indicates how the popup is aligned relative to specified side.        |
+| uncentered | `data-uncentered` | Present when the preview card arrow is uncentered.                    |
+
+### PreviewCardBackdropDataAttributes
+
+| Member        | Value                 | Description                                        |
+| :------------ | :-------------------- | :------------------------------------------------- |
+| open          | `data-open`           | Present when the preview card is open.             |
+| closed        | `data-closed`         | Present when the preview card is closed.           |
+| startingStyle | `data-starting-style` | Present when the preview card begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the preview card is animating out.    |
+
+### PreviewCardPopupDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| open          | `data-open`           | Present when the preview card is open.                                |
+| closed        | `data-closed`         | Present when the preview card is closed.                              |
+| startingStyle | `data-starting-style` | Present when the preview card begins animating in.                    |
+| endingStyle   | `data-ending-style`   | Present when the preview card is animating out.                       |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+| align         | `data-align`          | Indicates how the popup is aligned relative to specified side.        |
+
+### PreviewCardPositionerCssVars
+
+| Member           | Value                 | Description                                                                                                                            |
+| :--------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| availableWidth   | `--available-width`   | The available width between the trigger and the edge of the viewport.                                                                  |
+| availableHeight  | `--available-height`  | The available height between the trigger and the edge of the viewport.                                                                 |
+| anchorWidth      | `--anchor-width`      | The anchor's width.                                                                                                                    |
+| anchorHeight     | `--anchor-height`     | The anchor's height.                                                                                                                   |
+| transformOrigin  | `--transform-origin`  | The coordinates that this element is anchored to. Used for animations and transitions.                                                 |
+| positionerWidth  | `--positioner-width`  | The width of the preview card's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| positionerHeight | `--positioner-height` | The height of the preview card's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+
+### PreviewCardPositionerDataAttributes
+
+| Member       | Value                | Description                                                           |
+| :----------- | :------------------- | :-------------------------------------------------------------------- |
+| open         | `data-open`          | Present when the preview card is open.                                |
+| closed       | `data-closed`        | Present when the preview card is closed.                              |
+| anchorHidden | `data-anchor-hidden` | Present when the anchor is hidden.                                    |
+| side         | `data-side`          | Indicates which side the popup is positioned relative to the trigger. |
+| align        | `data-align`         | Indicates how the popup is aligned relative to specified side.        |
+
+### PreviewCardTriggerDataAttributes
+
+| Member    | Value             | Description                                          |
+| :-------- | :---------------- | :--------------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding preview card is open. |
+
+### PreviewCardViewportCssVars
+
+| Member      | Value            | Description                                                                                                                                                                                                                                                           |
+| :---------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| popupWidth  | `--popup-width`  | The width of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content.   |
+| popupHeight | `--popup-height` | The height of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content. |
+
+### PreviewCardViewportDataAttributes
+
+| Member              | Value                       | Description                                                                                                                                                                                                                        |
+| :------------------ | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| current             | `data-current`              | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| previous            | `data-previous`             | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| activationDirection | `data-activation-direction` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| transitioning       | `data-transitioning`        | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+| instant             | `data-instant`              | Present if animations should be instant.                                                                                                                                                                                           |
+
 ## External Types
 
 ### PayloadChildRenderFunction
@@ -506,7 +583,7 @@ type OffsetFunction = (data: {
 - `PreviewCard.Viewport`: `PreviewCard.Viewport`, `PreviewCard.Viewport.Props`, `PreviewCard.Viewport.State`
 - `PreviewCard.createHandle`
 - `PreviewCard.Handle`
-- `Default`: `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
+- `Default`: `PreviewCardPositionerCssVars`, `PreviewCardViewportCssVars`, `PreviewCardArrowDataAttributes`, `PreviewCardBackdropDataAttributes`, `PreviewCardPopupDataAttributes`, `PreviewCardPositionerDataAttributes`, `PreviewCardTriggerDataAttributes`, `PreviewCardViewportDataAttributes`, `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
 
 ## Canonical Types
 

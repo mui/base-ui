@@ -86,6 +86,14 @@ type RadioGroupChangeEventDetails = {
 };
 ```
 
+## Additional Types
+
+### RadioGroupDataAttributes
+
+| Member   | Value           | Description                               |
+| :------- | :-------------- | :---------------------------------------- |
+| disabled | `data-disabled` | Present when the radio group is disabled. |
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.

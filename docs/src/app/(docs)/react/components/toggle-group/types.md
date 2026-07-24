@@ -80,6 +80,16 @@ type ToggleGroupChangeEventDetails = {
 };
 ```
 
+## Additional Types
+
+### ToggleGroupDataAttributes
+
+| Member      | Value              | Description                                                                                        |
+| :---------- | :----------------- | :------------------------------------------------------------------------------------------------- |
+| disabled    | `data-disabled`    | Present when the toggle group is disabled.                                                         |
+| orientation | `data-orientation` | Indicates the orientation of the toggle group.                                                     |
+| multiple    | `data-multiple`    | Present when the toggle group allows multiple buttons to be in the pressed state at the same time. |
+
 ## External Types
 
 ### Orientation

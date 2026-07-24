@@ -13,3 +13,15 @@ export type * from './backdrop/NavigationMenuBackdrop';
 export type * from './arrow/NavigationMenuArrow';
 export type * from './link/NavigationMenuLink';
 export type * from './icon/NavigationMenuIcon';
+
+export { NavigationMenuPopupCssVars } from './popup/NavigationMenuPopupCssVars';
+export { NavigationMenuPositionerCssVars } from './positioner/NavigationMenuPositionerCssVars';
+
+export { NavigationMenuArrowDataAttributes } from './arrow/NavigationMenuArrowDataAttributes';
+export { NavigationMenuBackdropDataAttributes } from './backdrop/NavigationMenuBackdropDataAttributes';
+export { NavigationMenuContentDataAttributes } from './content/NavigationMenuContentDataAttributes';
+export { NavigationMenuIconDataAttributes } from './icon/NavigationMenuIconDataAttributes';
+export { NavigationMenuLinkDataAttributes } from './link/NavigationMenuLinkDataAttributes';
+export { NavigationMenuPopupDataAttributes } from './popup/NavigationMenuPopupDataAttributes';
+export { NavigationMenuPositionerDataAttributes } from './positioner/NavigationMenuPositionerDataAttributes';
+export { NavigationMenuTriggerDataAttributes } from './trigger/NavigationMenuTriggerDataAttributes';

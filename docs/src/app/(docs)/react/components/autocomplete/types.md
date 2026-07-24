@@ -973,6 +973,48 @@ type AutocompleteFilterOptions = {
 };
 ```
 
+### AutocompleteInputGroupDataAttributes
+
+| Member    | Value             | Description                                                                        |
+| :-------- | :---------------- | :--------------------------------------------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding popup is open.                                      |
+| pressed   | `data-pressed`    | Present when the input group is pressed.                                           |
+| disabled  | `data-disabled`   | Present when the component is disabled.                                            |
+| readonly  | `data-readonly`   | Present when the component is readonly.                                            |
+| popupSide | `data-popup-side` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| valid     | `data-valid`      | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| invalid   | `data-invalid`    | Present when the component is in an invalid state (when wrapped in Field.Root).    |
+| touched   | `data-touched`    | Present when the component has been touched (when wrapped in Field.Root).          |
+| dirty     | `data-dirty`      | Present when the component's value has changed (when wrapped in Field.Root).       |
+| filled    | `data-filled`     | Present when the component has a value (when wrapped in Field.Root).               |
+| focused   | `data-focused`    | Present when the component is focused (when wrapped in Field.Root).                |
+| listEmpty | `data-list-empty` | Present when the corresponding items list is empty.                                |
+
+### AutocompleteItemDataAttributes
+
+| Member      | Value              | Description                           |
+| :---------- | :----------------- | :------------------------------------ |
+| highlighted | `data-highlighted` | Present when the item is highlighted. |
+| disabled    | `data-disabled`    | Present when the item is disabled.    |
+
+### AutocompleteTriggerDataAttributes
+
+| Member    | Value             | Description                                                                        |
+| :-------- | :---------------- | :--------------------------------------------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding popup is open.                                      |
+| pressed   | `data-pressed`    | Present when the trigger is pressed.                                               |
+| disabled  | `data-disabled`   | Present when the component is disabled.                                            |
+| readonly  | `data-readonly`   | Present when the component is readonly.                                            |
+| popupSide | `data-popup-side` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| required  | `data-required`   | Present when the component is required.                                            |
+| valid     | `data-valid`      | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| invalid   | `data-invalid`    | Present when the component is in an invalid state (when wrapped in Field.Root).    |
+| touched   | `data-touched`    | Present when the component has been touched (when wrapped in Field.Root).          |
+| dirty     | `data-dirty`      | Present when the component's value has changed (when wrapped in Field.Root).       |
+| filled    | `data-filled`     | Present when the component has a value (when wrapped in Field.Root).               |
+| focused   | `data-focused`    | Present when the trigger is focused (when wrapped in Field.Root).                  |
+| listEmpty | `data-list-empty` | Present when the corresponding items list is empty.                                |
+
 ## External Types
 
 ### Side
@@ -1035,7 +1077,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteInputGroupDataAttributes`, `AutocompleteItemDataAttributes`, `AutocompleteTriggerDataAttributes`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 

@@ -173,11 +173,49 @@ type CheckboxIndicatorState = {
 };
 ```
 
+## Additional Types
+
+### CheckboxIndicatorDataAttributes
+
+| Member        | Value                 | Description                                                                    |
+| :------------ | :-------------------- | :----------------------------------------------------------------------------- |
+| checked       | `data-checked`        | Present when the checkbox is checked.                                          |
+| unchecked     | `data-unchecked`      | Present when the checkbox is not checked.                                      |
+| indeterminate | `data-indeterminate`  | Present when the checkbox is in an indeterminate state.                        |
+| disabled      | `data-disabled`       | Present when the checkbox is disabled.                                         |
+| readonly      | `data-readonly`       | Present when the checkbox is readonly.                                         |
+| required      | `data-required`       | Present when the checkbox is required.                                         |
+| startingStyle | `data-starting-style` | Present when the checkbox indicator begins animating in.                       |
+| endingStyle   | `data-ending-style`   | Present when the checkbox indicator is animating out.                          |
+| valid         | `data-valid`          | Present when the checkbox is in a valid state (when wrapped in Field.Root).    |
+| invalid       | `data-invalid`        | Present when the checkbox is in an invalid state (when wrapped in Field.Root). |
+| touched       | `data-touched`        | Present when the checkbox has been touched (when wrapped in Field.Root).       |
+| dirty         | `data-dirty`          | Present when the checkbox's value has changed (when wrapped in Field.Root).    |
+| filled        | `data-filled`         | Present when the checkbox is checked (when wrapped in Field.Root).             |
+| focused       | `data-focused`        | Present when the checkbox is focused (when wrapped in Field.Root).             |
+
+### CheckboxRootDataAttributes
+
+| Member        | Value                | Description                                                                    |
+| :------------ | :------------------- | :----------------------------------------------------------------------------- |
+| checked       | `data-checked`       | Present when the checkbox is checked.                                          |
+| unchecked     | `data-unchecked`     | Present when the checkbox is not checked.                                      |
+| indeterminate | `data-indeterminate` | Present when the checkbox is in an indeterminate state.                        |
+| disabled      | `data-disabled`      | Present when the checkbox is disabled.                                         |
+| readonly      | `data-readonly`      | Present when the checkbox is readonly.                                         |
+| required      | `data-required`      | Present when the checkbox is required.                                         |
+| valid         | `data-valid`         | Present when the checkbox is in a valid state (when wrapped in Field.Root).    |
+| invalid       | `data-invalid`       | Present when the checkbox is in an invalid state (when wrapped in Field.Root). |
+| touched       | `data-touched`       | Present when the checkbox has been touched (when wrapped in Field.Root).       |
+| dirty         | `data-dirty`         | Present when the checkbox's value has changed (when wrapped in Field.Root).    |
+| filled        | `data-filled`        | Present when the checkbox is checked (when wrapped in Field.Root).             |
+| focused       | `data-focused`       | Present when the checkbox is focused (when wrapped in Field.Root).             |
+
 ## Export Groups
 
 - `Checkbox.Root`: `Checkbox.Root`, `Checkbox.Root.State`, `Checkbox.Root.Props`, `Checkbox.Root.ChangeEventReason`, `Checkbox.Root.ChangeEventDetails`
 - `Checkbox.Indicator`: `Checkbox.Indicator`, `Checkbox.Indicator.State`, `Checkbox.Indicator.Props`
-- `Default`: `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
+- `Default`: `CheckboxIndicatorDataAttributes`, `CheckboxRootDataAttributes`, `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
 
 ## Canonical Types
 

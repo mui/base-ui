@@ -1083,6 +1083,57 @@ type MenuLinkItemState = {
 
 ## Additional Types
 
+### MenuArrowDataAttributes
+
+| Member     | Value             | Description                                                           |
+| :--------- | :---------------- | :-------------------------------------------------------------------- |
+| open       | `data-open`       | Present when the menu popup is open.                                  |
+| closed     | `data-closed`     | Present when the menu popup is closed.                                |
+| side       | `data-side`       | Indicates which side the popup is positioned relative to the trigger. |
+| align      | `data-align`      | Indicates how the popup is aligned relative to specified side.        |
+| uncentered | `data-uncentered` | Present when the menu arrow is uncentered.                            |
+
+### MenuBackdropDataAttributes
+
+| Member        | Value                 | Description                                |
+| :------------ | :-------------------- | :----------------------------------------- |
+| open          | `data-open`           | Present when the menu is open.             |
+| closed        | `data-closed`         | Present when the menu is closed.           |
+| startingStyle | `data-starting-style` | Present when the menu begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the menu is animating out.    |
+
+### MenuCheckboxItemDataAttributes
+
+| Member      | Value              | Description                                         |
+| :---------- | :----------------- | :-------------------------------------------------- |
+| checked     | `data-checked`     | Present when the menu checkbox item is checked.     |
+| unchecked   | `data-unchecked`   | Present when the menu checkbox item is not checked. |
+| disabled    | `data-disabled`    | Present when the menu checkbox item is disabled.    |
+| highlighted | `data-highlighted` | Present when the menu checkbox item is highlighted. |
+
+### MenuCheckboxItemIndicatorDataAttributes
+
+| Member        | Value                 | Description                                         |
+| :------------ | :-------------------- | :-------------------------------------------------- |
+| checked       | `data-checked`        | Present when the menu checkbox item is checked.     |
+| unchecked     | `data-unchecked`      | Present when the menu checkbox item is not checked. |
+| disabled      | `data-disabled`       | Present when the menu checkbox item is disabled.    |
+| startingStyle | `data-starting-style` | Present when the indicator begins animating in.     |
+| endingStyle   | `data-ending-style`   | Present when the indicator is animating out.        |
+
+### MenuItemDataAttributes
+
+| Member      | Value              | Description                                |
+| :---------- | :----------------- | :----------------------------------------- |
+| highlighted | `data-highlighted` | Present when the menu item is highlighted. |
+| disabled    | `data-disabled`    | Present when the menu item is disabled.    |
+
+### MenuLinkItemDataAttributes
+
+| Member      | Value              | Description                           |
+| :---------- | :----------------- | :------------------------------------ |
+| highlighted | `data-highlighted` | Present when the link is highlighted. |
+
 ### MenuParent
 
 ```typescript
@@ -1093,6 +1144,91 @@ type MenuParent =
   | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: MenuRootContext }
   | { type: undefined };
 ```
+
+### MenuPopupDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| open          | `data-open`           | Present when the menu is open.                                        |
+| closed        | `data-closed`         | Present when the menu is closed.                                      |
+| startingStyle | `data-starting-style` | Present when the menu begins animating in.                            |
+| endingStyle   | `data-ending-style`   | Present when the menu is animating out.                               |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+| align         | `data-align`          | Indicates how the popup is aligned relative to specified side.        |
+| instant       | `data-instant`        | Present if animations should be instant.                              |
+
+### MenuPositionerCssVars
+
+| Member           | Value                 | Description                                                                                                                    |
+| :--------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| availableWidth   | `--available-width`   | The available width between the trigger and the edge of the viewport.                                                          |
+| availableHeight  | `--available-height`  | The available height between the trigger and the edge of the viewport.                                                         |
+| anchorWidth      | `--anchor-width`      | The anchor's width.                                                                                                            |
+| anchorHeight     | `--anchor-height`     | The anchor's height.                                                                                                           |
+| transformOrigin  | `--transform-origin`  | The coordinates that this element is anchored to. Used for animations and transitions.                                         |
+| positionerWidth  | `--positioner-width`  | The width of the menu's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| positionerHeight | `--positioner-height` | The height of the menu's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+
+### MenuPositionerDataAttributes
+
+| Member       | Value                | Description                                                           |
+| :----------- | :------------------- | :-------------------------------------------------------------------- |
+| open         | `data-open`          | Present when the menu popup is open.                                  |
+| closed       | `data-closed`        | Present when the menu popup is closed.                                |
+| anchorHidden | `data-anchor-hidden` | Present when the anchor is hidden.                                    |
+| side         | `data-side`          | Indicates which side the popup is positioned relative to the trigger. |
+| align        | `data-align`         | Indicates how the popup is aligned relative to specified side.        |
+
+### MenuRadioItemDataAttributes
+
+| Member      | Value              | Description                                       |
+| :---------- | :----------------- | :------------------------------------------------ |
+| checked     | `data-checked`     | Present when the menu radio item is selected.     |
+| unchecked   | `data-unchecked`   | Present when the menu radio item is not selected. |
+| disabled    | `data-disabled`    | Present when the menu radio item is disabled.     |
+| highlighted | `data-highlighted` | Present when the menu radio item is highlighted.  |
+
+### MenuRadioItemIndicatorDataAttributes
+
+| Member        | Value                 | Description                                           |
+| :------------ | :-------------------- | :---------------------------------------------------- |
+| checked       | `data-checked`        | Present when the menu radio item is selected.         |
+| unchecked     | `data-unchecked`      | Present when the menu radio item is not selected.     |
+| disabled      | `data-disabled`       | Present when the menu radio item is disabled.         |
+| startingStyle | `data-starting-style` | Present when the radio indicator begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the radio indicator is animating out.    |
+
+### MenuSubmenuTriggerDataAttributes
+
+| Member      | Value              | Description                                      |
+| :---------- | :----------------- | :----------------------------------------------- |
+| popupOpen   | `data-popup-open`  | Present when the corresponding submenu is open.  |
+| highlighted | `data-highlighted` | Present when the submenu trigger is highlighted. |
+| disabled    | `data-disabled`    | Present when the submenu trigger is disabled.    |
+
+### MenuTriggerDataAttributes
+
+| Member    | Value             | Description                                  |
+| :-------- | :---------------- | :------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding menu is open. |
+| pressed   | `data-pressed`    | Present when the trigger is pressed.         |
+
+### MenuViewportCssVars
+
+| Member      | Value            | Description                                                                                                                                                                                                                                                           |
+| :---------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| popupWidth  | `--popup-width`  | The width of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content.   |
+| popupHeight | `--popup-height` | The height of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content. |
+
+### MenuViewportDataAttributes
+
+| Member              | Value                       | Description                                                                                                                                                                                                                        |
+| :------------------ | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| current             | `data-current`              | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| previous            | `data-previous`             | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| activationDirection | `data-activation-direction` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| transitioning       | `data-transitioning`        | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+| instant             | `data-instant`              | Present if animations should be instant.                                                                                                                                                                                           |
 
 ## External Types
 
@@ -1161,7 +1297,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuPositionerCssVars`, `MenuViewportCssVars`, `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuRadioItemDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 
