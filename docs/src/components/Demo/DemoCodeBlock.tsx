@@ -5,6 +5,7 @@ import * as ScrollArea from '../ScrollArea';
 interface DemoCodeBlockProps {
   selectedFile: React.ReactNode;
   selectedFileLines: number;
+  reserveHeight: boolean;
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
@@ -36,17 +37,29 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 export function DemoCodeBlock({
   selectedFile,
   selectedFileLines,
+  reserveHeight,
   collapsibleOpen,
   collapsibleLinesThreshold = 8,
   collapsibleTriggerRef,
   copyButton,
 }: DemoCodeBlockProps) {
+  const sourceStyle: React.CSSProperties & { '--demo-source-height': string } = {
+    '--demo-source-height': `${selectedFileLines * 1.25 + 1}rem`,
+  };
+  const source = (
+    <div
+      className="DemoSourceBrowser"
+      data-reserve-height={reserveHeight ? '' : undefined}
+      style={sourceStyle}
+    >
+      {selectedFile}
+    </div>
+  );
+
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
       <Root>
-        <ScrollArea.Viewport>
-          <div className="DemoSourceBrowser">{selectedFile}</div>
-        </ScrollArea.Viewport>
+        <ScrollArea.Viewport>{source}</ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
         <ScrollArea.Scrollbar orientation="horizontal" />
@@ -70,7 +83,7 @@ export function DemoCodeBlock({
             />
           }
         >
-          <div className="DemoSourceBrowser">{selectedFile}</div>
+          {source}
         </Collapsible.Panel>
 
         {collapsibleOpen && (
