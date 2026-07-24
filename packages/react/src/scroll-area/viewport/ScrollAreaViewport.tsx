@@ -16,13 +16,14 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { normalizeScrollOffset } from '../../utils/scrollEdges';
+import * as ScrollAreaViewportCssVars from './ScrollAreaViewportCssVars';
+import * as ScrollAreaScrollbarCssVars from '../scrollbar/ScrollAreaScrollbarCssVars';
 
-// CSS variable names inlined so `ScrollAreaViewportCssVars` tree-shakes out.
 const OVERFLOW_EDGE_VARS = [
-  '--scroll-area-overflow-x-start',
-  '--scroll-area-overflow-x-end',
-  '--scroll-area-overflow-y-start',
-  '--scroll-area-overflow-y-end',
+  ScrollAreaViewportCssVars.scrollAreaOverflowXStart,
+  ScrollAreaViewportCssVars.scrollAreaOverflowXEnd,
+  ScrollAreaViewportCssVars.scrollAreaOverflowYStart,
+  ScrollAreaViewportCssVars.scrollAreaOverflowYEnd,
 ];
 
 // Module-level flag to ensure we only register the CSS properties once,
@@ -214,7 +215,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const thumbOffsetY = applyOverscrollThumb(
         thumbYEl,
-        '--scroll-area-thumb-height',
+        ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
         scrollTop,
         maxScrollTop,
         scrollableContentHeight,
@@ -234,7 +235,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       const offsetX = applyOverscrollThumb(
         thumbXEl,
-        '--scroll-area-thumb-width',
+        ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
         scrollFromStart,
         maxScrollLeft,
         scrollableContentWidth,

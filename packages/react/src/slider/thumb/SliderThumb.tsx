@@ -39,6 +39,7 @@ import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
+import * as SliderThumbDataAttributes from './SliderThumbDataAttributes';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
@@ -458,7 +459,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
-        ['data-index' as string]: index,
+        [SliderThumbDataAttributes.index as string]: index,
         children: (
           <React.Fragment>
             {childrenProp}

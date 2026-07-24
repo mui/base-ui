@@ -1,20 +1,18 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum ComboboxBackdropDataAttributes {
-  /**
-   * Present when the popup is open.
-   */
-  open = CommonPopupDataAttributes.open,
-  /**
-   * Present when the popup is closed.
-   */
-  closed = CommonPopupDataAttributes.closed,
-  /**
-   * Present when the popup begins animating in.
-   */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
-  /**
-   * Present when the popup is animating out.
-   */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-}
+/**
+ * Present when the popup is open.
+ */
+export const open = CommonPopupDataAttributes.open;
+/**
+ * Present when the popup is closed.
+ */
+export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the popup begins animating in.
+ */
+export const startingStyle = CommonPopupDataAttributes.startingStyle;
+/**
+ * Present when the popup is animating out.
+ */
+export const endingStyle = CommonPopupDataAttributes.endingStyle;

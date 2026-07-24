@@ -6,6 +6,7 @@ import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
+import { toastRootStateAttributesMapping } from './ToastRoot';
 
 const toast: Toast.Root.ToastObject = {
   id: 'test',
@@ -86,6 +87,12 @@ describe('<Toast.Root />', () => {
       );
     },
   }));
+
+  it('maps the active swipe direction to its data attribute', () => {
+    expect(toastRootStateAttributesMapping.swipeDirection!('left')).toEqual({
+      'data-swipe-direction': 'left',
+    });
+  });
 
   it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
     function App() {

@@ -10,6 +10,7 @@ import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
+import * as DialogPopupCssVars from './DialogPopupCssVars';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
@@ -84,7 +85,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
           }
         },
         style: {
-          '--nested-dialogs': nestedOpenDialogCount,
+          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,

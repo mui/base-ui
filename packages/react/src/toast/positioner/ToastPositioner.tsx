@@ -16,6 +16,7 @@ import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { usePositioner } from '../../utils/usePositioner';
+import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
  * Positions the toast against the anchor.
@@ -97,7 +98,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   const element = usePositioner(componentProps, state, {
     styles: {
       ...positioning.positionerStyles,
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
     },
     transitionStatus: toast.transitionStatus,
     props: elementProps,

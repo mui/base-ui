@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import { transitionStatusMapping, TransitionStatusDataAttributes } from './stateAttributesMapping';
 import { fieldValidityMapping } from './field-constants/constants';
-import { FieldControlDataAttributes } from '../field/control/FieldControlDataAttributes';
+import * as FieldControlDataAttributes from '../field/control/FieldControlDataAttributes';
 
 // These shared mappings inline their enum members as string literals so the
 // enums tree-shake out of every consumer bundle (they are kept for types/docs

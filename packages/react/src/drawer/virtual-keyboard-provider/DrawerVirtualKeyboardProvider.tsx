@@ -16,7 +16,7 @@ import {
 } from '../../floating-ui-react/utils';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import { DrawerViewportCssVars } from '../viewport/DrawerViewportCssVars';
+import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';
 import {
   DrawerVirtualKeyboardContext,
   type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,

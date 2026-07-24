@@ -5,8 +5,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
-import { DrawerBackdropCssVars } from './DrawerBackdropCssVars';
+import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
+import * as DrawerBackdropCssVars from './DrawerBackdropCssVars';
 
 /**
  * An overlay displayed beneath the popup.
