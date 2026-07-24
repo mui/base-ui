@@ -22,6 +22,7 @@ import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
+  activeElementInRoot,
   contains,
   getFloatingFocusElement,
   getTarget,
@@ -317,9 +318,32 @@ export function useListNavigation(
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
+        const focusRoot = floatingElement ?? item;
+        const activeElementWhenQueued = activeElementInRoot(focusRoot);
+
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
+          shouldFocus: () => {
+            // The popup can close or the active index can change before the
+            // frame runs. In either case, focusing this item would revive stale
+            // intent.
+            if (!latestOpenRef.current || listRef.current[indexRef.current] !== item) {
+              return false;
+            }
+
+            const currentActiveElement = activeElementInRoot(focusRoot);
+            const focusMovedInside =
+              currentActiveElement !== activeElementWhenQueued &&
+              !contains(item, currentActiveElement) &&
+              contains(floatingElement, currentActiveElement);
+
+            // Consumer code may intentionally focus custom content after the
+            // popup opens but before this frame. Preserve that newer focus;
+            // keyboard navigation while already open is synchronous and has no
+            // intervening frame in which this condition can become true.
+            return !focusMovedInside;
+          },
         });
       }
     }
@@ -346,9 +370,7 @@ export function useListNavigation(
         runFocus(waitedItem);
       }
 
-      const shouldScrollIntoView =
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        item && (forceScrollIntoView || !isPointerModalityRef.current);
+      const shouldScrollIntoView = forceScrollIntoView || !isPointerModalityRef.current;
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported

@@ -15,6 +15,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
+  activeElementInRoot,
   contains,
   getTarget,
   isTypeableCombobox,
@@ -706,10 +707,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
-      const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+      const activeElementWhenQueued = activeElementInRoot(floatingFocusElement);
+      const hadFocusInside = contains(floatingFocusElement, activeElementWhenQueued);
 
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
+        // Initial focus is a default, not an explicit destination. A primary
+        // intent from list navigation must win without focusing two elements in
+        // succession, which can scroll complex portaled layouts on Android.
+        intent: 'fallback',
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
           // This focus is queued on the next animation frame. If the floating element has closed
@@ -719,11 +725,21 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             return false;
           }
 
+          const currentActiveElement = activeElementInRoot(floatingFocusElement);
+
           if (hadFocusInside) {
-            return true;
+            // Focus was already managed inside when this fallback was queued.
+            // Do not undo a later synchronous navigation or user focus change,
+            // but recover if the previously focused element disappeared and
+            // focus consequently fell back to the document body (or nowhere).
+            return (
+              currentActiveElement === activeElementWhenQueued ||
+              currentActiveElement == null ||
+              currentActiveElement === doc.body ||
+              !currentActiveElement.isConnected
+            );
           }
 
-          const currentActiveElement = activeElement(doc);
           const focusMovedInside =
             currentActiveElement !== elToFocus &&
             contains(floatingFocusElement, currentActiveElement);
