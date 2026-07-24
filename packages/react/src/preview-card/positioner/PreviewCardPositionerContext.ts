@@ -15,7 +15,7 @@ export function usePreviewCardPositionerContext() {
   const context = React.useContext(PreviewCardPositionerContext);
   if (context === undefined) {
     throw new Error(
-      'Base UI: <PreviewCard.Popup> and <PreviewCard.Arrow> must be used within the <PreviewCard.Positioner> component',
+      'Base UI: PreviewCardPositionerContext is missing. PreviewCardPositioner parts must be placed within <PreviewCard.Positioner>.',
     );
   }
 
