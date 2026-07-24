@@ -644,7 +644,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                                                                                                              |
 | :----------- | :------------------------------------------------------------------------------------------ | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                       | `null`  | A unique value that identifies this item. When omitted inside a collection, the&#xA;collection-provided value is used. This is the source item for ordinary collections and the&#xA;`value` accessor result for collections created by `useItems()`. Collections created by `useItems()` always use their derived value. |
+| value        | `any`                                                                                       | -       | A unique value that identifies this item. When omitted inside a collection, the&#xA;collection-provided value is used. This is the source item for ordinary collections and the&#xA;`value` accessor result for collections created by `useItems()`. Collections created by `useItems()` always use their derived value. |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`              | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.                                                                                  |
 | index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                                                                                                           |
 | nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                                                                     |
@@ -1180,12 +1180,14 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    * By default, the item itself is used as the value.
+   * Keep this function reference stable to preserve collection memoization.
    */
   value?: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
    * By default, the item's derived value is stringified.
+   * Keep this function reference stable to preserve collection memoization.
    */
   label?: (item: Item) => string;
 };

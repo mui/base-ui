@@ -75,7 +75,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const baseFilter = React.useMemo<typeof other.filter>(() => {
+  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
     if (other.filter !== undefined) {
       return other.filter;
     }
@@ -86,15 +86,12 @@ export function AutocompleteRoot<ItemValue>(
 
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
-    if (staticItems) {
-      return null;
-    }
     if (mode !== 'both') {
-      return baseFilter;
+      return staticItems ? null : baseFilter;
     }
 
-    if (baseFilter == null) {
-      return baseFilter;
+    if (baseFilter === null) {
+      return null;
     }
 
     return (item, _query, toString) => {
@@ -127,6 +124,7 @@ export function AutocompleteRoot<ItemValue>(
     );
   }
 
+  // Inline completion temporarily changes the displayed input without changing the query.
   return (
     <AriaCombobox
       {...other}

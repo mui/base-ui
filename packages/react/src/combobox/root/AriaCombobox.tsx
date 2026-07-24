@@ -161,6 +161,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     | readonly Group<any>[]
     | undefined;
   const itemToStringLabel = itemToStringLabelProp ?? collection?.resolveLabel;
+  const stringifyItemLabel = React.useCallback(
+    (item: any) => {
+      if (item == null && collection?.hasValue(item)) {
+        return itemToStringLabel?.(item) ?? '';
+      }
+      return stringifyAsLabel(item, itemToStringLabel);
+    },
+    [collection, itemToStringLabel],
+  );
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
@@ -235,7 +244,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return defaultInputValueProp ?? '';
       }
       if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
+        return stringifyItemLabel(selectedValue);
       }
       return '';
     },
@@ -260,7 +269,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const isGrouped = collection ? collection.grouped : isGroupedItems(items);
   const query = closeQuery ?? String(inputValue).trim();
 
-  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+  const selectedLabelString = single ? stringifyItemLabel(selectedValue) : '';
 
   const shouldBypassFiltering =
     single &&
@@ -408,6 +417,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       open,
       items,
       itemToValue: collection?.itemToValue,
+      hasItemValue: collection?.hasValue,
       selectionMode,
       listRef,
       labelsRef,
@@ -514,9 +524,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
-      labelsRef.current = flatFilteredItems.map((item) =>
-        stringifyAsLabel(item, itemToStringLabel),
-      );
+      labelsRef.current = flatFilteredValues.map(stringifyItemLabel);
     } else {
       store.set('forceMounted', true);
     }
@@ -749,7 +757,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyAsLabel(nextValue, itemToStringLabel),
+          stringifyItemLabel(nextValue),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -851,7 +859,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
-        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
+        const stringVal = stringifyItemLabel(selectedValue);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
@@ -1096,7 +1104,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   function syncInputToSelectedLabel() {
-    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+    const nextInputValue = stringifyItemLabel(selectedValue);
 
     if (inputValue !== nextInputValue) {
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -1320,6 +1328,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus,
       items,
       itemToValue: collection?.itemToValue,
+      hasItemValue: collection?.hasValue,
       inline: inlineProp,
       popupProps,
       inputProps,
@@ -1383,8 +1392,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       hasItems,
       filteredItems,
       flatFilteredItems,
+      flatFilteredValues,
+      isGrouped,
+      itemToValue: collection?.itemToValue,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems, flatFilteredValues, isGrouped, collection],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1447,7 +1459,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               valuesRef.current.findIndex(
                 (candidate) =>
                   stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+                  stringifyItemLabel(candidate).toLowerCase() === nextValueLower,
               );
 
             function handleChange() {

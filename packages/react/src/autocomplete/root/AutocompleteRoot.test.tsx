@@ -2016,12 +2016,14 @@ describe('<Autocomplete.Root />', () => {
       { id: 1, name: 'Alice' },
       { id: 2, name: 'Bob' },
     ];
+    const getUserId = (user: (typeof users)[number]) => user.id;
+    const getUserName = (user: (typeof users)[number]) => user.name;
 
     it('prefers the root stringifier for inline completion', async () => {
       function App() {
         const items = Autocomplete.useItems(users, {
-          value: (user) => user.id,
-          label: (user) => user.name,
+          value: getUserId,
+          label: getUserName,
         });
         return (
           <Autocomplete.Root
@@ -2047,6 +2049,63 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
 
       expect(input).toHaveValue('User 1');
+    });
+
+    it('uses the collection label for inline completion', async () => {
+      function App() {
+        const items = Autocomplete.useItems(users, {
+          value: getUserId,
+          label: getUserName,
+        });
+        return (
+          <Autocomplete.Root items={items} mode="both" defaultOpen>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(user: (typeof users)[number]) => (
+                <Autocomplete.Item key={user.id}>{user.name}</Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(input).toHaveValue('Alice');
+    });
+
+    it('does not refilter when inline completion changes the displayed input', async () => {
+      const filter = vi.fn(() => true);
+
+      function App() {
+        const items = Autocomplete.useItems(users, {
+          value: getUserId,
+          label: getUserName,
+        });
+        return (
+          <Autocomplete.Root items={items} mode="both" filter={filter} defaultOpen>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(user: (typeof users)[number]) => (
+                <Autocomplete.Item key={user.id}>{user.name}</Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+      await user.type(input, 'a');
+      const callCount = filter.mock.calls.length;
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(filter).toHaveBeenCalledTimes(callCount);
     });
   });
 

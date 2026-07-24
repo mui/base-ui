@@ -1,13 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 import { ComboboxItemValueContext } from '../item/ComboboxItemValueContext';
-import { selectors } from '../store';
 
 /**
  * Renders filtered list items.
@@ -20,10 +15,9 @@ import { selectors } from '../store';
 export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element {
   const { children } = props;
 
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredValues, isGrouped, itemToValue } =
+    useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
-  const store = useComboboxRootContext();
-  const itemToValue = useStore(store, selectors.itemToValue);
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
 
@@ -31,11 +25,24 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
     <React.Fragment>
       {itemsToRender.map((item, index) => {
         const child = children(item, index);
+
+        // A top-level grouped collection renders groups, not selectable leaf items.
+        if (isGrouped && groupContext == null) {
+          return child;
+        }
+
+        let itemValue = flatFilteredValues[index];
+        if (groupContext) {
+          itemValue = itemToValue ? itemToValue(item) : item;
+        }
+
+        let providerKey: React.Key | null = `index-${index}`;
+        if (React.isValidElement(child)) {
+          providerKey = child.key == null ? null : `key-${child.key}`;
+        }
+
         return (
-          <ComboboxItemValueContext.Provider
-            key={React.isValidElement(child) ? (child.key ?? index) : index}
-            value={itemToValue ? itemToValue(item) : item}
-          >
+          <ComboboxItemValueContext.Provider key={providerKey} value={itemValue}>
             {child}
           </ComboboxItemValueContext.Provider>
         );

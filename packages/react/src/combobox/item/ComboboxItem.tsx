@@ -64,13 +64,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const itemToValue = useStore(store, selectors.itemToValue);
 
-  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
-  let itemValue = fallbackValue;
-  if (itemToValue && collectionItemValue !== NO_COMBOBOX_ITEM_VALUE) {
-    itemValue = collectionItemValue;
-  } else if (valueProp !== undefined) {
-    itemValue = valueProp;
-  }
+  const hasCollectionItemValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE;
+  const itemValue =
+    hasCollectionItemValue && (itemToValue || valueProp === undefined)
+      ? collectionItemValue
+      : (valueProp ?? null);
 
   const selectable = selectionMode !== 'none';
   const index = indexProp ?? indexFromFilter ?? listItem.index;
@@ -232,8 +230,7 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const itemToValue = useStore(store, selectors.itemToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues } = useComboboxDerivedItemsContext();
   const collectionItemValue = useComboboxItemValueContext();
 
   // Inside a collection the source item's value is the positional identity, regardless of
@@ -242,13 +239,7 @@ function ComboboxItemVirtualizedIndex(props: {
     collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
       ? collectionItemValue
       : (componentProps.value ?? null);
-  // `flatFilteredItems` holds source items; project them when a `useItems()` collection
-  // derives the values.
-  const indexFromFilter = itemToValue
-    ? flatFilteredItems.findIndex((item) =>
-        compareItemEquality(itemToValue(item), lookupValue, isItemEqualToValue),
-      )
-    : findItemIndex(flatFilteredItems, lookupValue, isItemEqualToValue);
+  const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
@@ -328,7 +319,6 @@ export interface ComboboxItemProps
    * `value` accessor result for collections created by `useItems()`.
    *
    * Collections created by `useItems()` always use their derived value.
-   * @default null
    */
   value?: any;
   /**

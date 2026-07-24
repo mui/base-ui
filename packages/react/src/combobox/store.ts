@@ -17,6 +17,7 @@ export type State = {
    * created by `useItems()`. `undefined` for plain arrays, where the item is the value.
    */
   itemToValue: ((item: any) => any) | undefined;
+  hasItemValue: ((value: any) => boolean) | undefined;
 
   selectedValue: any;
 
@@ -123,8 +124,9 @@ export const selectors = {
     if (!enabled) {
       return false;
     }
-    if (state.itemToValue && Array.isArray(state.items)) {
-      return state.items.some((item) => state.itemToValue?.(item) == null);
+    if (state.itemToValue && state.hasItemValue && state.itemToStringLabel) {
+      const value = state.selectedValue;
+      return value == null && state.hasItemValue(value) && state.itemToStringLabel(value) != null;
     }
     return hasNullItemLabel(state.items);
   },

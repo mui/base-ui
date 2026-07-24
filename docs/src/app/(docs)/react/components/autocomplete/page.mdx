@@ -69,10 +69,6 @@ To derive a different value or label from each item, normalize the `items` array
 
 Render callbacks and `useFilteredItems()` receive the source items, while the root `filter` function receives the derived values. Filtering remains configured on `<Autocomplete.Root>`: `itemToStringLabel` overrides the collection's label accessor, and `locale` and `limit` apply normally.
 
-## TypeScript inference
-
-Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
-
 ## Examples
 
 ### Async search
