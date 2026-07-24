@@ -6,9 +6,7 @@ import { AccordionItemDataAttributes } from './AccordionItemDataAttributes';
 
 export const accordionStateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
   ...baseMapping,
-  index: (value) => {
-    return Number.isInteger(value) ? { [AccordionItemDataAttributes.index]: String(value) } : null;
-  },
+  index: (value) => ({ [AccordionItemDataAttributes.index]: String(value) }),
   ...transitionStatusMapping,
   value: () => null,
 };

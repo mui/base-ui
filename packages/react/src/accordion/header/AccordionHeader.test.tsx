@@ -1,8 +1,21 @@
+import { expect, vi } from 'vitest';
 import { Accordion } from '@base-ui/react/accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Accordion.Header />', () => {
   const { render } = createRenderer();
+
+  it('throws when rendered outside an Accordion.Item', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Accordion.Header />)).rejects.toThrow(
+        'Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describeConformance(<Accordion.Header />, () => ({
     render: (node) =>
