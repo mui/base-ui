@@ -366,6 +366,17 @@ If nothing survives verification, omit all category headings and counts. Return
 `# PR review`, `No findings.`, a brief note of residual test gaps or risk,
 `## Verdict` with **Approve**, and the `🤖 Review generated with ...` footer.
 
+### Final output preflight
+
+Treat the output format as a hard contract. Before sending:
+
+- Use `# PR review`; start the summary with concrete risk, not target/base filler.
+- Use exact `## {Category} ({count})` headings for non-empty categories only.
+- Print each finding exactly once and verify every category count.
+- Use a separate `## Verdict` heading and the required closing footer.
+
+If any check fails, rewrite the output before sending.
+
 Always close review with `---` horizontal rule, blank line, then
 `🤖 Review generated with {Claude Code | Codex}`. Use **Claude Code** when this
 skill executed by Claude Code harness, **Codex** when executed by Codex harness.
