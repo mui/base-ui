@@ -71,9 +71,6 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { getItemCollection, type ComboboxItemCollection } from '../items/itemCollection';
 import { isItemsPayload } from '../items/comboboxItems';
 
-/**
- * @internal
- */
 type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaComboboxProps<
   Value,
   Mode
@@ -81,6 +78,9 @@ type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaCombobox
   filterQuery?: string | undefined;
 };
 
+/**
+ * @internal
+ */
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<InternalAriaComboboxProps<Value, Mode>, 'items'> & {
     items: readonly Group<any>[];
