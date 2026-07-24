@@ -1005,12 +1005,14 @@ type UseAutocompleteItemsOptions<Item, Value = Item> = {
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    * By default, the item itself is used as the value.
+   * Keep this function reference stable to preserve collection memoization.
    */
   value?: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
    * By default, the item's derived value is stringified.
+   * Keep this function reference stable to preserve collection memoization.
    */
   label?: (item: Item) => string;
 };

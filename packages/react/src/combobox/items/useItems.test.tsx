@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
-import { screen, renderHook } from '@mui/internal-test-utils';
+import { act, screen, renderHook } from '@mui/internal-test-utils';
 
 interface User {
   id: number;
@@ -17,6 +17,7 @@ const users: User[] = [
 
 const getUserId = (user: User) => user.id;
 const getUserName = (user: User) => user.name;
+const getTypeaheadLabel = (user: User) => (user.id === 2 ? 'Zebra' : 'Yak');
 
 function useUserItems() {
   return Combobox.useItems(users, {
@@ -81,6 +82,34 @@ describe('Combobox.useItems', () => {
       await render(<App />);
 
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Carol');
+    });
+
+    it('highlights an initially selected derived value when opened', async () => {
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('input'));
+
+      expect(await screen.findByRole('option', { name: 'Carol' })).toHaveAttribute(
+        'data-highlighted',
+      );
     });
 
     it('renders the selected label via Combobox.Value', async () => {
@@ -239,6 +268,135 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('99');
     });
 
+    it('uses the default object label fallback outside the collection', async () => {
+      function App() {
+        const items = Combobox.useItems<User, number | { label: string }>(users, {
+          value: getUserId,
+          label: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} defaultValue={{ label: 'New tag' }}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('New tag');
+    });
+
+    it('uses derived labels for closed trigger typeahead', async () => {
+      function App() {
+        const items = Combobox.useItems(users, {
+          value: getUserId,
+          label: getTypeaheadLabel,
+        });
+        return (
+          <Combobox.Root items={items}>
+            <Combobox.Trigger data-testid="trigger">
+              <Combobox.Value />
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      act(() => {
+        trigger.focus();
+      });
+      await user.keyboard('z');
+
+      expect(trigger).toHaveTextContent('Zebra');
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('does not stringify null when no value is selected', async () => {
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} itemToStringLabel={(id) => `User ${id}`}>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('value')).toBeEmptyDOMElement();
+    });
+
+    it('supports null derived values across filtering, input, and multiple labels', async () => {
+      const nullableUsers = [
+        { id: null, name: 'None' },
+        { id: 1, name: 'Alice' },
+      ];
+      const getNullableUserId = (user: (typeof nullableUsers)[number]) => user.id;
+      const getNullableUserName = (user: (typeof nullableUsers)[number]) => user.name;
+
+      function App() {
+        const items = Combobox.useItems(nullableUsers, {
+          value: getNullableUserId,
+          label: getNullableUserName,
+        });
+        return (
+          <React.Fragment>
+            <Combobox.Root items={items}>
+              <Combobox.Input data-testid="input" />
+            </Combobox.Root>
+            <Combobox.Root items={items} defaultInputValue="" defaultOpen>
+              <Combobox.Input data-testid="filter-input" />
+              <Combobox.List>
+                {(user: (typeof nullableUsers)[number]) => (
+                  <Combobox.Item key={user.name}>{user.name}</Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>
+            <span data-testid="multiple-value">
+              <Combobox.Root items={items} multiple defaultValue={[null, 1]}>
+                <Combobox.Value />
+              </Combobox.Root>
+            </span>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('None');
+      expect(screen.getByTestId('multiple-value')).toHaveTextContent('None, Alice');
+
+      await user.type(screen.getByTestId('filter-input'), 'non');
+
+      expect(screen.getByRole('option', { name: 'None' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+    });
+
+    it('serializes derived values in multiple mode', async () => {
+      function App() {
+        const items = useUserItems();
+        return <Combobox.Root items={items} multiple name="users" defaultValue={[1, 2]} />;
+      }
+
+      await render(<App />);
+
+      expect(screen.getByDisplayValue('1')).toHaveAttribute('name', 'users');
+      expect(screen.getByDisplayValue('2')).toHaveAttribute('name', 'users');
+    });
+
     it('selects the derived value with the keyboard', async () => {
       const onValueChange = vi.fn();
 
@@ -316,15 +474,15 @@ describe('Combobox.useItems', () => {
 
     it('stops filtering when the limit is reached', async () => {
       const manyUsers = Array.from({ length: 100 }, (_, id) => ({ id, name: `Alice ${id}` }));
-      const getLabel = vi.fn((user: User) => user.name);
+      const filter = vi.fn((id: number) => id >= 0);
 
       function App() {
         const items = Combobox.useItems(manyUsers, {
           value: getUserId,
-          label: getLabel,
+          label: getUserName,
         });
         return (
-          <Combobox.Root items={items} limit={2} defaultOpen>
+          <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
@@ -334,11 +492,12 @@ describe('Combobox.useItems', () => {
       }
 
       const { user } = await render(<App />);
-      getLabel.mockClear();
+      filter.mockClear();
 
       await user.type(screen.getByTestId('input'), 'a');
 
-      expect(getLabel.mock.calls.length).toBeLessThan(manyUsers.length);
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+      expect(new Set(filter.mock.calls.map(([id]) => id))).toEqual(new Set([0, 1]));
     });
   });
 
@@ -413,6 +572,37 @@ describe('Combobox.useItems', () => {
       expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
       expect(filter.mock.calls.every(([id]) => typeof id === 'number')).toBe(true);
+    });
+
+    it('only applies accessors to group items', async () => {
+      const getValue = vi.fn((user: User) => user.id);
+      const getLabel = vi.fn((user: User) => user.name);
+
+      function App() {
+        const items = Combobox.useItems(teams, {
+          value: getValue,
+          label: getLabel,
+        });
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input />
+            <Combobox.List>
+              {(group: Team) => (
+                <Combobox.Group key={group.value} items={group.items}>
+                  <Combobox.Collection>
+                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                  </Combobox.Collection>
+                </Combobox.Group>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(getValue.mock.calls.every(([item]) => !('items' in item))).toBe(true);
+      expect(getLabel.mock.calls.every(([item]) => !('items' in item))).toBe(true);
     });
   });
 });

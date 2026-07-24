@@ -126,6 +126,31 @@ describe('<Combobox.Collection />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(groups[0].items[1]);
   });
 
+  it('does not pass an outer collection value into static group items', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Combobox.Root
+        items={['group']}
+        defaultValue="selected"
+        defaultOpen
+        onValueChange={onValueChange}
+      >
+        <Combobox.Input />
+        <Combobox.List>
+          {(item: string) => (
+            <Combobox.Group key={item}>
+              <Combobox.Item>Static item</Combobox.Item>
+            </Combobox.Group>
+          )}
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('option', { name: 'Static item' }));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+  });
+
   it('passes the source value through custom item components', async () => {
     const items = [{ id: 1, label: 'alpha' }];
     const onValueChange = vi.fn();

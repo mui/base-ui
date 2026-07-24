@@ -24,7 +24,7 @@ export interface ItemCollection<Item = any, Value = any> {
   data: readonly Item[] | readonly Group<Item>[];
   grouped: boolean;
   itemToValue: (item: Item) => Value;
-  itemToLabel: (item: Item) => string;
+  hasValue: (value: any) => boolean;
   resolveLabel: (valueOrItem: any) => string;
 }
 

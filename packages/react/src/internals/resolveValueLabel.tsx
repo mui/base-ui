@@ -78,12 +78,13 @@ export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  resolveNullLabel = false,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
   }
 
-  if (itemToStringLabel && value != null) {
+  if (itemToStringLabel && (value != null || resolveNullLabel)) {
     return itemToStringLabel(value);
   }
 
@@ -128,6 +129,7 @@ export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  resolveNullLabels = false,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {
@@ -135,7 +137,7 @@ export function resolveMultipleLabels(
     }
     acc.push(
       <React.Fragment key={index}>
-        {resolveSelectedLabel(value, items, itemToStringLabel)}
+        {resolveSelectedLabel(value, items, itemToStringLabel, resolveNullLabels)}
       </React.Fragment>,
     );
     return acc;

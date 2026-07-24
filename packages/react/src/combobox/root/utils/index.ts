@@ -22,7 +22,7 @@ export function createCollatorItemFilter(
 ) {
   return (item: any, query: string) => {
     if (item == null) {
-      return false;
+      return itemToStringLabel ? collatorFilter.contains(itemToStringLabel(item), query) : false;
     }
 
     return collatorFilter.contains(item, query, itemToStringLabel);

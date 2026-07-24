@@ -1,4 +1,4 @@
-import { serializeValue } from '../../internals/serializeValue';
+import { stringifyAsDefaultLabel } from '../../internals/serializeValue';
 import type { Group } from '../../internals/resolveValueLabel';
 import { ITEM_COLLECTION, type ItemCollection } from './itemCollection';
 
@@ -30,6 +30,14 @@ export function createItemCollection<Item, Value>(
   const valueToLabel = new Map<any, string>();
   let indexedItems = 0;
 
+  function hasValue(value: any): boolean {
+    return getLeafData().some((item) => {
+      const itemValue = itemToValue(item);
+      // SameValueZero, matching Map key equality.
+      return itemValue === value || (Number.isNaN(itemValue) && Number.isNaN(value));
+    });
+  }
+
   function resolveLabel(valueOrItem: any): string {
     const leaves = getLeafData();
 
@@ -45,8 +53,9 @@ export function createItemCollection<Item, Value>(
     if (valueToLabel.has(valueOrItem)) {
       return valueToLabel.get(valueOrItem)!;
     }
+
     // Values outside the collection (e.g. creatable inputs) label as themselves.
-    return serializeValue(valueOrItem);
+    return stringifyAsDefaultLabel(valueOrItem);
   }
 
   return {
@@ -54,7 +63,7 @@ export function createItemCollection<Item, Value>(
     data,
     grouped,
     itemToValue,
-    itemToLabel,
+    hasValue,
     resolveLabel,
   };
 }

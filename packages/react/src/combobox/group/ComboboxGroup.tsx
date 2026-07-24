@@ -4,6 +4,7 @@ import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
+import { ComboboxItemValueContext, NO_COMBOBOX_ITEM_VALUE } from '../item/ComboboxItemValueContext';
 
 /**
  * Groups related items with the corresponding label.
@@ -40,7 +41,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   });
 
   const wrappedElement = (
-    <ComboboxGroupContext.Provider value={contextValue}>{element}</ComboboxGroupContext.Provider>
+    <ComboboxItemValueContext.Provider value={NO_COMBOBOX_ITEM_VALUE}>
+      <ComboboxGroupContext.Provider value={contextValue}>{element}</ComboboxGroupContext.Provider>
+    </ComboboxItemValueContext.Provider>
   );
 
   if (items) {
