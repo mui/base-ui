@@ -1122,18 +1122,20 @@ type ReturnValue = T[];
 
 Normalizes items into a collection for the root's `items` prop, deriving each item's
 selection value and label before rendering.
+Accepts a flat array of items or an array of groups with items; the `value` and `label`
+accessors always receive individual items, never groups.
 
 **Parameters:**
 
-| Parameter | Type                                   | Default | Description |
-| :-------- | :------------------------------------- | :------ | :---------- |
-| data      | `Item[]`                               | -       | -           |
-| options?  | `UseComboboxItemsOptions<Item, Value>` | -       | -           |
+| Parameter | Type                                                  | Default | Description |
+| :-------- | :---------------------------------------------------- | :------ | :---------- |
+| data      | `ItemOrGroup[]`                                       | -       | -           |
+| options?  | `UseComboboxItemsOptions<Item \| ItemOrGroup, Value>` | -       | -           |
 
 **Return Value:**
 
 ```tsx
-type ReturnValue = ComboboxItemCollection<Item, Value>;
+type ReturnValue = ComboboxItemCollection<Item | ItemOrGroup, Value>;
 ```
 
 ## Additional Types
