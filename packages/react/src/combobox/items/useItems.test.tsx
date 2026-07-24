@@ -15,10 +15,13 @@ const users: User[] = [
   { id: 3, name: 'Carol' },
 ];
 
+const getUserId = (user: User) => user.id;
+const getUserName = (user: User) => user.name;
+
 function useUserItems() {
   return Combobox.useItems(users, {
-    value: (user) => user.id,
-    label: (user) => user.name,
+    value: getUserId,
+    label: getUserName,
   });
 }
 
@@ -48,6 +51,7 @@ describe('Combobox.useItems', () => {
 
       expect(result.current.matches('bo')).toEqual([users[1]]);
       expect(result.current.matches('')).toEqual(users);
+      expect(result.current.matches('')).not.toBe(users);
     });
 
     it('supports startsWith and endsWith filter modes', () => {
@@ -87,15 +91,31 @@ describe('Combobox.useItems', () => {
       expect(rebranded.current).toBe(result.current);
     });
 
-    it('is referentially stable across re-renders with inline accessors', () => {
+    it('is referentially stable across re-renders with stable options', () => {
       const { result, rerender } = renderHook(() =>
-        Combobox.useItems(users, { value: (user) => user.id, label: (user) => user.name }),
+        Combobox.useItems(users, { value: getUserId, label: getUserName }),
       );
       const first = result.current;
 
       rerender();
 
       expect(result.current).toBe(first);
+    });
+
+    it('updates when options change', () => {
+      const matchesAlice = () => [users[0]];
+      const matchesBob = () => [users[1]];
+      const { result, rerender } = renderHook(
+        ({ matches }: { matches: typeof matchesAlice }) =>
+          Combobox.useItems(users, { value: getUserId, label: getUserName, matches }),
+        { initialProps: { matches: matchesAlice } },
+      );
+
+      expect(result.current.matches('user')).toEqual([users[0]]);
+
+      rerender({ matches: matchesBob });
+
+      expect(result.current.matches('user')).toEqual([users[1]]);
     });
   });
 
@@ -180,6 +200,80 @@ describe('Combobox.useItems', () => {
       expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
     });
 
+    it('updates filtering when collection options change', async () => {
+      const matchesAlice = () => [users[0]];
+      const matchesBob = () => [users[1]];
+
+      function App(props: { matches: typeof matchesAlice }) {
+        const items = Combobox.useItems(users, {
+          value: getUserId,
+          label: getUserName,
+          matches: props.matches,
+        });
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<App matches={matchesAlice} />);
+      await user.type(screen.getByTestId('input'), 'user');
+
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+
+      await setProps({ matches: matchesBob });
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
+    });
+
+    it('passes derived values to a custom root filter', async () => {
+      const filter = vi.fn((id: number) => id === 2);
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} filter={filter} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'x');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
+      expect(filter.mock.calls.every(([id]) => typeof id === 'number')).toBe(true);
+      expect(new Set(filter.mock.calls.map(([id]) => id))).toEqual(new Set([1, 2, 3]));
+    });
+
+    it('labels a selected value that is not in the collection as itself', async () => {
+      function App() {
+        const items = Combobox.useItems(users, {
+          value: getUserId,
+          label: (user) => user.name.toUpperCase(),
+        });
+        return (
+          <Combobox.Root items={items} defaultValue={99}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('99');
+    });
+
     it('selects the derived value with the keyboard', async () => {
       const onValueChange = vi.fn();
 
@@ -203,6 +297,30 @@ describe('Combobox.useItems', () => {
       await user.keyboard('{Enter}');
 
       expect(onValueChange.mock.lastCall?.[0]).toBe(1);
+    });
+
+    it('resolves a virtualized item index from the derived value after filtering', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'bo');
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
     it('prefers an explicit item value over the derived value', async () => {
@@ -229,6 +347,33 @@ describe('Combobox.useItems', () => {
       await user.click(screen.getByRole('option', { name: 'Bob' }));
 
       expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-2');
+    });
+
+    it('stops collection matching when the limit is reached', async () => {
+      const manyUsers = Array.from({ length: 100 }, (_, id) => ({ id, name: `Alice ${id}` }));
+      const getLabel = vi.fn((user: User) => user.name);
+
+      function App() {
+        const items = Combobox.useItems(manyUsers, {
+          value: getUserId,
+          label: getLabel,
+        });
+        return (
+          <Combobox.Root items={items} limit={2} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      getLabel.mockClear();
+
+      await user.type(screen.getByTestId('input'), 'a');
+
+      expect(getLabel.mock.calls.length).toBeLessThan(manyUsers.length);
     });
   });
 
@@ -274,6 +419,17 @@ describe('Combobox.useItems', () => {
         ['Bob', 2],
         ['Carol', 3],
       ]);
+    });
+
+    it('applies client matching options when re-branding a payload', () => {
+      const payload = Combobox.items(users, { value: getUserId, label: getUserName });
+      const serialized = JSON.parse(JSON.stringify(payload)) as typeof payload;
+      const matches = vi.fn(() => [users[1]]);
+
+      const { result } = renderHook(() => Combobox.useItems(serialized, { matches }));
+
+      expect(result.current.matches('anything')).toEqual([users[1]]);
+      expect(matches).toHaveBeenCalledWith('anything', undefined);
     });
   });
 });

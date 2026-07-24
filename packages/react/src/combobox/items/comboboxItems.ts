@@ -1,4 +1,4 @@
-import { serializeValue } from '../../internals/serializeValue';
+import { stringifyAsDefaultLabel } from '../../internals/serializeValue';
 
 /**
  * Marks the plain-object payload produced by `Combobox.items()`. A string key (rather than a
@@ -6,29 +6,11 @@ import { serializeValue } from '../../internals/serializeValue';
  */
 export const ITEMS_PAYLOAD_MARKER = '__baseUIItems';
 
-/**
- * Stringifies an item's derived value for display when no `label` accessor is given.
- * Mirrors the `stringifyAsLabel()` heuristics without importing them: that module is
- * `'use client'`, and this one must stay importable from React Server Components.
- */
-export function defaultItemLabel(value: unknown): string {
-  if (value && typeof value === 'object') {
-    const record = value as Record<string, unknown>;
-    if (record.label != null) {
-      return String(record.label);
-    }
-    if ('value' in record) {
-      return String(record.value);
-    }
-  }
-  return serializeValue(value);
-}
-
 export function resolveItemsAccessors<Item, Value>(
   options: Pick<ComboboxItemsOptions<Item, Value>, 'value' | 'label'>,
 ): Required<Pick<ComboboxItemsOptions<Item, Value>, 'value' | 'label'>> {
   const value = options.value ?? ((item: Item) => item as unknown as Value);
-  const label = options.label ?? ((item: Item) => defaultItemLabel(value(item)));
+  const label = options.label ?? ((item: Item) => stringifyAsDefaultLabel(value(item)));
   return { value, label };
 }
 
@@ -36,7 +18,7 @@ export function resolveItemsAccessors<Item, Value>(
  * Normalizes items into a serializable payload for the `useItems()` hook.
  * A hook-free variant of `useItems()` usable in React Server Components: the accessors run
  * eagerly here, and passing the result to `useItems()` on the client re-brands it into a
- * collection for `Combobox.Root`'s `items` prop.
+ * collection for the root's `items` prop.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
@@ -75,7 +57,7 @@ export interface ComboboxItemsOptions<Item, Value = Item> {
 }
 
 /**
- * Serializable normalized items produced by `Combobox.items()`. Re-branded into a collection
+ * Serializable normalized items produced by `items()`. Re-branded into a collection
  * by passing it to `useItems()` on the client.
  */
 export interface ComboboxItemsPayload<Item = any, Value = any> {

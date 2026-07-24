@@ -2011,6 +2011,70 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
+  describe('useItems', () => {
+    const users = [
+      { id: 1, name: 'Alice' },
+      { id: 2, name: 'Bob' },
+    ];
+
+    it.each(['list', 'both'] as const)('mode="%s": uses the collection matcher', async (mode) => {
+      const matches = vi.fn(() => [users[1]]);
+
+      function App() {
+        const items = Autocomplete.useItems(users, {
+          value: (user) => user.id,
+          label: (user) => user.name,
+          matches,
+        });
+        return (
+          <Autocomplete.Root items={items} mode={mode} defaultOpen>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(user: (typeof users)[number]) => (
+                <Autocomplete.Item key={user.id}>{user.name}</Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'anything');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
+      expect(matches).toHaveBeenCalled();
+    });
+
+    it('uses the collection label for inline completion', async () => {
+      function App() {
+        const items = Autocomplete.useItems(users, {
+          value: (user) => user.id,
+          label: (user) => user.name,
+        });
+        return (
+          <Autocomplete.Root items={items} mode="both" defaultOpen>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(user: (typeof users)[number]) => (
+                <Autocomplete.Item key={user.id}>{user.name}</Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(input).toHaveValue('Alice');
+    });
+  });
+
   describe('object item stringification', () => {
     it('filters and displays using label for {label} objects', async () => {
       const items = [{ label: 'United States' }, { label: 'Canada' }, { label: 'Australia' }];

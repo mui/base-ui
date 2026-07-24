@@ -925,7 +925,7 @@ type AutocompleteInputGroupState = {
 Normalizes items into a serializable payload for the `useItems()` hook.
 A hook-free variant of `useItems()` usable in React Server Components: the accessors run
 eagerly here, and passing the result to `useItems()` on the client re-brands it into a
-collection for `Combobox.Root`'s `items` prop.
+collection for the root's `items` prop.
 
 **Parameters:**
 
@@ -968,7 +968,7 @@ type ReturnValue = T[];
 
 ### useItems
 
-Normalizes items into a collection for `Combobox.Root`'s `items` prop, deriving each item's
+Normalizes items into a collection for the root's `items` prop, deriving each item's
 selection value and label before rendering.
 
 **Parameters:**
@@ -1013,7 +1013,7 @@ type AutocompleteFilterOptions = {
 
 ### AutocompleteItemCollection
 
-Normalized items created by `useItems()`, accepted by the `items` prop of `Combobox.Root`.
+Normalized items created by `useItems()`, accepted by the root's `items` prop.
 
 ```typescript
 type AutocompleteItemCollection<Item, Value = Item> = {
@@ -1076,7 +1076,7 @@ type AutocompleteItemsOptions<Item, Value = Item> = {
 
 ### AutocompleteItemsPayload
 
-Serializable normalized items produced by `Combobox.items()`. Re-branded into a collection
+Serializable normalized items produced by `items()`. Re-branded into a collection
 by passing it to `useItems()` on the client.
 
 ```typescript

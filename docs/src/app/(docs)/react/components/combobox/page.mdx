@@ -96,7 +96,7 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 
 ### Value selection with IDs
 
-When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is also used for filtering, typeahead, and form submission.
+When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is also used for filtering and typeahead.
 
 Each item's derived value is used as its selection value automatically, so `defaultValue`, `value`, and `onValueChange` all work with plain IDs. The label is resolved from the collection even while the items are unmounted, so the input can display the selected item's label when the popup is closed.
 
@@ -392,7 +392,7 @@ Normalizes items into a collection for the `items` prop of `<Combobox.Root>`, de
 ## items
 
 A hook-free variant of `useItems` for React Server Components.
-It applies the accessors eagerly and returns a serializable result accepted by the `items` prop.
+It applies the accessors eagerly and returns a serializable result to pass through `useItems()` on the client.
 
 <TypesCombobox.items hideDescription />
 
