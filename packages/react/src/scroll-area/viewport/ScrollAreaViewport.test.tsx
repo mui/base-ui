@@ -1,8 +1,10 @@
-import { expect } from 'vitest';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { expect, vi } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Viewport />', () => {
@@ -14,6 +16,120 @@ describe('<ScrollArea.Viewport />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('handles a user scroll callback unmounting the viewport', async () => {
+    function App() {
+      const [mounted, setMounted] = React.useState(true);
+
+      return (
+        <ScrollArea.Root>
+          {mounted && (
+            <ScrollArea.Viewport
+              data-testid="viewport"
+              onScroll={() => {
+                ReactDOM.flushSync(() => setMounted(false));
+              }}
+            />
+          )}
+        </ScrollArea.Root>
+      );
+    }
+
+    await render(<App />);
+
+    expect(() => fireEvent.scroll(screen.getByTestId('viewport'))).not.toThrow();
+    expect(screen.queryByTestId('viewport')).toBe(null);
+  });
+
+  describe.skipIf(isJSDOM)('subtree animations', () => {
+    it('recomputes overflow after a subtree animation finishes', async () => {
+      let scrollWidth = 100;
+      let resolveAnimation: () => void = () => {};
+      const finished = new Promise<void>((resolve) => {
+        resolveAnimation = resolve;
+      });
+      const getAnimations = vi.fn(() => [{ finished }] as unknown as Animation[]);
+
+      await render(
+        <ScrollArea.Root data-testid="root">
+          <ScrollArea.Viewport
+            ref={(node) => {
+              if (node) {
+                Object.defineProperties(node, {
+                  clientHeight: { configurable: true, value: 100 },
+                  clientWidth: { configurable: true, value: 100 },
+                  scrollHeight: { configurable: true, value: 100 },
+                  scrollWidth: { configurable: true, get: () => scrollWidth },
+                  getAnimations: { configurable: true, value: getAnimations },
+                });
+              }
+            }}
+          />
+          <ScrollArea.Scrollbar orientation="horizontal" keepMounted>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      await waitFor(() => expect(getAnimations).toHaveBeenCalled());
+      expect(root).not.toHaveAttribute('data-has-overflow-x');
+
+      scrollWidth = 1000;
+      await act(async () => {
+        resolveAnimation();
+        await finished;
+      });
+
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+    });
+
+    it('ignores an animation finishing after its viewport unmounts', async () => {
+      let resolveAnimation: () => void = () => {};
+      const finished = new Promise<void>((resolve) => {
+        resolveAnimation = resolve;
+      });
+      const getAnimations = vi.fn(() => [{ finished }] as unknown as Animation[]);
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setMounted(false)}>
+              unmount
+            </button>
+            <ScrollArea.Root>
+              {mounted && (
+                <ScrollArea.Viewport
+                  data-testid="viewport"
+                  ref={(node) => {
+                    if (node) {
+                      Object.defineProperty(node, 'getAnimations', {
+                        configurable: true,
+                        value: getAnimations,
+                      });
+                    }
+                  }}
+                />
+              )}
+            </ScrollArea.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await waitFor(() => expect(getAnimations).toHaveBeenCalled());
+
+      await user.click(screen.getByRole('button', { name: 'unmount' }));
+      expect(screen.queryByTestId('viewport')).toBe(null);
+
+      await act(async () => {
+        resolveAnimation();
+        await finished;
+      });
+    });
+  });
 
   describe('data-scrolling attribute', () => {
     const { render: renderWithClock, clock } = createRenderer();
@@ -367,5 +483,17 @@ describe('<ScrollArea.Viewport />', () => {
         0,
       );
     });
+  });
+
+  it('throws a descriptive error when rendered outside <ScrollArea.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<ScrollArea.Viewport />)).rejects.toThrow(
+        'Base UI: ScrollAreaRootContext is missing. ScrollArea parts must be placed within <ScrollArea.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });
