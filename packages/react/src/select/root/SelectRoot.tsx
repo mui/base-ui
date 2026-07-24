@@ -44,6 +44,8 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
+import { runActionInTransition } from '../../internals/runActionInTransition';
+import { useOptimisticValue } from '../../internals/useOptimisticValue';
 
 /**
  * Groups all parts of the select.
@@ -59,6 +61,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     value: valueProp,
     defaultValue = null,
     onValueChange,
+    valueChangeAction,
     open: openProp,
     defaultOpen = false,
     onOpenChange,
@@ -99,12 +102,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const [value, setValueUnwrapped] = useControlled({
+  const [committedValue, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
     name: 'Select',
     state: 'value',
   });
+  const [optimisticValue, setOptimisticValue] = useOptimisticValue(committedValue);
+  const value = valueChangeAction ? optimisticValue : committedValue;
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openProp,
@@ -312,6 +317,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       setValueUnwrapped(nextValue);
+
+      if (valueChangeAction) {
+        runActionInTransition(async () => {
+          setOptimisticValue(nextValue);
+          await valueChangeAction(nextValue, eventDetails);
+        });
+      }
     },
   );
 
@@ -723,6 +735,18 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
         value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
         eventDetails: SelectRootChangeEventDetails,
       ) => void)
+    | undefined;
+  /**
+   * Action called when the value of the select changes.
+   *
+   * The action is run in a React transition when supported, and the selected
+   * value is updated optimistically while the action is pending.
+   */
+  valueChangeAction?:
+    | ((
+        value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        eventDetails: SelectRootChangeEventDetails,
+      ) => void | PromiseLike<unknown>)
     | undefined;
 }
 
