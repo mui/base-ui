@@ -1,3 +1,5 @@
+import type { Group } from '../../internals/resolveValueLabel';
+
 /**
  * Brands collections created by `useItems()` so the root can tell them apart from plain
  * item arrays. This module is intentionally minimal: it is the only part of the `useItems`
@@ -19,7 +21,8 @@ export declare class ComboboxItemCollection<Item, Value = Item> {
  */
 export interface ItemCollection<Item = any, Value = any> {
   [ITEM_COLLECTION]: true;
-  data: readonly Item[];
+  data: readonly Item[] | readonly Group<Item>[];
+  grouped: boolean;
   itemToValue: (item: Item) => Value;
   itemToLabel: (item: Item) => string;
   resolveLabel: (valueOrItem: any) => string;

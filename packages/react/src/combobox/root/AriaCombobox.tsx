@@ -255,8 +255,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  // Collections always hold flat data, even when a source item happens to have an `items` key.
-  const isGrouped = !collection && isGroupedItems(items);
+  // Collections declare their own groupness, resolved by `useItems()`; only plain arrays
+  // fall back to shape detection here.
+  const isGrouped = collection ? collection.grouped : isGroupedItems(items);
   const query = closeQuery ?? String(inputValue).trim();
 
   const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
@@ -310,7 +311,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             if (itemsToTake.length >= remainingLimit) {
               break;
             }
-            if (filter(item, filterQuery, itemToStringLabel)) {
+            const itemValue = collection ? collection.itemToValue(item) : item;
+            if (filter(itemValue, filterQuery, itemToStringLabel)) {
               itemsToTake.push(item);
             }
           }

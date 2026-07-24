@@ -341,4 +341,78 @@ describe('Combobox.useItems', () => {
       expect(getLabel.mock.calls.length).toBeLessThan(manyUsers.length);
     });
   });
+
+  describe('grouped items', () => {
+    interface Team {
+      value: string;
+      items: User[];
+    }
+
+    const teams: Team[] = [
+      { value: 'Engineering', items: [users[0], users[1]] },
+      { value: 'Design', items: [users[2]] },
+    ];
+
+    function GroupedApp(props: Partial<Combobox.Root.Props<number>>) {
+      const items = Combobox.useItems(teams, {
+        value: getUserId,
+        label: getUserName,
+      });
+      return (
+        <Combobox.Root items={items} {...props}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(group: Team) => (
+              <Combobox.Group key={group.value} items={group.items}>
+                <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                <Combobox.Collection>
+                  {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                </Combobox.Collection>
+              </Combobox.Group>
+            )}
+          </Combobox.List>
+        </Combobox.Root>
+      );
+    }
+
+    it('uses the derived value for selection and resolves the label while closed', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(<GroupedApp defaultOpen onValueChange={onValueChange} />);
+
+      await user.click(screen.getByRole('option', { name: 'Bob' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Bob');
+    });
+
+    it('resolves the label of an initially selected value', async () => {
+      await render(<GroupedApp defaultValue={3} />);
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Carol');
+    });
+
+    it('filters items by their derived labels and drops empty groups', async () => {
+      const { user } = await render(<GroupedApp defaultOpen />);
+
+      await user.type(screen.getByTestId('input'), 'car');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
+      expect(screen.queryByText('Engineering')).toBe(null);
+      expect(screen.getByText('Design')).not.toBe(null);
+    });
+
+    it('passes derived values to a custom root filter', async () => {
+      const filter = vi.fn((id: number) => id === 3);
+
+      const { user } = await render(<GroupedApp defaultOpen filter={filter} />);
+
+      await user.type(screen.getByTestId('input'), 'x');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
+      expect(filter.mock.calls.every(([id]) => typeof id === 'number')).toBe(true);
+    });
+  });
 });
