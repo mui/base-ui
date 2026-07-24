@@ -339,50 +339,30 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId('value')).toBeEmptyDOMElement();
     });
 
-    it('supports null derived values across filtering, input, and multiple labels', async () => {
-      const nullableUsers = [
-        { id: null, name: 'None' },
-        { id: 1, name: 'Alice' },
-      ];
-      const getNullableUserId = (user: (typeof nullableUsers)[number]) => user.id;
-      const getNullableUserName = (user: (typeof nullableUsers)[number]) => user.name;
+    it('does not treat source value fields as derived selections', async () => {
+      const sourceItems = [{ id: 1, value: null, label: 'No discount' }];
 
       function App() {
-        const items = Combobox.useItems(nullableUsers, {
-          value: getNullableUserId,
-          label: getNullableUserName,
+        const items = Combobox.useItems(sourceItems, {
+          value: (item) => item.id,
+          label: (item) => item.label,
         });
         return (
-          <React.Fragment>
-            <Combobox.Root items={items}>
-              <Combobox.Input data-testid="input" />
-            </Combobox.Root>
-            <Combobox.Root items={items} defaultInputValue="" defaultOpen>
-              <Combobox.Input data-testid="filter-input" />
-              <Combobox.List>
-                {(user: (typeof nullableUsers)[number]) => (
-                  <Combobox.Item key={user.name}>{user.name}</Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Root>
-            <span data-testid="multiple-value">
-              <Combobox.Root items={items} multiple defaultValue={[null, 1]}>
-                <Combobox.Value />
-              </Combobox.Root>
+          <Combobox.Root items={items}>
+            <span data-testid="placeholder">
+              <Combobox.Value placeholder="Choose an option" />
             </span>
-          </React.Fragment>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
         );
       }
 
-      const { user } = await render(<App />);
+      await render(<App />);
 
-      expect(screen.getByTestId('input')).toHaveValue('None');
-      expect(screen.getByTestId('multiple-value')).toHaveTextContent('None, Alice');
-
-      await user.type(screen.getByTestId('filter-input'), 'non');
-
-      expect(screen.getByRole('option', { name: 'None' })).not.toBe(null);
-      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByTestId('placeholder')).toHaveTextContent('Choose an option');
+      expect(screen.getByTestId('value')).toBeEmptyDOMElement();
     });
 
     it('serializes derived values in multiple mode', async () => {

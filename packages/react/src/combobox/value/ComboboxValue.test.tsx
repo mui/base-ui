@@ -828,28 +828,6 @@ describe('<Combobox.Value />', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('None');
     });
 
-    it('derived null item label takes precedence over placeholder', async () => {
-      const items = [{ id: null, name: 'None' }];
-
-      function App() {
-        const collection = Combobox.useItems(items, {
-          value: (item) => item.id,
-          label: (item) => item.name,
-        });
-        return (
-          <Combobox.Root items={collection}>
-            <Combobox.Trigger data-testid="value">
-              <Combobox.Value placeholder="Select an option" />
-            </Combobox.Trigger>
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.getByTestId('value')).toHaveTextContent('None');
-    });
-
     it('uses placeholder when items have null value without label', async () => {
       const items = [
         { value: null, label: null },

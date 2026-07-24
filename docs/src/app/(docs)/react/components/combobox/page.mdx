@@ -75,7 +75,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
 When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, the collection provides its value, so the `value` prop on `<Combobox.Item>` can be omitted. Ordinary collections use the source item as the value. Items rendered manually without a collection require an explicit `value` prop.
 
-To use a primitive value that differs from the source item—such as an ID held in an object—normalize the `items` array (flat or grouped) with the `Combobox.useItems` hook, which derives each item's value and label before rendering. Its derived value is authoritative, so omit the `value` prop from rendered items.
+To use a primitive value that differs from the source item (such as an ID held in an object), normalize the `items` array (flat or grouped) with the `Combobox.useItems` hook, which derives each item's value and label before rendering. Its derived value is authoritative, so omit the `value` prop from rendered items.
 
 ## Examples
 

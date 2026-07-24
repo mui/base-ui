@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import { stringifyAsDefaultLabel } from '../../internals/serializeValue';
-import { isGroupedItems } from '../../internals/resolveValueLabel';
+import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import type { ComboboxItemCollection } from './itemCollection';
-import { createItemCollection } from './createItemCollection';
 
 /**
  * Resolves the individual item type of a `useItems()` data array: the group's item type when
@@ -31,15 +29,26 @@ export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<Ite
   const { value, label } = options;
 
   return React.useMemo(() => {
-    return createItemCollection<Item, Value>({
-      data: data as readonly Item[],
-      // Same shape detection as the root's `items` prop.
-      grouped: isGroupedItems(data),
-      itemToValue: value ?? ((item: Item) => item as unknown as Value),
-      itemToLabel:
-        label ??
-        ((item: Item) => stringifyAsDefaultLabel(value ? value(item) : (item as unknown as Value))),
-    });
+    const itemToValue = value ?? ((item: Item) => item as unknown as Value);
+    const itemToLabel = label ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
+    const leafItems = isGroupedItems(data)
+      ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
+      : (data as readonly Item[]);
+    const labels = new Map<Value, string>();
+    let indexedItems = 0;
+
+    return {
+      data,
+      value: itemToValue,
+      label: (itemValue: Value) => {
+        while (!labels.has(itemValue) && indexedItems < leafItems.length) {
+          const item = leafItems[indexedItems];
+          indexedItems += 1;
+          labels.set(itemToValue(item), itemToLabel(item));
+        }
+        return labels.get(itemValue) ?? stringifyAsLabel(itemValue);
+      },
+    };
   }, [data, value, label]) as unknown as ComboboxItemCollection<Item, Value>;
 }
 
@@ -48,6 +57,7 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    * By default, the item itself is used as the value.
+   * `null` and `undefined` are reserved for no selection.
    * Keep this function reference stable to preserve collection memoization.
    */
   value?: ((item: Item) => Value) | undefined;

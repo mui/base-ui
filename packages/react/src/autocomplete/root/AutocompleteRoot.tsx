@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
-import {
-  getItemCollection,
-  type ComboboxItemCollection,
-} from '../../combobox/items/itemCollection';
+import type { ComboboxItemCollection, ItemCollection } from '../../combobox/items/itemCollection';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
@@ -49,7 +46,8 @@ export function AutocompleteRoot<ItemValue>(
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
-  const collection = getItemCollection(other.items);
+  const collection =
+    other.items && !Array.isArray(other.items) ? (other.items as unknown as ItemCollection) : null;
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
@@ -119,7 +117,7 @@ export function AutocompleteRoot<ItemValue>(
 
     setInlineInputValue(
       enableInline && highlightedValue != null
-        ? stringifyAsLabel(highlightedValue, itemToStringValue ?? collection?.resolveLabel)
+        ? stringifyAsLabel(highlightedValue, itemToStringValue ?? collection?.label)
         : '',
     );
   }

@@ -1005,6 +1005,7 @@ type UseAutocompleteItemsOptions<Item, Value = Item> = {
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    * By default, the item itself is used as the value.
+   * `null` and `undefined` are reserved for no selection.
    * Keep this function reference stable to preserve collection memoization.
    */
   value?: (item: Item) => Value;
