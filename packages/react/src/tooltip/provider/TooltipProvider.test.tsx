@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -209,15 +209,18 @@ describe('<Tooltip.Provider />', () => {
 
       fireEvent.mouseEnter(first);
       fireEvent.mouseMove(first);
-      clock.tick(100);
-      await flushMicrotasks();
+      await act(async () => {
+        clock.tick(100);
+      });
 
       expect(screen.queryByText('Content One')).not.toBe(null);
 
       fireEvent.mouseLeave(first);
       fireEvent.mouseEnter(second);
       fireEvent.mouseMove(second);
-      await flushMicrotasks();
+      await act(async () => {
+        clock.tick(0);
+      });
 
       expect(screen.queryByText('Content Two')).not.toBe(null);
       expect(screen.queryByText('Content One')).toBe(null);
