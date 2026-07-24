@@ -32,8 +32,7 @@ export function comboboxItems<Item, Value = Item>(
     items: data,
     values: data.map(accessors.value),
     labels: data.map(accessors.label),
-    locale: options.locale,
-  };
+  } as unknown as ComboboxItemsPayload<Item, Value>;
 }
 
 export interface ComboboxItemsOptions<Item, Value = Item> {
@@ -44,31 +43,30 @@ export interface ComboboxItemsOptions<Item, Value = Item> {
    */
   value?: ((item: Item) => Value) | undefined;
   /**
-   * Projects an item to the label string that represents it in the input and when matching
-   * the typed query.
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
    * By default, the item's derived value is stringified.
    */
   label?: ((item: Item) => string) | undefined;
-  /**
-   * The locale used for query matching.
-   * Defaults to the user's runtime locale.
-   */
-  locale?: string | readonly string[] | undefined;
 }
 
 /**
  * Serializable normalized items produced by `items()`. Re-branded into a collection
  * by passing it to `useItems()` on the client.
  */
-export interface ComboboxItemsPayload<Item = any, Value = any> {
+export declare class ComboboxItemsPayload<Item = any, Value = any> {
+  private constructor();
+  private readonly __itemsPayloadBrand: (item: Item) => Value;
+}
+
+export interface ItemsPayload<Item = any, Value = any> {
   [ITEMS_PAYLOAD_MARKER]: true;
   items: readonly Item[];
   values: readonly Value[];
   labels: readonly string[];
-  locale?: string | readonly string[] | undefined;
 }
 
-export function isItemsPayload(items: unknown): items is ComboboxItemsPayload {
+export function isItemsPayload(items: unknown): items is ItemsPayload {
   return (
     typeof items === 'object' &&
     items !== null &&

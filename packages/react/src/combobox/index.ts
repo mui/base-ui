@@ -31,10 +31,5 @@ export type {
   UseComboboxFilterOptions as ComboboxFilterOptions,
 } from '../combobox/root/utils/useFilter';
 
-export type {
-  ComboboxItemCollection,
-  ComboboxItemsMatchOptions,
-  ComboboxItemsFilterMode,
-  UseComboboxItemsOptions,
-} from './items/useItems';
+export type { ComboboxItemCollection, UseComboboxItemsOptions } from './items/useItems';
 export type { ComboboxItemsOptions, ComboboxItemsPayload } from './items/comboboxItems';

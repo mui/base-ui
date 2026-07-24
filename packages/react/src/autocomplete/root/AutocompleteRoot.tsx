@@ -79,8 +79,8 @@ export function AutocompleteRoot<ItemValue>(
     if (other.filter !== undefined) {
       return other.filter;
     }
-    return collection ? undefined : collator.contains;
-  }, [other.filter, collection, collator]);
+    return collator.contains;
+  }, [other.filter, collator]);
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
 
@@ -122,7 +122,7 @@ export function AutocompleteRoot<ItemValue>(
 
     setInlineInputValue(
       enableInline && highlightedValue != null
-        ? stringifyAsLabel(highlightedValue, collection?.resolveLabel ?? itemToStringValue)
+        ? stringifyAsLabel(highlightedValue, itemToStringValue ?? collection?.resolveLabel)
         : '',
     );
   }

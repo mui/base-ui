@@ -2017,44 +2017,19 @@ describe('<Autocomplete.Root />', () => {
       { id: 2, name: 'Bob' },
     ];
 
-    it.each(['list', 'both'] as const)('mode="%s": uses the collection matcher', async (mode) => {
-      const matches = vi.fn(() => [users[1]]);
-
-      function App() {
-        const items = Autocomplete.useItems(users, {
-          value: (user) => user.id,
-          label: (user) => user.name,
-          matches,
-        });
-        return (
-          <Autocomplete.Root items={items} mode={mode} defaultOpen>
-            <Autocomplete.Input data-testid="input" />
-            <Autocomplete.List>
-              {(user: (typeof users)[number]) => (
-                <Autocomplete.Item key={user.id}>{user.name}</Autocomplete.Item>
-              )}
-            </Autocomplete.List>
-          </Autocomplete.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      await user.type(screen.getByTestId('input'), 'anything');
-
-      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
-      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
-      expect(matches).toHaveBeenCalled();
-    });
-
-    it('uses the collection label for inline completion', async () => {
+    it('prefers the root stringifier for inline completion', async () => {
       function App() {
         const items = Autocomplete.useItems(users, {
           value: (user) => user.id,
           label: (user) => user.name,
         });
         return (
-          <Autocomplete.Root items={items} mode="both" defaultOpen>
+          <Autocomplete.Root
+            items={items}
+            mode="both"
+            itemToStringValue={(id: number) => `User ${id}`}
+            defaultOpen
+          >
             <Autocomplete.Input data-testid="input" />
             <Autocomplete.List>
               {(user: (typeof users)[number]) => (
@@ -2071,7 +2046,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.keyboard('{ArrowDown}');
 
-      expect(input).toHaveValue('Alice');
+      expect(input).toHaveValue('User 1');
     });
   });
 

@@ -291,17 +291,11 @@ function UseItemsApp() {
     label: (item) => item.name,
   });
 
-  collection.each((item, value, index) => {
-    item.name;
-    value.toFixed();
-    index.toFixed();
-    return null;
-  });
+  // @ts-expect-error A collection exposes no data-manipulation methods.
+  collection.each;
 
-  const matched: Array<{ id: number; name: string }> = collection.matches('a', {
-    filterMode: 'startsWith',
-  });
-  matched.length;
+  // @ts-expect-error Existing collections are passed directly to Root.
+  Combobox.useItems(collection);
 
   return (
     <Combobox.Root
@@ -319,6 +313,10 @@ const itemsPayload = Combobox.items([{ id: 1, name: 'Alice' }], {
 
 function PayloadApp() {
   const collection = Combobox.useItems(itemsPayload);
+
+  // @ts-expect-error Payload accessors are already evaluated on the server.
+  Combobox.useItems(itemsPayload, { label: (item) => item.name });
+
   return <Combobox.Root items={collection} defaultValue={1} />;
 }
 
