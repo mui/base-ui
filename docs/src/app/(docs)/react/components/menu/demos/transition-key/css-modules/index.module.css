@@ -1,0 +1,135 @@
+.Positioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+  outline: 0;
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+}
+
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: var(--transform-origin);
+
+  /* These are required to make the size animations work */
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  transition:
+    width var(--animation-duration) var(--easing),
+    height var(--animation-duration) var(--easing),
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.Viewport {
+  box-sizing: border-box;
+  /* Required to clip the overflowing content during the slide */
+  position: relative;
+  overflow: clip;
+  width: 100%;
+  height: 100%;
+  padding-block: 0.25rem;
+
+  --direction: 1;
+
+  &[data-activation-direction='back'] {
+    --direction: -1;
+  }
+
+  [data-previous],
+  [data-current] {
+    /* Freeze each container to its content's natural width so the animating popup width
+       never reflows it (subtracting the borders from `--popup-width` instead breaks at
+       fractional browser zoom, where 1px borders don't render as exactly 1px) */
+    width: max-content;
+    transition: transform var(--animation-duration) var(--easing);
+  }
+
+  [data-previous][data-ending-style] {
+    transform: translateX(calc(-100% * var(--direction)));
+  }
+
+  [data-current][data-starting-style] {
+    transform: translateX(calc(100% * var(--direction)));
+  }
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+}
+
+.Item {
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 0.5rem;
+  padding-inline: 1rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: inherit;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+}
+
+.BackItem {
+  justify-content: flex-start;
+  gap: 0.25rem;
+
+  .Caret {
+    margin-left: -0.25rem;
+  }
+}
+
+.Caret {
+  flex: none;
+}

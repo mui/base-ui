@@ -185,6 +185,15 @@ import { DemoPreviewCardDetachedTriggersFull } from './demos/detached-triggers-f
 
 <DemoPreviewCardDetachedTriggersFull />
 
+#### Content changes in place
+
+To animate content that changes in place, such as switching between tabs, pass a `transitionKey` and update it whenever the content changes.
+Use `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to style the incoming and outgoing content, as the demo does.
+
+import { DemoPreviewCardTransitionKey } from './demos/transition-key';
+
+<DemoPreviewCardTransitionKey />
+
 ## API reference
 
 import { TypesPreviewCard } from './types';
@@ -217,7 +226,9 @@ import { TypesPreviewCard } from './types';
 
 <TypesPreviewCard.Viewport />
 
-The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
+Use the `Viewport` to animate the popup's content when it changes while open. When one popup is opened by several triggers, it morphs between each trigger's content automatically.
+
+To animate content that changes in place under a single trigger, pass a `transitionKey` and update it whenever the content changes, such as `transitionKey={view}`. Either way, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box stays fixed during the transition; without it, resizing can make the popup thrash or flip to another side.
 
 ### Arrow
 

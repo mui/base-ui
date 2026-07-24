@@ -929,6 +929,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Animating the Menu
       - Position and Size
       - Content
+      - Content changes in place
   - API reference
     - Root
     - Trigger
@@ -977,7 +978,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
     - Data Attributes: data-disabled, data-highlighted
   - Menu - Viewport
-    - Props: children, className, render, style
+    - Props: children, className, render, style, transitionKey
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
   - Menu - Group
@@ -1251,6 +1252,7 @@ An accessible popup anchored to a button.
     - Animating the Popover
       - Position and Size
       - Content
+      - Content changes in place
   - API reference
     - Root
     - Trigger
@@ -1294,7 +1296,7 @@ An accessible popup anchored to a button.
   - Popover - Close
     - Props: className, nativeButton, render, style
   - Popover - Viewport
-    - Props: children, className, render, style
+    - Props: children, className, render, style, transitionKey
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
   - Popover - createHandle
@@ -1324,6 +1326,7 @@ A popup that appears when a link is hovered, showing a preview for sighted users
     - Animating the Preview Card
       - Position and Size
       - Content
+      - Content changes in place
   - API reference
     - Root
     - Trigger
@@ -1357,7 +1360,7 @@ A popup that appears when a link is hovered, showing a preview for sighted users
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Preview Card - Viewport
-    - Props: children, className, render, style
+    - Props: children, className, render, style, transitionKey
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
   - Preview Card - createHandle
@@ -1969,7 +1972,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-instant, data-open, data-side, data-uncentered
   - Tooltip - Viewport
-    - Props: children, className, render, style
+    - Props: children, className, render, style, transitionKey
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
   - Tooltip - createHandle
