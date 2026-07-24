@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
+import { platform } from '@base-ui/utils/platform';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -66,6 +67,12 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 
+  // While an IME composition is active, Safari (and other WebKit/Gecko engines) can expose the
+  // in-progress text through `onChange` as an accumulating string (`d`, then `dd`, then `ddd`).
+  // Committing those intermediate values would treat them as bulk OTP input and fill too many slots.
+  // We buffer the displayed text in `composingValue` and commit once on `compositionend` instead.
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
   const slotAriaLabel = externalAriaLabel;
@@ -87,9 +94,61 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     }, [index, slotAriaLabel]);
   }
 
+  function commitInputValue(
+    event: React.ChangeEvent<HTMLInputElement> | React.CompositionEvent<HTMLInputElement>,
+  ) {
+    const inputElement = event.currentTarget;
+    const rawValue = inputElement.value;
+    const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+      rawValue,
+      length,
+      validationType,
+      normalizeValue,
+    );
+
+    if (didRejectCharacters) {
+      reportValueInvalid(
+        rawValue,
+        createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
+      );
+    }
+
+    if (nextDigits === '') {
+      if (rawValue === '') {
+        setValue(
+          removeOTPCharacter(value, index),
+          createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
+        );
+      } else if (slotValue !== '') {
+        inputElement.value = slotValue;
+        inputElement.select();
+      }
+      return;
+    }
+
+    const nextValue = replaceOTPValue(
+      value,
+      index,
+      nextDigits,
+      length,
+      validationType,
+      normalizeValue,
+    );
+
+    const committedValue = setValue(
+      nextValue,
+      createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+    );
+
+    if (committedValue != null) {
+      const nextInput = Math.min(index + nextDigits.length, length - 1);
+      queueFocusInput(nextInput, committedValue);
+    }
+  }
+
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
-    value: slotValue,
+    value: composingValue ?? slotValue,
     type: mask ? 'password' : 'text',
     inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
@@ -129,57 +188,41 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       handleInputBlur(event);
     },
+    onCompositionStart(event) {
+      // Android handles composition events inconsistently across keyboards (some report text as
+      // always-composing), so leave its input flowing through `onChange` unchanged.
+      if (platform.os.android) {
+        return;
+      }
+
+      setComposingValue(event.currentTarget.value);
+    },
+    onCompositionEnd(event) {
+      if (composingValue == null) {
+        return;
+      }
+
+      setComposingValue(null);
+
+      if (disabled || readOnly) {
+        return;
+      }
+
+      commitInputValue(event);
+    },
     onChange(event) {
       if (event.defaultPrevented || disabled || readOnly) {
         return;
       }
 
-      const rawValue = event.currentTarget.value;
-      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
-        rawValue,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      if (didRejectCharacters) {
-        reportValueInvalid(
-          rawValue,
-          createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
-        );
-      }
-
-      if (nextDigits === '') {
-        if (rawValue === '') {
-          setValue(
-            removeOTPCharacter(value, index),
-            createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
-          );
-        } else if (slotValue !== '') {
-          event.currentTarget.value = slotValue;
-          event.currentTarget.select();
-        }
+      // Buffer intermediate IME text instead of committing it; the final value commits once on
+      // `compositionend` through the same normalization/replacement path.
+      if (composingValue != null) {
+        setComposingValue(event.currentTarget.value);
         return;
       }
 
-      const nextValue = replaceOTPValue(
-        value,
-        index,
-        nextDigits,
-        length,
-        validationType,
-        normalizeValue,
-      );
-
-      const committedValue = setValue(
-        nextValue,
-        createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-      );
-
-      if (committedValue != null) {
-        const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
-      }
+      commitInputValue(event);
     },
     onKeyDown(event) {
       if (event.defaultPrevented || disabled) {
