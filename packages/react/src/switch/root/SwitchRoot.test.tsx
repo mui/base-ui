@@ -526,6 +526,64 @@ describe('<Switch.Root />', () => {
 
   describe('Form', () => {
     it.skipIf(isJSDOM)(
+      'omits a field disabled by a native fieldset from validation and submission',
+      async () => {
+        const handleSubmit = vi.fn();
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [disabled, setDisabled] = React.useState(true);
+
+          return (
+            <Form onFormSubmit={handleSubmit} data-testid="form">
+              <fieldset disabled={disabled}>
+                <Field.Root name="notifications" validate={validate}>
+                  <Switch.Root defaultChecked required />
+                </Field.Root>
+              </fieldset>
+              <Field.Root name="enabled">
+                <Field.Control defaultValue="sent" />
+              </Field.Root>
+              <button type="button" onClick={() => setDisabled((value) => !value)}>
+                {disabled ? 'Enable' : 'Disable'}
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).has('notifications')).toBe(false);
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).not.toHaveBeenCalled();
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({ enabled: 'sent' });
+
+        await user.click(screen.getByRole('button', { name: 'Enable' }));
+        expect(new FormData(form).get('notifications')).toBe('on');
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('switch')).toHaveFocus();
+
+        await user.click(screen.getByRole('button', { name: 'Disable' }));
+        expect(new FormData(form).has('notifications')).toBe(false);
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).toHaveBeenCalledTimes(2);
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({ enabled: 'sent' });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'preserves Field validation props through canceled changes, submit, and reset',
       async () => {
         let cancelChanges = true;

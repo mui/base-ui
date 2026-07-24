@@ -1591,11 +1591,12 @@ describe('<RadioGroup />', () => {
       'excludes a radio disabled through an ancestor <fieldset disabled> to match native form data',
       async () => {
         const handleSubmit = vi.fn();
+        const validate = vi.fn(() => 'invalid');
 
         await renderFakeTimers(
           <Form onFormSubmit={handleSubmit} data-testid="form">
             <fieldset disabled>
-              <Field.Root name="choice">
+              <Field.Root name="choice" validate={validate}>
                 <RadioGroup defaultValue="a">
                   <Radio.Root value="a" data-testid="item-a" />
                   <Radio.Root value="b" data-testid="item-b" />
@@ -1613,7 +1614,8 @@ describe('<RadioGroup />', () => {
 
         fireEvent.click(screen.getByText('Submit'));
 
-        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+        expect(validate).not.toHaveBeenCalled();
+        expect(handleSubmit.mock.calls[0][0]).toEqual({});
       },
     );
 

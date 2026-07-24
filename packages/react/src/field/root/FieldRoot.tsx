@@ -135,6 +135,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
     commit: validation.commit,
     invalid,
+    isDisabled: validation.isDisabled,
     markedDirtyRef,
     name,
     setRegisteredFieldName,

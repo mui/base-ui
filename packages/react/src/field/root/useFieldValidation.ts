@@ -113,7 +113,28 @@ export function useFieldValidation(
     return (element && registeredInputs.get(element)?.controlRef.current) || null;
   });
 
+  // Composite controls register a visible element for focus while their hidden native input owns
+  // form semantics. Read effective disabledness from that input, including ancestor fieldsets. A
+  // group remains active as long as at least one of its mounted native inputs is enabled.
+  const isDisabled = useStableCallback(() => {
+    if (registeredInputs.size === 0) {
+      return inputRef.current?.matches(':disabled') ?? false;
+    }
+
+    for (const input of registeredInputs.keys()) {
+      if (!input.matches(':disabled')) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
+    if (isDisabled()) {
+      return;
+    }
+
     validationCommitIdRef.current += 1;
     const validationCommitId = validationCommitIdRef.current;
 
@@ -249,7 +270,7 @@ export function useFieldValidation(
       // - validating on change, or
       // - native constraint validations passed, custom validity check is next
       const formValues = Array.from(formRef.current.fields.values()).reduce((acc, field) => {
-        if (field.name) {
+        if (field.name && !field.isDisabled()) {
           acc[field.name] = field.getValue();
         }
         return acc;
@@ -341,10 +362,19 @@ export function useFieldValidation(
       registeredInputs,
       registerInput,
       getInputControl,
+      isDisabled,
       commit,
       change,
     }),
-    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
+    [
+      getValidationProps,
+      registeredInputs,
+      registerInput,
+      getInputControl,
+      isDisabled,
+      commit,
+      change,
+    ],
   );
 }
 
@@ -369,6 +399,7 @@ export interface UseFieldValidationReturnValue {
   registeredInputs: RegisteredInputs;
   registerInput: (element: HTMLInputElement, registration: RegisteredInput) => void | (() => void);
   getInputControl: () => HTMLElement | null;
+  isDisabled: () => boolean;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;
 }
