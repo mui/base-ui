@@ -1,32 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { createParseSource } from '@mui/internal-docs-infra/pipeline/parseSource';
 import { createStackBlitz } from '@mui/internal-docs-infra/lite/runtime';
-import { exportOpts, getDemoSandboxOptions, resolveDependencies } from './demoExportOptions';
+import { getDemoSandboxOptions, resolveDependencies } from './demoExportOptions';
 
-type HeadTemplate = NonNullable<typeof exportOpts.headTemplate>;
-type HeadTemplateProps = Parameters<HeadTemplate>[0];
-type ExtraFiles = NonNullable<HeadTemplateProps['variant']>['extraFiles'];
-
-function getTailwindHeadTemplate(
-  source: NonNullable<HeadTemplateProps['variant']>['source'],
-  extraFiles?: ExtraFiles,
-) {
-  const headTemplate = exportOpts.headTemplate;
-  if (!headTemplate) {
-    throw new Error('Expected exportOpts.headTemplate to be defined');
-  }
-
-  const props: HeadTemplateProps = {
-    sourcePrefix: '',
-    assetPrefix: '',
-    variantName: 'Tailwind',
-    variant: {
-      source,
-      extraFiles,
-    },
-  };
-
-  return headTemplate(props);
+function getTailwindHeadTemplate(source: string, extraFiles: Record<string, string> = {}) {
+  return (
+    getDemoSandboxOptions({
+      variantName: 'Tailwind',
+      files: { 'Demo.tsx': source, ...extraFiles },
+      title: 'Demo',
+    }).htmlHead ?? ''
+  );
 }
 
 function getInjectedClasses(headTemplate: string) {
@@ -47,7 +30,7 @@ function getInjectedClassAttribute(headTemplate: string) {
   return metaClassMatch[1];
 }
 
-describe('exportOpts Tailwind class injection', () => {
+describe('getDemoSandboxOptions Tailwind class injection', () => {
   it('uses the Tailwind v4 browser runtime for StackBlitz exports', () => {
     const headTemplate = getTailwindHeadTemplate(`
       export default function Demo() {
@@ -115,47 +98,6 @@ describe('exportOpts Tailwind class injection', () => {
     expect(classes).toContain('text-red-600');
   });
 
-  it('injects classes from highlighted HAST sources without stringifying them first', async () => {
-    const parseSource = await createParseSource();
-    const source = parseSource(
-      `
-        const sharedClassName = "transition-transform duration-300";
-        const itemClassName = \`\${sharedClassName} text-red-600\`;
-
-        export default function Demo() {
-          return <div className={itemClassName}>Demo</div>;
-        }
-      `,
-      'demo.tsx',
-    );
-
-    const headTemplate = getTailwindHeadTemplate(source);
-    const classes = getInjectedClasses(headTemplate);
-
-    expect(classes).toContain('transition-transform');
-    expect(classes).toContain('duration-300');
-    expect(classes).toContain('text-red-600');
-  });
-
-  it('injects classes from highlighted HAST string literals', async () => {
-    const parseSource = await createParseSource();
-    const source = parseSource(
-      `
-        export default function Demo() {
-          return <div className="flex p-4 text-red-600">Demo</div>;
-        }
-      `,
-      'demo.tsx',
-    );
-
-    const headTemplate = getTailwindHeadTemplate(source);
-    const classes = getInjectedClasses(headTemplate);
-
-    expect(classes).toContain('flex');
-    expect(classes).toContain('p-4');
-    expect(classes).toContain('text-red-600');
-  });
-
   it('injects classes from extra files referenced via derived className constants', () => {
     const headTemplate = getTailwindHeadTemplate(
       `
@@ -164,16 +106,14 @@ describe('exportOpts Tailwind class injection', () => {
         }
       `,
       {
-        'Extra.tsx': {
-          source: `
-            const sharedClassName = "data-[ending-style]:opacity-0";
-            const contentClassName = \`\${sharedClassName} translate-x-2\`;
+        'Extra.tsx': `
+          const sharedClassName = "data-[ending-style]:opacity-0";
+          const contentClassName = \`\${sharedClassName} translate-x-2\`;
 
-            export function Extra() {
-              return <div className={contentClassName}>Extra</div>;
-            }
-          `,
-        },
+          export function Extra() {
+            return <div className={contentClassName}>Extra</div>;
+          }
+        `,
       },
     );
     const classes = getInjectedClasses(headTemplate);

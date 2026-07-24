@@ -20,6 +20,9 @@ function getDemoSandboxProject(
   title: string,
   deferredSources: DeferredSources | null,
 ) {
+  if (code.deferredUrl && !deferredSources) {
+    throw new Error('Deferred demo sources failed to load. Retry opening the sandbox.');
+  }
   const variant = code.variants[variantName];
   const deferredVariant = deferredSources?.[variantName];
   const files: Record<string, string> = {

@@ -1,14 +1,6 @@
-import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
-import type {
-  HastRoot,
-  VariantExtraFiles,
-  VariantSource,
-} from '@mui/internal-docs-infra/CodeHighlighter/types';
-import type { ExportConfig } from '@mui/internal-docs-infra/useDemo';
 import type { CreateStackBlitzOptions } from '@mui/internal-docs-infra/lite/runtime';
 
 const defaultStylesLink = `<link rel="stylesheet" href="demo.css" />`;
-const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultStylesLink;
 const demoCss = `:root {
   color-scheme: light dark;
 }
@@ -57,123 +49,6 @@ function isIdentifierStart(char: string | undefined) {
 
 function isIdentifierPart(char: string | undefined) {
   return char !== undefined && /[A-Za-z0-9_$]/.test(char);
-}
-
-function isHastRoot(source: VariantSource): source is HastRoot {
-  return (
-    typeof source === 'object' && source !== null && 'type' in source && source.type === 'root'
-  );
-}
-
-function getTextContent(node: unknown): string {
-  if (typeof node !== 'object' || node === null) {
-    return '';
-  }
-
-  if ('type' in node && node.type === 'text' && 'value' in node && typeof node.value === 'string') {
-    return node.value;
-  }
-
-  if ('children' in node && Array.isArray(node.children)) {
-    return node.children.map((child) => getTextContent(child)).join('');
-  }
-
-  return '';
-}
-
-function getSourceText(source: VariantSource): string {
-  if (typeof source === 'string') {
-    return source;
-  }
-
-  if (isHastRoot(source)) {
-    return getTextContent(source);
-  }
-
-  return stringOrHastToString(source);
-}
-
-function hasTokenClass(node: unknown, tokenClass: string) {
-  if (typeof node !== 'object' || node === null || !('properties' in node)) {
-    return false;
-  }
-
-  const properties = node.properties as { className?: string | string[] };
-  const className = properties.className;
-  if (Array.isArray(className)) {
-    return className.includes(tokenClass);
-  }
-
-  return className === tokenClass;
-}
-
-function getStringLiteralContent(node: unknown): string {
-  if (
-    typeof node !== 'object' ||
-    node === null ||
-    !('children' in node) ||
-    !Array.isArray(node.children)
-  ) {
-    return '';
-  }
-
-  return node.children
-    .filter(
-      (child) => !(typeof child === 'object' && child !== null && hasTokenClass(child, 'pl-pds')),
-    )
-    .map((child) => getTextContent(child))
-    .join('');
-}
-
-function collectLiteralClassNamesFromHast(node: unknown, classNames: Set<string>) {
-  if (
-    typeof node !== 'object' ||
-    node === null ||
-    !('children' in node) ||
-    !Array.isArray(node.children)
-  ) {
-    return;
-  }
-
-  const { children } = node;
-
-  for (let index = 0; index < children.length; index += 1) {
-    const child = children[index];
-
-    if (
-      typeof child === 'object' &&
-      child !== null &&
-      'type' in child &&
-      child.type === 'element' &&
-      'tagName' in child &&
-      child.tagName === 'span' &&
-      hasTokenClass(child, 'pl-e') &&
-      getTextContent(child) === 'className'
-    ) {
-      for (
-        let siblingIndex = index + 1;
-        siblingIndex < children.length && siblingIndex <= index + 3;
-        siblingIndex += 1
-      ) {
-        const sibling = children[siblingIndex];
-
-        if (
-          typeof sibling === 'object' &&
-          sibling !== null &&
-          'type' in sibling &&
-          sibling.type === 'element' &&
-          'tagName' in sibling &&
-          sibling.tagName === 'span' &&
-          hasTokenClass(sibling, 'pl-s')
-        ) {
-          addClassNames(classNames, getStringLiteralContent(sibling));
-          break;
-        }
-      }
-    }
-
-    collectLiteralClassNamesFromHast(child, classNames);
-  }
 }
 
 function decodeEscape(source: string, index: number) {
@@ -536,12 +411,7 @@ function resolveStringExpression(
   return null;
 }
 
-function collectTailwindClassNames(source: VariantSource, classNames: Set<string>) {
-  if (isHastRoot(source)) {
-    collectLiteralClassNamesFromHast(source, classNames);
-  }
-
-  const file = getSourceText(source);
+function collectTailwindClassNames(file: string, classNames: Set<string>) {
   const declarations = collectStringDeclarations(file);
 
   for (let index = 0; index < file.length; index += 1) {
@@ -596,55 +466,6 @@ function escapeHtmlAttribute(value: string) {
     .replaceAll('>', '&gt;');
 }
 
-const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
-  let head = tailwindSetup;
-
-  // Inject css classes used on the page so that initial animations aren't broken
-  // Otherwise, TW running in the browser won't see all the classes before the components
-  // mount for the first time
-  const files = variant
-    ? [
-        variant.source,
-        ...(variant.extraFiles
-          ? Object.keys(variant.extraFiles).map((fileName) =>
-              variant.extraFiles &&
-              typeof variant.extraFiles[fileName] === 'object' &&
-              variant.extraFiles[fileName].source
-                ? variant.extraFiles[fileName].source
-                : undefined,
-            )
-          : []),
-      ]
-    : [];
-
-  const classNames = new Set<string>();
-  files.forEach((file) => {
-    if (!file) {
-      return;
-    }
-
-    collectTailwindClassNames(file, classNames);
-  });
-
-  if (classNames.size > 0) {
-    head += tailwindNote;
-    head += `<meta name="custom" class="${escapeHtmlAttribute(Array.from(classNames).join(' '))}" />`;
-  }
-
-  return head;
-};
-
-// Head Template
-const htmlHeadTemplate: ExportConfig['headTemplate'] = (props) => {
-  const head = [htmlHeadWithDefaultStyles(props)];
-
-  if (props.variantName === 'Tailwind') {
-    head.push(htmlHeadWithTailwind(props));
-  }
-
-  return head.filter(Boolean).join('\n');
-};
-
 function getTailwindHead(files: Record<string, string>) {
   let head = tailwindSetup;
   const classNames = new Set<string>();
@@ -658,63 +479,6 @@ function getTailwindHead(files: Record<string, string>) {
 
   return head;
 }
-
-// Transform Demo Files at Export
-const transformVariant: ExportConfig['transformVariant'] = (variant, variantName, globals) => {
-  globals = { ...globals };
-  globals['demo.css'] = { source: demoCss };
-
-  return { globals };
-};
-
-function exposeMetadataToPublic(extraFiles: VariantExtraFiles | undefined, fileName: string) {
-  if (!extraFiles) {
-    return; // No extra files to expose
-  }
-
-  if (!extraFiles[fileName]) {
-    return; // No file to expose
-  }
-
-  if (typeof extraFiles[fileName] === 'string') {
-    return; // It can't be metadata if it's a string
-  }
-
-  // TODO: re-evaluate this
-  if (fileName.startsWith('../')) {
-    return; // If the file has a backwards path, we don't know how to expose it safely
-  }
-
-  // rename the file to be in the public directory
-  extraFiles[`public/${fileName}`] = extraFiles[fileName];
-  delete extraFiles[fileName];
-}
-
-// Transform Variant for Create React App at Export
-const transformVariantForCRA: ExportConfig['transformVariant'] = (
-  variant,
-  variantName,
-  globals,
-) => {
-  const transformed = transformVariant(variant, variantName, globals);
-  const { variant: transformedVariant, globals: transformedGlobals } = transformed || {};
-
-  const transformedGlobalsForCRA = { ...transformedGlobals };
-
-  exposeMetadataToPublic(transformedGlobalsForCRA, 'demo.css');
-
-  return {
-    variant: transformedVariant,
-    globals: transformedGlobalsForCRA,
-  };
-};
-
-const versions = {
-  '@types/react': '^19',
-  '@types/react-dom': '^19',
-  react: '^19',
-  'react-dom': '^19',
-};
 
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
@@ -765,31 +529,3 @@ export function getDemoSandboxOptions({
       .join('\n'),
   };
 }
-
-const tsconfigOptions = {
-  allowJs: true,
-  esModuleInterop: true,
-  allowSyntheticDefaultImports: true,
-  forceConsistentCasingInFileNames: true,
-};
-
-const craTsConfigOptions = {
-  ...tsconfigOptions,
-  lib: ['dom', 'dom.iterable', 'esnext'],
-  moduleResolution: 'node',
-  jsx: 'react',
-};
-
-export const exportOpts: ExportConfig = {
-  titleSuffix: ' - Base UI Example',
-  headTemplate: htmlHeadTemplate,
-  transformVariant,
-  versions,
-  resolveDependencies,
-  tsconfigOptions,
-};
-
-export const exportCodeSandbox: ExportConfig = {
-  transformVariant: transformVariantForCRA,
-  tsconfigOptions: craTsConfigOptions,
-};
