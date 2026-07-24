@@ -32,4 +32,3 @@ export type {
 } from '../combobox/root/utils/useFilter';
 
 export type { ComboboxItemCollection, UseComboboxItemsOptions } from './items/useItems';
-export type { ComboboxItemsOptions, ComboboxItemsPayload } from './items/comboboxItems';

@@ -306,20 +306,6 @@ function UseItemsApp() {
   );
 }
 
-const itemsPayload = Combobox.items([{ id: 1, name: 'Alice' }], {
-  value: (item) => item.id,
-  label: (item) => item.name,
-});
-
-function PayloadApp() {
-  const collection = Combobox.useItems(itemsPayload);
-
-  // @ts-expect-error Payload accessors are already evaluated on the server.
-  Combobox.useItems(itemsPayload, { label: (item) => item.name });
-
-  return <Combobox.Root items={collection} defaultValue={1} />;
-}
-
 export function Wrapper<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
 ) {

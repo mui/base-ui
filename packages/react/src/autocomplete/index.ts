@@ -76,7 +76,3 @@ export type {
   ComboboxItemCollection as AutocompleteItemCollection,
   UseComboboxItemsOptions as UseAutocompleteItemsOptions,
 } from '../combobox/items/useItems';
-export type {
-  ComboboxItemsOptions as AutocompleteItemsOptions,
-  ComboboxItemsPayload as AutocompleteItemsPayload,
-} from '../combobox/items/comboboxItems';
