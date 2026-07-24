@@ -39,6 +39,9 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-themes'),
   ],
   framework: getAbsolutePath('@storybook/react-vite'),
+  features: {
+    experimentalReactComponentMeta: true,
+  },
   viteFinal: async (config) => {
     // The production docs bundle pulls React through several chunk layers (the
     // docs renderer, @storybook/react's portable-stories entry used by
