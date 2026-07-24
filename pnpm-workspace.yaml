@@ -12,12 +12,20 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
+# Screen recording is not needed for the tests and pulls in ffmpeg-static.
+overrides:
+  '@guidepup/setup>@guidepup/record': '-'
+
 engineStrict: true
 updateNotifier: false
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
+  # Exact versions intentionally updated before the 72-hour release-age window elapsed.
+  - '@guidepup/guidepup@0.29.2'
+  - '@guidepup/playwright@0.18.0'
+  - '@guidepup/setup@0.24.1'
   - '@mui/internal-*'
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
