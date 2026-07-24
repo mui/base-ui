@@ -159,12 +159,22 @@ export function Demo({ className, ...demoProps }: DemoProps) {
   }, []);
 
   const externalPlaygroundLink = fallbackToCodeSandbox ? (
-    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={demo.openCodeSandbox}>
+    <GhostButton
+      className="DemoExternalPlaygroundButton"
+      aria-label="Open in CodeSandbox"
+      type="button"
+      onClick={demo.openCodeSandbox}
+    >
       CodeSandbox
       <ExternalLinkIcon />
     </GhostButton>
   ) : (
-    <GhostButton aria-label="Open in StackBlitz" type="button" onClick={demo.openStackBlitz}>
+    <GhostButton
+      className="DemoExternalPlaygroundButton"
+      aria-label="Open in StackBlitz"
+      type="button"
+      onClick={demo.openStackBlitz}
+    >
       StackBlitz
       <ExternalLinkIcon />
     </GhostButton>
