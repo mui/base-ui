@@ -160,8 +160,6 @@
     --color-red: oklch(50% 55% 31deg);
 
     /* Functional colors */
-    --color-foreground: var(--gray-t3);
-    --color-border: var(--gray-c3);
     --color-popup: white;
     --color-selection: var(--gray-c2);
     --color-line-highlight: hsl(205deg 100% 96%);
@@ -373,8 +371,6 @@
     --space-40: initial;
     --space-48: initial;
 
-    --color-foreground: initial;
-    --color-border: initial;
     --color-popup: initial;
     --color-line-highlight: initial;
     --color-line-highlight-strong: initial;

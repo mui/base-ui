@@ -6,7 +6,7 @@
 @layer components {
   .DemoRoot {
     --demo-radius: var(--radius-12);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--gray-c3);
     border-radius: var(--demo-radius);
     margin-bottom: var(--space-24);
   }
@@ -75,8 +75,8 @@
       inset: 0;
       z-index: 0;
       background-image:
-        linear-gradient(var(--color-border), var(--color-border)),
-        linear-gradient(var(--color-border), var(--color-border));
+        linear-gradient(var(--gray-c3), var(--gray-c3)),
+        linear-gradient(var(--gray-c3), var(--gray-c3));
       background-position:
         0 0,
         0 100%;
@@ -246,7 +246,7 @@
         inset: 1px -1px;
         background-color: var(--gray-s2);
         background-clip: padding-box;
-        border-inline: 1px solid var(--color-border);
+        border-inline: 1px solid var(--gray-c3);
         pointer-events: none;
       }
 
@@ -419,7 +419,7 @@
     flex-shrink: 0;
     border: none;
     padding: 0 0 0.75rem;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     background: transparent;
     font-family: inherit;
     font-size: var(--font-size-13);

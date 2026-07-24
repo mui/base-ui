@@ -13,14 +13,14 @@
     justify-content: center;
     color: var(--gray-t1);
 
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--gray-c3);
     border-collapse: separate;
     border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
     border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
     background-color: var(--gray-s2);
     background-clip: padding-box;
   }
@@ -28,7 +28,7 @@
   .AccordionHeaderCell {
     font-size: var(--font-size-14);
     font-weight: var(--font-weight-400);
-    color: var(--color-foreground);
+    color: var(--gray-t3);
   }
 
   .AccordionHeaderCellInner {
@@ -46,7 +46,7 @@
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
   }
 
   .AccordionTrigger {
@@ -125,7 +125,7 @@
     box-sizing: border-box;
     height: auto;
     overflow: hidden;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     font-size: 1rem;
     line-height: 1.5rem;
   }

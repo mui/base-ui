@@ -81,7 +81,7 @@
     will-change: transform;
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 0 0 1px var(--color-border);
+      box-shadow: 0 0 0 1px var(--gray-c3);
     }
 
     &[data-swiping] {
@@ -129,7 +129,7 @@
     width: 3.5rem; /* 56px to mimic iOS */
     height: 0.3125rem; /* 5px to mimic iOS */
     border-radius: var(--radius-pill);
-    background-color: var(--color-border);
+    background-color: var(--gray-c3);
   }
 
   .MobileNavSearchInputRoot {

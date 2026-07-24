@@ -58,7 +58,7 @@
     }
 
     &[data-active] {
-      border-color: var(--color-border);
+      border-color: var(--gray-c3);
       background-color: var(--gray-s1);
 
       &::after {
@@ -90,7 +90,7 @@
   }
 
   .InstallationBlockTabPanel {
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--gray-c3);
     /* Match the card's inner corner so the focus ring rounds to follow the
        card's rounded bottom corners. */
     border-bottom-left-radius: calc(var(--radius-12) - 1px);

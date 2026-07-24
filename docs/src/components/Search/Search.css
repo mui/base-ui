@@ -200,7 +200,7 @@
 
     @media (prefers-color-scheme: dark) {
       /* Use the opaque border step in dark mode for a stronger edge */
-      outline-color: var(--color-border);
+      outline-color: var(--gray-c3);
     }
   }
 

@@ -11,7 +11,7 @@
     line-height: 1.5;
     /* It's also the iOS footer overscroll background */
     background-color: var(--gray-s1);
-    color: var(--color-foreground);
+    color: var(--gray-t3);
   }
 }
 
