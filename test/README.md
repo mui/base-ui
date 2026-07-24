@@ -171,6 +171,31 @@ Check out the [visual regression testing readme](./regressions/README.md) for mo
 
 Checkout the [end-to-end testing readme](./e2e/README.md) for more information.
 
+#### Screen reader tests
+
+Screen reader tests use [Guidepup](https://www.guidepup.dev/) with the existing end-to-end
+fixtures. They run in a headed Chromium browser with VoiceOver on macOS or NVDA on Windows.
+
+The setup package is installed by `pnpm install`. On macOS, developers who run these tests must
+configure their host once:
+
+```bash
+pnpm test:screen-reader:setup
+```
+
+This macOS-level step is intentionally not run during `pnpm install` because it changes system
+settings and may require manual permission prompts.
+
+If the test fails with `Failed to mount Guidepup preferences` and an `EPERM` error, grant Full
+Disk Access to the terminal, IDE, or other application running the test under **System Settings
+→ Privacy & Security → Full Disk Access**. Fully quit and reopen that application before retrying.
+
+Then run `pnpm test:screen-reader`. The compatible screen reader assets are installed
+automatically before the test.
+
+GitHub Actions runs the same cross-platform test with NVDA and Chrome on a Windows Server 2025
+runner.
+
 ##### Development
 
 When working on the visual regression tests you can run `pnpm test:regressions:dev` in the background to constantly rebuild the views used for visual regression testing.

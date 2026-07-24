@@ -24,6 +24,8 @@ allowBuilds:
 #
 # Remove each entry once the parent dependency ships the fixed version on its own.
 overrides:
+  # Screen recording is not needed for the tests and pulls in ffmpeg-static.
+  '@guidepup/setup>@guidepup/record': '-'
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
   brace-expansion@1: '1.1.18'
   brace-expansion@2: '2.1.4'
@@ -53,13 +55,16 @@ overrides:
   tar: '^7.5.22'
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
   ws: '^8.21.3'
-
 engineStrict: true
 updateNotifier: false
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
+  # Exact versions intentionally updated before the 72-hour release-age window elapsed.
+  - '@guidepup/guidepup@0.29.2'
+  - '@guidepup/playwright@0.18.0'
+  - '@guidepup/setup@0.24.1'
   - '@mui/internal-*'
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
