@@ -20,7 +20,7 @@ const coreScaleSteps = [
   't3',
 ] as const;
 // The indigo scale has no p3, p4, or t3 steps.
-const indigoScaleSteps = coreScaleSteps.filter(
+const indigoScaleSteps: readonly (typeof coreScaleSteps)[number][] = coreScaleSteps.filter(
   (step) => step !== 'p3' && step !== 'p4' && step !== 't3',
 );
 const coreColorRows = ['gray', 'indigo'] as const;
