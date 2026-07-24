@@ -75,7 +75,7 @@
   .ScrollAreaThumb {
     position: relative;
     border-radius: inherit;
-    background-color: var(--gray-p3);
+    background-color: var(--gray-p4);
 
     &[data-orientation='horizontal'] {
       height: 0.25rem;

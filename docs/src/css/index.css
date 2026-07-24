@@ -123,18 +123,19 @@
     --gray-c1: oklch(95.25% 0 0deg);
     --gray-c2: oklch(93.5% 0 0deg);
     --gray-c3: oklch(92.25% 0 0deg);
-    --gray-p1: oklch(64% 0 0deg);
+    --gray-p1: oklch(73% 0 0deg);
     --gray-p2: oklch(67% 0 0deg);
-    --gray-p3: oklch(62.5% 0 0deg);
-    --gray-p4: oklch(48% 0 0deg);
-    --gray-t1: oklch(57% 0 0deg);
-    --gray-t2: oklch(50% 0 0deg);
+    --gray-p3: oklch(64% 0 0deg);
+    --gray-p4: oklch(62.5% 0 0deg);
+    --gray-t1: oklch(61% 0 0deg);
+    --gray-t2: oklch(53% 0 0deg);
     --gray-t3: oklch(30% 0 0deg);
     --gray-a1: oklch(0% 0 0deg / 4%);
     --gray-a2: oklch(0% 0 0deg / 8%);
     --gray-a3: oklch(0% 0 0deg / 12%);
     --gray-a4: oklch(0% 0 0deg / 24%);
     --gray-a5: oklch(0% 0 0deg / 60%);
+    --gray-contrast: white;
 
     --indigo-s1: hsl(204deg 100% 98.75%);
     --indigo-s2: hsl(198deg 100% 97.5%);
@@ -252,18 +253,19 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --gray-s1: oklch(18.5% 0 0deg);
-      --gray-s2: oklch(21.5% 0 0deg);
-      --gray-c1: oklch(25% 0 0deg);
-      --gray-c2: oklch(27% 0 0deg);
-      --gray-c3: oklch(36% 0 0deg);
-      --gray-p1: oklch(68% 0 0deg);
-      --gray-p2: oklch(66% 0 0deg);
-      --gray-p3: oklch(70% 0 0deg);
-      --gray-p4: oklch(83% 0 0deg);
+      --gray-s1: oklch(17% 0 0deg);
+      --gray-s2: oklch(22% 0 0deg);
+      --gray-c1: oklch(30% 0 0deg);
+      --gray-c2: oklch(37.75% 0 0deg);
+      --gray-c3: oklch(43.25% 0 0deg);
       --gray-t1: oklch(75% 0 0deg);
-      --gray-t2: oklch(81% 0 0deg);
-      --gray-t3: oklch(92.5% 0 0deg);
+      --gray-t2: oklch(80% 0 0deg);
+      --gray-t3: oklch(93% 0 0deg);
+      --gray-a1: oklch(100% 0 0deg / 7.7%);
+      --gray-a2: oklch(100% 0 0deg / 17.1%);
+      --gray-a3: oklch(100% 0 0deg / 23.2%);
+      --gray-a4: oklch(100% 0 0deg / 33.8%);
+      --gray-a5: oklch(100% 0 0deg / 64.1%);
 
       --indigo-s1: hsl(223deg 38% 10%);
       --indigo-s2: hsl(223deg 42% 12%);
@@ -330,6 +332,7 @@
     --gray-a3: initial;
     --gray-a4: initial;
     --gray-a5: initial;
+    --gray-contrast: initial;
 
     --indigo-s1: initial;
     --indigo-s2: initial;

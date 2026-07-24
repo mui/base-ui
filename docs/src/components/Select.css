@@ -53,7 +53,7 @@
 
     &[data-highlighted] {
       position: relative;
-      color: white;
+      color: var(--gray-contrast);
 
       @media (prefers-color-scheme: dark) {
         color: black;
@@ -69,7 +69,7 @@
         background-color: var(--gray-t3);
 
         @media (prefers-color-scheme: dark) {
-          background-color: white;
+          background-color: var(--gray-contrast);
         }
       }
     }

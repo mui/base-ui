@@ -43,8 +43,8 @@
       box-shadow:
         inset 0 round(-0.1em, 1px) black,
         inset 0 round(-0.05em, 1px) round(0.75em, 1px) var(--gray-c1),
-        0 0 0 round(0.075em, 1px) var(--gray-p1),
-        inset 0 round(0.05em, 1px) var(--gray-p3);
+        0 0 0 round(0.075em, 1px) var(--gray-p3),
+        inset 0 round(0.05em, 1px) var(--gray-p4);
     }
   }
 }

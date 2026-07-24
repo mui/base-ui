@@ -473,7 +473,7 @@ export const viewport: Viewport = {
     },
     {
       media: '(prefers-color-scheme: dark)',
-      color: 'oklch(18.5% 0 0deg)',
+      color: 'oklch(17% 0 0deg)',
     },
   ],
 };

@@ -98,7 +98,7 @@
       /* Visible thumb width */
       width: var(--quick-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p3);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -130,7 +130,7 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
-        text-decoration-color: var(--gray-p1);
+        text-decoration-color: var(--gray-p3);
       }
     }
   }

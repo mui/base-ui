@@ -144,7 +144,7 @@
     transform: translateY(-50%);
     width: var(--space-16);
     height: var(--space-16);
-    color: var(--gray-p1);
+    color: var(--gray-p3);
     pointer-events: none;
   }
 
@@ -165,7 +165,7 @@
   }
 
   .MobileNavSearchInput::placeholder {
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .MobileNavClearSearch {
@@ -306,7 +306,7 @@
       /* Visible thumb width */
       width: var(--space-4);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p3);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -454,7 +454,7 @@
     margin-inline: var(--space-4);
     vertical-align: middle;
     flex-shrink: 0;
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .MobileNavSearchScore {

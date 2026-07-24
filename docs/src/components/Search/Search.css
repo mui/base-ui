@@ -24,7 +24,7 @@
       /* Visible thumb width */
       width: 0.25rem;
       border-radius: var(--radius-4);
-      background-color: var(--gray-p3);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -41,7 +41,7 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .SearchScore {
@@ -73,7 +73,7 @@
     transform: translateY(-50%);
     width: 1rem;
     height: 1rem;
-    color: var(--gray-p1);
+    color: var(--gray-p3);
     pointer-events: none;
   }
 
@@ -92,7 +92,7 @@
   }
 
   .SearchInput::placeholder {
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .SearchGroup {
@@ -182,20 +182,24 @@
     color: var(--gray-t3);
     /* Alpha outline stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
     outline: 1px solid var(--gray-a2);
-    box-shadow:
-      0 0.5px 1px var(--gray-a3),
-      0 1px 3px -1px var(--gray-a1),
-      0 2px 4px -1px var(--gray-a1),
-      0 4px 8px -2px var(--gray-a1),
-      0 12px 14px -4px var(--gray-a1),
-      0 24px 64px -8px var(--gray-a1),
-      0 40px 48px -32px var(--gray-a1);
     transition:
       transform 150ms ease,
       opacity 150ms ease;
 
+    /* Light only: the alpha steps flip to white in dark mode and would glow */
+    @media (prefers-color-scheme: light) {
+      box-shadow:
+        0 0.5px 1px var(--gray-a3),
+        0 1px 3px -1px var(--gray-a1),
+        0 2px 4px -1px var(--gray-a1),
+        0 4px 8px -2px var(--gray-a1),
+        0 12px 14px -4px var(--gray-a1),
+        0 24px 64px -8px var(--gray-a1),
+        0 40px 48px -32px var(--gray-a1);
+    }
+
     @media (prefers-color-scheme: dark) {
-      /* Black alpha is invisible on the dark background */
+      /* Use the opaque border step in dark mode for a stronger edge */
       outline-color: var(--color-border);
     }
   }
@@ -252,7 +256,7 @@
     display: flex;
     font-size: var(--font-size-13);
     line-height: 1;
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .SearchFooterHint {
