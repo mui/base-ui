@@ -15,7 +15,7 @@ export default function ExampleAutocompleteInline() {
           <Autocomplete.Popup className={styles.Popup}>
             <Autocomplete.List className={styles.List}>
               {(tag: Tag) => (
-                <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
+                <Autocomplete.Item key={tag.id} className={styles.Item}>
                   {tag.value}
                 </Autocomplete.Item>
               )}

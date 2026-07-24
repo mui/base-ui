@@ -71,10 +71,9 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Item values
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, its source item is automatically used as its value, so the `value` prop on `<Combobox.Item>` can be omitted. Items rendered manually without a collection require an explicit `value` prop.
 
 ## Examples
 
@@ -91,6 +90,59 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 ): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
+```
+
+### Working with stored IDs
+
+By default, an item rendered by a collection uses the corresponding element in the `items` array as its value.
+
+When your app stores values as IDs, find the full item object using the `id` to pass to `defaultValue` for initial selection. The full item object is also passed in the `onValueChange` callback, so you can extract the `id` to save in your state or backend.
+
+```tsx title="Selecting an item"
+const fruits = [
+  { id: 'cherry', label: 'Cherry' },
+  { id: 'banana', label: 'Banana' },
+  { id: 'orange', label: 'Orange' },
+];
+
+const savedFruitId = 'banana';
+// Find the full item object for the saved ID to pass to `defaultValue`
+// for initial selection
+// @highlight-text "defaultFruit"
+const defaultFruit = fruits.find((fruit) => fruit.id === savedFruitId) ?? null;
+
+function App() {
+  return (
+    <Combobox.Root
+      items={fruits}
+      // @highlight-text "defaultFruit"
+      defaultValue={defaultFruit}
+      onValueChange={(fruit) => saveFruitId(fruit?.id ?? null)}
+    >
+      <Combobox.Collection>
+        {(fruit) => <Combobox.Item key={fruit.id}>{fruit.label}</Combobox.Item>}
+      </Combobox.Collection>
+    </Combobox.Root>
+  );
+}
+```
+
+Three props control how object values are displayed, submitted, and compared:
+
+- `itemToStringLabel` converts an item to the string shown in the input, which is also used for filtering and typeahead. Objects with a `label` property use it automatically, so the example above needs no getter.
+- `itemToStringValue` converts an item to the string submitted with a form. Objects with both `value` and `label` properties submit the `value` automatically — the `id` objects above need the getter below to avoid being serialized as JSON.
+- `isItemEqualToValue` compares an item to the current selected value when object identities change between renders (such as refetched items) so the stored selection still matches its item.
+
+```tsx title="Submitting and comparing by ID"
+<Combobox.Root
+  items={fruits}
+  defaultValue={defaultFruit}
+  onValueChange={(fruit) => saveFruitId(fruit?.id ?? null)}
+  // @highlight
+  itemToStringValue={(fruit) => fruit.id}
+  // @highlight
+  isItemEqualToValue={(a, b) => a?.id === b?.id}
+/>
 ```
 
 ### Multiple select
@@ -226,7 +278,7 @@ interface Fruit {
 
 const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
   return (
-    <Combobox.Item value={item}>
+    <Combobox.Item>
       <Combobox.ItemIndicator />
       <span>{item.label}</span>
     </Combobox.Item>

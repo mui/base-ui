@@ -25,7 +25,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
 
             <Autocomplete.List className={styles.List}>
               {(item: FuzzyItem) => (
-                <Autocomplete.Item key={item.title} value={item} className={styles.Item}>
+                <Autocomplete.Item key={item.title} className={styles.Item}>
                   <Autocomplete.Value>
                     {(value) => (
                       <span className={styles.ItemContent}>

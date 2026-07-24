@@ -148,7 +148,7 @@ function TanstackForm() {
                       <Combobox.List>
                         {(region: string) => {
                           return (
-                            <Combobox.Item key={region} value={region}>
+                            <Combobox.Item key={region}>
                               <Combobox.ItemIndicator>
                                 <CheckIcon />
                               </Combobox.ItemIndicator>
