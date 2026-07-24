@@ -1,0 +1,98 @@
+# Password Field
+
+<Subtitle>A password input with a button to reveal or hide its value.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React password field component with a button to reveal or hide the entered password."
+/>
+
+> **Note:** Password Field is currently in preview. Its API may change before it becomes stable.
+
+import { DemoPasswordFieldHero } from './demos/hero';
+
+<DemoPasswordFieldHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Associate the input with a `<label>` (or the [Field](/react/components/field) component) so it is announced by assistive technology.
+- **Label the toggle**: The toggle is usually icon-only, so provide a localized `aria-label`. Keep it constant — the toggle's `aria-pressed` state (not a changing label) communicates whether the password is currently revealed.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
+
+<PasswordField.Root>
+  <PasswordField.Input />
+  <PasswordField.Toggle />
+</PasswordField.Root>;
+```
+
+## Examples
+
+### Toggle icon
+
+The toggle button's `aria-pressed` state reflects whether the password is revealed, so keep the
+`aria-label` constant and read the `pressed` state to swap the icon.
+
+```tsx title="Swapping the icon based on state"
+<PasswordField.Toggle
+  aria-label="Show password"
+  render={(props, state) => (
+    <button type="button" {...props}>
+      {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
+    </button>
+  )}
+/>
+```
+
+### Form integration
+
+Use [Field](/react/components/field) for labeling and validation. The password is hidden again when
+the owning form is reset or submitted.
+
+The input defaults to `autoComplete="current-password"`. On signup or change-password forms, pass
+`autoComplete="new-password"` to override it.
+
+```tsx title="Using Password Field with Field"
+<Field.Root name="password">
+  <Field.Label>Password</Field.Label>
+  <PasswordField.Root>
+    <PasswordField.Input required />
+    <PasswordField.Toggle aria-label="Show password" />
+  </PasswordField.Root>
+  <Field.Error />
+</Field.Root>
+```
+
+## API reference
+
+import { TypesPasswordField } from './types';
+
+### Root
+
+<TypesPasswordField.Root />
+
+### Input
+
+<TypesPasswordField.Input />
+
+### Toggle
+
+<TypesPasswordField.Toggle />
+
+export const metadata = {
+  keywords: [
+    'React Password Field',
+    'Password Input',
+    'Show Password Toggle',
+    'Reveal Password',
+    'Password Visibility Toggle',
+    'Accessible Password Input',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
