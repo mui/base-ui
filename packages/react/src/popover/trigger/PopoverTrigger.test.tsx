@@ -138,17 +138,11 @@ describe('<Popover.Trigger />', () => {
       fireEvent.click(trigger, { detail: 1 });
     }
 
-    function hoverTrigger(trigger: HTMLElement) {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-    }
-
     // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
     // disarmed until the popover is reopened by some other means. Otherwise a stray hover over a
     // sibling trigger silently swaps the content the user just tapped for.
     it('keeps ownership on the tapped trigger when a sibling trigger is hovered', async () => {
-      await render(<MultiTriggerPopover />);
+      const { user } = await render(<MultiTriggerPopover />);
 
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
@@ -158,7 +152,7 @@ describe('<Popover.Trigger />', () => {
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 
-      hoverTrigger(two);
+      await user.hover(two);
       await flushMicrotasks();
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
@@ -168,7 +162,7 @@ describe('<Popover.Trigger />', () => {
     // The same hover must still take over when the popover was opened with a mouse, so the guard
     // above can't be a blanket disable.
     it('hands ownership to a hovered sibling trigger when opened by mouse', async () => {
-      await render(<MultiTriggerPopover />);
+      const { user } = await render(<MultiTriggerPopover />);
 
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
@@ -178,7 +172,7 @@ describe('<Popover.Trigger />', () => {
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 
-      hoverTrigger(two);
+      await user.hover(two);
       await flushMicrotasks();
 
       expect(screen.getByTestId('content')).toHaveTextContent('Two');
