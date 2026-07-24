@@ -63,7 +63,7 @@
     border: none;
     outline: none;
     text-align: left;
-    background-color: var(--color-content);
+    background-color: var(--gray-s1);
 
     /* remove default disclosure triangle  */
     &::-webkit-details-marker {

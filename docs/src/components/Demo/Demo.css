@@ -20,7 +20,7 @@
   .DemoPlayground {
     position: relative;
 
-    background-color: var(--color-content);
+    background-color: var(--gray-s1);
     border-top-left-radius: calc(var(--demo-radius) - 1px);
     border-top-right-radius: calc(var(--demo-radius) - 1px);
 
@@ -484,10 +484,10 @@
       z-index: -1;
       inset: 1px;
       border-radius: var(--radius-pill);
-      background: var(--color-content);
+      background: var(--gray-s1);
       pointer-events: none;
       box-shadow:
-        inset 0 0 0 1px var(--color-content),
+        inset 0 0 0 1px var(--gray-s1),
         0 1px 2px hsl(0deg 0% 0% / 5%),
         0 2px 8px -1px hsl(0deg 0% 0% / 6%),
         0 4px 16px -4px hsl(0deg 0% 0% / 5%);

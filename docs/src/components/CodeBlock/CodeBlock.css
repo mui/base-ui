@@ -4,7 +4,7 @@
 @layer components {
   .CodeBlockRoot {
     align-self: stretch;
-    background-color: var(--color-content);
+    background-color: var(--gray-s1);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-12);
 

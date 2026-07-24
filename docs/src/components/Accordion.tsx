@@ -103,7 +103,7 @@ export function Scrollable({
   children,
   className,
   tag: Tag = 'span',
-  gradientColor = 'var(--color-content)',
+  gradientColor = 'var(--gray-s1)',
   ...props
 }: React.ComponentProps<'span'> & {
   gradientColor?: string;

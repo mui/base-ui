@@ -160,8 +160,6 @@
     --color-red: oklch(50% 55% 31deg);
 
     /* Functional colors */
-    --color-content: white;
-    --color-background: var(--gray-s2);
     --color-foreground: var(--gray-t3);
     --color-border: var(--gray-c3);
     --color-popup: white;
@@ -289,7 +287,6 @@
       --color-red: oklch(80% 55% 31deg);
 
       /* Functional colors */
-      --color-content: var(--gray-s1);
       --color-popup: var(--gray-s2);
       --color-selection: var(--gray-c3);
       --color-line-highlight: hsl(205deg 45% 12%);
@@ -376,8 +373,6 @@
     --space-40: initial;
     --space-48: initial;
 
-    --color-content: initial;
-    --color-background: initial;
     --color-foreground: initial;
     --color-border: initial;
     --color-popup: initial;

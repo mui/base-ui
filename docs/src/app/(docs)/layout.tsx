@@ -171,10 +171,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   width: 'device-width',
   themeColor: [
-    // Safari header background: match the page background (--color-content)
+    // Safari header background: match the page background (--gray-s1)
     {
       media: '(prefers-color-scheme: light)',
-      color: 'white',
+      color: 'oklch(99% 0 0deg)',
     },
     {
       media: '(prefers-color-scheme: dark)',

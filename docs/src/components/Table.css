@@ -54,7 +54,7 @@
         bottom: 1px;
         right: -1px; /* Browsers may miss half a pixel due to subpixel table cell widths */
         width: 1.25rem;
-        background-image: linear-gradient(to right, transparent, var(--color-content));
+        background-image: linear-gradient(to right, transparent, var(--gray-s1));
         animation: table-cell-overscroll-overlay 500ms;
       }
 

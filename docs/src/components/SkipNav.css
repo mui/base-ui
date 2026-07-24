@@ -27,7 +27,7 @@
       justify-content: center;
       align-items: center;
       padding-inline: 12px;
-      background-color: var(--color-background);
+      background-color: var(--gray-s2);
       color: var(--color-blue);
       text-decoration: underline;
       text-underline-offset: 2px;

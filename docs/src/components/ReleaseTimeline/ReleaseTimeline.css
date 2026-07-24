@@ -76,9 +76,9 @@
       width: var(--dot-size);
       height: var(--dot-size);
       border-radius: 50%;
-      background: var(--color-content);
+      background: var(--gray-s1);
       border: 1px solid var(--gray-a3);
-      box-shadow: 0 0 0 4px var(--color-content);
+      box-shadow: 0 0 0 4px var(--gray-s1);
 
       @media (prefers-color-scheme: dark) {
         /* Use the opaque border step in dark mode for a stronger dot edge */
@@ -131,7 +131,7 @@
 
   .TimelineCard::before {
     inset: 1px;
-    background-color: var(--color-content);
+    background-color: var(--gray-s1);
     border-radius: calc(var(--radius-8) - 1px);
     z-index: -1;
   }
