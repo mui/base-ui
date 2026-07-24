@@ -274,7 +274,7 @@ describe('<Dialog.Root />', () => {
           <TestDialog rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }} />,
         );
 
-        await user.click(screen.getByRole('presentation', { hidden: true }));
+        await user.click(screen.getByRole('none', { hidden: true }));
 
         expect(handleOpenChange.mock.calls.length).toBe(1);
         expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
@@ -413,13 +413,13 @@ describe('<Dialog.Root />', () => {
       it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
         await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
 
-        expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
+        expect(screen.getByRole('none', { hidden: true })).not.toBe(null);
       });
 
       it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
         await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
 
-        expect(screen.queryByRole('presentation')).toBe(null);
+        expect(screen.queryByRole('none')).toBe(null);
       });
     });
 
@@ -495,7 +495,7 @@ describe('<Dialog.Root />', () => {
           />,
         );
 
-        const internalBackdrop = screen.getByRole('presentation', { hidden: true });
+        const internalBackdrop = screen.getByRole('none', { hidden: true });
 
         fireEvent.mouseDown(internalBackdrop);
         expect(screen.queryByRole('dialog')).not.toBe(null);
@@ -700,7 +700,7 @@ describe('<Dialog.Root />', () => {
         // focus guard -> internal backdrop
         expect(popup.previousElementSibling?.previousElementSibling).toHaveAttribute(
           'role',
-          'presentation',
+          'none',
         );
       });
 
@@ -816,7 +816,7 @@ describe('<Dialog.Root />', () => {
       const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
       fireEvent.click(nestedButton2);
 
-      const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
+      const backdrops = Array.from(document.querySelectorAll('[role="none"]'));
       fireEvent.click(backdrops[backdrops.length - 1]);
 
       await waitFor(() => {

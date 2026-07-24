@@ -1150,7 +1150,7 @@ describe('<Popover.Root />', () => {
           />,
         );
 
-        const internalBackdrop = document.querySelector('[role="presentation"]') as HTMLElement;
+        const internalBackdrop = document.querySelector('[role="none"]') as HTMLElement;
 
         fireEvent.mouseDown(internalBackdrop);
         expect(screen.queryByRole('dialog')).not.toBe(null);
@@ -1431,7 +1431,7 @@ describe('<Popover.Root />', () => {
 
         const positioner = screen.getByTestId('positioner');
 
-        expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+        expect(positioner.previousElementSibling).toHaveAttribute('role', 'none');
       });
 
       it('should only render focus guards inside the popup when `true`', async () => {
@@ -1539,7 +1539,7 @@ describe('<Popover.Root />', () => {
 
           await flushMicrotasks();
 
-          expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+          expect(positioner.previousElementSibling).toHaveAttribute('role', 'none');
         });
 
         it('reopens on hover after an impatient click is followed by a close button press', async () => {

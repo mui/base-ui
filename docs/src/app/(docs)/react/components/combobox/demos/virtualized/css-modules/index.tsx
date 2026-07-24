@@ -91,16 +91,12 @@ function VirtualizedList({
 
   return (
     <div
-      role="presentation"
+      role="none"
       ref={handleScrollElementRef}
       className={styles.Scroller}
       style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
     >
-      <div
-        role="presentation"
-        className={styles.VirtualizedPlaceholder}
-        style={{ height: totalSize }}
-      >
+      <div role="none" className={styles.VirtualizedPlaceholder} style={{ height: totalSize }}>
         {virtualizer.getVirtualItems().map((virtualItem) => {
           const item = filteredItems[virtualItem.index];
           if (!item) {

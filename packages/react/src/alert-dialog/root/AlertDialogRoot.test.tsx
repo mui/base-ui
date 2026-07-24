@@ -227,7 +227,7 @@ describe('<AlertDialog.Root />', () => {
         </AlertDialog.Root>,
       );
 
-      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await user.click(screen.getByRole('none', { hidden: true }));
 
       expect(handleOpenChange.mock.calls.length).toBe(0);
       expect(screen.queryByRole('alertdialog')).not.toBe(null);
@@ -920,7 +920,7 @@ describe('<AlertDialog.Root />', () => {
 
       expect(await screen.findByRole('alertdialog')).not.toBe(null);
 
-      const backdrop = await screen.findByRole('presentation', { hidden: true });
+      const backdrop = await screen.findByRole('none', { hidden: true });
       await user.click(backdrop);
       await flushMicrotasks();
 
@@ -1056,7 +1056,7 @@ describe('<AlertDialog.Root />', () => {
         </AlertDialog.Root>,
       );
 
-      expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
+      expect(screen.getByRole('none', { hidden: true })).not.toBe(null);
     });
   });
 
