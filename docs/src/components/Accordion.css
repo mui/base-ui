@@ -1,12 +1,5 @@
 @layer components {
   .AccordionRoot {
-    --color-trigger-hover: var(--gray-s2);
-    --color-open-trigger-shadow: var(--gray-c3);
-
-    @media (prefers-color-scheme: dark) {
-      --color-open-trigger-shadow: hsl(0deg 0 5);
-    }
-
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -73,7 +66,7 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-trigger-hover);
+        background-color: var(--gray-s2);
         cursor: default;
       }
     }
@@ -100,7 +93,7 @@
 
     [open] & {
       box-shadow:
-        0 2px 4px -3px var(--color-open-trigger-shadow),
+        0 2px 4px -3px color-mix(in oklch, var(--gray-s1), black 7%),
         inset 0 -1px 1px transparent;
     }
 
@@ -188,7 +181,7 @@
 
       @media (hover: hover) {
         .AccordionTrigger:hover &::after {
-          background-image: linear-gradient(to right, transparent, var(--color-trigger-hover));
+          background-image: linear-gradient(to right, transparent, var(--gray-s2));
         }
       }
     }
