@@ -276,6 +276,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const element = usePositioner(componentProps, state, {
     styles: positioner.positionerStyles,
+    isPositioned: positioner.isPositioned,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],

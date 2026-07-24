@@ -144,6 +144,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const element = usePositioner(componentProps, state, {
     styles: positionerStyles,
+    isPositioned: alignItemWithTriggerActive || positioning.isPositioned,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],

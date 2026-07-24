@@ -169,6 +169,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
+    isPositioned: positioning.isPositioned,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],

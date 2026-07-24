@@ -143,6 +143,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
+    isPositioned: positioning.isPositioned,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
