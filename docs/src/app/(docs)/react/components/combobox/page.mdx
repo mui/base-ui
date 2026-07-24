@@ -96,11 +96,7 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
 
 ### Value selection with IDs
 
-When your app stores values as IDs rather than whole item objects, normalize the `items` array with the `Combobox.useItems` hook. The `value` accessor derives the primitive value that identifies each item, and the `label` accessor derives the string shown in the input, which is used by default for filtering and typeahead.
-
-Each item's derived value is used as its selection value automatically, so `defaultValue`, `value`, and `onValueChange` all work with plain IDs. The label is resolved from the collection even while the items are unmounted, so the input can display the selected item's label when the popup is closed.
-
-Render callbacks and `useFilteredItems()` receive the source items, while selection props, change events, and the root `filter` function receive the derived values. Filtering remains configured on `<Combobox.Root>`: `itemToStringLabel` overrides the collection's label accessor, and `locale` and `limit` apply normally.
+When your app stores IDs rather than item objects, use `Combobox.useItems` to derive each item's selection value and display label. Selection props and events use the derived IDs, while list rendering continues to receive the original items. The label is also used for filtering and typeahead.
 
 import { DemoComboboxUseItems } from './demos/use-items';
 
