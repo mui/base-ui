@@ -61,7 +61,7 @@
     outline: 0;
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
     }
   }
@@ -98,7 +98,7 @@
       /* Visible thumb width */
       width: var(--quick-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -121,7 +121,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
     }
 
@@ -130,7 +130,7 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
-        text-decoration-color: var(--gray-p1);
+        text-decoration-color: var(--gray-p3);
       }
     }
   }

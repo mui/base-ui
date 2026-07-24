@@ -4,8 +4,8 @@
 @layer components {
   .CodeBlockRoot {
     align-self: stretch;
-    background-color: var(--color-content);
-    border: 1px solid var(--color-border);
+    background-color: var(--gray-s1);
+    border: 1px solid var(--gray-c3);
     border-radius: var(--radius-12);
 
     & code .frame {
@@ -29,7 +29,7 @@
     line-height: 1;
     background-color: var(--gray-s2);
     background-clip: padding-box;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -40,7 +40,7 @@
     gap: 1rem;
     border-top-left-radius: calc(var(--radius-12) - 1px);
     border-top-right-radius: calc(var(--radius-12) - 1px);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
 
     /* Scroll */
     overflow: auto hidden;
@@ -53,7 +53,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -62,7 +62,7 @@
   .CodeBlockPanelTitle {
     font-size: var(--font-size-14);
     line-height: 1.25rem;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     font-weight: var(--font-weight-400);
   }
 
@@ -85,7 +85,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: 0;
     }
   }
@@ -99,7 +99,7 @@
     font-size: 0.8125rem; /* 13px */
     line-height: 1.25rem; /* 20px */
     cursor: text;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     outline: 0;
 
     display: flex;

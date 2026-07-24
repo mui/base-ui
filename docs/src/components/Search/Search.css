@@ -24,7 +24,7 @@
       /* Visible thumb width */
       width: 0.25rem;
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -41,7 +41,7 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--gray-c3);
+    color: var(--gray-p3);
   }
 
   .SearchScore {
@@ -73,7 +73,7 @@
     transform: translateY(-50%);
     width: 1rem;
     height: 1rem;
-    color: var(--gray-p1);
+    color: var(--gray-p3);
     pointer-events: none;
   }
 
@@ -87,12 +87,12 @@
     background: transparent;
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
   }
 
   .SearchInput::placeholder {
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .SearchGroup {
@@ -124,7 +124,7 @@
     font-size: 0.9375rem;
     font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     cursor: default;
     -webkit-user-select: none;
     user-select: none;
@@ -178,32 +178,35 @@
     max-height: min(29.5rem, calc(100vh - 6rem));
     width: min(34rem, calc(100vw - 2rem));
     border-radius: 1rem;
-    background: var(--gray-s1);
-    color: var(--gray-t2);
-    outline: 1px solid var(--color-border);
-    box-shadow:
-      0 0.5px 1px hsl(0deg 0% 0% / 12%),
-      0 1px 3px -1px hsl(0deg 0% 0% / 4%),
-      0 2px 4px -1px hsl(0deg 0% 0% / 4%),
-      0 4px 8px -2px hsl(0deg 0% 0% / 4%),
-      0 12px 14px -4px hsl(0deg 0% 0% / 4%),
-      0 24px 64px -8px hsl(0deg 0% 0% / 4%),
-      0 40px 48px -32px hsl(0deg 0% 0% / 4%);
+    background: var(--color-popup);
+    color: var(--gray-t3);
+    /* Alpha outline stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
+    outline: 1px solid var(--gray-a2);
     transition:
       transform 150ms ease,
       opacity 150ms ease;
+
+    /* Light only: the alpha steps flip to white in dark mode and would glow */
+    @media (prefers-color-scheme: light) {
+      box-shadow:
+        0 0.5px 1px var(--gray-a3),
+        0 1px 3px -1px var(--gray-a1),
+        0 2px 4px -1px var(--gray-a1),
+        0 4px 8px -2px var(--gray-a1),
+        0 12px 14px -4px var(--gray-a1),
+        0 24px 64px -8px var(--gray-a1),
+        0 40px 48px -32px var(--gray-a1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      /* Use the opaque border step in dark mode for a stronger edge */
+      outline-color: var(--gray-c3);
+    }
   }
 
   .SearchPopup[data-starting-style] {
     transform: translateY(-1rem) scale(0.9);
     opacity: 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .SearchPopup {
-      background: oklch(20% 0.5% 264deg);
-      outline-color: hsl(0deg 0% 100% / 25%);
-    }
   }
 
   .SearchHead {
@@ -227,7 +230,7 @@
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(.SearchScrollAreaViewport:focus-visible) {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
   }
@@ -253,7 +256,7 @@
     display: flex;
     font-size: var(--font-size-13);
     line-height: 1;
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .SearchFooterHint {

@@ -43,11 +43,11 @@
     gap: 0.5em;
     padding: 0.5em;
     margin-inline: -0.5em;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
   }
 
   .SubtitleLink:focus-visible .SubtitleLinkText {
-    outline: 2px solid var(--gray-t2);
+    outline: 2px solid var(--gray-t3);
     outline-offset: -2px;
     border-radius: var(--radius-4);
   }

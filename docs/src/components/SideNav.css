@@ -64,7 +64,7 @@
       inset: 0 -2px;
       pointer-events: none;
       position: absolute;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
     }
   }
@@ -101,7 +101,7 @@
       /* Visible thumb width */
       width: var(--side-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -119,7 +119,7 @@
   .SideNavSeparator {
     margin-block: 1rem;
     border: none;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--gray-c3);
     width: var(--space-32);
   }
 
@@ -146,7 +146,7 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
-        text-decoration-color: var(--gray-t2);
+        text-decoration-color: var(--gray-t3);
       }
     }
 
@@ -155,7 +155,7 @@
       padding-block: var(--side-nav-item-padding-y);
       padding-inline: var(--side-nav-link-padding-x);
       background-color: var(--gray-s2);
-      outline: 1px solid var(--gray-c2);
+      outline: 1px solid var(--gray-c3);
       outline-offset: -1px;
       font-weight: var(--font-weight-400);
       word-spacing: -0.005em;
@@ -164,7 +164,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       /* Fully inset (>= outline width) so the ring isn't clipped by the
          scroll viewport's overflow where the pill bleeds to its edge */
       outline-offset: -2px;

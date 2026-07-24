@@ -118,15 +118,24 @@
 @layer theme {
   :root {
     /* Colors */
-    --gray-s1: hsl(0deg 0% 99%);
-    --gray-s2: hsl(0deg 0% 97.5%);
-    --gray-c1: hsl(0deg 0% 95.25%);
-    --gray-c2: hsl(0deg 0% 94%);
-    --gray-c3: hsl(0deg 0% 88%);
-    --gray-p1: hsl(0deg 0% 55%);
-    --gray-p2: hsl(0deg 0% 51%);
-    --gray-t1: hsl(0deg 0% 46.4%);
-    --gray-t2: hsl(0deg 0% 18%);
+    --gray-s1: oklch(99% 0 0deg);
+    --gray-s2: oklch(97.5% 0 0deg);
+    --gray-c1: oklch(95.25% 0 0deg);
+    --gray-c2: oklch(93.5% 0 0deg);
+    --gray-c3: oklch(92.25% 0 0deg);
+    --gray-p1: oklch(73% 0 0deg);
+    --gray-p2: oklch(67% 0 0deg);
+    --gray-p3: oklch(64% 0 0deg);
+    --gray-p4: oklch(62.5% 0 0deg);
+    --gray-t1: oklch(61% 0 0deg);
+    --gray-t2: oklch(53% 0 0deg);
+    --gray-t3: oklch(30% 0 0deg);
+    --gray-a1: oklch(0% 0 0deg / 4%);
+    --gray-a2: oklch(0% 0 0deg / 8%);
+    --gray-a3: oklch(0% 0 0deg / 12%);
+    --gray-a4: oklch(0% 0 0deg / 24%);
+    --gray-a5: oklch(0% 0 0deg / 60%);
+    --gray-contrast: white;
 
     --indigo-s1: hsl(204deg 100% 98.75%);
     --indigo-s2: hsl(198deg 100% 97.5%);
@@ -137,20 +146,6 @@
     --indigo-p2: hsl(207deg 96% 48%);
     --indigo-t1: hsl(221deg 74% 51%);
     --indigo-t2: hsl(221deg 74% 19.8%);
-
-    --blackA-1: hsl(0deg 0% 0% / 4%);
-    --blackA-2: hsl(0deg 0% 0% / 8%);
-    --blackA-3: hsl(0deg 0% 0% / 12%);
-    --blackA-4: hsl(0deg 0% 0% / 16%);
-    --blackA-5: hsl(0deg 0% 0% / 24%);
-    --blackA-6: hsl(0deg 0% 0% / 64%);
-
-    --whiteA-1: hsl(0deg 0% 100% / 4%);
-    --whiteA-2: hsl(0deg 0% 100% / 8%);
-    --whiteA-3: hsl(0deg 0% 100% / 12%);
-    --whiteA-4: hsl(0deg 0% 100% / 16%);
-    --whiteA-5: hsl(0deg 0% 100% / 24%);
-    --whiteA-6: hsl(0deg 0% 100% / 64%);
 
     --poppy-t1: hsl(10deg 86% 48%);
     --blue-t1: hsl(211deg 100% 49%);
@@ -165,19 +160,14 @@
     --color-red: oklch(50% 55% 31deg);
 
     /* Functional colors */
-    --color-content: white;
-    --color-background: var(--gray-s2);
-    --color-foreground: var(--gray-t2);
-    --color-border: var(--blackA-2);
     --color-popup: white;
-    --color-gridline: var(--gray-c3);
-    --color-selection: hsl(0deg 0% 92%);
+    --color-selection: var(--gray-c2);
     --color-line-highlight: hsl(205deg 100% 96%);
     --color-line-highlight-strong: hsl(205deg 100% 90%);
     --color-line-highlight-strong-mark: hsl(205deg 100% 80%);
 
-    /* Syntax highlighting */
-    --color-gray: var(--gray-t1);
+    /* Syntax highlighting (pinned literals so code colors stay independent of the UI gray scale) */
+    --color-gray: hsl(0deg 0% 46.4%);
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
     --color-violet: oklch(40% 60% 300deg);
@@ -228,18 +218,18 @@
 
     /* Shadow */
     --shadow-1:
-      0 1px 1px 0 var(--blackA-1), 0 2px 1px -1px var(--blackA-1), 0 1px 3px 0 var(--blackA-1);
+      0 1px 1px 0 var(--gray-a1), 0 2px 1px -1px var(--gray-a1), 0 1px 3px 0 var(--gray-a1);
     --shadow-2:
-      0 1px 1px 0 var(--blackA-1), 0 1px 3px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1);
+      0 1px 1px 0 var(--gray-a1), 0 1px 3px -1px var(--gray-a1), 0 4px 8px -2px var(--gray-a1);
     --shadow-3:
-      0 1px 1px 0 var(--blackA-1), 0 2px 6px -1px var(--blackA-1), 0 6px 12px -3px var(--blackA-1),
-      0 8px 16px -4px var(--blackA-1);
+      0 1px 1px 0 var(--gray-a1), 0 2px 6px -1px var(--gray-a1), 0 6px 12px -3px var(--gray-a1),
+      0 8px 16px -4px var(--gray-a1);
     --shadow-4:
-      0 1px 1px 0 var(--blackA-1), 0 2px 4px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1),
-      0 12px 32px -6px var(--blackA-3), 0 20px 48px -10px var(--blackA-1);
+      0 1px 1px 0 var(--gray-a1), 0 2px 4px -1px var(--gray-a1), 0 4px 8px -2px var(--gray-a1),
+      0 12px 32px -6px var(--gray-a3), 0 20px 48px -10px var(--gray-a1);
     --shadow-5:
-      0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
-      0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
+      0 10px 32px var(--gray-a4), 0 1px 1px var(--gray-a1), 0 4px 6px var(--gray-a2),
+      0 1px 1px var(--gray-a2), 0 24px 68px var(--gray-a3);
 
     /* Breakpoints (use custom-media.css where possible) */
     --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
@@ -259,15 +249,19 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --gray-s1: hsl(0deg 0% 7.5%);
-      --gray-s2: hsl(0deg 0% 10%);
-      --gray-c1: hsl(0deg 0% 13%);
-      --gray-c2: hsl(0deg 0% 16%);
-      --gray-c3: hsl(0deg 0% 32%);
-      --gray-p1: hsl(0deg 0% 60%);
-      --gray-p2: hsl(0deg 0% 64%);
-      --gray-t1: hsl(0deg 0% 70%);
-      --gray-t2: hsl(0deg 0% 90%);
+      --gray-s1: oklch(17% 0 0deg);
+      --gray-s2: oklch(22% 0 0deg);
+      --gray-c1: oklch(30% 0 0deg);
+      --gray-c2: oklch(37.75% 0 0deg);
+      --gray-c3: oklch(43.25% 0 0deg);
+      --gray-t1: oklch(75% 0 0deg);
+      --gray-t2: oklch(80% 0 0deg);
+      --gray-t3: oklch(93% 0 0deg);
+      --gray-a1: oklch(100% 0 0deg / 7.7%);
+      --gray-a2: oklch(100% 0 0deg / 17.1%);
+      --gray-a3: oklch(100% 0 0deg / 23.2%);
+      --gray-a4: oklch(100% 0 0deg / 33.8%);
+      --gray-a5: oklch(100% 0 0deg / 64.1%);
 
       --indigo-s1: hsl(223deg 38% 10%);
       --indigo-s2: hsl(223deg 42% 12%);
@@ -291,17 +285,14 @@
       --color-red: oklch(80% 55% 31deg);
 
       /* Functional colors */
-      --color-content: black;
-      --color-background: black;
-      --color-border: var(--whiteA-5);
-      --color-popup: var(--gray-s1);
-      --color-gridline: var(--gray-c1);
-      --color-selection: hsl(0deg 0% 18%);
+      --color-popup: var(--gray-s2);
+      --color-selection: var(--gray-c3);
       --color-line-highlight: hsl(205deg 45% 12%);
       --color-line-highlight-strong: hsl(205deg 55% 16%);
       --color-line-highlight-strong-mark: hsl(205deg 65% 20%);
 
       /* Syntax highlighting */
+      --color-gray: hsl(0deg 0% 70%);
       --color-green: oklch(75% 25% 150deg);
       --color-navy: oklch(85% 25% 264deg);
       --color-violet: oklch(80% 60% 280deg);
@@ -326,8 +317,17 @@
     --gray-c3: initial;
     --gray-p1: initial;
     --gray-p2: initial;
+    --gray-p3: initial;
+    --gray-p4: initial;
     --gray-t1: initial;
     --gray-t2: initial;
+    --gray-t3: initial;
+    --gray-a1: initial;
+    --gray-a2: initial;
+    --gray-a3: initial;
+    --gray-a4: initial;
+    --gray-a5: initial;
+    --gray-contrast: initial;
 
     --indigo-s1: initial;
     --indigo-s2: initial;
@@ -338,20 +338,6 @@
     --indigo-p2: initial;
     --indigo-t1: initial;
     --indigo-t2: initial;
-
-    --blackA-1: initial;
-    --blackA-2: initial;
-    --blackA-3: initial;
-    --blackA-4: initial;
-    --blackA-5: initial;
-    --blackA-6: initial;
-
-    --whiteA-1: initial;
-    --whiteA-2: initial;
-    --whiteA-3: initial;
-    --whiteA-4: initial;
-    --whiteA-5: initial;
-    --whiteA-6: initial;
 
     --poppy-t1: initial;
     --blue-t1: initial;
@@ -385,13 +371,7 @@
     --space-40: initial;
     --space-48: initial;
 
-    --color-content: initial;
-    --color-background: initial;
-    --color-foreground: initial;
-    --color-border: initial;
     --color-popup: initial;
-    --color-gridline: initial;
-    --color-highlight: initial;
     --color-line-highlight: initial;
     --color-line-highlight-strong: initial;
     --color-line-highlight-strong-mark: initial;

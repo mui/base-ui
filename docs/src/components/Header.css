@@ -23,7 +23,7 @@
     position: fixed;
     top: 0;
     inset-inline: 0;
-    background: var(--color-content);
+    background: var(--gray-s1);
     z-index: 2;
 
     @media (--show-side-nav) {
@@ -56,12 +56,12 @@
     margin: -0.25rem -0.5rem;
 
     &:active {
-      color: var(--gray-p1);
+      color: var(--gray-p3);
     }
 
     &:focus-visible {
       border-radius: var(--radius-6);
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
   }

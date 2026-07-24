@@ -1,6 +1,6 @@
 .page {
   padding: var(--space-40);
-  color: var(--gray-t2);
+  color: var(--gray-t3);
   font-family: var(--font-sans);
 }
 
@@ -44,7 +44,7 @@
 
 .colorMatrixGrid {
   display: grid;
-  grid-template-columns: 7rem repeat(9, 6.5rem);
+  grid-template-columns: 7rem repeat(12, 6.5rem);
   row-gap: 2px;
   align-items: start;
   width: max-content;
@@ -66,7 +66,7 @@
 }
 
 .colorMatrixHeaderCell {
-  color: var(--gray-p2);
+  color: var(--gray-p4);
   font-family: var(--font-mono);
   font-size: var(--font-size-13);
   text-transform: lowercase;
@@ -88,7 +88,7 @@
 }
 
 .swatch:hover {
-  outline: 2px solid var(--gray-t2);
+  outline: 2px solid var(--gray-t3);
 }
 
 .swatchTokenName {
@@ -115,7 +115,7 @@
   }
 }
 
-/* Tune blackA readability (auto color can be too faint on near-white alpha steps) */
+/* Tune alpha-step readability (auto color can be too faint on near-white alpha steps) */
 .colorMatrixRowAlpha > .colorMatrixCell {
   background-color: var(--gray-s1);
   background-image:
@@ -131,17 +131,17 @@
     -6px 0;
 }
 
-.colorMatrixRowAlpha > .colorMatrixCell:nth-child(-n + 6) .swatchTokenName {
+.colorMatrixRowAlpha > .colorMatrixCell:nth-child(-n + 5) .swatchTokenName {
   color: black;
 }
 
-.colorMatrixRowAlpha > .colorMatrixCell:nth-child(7) .swatchTokenName {
+.colorMatrixRowAlpha > .colorMatrixCell:nth-child(6) .swatchTokenName {
   color: white;
 }
 
 @media (prefers-color-scheme: dark) {
-  .colorMatrixRowAlpha > .colorMatrixCell:nth-child(-n + 6) .swatchTokenName,
-  .colorMatrixRowAlpha > .colorMatrixCell:nth-child(7) .swatchTokenName {
+  .colorMatrixRowAlpha > .colorMatrixCell:nth-child(-n + 5) .swatchTokenName,
+  .colorMatrixRowAlpha > .colorMatrixCell:nth-child(6) .swatchTokenName {
     color: white;
   }
 }
@@ -209,12 +209,12 @@
 .spaceBar {
   min-width: 1px;
   height: 0.75rem;
-  background: var(--gray-t2);
+  background: var(--gray-t3);
 }
 
 .radiusShape {
   margin-top: var(--space-12);
-  background: var(--gray-t2);
+  background: var(--gray-t3);
 }
 
 .radiusShapeSquare {

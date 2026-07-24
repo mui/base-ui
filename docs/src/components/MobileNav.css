@@ -69,18 +69,19 @@
     border-top-left-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     border-top-right-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     background-color: var(--color-popup);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
     touch-action: none;
+    /* Alpha ring stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
-      0 0.25px 0 1px var(--color-border);
+      0 0.25px 0 1px var(--gray-a2);
     transform: translateY(var(--drawer-swipe-movement-y));
     transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
     will-change: transform;
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 0 0 1px var(--color-border);
+      box-shadow: 0 0 0 1px var(--gray-c3);
     }
 
     &[data-swiping] {
@@ -128,7 +129,7 @@
     width: 3.5rem; /* 56px to mimic iOS */
     height: 0.3125rem; /* 5px to mimic iOS */
     border-radius: var(--radius-pill);
-    background-color: var(--color-border);
+    background-color: var(--gray-c3);
   }
 
   .MobileNavSearchInputRoot {
@@ -143,7 +144,7 @@
     transform: translateY(-50%);
     width: var(--space-16);
     height: var(--space-16);
-    color: var(--gray-t1);
+    color: var(--gray-p3);
     pointer-events: none;
   }
 
@@ -159,12 +160,12 @@
     padding-left: var(--space-36);
     padding-right: var(--space-32);
     font: inherit;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
   }
 
   .MobileNavSearchInput::placeholder {
-    color: var(--gray-t1);
+    color: var(--gray-p3);
   }
 
   .MobileNavClearSearch {
@@ -179,7 +180,7 @@
     width: var(--space-24);
     height: var(--space-24);
     border-radius: 100%;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
 
     > svg {
@@ -196,12 +197,12 @@
 
     @media not (hover: hover) {
       &:active {
-        background-color: var(--gray-c2);
+        background-color: var(--gray-c3);
       }
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
   }
@@ -262,7 +263,7 @@
     );
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
     }
   }
@@ -305,7 +306,7 @@
       /* Visible thumb width */
       width: var(--space-4);
       border-radius: var(--radius-4);
-      background-color: var(--gray-p2);
+      background-color: var(--gray-p4);
     }
   }
 
@@ -345,13 +346,13 @@
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     outline: 0;
   }
 
   .MobileNavLink:focus-visible,
   .MobileNavSearchOption:focus-visible {
-    outline: 2px solid var(--gray-t2);
+    outline: 2px solid var(--gray-t3);
     outline-offset: -2px;
   }
 
@@ -360,7 +361,7 @@
       text-decoration: underline;
       text-underline-offset: 3px;
       text-decoration-thickness: 1px;
-      text-decoration-color: var(--gray-t2);
+      text-decoration-color: var(--gray-t3);
     }
   }
 
@@ -453,7 +454,7 @@
     margin-inline: var(--space-4);
     vertical-align: middle;
     flex-shrink: 0;
-    color: var(--gray-t1);
+    color: var(--gray-p3);
   }
 
   .MobileNavSearchScore {

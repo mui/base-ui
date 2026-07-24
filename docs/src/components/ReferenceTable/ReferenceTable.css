@@ -309,7 +309,7 @@
   }
 
   .MethodParamSep {
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .MethodParamDesc {
@@ -342,7 +342,7 @@
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     font-weight: var(--font-weight-400);
-    color: var(--gray-p1);
+    color: var(--gray-p3);
   }
 
   .AdditionalTypeBackLink[data-hidden='true'] {
@@ -350,17 +350,7 @@
   }
 
   .AdditionalTypeBackLink:hover {
-    color: var(--gray-t2);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .AdditionalTypeBackLink {
-      color: var(--gray-p2);
-    }
-
-    .AdditionalTypeBackLink:hover {
-      color: var(--gray-c2);
-    }
+    color: var(--gray-t3);
   }
 
   .AdditionalTypeReExport {
@@ -389,13 +379,7 @@
     font-size: var(--font-size-16);
     line-height: 1.5rem;
     font-weight: var(--font-weight-700);
-    color: var(--gray-t2);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .ReferenceSectionHeading {
-      color: white;
-    }
+    color: var(--gray-t3);
   }
 
   .ReferenceSectionSubtext {
@@ -403,12 +387,6 @@
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     color: var(--gray-t1);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .ReferenceSectionSubtext {
-      color: var(--gray-p2);
-    }
   }
 
   .ReferenceBlockSpaced {

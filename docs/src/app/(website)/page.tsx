@@ -167,7 +167,7 @@ export default function Homepage() {
           <ul
             className="List"
             aria-label="team members"
-            style={{ borderTop: '1px solid var(--gray-t2)' }}
+            style={{ borderTop: '1px solid var(--gray-t3)' }}
           >
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Colm Tuite</span>
@@ -469,11 +469,11 @@ export const viewport: Viewport = {
     // Mobile Safari header background (match the page content)
     {
       media: '(prefers-color-scheme: light)',
-      color: '#FFF',
+      color: 'oklch(99% 0 0deg)',
     },
     {
       media: '(prefers-color-scheme: dark)',
-      color: '#000',
+      color: 'oklch(17% 0 0deg)',
     },
   ],
 };

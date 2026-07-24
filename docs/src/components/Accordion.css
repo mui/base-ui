@@ -1,10 +1,9 @@
 @layer components {
   .AccordionRoot {
-    --color-trigger-hover: hsl(0deg 0 99);
+    --color-trigger-hover: var(--gray-s2);
     --color-open-trigger-shadow: var(--gray-c3);
 
     @media (prefers-color-scheme: dark) {
-      --color-trigger-hover: hsl(0deg 0 9);
       --color-open-trigger-shadow: hsl(0deg 0 5);
     }
 
@@ -14,14 +13,14 @@
     justify-content: center;
     color: var(--gray-t1);
 
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--gray-c3);
     border-collapse: separate;
     border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
     border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
     background-color: var(--gray-s2);
     background-clip: padding-box;
   }
@@ -29,7 +28,7 @@
   .AccordionHeaderCell {
     font-size: var(--font-size-14);
     font-weight: var(--font-weight-400);
-    color: var(--color-foreground);
+    color: var(--gray-t3);
   }
 
   .AccordionHeaderCellInner {
@@ -47,7 +46,7 @@
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
   }
 
   .AccordionTrigger {
@@ -64,7 +63,7 @@
     border: none;
     outline: none;
     text-align: left;
-    background-color: var(--color-content);
+    background-color: var(--gray-s1);
 
     /* remove default disclosure triangle  */
     &::-webkit-details-marker {
@@ -94,7 +93,7 @@
         inset: 0;
         z-index: 1;
         border-radius: inherit;
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -2px;
       }
     }
@@ -126,7 +125,7 @@
     box-sizing: border-box;
     height: auto;
     overflow: hidden;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     font-size: 1rem;
     line-height: 1.5rem;
   }
@@ -160,7 +159,7 @@
         inset: 0;
         z-index: 1;
         /* The cell clips its own overflow, so the ring must sit fully inside it. */
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -2px;
       }
     }
