@@ -115,3 +115,43 @@ function App2() {
     />
   );
 }
+
+function CollectionInferenceApp() {
+  const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ];
+  const teams = [{ value: 'Engineering', items: users }];
+
+  const collection = Autocomplete.useItems(users, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+  const groupedCollection = Autocomplete.useItems(teams, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+
+  // @ts-expect-error A collection exposes no data-manipulation methods.
+  collection.each;
+
+  return (
+    <React.Fragment>
+      {/* The filter receives the source item, while the value helpers receive the value.
+          `Item` stays inferable from `filter` itself, as it is for plain arrays, so an
+          explicit annotation there widens it rather than failing to check. */}
+      <Autocomplete.Root
+        items={collection}
+        filter={(item, query) => item.name.includes(query)}
+        onItemHighlighted={(itemValue) => itemValue?.toFixed()}
+      />
+      {/* Grouped data resolves to the leaf item type. */}
+      <Autocomplete.Root
+        items={groupedCollection}
+        filter={(item, query) => item.name.includes(query)}
+      />
+      {/* Plain arrays are unaffected: the filter receives the item, which is the value. */}
+      <Autocomplete.Root items={objectItems} filter={(item, query) => item.label.includes(query)} />
+    </React.Fragment>
+  );
+}

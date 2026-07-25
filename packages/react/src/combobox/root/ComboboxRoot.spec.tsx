@@ -334,6 +334,57 @@ export function CollectionWrapper<Value, Multiple extends boolean | undefined, I
   return <Combobox.Root {...props} />;
 }
 
+function CollectionInferenceApp() {
+  const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ];
+  const teams = [{ value: 'Engineering', items: users }];
+
+  const collection = Combobox.useItems(users, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+  const groupedCollection = Combobox.useItems(teams, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+
+  return (
+    <React.Fragment>
+      {/* The value helpers receive the derived value, not the source item. */}
+      <Combobox.Root
+        items={collection}
+        defaultValue={1}
+        itemToStringLabel={(itemValue) => itemValue.toFixed()}
+        itemToStringValue={(itemValue) => itemValue.toFixed()}
+        isItemEqualToValue={(a, b) => a.toFixed() === b.toFixed()}
+        onItemHighlighted={(itemValue) => itemValue?.toFixed()}
+      />
+      {/* `multiple` lifts the derived value to an array. */}
+      <Combobox.Root
+        items={collection}
+        multiple
+        defaultValue={[1, 2]}
+        onValueChange={(value) => value.map((itemValue) => itemValue.toFixed())}
+      />
+      <Combobox.Root
+        items={collection}
+        multiple
+        // @ts-expect-error `multiple` takes an array of derived values.
+        defaultValue={1}
+      />
+      {/* Grouped data resolves to the leaf item type. */}
+      <Combobox.Root
+        items={groupedCollection}
+        defaultValue={1}
+        onValueChange={(value) => value?.toFixed()}
+        filter={(item, query) => item.name.includes(query)}
+      />
+    </React.Fragment>
+  );
+}
+
 function FilterArgumentApp() {
   const users = [
     { id: 1, name: 'Alice' },
