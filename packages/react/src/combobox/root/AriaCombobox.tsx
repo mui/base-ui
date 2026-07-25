@@ -69,9 +69,10 @@ import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
 
-type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaComboboxProps<
+type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> = AriaComboboxProps<
   Value,
-  Mode
+  Mode,
+  Item
 > & {
   filterQuery?: string | undefined;
 };
@@ -79,18 +80,18 @@ type InternalAriaComboboxProps<Value, Mode extends SelectionMode> = AriaCombobox
 /**
  * @internal
  */
-export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<InternalAriaComboboxProps<Value, Mode>, 'items'> & {
+export function AriaCombobox<Value, Mode extends SelectionMode = 'none', Item = Value>(
+  props: Omit<InternalAriaComboboxProps<Value, Mode, Item>, 'items'> & {
     items: readonly Group<any>[];
   },
 ): React.JSX.Element;
-export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<InternalAriaComboboxProps<Value, Mode>, 'items'> & {
-    items?: readonly any[] | ComboboxItemCollection<any, any> | undefined;
+export function AriaCombobox<Value, Mode extends SelectionMode = 'none', Item = Value>(
+  props: Omit<InternalAriaComboboxProps<Value, Mode, Item>, 'items'> & {
+    items?: readonly any[] | ComboboxItemCollection<Item, any> | undefined;
   },
 ): React.JSX.Element;
-export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
-  props: InternalAriaComboboxProps<Value, Mode>,
+export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', Item = Value>(
+  props: InternalAriaComboboxProps<Value, Mode, Item>,
 ): React.JSX.Element {
   const {
     id: idProp,
@@ -164,6 +165,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     [itemToStringLabel],
   );
 
+  // Filtering runs on source items, while `itemToStringLabel` labels selection values. The two
+  // domains only differ for a collection, where the item is projected before the prop sees it.
+  const filterItemToString = React.useMemo<((item: any) => string) | undefined>(() => {
+    if (!collection) {
+      return itemToStringLabel;
+    }
+    if (!itemToStringLabelProp) {
+      return collection.itemLabel;
+    }
+    return (item: any) => itemToStringLabelProp(collection.value(item));
+  }, [collection, itemToStringLabel, itemToStringLabelProp]);
+
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
@@ -226,8 +239,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
     // `shouldBypassFiltering` already empties the query whenever a single selection's label
     // matches it exactly, so the filter never needs a selection-aware variant here.
-    return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [filterProp, collatorFilter, itemToStringLabel]);
+    return createCollatorItemFilter(collatorFilter, filterItemToString);
+  }, [filterProp, collatorFilter, filterItemToString]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -309,8 +322,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             if (itemsToTake.length >= remainingLimit) {
               break;
             }
-            const itemValue = collection ? collection.value(item) : item;
-            if (filter(itemValue, filterQuery, itemToStringLabel)) {
+            if (filter(item, filterQuery, filterItemToString)) {
               itemsToTake.push(item);
             }
           }
@@ -343,8 +355,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      const itemValue = collection ? collection.value(item) : item;
-      if (filter(itemValue, filterQuery, itemToStringLabel)) {
+      if (filter(item, filterQuery, filterItemToString)) {
         limitedItems.push(item);
       }
     }
@@ -354,12 +365,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filteredItemsProp,
     shouldIgnoreExternalFiltering,
     items,
-    collection,
     isGrouped,
     filterQuery,
     limit,
     filter,
-    itemToStringLabel,
+    filterItemToString,
     flatItems,
   ]);
 
@@ -1118,7 +1128,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation.change(inputValue);
   });
 
-  useValueChanged(collection ?? items, () => {
+  // Keyed on the resolved label rather than the items identity: the sync only has an effect
+  // when the label of the current selection changes, and a `useItems()` collection built with
+  // inline accessors is a new object on every render despite resolving the same label.
+  useValueChanged(selectedLabelString, () => {
     if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
@@ -1536,7 +1549,7 @@ type ComboboxItemValueType<ItemValue, Mode extends SelectionMode> = Mode extends
   ? ItemValue[]
   : ItemValue;
 
-interface ComboboxRootProps<ItemValue> {
+interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   children?: React.ReactNode;
   /**
    * Identifies the field when a form is submitted.
@@ -1669,7 +1682,7 @@ interface ComboboxRootProps<ItemValue> {
   items?:
     | readonly any[]
     | readonly Group<any>[]
-    | ComboboxItemCollection<any, ItemValue>
+    | ComboboxItemCollection<Item, ItemValue>
     | undefined;
   /**
    * Filtered items to display in the list.
@@ -1679,14 +1692,12 @@ interface ComboboxRootProps<ItemValue> {
   filteredItems?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filter function used to match items vs input query.
+   * Receives the source item, which is the derived value's item when `items` is a `useItems()`
+   * collection, and the item itself otherwise.
    */
   filter?:
     | null
-    | ((
-        itemValue: ItemValue,
-        query: string,
-        itemToString?: (itemValue: ItemValue) => string,
-      ) => boolean)
+    | ((item: Item, query: string, itemToString?: (item: Item) => string) => boolean)
     | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
@@ -1770,7 +1781,8 @@ export interface AriaComboboxState {}
 export type AriaComboboxProps<
   Value,
   Mode extends SelectionMode = 'none',
-> = ComboboxRootProps<Value> & {
+  Item = Value,
+> = ComboboxRootProps<Value, Item> & {
   /**
    * How the combobox should remember the selected value.
    * - `single`: Remembers the last selected value.
@@ -1800,7 +1812,11 @@ export type AriaComboboxProps<
 };
 
 export namespace AriaCombobox {
-  export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
+  export type Props<Value, Mode extends SelectionMode = 'none', Item = Value> = AriaComboboxProps<
+    Value,
+    Mode,
+    Item
+  >;
   export type State = AriaComboboxState;
 
   export interface Actions {

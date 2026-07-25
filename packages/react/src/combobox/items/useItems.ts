@@ -40,6 +40,7 @@ export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<Ite
     return {
       data,
       value: itemToValue,
+      itemLabel: itemToLabel,
       label: (itemValue: Value) => {
         while (!labels.has(itemValue) && indexedItems < leafItems.length) {
           const item = leafItems[indexedItems];

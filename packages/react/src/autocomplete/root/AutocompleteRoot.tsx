@@ -21,18 +21,18 @@ export function AutocompleteRoot<Items extends readonly { items: readonly any[] 
     items: Items;
   },
 ): React.JSX.Element;
-export function AutocompleteRoot<ItemValue>(
-  props: Omit<AutocompleteRoot.Props<ItemValue>, 'items'> & {
+export function AutocompleteRoot<ItemValue, Item = ItemValue>(
+  props: Omit<AutocompleteRoot.Props<ItemValue, Item>, 'items'> & {
     /**
      * The items to be displayed in the list.
      * Can be a flat array of items, an array of groups with items, or a collection created
      * by the `useItems()` hook.
      */
-    items?: readonly ItemValue[] | ComboboxItemCollection<any, ItemValue> | undefined;
+    items?: readonly ItemValue[] | ComboboxItemCollection<Item, ItemValue> | undefined;
   },
 ): React.JSX.Element;
-export function AutocompleteRoot<ItemValue>(
-  props: AutocompleteRoot.Props<ItemValue>,
+export function AutocompleteRoot<ItemValue, Item = ItemValue>(
+  props: AutocompleteRoot.Props<ItemValue, Item>,
 ): React.JSX.Element {
   const {
     openOnInputClick = false,
@@ -153,8 +153,8 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-export interface AutocompleteRootProps<ItemValue> extends Omit<
-  AriaCombobox.Props<ItemValue, 'none'>,
+export interface AutocompleteRootProps<ItemValue, Item = ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none', Item>,
   | 'selectionMode'
   | 'selectedValue'
   | 'defaultSelectedValue'
@@ -285,7 +285,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
 }
 
 export namespace AutocompleteRoot {
-  export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
+  export type Props<ItemValue, Item = ItemValue> = AutocompleteRootProps<ItemValue, Item>;
   export type State = AutocompleteRootState;
   export type Actions = AutocompleteRootActions;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;

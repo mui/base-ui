@@ -4,10 +4,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
 export default function ExampleUseItemsCombobox() {
   const id = React.useId();
-  const items = Combobox.useItems(fruits, {
-    value: (fruit) => fruit.id,
-    label: (fruit) => fruit.name,
-  });
+  const items = Combobox.useItems(fruits, { value: getFruitId, label: getFruitName });
 
   return (
     <Combobox.Root items={items} defaultValue="banana">
@@ -116,6 +113,14 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
 interface Fruit {
   id: string;
   name: string;
+}
+
+function getFruitId(fruit: Fruit) {
+  return fruit.id;
+}
+
+function getFruitName(fruit: Fruit) {
+  return fruit.name;
 }
 
 const fruits: Fruit[] = [

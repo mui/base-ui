@@ -172,6 +172,33 @@ describe('Combobox.useItems', () => {
       expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
     });
 
+    it('replaces the collection label accessor entirely when itemToStringLabel is provided', async () => {
+      // The prop is not a fallback for values the collection cannot resolve: it takes over
+      // labeling for in-collection values too, so an external cache must label every value.
+      const labelCache = new Map([[99, 'Archived user']]);
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root
+            items={items}
+            defaultValue={2}
+            itemToStringLabel={(id: number) => labelCache.get(id) ?? `User ${id}`}
+          >
+            <Combobox.Input data-testid="input" />
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('User 2');
+      expect(screen.getByTestId('value')).toHaveTextContent('User 2');
+    });
+
     it('uses the root locale for filtering', async () => {
       const cities = ['Isparta', 'İzmir'];
 
@@ -225,8 +252,8 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('Alicia');
     });
 
-    it('passes derived values to a custom root filter', async () => {
-      const filter = vi.fn((id: number) => id === 2);
+    it('passes source items to a custom root filter', async () => {
+      const filter = vi.fn((user: User) => user.id === 2);
 
       function App() {
         const items = useUserItems();
@@ -246,8 +273,47 @@ describe('Combobox.useItems', () => {
 
       expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
-      expect(filter.mock.calls.every(([id]) => typeof id === 'number')).toBe(true);
-      expect(new Set(filter.mock.calls.map(([id]) => id))).toEqual(new Set([1, 2, 3]));
+      expect(filter.mock.calls.every(([item]) => users.includes(item))).toBe(true);
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
+    });
+
+    it('lets a custom root filter match source fields that are neither the value nor the label', async () => {
+      interface Contact {
+        id: number;
+        name: string;
+        email: string;
+      }
+
+      const contacts: Contact[] = [
+        { id: 1, name: 'Alice', email: 'alice@example.com' },
+        { id: 2, name: 'Bob', email: 'bob@other.com' },
+      ];
+
+      function App() {
+        const items = Combobox.useItems(contacts, {
+          value: (contact) => contact.id,
+          label: (contact) => contact.name,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            filter={(contact, query) => contact.email.includes(query)}
+            defaultOpen
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(contact: Contact) => <Combobox.Item key={contact.id}>{contact.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'other.com');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
     });
 
     it('labels a selected value that is not in the collection as itself', async () => {
@@ -454,7 +520,7 @@ describe('Combobox.useItems', () => {
 
     it('stops filtering when the limit is reached', async () => {
       const manyUsers = Array.from({ length: 100 }, (_, id) => ({ id, name: `Alice ${id}` }));
-      const filter = vi.fn((id: number) => id >= 0);
+      const filter = vi.fn((user: User) => user.id >= 0);
 
       function App() {
         const items = Combobox.useItems(manyUsers, {
@@ -477,7 +543,7 @@ describe('Combobox.useItems', () => {
       await user.type(screen.getByTestId('input'), 'a');
 
       expect(screen.getAllByRole('option')).toHaveLength(2);
-      expect(new Set(filter.mock.calls.map(([id]) => id))).toEqual(new Set([0, 1]));
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([0, 1]));
     });
   });
 
@@ -492,7 +558,7 @@ describe('Combobox.useItems', () => {
       { value: 'Design', items: [users[2]] },
     ];
 
-    function GroupedApp(props: Partial<Combobox.Root.Props<number>>) {
+    function GroupedApp(props: Partial<Combobox.Root.Props<number, false, User>>) {
       const items = Combobox.useItems(teams, {
         value: getUserId,
         label: getUserName,
@@ -542,8 +608,8 @@ describe('Combobox.useItems', () => {
       expect(screen.getByText('Design')).not.toBe(null);
     });
 
-    it('passes derived values to a custom root filter', async () => {
-      const filter = vi.fn((id: number) => id === 3);
+    it('passes leaf source items to a custom root filter', async () => {
+      const filter = vi.fn((user: User) => user.id === 3);
 
       const { user } = await render(<GroupedApp defaultOpen filter={filter} />);
 
@@ -551,7 +617,7 @@ describe('Combobox.useItems', () => {
 
       expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
-      expect(filter.mock.calls.every(([id]) => typeof id === 'number')).toBe(true);
+      expect(filter.mock.calls.every(([item]) => 'name' in item)).toBe(true);
     });
 
     it('only applies accessors to group items', async () => {

@@ -326,3 +326,41 @@ export function Wrapper<Value, Multiple extends boolean | undefined = false>(
 ) {
   return <Combobox.Root {...props} />;
 }
+
+// A wrapper opts into forwarding a collection by declaring the item type.
+export function CollectionWrapper<Value, Multiple extends boolean | undefined, Item>(
+  props: Combobox.Root.Props<Value, Multiple, Item>,
+) {
+  return <Combobox.Root {...props} />;
+}
+
+function FilterArgumentApp() {
+  const users = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ];
+
+  const collection = Combobox.useItems(users, {
+    value: (item) => item.id,
+    label: (item) => item.name,
+  });
+
+  return (
+    <React.Fragment>
+      {/* Plain arrays: the filter receives the item, which is also the value. */}
+      <Combobox.Root
+        items={users}
+        defaultValue={users[0]}
+        filter={(item, query) => item.name.includes(query)}
+      />
+      {/* Collections: the filter receives the source item, not the derived value.
+          `Item` stays inferable from `filter` itself, as it is for plain arrays, so an
+          explicit annotation there widens it rather than failing to check. */}
+      <Combobox.Root
+        items={collection}
+        defaultValue={1}
+        filter={(item, query) => item.name.includes(query)}
+      />
+    </React.Fragment>
+  );
+}

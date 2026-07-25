@@ -73,9 +73,26 @@ import { Combobox } from '@base-ui/react/combobox';
 
 ## Item values
 
-When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, the collection provides its value, so the `value` prop on `<Combobox.Item>` can be omitted. Ordinary collections use the source item as the value. Items rendered manually without a collection require an explicit `value` prop.
+An item has two roles: the source item that gets rendered, and the value that the application stores as the selection. With an ordinary `items` array these are the same object. The `Combobox.useItems` hook separates them, deriving a value from each source item — typically an ID held in that object:
 
-To use a primitive value that differs from the source item (such as an ID held in an object), normalize the `items` array (flat or grouped) with the `Combobox.useItems` hook, which derives each item's value and label before rendering. Its derived value is authoritative, so omit the `value` prop from rendered items.
+```jsx
+const items = Combobox.useItems(fruits, { value: getFruitId, label: getFruitName });
+```
+
+Every API sits on one side of that split:
+
+| Receives the source item                                           | Receives the value                                                 |
+| :----------------------------------------------------------------- | :----------------------------------------------------------------- |
+| Function children of `<Combobox.List>` and `<Combobox.Collection>` | `value`, `defaultValue`, and `onValueChange`                       |
+| `Combobox.useFilteredItems()`                                      | `isItemEqualToValue`, `itemToStringValue`, and `itemToStringLabel` |
+| The `value` and `label` accessors of `Combobox.useItems`           | `onItemHighlighted` and the children of `<Combobox.Value>`         |
+| The root `filter` function                                         |                                                                    |
+
+When an item is rendered by the function child of `<Combobox.List>` or `<Combobox.Collection>`, the collection supplies its value, so the `value` prop on `<Combobox.Item>` can be omitted. The derived value is authoritative, and an explicit `value` prop on such an item is ignored. Items rendered manually outside a collection still require an explicit `value` prop set to the derived value.
+
+The `items` array may be flat or grouped, and the accessors always receive individual items rather than groups. Derived values should be stable, unique, and non-null primitives, because `null` and `undefined` mean no selection.
+
+Filtering stays configured on `<Combobox.Root>`, where `itemToStringLabel` replaces the collection's `label` accessor rather than acting as a fallback behind it, while `locale` and `limit` apply normally. A custom `filter` receives the source item, so it can match against any of its fields, not only the derived value and label.
 
 ## Examples
 
@@ -87,8 +104,8 @@ The following example shows a typed wrapper around the Combobox component with c
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.Props<Value, Multiple>,
+export function MyCombobox<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: Combobox.Root.Props<Value, Multiple, Item>,
 ): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
