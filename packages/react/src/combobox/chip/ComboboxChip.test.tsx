@@ -315,6 +315,98 @@ describe('<Combobox.Chip />', () => {
       expect(input).toHaveFocus();
     });
 
+    it('returns focus to the input for activation, vertical navigation, and text entry', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const chip = screen.getByTestId('chip');
+      const input = screen.getByTestId('input');
+
+      await act(async () => chip.focus());
+      await user.keyboard('{Enter}');
+      expect(input).toHaveFocus();
+
+      await act(async () => chip.focus());
+      await user.keyboard(' ');
+      expect(input).toHaveFocus();
+
+      await act(async () => chip.focus());
+      await user.keyboard('{ArrowDown}');
+      expect(input).toHaveFocus();
+      expect(screen.getByRole('listbox')).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+      await act(async () => chip.focus());
+      await user.keyboard('{ArrowUp}');
+      expect(input).toHaveFocus();
+      expect(screen.getByRole('listbox')).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+      await act(async () => chip.focus());
+      await user.keyboard('a');
+      expect(input).toHaveFocus();
+    });
+
+    it('leaves focus on a chip for modified printable keys', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple']}>
+          <Combobox.Input />
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const chip = screen.getByTestId('chip');
+
+      await act(async () => chip.focus());
+      await user.keyboard('{Control>}a{/Control}');
+      expect(chip).toHaveFocus();
+
+      await user.keyboard('{Meta>}a{/Meta}');
+      expect(chip).toHaveFocus();
+
+      await user.keyboard('{Alt>}a{/Alt}');
+      expect(chip).toHaveFocus();
+    });
+
+    it('handles Delete as a chip removal key', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Input />
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+            <Combobox.Chip>banana</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      await act(async () => screen.getByTestId('chip-apple').focus());
+      await user.keyboard('{Delete}');
+
+      expect(handleValueChange).toHaveBeenCalledWith(['banana'], expect.anything());
+    });
+
     it('mirrors chip keyboard navigation in RTL mode', async () => {
       const { user } = await render(
         <DirectionProvider direction="rtl">

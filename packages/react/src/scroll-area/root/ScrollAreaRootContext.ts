@@ -32,6 +32,7 @@ export interface ScrollAreaRootContext {
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
   handleScroll: (scrollPosition: Coords) => void;
+  disableViewportSnap: () => void;
   rootId: string | undefined;
   hiddenState: HiddenState;
   setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;

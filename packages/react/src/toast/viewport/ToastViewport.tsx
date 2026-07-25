@@ -101,24 +101,17 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }, [store, windowFocusTimeout, isEmpty]);
 
   function handleFocusGuard(event: React.FocusEvent) {
-    const viewport = store.state.viewport;
-    if (!viewport) {
-      return;
-    }
-
     handlingFocusGuardRef.current = true;
 
     // If we're coming off the container, move to the first toast that can hold
     // focus, skipping toasts that are animating out or inert because they're limited.
-    if (event.relatedTarget === viewport) {
-      const firstFocusableToast = toasts.find(
-        (toast) => toast.transitionStatus !== 'ending' && !toast.limited,
-      );
-      if (firstFocusableToast) {
-        firstFocusableToast.ref?.current?.focus();
-      } else {
-        store.restoreFocusToPrevElement();
-      }
+    const firstFocusableToast =
+      event.relatedTarget === store.state.viewport
+        ? toasts.find((toast) => toast.transitionStatus !== 'ending' && !toast.limited)
+        : undefined;
+
+    if (firstFocusableToast) {
+      firstFocusableToast.ref?.current?.focus();
     } else {
       store.restoreFocusToPrevElement();
     }
@@ -131,9 +124,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       getTarget(event.nativeEvent) === store.state.viewport
     ) {
       event.preventDefault();
+      // Restoring focus blurs the viewport, and `handleBlur` resumes the timers
+      // from there. Resuming here as well would also fire when the previously
+      // focused element lives inside the viewport, letting toasts dismiss out
+      // from under the keyboard.
       store.restoreFocusToPrevElement();
-      // Shift+Tab is explicit keyboard navigation out of the viewport.
-      store.resumeTimers();
     }
   }
 

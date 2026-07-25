@@ -514,6 +514,32 @@ describe('<Combobox.Item />', () => {
 
       expect(screen.getByTestId('refresh-list-ref')).toHaveTextContent('||three|four|');
     });
+
+    it('does not register an item missing from the filtered values', async () => {
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one']} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item>missing value</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const item = screen.getByRole('option', { name: 'missing value' });
+
+      await user.hover(item);
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(item).not.toHaveAttribute('data-highlighted');
+      expect(item).not.toHaveAttribute('id');
+    });
   });
 
   describe('virtualized with explicit index', () => {
@@ -655,6 +681,20 @@ describe('<Combobox.Item />', () => {
         expect(cherry).toHaveAttribute('data-highlighted');
       });
       expect(banana).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('does not assign an id to an explicitly unregistered item', async () => {
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.List>
+            <Combobox.Item value="orphan" index={-1}>
+              orphan
+            </Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('option', { name: 'orphan' })).not.toHaveAttribute('id');
     });
   });
 });

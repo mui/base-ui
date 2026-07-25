@@ -20,7 +20,7 @@ export interface TabsRootContext {
   /**
    * Gets the element of the Tab with the given value.
    */
-  getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
+  getTabElementBySelectedValue: (selectedValue: TabsTab.Value) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
    */
@@ -29,7 +29,7 @@ export interface TabsRootContext {
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
-  registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => () => void;
+  registerMountedTabPanel: (panelValue: TabsTab.Value, panelId: string) => () => void;
   setTabMap: (map: Map<Node, CompositeMetadata<TabsTab.Metadata>>) => void;
   /**
    * The position of the active tab relative to the previously active tab.

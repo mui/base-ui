@@ -3,6 +3,20 @@ import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
+const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
+
+vi.mock('@base-ui/utils/useId', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/useId')>('@base-ui/utils/useId');
+  return {
+    ...actual,
+    useId(...args: Parameters<typeof actual.useId>) {
+      const id = actual.useId(...args);
+      return useIdMockState.returnUndefined ? undefined : id;
+    },
+  };
+});
+
 type Point = {
   x: number;
   y: number;
@@ -27,6 +41,23 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
   }
 
   return point;
+}
+
+function dispatchTouchPointerEvent(
+  element: Element,
+  type: string,
+  point: { clientX: number; clientY: number },
+) {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, {
+    pointerType: { value: 'touch' },
+    pointerId: { value: 1 },
+    button: { value: 0 },
+    buttons: { value: type === 'pointerup' || type === 'pointercancel' ? 0 : 1 },
+    clientX: { value: point.clientX },
+    clientY: { value: point.clientY },
+  });
+  element.dispatchEvent(event);
 }
 
 async function swipe(element: HTMLElement, start: Point, end: Point, options: SwipeOptions = {}) {
@@ -292,6 +323,358 @@ describe('<Drawer.SwipeArea />', () => {
     await swipeLeft(swipeArea, 120, 40);
 
     expect(swipeArea).toHaveAttribute('data-open', '');
+  });
+
+  it('synchronizes overshoot styles across the popup, backdrop, and provider indent', async () => {
+    await render(
+      <Drawer.Provider>
+        <Drawer.Indent data-testid="indent" />
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" swipeDirection="left" />
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup
+                data-testid="popup"
+                ref={(element) => {
+                  if (element) {
+                    Object.defineProperties(element, {
+                      offsetHeight: { configurable: true, value: 100 },
+                      offsetWidth: { configurable: true, value: 100 },
+                    });
+                  }
+                }}
+              >
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </Drawer.Provider>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+    const indent = screen.getByTestId('indent');
+
+    await swipeLeft(swipeArea, 200, -50, {
+      async beforeRelease() {
+        const popup = screen.getByTestId('popup');
+        const backdrop = screen.getByTestId('backdrop');
+
+        expect(
+          Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-x')),
+        ).toBeCloseTo(-Math.sqrt(150));
+        expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+        expect(popup.style.transition).toBe('none');
+        expect(backdrop).toHaveAttribute('data-swiping', '');
+        expect(backdrop.style.getPropertyValue('--drawer-height')).toBe('100px');
+        expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('1');
+        expect(indent.style.getPropertyValue('--drawer-height')).toBe('100px');
+
+        fireEvent.pointerMove(swipeArea, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 0,
+          pointerType: 'mouse',
+        });
+        await flushMicrotasks();
+        expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+        expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
+
+        fireEvent.pointerMove(swipeArea, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: -50,
+          clientY: 0,
+          pointerType: 'mouse',
+        });
+        await flushMicrotasks();
+      },
+    });
+
+    expect(screen.getByTestId('backdrop')).not.toHaveAttribute('data-swiping');
+    expect(screen.getByTestId('backdrop').style.getPropertyValue('--drawer-swipe-progress')).toBe(
+      '0',
+    );
+    expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+    expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
+  });
+
+  it('opens from the rendered transform distance in either horizontal direction', async () => {
+    await render(
+      <Drawer.Root swipeDirection="left">
+        <Drawer.SwipeArea data-testid="swipe-area" swipeDirection="right" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup
+              data-testid="popup"
+              style={{ transform: 'matrix(1, 0, 0, 1, 60, 0)' }}
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetWidth', {
+                    configurable: true,
+                    value: 100,
+                  });
+                }
+              }}
+            >
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await swipe(
+      screen.getByTestId('swipe-area'),
+      { x: 0, y: 10 },
+      { x: 40, y: 10 },
+      {
+        beforeRelease() {
+          expect(
+            Number.parseFloat(
+              screen.getByTestId('popup').style.getPropertyValue('--drawer-swipe-movement-x'),
+            ),
+          ).toBeCloseTo(-20);
+        },
+      },
+    );
+
+    expect(screen.getByTestId('swipe-area')).toHaveAttribute('data-open', '');
+  });
+
+  it('omits frontmost height when an opening drawer has no measured height', async () => {
+    await render(
+      <Drawer.Provider>
+        <Drawer.Indent data-testid="indent" />
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" swipeDirection="left" />
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup
+                ref={(element) => {
+                  if (element) {
+                    Object.defineProperties(element, {
+                      offsetHeight: { configurable: true, value: 0 },
+                      offsetWidth: { configurable: true, value: 100 },
+                    });
+                  }
+                }}
+              >
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </Drawer.Provider>,
+    );
+
+    await swipeLeft(screen.getByTestId('swipe-area'), 100, 40, {
+      beforeRelease() {
+        expect(screen.getByTestId('backdrop').style.getPropertyValue('--drawer-height')).toBe('');
+        expect(screen.getByTestId('indent').style.getPropertyValue('--drawer-height')).toBe('');
+      },
+    });
+  });
+
+  it('does not apply or close swipe state when a controlled parent rejects opening', async () => {
+    const handleOpenChange = vi.fn();
+    await render(
+      <Drawer.Root open={false} onOpenChange={handleOpenChange}>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal keepMounted>
+          <Drawer.Viewport>
+            <Drawer.Popup
+              data-testid="popup"
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetHeight', {
+                    configurable: true,
+                    value: 100,
+                  });
+                }
+              }}
+            >
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 110, {
+      startTimeMs: 1000,
+      timeStepMs: 1000,
+    });
+
+    expect(handleOpenChange).toHaveBeenCalledWith(true, expect.anything());
+    expect(handleOpenChange).not.toHaveBeenCalledWith(false, expect.anything());
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
+    expect(screen.getByTestId('popup').style.getPropertyValue('--drawer-swipe-movement-y')).toBe(
+      '0px',
+    );
+  });
+
+  it('cancels an active opening gesture when the swipe area becomes disabled', async () => {
+    function TestCase({ disabled }: { disabled: boolean }) {
+      return (
+        <Drawer.Root>
+          <Drawer.SwipeArea
+            data-testid="swipe-area"
+            disabled={disabled}
+            ref={(element) => {
+              if (element) {
+                Object.defineProperty(element, 'offsetHeight', {
+                  configurable: true,
+                  value: 100,
+                });
+              }
+            }}
+          />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup
+                data-testid="popup"
+                ref={(element) => {
+                  if (element) {
+                    Object.defineProperty(element, 'offsetHeight', {
+                      configurable: true,
+                      value: 100,
+                    });
+                  }
+                }}
+              >
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase disabled={false} />);
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 100,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(swipeArea, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 99,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(swipeArea, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 60,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-swiping', '');
+
+    await setProps({ disabled: true });
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
+    expect(swipeArea).toHaveAttribute('data-disabled', '');
+  });
+
+  it('does not prevent a non-cancelable pointer start', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const event = new Event('pointerdown', { bubbles: true, cancelable: false });
+    Object.defineProperties(event, {
+      pointerType: { value: 'mouse' },
+      pointerId: { value: 1 },
+      button: { value: 0 },
+      buttons: { value: 1 },
+      clientX: { value: 0 },
+      clientY: { value: 0 },
+    });
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+    let dispatched = false;
+    await act(async () => {
+      dispatched = screen.getByTestId('swipe-area').dispatchEvent(event);
+      await flushMicrotasks();
+    });
+    expect(dispatched).toBe(true);
+    expect(event.defaultPrevented).toBe(false);
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
+
+    fireEvent.pointerCancel(screen.getByTestId('swipe-area'), {
+      pointerType: 'mouse',
+      pointerId: 1,
+    });
+    await flushMicrotasks();
+  });
+
+  it('ignores compatibility touch pointer gestures with real displacement', async () => {
+    const handleOpenChange = vi.fn();
+    await render(
+      <Drawer.Root onOpenChange={handleOpenChange}>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    await act(async () => {
+      dispatchTouchPointerEvent(swipeArea, 'pointerdown', { clientX: 0, clientY: 120 });
+      dispatchTouchPointerEvent(swipeArea, 'pointermove', { clientX: 0, clientY: 40 });
+      dispatchTouchPointerEvent(swipeArea, 'pointerup', { clientX: 0, clientY: 40 });
+      dispatchTouchPointerEvent(swipeArea, 'pointercancel', { clientX: 0, clientY: 40 });
+      await flushMicrotasks();
+    });
+    expect(handleOpenChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerCancel(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+
+    expect(swipeArea).toHaveAttribute('data-closed', '');
+    expect(swipeArea).not.toHaveAttribute('data-swiping');
+  });
+
+  it('works before a generated swipe area id is available', async () => {
+    useIdMockState.returnUndefined = true;
+
+    try {
+      await render(
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+        </Drawer.Root>,
+      );
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      expect(swipeArea).not.toHaveAttribute('id');
+      await swipeUp(swipeArea, 120, 40);
+      expect(swipeArea).toHaveAttribute('data-open', '');
+    } finally {
+      useIdMockState.returnUndefined = false;
+    }
   });
 
   it('opens the drawer when swiped with touch events', async () => {
@@ -893,6 +1276,45 @@ describe('<Drawer.SwipeArea />', () => {
     await flushMicrotasks();
 
     expect(swipeArea).toHaveAttribute('data-closed', '');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not open a horizontal drawer on a stationary pointer move', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root onOpenChange={handleOpenChange}>
+        <Drawer.SwipeArea data-testid="swipe-area" swipeDirection="left" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 100,
+      clientY: 10,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(swipeArea, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 100,
+      clientY: 10,
+      pointerType: 'mouse',
+    });
+
+    expect(handleOpenChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerUp(swipeArea, {
+      pointerId: 1,
+      clientX: 100,
+      clientY: 10,
+      pointerType: 'mouse',
+    });
+
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
 });

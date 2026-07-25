@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -24,6 +24,34 @@ describe('<Tooltip.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Positioner />)).rejects.toThrow(
+        'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws a descriptive error when rendered outside <Tooltip.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Tooltip.Root open>
+            <Tooltip.Positioner />
+          </Tooltip.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Tooltip.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;

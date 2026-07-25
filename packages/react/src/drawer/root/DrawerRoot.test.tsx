@@ -6,6 +6,20 @@ import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
 
+const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
+
+vi.mock('@base-ui/utils/useId', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/useId')>('@base-ui/utils/useId');
+  return {
+    ...actual,
+    useId(...args: Parameters<typeof actual.useId>) {
+      const id = actual.useId(...args);
+      return useIdMockState.returnUndefined ? undefined : id;
+    },
+  };
+});
+
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
     await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
@@ -366,6 +380,26 @@ async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[])
   }, Promise.resolve());
 }
 
+async function simulateTimestampedPointerSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
+  for (const step of steps) {
+    const event = new MouseEvent(`pointer${step.type}`, { bubbles: true, cancelable: true });
+    Object.defineProperties(event, {
+      pointerId: { value: 1 },
+      pointerType: { value: 'mouse' },
+      clientX: { value: step.x },
+      clientY: { value: step.y },
+      button: { value: 0 },
+      buttons: { value: step.type === 'up' ? 0 : 1 },
+      timeStamp: { value: step.time },
+    });
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      element.dispatchEvent(event);
+      await flushMicrotasks();
+    });
+  }
+}
+
 function mockResizeObserver() {
   const original = globalThis.ResizeObserver;
   if (typeof original === 'function') {
@@ -713,6 +747,104 @@ function SnapPointSequentialSkipCase() {
   );
 }
 
+function SnapPointGestureCase({
+  initialSnapPoint,
+  keepMounted = false,
+  rejectClose = false,
+  snapToSequentialPoints = false,
+  swipeDirection = 'down',
+}: {
+  initialSnapPoint: Drawer.Root.SnapPoint | null;
+  keepMounted?: boolean;
+  rejectClose?: boolean;
+  snapToSequentialPoints?: boolean;
+  swipeDirection?: Drawer.Root.Props['swipeDirection'];
+}) {
+  const snapPoints = ['100px', '300px', 1];
+  const [snapPoint, setSnapPoint] = React.useState<Drawer.Root.SnapPoint | null>(initialSnapPoint);
+  const [open, setOpen] = React.useState(true);
+
+  return (
+    <div>
+      <output data-testid="active-snap">{String(snapPoint)}</output>
+      <Drawer.Root
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!rejectClose) {
+            setOpen(nextOpen);
+          }
+        }}
+        snapPoints={snapPoints}
+        snapPoint={snapPoint}
+        onSnapPointChange={setSnapPoint}
+        snapToSequentialPoints={snapToSequentialPoints}
+        swipeDirection={swipeDirection}
+      >
+        <Drawer.Portal keepMounted={keepMounted}>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport" style={{ height: 600 }}>
+            <Drawer.Popup data-testid="popup" style={{ height: 600 }}>
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </div>
+  );
+}
+
+function SnapPointContextControls() {
+  const { activeSnapPoint, setActiveSnapPoint } = useDrawerRootContext();
+
+  return (
+    <React.Fragment>
+      <output data-testid="context-active-snap-point">{String(activeSnapPoint)}</output>
+      <button onClick={() => setActiveSnapPoint('100px')}>Set canceled snap point</button>
+      <button onClick={() => setActiveSnapPoint(999)}>Set invalid snap point</button>
+    </React.Fragment>
+  );
+}
+
+function NestedSwipeProgressProbe() {
+  const { nestedSwipeProgressStore } = useDrawerRootContext();
+  const progress = React.useSyncExternalStore(
+    nestedSwipeProgressStore.subscribe,
+    nestedSwipeProgressStore.getSnapshot,
+    nestedSwipeProgressStore.getSnapshot,
+  );
+
+  return <output data-testid="nested-swipe-progress">{progress}</output>;
+}
+
+function NestedSwipeProgressSubscriber({ onChange }: { onChange: () => void }) {
+  const { nestedSwipeProgressStore } = useDrawerRootContext();
+
+  React.useEffect(
+    () => nestedSwipeProgressStore.subscribe(onChange),
+    [nestedSwipeProgressStore, onChange],
+  );
+
+  return null;
+}
+
+function NestedSwipeProgressControls() {
+  const { onNestedSwipeProgressChange } = useDrawerRootContext();
+
+  return (
+    <React.Fragment>
+      <button onClick={() => onNestedSwipeProgressChange(0.5)}>Set nested progress</button>
+      <button onClick={() => onNestedSwipeProgressChange(Number.NaN)}>
+        Set invalid nested progress
+      </button>
+    </React.Fragment>
+  );
+}
+
+function MissingRootContextConsumer() {
+  useDrawerRootContext();
+  return null;
+}
+
 describe('<Drawer.Root />', () => {
   const { render } = createRenderer();
 
@@ -1027,6 +1159,99 @@ describe('<Drawer.Root />', () => {
     await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('1');
+  });
+
+  it('honors canceled snap point changes and falls back from invalid uncontrolled values', async () => {
+    const handleSnapPointChange = vi.fn(
+      (
+        nextSnapPoint: Drawer.Root.SnapPoint | null,
+        eventDetails: Drawer.Root.SnapPointChangeEventDetails,
+      ) => {
+        if (nextSnapPoint === '100px') {
+          eventDetails.cancel();
+        }
+      },
+    );
+    const { user } = await render(
+      <Drawer.Root
+        defaultSnapPoint="300px"
+        onSnapPointChange={handleSnapPointChange}
+        snapPoints={['100px', '300px']}
+      >
+        <SnapPointContextControls />
+      </Drawer.Root>,
+    );
+
+    expect(screen.getByTestId('context-active-snap-point').textContent).toBe('300px');
+
+    await user.click(screen.getByRole('button', { name: 'Set canceled snap point' }));
+    expect(screen.getByTestId('context-active-snap-point').textContent).toBe('300px');
+
+    await user.click(screen.getByRole('button', { name: 'Set invalid snap point' }));
+    expect(screen.getByTestId('context-active-snap-point').textContent).toBe('300px');
+    expect(handleSnapPointChange).toHaveBeenLastCalledWith(
+      999,
+      expect.objectContaining({ reason: REASONS.none }),
+    );
+  });
+
+  it('normalizes invalid nested swipe progress without notifying for duplicate values', async () => {
+    const handleProgressChange = vi.fn();
+    const { user } = await render(
+      <Drawer.Root>
+        <NestedSwipeProgressProbe />
+        <NestedSwipeProgressSubscriber onChange={handleProgressChange} />
+        <Drawer.Root>
+          <NestedSwipeProgressControls />
+        </Drawer.Root>
+      </Drawer.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Set nested progress' }));
+    expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0.5');
+    expect(handleProgressChange).toHaveBeenCalledTimes(1);
+
+    handleProgressChange.mockClear();
+
+    await user.click(screen.getByRole('button', { name: 'Set nested progress' }));
+    expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0.5');
+    expect(handleProgressChange).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Set invalid nested progress' }));
+    expect(screen.getByTestId('nested-swipe-progress').textContent).toBe('0');
+    expect(handleProgressChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws a descriptive error when the root context is missing', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<MissingRootContextConsumer />)).rejects.toThrow(
+        'Base UI: DrawerRootContext is missing. Drawer parts must be placed within <Drawer.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('does not register an open drawer with its provider until an id is available', async () => {
+    useIdMockState.returnUndefined = true;
+
+    try {
+      await render(
+        <Drawer.Provider>
+          <Drawer.IndentBackground data-testid="background" />
+          <Drawer.Root open>Drawer</Drawer.Root>
+        </Drawer.Provider>,
+      );
+
+      await act(async () => {
+        await waitSingleFrame();
+      });
+      expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
+    } finally {
+      useIdMockState.returnUndefined = false;
+    }
   });
 
   it.skipIf(isJSDOM)('clears swipe-dismiss styles when swipe close is canceled', async () => {
@@ -1363,6 +1588,303 @@ describe('<Drawer.Root />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)('chooses the nearest sequential snap point on a slow drag', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="100px" snapToSequentialPoints />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 500, time: 1000 },
+        { type: 'move', x: 100, y: 499, time: 1010 },
+        { type: 'move', x: 100, y: 350, time: 2010 },
+        { type: 'up', x: 100, y: 350, time: 2011 },
+      ]);
+
+      expect(screen.getByTestId('active-snap').textContent).toBe('300px');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('advances a sequential snap point toward dismissal', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint={1} snapToSequentialPoints />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 140, time: 1020 },
+        { type: 'up', x: 100, y: 140, time: 1021 },
+      ]);
+
+      expect(screen.getByTestId('active-snap').textContent).toBe('300px');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('dismisses past the final sequential snap point', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="100px" snapToSequentialPoints />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 160, time: 1020 },
+        { type: 'up', x: 100, y: 160, time: 1021 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('dismisses when a slow snap-point drag ends closer to closed', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="100px" snapToSequentialPoints />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 180, time: 2010 },
+        { type: 'up', x: 100, y: 180, time: 2011 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('dismisses from upward snap points using upward velocity', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="100px" swipeDirection="up" />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 500, time: 1000 },
+        { type: 'move', x: 100, y: 499, time: 1010 },
+        { type: 'move', x: 100, y: 420, time: 1020 },
+        { type: 'up', x: 100, y: 420, time: 1021 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('opens from a controlled null snap point', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint={null} />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 99, time: 1010 },
+        { type: 'move', x: 100, y: 60, time: 1020 },
+        { type: 'up', x: 100, y: 60, time: 1021 },
+      ]);
+
+      expect(screen.getByTestId('active-snap').textContent).toBe('1');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('dismisses from a controlled null snap point', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint={null} />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 160, time: 1020 },
+        { type: 'up', x: 100, y: 160, time: 1021 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('keeps the first sequential snap point on a fast opening flick', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint={1} snapToSequentialPoints />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 99, time: 1010 },
+        { type: 'move', x: 100, y: 40, time: 1020 },
+        { type: 'up', x: 100, y: 40, time: 1021 },
+      ]);
+
+      expect(screen.getByTestId('active-snap').textContent).toBe('1');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('keeps the current snap point after a sub-threshold drag', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="300px" />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 105, time: 2010 },
+        { type: 'up', x: 100, y: 105, time: 2011 },
+      ]);
+
+      expect(screen.getByTestId('active-snap').textContent).toBe('300px');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('dismisses a non-sequential snap point when closed is nearest', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(<SnapPointGestureCase initialSnapPoint="100px" />);
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 180, time: 2010 },
+        { type: 'up', x: 100, y: 180, time: 2011 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)('finishes a controlled accepted dismissal while kept mounted', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(
+        <SnapPointGestureCase initialSnapPoint="100px" keepMounted snapToSequentialPoints />,
+      );
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 160, time: 1020 },
+        { type: 'up', x: 100, y: 160, time: 1021 },
+      ]);
+      await act(async () => {
+        await waitSingleFrame();
+      });
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-closed', '');
+    } finally {
+      env.cleanup();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'restores a snap point when a controlled parent rejects dismissal',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(
+          <SnapPointGestureCase initialSnapPoint="100px" rejectClose snapToSequentialPoints />,
+        );
+        const viewport = screen.getByTestId('viewport');
+        env.pointAt(screen.getByTestId('popup'));
+
+        await simulateTimestampedPointerSwipe(viewport, [
+          { type: 'down', x: 100, y: 100, time: 1000 },
+          { type: 'move', x: 100, y: 101, time: 1010 },
+          { type: 'move', x: 100, y: 160, time: 1020 },
+          { type: 'up', x: 100, y: 160, time: 1021 },
+        ]);
+        await act(async () => {
+          await waitSingleFrame();
+        });
+
+        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('closes an uncontrolled drawer after a slow long drag', async () => {
+    const env = setupSwipeTestEnv();
+
+    try {
+      await render(
+        <Drawer.Root defaultOpen swipeDirection="down">
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport">
+              <Drawer.Popup data-testid="popup" style={{ height: 200 }}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+      const viewport = screen.getByTestId('viewport');
+      env.pointAt(screen.getByTestId('popup'));
+
+      await simulateTimestampedPointerSwipe(viewport, [
+        { type: 'down', x: 100, y: 100, time: 1000 },
+        { type: 'move', x: 100, y: 101, time: 1010 },
+        { type: 'move', x: 100, y: 250, time: 2010 },
+        { type: 'up', x: 100, y: 250, time: 2011 },
+      ]);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    } finally {
+      env.cleanup();
+    }
+  });
+
   it('closes when CloseWatcher emits a close event', async () => {
     const handleOpenChange = vi.fn();
 
@@ -1402,10 +1924,11 @@ describe('<Drawer.Root />', () => {
 
       await act(async () => {
         instance.dispatchEvent(new Event('close'));
+        instance.dispatchEvent(new Event('close'));
         await flushMicrotasks();
       });
 
-      expect(handleOpenChange).toHaveBeenCalled();
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
       const lastCall = handleOpenChange.mock.calls[handleOpenChange.mock.calls.length - 1];
       expect(lastCall?.[0]).toBe(false);
       expect(lastCall?.[1]?.reason).toBe(REASONS.closeWatcher);

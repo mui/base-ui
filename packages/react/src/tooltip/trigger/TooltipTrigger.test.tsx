@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -14,6 +14,18 @@ describe('<Tooltip.Trigger />', () => {
       return render(<Tooltip.Root>{node}</Tooltip.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered without a root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Trigger>Trigger</Tooltip.Trigger>)).rejects.toThrow(
+        'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('removes `data-popup-open` as soon as `open` becomes false', async () => {
     function TooltipWithPreventedUnmount() {

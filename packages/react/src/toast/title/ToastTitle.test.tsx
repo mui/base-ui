@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
@@ -25,6 +25,26 @@ describe('<Toast.Title />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Toast.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <Toast.Title />
+            </Toast.Viewport>
+          </Toast.Provider>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: ToastRootContext is missing. Toast parts must be used within <Toast.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('adds aria-labelledby to the root element', async () => {
     const { user } = await render(

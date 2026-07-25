@@ -23,6 +23,7 @@ import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -139,8 +140,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (!hasProvider) {
       return delayWithDefault;
     }
-    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-    return groupOpenValue === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
+    return getDelay(delayRef.current, 'open') === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {
@@ -176,9 +176,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     restMs: getOpenDelay,
     delay() {
       if (closeDelay == null && hasProvider) {
-        return {
-          close: typeof delayRef.current === 'object' ? delayRef.current.close : undefined,
-        };
+        return { close: getDelay(delayRef.current, 'close') };
       }
       return { close: closeDelayWithDefault };
     },

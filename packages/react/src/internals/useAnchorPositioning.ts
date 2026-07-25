@@ -10,7 +10,7 @@ import {
   flip,
   limitShift,
   offset,
-  shift,
+  shift as floatingShift,
   size,
   type UseFloatingOptions,
   type UseFloatingReturn,
@@ -26,10 +26,10 @@ import {
   type FloatingTreeStore,
 } from '../floating-ui-react';
 import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
-import { useDirection } from '../internals/direction-context/DirectionContext';
+import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginConstants';
+import { hide } from '../utils/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';
@@ -153,7 +153,7 @@ export function useAnchorPositioningWithHook(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shiftCrossAxis = false,
+    shift,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -169,6 +169,8 @@ export function useAnchorPositioningWithHook(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
+  const shiftCrossAxis = shift?.crossAxis ?? false;
+  const shiftRootBoundary = shift?.rootBoundary;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -297,39 +299,40 @@ export function useAnchorPositioningWithHook(
         });
   const shiftMiddleware = shiftDisabled
     ? null
-    : shift(
-        (data) => {
-          const html = ownerDocument(data.elements.floating).documentElement;
-          return {
-            ...commonCollisionProps,
-            // Use the Layout Viewport to avoid shifting around when pinch-zooming
-            // for context menus.
-            rootBoundary: shiftCrossAxis
-              ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
-              : undefined,
-            mainAxis: collisionAvoidanceAlign !== 'none',
-            crossAxis: crossAxisShiftEnabled,
-            limiter:
-              sticky || shiftCrossAxis
-                ? undefined
-                : limitShift((limitData) => {
-                    if (!arrowRef.current) {
-                      return {};
-                    }
-                    const { width, height } = arrowRef.current.getBoundingClientRect();
-                    const sideAxis = getSideAxis(getSide(limitData.placement));
-                    const arrowSize = sideAxis === 'y' ? width : height;
-                    const offsetAmount =
-                      sideAxis === 'y'
-                        ? collisionPadding.left + collisionPadding.right
-                        : collisionPadding.top + collisionPadding.bottom;
-                    return {
-                      offset: arrowSize / 2 + offsetAmount / 2,
-                    };
-                  }),
-          };
+    : floatingShift(
+        {
+          ...commonCollisionProps,
+          // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+          rootBoundary: shiftRootBoundary,
+          mainAxis: collisionAvoidanceAlign !== 'none',
+          crossAxis: crossAxisShiftEnabled,
+          limiter:
+            sticky || shiftCrossAxis
+              ? undefined
+              : limitShift((limitData) => {
+                  if (!arrowRef.current) {
+                    return {};
+                  }
+                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const sideAxis = getSideAxis(getSide(limitData.placement));
+                  const arrowSize = sideAxis === 'y' ? width : height;
+                  const offsetAmount =
+                    sideAxis === 'y'
+                      ? collisionPadding.left + collisionPadding.right
+                      : collisionPadding.top + collisionPadding.bottom;
+                  return {
+                    offset: arrowSize / 2 + offsetAmount / 2,
+                  };
+                }),
         },
-        [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+        [
+          commonCollisionProps,
+          sticky,
+          shiftCrossAxis,
+          shiftRootBoundary,
+          collisionPadding,
+          collisionAvoidanceAlign,
+        ],
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
@@ -471,9 +474,18 @@ export function useAnchorPositioningWithHook(
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
-    const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
-      ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
-      : { position: resolvedPosition, ...originalFloatingStyles };
+    let base: React.CSSProperties & Record<string, unknown>;
+    if (!isPositioned) {
+      // Until a position for the current open is computed, ignore any coordinates retained from a
+      // previous open (or from a pass that measured the hidden popup as 0x0). Rendering the
+      // full-size popup at such stale coordinates can overflow the layout viewport, which makes
+      // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
+      base = { position: resolvedPosition, top: 0, left: 0 };
+    } else if (adaptiveOrigin) {
+      base = { position: resolvedPosition, [sideX]: x, [sideY]: y };
+    } else {
+      base = { ...originalFloatingStyles, position: resolvedPosition };
+    }
 
     // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
     // resolve to a valid length on the first positioning pass, before `size()` writes the real
@@ -757,7 +769,12 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shiftCrossAxis?: boolean | undefined;
+  shift?:
+    | {
+        crossAxis?: boolean | undefined;
+        rootBoundary?: 'layoutViewport' | undefined;
+      }
+    | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**

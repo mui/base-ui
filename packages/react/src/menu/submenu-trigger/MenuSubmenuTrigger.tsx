@@ -41,6 +41,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     ...elementProps
   } = componentProps;
 
+  const submenuRootContext = useMenuSubmenuRootContext();
+  if (!submenuRootContext?.parentMenu) {
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
+  }
+
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext();
 
@@ -78,11 +83,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     },
     [store],
   );
-
-  const submenuRootContext = useMenuSubmenuRootContext();
-  if (!submenuRootContext?.parentMenu) {
-    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
-  }
 
   store.useSyncedValue('closeDelay', closeDelay);
 

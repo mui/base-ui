@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -27,6 +27,18 @@ describe('<Menu.CheckboxItemIndicator />', () => {
       );
     },
   }));
+
+  it('throws when rendered outside Menu.CheckboxItem', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.CheckboxItemIndicator />)).rejects.toThrow(
+        'Base UI: MenuCheckboxItemContext is missing. MenuCheckboxItem parts must be placed within <Menu.CheckboxItem>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',

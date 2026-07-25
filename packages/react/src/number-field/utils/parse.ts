@@ -88,17 +88,20 @@ export function getNumberLocaleDetails(
   });
 
   // The formatting options may omit the decimal separator (e.g. integer formats), so resolve it
-  // from the plain locale formatter. This overrides any options-derived decimal too, which is
-  // safe because the separator is locale-determined and identical across format styles.
+  // from the plain locale formatter, which renders one for every locale and numbering system. This
+  // overrides any options-derived decimal too, which is safe because the separator is
+  // locale-determined and identical across format styles. The ASCII seed is a formality to keep
+  // the separator non-optional for callers; it is always replaced below.
+  let decimal = '.';
   getFormatter(locale)
     .formatToParts(0.1)
     .forEach((part) => {
       if (part.type === 'decimal') {
-        result[part.type] = part.value;
+        decimal = part.value;
       }
     });
 
-  return result;
+  return { ...result, decimal };
 }
 
 export function parseNumber(
@@ -106,12 +109,8 @@ export function parseNumber(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  if (formattedNumber == null) {
-    return null;
-  }
-
   // Normalize control characters and whitespace; remove bidi/format controls
-  let input = String(formattedNumber).replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
+  let input = formattedNumber.replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
 
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
@@ -169,7 +168,7 @@ export function parseNumber(
 
   const replacements: Array<[RegExp | null, string | ((m: string) => string)]> = [
     [groupRegex, ''],
-    [decimal ? new RegExp(escapeRegExp(decimal), 'g') : null, '.'],
+    [new RegExp(escapeRegExp(decimal), 'g'), '.'],
     // Fullwidth/Arabic punctuation
     [/[．٫]/g, '.'], // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
     [/[，٬]/g, ''], // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR (U+066C)

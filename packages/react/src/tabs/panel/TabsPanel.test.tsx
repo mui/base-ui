@@ -12,6 +12,55 @@ describe('<Tabs.Panel />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('throws a descriptive error when rendered outside <Tabs.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tabs.Panel value="1" keepMounted />)).rejects.toThrow(
+        'Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  describe('panels sharing a value', () => {
+    it('keeps the surviving registration when a shadowed panel unmounts', async () => {
+      function App() {
+        const [shadowedMounted, setShadowedMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setShadowedMounted(false)}>
+              unmount shadowed
+            </button>
+            <Tabs.Root value="a">
+              <Tabs.List>
+                <Tabs.Tab value="a">A</Tabs.Tab>
+                <Tabs.Tab value="b">B</Tabs.Tab>
+              </Tabs.List>
+              {shadowedMounted && <Tabs.Panel value="b" keepMounted data-testid="shadowed" />}
+              <Tabs.Panel value="b" keepMounted data-testid="owner" />
+            </Tabs.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const tabB = screen.getAllByRole('tab')[1];
+      const owner = screen.getByTestId('owner');
+
+      // The last panel to register owns the value.
+      expect(tabB).toHaveAttribute('aria-controls', owner.id);
+
+      await user.click(screen.getByRole('button', { name: 'unmount shadowed' }));
+
+      expect(screen.queryByTestId('shadowed')).toBe(null);
+      expect(tabB).toHaveAttribute('aria-controls', owner.id);
+    });
+  });
+
   describe('Suspense integration', () => {
     it.skipIf(reactMajor < 19)(
       'renders a panel that suspends when opened with the boundary outside the root',

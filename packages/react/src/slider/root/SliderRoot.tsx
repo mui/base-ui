@@ -191,21 +191,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   const setValue = useStableCallback(
-    (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
+    (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return false;
       }
-
-      const changeDetails =
-        details ??
-        createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      const nativeEvent = changeDetails.event;
-      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const nativeEvent = details.event;
+      const EventConstructor = nativeEvent.constructor as typeof Event;
       const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
@@ -213,15 +209,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         value: { value: newValue, name },
       });
 
-      changeDetails.event = clonedEvent;
+      details.event = clonedEvent;
 
-      onValueChange(newValue, changeDetails);
+      onValueChange(newValue, details);
 
-      if (changeDetails.isCanceled) {
+      if (details.isCanceled) {
         return false;
       }
 
-      lastChangeReasonRef.current = changeDetails.reason;
+      lastChangeReasonRef.current = details.reason;
 
       setValueUnwrapped(newValue as Value);
 
@@ -250,6 +246,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     if (min >= max) {
       warn('Slider `max` must be greater than `min`.');
@@ -257,18 +254,22 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   }
 
   useIsoLayoutEffect(() => {
+    if (!disabled) {
+      return;
+    }
+
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && contains(sliderRef.current, activeEl)) {
+    if (contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
       (activeEl as HTMLElement).blur();
     }
-  }, [disabled]);
 
-  if (disabled && active !== -1) {
-    setActive(-1);
-  }
+    if (active !== -1) {
+      setActive(-1);
+    }
+  }, [active, disabled, setActive]);
 
   const state: SliderRootState = React.useMemo(
     () => ({

@@ -43,6 +43,24 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
     expect(screen.queryByRole('presentation')).not.toBe(null);
   });
 
+  it('throws a descriptive error when rendered outside <NumberField.ScrubArea>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <NumberField.Root>
+            <NumberField.ScrubAreaCursor />
+          </NumberField.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: NumberFieldScrubAreaContext is missing. NumberFieldScrubArea parts must be placed within <NumberField.ScrubArea>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('renders when using mouse input', async () => {
     const originalRequestPointerLock = Element.prototype.requestPointerLock;
 

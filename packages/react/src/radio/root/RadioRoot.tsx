@@ -87,7 +87,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
   const registerFieldInput = validation?.registerInput;
   const registerInput = React.useCallback(
-    (element: HTMLInputElement | null) =>
+    (element: HTMLInputElement) =>
       registerFieldInput?.(element, { controlRef: radioRef, value: undefined }),
     [registerFieldInput],
   );

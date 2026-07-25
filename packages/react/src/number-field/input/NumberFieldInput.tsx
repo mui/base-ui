@@ -218,7 +218,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           blockRevalidationRef.current = false;
           return;
         }
-        committedValue = lastChangedValueRef.current ?? committed;
+        committedValue = lastChangedValueRef.current;
         // If validation normalized back to the current value, `useValueChanged` won't fire to
         // reset the flag, so reset it here or the next external change won't revalidate.
         if (committedValue === value) {
@@ -360,12 +360,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const willSetHome = event.key === 'Home' && min != null;
-      const willSetEnd = event.key === 'End' && max != null;
+      // Home/End jump to the corresponding bound, but only when that bound is defined.
+      let boundaryValue: number | null = null;
+      if (event.key === 'Home' && min != null) {
+        boundaryValue = min;
+      } else if (event.key === 'End' && max != null) {
+        boundaryValue = max;
+      }
 
       // Let the browser handle multi-character keys we don't act on (PageUp, Insert, F-keys,
       // Home/End without min/max); invalid single characters are still blocked below.
-      if (event.key.length > 1 && !isStepKey && !willSetHome && !willSetEnd) {
+      if (event.key.length > 1 && !isStepKey && boundaryValue === null) {
         return;
       }
 
@@ -386,7 +391,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
       let changed = false;
-      if (isStepKey || willSetHome || willSetEnd) {
+      if (isStepKey || boundaryValue !== null) {
         allowInputSyncRef.current = true;
       }
       if (isStepKey) {
@@ -403,15 +408,14 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-      } else if (willSetHome || willSetEnd) {
-        changed = setValue(
-          (willSetHome ? min : max) ?? null,
-          createChangeEventDetails(REASONS.keyboard, nativeEvent),
-        );
+      } else if (boundaryValue !== null) {
+        changed = setValue(boundaryValue, createChangeEventDetails(REASONS.keyboard, nativeEvent));
       }
 
+      // `changed` is only true when `setValue` applied the change, which records the stored
+      // (clamped/snapped) value, so commit that rather than the pre-validation input.
       if (changed) {
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+        onValueCommitted(lastChangedValueRef.current, commitDetails);
       }
     },
     onPaste(event) {
@@ -424,6 +428,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       try {
         pastedData = event.clipboardData?.getData('text/plain') ?? '';
       } catch {
+        /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           warn(
@@ -440,9 +445,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Insert the pasted text at the caret/selection instead of replacing the entire value,
       // matching native input behavior (e.g. pasting "5" into "123|" yields "1235").
+      // The component renders `type="text"`, which always reports a selection range. Overriding
+      // `type` with a selection-less one (`email`, `number`) is unsupported either way: the caret
+      // restore above throws on those, so there is no working behavior to preserve here.
       const input = event.currentTarget;
-      const selectionStart = input.selectionStart ?? inputValue.length;
-      const selectionEnd = input.selectionEnd ?? inputValue.length;
+      const selectionStart = input.selectionStart!;
+      const selectionEnd = input.selectionEnd!;
       const nextText =
         inputValue.slice(0, selectionStart) + pastedData + inputValue.slice(selectionEnd);
 

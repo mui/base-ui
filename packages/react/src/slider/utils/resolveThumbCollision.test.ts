@@ -194,4 +194,35 @@ describe('resolveThumbCollision', () => {
     expect(result.thumbIndex).toBe(1);
     expect(result.didSwap).toBe(true);
   });
+
+  it('uses current values when a controlled range grows during a swap interaction', () => {
+    const result = resolveThumbCollision(
+      'swap',
+      [20, 40],
+      [20, 40, 60],
+      [20, 40],
+      1,
+      70,
+      0,
+      100,
+      1,
+      0,
+    );
+
+    expect(result).toEqual({
+      value: [20, 60, 70],
+      thumbIndex: 2,
+      didSwap: true,
+    });
+  });
+
+  it('returns a scalar when the live values shrink to one item during an interaction', () => {
+    const result = resolveThumbCollision('push', [20, 40], [20], [20, 40], 0, 30, 0, 100, 1, 0);
+
+    expect(result).toEqual({
+      value: 30,
+      thumbIndex: 0,
+      didSwap: false,
+    });
+  });
 });

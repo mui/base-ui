@@ -38,7 +38,7 @@
         }
       }
 
-      &[data-popup-open] {
+      &[data-pressed] {
         background-color: var(--gray-c1);
       }
     }

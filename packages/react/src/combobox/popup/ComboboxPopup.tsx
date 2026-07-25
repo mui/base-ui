@@ -10,13 +10,13 @@ import { useComboboxFloatingContext, useComboboxRootContext } from '../root/Comb
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';

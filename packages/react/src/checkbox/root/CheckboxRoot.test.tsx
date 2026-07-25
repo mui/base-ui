@@ -99,6 +99,22 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('interactions', () => {
+    it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {
+      await render(
+        <Checkbox.Root
+          ref={(element) => {
+            if (element) {
+              element.focus();
+              element.blur();
+              element.click();
+            }
+          }}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should change its state when clicked', async () => {
       await render(<Checkbox.Root />);
       const [checkbox] = screen.getAllByRole('checkbox');
@@ -209,6 +225,21 @@ describe('<Checkbox.Root />', () => {
       });
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('ignores a hidden input click canceled before React handles it', async () => {
+      const handleCheckedChange = vi.fn();
+      await render(<Checkbox.Root onCheckedChange={handleCheckedChange} />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true })[1];
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      event.preventDefault();
+
+      fireEvent(input, event);
+
+      expect(handleCheckedChange).not.toHaveBeenCalled();
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
     it('can be activated with Space key', async () => {
@@ -490,6 +521,46 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
       fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('falls back to the Field control id when id is empty', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          <Checkbox.Root id="" />
+        </Field.Root>,
+      );
+
+      const label = screen.getByText('Label');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(input.id).not.toBe('');
+      expect(label).toHaveAttribute('for', input.id);
+
+      fireEvent.click(label);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('assigns an input id to a valueless child in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root />
+        </CheckboxGroup>,
+      );
+
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      expect(input.id).not.toBe('');
+    });
+
+    it('assigns a root id to a valueless native button in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root nativeButton render={<button />} />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByRole('checkbox').id).not.toBe('');
     });
   });
 

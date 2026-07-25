@@ -43,6 +43,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerDown,
     handlePointerUp,
     handleScroll,
+    disableViewportSnap,
     rootId,
     thumbSize,
     hasMeasuredScrollbar,
@@ -161,6 +162,12 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
         const scrollRatio = clickPosition / maxThumbOffset;
         const maxScrollDistance = scrollableSize - viewportSize;
+
+        // Disable snapping before the jump-to-click assignment, or the
+        // assigned position quantizes to the nearest snap point and the thumb
+        // stays offset from the pointer for the whole drag. `handlePointerDown`
+        // below re-runs this as a guarded no-op for the thumb-drag path.
+        disableViewportSnap();
 
         if (vertical) {
           viewportEl.scrollTop = scrollRatio * maxScrollDistance;

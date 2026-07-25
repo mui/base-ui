@@ -12,7 +12,7 @@ import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
-import { Side } from './useAnchorPositioning';
+import { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';
 

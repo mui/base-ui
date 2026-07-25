@@ -130,11 +130,29 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.disabled) {
-      return setInputRef(input);
-    }
+    const cleanup =
+      input.checked || currentInput == null || currentInput.disabled
+        ? setInputRef(input)
+        : undefined;
 
-    return undefined;
+    // Detach when this input unmounts while still forwarded, so consumers don't
+    // keep holding a disconnected node. The input may have become the forwarded
+    // one after attach (via the re-registration effect), so always return this.
+    return () => {
+      if (firstEnabledInputRef.current === input) {
+        firstEnabledInputRef.current = null;
+      }
+      if (groupInputRef.current === input) {
+        if (cleanup) {
+          cleanup();
+          groupInputRef.current = null;
+        } else {
+          void setInputRef(null);
+        }
+      } else {
+        cleanup?.();
+      }
+    };
   });
 
   const getFormValue = useStableCallback(() => {

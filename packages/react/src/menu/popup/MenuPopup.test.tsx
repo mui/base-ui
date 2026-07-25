@@ -1,8 +1,9 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { ToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
 describe('<Menu.Popup />', () => {
   const { render } = createRenderer();
@@ -19,6 +20,53 @@ describe('<Menu.Popup />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when rendered outside Menu.Positioner', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.Popup />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('stops toolbar navigation keys without blocking ordinary key events', async () => {
+    const onParentKeyDown = vi.fn();
+
+    await render(
+      <ToolbarRootContext.Provider value={{ disabled: false, orientation: 'horizontal' }}>
+        <div onKeyDown={onParentKeyDown}>
+          <Menu.Root>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup" />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      </ToolbarRootContext.Provider>,
+    );
+
+    const popup = screen.getByTestId('popup');
+    fireEvent(
+      popup,
+      new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight' }),
+    );
+    expect(onParentKeyDown).not.toHaveBeenCalled();
+
+    fireEvent(popup, new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'F1' }));
+    expect(onParentKeyDown).toHaveBeenCalled();
+    expect(onParentKeyDown.mock.calls.every(([event]) => event.key === 'F1')).toBe(true);
+  });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {

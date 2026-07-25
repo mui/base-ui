@@ -22,7 +22,7 @@ import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
@@ -223,7 +223,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           const doc = ownerDocument(event.currentTarget);
 
           function handleMouseUp(mouseEvent: MouseEvent) {
-            if (!triggerElement) {
+            const currentTriggerElement = store.state.triggerElement;
+            if (!currentTriggerElement) {
               return;
             }
 
@@ -232,14 +233,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             const list = store.state.listElement;
 
             if (
-              contains(triggerElement, mouseUpTarget) ||
+              contains(currentTriggerElement, mouseUpTarget) ||
               contains(positioner, mouseUpTarget) ||
               contains(list, mouseUpTarget)
             ) {
               return;
             }
 
-            if (isMouseWithinBounds(mouseEvent, triggerElement)) {
+            if (isMouseWithinBounds(mouseEvent, currentTriggerElement)) {
               return;
             }
 
@@ -251,7 +252,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onKeyDown(event) {
-          if (disabled || readOnly) {
+          if (readOnly) {
             return;
           }
 

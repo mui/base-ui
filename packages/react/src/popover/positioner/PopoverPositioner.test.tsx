@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -27,6 +27,22 @@ describe('<Popover.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Popover.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Popover.Root open>
+            <Popover.Positioner />
+          </Popover.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Popover.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;

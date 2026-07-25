@@ -397,6 +397,61 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  // The jump-to-click assignment must run with snapping already disabled, or the
+  // assigned position quantizes to the nearest snap point and the thumb stays
+  // offset from the pointer for the whole drag. Requires real layout for the
+  // track/thumb offset math, so Chromium only.
+  describe.skipIf(isJSDOM)('scroll snap on track press', () => {
+    it('does not snap the initial jump-to-click position', async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 400, height: 200 }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', scrollSnapType: 'x mandatory' }}
+          >
+            <div style={{ display: 'flex' }}>
+              {Array.from({ length: 10 }, (_, index) => (
+                <div
+                  key={index}
+                  style={{ flexShrink: 0, width: 200, height: 100, scrollSnapAlign: 'start' }}
+                />
+              ))}
+            </div>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="horizontal" data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const scrollbar = screen.getByTestId('scrollbar');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetWidth).toBeGreaterThan(0));
+
+      // Aim mid-way between the 800 and 1000 snap points (200px items).
+      const targetScroll = 900;
+      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+      const maxThumbOffset = scrollbar.offsetWidth - thumb.offsetWidth;
+      const rect = scrollbar.getBoundingClientRect();
+      const clickX =
+        rect.left + (targetScroll / maxScroll) * maxThumbOffset + thumb.offsetWidth / 2;
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: clickX,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(Math.abs(viewport.scrollLeft - targetScroll)).toBeLessThanOrEqual(1);
+
+      // Releasing restores snapping, which re-snaps to the nearest snap point.
+      fireEvent.pointerUp(scrollbar, { pointerId: 1 });
+      await waitFor(() => expect(viewport.scrollLeft % 200).toBe(0));
+    });
+  });
+
   // A short or heavily padded track drives `maxThumbOffset` to zero or negative
   // once the thumb hits its `MIN_THUMB_SIZE` floor. Dragging the thumb then
   // divides by a non-positive offset, teleporting the scroll position to an

@@ -419,7 +419,7 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 function DrawerProviderReporter() {
   const drawerId = useId();
 
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
   const store = useDialogRootContext(false);
 
   const open = store.useState('open');

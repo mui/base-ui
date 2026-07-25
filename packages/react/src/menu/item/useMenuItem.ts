@@ -14,7 +14,7 @@ export const REGULAR_ITEM = {
 export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
     closeOnClick,
-    disabled: disabledProp = false,
+    disabled: disabledProp,
     highlighted,
     id,
     store,

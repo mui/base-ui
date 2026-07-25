@@ -32,7 +32,6 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -168,7 +167,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     enabled:
       openOnHover &&
       !disabled &&
-      parent.type !== 'context-menu' &&
       (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
     mouseOnly: true,
@@ -187,7 +185,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled && parent.type !== 'context-menu',
+    enabled: !disabled,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
@@ -378,8 +376,6 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
 }
 
 function useMenuParent() {
-  const contextMenuContext = useContextMenuRootContext(true);
-  const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
 
   const parent: MenuParent = React.useMemo(() => {
@@ -390,20 +386,10 @@ function useMenuParent() {
       };
     }
 
-    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
-    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
-    // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContext) {
-      return {
-        type: 'context-menu',
-        context: contextMenuContext,
-      };
-    }
-
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentContext, menubarContext]);
+  }, [menubarContext]);
 
   return parent;
 }

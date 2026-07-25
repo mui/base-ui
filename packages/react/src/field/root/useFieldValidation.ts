@@ -99,10 +99,7 @@ export function useFieldValidation(
   // projection can use the same live controls. This also ensures a `required` checkbox can't be
   // satisfied by another input in the group, matching native per-checkbox behavior.
   const registerInput = React.useCallback(
-    (element: HTMLInputElement | null, registration: RegisteredInput) => {
-      if (!element) {
-        return undefined;
-      }
+    (element: HTMLInputElement, registration: RegisteredInput) => {
       registeredInputs.set(element, registration);
       return () => {
         registeredInputs.delete(element);
@@ -370,10 +367,7 @@ export interface UseFieldValidationReturnValue {
   getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
   registeredInputs: RegisteredInputs;
-  registerInput: (
-    element: HTMLInputElement | null,
-    registration: RegisteredInput,
-  ) => void | (() => void);
+  registerInput: (element: HTMLInputElement, registration: RegisteredInput) => void | (() => void);
   getInputControl: () => HTMLElement | null;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;

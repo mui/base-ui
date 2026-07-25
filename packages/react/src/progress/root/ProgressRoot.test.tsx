@@ -173,7 +173,7 @@ describe('<Progress.Root />', () => {
 
       const value = screen.getByTestId('value');
       const progressbar = screen.getByRole('progressbar');
-      expect(value).toHaveTextContent(formatValue(30));
+      expect(value.textContent).toBe(formatValue(30));
       expect(progressbar).toHaveAttribute('aria-valuetext', formatValue(30));
     });
 
@@ -191,10 +191,10 @@ describe('<Progress.Root />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(formatValue(30, usd));
+      expect(value.textContent).toBe(formatValue(30, usd));
 
       await setProps({ format: eur });
-      expect(value).toHaveTextContent(formatValue(30, eur));
+      expect(value.textContent).toBe(formatValue(30, eur));
     });
   });
 

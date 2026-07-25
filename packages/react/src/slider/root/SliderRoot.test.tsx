@@ -87,6 +87,12 @@ describe('<Slider.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('warns when max is not greater than min', async () => {
+    await expect(async () => {
+      await render(<TestSlider defaultValue={10} min={10} max={10} />);
+    }).toWarnDev('Base UI: Slider `max` must be greater than `min`.');
+  });
+
   describe('server-side rendering', () => {
     it('does not link Slider.Label before hydration', () => {
       renderToString(
@@ -242,6 +248,21 @@ describe('<Slider.Root />', () => {
       [root, value, control, track, indicator, thumb].forEach((subcomponent) => {
         expect(subcomponent).toHaveAttribute('data-disabled', '');
       });
+    });
+
+    it.skipIf(!isJSDOM)('explicitly blurs the focused thumb when disabled', async () => {
+      const { setProps } = await render(<TestSlider defaultValue={30} />);
+      const input = screen.getByRole('slider');
+
+      await act(async () => {
+        input.focus();
+      });
+      expect(input).toHaveFocus();
+      const blurSpy = vi.spyOn(input, 'blur');
+
+      await setProps({ disabled: true });
+
+      expect(blurSpy).toHaveBeenCalled();
     });
 
     // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
@@ -2788,7 +2809,7 @@ describe('<Slider.Root />', () => {
 
       const value = screen.getByTestId('value');
       const slider = screen.getByRole('slider');
-      expect(value).toHaveTextContent(formatValue(50));
+      expect(value.textContent).toBe(formatValue(50));
       expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
     });
 
@@ -2815,7 +2836,7 @@ describe('<Slider.Root />', () => {
       await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
+      expect(value.textContent).toBe(`${formatValue(50)} – ${formatValue(75)}`);
       const [slider1, slider2] = screen.getAllByRole('slider');
       expect(slider1).toHaveAttribute('aria-valuetext', `${formatValue(50)} start range`);
       expect(slider2).toHaveAttribute('aria-valuetext', `${formatValue(75)} end range`);

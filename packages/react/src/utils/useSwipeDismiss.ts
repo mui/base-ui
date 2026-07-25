@@ -727,8 +727,20 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       }
     }
 
+    // Only rewrite drag styles when the drag offset actually changed. `syncDragStyles` writes the
+    // raw (undamped) frozen transform and movement vars, relying on the consumer's `onProgress`
+    // to overwrite them with damped styles — but `updateSwipeProgress` dedupes unchanged
+    // deltas and skips `onProgress`. A move that doesn't change the offset (e.g. the cursor
+    // pinned at a screen edge during an off-screen drag, jittering only on the ignored axis)
+    // would otherwise reinstate the raw styles with no correction, jumping the element to the
+    // undamped position.
+    const previousOffset = dragOffsetRef.current;
+    const offsetChanged = newOffsetX !== previousOffset.x || newOffsetY !== previousOffset.y;
+
     dragOffsetRef.current = { x: newOffsetX, y: newOffsetY };
-    syncDragStyles(true);
+    if (offsetChanged) {
+      syncDragStyles(true);
+    }
     recordDragSample({ x: newOffsetX, y: newOffsetY }, getValidTimeStamp(event.timeStamp));
     const dragDeltaX = newOffsetX - initialTransformRef.current.x;
     const dragDeltaY = newOffsetY - initialTransformRef.current.y;
