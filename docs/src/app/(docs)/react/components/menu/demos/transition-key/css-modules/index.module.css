@@ -55,7 +55,7 @@
 
   --direction: 1;
 
-  &[data-activation-direction='back'] {
+  &[data-view-direction='back'] {
     --direction: -1;
   }
 

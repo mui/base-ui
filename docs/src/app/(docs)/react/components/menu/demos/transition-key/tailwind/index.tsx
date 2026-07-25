@@ -36,28 +36,32 @@ export default function MenuTransitionKeyDemo() {
           sideOffset={8}
           className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] outline-none transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
         >
-          <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,scale,opacity] duration-[0.35s,0.35s,100ms,100ms] ease-[cubic-bezier(0.22,1,0.36,1),cubic-bezier(0.22,1,0.36,1),ease-out,ease-out] data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <Menu.Popup
+            className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white outline-none shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[width,height,scale,opacity] duration-[0.35s,0.35s,100ms,100ms] ease-[cubic-bezier(0.22,1,0.36,1),cubic-bezier(0.22,1,0.36,1),ease-out,ease-out] data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0"
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowLeft' && view === 'more') {
+                event.preventDefault();
+                setView('main');
+              }
+            }}
+          >
             <Menu.Viewport
               transitionKey={view}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowLeft' && view === 'more') {
-                  setView('main');
-                }
-              }}
+              data-view-direction={view === 'more' ? 'forward' : 'back'}
               className={`
                 relative h-full w-full overflow-clip py-1
                 [&_[data-current]]:w-max
                 [&_[data-current]]:transition-[translate]
                 [&_[data-current]]:duration-[350ms]
                 [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
-                data-[activation-direction='forward']:[&_[data-current][data-starting-style]]:translate-x-full
-                data-[activation-direction='back']:[&_[data-current][data-starting-style]]:-translate-x-full
+                data-[view-direction='forward']:[&_[data-current][data-starting-style]]:translate-x-full
+                data-[view-direction='back']:[&_[data-current][data-starting-style]]:-translate-x-full
                 [&_[data-previous]]:w-max
                 [&_[data-previous]]:transition-[translate]
                 [&_[data-previous]]:duration-[350ms]
                 [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
-                data-[activation-direction='forward']:[&_[data-previous][data-ending-style]]:-translate-x-full
-                data-[activation-direction='back']:[&_[data-previous][data-ending-style]]:translate-x-full`}
+                data-[view-direction='forward']:[&_[data-previous][data-ending-style]]:-translate-x-full
+                data-[view-direction='back']:[&_[data-previous][data-ending-style]]:translate-x-full`}
             >
               {view === 'main' ? (
                 <div className="flex flex-col">
@@ -70,6 +74,7 @@ export default function MenuTransitionKeyDemo() {
                     onClick={() => setView('more')}
                     onKeyDown={(event) => {
                       if (event.key === 'ArrowRight') {
+                        event.preventDefault();
                         setView('more');
                       }
                     }}

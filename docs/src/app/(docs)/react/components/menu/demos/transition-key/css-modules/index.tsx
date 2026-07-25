@@ -20,15 +20,19 @@ export default function MenuTransitionKeyDemo() {
       <Menu.Trigger className={baseStyles.Button}>Options</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8} className={styles.Positioner}>
-          <Menu.Popup className={styles.Popup}>
+          <Menu.Popup
+            className={styles.Popup}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowLeft' && view === 'more') {
+                event.preventDefault();
+                setView('main');
+              }
+            }}
+          >
             <Menu.Viewport
               className={styles.Viewport}
               transitionKey={view}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowLeft' && view === 'more') {
-                  setView('main');
-                }
-              }}
+              data-view-direction={view === 'more' ? 'forward' : 'back'}
             >
               {view === 'main' ? (
                 <div className={styles.List}>
@@ -41,6 +45,7 @@ export default function MenuTransitionKeyDemo() {
                     onClick={() => setView('more')}
                     onKeyDown={(event) => {
                       if (event.key === 'ArrowRight') {
+                        event.preventDefault();
                         setView('more');
                       }
                     }}

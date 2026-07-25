@@ -60,11 +60,9 @@ export interface UsePopupViewportParameters {
   transitionKey?: React.Key | undefined;
   /**
    * Called when the rendered content is swapped for different content.
-   * When provided, it replaces the default focus recovery entirely.
-   * The second argument distinguishes a `transitionKey` change from a trigger switch.
    * Must be a stable function reference.
    */
-  onContentSwap?: ((focusWasInside: boolean, transitionKeyChanged: boolean) => void) | undefined;
+  onContentSwap?: (() => void) | undefined;
   /**
    * Called to move focus when a content swap dropped it (focus was inside the previous
    * content and now sits on `<body>`). Receives the new content container and the popup
@@ -204,7 +202,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     lastTransitionKeyRef.current = transitionKey;
 
     if (contentChanged) {
-      onContentSwap?.(focusWasInsideRef.current, transitionKeyChanged);
+      onContentSwap?.();
     }
 
     // When a trigger or the transition key changes, set the captured children HTML to state,
@@ -262,16 +260,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     // later swap would pull focus back from wherever the user had moved it.
     focusWasInsideRef.current = contains(container, focusedElement);
 
-    // `onContentSwap` owns focus recovery when provided, but the flag above is still re-derived
-    // for it, since it reads the same ref on the next swap.
-    if (
-      onFocusRecovery &&
-      !onContentSwap &&
-      (focusedElement == null || focusedElement === doc.body)
-    ) {
+    if (onFocusRecovery && (focusedElement == null || focusedElement === doc.body)) {
       onFocusRecovery(container, popupElement);
     }
-  }, [currentContentKey, popupElement, onContentSwap, onFocusRecovery]);
+  }, [currentContentKey, popupElement, onFocusRecovery]);
 
   // Capture a clone of the current content DOM subtree on every commit, so the snapshot stays
   // current even when the content mutates without a key change (an expanding Collapsible, say).
