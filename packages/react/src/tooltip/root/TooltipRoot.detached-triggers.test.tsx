@@ -528,53 +528,67 @@ describe('<Tooltip.Root />', () => {
       });
     });
 
-    it('preserves payload through a kept-mounted exit and clears it after unmount', async () => {
-      const actionsRef = React.createRef<Tooltip.Root.Actions | null>();
+    it('does not restore a cleared payload when a controlled root closes later', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       let removeTrigger: () => void = () => {};
+      let close: () => void = () => {};
 
       function Test() {
+        const [open, setOpen] = React.useState(true);
         const [showTrigger, setShowTrigger] = React.useState(true);
         removeTrigger = () => setShowTrigger(false);
+        close = () => setOpen(false);
 
         return (
-          <Tooltip.Root
-            actionsRef={actionsRef}
-            defaultOpen
-            defaultTriggerId="trigger"
-            onOpenChange={(nextOpen, details) => {
-              if (!nextOpen) {
-                details.preventUnmountOnClose();
+          <React.Fragment>
+            <style>{`
+              @keyframes tooltip-controlled-close {
+                to { opacity: 0; }
               }
-            }}
-          >
-            {({ payload }: NumberPayload) => (
-              <React.Fragment>
-                {showTrigger && (
-                  <Tooltip.Trigger id="trigger" payload={1} delay={0}>
-                    Trigger
-                  </Tooltip.Trigger>
-                )}
-                <span data-testid="payload">{payload ?? 'none'}</span>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner>
-                    <Tooltip.Popup>Popup</Tooltip.Popup>
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </React.Fragment>
-            )}
-          </Tooltip.Root>
+              [data-testid="popup"][data-ending-style] {
+                animation: tooltip-controlled-close 10s linear;
+              }
+            `}</style>
+            <Tooltip.Root
+              open={open}
+              defaultTriggerId="trigger"
+              onOpenChange={() => {
+                // Keep the controlled tooltip open after its trigger disappears.
+              }}
+            >
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  {showTrigger && (
+                    <Tooltip.Trigger id="trigger" payload={1} delay={0}>
+                      Trigger
+                    </Tooltip.Trigger>
+                  )}
+                  <span data-testid="payload">{payload ?? 'none'}</span>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="popup">Popup</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          </React.Fragment>
         );
       }
 
-      await render(<Test />);
-      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+      try {
+        await render(<Test />);
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
 
-      await act(async () => removeTrigger());
-      await flushMicrotasks();
-      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+        await act(async () => removeTrigger());
+        await flushMicrotasks();
+        expect(screen.getByTestId('payload')).toHaveTextContent('none');
 
-      await act(async () => actionsRef.current!.unmount());
-      expect(screen.getByTestId('payload')).toHaveTextContent('none');
+        await act(async () => close());
+        expect(screen.getByTestId('payload')).toHaveTextContent('none');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
     });
 
     it('should remain open when the active trigger unmount close is canceled', async () => {

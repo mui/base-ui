@@ -5,7 +5,6 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
@@ -1773,61 +1772,21 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('resets inline viewport inertness in the value-change commit', async () => {
-      const viewportRef = React.createRef<HTMLDivElement>();
-      const committedInertValues: boolean[] = [];
+    it('supports function values', async () => {
+      const itemValue = () => 'item';
 
-      function CommitProbe({ value }: { value: string }) {
-        useIsoLayoutEffect(() => {
-          committedInertValues.push(viewportRef.current?.hasAttribute('inert') ?? false);
-        }, [value]);
-        return null;
-      }
+      await render(
+        <NavigationMenu.Root value={itemValue}>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value={itemValue}>
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>Content</NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+        </NavigationMenu.Root>,
+      );
 
-      function ControlledNavigationMenu({ value }: { value: string }) {
-        return (
-          <React.Fragment>
-            <button data-testid="outside">Outside</button>
-            <NavigationMenu.Root value={value}>
-              <NavigationMenu.List>
-                <NavigationMenu.Item value="item-1">
-                  <NavigationMenu.Trigger>Item 1</NavigationMenu.Trigger>
-                  <NavigationMenu.Content>
-                    <NavigationMenu.Link href="#one">One</NavigationMenu.Link>
-                  </NavigationMenu.Content>
-                </NavigationMenu.Item>
-                <NavigationMenu.Item value="item-2">
-                  <NavigationMenu.Trigger>Item 2</NavigationMenu.Trigger>
-                  <NavigationMenu.Content>
-                    <NavigationMenu.Link href="#two">Two</NavigationMenu.Link>
-                  </NavigationMenu.Content>
-                </NavigationMenu.Item>
-              </NavigationMenu.List>
-              <NavigationMenu.Viewport ref={viewportRef} />
-              <CommitProbe value={value} />
-            </NavigationMenu.Root>
-          </React.Fragment>
-        );
-      }
-
-      const { setProps } = await render(<ControlledNavigationMenu value="item-1" />);
-      const outside = screen.getByTestId('outside');
-
-      fireEvent.blur(viewportRef.current!, { relatedTarget: outside });
-      expect(viewportRef.current).toHaveAttribute('inert');
-
-      committedInertValues.length = 0;
-      await setProps({ value: 'item-2' });
-      expect(committedInertValues).toEqual([false]);
-      expect(viewportRef.current).not.toHaveAttribute('inert');
-
-      fireEvent.blur(viewportRef.current!, { relatedTarget: outside });
-      expect(viewportRef.current).toHaveAttribute('inert');
-
-      committedInertValues.length = 0;
-      await setProps({ value: 'item-1' });
-      expect(committedInertValues).toEqual([false]);
-      expect(viewportRef.current).not.toHaveAttribute('inert');
+      expect(screen.getByRole('button', { name: 'Item' })).toHaveAttribute('aria-expanded', 'true');
     });
 
     async function assertPopupSizeIsPreservedWhenControlledValueClosesExternally(

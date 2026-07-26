@@ -58,18 +58,24 @@ export function AutocompleteRoot<ItemValue>(
   let inlineInputValue = inlineInputValueState.inputValue ?? '';
   if (inlineInputValueState.mode !== mode || !Object.is(inlineInputValueState.value, value)) {
     inlineInputValue = '';
-    setInlineInputValueState({
-      inputValue: null,
-      value,
-      mode,
-    });
+    setInlineInputValue(null);
   }
 
-  function setInlineInputValue(inputValue: string) {
-    setInlineInputValueState({
-      inputValue,
-      value,
-      mode,
+  function setInlineInputValue(inputValue: string | null, nextValue = value) {
+    setInlineInputValueState((currentState) => {
+      if (
+        currentState.inputValue === inputValue &&
+        Object.is(currentState.value, nextValue) &&
+        currentState.mode === mode
+      ) {
+        return currentState;
+      }
+
+      return {
+        inputValue,
+        value: nextValue,
+        mode,
+      };
     });
   }
 
@@ -110,11 +116,7 @@ export function AutocompleteRoot<ItemValue>(
   }, [baseFilter, mode, resolvedQuery, staticItems]);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
-    setInlineInputValueState({
-      inputValue: '',
-      value: isControlled ? nextValue : value,
-      mode,
-    });
+    setInlineInputValue('', isControlled ? nextValue : value);
     if (!isControlled) {
       setInternalValue(nextValue);
     }

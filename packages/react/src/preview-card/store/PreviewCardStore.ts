@@ -9,7 +9,6 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  triggerPayloadSelector,
   type PopupTriggerStoreKeys,
   updateInlineRectCoords,
 } from '../../utils/popups';
@@ -31,7 +30,6 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  payload: triggerPayloadSelector,
   instantType: (state: State<unknown>) => state.instantType,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,

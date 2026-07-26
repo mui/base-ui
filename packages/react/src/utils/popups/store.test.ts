@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  triggerPayloadSelector,
-  type PopupStoreState,
-} from './store';
+import { createInitialPopupStoreState, popupStoreSelectors, type PopupStoreState } from './store';
 
 function createState(state: Partial<PopupStoreState<unknown>>) {
   return {
@@ -14,73 +9,7 @@ function createState(state: Partial<PopupStoreState<unknown>>) {
   };
 }
 
-describe('triggerPayloadSelector', () => {
-  it('hides payload while open without an active trigger', () => {
-    expect(
-      triggerPayloadSelector(
-        createState({
-          activeTriggerId: null,
-          mounted: true,
-          open: true,
-          payload: 1,
-        }),
-      ),
-    ).toBe(undefined);
-  });
-
-  it('preserves payload while a closed popup remains mounted for exit', () => {
-    expect(
-      triggerPayloadSelector(
-        createState({
-          activeTriggerId: null,
-          mounted: true,
-          open: false,
-          payload: 1,
-        }),
-      ),
-    ).toBe(1);
-  });
-
-  it('hides unowned payload after the popup unmounts', () => {
-    expect(
-      triggerPayloadSelector(
-        createState({
-          activeTriggerId: null,
-          mounted: false,
-          open: false,
-          payload: 1,
-        }),
-      ),
-    ).toBe(undefined);
-  });
-
-  it('exposes payload owned by an active trigger', () => {
-    expect(
-      triggerPayloadSelector(
-        createState({
-          mounted: true,
-          open: true,
-          payload: 1,
-        }),
-      ),
-    ).toBe(1);
-  });
-});
-
 describe('popupStoreSelectors', () => {
-  it('returns raw payload for handle-backed popups without a trigger', () => {
-    expect(
-      popupStoreSelectors.payload(
-        createState({
-          activeTriggerId: null,
-          mounted: true,
-          open: true,
-          payload: 1,
-        }),
-      ),
-    ).toBe(1);
-  });
-
   describe('isOpenedByTrigger', () => {
     it('uses the controlled open state when present', () => {
       expect(

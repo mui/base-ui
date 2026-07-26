@@ -924,6 +924,46 @@ describe('<Autocomplete.Root />', () => {
       expect(committedInputValues).toEqual(['ba']);
     });
 
+    it('mode changes clear the temporary inline value', async () => {
+      const items = ['apple', 'banana'];
+
+      function Test({ mode }: { mode: 'both' | 'list' }) {
+        const [value, setValue] = React.useState('');
+
+        return (
+          <Autocomplete.Root mode={mode} items={items} value={value} onValueChange={setValue}>
+            <Autocomplete.Input />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(item) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<Test mode="both" />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await user.keyboard('{ArrowDown}');
+      expect(input.value).toBe('apple');
+
+      await setProps({ mode: 'list' });
+      expect(input.value).toBe('a');
+
+      await setProps({ mode: 'both' });
+      expect(input.value).toBe('a');
+    });
+
     it('mode="inline": static items with inline overlay', async () => {
       const { user } = await render(
         <Autocomplete.Root mode="inline" openOnInputClick>
