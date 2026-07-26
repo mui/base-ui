@@ -105,14 +105,18 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 
   const defaultTriggerId = useBaseUiId();
-  const [triggerId, setTriggerId] = React.useState<string | undefined>();
+  // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.
+  const [registeredTriggerId, setTriggerId] = React.useState<string | null | undefined>();
+  const triggerId =
+    registeredTriggerId === null ? undefined : (registeredTriggerId ?? defaultTriggerId);
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
+      defaultTriggerId,
       open: isOpen,
       state,
       setTriggerId,
-      triggerId: triggerId ?? defaultTriggerId,
+      triggerId,
     }),
     [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );

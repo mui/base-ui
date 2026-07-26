@@ -39,10 +39,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     useAccordionRootContext();
 
   const {
+    defaultPanelId,
     mounted,
     onOpenChange,
     open,
-    panelId,
     setMounted,
     setOpen,
     setPanelIdState,
@@ -51,6 +51,8 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
   const keepMounted = keepMountedProp ?? contextKeepMounted;
+  const registeredId = idProp || undefined;
+  const id = idProp ?? defaultPanelId;
 
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
@@ -65,14 +67,11 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   }
 
   useIsoLayoutEffect(() => {
-    if (idProp) {
-      setPanelIdState(idProp);
-      return () => {
-        setPanelIdState((currentId) => (currentId === idProp ? undefined : currentId));
-      };
-    }
-    return undefined;
-  }, [idProp, setPanelIdState]);
+    setPanelIdState((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
+    return () => {
+      setPanelIdState((currentId) => (currentId === registeredId ? null : currentId));
+    };
+  }, [registeredId, setPanelIdState]);
 
   const {
     height,
@@ -85,7 +84,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   } = useCollapsiblePanel({
     externalRef: forwardedRef,
     hiddenUntilFound,
-    id: idProp ?? panelId,
+    id,
     keepMounted,
     mounted,
     onOpenChange,

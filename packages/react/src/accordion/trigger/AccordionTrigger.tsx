@@ -40,16 +40,16 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     native: nativeButton,
   });
 
-  const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
+  const { defaultTriggerId, state, setTriggerId } = useAccordionItemContext();
+  const registeredId = idProp || undefined;
+  const id = registeredId ?? defaultTriggerId;
 
   useIsoLayoutEffect(() => {
-    if (idProp) {
-      setTriggerId(idProp);
-    }
+    setTriggerId((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
     return () => {
-      setTriggerId((currentId) => (currentId === idProp ? undefined : currentId));
+      setTriggerId((currentId) => (currentId === registeredId ? null : currentId));
     };
-  }, [idProp, setTriggerId]);
+  }, [registeredId, setTriggerId]);
 
   const props = {
     'aria-controls': open ? panelId : undefined,
