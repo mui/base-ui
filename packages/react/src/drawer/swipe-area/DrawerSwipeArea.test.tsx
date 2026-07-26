@@ -628,6 +628,7 @@ describe('<Drawer.SwipeArea />', () => {
     try {
       await setProps({ disabled: true });
       expect(cleanupPhases.at(-1)).toBe(true);
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
       expect(swipeArea).toHaveAttribute('data-disabled', '');
     } finally {
       providerContext!.visualStateStore.set = originalSetVisualState;
