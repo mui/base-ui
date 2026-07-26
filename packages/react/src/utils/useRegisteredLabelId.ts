@@ -11,7 +11,6 @@ export function useRegisteredLabelId(
 
   useIsoLayoutEffect(() => {
     setLabelId(id);
-
     return () => {
       setLabelId((currentId) => (currentId === id ? undefined : currentId));
     };

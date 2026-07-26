@@ -43,7 +43,6 @@ export function useToastLabelElement(
     }
 
     setId(id);
-
     return () => {
       setId((currentId) => (currentId === id ? undefined : currentId));
     };
