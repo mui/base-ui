@@ -45,6 +45,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const mounted = useStore(store, selectors.mounted);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
+  const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
@@ -85,6 +86,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     state,
     ref: [forwardedRef, store.state.popupRef],
     props: [
+      popupProps,
       {
         id: popupId,
         role: inputInsidePopup ? 'dialog' : 'presentation',
