@@ -3312,6 +3312,22 @@ describe('<Combobox.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('sets aria-expanded on the input when rendered inline and open', async () => {
+      await render(
+        <Combobox.Root inline open>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      expect(input).toHaveAttribute('role', 'combobox');
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+    });
+
     it('sets correct attributes on the item when highlighted', async () => {
       const { user } = await render(
         <Combobox.Root defaultOpen>

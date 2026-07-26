@@ -1106,10 +1106,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
-  let ariaExpanded: 'true' | 'false' | undefined;
+  const ariaExpanded = open ? 'true' : 'false';
   if (!inline) {
     ariaHasPopup = grid ? 'grid' : 'listbox';
-    ariaExpanded = open ? 'true' : 'false';
   }
 
   const role: ElementProps = React.useMemo(() => {
