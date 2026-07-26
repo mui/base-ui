@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -15,6 +16,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+
+const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
 /**
  * A menu item that opens a submenu.
@@ -171,6 +174,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       hoverProps,
       rootTriggerProps,
       itemProps,
+      // Opening a submenu changes the trigger's expanded state while the trigger still holds
+      // focus, and VoiceOver announces that state change instead of the submenu item that focus
+      // moves to a moment later, so the first item is never announced. Dropping the state while
+      // the submenu is open avoids the announcement without claiming the submenu is collapsed;
+      // `aria-haspopup` still conveys that the item opens a submenu.
+      open && platform.screenReader.voiceOver ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
