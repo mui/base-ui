@@ -3328,6 +3328,22 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveAttribute('aria-controls', listbox.id);
     });
 
+    it('sets the popup type on the input when rendered inline as a grid', async () => {
+      await render(
+        <Combobox.Root inline open grid>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const grid = screen.getByRole('grid');
+
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-haspopup', 'grid');
+      expect(input).toHaveAttribute('aria-controls', grid.id);
+    });
+
     it('sets correct attributes on the item when highlighted', async () => {
       const { user } = await render(
         <Combobox.Root defaultOpen>

@@ -1107,7 +1107,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
   const ariaExpanded = open ? 'true' : 'false';
-  if (!inline) {
+  if (!inline || grid) {
     ariaHasPopup = grid ? 'grid' : 'listbox';
   }
 
