@@ -805,6 +805,28 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
+      it.skipIf(isJSDOM)(
+        'focuses the submenu popup when opened by clicking a trigger',
+        async () => {
+          const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await user.click(submenuTrigger);
+
+          const submenu = await screen.findByTestId('submenu');
+          await waitFor(() => {
+            expect(submenu).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowDown]');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+        },
+      );
+
       it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
