@@ -45,7 +45,7 @@ export function useToastLabelElement(
     setId(id);
 
     return () => {
-      setId(undefined);
+      setId((currentId) => (currentId === id ? undefined : currentId));
     };
   }, [shouldRender, id, setId]);
 

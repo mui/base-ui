@@ -1,10 +1,11 @@
 'use client';
+import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../internals/useBaseUiId';
 
 export function useRegisteredLabelId(
   idProp: string | undefined,
-  setLabelId: (id: string | undefined) => void,
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>,
 ): string | undefined {
   const id = useBaseUiId(idProp);
 
@@ -12,7 +13,7 @@ export function useRegisteredLabelId(
     setLabelId(id);
 
     return () => {
-      setLabelId(undefined);
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
     };
   }, [id, setLabelId]);
 

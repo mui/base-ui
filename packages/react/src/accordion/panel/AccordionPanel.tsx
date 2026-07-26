@@ -68,7 +68,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
-        setPanelIdState(undefined);
+        setPanelIdState((currentId) => (currentId === idProp ? undefined : currentId));
       };
     }
     return undefined;

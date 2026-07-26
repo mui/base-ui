@@ -63,7 +63,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
-        setPanelIdState(undefined);
+        setPanelIdState((currentId) => (currentId === idProp ? undefined : currentId));
       };
     }
     return undefined;

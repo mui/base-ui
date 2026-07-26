@@ -109,7 +109,7 @@ export interface UseCollapsibleRootReturnValue {
   panelId: React.HTMLAttributes<Element>['id'];
   setMounted: (nextMounted: boolean) => void;
   setOpen: (open: boolean) => void;
-  setPanelIdState: (id: string | undefined) => void;
+  setPanelIdState: React.Dispatch<React.SetStateAction<string | undefined>>;
   transitionStatus: TransitionStatus;
 }
 

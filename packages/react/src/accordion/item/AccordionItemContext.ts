@@ -5,7 +5,7 @@ import type { AccordionItemState } from './AccordionItem';
 export interface AccordionItemContext {
   open: boolean;
   state: AccordionItemState;
-  setTriggerId: (id: string | undefined) => void;
+  setTriggerId: React.Dispatch<React.SetStateAction<string | undefined>>;
   triggerId?: string | undefined;
 }
 

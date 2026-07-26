@@ -47,7 +47,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
       setTriggerId(idProp);
     }
     return () => {
-      setTriggerId(undefined);
+      setTriggerId((currentId) => (currentId === idProp ? undefined : currentId));
     };
   }, [idProp, setTriggerId]);
 
