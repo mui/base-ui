@@ -16,6 +16,93 @@ describe('<Dialog.Root />', () => {
   describe('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
+    it('opens from a descendant layout effect on initial mount', async () => {
+      const handle = Dialog.createHandle();
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function OpenOnMount() {
+        useIsoLayoutEffect(() => {
+          handle.open(null);
+        }, []);
+        return null;
+      }
+
+      await render(
+        <Dialog.Root handle={handle}>
+          <OpenOnMount />
+        </Dialog.Root>,
+      );
+
+      const detachedWarned = consoleWarn.mock.calls.some(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(detachedWarned).toBe(false);
+      expect(handle.isOpen).toBe(true);
+    });
+
+    it('opens with a payload from a descendant layout effect on initial mount', async () => {
+      const handle = Dialog.createHandle<number>();
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function OpenOnMount() {
+        useIsoLayoutEffect(() => {
+          handle.openWithPayload(8);
+        }, []);
+        return null;
+      }
+
+      await render(
+        <Dialog.Root handle={handle}>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <span data-testid="payload">{payload ?? 'No payload'}</span>
+              <OpenOnMount />
+            </React.Fragment>
+          )}
+        </Dialog.Root>,
+      );
+
+      const detachedWarned = consoleWarn.mock.calls.some(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(detachedWarned).toBe(false);
+      expect(handle.isOpen).toBe(true);
+      expect(screen.getByTestId('payload').textContent).toBe('8');
+    });
+
+    it('closes from a descendant layout effect on an initially open root', async () => {
+      const handle = Dialog.createHandle();
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function CloseOnMount() {
+        useIsoLayoutEffect(() => {
+          handle.close();
+        }, []);
+        return null;
+      }
+
+      await render(
+        <Dialog.Root handle={handle} defaultOpen>
+          <CloseOnMount />
+        </Dialog.Root>,
+      );
+
+      const detachedWarned = consoleWarn.mock.calls.some(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(detachedWarned).toBe(false);
+      expect(handle.isOpen).toBe(false);
+    });
+
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Dialog.createHandle<number>();
 
