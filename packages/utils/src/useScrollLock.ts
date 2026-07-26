@@ -1,9 +1,9 @@
 'use client';
+import * as React from 'react';
 import { isOverflowElement } from '@floating-ui/utils/dom';
 import { addEventListener } from './addEventListener';
 import { platform } from './platform';
 import { ownerDocument, ownerWindow } from './owner';
-import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 
@@ -310,7 +310,7 @@ const SCROLL_LOCKER = new ScrollLocker();
  * @param referenceElement - Element to use as a reference for lock calculations.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement: Element | null = null) {
-  useIsoLayoutEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }

@@ -16,42 +16,42 @@ import {
 export function DrawerProvider(props: DrawerProvider.Props) {
   const { children } = props;
 
-  const [openById, setOpenById] = React.useState(() => new Map<string, boolean>());
+  const [openByDrawer, setOpenByDrawer] = React.useState(() => new Map<object, boolean>());
   const [visualStateStore] = React.useState(createVisualStateStore);
 
-  const setDrawerOpen = useStableCallback((drawerId: string, open: boolean) => {
-    setOpenById((prev) => {
-      const prevOpen = prev.get(drawerId);
+  const setDrawerOpen = useStableCallback((drawer: object, open: boolean) => {
+    setOpenByDrawer((prev) => {
+      const prevOpen = prev.get(drawer);
       if (prevOpen === open) {
         return prev;
       }
 
       const next = new Map(prev);
-      next.set(drawerId, open);
+      next.set(drawer, open);
       return next;
     });
   });
 
-  const removeDrawer = useStableCallback((drawerId: string) => {
-    setOpenById((prev) => {
-      if (!prev.has(drawerId)) {
+  const removeDrawer = useStableCallback((drawer: object) => {
+    setOpenByDrawer((prev) => {
+      if (!prev.has(drawer)) {
         return prev;
       }
 
       const next = new Map(prev);
-      next.delete(drawerId);
+      next.delete(drawer);
       return next;
     });
   });
 
   const active = React.useMemo(() => {
-    for (const open of openById.values()) {
+    for (const open of openByDrawer.values()) {
       if (open) {
         return true;
       }
     }
     return false;
-  }, [openById]);
+  }, [openByDrawer]);
 
   const contextValue = React.useMemo(
     () => ({

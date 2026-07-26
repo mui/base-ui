@@ -386,7 +386,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     }
   });
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       resetSwipe();
       resetDragDelta();

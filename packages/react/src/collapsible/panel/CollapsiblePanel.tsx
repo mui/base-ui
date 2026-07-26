@@ -34,7 +34,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on `Collapsible.Panel` is ignored when `hiddenUntilFound` is enabled, since the panel must remain mounted while closed.',

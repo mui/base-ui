@@ -1,7 +1,13 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  type DrawerProviderContext,
+  useDrawerProviderContext,
+} from '../provider/DrawerProviderContext';
 
 const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
 
@@ -518,39 +524,67 @@ describe('<Drawer.SwipeArea />', () => {
   });
 
   it('cancels an active opening gesture when the swipe area becomes disabled', async () => {
+    let disabledPassiveEffectFlushed = false;
+    let providerContext: DrawerProviderContext | undefined;
+    const cleanupPhases: boolean[] = [];
+
+    const SwipeAreaPhaseBoundary = React.forwardRef<
+      HTMLDivElement,
+      React.ComponentPropsWithoutRef<'div'>
+    >(function SwipeAreaPhaseBoundary(props, ref) {
+      useIsoLayoutEffect(() => {
+        disabledPassiveEffectFlushed = false;
+      });
+
+      React.useEffect(() => {
+        disabledPassiveEffectFlushed = true;
+      });
+
+      return <div {...props} ref={ref} />;
+    });
+
+    function ProviderContextCapture() {
+      providerContext = useDrawerProviderContext();
+      return null;
+    }
+
     function TestCase({ disabled }: { disabled: boolean }) {
       return (
-        <Drawer.Root>
-          <Drawer.SwipeArea
-            data-testid="swipe-area"
-            disabled={disabled}
-            ref={(element) => {
-              if (element) {
-                Object.defineProperty(element, 'offsetHeight', {
-                  configurable: true,
-                  value: 100,
-                });
-              }
-            }}
-          />
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup
-                data-testid="popup"
-                ref={(element) => {
-                  if (element) {
-                    Object.defineProperty(element, 'offsetHeight', {
-                      configurable: true,
-                      value: 100,
-                    });
-                  }
-                }}
-              >
-                Drawer
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.Root>
+        <Drawer.Provider>
+          <ProviderContextCapture />
+          <Drawer.Root>
+            <Drawer.SwipeArea
+              data-testid="swipe-area"
+              disabled={disabled}
+              render={<SwipeAreaPhaseBoundary />}
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetHeight', {
+                    configurable: true,
+                    value: 100,
+                  });
+                }
+              }}
+            />
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup
+                  data-testid="popup"
+                  ref={(element) => {
+                    if (element) {
+                      Object.defineProperty(element, 'offsetHeight', {
+                        configurable: true,
+                        value: 100,
+                      });
+                    }
+                  }}
+                >
+                  Drawer
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>
+        </Drawer.Provider>
       );
     }
 
@@ -580,11 +614,24 @@ describe('<Drawer.SwipeArea />', () => {
       pointerType: 'mouse',
     });
     await flushMicrotasks();
-    expect(screen.getByTestId('popup')).toHaveAttribute('data-swiping', '');
+    const popup = screen.getByTestId('popup');
+    expect(popup).toHaveAttribute('data-swiping', '');
 
-    await setProps({ disabled: true });
-    expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
-    expect(swipeArea).toHaveAttribute('data-disabled', '');
+    const originalSetVisualState = providerContext!.visualStateStore.set;
+    providerContext!.visualStateStore.set = (state) => {
+      if (state.swipeProgress === 0) {
+        cleanupPhases.push(!disabledPassiveEffectFlushed);
+      }
+      originalSetVisualState(state);
+    };
+
+    try {
+      await setProps({ disabled: true });
+      expect(cleanupPhases.at(-1)).toBe(true);
+      expect(swipeArea).toHaveAttribute('data-disabled', '');
+    } finally {
+      providerContext!.visualStateStore.set = originalSetVisualState;
+    }
   });
 
   it('does not prevent a non-cancelable pointer start', async () => {

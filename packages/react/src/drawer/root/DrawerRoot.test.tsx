@@ -4,6 +4,7 @@ import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
+import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from './DrawerRootContext';
 
 const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
@@ -1234,25 +1235,105 @@ describe('<Drawer.Root />', () => {
     }
   });
 
-  it('does not register an open drawer with its provider until an id is available', async () => {
-    useIdMockState.returnUndefined = true;
+  it.each([
+    {
+      label: 'a controlled drawer',
+      rootProps: { open: true },
+      strict: false,
+      withoutUseId: false,
+    },
+    {
+      label: 'a default-open drawer in Strict Mode',
+      rootProps: { defaultOpen: true },
+      strict: true,
+      withoutUseId: false,
+    },
+    {
+      label: 'the React 17 id fallback',
+      rootProps: { defaultOpen: true },
+      strict: true,
+      withoutUseId: true,
+    },
+  ])(
+    'reports and unregisters $label before passive effects',
+    async ({ rootProps, strict, withoutUseId }) => {
+      let mountPassiveEffectFlushed = false;
+      let teardownPassiveEffectFlushed = false;
+      let mountedBeforePassiveEffect: boolean | null = null;
+      let unmountedBeforePassiveEffect: boolean | null = null;
+      let phase: 'mount' | 'teardown' = 'mount';
+      const patchedContexts = new WeakSet<object>();
 
-    try {
-      await render(
-        <Drawer.Provider>
-          <Drawer.IndentBackground data-testid="background" />
-          <Drawer.Root open>Drawer</Drawer.Root>
-        </Drawer.Provider>,
-      );
+      function PassiveEffectBoundary() {
+        React.useEffect(() => {
+          mountPassiveEffectFlushed = true;
+          return () => {
+            if (phase === 'teardown') {
+              teardownPassiveEffectFlushed = true;
+            }
+          };
+        }, []);
+        return null;
+      }
 
-      await act(async () => {
-        await waitSingleFrame();
-      });
-      expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
-    } finally {
-      useIdMockState.returnUndefined = false;
-    }
-  });
+      function ProviderMethodProbe() {
+        const providerContext = useDrawerProviderContext();
+
+        if (providerContext && !patchedContexts.has(providerContext)) {
+          patchedContexts.add(providerContext);
+          const { setDrawerOpen, removeDrawer } = providerContext;
+
+          providerContext.setDrawerOpen = (...args) => {
+            if (mountedBeforePassiveEffect === null) {
+              mountedBeforePassiveEffect = !mountPassiveEffectFlushed;
+            }
+            setDrawerOpen(...args);
+          };
+          providerContext.removeDrawer = (...args) => {
+            if (phase === 'teardown' && unmountedBeforePassiveEffect === null) {
+              unmountedBeforePassiveEffect = !teardownPassiveEffectFlushed;
+            }
+            removeDrawer(...args);
+          };
+        }
+
+        return null;
+      }
+
+      function TestCase({ showDrawer }: { showDrawer: boolean }) {
+        const content = (
+          <Drawer.Provider>
+            {showDrawer && <PassiveEffectBoundary />}
+            {showDrawer && (
+              <Drawer.Root modal={false} {...rootProps}>
+                <ProviderMethodProbe />
+              </Drawer.Root>
+            )}
+            <Drawer.IndentBackground data-testid="background" />
+          </Drawer.Provider>
+        );
+
+        return strict ? <React.StrictMode>{content}</React.StrictMode> : content;
+      }
+
+      useIdMockState.returnUndefined = withoutUseId;
+
+      try {
+        const { setProps } = await render(<TestCase showDrawer />);
+
+        expect(mountedBeforePassiveEffect).toBe(true);
+        expect(screen.getByTestId('background')).toHaveAttribute('data-active', '');
+
+        phase = 'teardown';
+        await setProps({ showDrawer: false });
+
+        expect(unmountedBeforePassiveEffect).toBe(true);
+        expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
+      } finally {
+        useIdMockState.returnUndefined = false;
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)('clears swipe-dismiss styles when swipe close is canceled', async () => {
     const env = setupSwipeTestEnv();

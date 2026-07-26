@@ -5,6 +5,9 @@ import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { useDrawerProviderContext } from './DrawerProviderContext';
 
+const manualDrawer = {};
+const missingDrawer = {};
+
 function ProviderControls() {
   const context = useDrawerProviderContext();
 
@@ -14,10 +17,10 @@ function ProviderControls() {
 
   return (
     <React.Fragment>
-      <button onClick={() => context.setDrawerOpen('manual', true)}>Register open</button>
-      <button onClick={() => context.setDrawerOpen('manual', false)}>Register closed</button>
-      <button onClick={() => context.removeDrawer('manual')}>Remove registered</button>
-      <button onClick={() => context.removeDrawer('missing')}>Remove missing</button>
+      <button onClick={() => context.setDrawerOpen(manualDrawer, true)}>Register open</button>
+      <button onClick={() => context.setDrawerOpen(manualDrawer, false)}>Register closed</button>
+      <button onClick={() => context.removeDrawer(manualDrawer)}>Remove registered</button>
+      <button onClick={() => context.removeDrawer(missingDrawer)}>Remove missing</button>
       <button
         onClick={() => context.visualStateStore.set({ swipeProgress: 0.5, frontmostHeight: 120 })}
       >
