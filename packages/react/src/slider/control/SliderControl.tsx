@@ -427,8 +427,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   React.useEffect(() => {
     const control = controlRef.current;
-    if (!control) {
-      return () => stopListening();
+    if (!control || disabled) {
+      stopListening();
+      return undefined;
     }
 
     const unsubscribeTouchStart = addEventListener(control, 'touchstart', handleTouchStart, {
@@ -441,13 +442,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       stopListening();
     };
-  }, [stopListening, handleTouchStart, controlRef, focusFrame]);
-
-  React.useEffect(() => {
-    if (disabled) {
-      stopListening();
-    }
-  }, [disabled, stopListening]);
+  }, [disabled, stopListening, handleTouchStart, controlRef, focusFrame]);
 
   const element = useRenderElement('div', componentProps, {
     state,

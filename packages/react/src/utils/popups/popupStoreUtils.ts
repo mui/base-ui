@@ -546,14 +546,11 @@ export function usePopupRootSync<
     if (!open && store.state.openMethod !== null) {
       store.set('openMethod', null);
     }
-  }, [open, store]);
 
-  useIsoLayoutEffect(
-    () => () => {
-      if (store.state.openMethod !== null) {
+    return () => {
+      if (open && store.state.openMethod !== null) {
         store.set('openMethod', null);
       }
-    },
-    [store],
-  );
+    };
+  }, [open, store]);
 }

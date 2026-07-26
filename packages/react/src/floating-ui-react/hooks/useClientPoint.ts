@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getWindow } from '@floating-ui/utils/dom';
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -124,7 +125,6 @@ export function useClientPoint(
   const cleanupListenerRef = React.useRef<null | (() => void)>(null);
 
   const [pointerType, setPointerType] = React.useState<string | undefined>();
-  const [reactive, setReactive] = React.useState([]);
 
   const resetReference = useStableCallback((reference: Element | null) => {
     store.set('positionReference', reference);
@@ -156,37 +156,26 @@ export function useClientPoint(
     },
   );
 
-  const handleReferenceEnterOrMove = useStableCallback((event: React.MouseEvent<Element>) => {
-    if (!open) {
-      setReference(event.clientX, event.clientY, event.currentTarget as Element);
-    } else if (!cleanupListenerRef.current) {
-      // If there's no cleanup, there's no listener, but we want to ensure
-      // we add the listener if the cursor landed on the floating element and
-      // then back on the reference (i.e. it's interactive).
-      setReference(event.clientX, event.clientY, event.currentTarget as Element);
-      setReactive([]);
-    }
-  });
-
   // If the pointer is a mouse-like pointer, we want to continue following the
   // mouse even if the floating element is transitioning out. On touch
   // devices, this is undesirable because the floating element will move to
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  React.useEffect(() => {
-    if (!enabled) {
-      resetReference(domReference);
-      return undefined;
-    }
+  const cleanupListener = useStableCallback(() => {
+    cleanupListenerRef.current?.();
+    cleanupListenerRef.current = null;
+  });
 
-    if (!openCheck) {
-      return undefined;
-    }
+  const registerListener = useStableCallback(() => {
+    cleanupListener();
 
-    function cleanupListener() {
-      cleanupListenerRef.current?.();
-      cleanupListenerRef.current = null;
+    if (
+      !enabled ||
+      !openCheck ||
+      (dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent))
+    ) {
+      return;
     }
 
     const win = getWindow(floating);
@@ -201,24 +190,34 @@ export function useClientPoint(
       }
     }
 
-    if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
-      cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
-    } else {
+    cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
+  });
+
+  const handleReferenceEnterOrMove = useStableCallback((event: React.MouseEvent<Element>) => {
+    if (!open) {
+      setReference(event.clientX, event.clientY, event.currentTarget as Element);
+    } else if (!cleanupListenerRef.current) {
+      // If there's no cleanup, there's no listener, but we want to ensure
+      // we add the listener if the cursor landed on the floating element and
+      // then back on the reference (i.e. it's interactive).
+      setReference(event.clientX, event.clientY, event.currentTarget as Element);
+      registerListener();
+    }
+  });
+
+  React.useEffect(() => {
+    registerListener();
+    return cleanupListener;
+  }, [openCheck, enabled, floating, dataRef, registerListener, cleanupListener]);
+
+  useIsoLayoutEffect(() => {
+    if (
+      !enabled ||
+      (openCheck && dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent))
+    ) {
       resetReference(domReference);
     }
-
-    return cleanupListener;
-  }, [
-    openCheck,
-    enabled,
-    floating,
-    dataRef,
-    domReference,
-    store,
-    setReference,
-    resetReference,
-    reactive,
-  ]);
+  }, [enabled, openCheck, dataRef, domReference, resetReference]);
 
   // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
   React.useEffect(
@@ -232,13 +231,11 @@ export function useClientPoint(
     if (enabled && !floating) {
       initialRef.current = false;
     }
-  }, [enabled, floating]);
 
-  React.useEffect(() => {
     if (!enabled && open) {
       initialRef.current = true;
     }
-  }, [enabled, open]);
+  }, [enabled, floating, open]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerTypeRef(event: React.PointerEvent) {

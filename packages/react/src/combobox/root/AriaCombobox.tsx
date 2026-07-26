@@ -485,14 +485,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
-  const initialSelectedValueRef = React.useRef(selectedValue);
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (selectedValue !== initialSelectedValueRef.current) {
-      forceMount();
-    }
-  }, [forceMount, selectedValue]);
-
   /**
    * Emits `onItemHighlighted` for the item at `index`, or clears the highlight when `index` is `-1`
    * (a no-op if nothing was highlighted). Keeps `lastHighlightRef` in sync with what was emitted.
@@ -966,6 +958,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     }
 
+    // Avoid making the first ArrowDown a no-op after an always-highlighted list becomes empty.
+    if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+
     if (!open && !inline) {
       return;
     }
@@ -1011,6 +1008,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     flatFilteredItems,
     inline,
     open,
+    setIndices,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as
     // clearing the input when no items are filtered out (individually rendered items).
@@ -1026,14 +1024,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
     );
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
-
-  // Ensures that the active index is not set to 0 when the list is empty.
-  // This avoids needing to press ArrowDown twice under certain conditions.
-  React.useEffect(() => {
-    if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
-      setIndices({ activeIndex: null });
-    }
-  }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
   function isSelectedValueDirty(value: Value | Value[] | null) {
     const initialValue = validityData.initialValue;
@@ -1063,6 +1053,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }
 
   useValueChanged(selectedValue, () => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    forceMount();
+
     if (selectionMode === 'none') {
       return;
     }
