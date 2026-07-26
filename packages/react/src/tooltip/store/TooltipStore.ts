@@ -14,6 +14,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  triggerPayloadSelector,
   type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
@@ -35,6 +36,7 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
+  payload: triggerPayloadSelector,
   disabled: (state: State<unknown>) => state.disabled,
   instantType: (state: State<unknown>) => state.instantType,
   isInstantPhase: (state: State<unknown>) => state.isInstantPhase,

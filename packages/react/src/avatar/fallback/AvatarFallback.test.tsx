@@ -1,7 +1,8 @@
 import { Mock, vi, expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { waitFor, screen } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { reactMajor, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
@@ -136,6 +137,46 @@ describe('<Avatar.Fallback />', () => {
       await setProps({ delay: 0 });
 
       expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('does not add a follow-up commit when delay changes to 0', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      let commitCount = 0;
+
+      function CommitProbe() {
+        useIsoLayoutEffect(() => {
+          commitCount += 1;
+        });
+        return null;
+      }
+
+      function Test(props: { delay: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback
+              delay={props.delay}
+              render={(fallbackProps) => (
+                <span {...fallbackProps}>
+                  <CommitProbe />
+                  {fallbackProps.children}
+                </span>
+              )}
+            >
+              AC
+            </Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test delay={100} />);
+
+      commitCount = 0;
+      await setProps({ delay: 0 });
+
+      // Strict Mode replays the mount layout effect. The previous passive latch
+      // added one more committed render.
+      expect(commitCount).toBe(reactMajor >= 18 ? 2 : 1);
     });
 
     it('keeps the fallback visible when delay changes from undefined to a number', async () => {

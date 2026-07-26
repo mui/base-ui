@@ -210,6 +210,16 @@ export const popupStoreSelectors = {
   positionerElement: (state: S) => state.positionerElement,
 };
 
+/**
+ * Hides trigger-owned payload from an open popup without a trigger, while keeping
+ * it available as a closed popup remains mounted for its exit transition.
+ */
+export function triggerPayloadSelector<State extends PopupStoreState<unknown>>(state: State) {
+  return activeTriggerIdSelector(state) != null || (!openSelector(state) && state.mounted)
+    ? state.payload
+    : undefined;
+}
+
 export type PopupStoreSelectors = typeof popupStoreSelectors;
 
 /**

@@ -599,6 +599,55 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
+    it('preserves payload through a kept-mounted exit and clears it after unmount', async () => {
+      const actionsRef = React.createRef<PreviewCard.Root.Actions | null>();
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <PreviewCard.Root
+            actionsRef={actionsRef}
+            defaultOpen
+            defaultTriggerId="trigger"
+            onOpenChange={(nextOpen, details) => {
+              if (!nextOpen) {
+                details.preventUnmountOnClose();
+              }
+            }}
+          >
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                {showTrigger && (
+                  <PreviewCard.Trigger href="#" id="trigger" payload={1} delay={0}>
+                    Trigger
+                  </PreviewCard.Trigger>
+                )}
+                <span data-testid="payload">{payload ?? 'none'}</span>
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup>Popup</PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              </React.Fragment>
+            )}
+          </PreviewCard.Root>
+        );
+      }
+
+      await render(<Test />);
+      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+      await act(async () => removeTrigger());
+      await flushMicrotasks();
+      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+      await act(async () => actionsRef.current!.unmount());
+      expect(screen.getByTestId('payload')).toHaveTextContent('none');
+    });
+
     it('should remain open when the active trigger unmount close is canceled', async () => {
       let removeFirstTrigger: () => void = () => {};
       const onOpenChange = vi.fn((nextOpen, details: PreviewCard.Root.ChangeEventDetails) => {

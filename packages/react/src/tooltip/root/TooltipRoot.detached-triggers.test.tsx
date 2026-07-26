@@ -528,6 +528,55 @@ describe('<Tooltip.Root />', () => {
       });
     });
 
+    it('preserves payload through a kept-mounted exit and clears it after unmount', async () => {
+      const actionsRef = React.createRef<Tooltip.Root.Actions | null>();
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <Tooltip.Root
+            actionsRef={actionsRef}
+            defaultOpen
+            defaultTriggerId="trigger"
+            onOpenChange={(nextOpen, details) => {
+              if (!nextOpen) {
+                details.preventUnmountOnClose();
+              }
+            }}
+          >
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                {showTrigger && (
+                  <Tooltip.Trigger id="trigger" payload={1} delay={0}>
+                    Trigger
+                  </Tooltip.Trigger>
+                )}
+                <span data-testid="payload">{payload ?? 'none'}</span>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup>Popup</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </React.Fragment>
+            )}
+          </Tooltip.Root>
+        );
+      }
+
+      await render(<Test />);
+      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+      await act(async () => removeTrigger());
+      await flushMicrotasks();
+      expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+      await act(async () => actionsRef.current!.unmount());
+      expect(screen.getByTestId('payload')).toHaveTextContent('none');
+    });
+
     it('should remain open when the active trigger unmount close is canceled', async () => {
       let removeFirstTrigger: () => void = () => {};
       const onOpenChange = vi.fn((nextOpen, details: Tooltip.Root.ChangeEventDetails) => {

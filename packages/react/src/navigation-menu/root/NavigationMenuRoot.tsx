@@ -102,7 +102,13 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const [floatingRootContext, setFloatingRootContext] = React.useState<
     FloatingRootContext | undefined
   >(undefined);
+  const [previousValue, setPreviousValue] = React.useState(value);
   const [viewportInert, setViewportInert] = React.useState(false);
+
+  if (!Object.is(previousValue, value)) {
+    setPreviousValue(value);
+    setViewportInert(false);
+  }
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
   const currentContentRef = React.useRef<HTMLDivElement | null>(null);
@@ -144,10 +150,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       closeTransitionSize.height,
     );
   }, [open, popupElement, positionerElement]);
-
-  React.useEffect(() => {
-    setViewportInert(false);
-  }, [value]);
 
   const setValue = useStableCallback(
     (

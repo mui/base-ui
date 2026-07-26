@@ -73,8 +73,15 @@ export function useCollapsiblePanel(
   // Only used to handle panel close
   const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
 
+  // `forcePanelIdle` only overrides the shared starting phase. Reset it during
+  // render once that phase ends so children never commit the obsolete override.
+  if (forcePanelIdle && transitionStatus !== 'starting') {
+    setForcePanelIdle(false);
+  }
+
   const hidden = !open && !mounted;
-  const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
+  const panelTransitionStatus =
+    forcePanelIdle && transitionStatus === 'starting' ? 'idle' : transitionStatus;
   const shouldPreventOpenAnimation =
     open &&
     // These 2 refs are safe to read in render, they are only written from committed
@@ -129,17 +136,6 @@ export function useCollapsiblePanel(
       shouldPreventActivityResumeAnimationRef.current = true;
     }
   });
-
-  useIsoLayoutEffect(() => {
-    // `forcePanelIdle` is only a temporary override for open paths that skip
-    // motion. Keep it active while the shared root still reports `starting`,
-    // then drop it once the root transition state catches up.
-    if (!forcePanelIdle || transitionStatus === 'starting') {
-      return;
-    }
-
-    setForcePanelIdle(false);
-  }, [forcePanelIdle, transitionStatus]);
 
   React.useEffect(() => {
     return () => {
