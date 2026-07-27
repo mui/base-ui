@@ -207,6 +207,11 @@ function findAnchorRowElement(
 const ADAPTIVE_ESTIMATE_MIN_SAMPLES = 3;
 
 /**
+ * Nearby rows do not accumulate enough estimate error to justify delaying scroll completion.
+ */
+const ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE = 10;
+
+/**
  * How long after the last scroll position change a gesture is considered finished. Refreshing the
  * estimate rewrites the height of every unmeasured row at once, so it is held back until then.
  */
@@ -301,6 +306,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
   const pendingScrollAlignmentRef = React.useRef<ListVirtualizerScrollAlignment>('auto');
   const pendingScrollRequiresMeasurementRef = React.useRef(false);
+  const pendingScrollRequiresAdaptiveEstimateRef = React.useRef(false);
   /**
    * The last `scrollTop` this component itself wrote, so user-driven scrolling can be told apart
    * from the scroll events of our own corrective writes.
@@ -338,9 +344,16 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const handleScrollChange = useStableCallback((scrollPosition: { top: number }) => {
     // Scroll events matching the last position this component wrote are echoes of its own
     // corrective writes; only genuine user scrolling affects gesture state below.
+    const hasRecentDirectInput =
+      performance.now() - lastDirectInputTimeRef.current <= DIRECT_INPUT_WINDOW_MS;
     const isProgrammatic =
-      programmaticScrollTopRef.current != null &&
-      Math.abs(scrollPosition.top - programmaticScrollTopRef.current) <= 1;
+      (programmaticScrollTopRef.current != null &&
+        Math.abs(scrollPosition.top - programmaticScrollTopRef.current) <= 1) ||
+      // Expanding a collection can queue several corrective native scroll events while its
+      // adaptive estimate settles. None of those are user takeovers unless direct input occurred.
+      (pendingScrollRequiresAdaptiveEstimateRef.current &&
+        !hasRecentDirectInput &&
+        !pointerDownRef.current);
 
     if (!isProgrammatic) {
       isScrollingRef.current = true;
@@ -349,15 +362,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         bumpScrollIdleRevision();
       });
 
-      const isScrollbarDrag =
-        pointerDownRef.current &&
-        performance.now() - lastDirectInputTimeRef.current > DIRECT_INPUT_WINDOW_MS;
+      const isScrollbarDrag = pointerDownRef.current && !hasRecentDirectInput;
       isScrollbarDragRef.current = isScrollbarDrag;
 
       // User scrolling supersedes a pending scroll-to-row request: retrying the retained
       // destination after the user took over would yank the list away from where they scrolled.
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
     }
 
     scrollTopRef.current = scrollPosition.top;
@@ -619,6 +631,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     currentScrollTop,
     dimensions.viewportInnerSize.height,
   );
+  const overscannedRenderContextRef = React.useRef(overscannedRenderContext);
+  overscannedRenderContextRef.current = overscannedRenderContext;
   const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
   renderZoneOffsetTopRef.current = renderZoneOffsetTop;
 
@@ -886,8 +900,27 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         pendingScrollRequiresMeasurementRef.current = true;
       }
 
-      // `false` keeps the request pending even if an estimated scroll was performed.
-      return measured;
+      const renderedRow = Array.from(renderZoneRef.current?.children ?? []).find(
+        (element) =>
+          Number((element as HTMLElement).dataset.rowIndex) === rowIndex &&
+          (element as HTMLElement).style.position !== 'absolute',
+      );
+      const renderedRowRect = renderedRow?.getBoundingClientRect();
+      const scrollElementRect = scrollElement.getBoundingClientRect();
+      const renderedRowIsVisible =
+        renderedRowRect != null &&
+        renderedRowRect.bottom > scrollElementRect.top &&
+        renderedRowRect.top < scrollElementRect.bottom;
+      const requiresAdaptiveEstimate = pendingScrollRequiresAdaptiveEstimateRef.current;
+
+      // A distant row measured while the collection was filtered can make the estimate-based first
+      // pass look complete even though the expanded collection retained it only as an offscreen
+      // focus proxy. Keep that request pending until the static estimate settles and the real row
+      // is visible; otherwise the first refinement can move it back out of view.
+      return (
+        measured &&
+        (!requiresAdaptiveEstimate || (adaptiveEstimateRef.current != null && renderedRowIsVisible))
+      );
     },
   );
 
@@ -904,10 +937,12 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingScrollRowIdRef.current = row.id;
       pendingScrollAlignmentRef.current = align;
       pendingScrollRequiresMeasurementRef.current = false;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
 
       if (scrollRowIntoView(rowIndex, false, align)) {
         pendingScrollRowIndexRef.current = null;
         pendingScrollRowIdRef.current = null;
+        pendingScrollRequiresAdaptiveEstimateRef.current = false;
       }
     },
   );
@@ -924,6 +959,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     if (!enabled || scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
       return;
     }
 
@@ -931,14 +967,24 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     pendingScrollRowIdRef.current = scrollToRowId;
     pendingScrollAlignmentRef.current = 'auto';
     pendingScrollRequiresMeasurementRef.current = false;
+    const currentRenderContext = overscannedRenderContextRef.current;
+    pendingScrollRequiresAdaptiveEstimateRef.current =
+      pendingScrollRequiresAdaptiveEstimateRef.current ||
+      (useAdaptiveEstimate &&
+        adaptiveEstimateRef.current == null &&
+        (scrollToRowIndex <
+          currentRenderContext.firstRowIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
+          scrollToRowIndex >
+            currentRenderContext.lastRowIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE));
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the
     // rowsMeta effect below corrects the position once ResizeObserver updates it.
     if (scrollRowIntoView(scrollToRowIndex)) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
     }
-  }, [enabled, scrollRowIntoView, scrollToRowId, scrollToRowIndex]);
+  }, [enabled, scrollRowIntoView, scrollToRowId, scrollToRowIndex, useAdaptiveEstimate]);
 
   // Scroll anchoring: geometry updates (measurements replacing estimates, mounts realizing real
   // heights, estimate refreshes) can move the rendered rows relative to the scrollport while the
@@ -1192,6 +1238,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     if (rowIndex != null && rowsRef.current[rowIndex]?.id !== pendingScrollRowIdRef.current) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
       return;
     }
 
@@ -1205,8 +1252,15 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     ) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
+      pendingScrollRequiresAdaptiveEstimateRef.current = false;
     }
-  }, [rows, rowsMeta, scrollRowIntoView]);
+  }, [
+    overscannedRenderContext.firstRowIndex,
+    overscannedRenderContext.lastRowIndex,
+    rows,
+    rowsMeta,
+    scrollRowIntoView,
+  ]);
 
   const rowsRenderContext: RenderContext = enabled
     ? overscannedRenderContext

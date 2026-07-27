@@ -754,6 +754,93 @@ describe('<Combobox.Virtualizer />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'keeps a filtered selection visible when reopening a variable-height list',
+    async () => {
+      vi.restoreAllMocks();
+
+      function Test() {
+        const [expanded, setExpanded] = React.useState(false);
+
+        return (
+          <Combobox.Root items={createItems(10000)}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger" onClick={() => setExpanded(true)} />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Virtualizer
+                      estimatedItemHeight={12}
+                      overscanPx={0}
+                      render={
+                        <div
+                          data-testid="virtualizer"
+                          style={{
+                            border: '1px solid transparent',
+                            boxSizing: 'border-box',
+                            height: expanded ? 352 : 32,
+                            scrollPaddingBlock: 4,
+                            width: 200,
+                          }}
+                        />
+                      }
+                    >
+                      {(item: string) => {
+                        const itemNumber = Number(item.slice('Item '.length));
+                        const hasLargeText = itemNumber % 3 === 0;
+                        const hasTwoLines = itemNumber % 5 === 0;
+                        let height = 32;
+                        if (hasLargeText && hasTwoLines) {
+                          height = 64;
+                        } else if (hasTwoLines) {
+                          height = 48;
+                        } else if (hasLargeText) {
+                          height = 40;
+                        }
+
+                        return (
+                          <Combobox.Item
+                            key={item}
+                            value={item}
+                            style={{ display: 'block', height }}
+                          >
+                            {item}
+                          </Combobox.Item>
+                        );
+                      }}
+                    </Combobox.Virtualizer>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'Item 9997');
+      await user.click(await screen.findByRole('option', { name: 'Item 9997' }));
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const virtualizer = await screen.findByTestId('virtualizer');
+      const selectedItem = await screen.findByRole('option', { name: 'Item 9997' });
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(300000));
+      await waitFor(() =>
+        expect(selectedItem.closest<HTMLElement>('[data-row-index]')?.style.position).toBe(''),
+      );
+      await waitFor(() => {
+        const viewport = virtualizer.getBoundingClientRect();
+        const rect = selectedItem.getBoundingClientRect();
+        expect(rect.bottom > viewport.top && rect.top < viewport.bottom).toBe(true);
+      });
+    },
+  );
+
   it('scrolls the highlighted item into view', async () => {
     let scrollTop = 0;
     const handleScrollTo = vi.fn((options: ScrollToOptions) => {
