@@ -164,22 +164,21 @@ describe('<Collapsible.Panel />', () => {
   it('unmounts a panel that mounts after the close has already entered the ending phase', async () => {
     const renderedStatuses: Array<Collapsible.Panel.State['transitionStatus']> = [];
 
-    function PanelThatMountsDuringEnding({
-      open,
-      transitionStatus,
-      ...props
-    }: React.ComponentPropsWithRef<'div'> & {
-      open: boolean;
-      transitionStatus: Collapsible.Panel.State['transitionStatus'];
-    }) {
+    const PanelThatMountsDuringEnding = React.forwardRef<
+      HTMLDivElement,
+      React.ComponentPropsWithoutRef<'div'> & {
+        open: boolean;
+        transitionStatus: Collapsible.Panel.State['transitionStatus'];
+      }
+    >(function PanelThatMountsDuringEnding({ open, transitionStatus, ...props }, ref) {
       renderedStatuses.push(transitionStatus);
 
       if (!open && transitionStatus !== 'ending') {
         return null;
       }
 
-      return <div {...props} />;
-    }
+      return <div {...props} ref={ref} />;
+    });
 
     await render(
       <Collapsible.Root defaultOpen>
