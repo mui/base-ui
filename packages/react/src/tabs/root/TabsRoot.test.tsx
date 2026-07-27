@@ -278,6 +278,18 @@ describe('<Tabs.Root />', () => {
         }),
       );
     });
+
+    it('settles the activation direction snapshot for a NaN value', async () => {
+      await render(
+        <Tabs.Root data-testid="root" value={Number.NaN}>
+          <Tabs.List>
+            <Tabs.Tab value={Number.NaN}>Tab</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-activation-direction', 'none');
+    });
   });
 
   describe('disabled tabs', () => {

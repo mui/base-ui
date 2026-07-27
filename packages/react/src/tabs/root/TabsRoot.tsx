@@ -82,7 +82,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // The previous value snapshot is stored in state and adjusted below during the
   // same render, so nothing commits with a stale direction.
   // https://github.com/mui/base-ui/issues/3873
-  if (previousValue !== value) {
+  if (!Object.is(previousValue, value)) {
     tabActivationDirection = computeActivationDirection(previousValue, value, orientation, tabMap);
 
     // When a new tab is added and selected in the same controlled update,
@@ -94,8 +94,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   }
 
   const nextPreviousValue = directionComputationIncomplete ? previousValue : value;
+  // `Object.is` so an `NaN` value settles instead of scheduling a render adjustment forever.
   const shouldSyncActivationDirectionState =
-    previousValue !== nextPreviousValue ||
+    !Object.is(previousValue, nextPreviousValue) ||
     committedTabActivationDirection !== tabActivationDirection;
 
   if (shouldSyncActivationDirectionState) {
