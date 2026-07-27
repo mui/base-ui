@@ -16,6 +16,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { REASONS } from '../../internals/reasons';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -166,6 +167,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
+  const openMethod = store.useState('openMethod');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  // Arrow keys open the submenu through list navigation without dispatching a click, so
+  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
+  const openedByKeyboard =
+    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+  const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
+
   const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: triggerOpenStateMapping,
@@ -179,7 +188,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       // moves to a moment later, so the first item is never announced. Dropping the state while
       // the submenu is open avoids the announcement without claiming the submenu is collapsed;
       // `aria-haspopup` still conveys that the item opens a submenu.
-      open && platform.screenReader.voiceOver ? VOICE_OVER_EXPANDED_PROPS : undefined,
+      shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
