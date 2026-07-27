@@ -662,6 +662,119 @@ describe('<PreviewCard.Root />', () => {
       }
     });
 
+    it('keeps the payload while the popup closes with its active trigger', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes preview-card-unmount-close {
+                to { opacity: 0; }
+              }
+              [data-testid="popup"][data-ending-style] {
+                animation: preview-card-unmount-close 10s linear;
+              }
+            `}</style>
+            <PreviewCard.Root defaultOpen defaultTriggerId="trigger">
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  {showTrigger && (
+                    <PreviewCard.Trigger href="#" id="trigger" payload={1} delay={0}>
+                      Trigger
+                    </PreviewCard.Trigger>
+                  )}
+                  <span data-testid="payload">{payload ?? 'none'}</span>
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="popup">Popup</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </React.Fragment>
+              )}
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        await render(<Test />);
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+        await act(async () => removeTrigger());
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        // The exit transition still renders the content the popup opened with.
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    });
+
+    it('keeps the payload when a controlled root accepts the active trigger unmount close', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes preview-card-accepted-close {
+                to { opacity: 0; }
+              }
+              [data-testid="popup"][data-ending-style] {
+                animation: preview-card-accepted-close 10s linear;
+              }
+            `}</style>
+            <PreviewCard.Root open={open} defaultTriggerId="trigger" onOpenChange={setOpen}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  {showTrigger && (
+                    <PreviewCard.Trigger href="#" id="trigger" payload={1} delay={0}>
+                      Trigger
+                    </PreviewCard.Trigger>
+                  )}
+                  <span data-testid="payload">{payload ?? 'none'}</span>
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="popup">Popup</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </React.Fragment>
+              )}
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        await render(<Test />);
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+        await act(async () => removeTrigger());
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        // The exit transition still renders the content the popup opened with.
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    });
+
     it('should remain open when the active trigger unmount close is canceled', async () => {
       let removeFirstTrigger: () => void = () => {};
       const onOpenChange = vi.fn((nextOpen, details: PreviewCard.Root.ChangeEventDetails) => {

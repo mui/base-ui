@@ -448,7 +448,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
             !store.context.triggerElements.getById(lostActiveTriggerId)
           ) {
             const eventDetails = createChangeEventDetails(REASONS.none);
-            store.setOpen(false, eventDetails);
+            // Flush so a controlled root's `open` prop reaches the store before the payload
+            // check below. Otherwise `open` still reports the pre-close prop and a root that
+            // accepted the close is indistinguishable from one that refused it.
+            ReactDOM.flushSync(() => {
+              store.setOpen(false, eventDetails);
+            });
             // If closing is canceled, keep the previous active trigger ownership for the
             // still-open popup instead of claiming another trigger implicitly.
             if (!eventDetails.isCanceled) {

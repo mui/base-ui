@@ -591,6 +591,119 @@ describe('<Tooltip.Root />', () => {
       }
     });
 
+    it('keeps the payload while the popup closes with its active trigger', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes tooltip-unmount-close {
+                to { opacity: 0; }
+              }
+              [data-testid="popup"][data-ending-style] {
+                animation: tooltip-unmount-close 10s linear;
+              }
+            `}</style>
+            <Tooltip.Root defaultOpen defaultTriggerId="trigger">
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  {showTrigger && (
+                    <Tooltip.Trigger id="trigger" payload={1} delay={0}>
+                      Trigger
+                    </Tooltip.Trigger>
+                  )}
+                  <span data-testid="payload">{payload ?? 'none'}</span>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="popup">Popup</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        await render(<Test />);
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+        await act(async () => removeTrigger());
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        // The exit transition still renders the content the popup opened with.
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    });
+
+    it('keeps the payload when a controlled root accepts the active trigger unmount close', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      let removeTrigger: () => void = () => {};
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        removeTrigger = () => setShowTrigger(false);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes tooltip-accepted-close {
+                to { opacity: 0; }
+              }
+              [data-testid="popup"][data-ending-style] {
+                animation: tooltip-accepted-close 10s linear;
+              }
+            `}</style>
+            <Tooltip.Root open={open} defaultTriggerId="trigger" onOpenChange={setOpen}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  {showTrigger && (
+                    <Tooltip.Trigger id="trigger" payload={1} delay={0}>
+                      Trigger
+                    </Tooltip.Trigger>
+                  )}
+                  <span data-testid="payload">{payload ?? 'none'}</span>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="popup">Popup</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        await render(<Test />);
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+
+        await act(async () => removeTrigger());
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        // The exit transition still renders the content the popup opened with.
+        expect(screen.getByTestId('payload')).toHaveTextContent('1');
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    });
+
     it('should remain open when the active trigger unmount close is canceled', async () => {
       let removeFirstTrigger: () => void = () => {};
       const onOpenChange = vi.fn((nextOpen, details: Tooltip.Root.ChangeEventDetails) => {
