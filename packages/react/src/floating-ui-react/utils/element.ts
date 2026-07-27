@@ -3,6 +3,7 @@ import { platform } from '@base-ui/utils/platform';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { activeElement, contains, getTarget } from '../../internals/shadowDom';
+import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
 export { activeElement, contains, getTarget };
 
@@ -17,12 +18,12 @@ export function isTargetInsideEnabledTrigger(
   const targetElement = target as Element;
 
   if (triggerElements.hasElement(targetElement)) {
-    return !targetElement.hasAttribute('data-trigger-disabled');
+    return !targetElement.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
   }
 
   for (const [, trigger] of triggerElements.entries()) {
     if (contains(trigger, targetElement)) {
-      return !trigger.hasAttribute('data-trigger-disabled');
+      return !trigger.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
     }
   }
 

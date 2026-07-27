@@ -30,9 +30,10 @@ import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from '../utils/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
 
-const AVAILABLE_WIDTH_VAR = '--available-width';
-const AVAILABLE_HEIGHT_VAR = '--available-height';
+const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
+const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -364,8 +365,8 @@ export function useAnchorPositioningWithHook(
         const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
         const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
 
-        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
-        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
+        floatingStyle.setProperty(CommonPositionerCssVars.anchorWidth, `${anchorWidth}px`);
+        floatingStyle.setProperty(CommonPositionerCssVars.anchorHeight, `${anchorHeight}px`);
       },
     }),
     arrow(
@@ -409,7 +410,7 @@ export function useAnchorPositioningWithHook(
         const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
 
         elements.floating.style.setProperty(
-          '--transform-origin',
+          CommonPositionerCssVars.transformOrigin,
           crossAxisShiftEnabled && currentRenderedAxis === 'y' && isOverlappingAnchor
             ? overlapTransformOrigin
             : adjacentTransformOrigin,

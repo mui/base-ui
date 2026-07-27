@@ -6,11 +6,22 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
+import * as ToggleGroupDataAttributes from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
+
+const stateAttributesMapping: StateAttributesMapping<ToggleGroupState> = {
+  multiple(value: boolean) {
+    if (value) {
+      return { [ToggleGroupDataAttributes.multiple]: '' };
+    }
+    return null;
+  },
+};
 
 /**
  * Provides a shared state to a series of toggle buttons.
@@ -99,6 +110,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
+    stateAttributesMapping,
   });
 
   return (
@@ -113,6 +125,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
+          stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
           enableHomeAndEndKeys
           orientation={orientation}

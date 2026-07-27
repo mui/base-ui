@@ -21,7 +21,7 @@
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --copy .npmignore --tsgo",
+    "build": "code-infra build --copy .npmignore --tsgo --experimental-rolldown",
     "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",

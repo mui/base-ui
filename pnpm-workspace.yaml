@@ -15,6 +15,10 @@ allowBuilds:
 engineStrict: true
 updateNotifier: false
 blockExoticSubdeps: true
+overrides:
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-display-name': 1.0.4-canary.21
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.28
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-resolve-imports': 2.0.7-canary.38
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'

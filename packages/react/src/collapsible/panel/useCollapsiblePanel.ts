@@ -13,7 +13,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
+import * as CollapsiblePanelDataAttributes from './CollapsiblePanelDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 

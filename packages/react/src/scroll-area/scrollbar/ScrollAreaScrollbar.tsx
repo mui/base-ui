@@ -10,6 +10,8 @@ import { getOffset } from '../utils/getOffset';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
+import * as ScrollAreaRootCssVars from '../root/ScrollAreaRootCssVars';
+import * as ScrollAreaScrollbarCssVars from './ScrollAreaScrollbarCssVars';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -203,15 +205,15 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       ...(vertical
         ? {
             top: 0,
-            bottom: 'var(--scroll-area-corner-height)',
+            bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
             insetInlineEnd: 0,
-            ['--scroll-area-thumb-height' as string]: `${thumbSize.height}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbHeight as string]: `${thumbSize.height}px`,
           }
         : {
             insetInlineStart: 0,
-            insetInlineEnd: 'var(--scroll-area-corner-width)',
+            insetInlineEnd: `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
             bottom: 0,
-            ['--scroll-area-thumb-width' as string]: `${thumbSize.width}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbWidth as string]: `${thumbSize.width}px`,
           }),
     },
   };
