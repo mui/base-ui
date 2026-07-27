@@ -20,7 +20,7 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef } = useDelayGroup(context, { open });
+  const { delayRef, isInstantPhase } = useDelayGroup(context, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
   const { getReferenceProps } = useTestInteractions([hover]);
 
@@ -40,6 +40,7 @@ function Tooltip({ children, label }: Props) {
         children,
         getReferenceProps({
           ref: refs.setReference,
+          'data-instant-phase': isInstantPhase ? '' : undefined,
           ...children.props,
         }),
       )}
@@ -197,6 +198,41 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
     });
 
     expect(screen.queryByTestId('floating-three')).not.toBeInTheDocument();
+  });
+
+  it('resets the instant phase after Strict Mode replays the lifecycle effects', async () => {
+    render(
+      <React.StrictMode>
+        <FloatingDelayGroup delay={{ open: 1000, close: 0 }} timeoutMs={50}>
+          <Tooltip label="one">
+            <button data-testid="reference-one" />
+          </Tooltip>
+          <Tooltip label="two">
+            <button data-testid="reference-two" />
+          </Tooltip>
+        </FloatingDelayGroup>
+      </React.StrictMode>,
+    );
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-one'));
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    const secondReference = screen.getByTestId('reference-two');
+    expect(secondReference).toHaveAttribute('data-instant-phase');
+
+    fireEvent.mouseLeave(secondReference);
+    await act(async () => {
+      vi.advanceTimersByTime(50);
+    });
+
+    expect(secondReference).not.toHaveAttribute('data-instant-phase');
   });
 
   it('keeps the active context when an inactive consumer unmounts', async () => {

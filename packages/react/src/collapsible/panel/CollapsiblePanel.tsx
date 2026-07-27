@@ -32,9 +32,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     ...elementProps
   } = componentProps;
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on `Collapsible.Panel` is ignored when `hiddenUntilFound` is enabled, since the panel must remain mounted while closed.',
@@ -44,10 +45,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   }
 
   const {
+    defaultPanelId,
     mounted,
     onOpenChange,
     open,
-    panelId,
     setMounted,
     setPanelIdState,
     setOpen,
@@ -57,16 +58,15 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
+  const registeredId = idProp || undefined;
+  const id = registeredId ?? defaultPanelId;
 
   useIsoLayoutEffect(() => {
-    if (idProp) {
-      setPanelIdState(idProp);
-      return () => {
-        setPanelIdState(undefined);
-      };
-    }
-    return undefined;
-  }, [idProp, setPanelIdState]);
+    setPanelIdState((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
+    return () => {
+      setPanelIdState((currentId) => (currentId === registeredId ? null : currentId));
+    };
+  }, [registeredId, setPanelIdState]);
 
   const {
     height,
@@ -79,7 +79,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   } = useCollapsiblePanel({
     externalRef: forwardedRef,
     hiddenUntilFound,
-    id: panelId,
+    id,
     keepMounted,
     mounted,
     onOpenChange,

@@ -49,6 +49,21 @@ export function findItemIndex<Item, Value>(
   });
 }
 
+export function findSelectionIndex<Item, Value>(
+  itemValues: readonly Item[] | undefined | null,
+  selectedValue: Value | readonly Value[] | null | undefined,
+  comparer: ItemEqualityComparer<Item, Value>,
+  multiple: boolean,
+): number | null {
+  // Only unwrap in multiple mode: an array can itself be a valid single-select value.
+  const lastValue =
+    multiple && Array.isArray(selectedValue)
+      ? selectedValue[selectedValue.length - 1]
+      : selectedValue;
+  const index = findItemIndex(itemValues, lastValue as Value, comparer);
+  return index === -1 ? null : index;
+}
+
 export function removeItem<Item, Value>(
   selectedValues: readonly Item[],
   itemValue: Value,

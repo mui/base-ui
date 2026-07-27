@@ -93,12 +93,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
 
-  useIsoLayoutEffect(() => {
-    if (!mounted) {
-      store.update({ scrollUpArrowVisible: false, scrollDownArrowVisible: false });
-    }
-  }, [store, mounted]);
-
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
   useAnchoredPopupScrollLock(

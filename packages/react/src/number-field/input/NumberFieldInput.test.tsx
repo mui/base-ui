@@ -146,9 +146,9 @@ describe('<NumberField.Input />', () => {
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
-    expect(input).toHaveValue('0.3');
+    expect(input).toHaveValue(new Intl.NumberFormat().format(0.3));
     fireEvent.keyDown(input, { key: 'ArrowDown', altKey: true });
-    expect(input).toHaveValue('0.2');
+    expect(input).toHaveValue(new Intl.NumberFormat().format(0.2));
   });
 
   it('advances by a smallStep finer than 3 fraction digits', async () => {
@@ -1048,7 +1048,7 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.2399 });
     });
 
-    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.2399));
+    expect(input).toHaveValue(new Intl.NumberFormat(undefined, format).format(1.2399));
   });
 
   it.each([
@@ -1202,7 +1202,7 @@ describe('<NumberField.Input />', () => {
     );
 
     const input = screen.getByRole('textbox');
-    const formattedOverflow = new Intl.NumberFormat('en-US', format).format(Number.MAX_VALUE);
+    const formattedOverflow = new Intl.NumberFormat(undefined, format).format(Number.MAX_VALUE);
 
     await act(async () => {
       input.focus();

@@ -93,6 +93,43 @@ describe('<Popover.Viewport />', () => {
     });
   });
 
+  it.each([false, true])(
+    'does not restart a transition when the active trigger remounts while closed and retained (strict: %s)',
+    async (strict) => {
+      function Test({ triggerKey }: { triggerKey: string }) {
+        return (
+          <Popover.Root
+            defaultOpen
+            defaultTriggerId="trigger"
+            onOpenChange={(open, eventDetails) => {
+              if (!open) {
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Popover.Trigger id="trigger" key={triggerKey}>
+              Trigger
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Viewport data-testid="viewport">Content</Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user, rerender } = await render(<Test triggerKey="a" />, { strict });
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await rerender(<Test triggerKey="b" />);
+
+      expect(screen.getByTestId('viewport')).toBeInTheDocument();
+    },
+  );
+
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

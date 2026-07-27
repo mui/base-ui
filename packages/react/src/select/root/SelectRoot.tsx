@@ -286,7 +286,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.update({ activeIndex: null, openMethod: null });
+    store.update({
+      activeIndex: null,
+      openMethod: null,
+      scrollUpArrowVisible: false,
+      scrollDownArrowVisible: false,
+    });
     onOpenChangeComplete?.(false);
   });
 

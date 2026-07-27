@@ -1,4 +1,4 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -72,6 +72,22 @@ describe('<PreviewCard.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <PreviewCard.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <PreviewCard.Root open>
+            <PreviewCard.Positioner />
+          </PreviewCard.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <PreviewCard.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;
