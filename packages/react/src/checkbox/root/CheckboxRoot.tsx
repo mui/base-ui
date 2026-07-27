@@ -289,18 +289,25 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     (props) => validation.getValidationProps(disabled, props),
   );
 
-  React.useEffect(() => {
-    if (!parentContext || value === undefined) {
+  // Register in the layout phase so a parent checkbox handling a click in the
+  // same task as this commit reads fresh disabled state.
+  const disabledStatesRef = parentContext?.disabledStatesRef;
+  useIsoLayoutEffect(() => {
+    if (!disabledStatesRef || value === undefined) {
       return undefined;
     }
 
-    const disabledStates = parentContext.disabledStatesRef.current;
-    disabledStates.set(value, disabled);
+    const owner = controlSourceRef.current;
+    const disabledStates = disabledStatesRef.current;
+    disabledStates.set(value, { owner, disabled });
 
     return () => {
-      disabledStates.delete(value);
+      // A newer checkbox may have registered the same value; it owns the entry.
+      if (disabledStates.get(value)?.owner === owner) {
+        disabledStates.delete(value);
+      }
     };
-  }, [parentContext, disabled, value]);
+  }, [disabledStatesRef, disabled, value, controlSourceRef]);
 
   const state: CheckboxRootState = React.useMemo(
     () => ({

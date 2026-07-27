@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 
@@ -421,5 +422,169 @@ describe('useCheckboxGroupParent', () => {
     fireEvent.click(parent);
     expect(checkboxA).toHaveAttribute('aria-checked', 'true');
     expect(checkboxB).toHaveAttribute('aria-checked', 'false');
+  });
+
+  describe('child disabled state registration', () => {
+    it('reads fresh disabled state when the parent is clicked right after the change commits', () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        const parentRef = React.useRef<HTMLElement>(null);
+
+        useIsoLayoutEffect(() => {
+          if (disabled) {
+            parentRef.current?.click();
+          }
+        }, [disabled]);
+
+        return (
+          <div>
+            <CheckboxGroup defaultValue={[]} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" ref={parentRef} />
+              <Checkbox.Root value="a" disabled={disabled} data-testid="checkboxA" />
+              <Checkbox.Root value="b" />
+              <Checkbox.Root value="c" />
+            </CheckboxGroup>
+            <button onClick={() => setDisabled(true)}>Disable</button>
+          </div>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Disable'));
+
+      expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('keeps a replacement child registration when the replaced child unmounts later', () => {
+      function App() {
+        const [phase, setPhase] = React.useState(0);
+        return (
+          <div>
+            <CheckboxGroup defaultValue={[]} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" />
+              {phase < 2 && <Checkbox.Root key="old" value="a" />}
+              {phase >= 1 && <Checkbox.Root key="new" value="a" disabled data-testid="new-a" />}
+              <Checkbox.Root value="b" />
+              <Checkbox.Root value="c" />
+            </CheckboxGroup>
+            <button onClick={() => setPhase((prev) => prev + 1)}>Advance</button>
+          </div>
+        );
+      }
+
+      render(<App />);
+
+      const advance = screen.getByText('Advance');
+      // Mount the disabled replacement alongside the old child, then unmount
+      // the old child in a later commit so its cleanup runs after the
+      // replacement registered.
+      fireEvent.click(advance);
+      fireEvent.click(advance);
+
+      const parent = screen.getByTestId('parent');
+      fireEvent.click(parent);
+
+      expect(screen.getByTestId('new-a')).toHaveAttribute('aria-checked', 'false');
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('tracks a child that is re-enabled after being disabled', () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(true);
+        return (
+          <div>
+            <CheckboxGroup defaultValue={[]} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" />
+              <Checkbox.Root value="a" disabled={disabled} data-testid="checkboxA" />
+              <Checkbox.Root value="b" />
+              <Checkbox.Root value="c" />
+            </CheckboxGroup>
+            <button onClick={() => setDisabled(false)}>Enable</button>
+          </div>
+        );
+      }
+
+      render(<App />);
+
+      const parent = screen.getByTestId('parent');
+
+      fireEvent.click(parent);
+      expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+
+      fireEvent.click(screen.getByText('Enable'));
+      fireEvent.click(parent);
+
+      expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'true');
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('moves the registration when a child value changes', () => {
+      function App() {
+        const [checkboxValue, setCheckboxValue] = React.useState('a');
+        return (
+          <div>
+            <CheckboxGroup defaultValue={[]} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" />
+              <Checkbox.Root value={checkboxValue} disabled data-testid="movable" />
+              <Checkbox.Root value="b" data-testid="b" />
+            </CheckboxGroup>
+            <button onClick={() => setCheckboxValue('c')}>Move</button>
+          </div>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('Move'));
+
+      const parent = screen.getByTestId('parent');
+      fireEvent.click(parent);
+
+      // "a" no longer has a disabled registration, while "c" does.
+      expect(screen.getByTestId('movable')).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('clears the registration on unmount and restores it on remount', () => {
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+        const [mounted, setMounted] = React.useState(true);
+        return (
+          <div>
+            <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" />
+              {mounted && <Checkbox.Root value="a" disabled data-testid="checkboxA" />}
+              <Checkbox.Root value="b" />
+              <Checkbox.Root value="c" />
+            </CheckboxGroup>
+            <button onClick={() => setMounted((prev) => !prev)}>Toggle</button>
+            <button onClick={() => setValue([])}>Reset</button>
+          </div>
+        );
+      }
+
+      render(<App />);
+
+      const parent = screen.getByTestId('parent');
+      const toggle = screen.getByText('Toggle');
+
+      fireEvent.click(toggle);
+      fireEvent.click(parent);
+
+      // The unmounted child no longer registers as disabled.
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(screen.getByText('Reset'));
+      fireEvent.click(toggle);
+      fireEvent.click(parent);
+
+      // The remounted child registers as disabled again.
+      expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+    });
   });
 });

@@ -12,7 +12,7 @@ export function useCheckboxGroupParent(
   const { allValues = EMPTY_ARRAY as string[], value, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
-  const disabledStatesRef = React.useRef(new Map<string, boolean>());
+  const disabledStatesRef = React.useRef(new Map<string, CheckboxGroupChildDisabledState>());
 
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
 
@@ -35,13 +35,13 @@ export function useCheckboxGroupParent(
 
         // None except the disabled ones that are checked, which can't be changed.
         const none = allValues.filter(
-          (v) => disabledStatesRef.current.get(v) && uncontrolledState.includes(v),
+          (v) => disabledStatesRef.current.get(v)?.disabled && uncontrolledState.includes(v),
         );
         // "All" that are valid:
         // - any that aren't disabled
         // - disabled ones that are checked
         const all = allValues.filter(
-          (v) => !disabledStatesRef.current.get(v) || uncontrolledState.includes(v),
+          (v) => !disabledStatesRef.current.get(v)?.disabled || uncontrolledState.includes(v),
         );
 
         const allOnOrOff =
@@ -110,6 +110,15 @@ export function useCheckboxGroupParent(
   );
 }
 
+export interface CheckboxGroupChildDisabledState {
+  /**
+   * Identifies the checkbox that owns the registration so that a stale cleanup
+   * from an unmounting checkbox cannot clear a newer registration for the same value.
+   */
+  owner: symbol;
+  disabled: boolean;
+}
+
 export interface UseCheckboxGroupParentParameters {
   allValues?: string[] | undefined;
   value: string[];
@@ -123,7 +132,7 @@ export interface UseCheckboxGroupParentParameters {
 
 export interface UseCheckboxGroupParentReturnValue {
   id: string | undefined;
-  disabledStatesRef: React.RefObject<Map<string, boolean>>;
+  disabledStatesRef: React.RefObject<Map<string, CheckboxGroupChildDisabledState>>;
   getParentProps: () => {
     id: string | undefined;
     indeterminate: boolean;
