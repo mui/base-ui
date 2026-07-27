@@ -65,12 +65,10 @@ function findRepresentativeInput(
 }
 
 /**
- * Custom validity messages this hook set itself, so that clearing them doesn't wipe a message set
- * by other code. Components can own a validity condition that no native constraint expresses (for
- * example a date field whose sections spell out February 30th) and surface it through
- * `setCustomValidity`, and the field must not silently drop it while revalidating.
- * Ownership is tracked by message equality: a message set by other code that is identical to the
- * currently owned one is indistinguishable from it and is cleared as owned.
+ * Custom validity messages this hook set itself. Clearing only these keeps messages set by other
+ * code (for example a date field surfacing an invalid date through `setCustomValidity`) intact
+ * across revalidation. Ownership is matched by message text, so an identical foreign message is
+ * indistinguishable from an owned one.
  */
 const ownedCustomValidity = new WeakMap<HTMLInputElement, string>();
 
@@ -85,12 +83,10 @@ function clearOwnCustomValidity(element: HTMLInputElement) {
     return;
   }
 
-  // `validationMessage` is empty on elements barred from constraint validation (disabled ones, for
-  // example), so the message can only be compared when the element is able to report it. On a
-  // barred element the clear proceeds unchecked: a message that overwrote this hook's own one
-  // while the element was barred cannot be told apart and is knowingly wiped.
+  // Another message replaced the owned one, so it is no longer this hook's to clear. Elements
+  // barred from constraint validation (disabled ones, for example) report an empty
+  // `validationMessage`, so the comparison is skipped there and the clear proceeds.
   if (element.willValidate && element.validationMessage !== ownMessage) {
-    // The message was overwritten by other code, so it is no longer this hook's to clear.
     ownedCustomValidity.delete(element);
     return;
   }
@@ -220,9 +216,8 @@ export function useFieldValidation(
           return;
         }
 
-        // A custom validity message set outside of this hook survived the clear, so the field is
-        // still invalid. Publish the element's actual state so the just-resolved `valueMissing`
-        // error is not left on display.
+        // A message set outside of this hook survived the clear, so the field is still invalid.
+        // Publish the element's actual state so the resolved `valueMissing` error doesn't linger.
         const nextValidityData = {
           value,
           state: getState(element),
@@ -339,15 +334,13 @@ export function useFieldValidation(
           }
         }
       } else if (isValidatingOnChange) {
-        // The validate function returned no errors while validating on change, so clear the
-        // custom validity state this hook set on a previous commit.
+        // The validate function returned no errors, so clear the custom validity this hook set.
         clearCustomValidity(element, registeredInputs);
-        // A custom validity message set outside of this hook survives the clear above, so read the
-        // remaining state off the element instead of assuming there is no custom error left.
+        // A message set outside of this hook survives the clear above and may even have appeared
+        // while an async `validate` was pending, after `nextState` was snapshotted, so read the
+        // remaining custom error off the element and re-derive `valid` with it.
         nextState.customError = element?.validity.customError ?? false;
         if (nextState.customError) {
-          // The message may have appeared while an async `validate` was pending, after `nextState`
-          // was snapshotted, so `valid` must be re-derived alongside `customError`.
           nextState.valid = false;
         }
 

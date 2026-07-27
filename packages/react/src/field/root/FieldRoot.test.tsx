@@ -828,9 +828,8 @@ describe('<Field.Root />', () => {
   });
 
   describe('external custom validity', () => {
-    // A control can own a validity condition that no native constraint expresses (for example a
-    // date field whose sections spell out February 30th) and surface it with `setCustomValidity`.
-    // Revalidation must not silently drop it, since the field would then report itself as valid.
+    // Simulates a control that surfaces its own validity condition through `setCustomValidity`,
+    // as a custom date field would for an invalid date.
     function ExternallyInvalidControl({ message }: { message: string }) {
       const ref = React.useRef<HTMLInputElement | null>(null);
 
@@ -895,7 +894,7 @@ describe('<Field.Root />', () => {
 
       const control = screen.getByRole<HTMLInputElement>('textbox');
 
-      // Dirty the field, then blur it empty so the `valueMissing` error is published.
+      // The field only publishes `valueMissing` once dirtied.
       fireEvent.focus(control);
       fireEvent.change(control, { target: { value: 'a' } });
       fireEvent.change(control, { target: { value: '' } });
@@ -904,8 +903,6 @@ describe('<Field.Root />', () => {
 
       control.setCustomValidity('external error');
 
-      // Filling the required value revalidates on change; the field must surface the external
-      // message instead of flashing valid or keeping the stale required error.
       fireEvent.change(control, { target: { value: 'text' } });
 
       expect(control.validationMessage).toBe('external error');
@@ -933,7 +930,6 @@ describe('<Field.Root />', () => {
       fireEvent.change(control, { target: { value: 'a' } });
       expect(control.validationMessage).toBe('own error');
 
-      // Other code replaces the field's own message; the field no longer owns what is displayed.
       control.setCustomValidity('external error');
 
       shouldFail = false;
