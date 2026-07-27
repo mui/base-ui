@@ -1,7 +1,8 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { act, ignoreActWarnings, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Tooltip.Viewport />', () => {
@@ -71,6 +72,25 @@ describe('<Tooltip.Viewport />', () => {
 
   it('should remount the `current` container when the active trigger changes', async () => {
     ignoreActWarnings();
+    let mountCount = 0;
+
+    function MountProbe({ payload }: { payload: unknown }) {
+      useIsoLayoutEffect(() => {
+        mountCount += 1;
+      }, []);
+
+      return (
+        <React.Fragment>
+          {payload === 'first' ? (
+            <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+          ) : null}
+          {payload === 'second' ? (
+            <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+          ) : null}
+        </React.Fragment>
+      );
+    }
+
     await render(
       <Tooltip.Root>
         {({ payload }) => (
@@ -85,12 +105,7 @@ describe('<Tooltip.Viewport />', () => {
               <Tooltip.Positioner>
                 <Tooltip.Popup>
                   <Tooltip.Viewport>
-                    {payload === 'first' ? (
-                      <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
-                    ) : null}
-                    {payload === 'second' ? (
-                      <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
-                    ) : null}
+                    <MountProbe payload={payload} />
                   </Tooltip.Viewport>
                 </Tooltip.Popup>
               </Tooltip.Positioner>
@@ -110,15 +125,65 @@ describe('<Tooltip.Viewport />', () => {
     const firstContainer = firstImage.closest('[data-current]');
     expect(firstContainer).not.toBe(null);
 
+    mountCount = 0;
     await waitSingleFrame();
     await act(async () => trigger2.focus());
 
     await waitFor(() => {
-      const secondImage = screen.getByTestId('payload-image-2');
-      const secondContainer = secondImage.closest('[data-current]');
-      expect(secondContainer).not.toBe(null);
-      expect(secondContainer).not.toBe(firstContainer);
+      expect(screen.getByTestId('payload-image-2').closest('[data-current]')).not.toBe(null);
     });
+    expect(screen.getByTestId('payload-image-2').closest('[data-current]')).not.toBe(
+      firstContainer,
+    );
+    // Strict Mode replays each mount. The trigger and its payload are published in
+    // separate commits, so this represents two intentional keyed mounts. The old
+    // layout-effect key bump added a third mount (six effect calls).
+    const expectedMountCount = reactMajor >= 18 ? 4 : 2;
+    expect(mountCount).toBe(expectedMountCount);
+
+    const secondImage = await screen.findByTestId('payload-image-2');
+    const secondContainer = secondImage.closest('[data-current]');
+
+    mountCount = 0;
+    await waitSingleFrame();
+    await act(async () => trigger1.focus());
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payload-image-1').closest('[data-current]')).not.toBe(null);
+    });
+    expect(screen.getByTestId('payload-image-1').closest('[data-current]')).not.toBe(
+      secondContainer,
+    );
+    expect(mountCount).toBe(expectedMountCount);
+  });
+
+  it('converges the keyed adjustment when trigger payloads are NaN', async () => {
+    ignoreActWarnings();
+
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger payload={Number.NaN} delay={0} data-testid="trigger1">
+          Trigger 1
+        </Tooltip.Trigger>
+        <Tooltip.Trigger payload={Number.NaN} delay={0} data-testid="trigger2">
+          Trigger 2
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>
+              <Tooltip.Viewport>Content</Tooltip.Viewport>
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    await waitSingleFrame();
+    await act(async () => screen.getByTestId('trigger1').focus());
+    await waitSingleFrame();
+    await act(async () => screen.getByTestId('trigger2').focus());
+
+    expect(screen.getByTestId('trigger2')).toHaveFocus();
   });
 
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {

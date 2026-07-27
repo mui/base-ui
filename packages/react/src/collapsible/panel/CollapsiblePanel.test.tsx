@@ -9,6 +9,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -137,6 +138,44 @@ describe('<Collapsible.Panel />', () => {
         expect(panel).not.toHaveAttribute('data-ending-style');
       },
     );
+  });
+
+  it.skipIf(!isJSDOM)('does not commit a stale forced-idle transition frame', async () => {
+    const committedStatuses: Array<Collapsible.Panel.State['transitionStatus']> = [];
+
+    function CommitProbe({
+      transitionStatus,
+    }: {
+      transitionStatus: Collapsible.Panel.State['transitionStatus'];
+    }) {
+      useIsoLayoutEffect(() => {
+        committedStatuses.push(transitionStatus);
+      });
+      return null;
+    }
+
+    const { user } = await render(
+      <Collapsible.Root>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+        <Collapsible.Panel
+          keepMounted
+          render={(props, state) => (
+            <div {...props}>
+              <CommitProbe transitionStatus={state.transitionStatus} />
+              {props.children}
+            </div>
+          )}
+        >
+          {PANEL_CONTENT}
+        </Collapsible.Panel>
+      </Collapsible.Root>,
+    );
+
+    committedStatuses.length = 0;
+    await user.click(screen.getByRole('button', { name: 'Trigger' }));
+    await act(waitForAnimationFrame);
+
+    expect(committedStatuses).toEqual(['starting', 'idle', 'idle', 'idle']);
   });
 
   describe.skipIf(isJSDOM)('CSS transitions', () => {

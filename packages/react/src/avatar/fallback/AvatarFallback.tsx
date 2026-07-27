@@ -23,14 +23,19 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const [delayPassed, setDelayPassed] = React.useState(delay === 0);
   const timeout = useTimeout();
 
+  // Once shown without a delay, keep the fallback visible if a later render
+  // restores a delay. Adjust before commit so the zero-delay render is latched.
+  if (delay === 0 && !delayPassed) {
+    setDelayPassed(true);
+  }
+
   React.useEffect(() => {
     if (delay > 0) {
       timeout.start(delay, () => setDelayPassed(true));
-    } else {
-      // Once the fallback is shown without a delay, keep it visible. Otherwise a later
-      // change from no delay to a number would re-hide an already-visible fallback.
+    } else if (delay !== 0) {
       setDelayPassed(true);
     }
+
     return timeout.clear;
   }, [timeout, delay]);
 

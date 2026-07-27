@@ -342,32 +342,28 @@ function calculateRelativePosition(from: Element, to: Element): Offset {
  * Returns a key that forces remounting content when triggers change or a payload is updated.
  */
 function usePopupContentKey(activeTriggerId: string | null, payload: unknown): string {
-  const [contentKey, setContentKey] = React.useState(0);
-  const previousActiveTriggerIdRef = React.useRef(activeTriggerId);
-  const previousPayloadRef = React.useRef(payload);
-  const pendingPayloadUpdateRef = React.useRef(false);
+  const [keyState, setKeyState] = React.useState<[string | null, unknown, number, boolean]>(() => [
+    activeTriggerId,
+    payload,
+    0,
+    false,
+  ]);
+  const [previousActiveTriggerId, previousPayload, contentKey, pendingPayloadUpdate] = keyState;
 
-  useIsoLayoutEffect(() => {
-    // Compare against the last committed values to decide whether we need a new DOM subtree.
-    const previousActiveTriggerId = previousActiveTriggerIdRef.current;
-    const previousPayload = previousPayloadRef.current;
-    const triggerIdChanged = activeTriggerId !== previousActiveTriggerId;
+  const triggerIdChanged = activeTriggerId !== previousActiveTriggerId;
+  const payloadSnapshotChanged = !Object.is(payload, previousPayload);
+
+  if (triggerIdChanged || payloadSnapshotChanged) {
     const payloadChanged = payload !== previousPayload;
+    const shouldRemount = triggerIdChanged || (pendingPayloadUpdate && payloadChanged);
 
-    if (triggerIdChanged) {
-      // Remount immediately on trigger change; remember if payload hasn't caught up yet.
-      setContentKey((value) => value + 1);
-      pendingPayloadUpdateRef.current = !payloadChanged;
-    } else if (pendingPayloadUpdateRef.current && payloadChanged) {
-      // Payload arrived a render later, so remount once more to avoid reusing the old <img>.
-      setContentKey((value) => value + 1);
-      pendingPayloadUpdateRef.current = false;
-    }
-
-    // Persist current values for the next render's comparison.
-    previousActiveTriggerIdRef.current = activeTriggerId;
-    previousPayloadRef.current = payload;
-  }, [activeTriggerId, payload]);
+    setKeyState([
+      activeTriggerId,
+      payload,
+      shouldRemount ? contentKey + 1 : contentKey,
+      triggerIdChanged ? !payloadChanged : pendingPayloadUpdate && !payloadChanged,
+    ]);
+  }
 
   return `${activeTriggerId ?? 'current'}-${contentKey}`;
 }

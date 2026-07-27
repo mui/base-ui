@@ -79,7 +79,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Compute activation direction during render when value changes so children see
   // the correct direction on their very first render after the selection update.
-  // The previous value snapshot is stored in state and synced after commit.
+  // The previous value snapshot is stored in state and adjusted below during the
+  // same render, so nothing commits with a stale direction.
   // https://github.com/mui/base-ui/issues/3873
   if (previousValue !== value) {
     tabActivationDirection = computeActivationDirection(previousValue, value, orientation, tabMap);
@@ -97,16 +98,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     previousValue !== nextPreviousValue ||
     committedTabActivationDirection !== tabActivationDirection;
 
-  useIsoLayoutEffect(() => {
-    if (!shouldSyncActivationDirectionState) {
-      return;
-    }
-
+  if (shouldSyncActivationDirectionState) {
     setActivationDirectionState({
       previousValue: nextPreviousValue,
       tabActivationDirection,
     });
-  }, [nextPreviousValue, shouldSyncActivationDirectionState, tabActivationDirection]);
+  }
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {

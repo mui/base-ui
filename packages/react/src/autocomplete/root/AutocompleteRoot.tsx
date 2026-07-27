@@ -49,13 +49,35 @@ export function AutocompleteRoot<ItemValue>(
   // inline input value.
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? '');
-  const [inlineInputValue, setInlineInputValue] = React.useState('');
+  const [inlineInputValueState, setInlineInputValueState] = React.useState(() => ({
+    inputValue: '' as string | null,
+    value,
+    mode,
+  }));
 
-  React.useEffect(() => {
-    if (isControlled) {
-      setInlineInputValue('');
-    }
-  }, [value, isControlled]);
+  let inlineInputValue = inlineInputValueState.inputValue ?? '';
+  if (inlineInputValueState.mode !== mode || !Object.is(inlineInputValueState.value, value)) {
+    inlineInputValue = '';
+    setInlineInputValue(null);
+  }
+
+  function setInlineInputValue(inputValue: string | null, nextValue = value) {
+    setInlineInputValueState((currentState) => {
+      if (
+        currentState.inputValue === inputValue &&
+        Object.is(currentState.value, nextValue) &&
+        currentState.mode === mode
+      ) {
+        return currentState;
+      }
+
+      return {
+        inputValue,
+        value: nextValue,
+        mode,
+      };
+    });
+  }
 
   // Compose the input value shown to the user: inline value takes precedence when present.
   let resolvedInputValue: typeof value;
@@ -94,7 +116,7 @@ export function AutocompleteRoot<ItemValue>(
   }, [baseFilter, mode, resolvedQuery, staticItems]);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
-    setInlineInputValue('');
+    setInlineInputValue('', isControlled ? nextValue : value);
     if (!isControlled) {
       setInternalValue(nextValue);
     }
@@ -108,6 +130,10 @@ export function AutocompleteRoot<ItemValue>(
     props.onItemHighlighted?.(highlightedValue, eventDetails);
 
     if (eventDetails.reason === REASONS.pointer) {
+      return;
+    }
+
+    if (inlineInputValueState.inputValue === null && eventDetails.reason === REASONS.none) {
       return;
     }
 

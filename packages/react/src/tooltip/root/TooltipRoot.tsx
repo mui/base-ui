@@ -69,7 +69,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const openState = store.useState('open');
   const open = !disabled && openState;
 
-  const activeTriggerId = store.useState('activeTriggerId');
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
@@ -115,14 +114,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
       previousInstantTypeRef.current = null;
     }
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, activeTriggerId, open]);
 
   React.useImperativeHandle(
     actionsRef,

@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
@@ -872,6 +873,15 @@ describe('<Autocomplete.Root />', () => {
 
     it('mode="both": external controlled updates replace the temporary inline value', async () => {
       const items = ['apple', 'banana'];
+      const inputRef = React.createRef<HTMLInputElement>();
+      const committedInputValues: string[] = [];
+
+      function CommitProbe({ value }: { value: string }) {
+        useIsoLayoutEffect(() => {
+          committedInputValues.push(inputRef.current?.value ?? '');
+        }, [value]);
+        return null;
+      }
 
       function Test() {
         const [value, setValue] = React.useState('');
@@ -881,7 +891,8 @@ describe('<Autocomplete.Root />', () => {
               update value
             </button>
             <Autocomplete.Root mode="both" items={items} value={value} onValueChange={setValue}>
-              <Autocomplete.Input />
+              <Autocomplete.Input ref={inputRef} />
+              <CommitProbe value={value} />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
                   <Autocomplete.Popup>
@@ -907,8 +918,50 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
       expect(input.value).toBe('apple');
 
+      committedInputValues.length = 0;
       fireEvent.click(screen.getByText('update value'));
       expect(input.value).toBe('ba');
+      expect(committedInputValues).toEqual(['ba']);
+    });
+
+    it('mode changes clear the temporary inline value', async () => {
+      const items = ['apple', 'banana'];
+
+      function Test({ mode }: { mode: 'both' | 'list' }) {
+        const [value, setValue] = React.useState('');
+
+        return (
+          <Autocomplete.Root mode={mode} items={items} value={value} onValueChange={setValue}>
+            <Autocomplete.Input />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(item) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<Test mode="both" />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await user.keyboard('{ArrowDown}');
+      expect(input.value).toBe('apple');
+
+      await setProps({ mode: 'list' });
+      expect(input.value).toBe('a');
+
+      await setProps({ mode: 'both' });
+      expect(input.value).toBe('a');
     });
 
     it('mode="inline": static items with inline overlay', async () => {

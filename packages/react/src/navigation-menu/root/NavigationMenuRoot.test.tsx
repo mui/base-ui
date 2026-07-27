@@ -1772,6 +1772,23 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('supports function values', async () => {
+      const itemValue = () => 'item';
+
+      await render(
+        <NavigationMenu.Root value={itemValue}>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value={itemValue}>
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>Content</NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+        </NavigationMenu.Root>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Item' })).toHaveAttribute('aria-expanded', 'true');
+    });
+
     async function assertPopupSizeIsPreservedWhenControlledValueClosesExternally(
       keepMountedPortal = false,
     ) {
