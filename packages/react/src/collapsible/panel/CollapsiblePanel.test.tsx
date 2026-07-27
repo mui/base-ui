@@ -322,12 +322,12 @@ describe('<Collapsible.Panel />', () => {
     it('supports removing the rendered panel as it closes', async () => {
       const onOpenChange = vi.fn();
 
-      function RemovablePanel({
-        open,
-        ...props
-      }: React.ComponentPropsWithRef<'div'> & { open: boolean }) {
-        return open ? <div {...props} /> : null;
-      }
+      const RemovablePanel = React.forwardRef<
+        HTMLDivElement,
+        React.ComponentPropsWithoutRef<'div'> & { open: boolean }
+      >(function RemovablePanel({ open, ...props }, ref) {
+        return open ? <div {...props} ref={ref} /> : null;
+      });
 
       const { user } = await render(
         <Collapsible.Root defaultOpen onOpenChange={onOpenChange}>
