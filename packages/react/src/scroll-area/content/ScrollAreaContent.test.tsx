@@ -57,9 +57,12 @@ describe('<ScrollArea.Content />', () => {
   });
 
   it('supports a custom content renderer that does not forward its ref', async () => {
-    function ContentWithoutRef({ ref: ignoredRef, ...props }: React.ComponentPropsWithRef<'div'>) {
+    const ContentWithoutRef = React.forwardRef<
+      HTMLDivElement,
+      React.ComponentPropsWithoutRef<'div'>
+    >(function ContentWithoutRef(props, _ref) {
       return <div {...props} />;
-    }
+    });
 
     await render(
       <ScrollArea.Root>

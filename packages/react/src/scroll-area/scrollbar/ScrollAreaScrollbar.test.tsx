@@ -17,12 +17,12 @@ describe('<ScrollArea.Scrollbar />', () => {
   }));
 
   it('supports a custom scrollbar renderer that does not forward its ref', async () => {
-    function ScrollbarWithoutRef({
-      ref: ignoredRef,
-      ...props
-    }: React.ComponentPropsWithRef<'div'>) {
+    const ScrollbarWithoutRef = React.forwardRef<
+      HTMLDivElement,
+      React.ComponentPropsWithoutRef<'div'>
+    >(function ScrollbarWithoutRef(props, _ref) {
       return <div {...props} />;
-    }
+    });
 
     await render(
       <ScrollArea.Root>
