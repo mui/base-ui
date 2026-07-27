@@ -9,7 +9,7 @@ const PANEL_CONTENT_1 = 'Panel contents 1';
 const PANEL_CONTENT_2 = 'Panel contents 2';
 
 describe('<Accordion.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Accordion.Root />, () => ({
     render,
@@ -175,6 +175,72 @@ describe('<Accordion.Root />', () => {
       await waitFor(() => {
         expect(trigger).toHaveAttribute('id');
         expect(trigger).not.toHaveAttribute('id', 'custom-trigger-id');
+        expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+      });
+    });
+
+    it('unregisters generated part ids when the trigger or panel unmounts', async () => {
+      function App({ parts }: { parts: 'both' | 'trigger' | 'panel' }) {
+        return (
+          <React.StrictMode>
+            <Accordion.Root defaultValue={[0]}>
+              <Accordion.Item value={0}>
+                <Accordion.Header>
+                  {parts !== 'panel' && <Accordion.Trigger>Trigger 1</Accordion.Trigger>}
+                </Accordion.Header>
+                {parts !== 'trigger' && <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>}
+              </Accordion.Item>
+            </Accordion.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App parts="both" />);
+
+      await rerender(<App parts="panel" />);
+      expect(screen.getByText(PANEL_CONTENT_1)).not.toHaveAttribute('aria-labelledby');
+
+      await rerender(<App parts="both" />);
+      let trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      let panel = screen.getByText(PANEL_CONTENT_1);
+      expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+
+      await rerender(<App parts="trigger" />);
+      expect(screen.getByRole('button', { name: 'Trigger 1' })).not.toHaveAttribute(
+        'aria-controls',
+      );
+
+      await rerender(<App parts="both" />);
+      trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      panel = screen.getByText(PANEL_CONTENT_1);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+
+    it.skipIf(isJSDOM)('preserves generated part associations during hydration', async () => {
+      const { hydrate } = renderToString(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      let trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      let panel = screen.getByText(PANEL_CONTENT_1);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+      expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+
+      hydrate();
+
+      await waitFor(() => {
+        trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        panel = screen.getByText(PANEL_CONTENT_1);
+        expect(trigger).toHaveAttribute('aria-controls', panel.id);
+      });
+      await waitFor(() => {
         expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
       });
     });
