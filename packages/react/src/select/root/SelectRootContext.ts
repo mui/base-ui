@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import { type FloatingRootContext } from '../../floating-ui-react';
-import type { SelectStore } from '../store';
+import { selectors, type RegisteredItem, type SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
@@ -14,6 +15,7 @@ export interface SelectRootContext {
   required: boolean;
   multiple: boolean;
   highlightItemOnHover: boolean;
+  registerItem: (id: symbol, item: RegisteredItem) => () => void;
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
@@ -23,8 +25,6 @@ export interface SelectRootContext {
   scrollArrowsMountedCountRef: React.RefObject<number>;
   itemProps: HTMLProps;
   valueRef: React.RefObject<HTMLSpanElement | null>;
-  valuesRef: React.RefObject<Array<any>>;
-  labelsRef: React.RefObject<Array<string | null>>;
   typingRef: React.RefObject<boolean>;
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
@@ -32,7 +32,6 @@ export interface SelectRootContext {
     dragY: number;
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
-  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
@@ -48,5 +47,16 @@ export function useSelectRootContext() {
       'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
+  return context;
+}
+
+export function useSelectFilterableRootContext(partName: string) {
+  const context = useSelectRootContext();
+  const filterable = useStore(context.store, selectors.filterable);
+
+  if (!filterable) {
+    throw new Error(`Base UI: <Select.${partName}> requires the \`filter\` prop on <Select.Root>.`);
+  }
+
   return context;
 }

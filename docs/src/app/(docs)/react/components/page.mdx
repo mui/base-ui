@@ -1509,6 +1509,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Formatting the value
     - Labeling a select
     - Placeholder values
+    - Filterable
     - Multiple selection
     - Object values
     - Grouped
@@ -1522,6 +1523,9 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Portal
     - Positioner
     - Popup
+    - Input
+    - Clear
+    - Empty
     - List
     - Arrow
     - Item
@@ -1534,16 +1538,21 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Separator
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, form, highlightItemOnHover, id, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onInputValueChange, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
   - Select - Trigger
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Select - Value
     - Props: children, className, placeholder, render, style
     - Data Attributes: data-placeholder
+  - Select - Input
+    - Props: className, render, style
+    - Data Attributes: data-focus-visible
   - Select - Icon
     - Props: className, render, style
     - Data Attributes: data-popup-open
+  - Select - Clear
+    - Props: className, disabled, nativeButton, render, style
   - Select - List
     - Props: className, render, style
   - Select - Portal
@@ -1572,6 +1581,8 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, orientation, render, style
   - Select - Label
     - Props: className, render, style
+  - Select - Empty
+    - Props: className, render, style
   - Select - ItemText
     - Props: className, render, style
   - Select - ItemIndicator
@@ -1583,7 +1594,9 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+  - SelectFilter
+    - Parameters: filterText, query
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Clear.Props, Select.Clear.State, Select.Empty.Props, Select.Empty.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Input.Props, Select.Input.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.InputValueChangeEventDetails, Select.Root.InputValueChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
 
 </details>
 

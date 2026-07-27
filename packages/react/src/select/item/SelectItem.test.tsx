@@ -18,7 +18,11 @@ describe('<Select.Item />', () => {
     refInstanceof: window.HTMLDivElement,
     button: true,
     render(node) {
-      return render(<Select.Root open>{node}</Select.Root>);
+      return render(
+        <Select.Root open>
+          <Select.Positioner>{node}</Select.Positioner>
+        </Select.Root>,
+      );
     },
   }));
 

@@ -12,8 +12,8 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
-- **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
+- **Prefer Combobox for large lists**: Select can filter a modest list of predefined values. Use [Combobox](/react/components/combobox) when the number of items is sufficiently large or requires virtualisation.
+- **Special positioning behavior**: The select popup overlaps its trigger by default so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -57,11 +57,12 @@ import { Select } from '@base-ui/react/select';
 
 `<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
 The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
+It defaults to `true` for standard selects and `false` for filterable selects.
 
 For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when the mode is active.
 
 To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`.
-When set to `true` (its default) there are a few important points to note about its behavior:
+When set to `true`, there are a few important points to note about its behavior:
 
 - **Interaction type dependent**: For UX reasons, the `alignItemWithTrigger` positioning mode is disabled if touch was the pointer type used to open the popup.
 - **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode.
@@ -176,6 +177,14 @@ const items = [
 </Select.Root>;
 ```
 
+### Filterable
+
+Pass the `filter` prop to `<Select.Root>` and add `<Select.Input>` to let users filter the available items.
+
+import { DemoSelectFilterable } from './demos/filterable';
+
+<DemoSelectFilterable />
+
 ### Multiple selection
 
 Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
@@ -263,6 +272,18 @@ import { TypesSelect } from './types';
 ### Popup
 
 <TypesSelect.Popup />
+
+### Input
+
+<TypesSelect.Input />
+
+### Clear
+
+<TypesSelect.Clear />
+
+### Empty
+
+<TypesSelect.Empty />
 
 ### List
 
