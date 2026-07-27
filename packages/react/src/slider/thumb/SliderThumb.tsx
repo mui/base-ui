@@ -239,7 +239,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!inset) {
       return undefined;
     }
