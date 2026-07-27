@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
@@ -54,7 +53,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const activeTriggerId = store.useState('activeTriggerId');
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
@@ -62,14 +60,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.context.inlineRectCoordsRef.current = undefined;
   });
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, activeTriggerId, open]);
 
   React.useImperativeHandle(
     actionsRef,

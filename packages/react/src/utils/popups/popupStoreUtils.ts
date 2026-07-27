@@ -455,6 +455,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
               store.update({
                 activeTriggerId: null,
                 activeTriggerElement: null,
+                // The payload belongs to the trigger, so it is released along with
+                // ownership while the popup stays open. A popup that did close keeps it
+                // so the exit transition still renders the content it opened with.
+                ...(store.select('open') ? { payload: undefined } : null),
               } as Partial<State>);
             }
           }
