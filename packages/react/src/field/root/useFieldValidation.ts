@@ -69,6 +69,8 @@ function findRepresentativeInput(
  * by other code. Components can own a validity condition that no native constraint expresses (for
  * example a date field whose sections spell out February 30th) and surface it through
  * `setCustomValidity`, and the field must not silently drop it while revalidating.
+ * Ownership is tracked by message equality: a message set by other code that is identical to the
+ * currently owned one is indistinguishable from it and is cleared as owned.
  */
 const ownedCustomValidity = new WeakMap<HTMLInputElement, string>();
 
@@ -84,8 +86,12 @@ function clearOwnCustomValidity(element: HTMLInputElement) {
   }
 
   // `validationMessage` is empty on elements barred from constraint validation (disabled ones, for
-  // example), so the message can only be compared when the element is able to report it.
+  // example), so the message can only be compared when the element is able to report it. On a
+  // barred element the clear proceeds unchecked: a message that overwrote this hook's own one
+  // while the element was barred cannot be told apart and is knowingly wiped.
   if (element.willValidate && element.validationMessage !== ownMessage) {
+    // The message was overwritten by other code, so it is no longer this hook's to clear.
+    ownedCustomValidity.delete(element);
     return;
   }
 
@@ -173,15 +179,7 @@ export function useFieldValidation(
       });
     }
 
-    function publishAllValid(input: HTMLInputElement | null, externalInvalid?: boolean) {
-      clearCustomValidity(input, registeredInputs);
-
-      if (input?.validity.customError) {
-        // A custom validity message set outside of this hook survived the clear, so the field is
-        // still invalid. Leave the published validity untouched instead of claiming validity.
-        return false;
-      }
-
+    function publishAllValid(externalInvalid?: boolean) {
       const nextValidityData = {
         value,
         state: { ...DEFAULT_VALIDITY_STATE, valid: true },
@@ -191,7 +189,6 @@ export function useFieldValidation(
       };
       updateRegisteredFieldValidity(nextValidityData, externalInvalid);
       setValidityData(nextValidityData);
-      return true;
     }
 
     // A field can own several inputs (such as a checkbox or radio group), but only the last-mounted
@@ -212,13 +209,30 @@ export function useFieldValidation(
       const currentNativeValidity = element.validity;
 
       if (!currentNativeValidity.valueMissing) {
-        // The 'valueMissing' (required) condition has been resolved by the user typing.
-        // Temporarily mark the field as valid for this onChange event.
-        // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
-        // The required value is now present; ignore stale external invalid state for this pass.
-        if (publishAllValid(element, false)) {
+        clearCustomValidity(element, registeredInputs);
+
+        if (!element.validity.customError) {
+          // The 'valueMissing' (required) condition has been resolved by the user typing.
+          // Temporarily mark the field as valid for this onChange event.
+          // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
+          // The required value is now present; ignore stale external invalid state for this pass.
+          publishAllValid(false);
           return;
         }
+
+        // A custom validity message set outside of this hook survived the clear, so the field is
+        // still invalid. Publish the element's actual state so the just-resolved `valueMissing`
+        // error is not left on display.
+        const nextValidityData = {
+          value,
+          state: getState(element),
+          error: element.validationMessage,
+          errors: [element.validationMessage],
+          initialValue: validityData.initialValue,
+        };
+        updateRegisteredFieldValidity(nextValidityData, false);
+        setValidityData(nextValidityData);
+        return;
       }
 
       // Avoid surfacing another error during change revalidation while the required value is
@@ -325,12 +339,17 @@ export function useFieldValidation(
           }
         }
       } else if (isValidatingOnChange) {
-        // validate function returned no errors, if validating on change
-        // we need to clear the custom validity state
+        // The validate function returned no errors while validating on change, so clear the
+        // custom validity state this hook set on a previous commit.
         clearCustomValidity(element, registeredInputs);
         // A custom validity message set outside of this hook survives the clear above, so read the
         // remaining state off the element instead of assuming there is no custom error left.
         nextState.customError = element?.validity.customError ?? false;
+        if (nextState.customError) {
+          // The message may have appeared while an async `validate` was pending, after `nextState`
+          // was snapshotted, so `valid` must be re-derived alongside `customError`.
+          nextState.valid = false;
+        }
 
         if (element && element.validationMessage) {
           defaultValidationMessage = element.validationMessage;

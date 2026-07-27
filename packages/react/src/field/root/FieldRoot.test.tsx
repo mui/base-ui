@@ -863,10 +863,12 @@ describe('<Field.Root />', () => {
     });
 
     it('keeps a message set outside the field when revalidating on change', async () => {
+      const handleValidity = vi.fn();
       await render(
         <Field.Root name="field" validationMode="onChange">
           <ExternallyInvalidControl message="external error" />
           <Field.Error data-testid="error" />
+          <Field.Validity>{handleValidity}</Field.Validity>
         </Field.Root>,
       );
 
@@ -876,6 +878,92 @@ describe('<Field.Root />', () => {
 
       expect(control.validationMessage).toBe('external error');
       expect(control).toHaveAttribute('data-invalid', '');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+    });
+
+    it('surfaces a message set outside the field when a missing required value is filled in', async () => {
+      const handleValidity = vi.fn();
+      await render(
+        <Field.Root name="field" validationMode="onBlur">
+          <Field.Control required />
+          <Field.Error data-testid="error" />
+          <Field.Validity>{handleValidity}</Field.Validity>
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      // Dirty the field, then blur it empty so the `valueMissing` error is published.
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+      expect(control).toHaveAttribute('data-invalid', '');
+
+      control.setCustomValidity('external error');
+
+      // Filling the required value revalidates on change; the field must surface the external
+      // message instead of flashing valid or keeping the stale required error.
+      fireEvent.change(control, { target: { value: 'text' } });
+
+      expect(control.validationMessage).toBe('external error');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+    });
+
+    it('keeps a message that overwrote the one it set itself', async () => {
+      let shouldFail = true;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'own error' : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validationMessage).toBe('own error');
+
+      // Other code replaces the field's own message; the field no longer owns what is displayed.
+      control.setCustomValidity('external error');
+
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('external error');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
+    it('returns to valid once the outside code withdraws its message', async () => {
+      await render(
+        <Field.Root name="field" validationMode="onChange">
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      control.setCustomValidity('external error');
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+
+      control.setCustomValidity('');
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('');
+      expect(control).not.toHaveAttribute('data-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
     });
 
     it('clears the message it set itself', async () => {
@@ -895,6 +983,31 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 'a' } });
       expect(control.validationMessage).toBe('error');
+
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('clears a multi-line message it set itself', async () => {
+      let shouldFail = true;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? ['error one', 'error two'] : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validationMessage).toBe('error one\nerror two');
 
       shouldFail = false;
       fireEvent.change(control, { target: { value: 'ab' } });
