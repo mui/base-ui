@@ -1105,11 +1105,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  let ariaHasPopup: 'grid' | 'listbox' | undefined;
-  const ariaExpanded = open ? 'true' : 'false';
-  if (!inline || grid) {
-    ariaHasPopup = grid ? 'grid' : 'listbox';
-  }
+  const ariaHasPopup = grid ? 'grid' : 'listbox';
+  // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
+  // combobox is permanently expanded even while the internal open state is `false`.
+  const expanded = open || inline;
+  const ariaExpanded = expanded ? 'true' : 'false';
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
@@ -1131,7 +1131,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       reference.role = 'combobox';
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
-      reference['aria-controls'] = open ? listElement?.id : undefined;
+      reference['aria-controls'] = expanded ? listElement?.id : undefined;
       reference['aria-autocomplete'] = autoComplete;
     }
 
@@ -1139,7 +1139,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, open, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,

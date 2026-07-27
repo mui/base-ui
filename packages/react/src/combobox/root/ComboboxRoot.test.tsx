@@ -3344,6 +3344,34 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveAttribute('aria-controls', grid.id);
     });
 
+    it('keeps the input expanded when rendered inline without the `open` prop', async () => {
+      const { user } = await render(
+        <Combobox.Root inline items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      // The list renders regardless of the internal open state, so the input must not claim
+      // to be collapsed before it's interacted with.
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+
+      await user.click(input);
+
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+    });
+
     it('sets correct attributes on the item when highlighted', async () => {
       const { user } = await render(
         <Combobox.Root defaultOpen>
