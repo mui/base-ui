@@ -406,6 +406,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       activeIndex: null,
       selectedIndex: initialSelectedIndex,
       popupProps: {},
+      listProps: {},
       inputProps: {},
       triggerProps: {},
       itemProps: EMPTY_OBJECT,
@@ -1229,9 +1230,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const popupProps = React.useMemo(
-    () =>
-      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
-    [listNavigation.floating, dismiss.floating, role.floating],
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
+  );
+
+  const listProps = React.useMemo(
+    () => mergeProps(listNavigation.floating, role.floating),
+    [listNavigation.floating, role.floating],
   );
 
   const itemProps = React.useMemo<HTMLProps>(() => {
@@ -1249,6 +1254,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store.update({
       inline: inlineProp,
       popupProps,
+      listProps,
       inputProps,
       triggerProps,
       itemProps,
@@ -1273,6 +1279,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       items,
       inline: inlineProp,
       popupProps,
+      listProps,
       inputProps,
       triggerProps,
       openMethod,
@@ -1303,6 +1310,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     transitionStatus,
     items,
     popupProps,
+    listProps,
     inputProps,
     itemProps,
     openMethod,

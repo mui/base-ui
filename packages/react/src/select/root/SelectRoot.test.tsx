@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
 import {
@@ -614,6 +615,28 @@ describe('<Select.Root />', () => {
       });
       expect(handleOpenChange.mock.calls[0][0]).toBe(true);
     });
+  });
+
+  it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
+    const { user } = await render(
+      <Select.Root defaultOpen>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.List>
+                <Select.Item value="apple">Apple</Select.Item>
+              </Select.List>
+              {ReactDOM.createPortal(<div>Portalled content</div>, document.body)}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByText('Portalled content'));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
   });
 
   describe('BaseUIChangeEventDetails', () => {

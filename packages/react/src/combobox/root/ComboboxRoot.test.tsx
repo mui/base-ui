@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -17,6 +18,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
+import { Popover } from '@base-ui/react/popover';
 import { useStore } from '@base-ui/utils/store';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
@@ -592,6 +594,120 @@ describe('<Combobox.Root />', () => {
     await waitFor(() => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
+  });
+
+  it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              {ReactDOM.createPortal(<div>Portalled content</div>, document.body)}
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByText('Portalled content'));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
+  it('does not navigate the list with arrow keys from portalled controls inside the popup', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <ActiveIndexProbe />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              {ReactDOM.createPortal(
+                <button type="button">Portalled control</button>,
+                document.body,
+              )}
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Portalled control' }));
+    await user.keyboard('{ArrowDown}');
+
+    expect(screen.getByTestId('active-index')).toHaveTextContent('null');
+  });
+
+  it('does not dismiss when pressing content inside a nested popover', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              <Popover.Root>
+                <Popover.Trigger>Open nested popover</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup>
+                      <button type="button">Nested focusable content</button>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open nested popover' }));
+
+    await user.click(await screen.findByRole('button', { name: 'Nested focusable content' }));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
+  it('wraps modal focus from popup controls back to the input', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen modal>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <button type="button">Extra control</button>
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const extraControl = screen.getByRole('button', { name: 'Extra control' });
+
+    input.focus();
+    await user.tab();
+    expect(extraControl).toHaveFocus();
+
+    await user.tab();
+    await waitFor(() => expect(input).toHaveFocus());
   });
 
   it('does not cause infinite re-renders when items becomes undefined', async () => {
