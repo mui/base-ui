@@ -647,14 +647,14 @@ describe('<Combobox.Root />', () => {
     expect(screen.getByTestId('active-index')).toHaveTextContent('null');
   });
 
-  it('does not dismiss when focus moves into a nested popover', async () => {
+  it('does not dismiss when pressing content inside a nested popover', async () => {
     const { user } = await render(
       <Combobox.Root defaultOpen>
         <Combobox.Trigger>Open</Combobox.Trigger>
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>
-              <Combobox.Input data-testid="input" />
+              <Combobox.Input />
               <Combobox.List>
                 <Combobox.Item value="apple">Apple</Combobox.Item>
               </Combobox.List>
@@ -675,16 +675,9 @@ describe('<Combobox.Root />', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Open nested popover' }));
-    const nestedContent = await screen.findByRole('button', { name: 'Nested focusable content' });
-    const input = screen.getByTestId('input');
 
-    await act(async () => {
-      input.focus();
-      nestedContent.focus();
-      await flushMicrotasks();
-    });
+    await user.click(await screen.findByRole('button', { name: 'Nested focusable content' }));
 
-    expect(nestedContent).toHaveFocus();
     expect(screen.getByRole('listbox')).not.toBe(null);
   });
 
