@@ -59,7 +59,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
   const registeredId = idProp || undefined;
-  const id = idProp ?? defaultPanelId;
+  const id = registeredId ?? defaultPanelId;
 
   useIsoLayoutEffect(() => {
     setPanelIdState((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
