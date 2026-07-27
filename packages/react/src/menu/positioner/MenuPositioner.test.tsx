@@ -178,6 +178,48 @@ describe('<Menu.Positioner />', () => {
     expect(onSubmenuOpenChange.mock.lastCall?.[1].reason).toBe('sibling-open');
   });
 
+  it('does not close a kept-mounted default-open submenu as a sibling when its parent opens', async () => {
+    const onSubmenuOpenChange = vi.fn();
+    let openParent = () => {};
+
+    function Test() {
+      const [open, setOpen] = React.useState(false);
+      openParent = () => setOpen(true);
+
+      return (
+        <Menu.Root open={open}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot defaultOpen onOpenChange={onSubmenuOpenChange}>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal keepMounted>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup" />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    await render(<Test />);
+
+    await act(async () => {
+      openParent();
+    });
+    await flushMicrotasks();
+
+    const siblingClose = onSubmenuOpenChange.mock.calls.find(
+      (call) => call[0] === false && call[1].reason === 'sibling-open',
+    );
+    expect(siblingClose).toBe(undefined);
+  });
+
   describe.skipIf(isJSDOM)('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {

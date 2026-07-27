@@ -143,6 +143,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         }
         if (
           details.nodeId !== floatingNodeId &&
+          // Both ids must be registered; before registration both sides can be
+          // null, which would spuriously match unrelated menus as siblings.
+          details.parentNodeId != null &&
           details.parentNodeId === store.select('floatingParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
