@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Menu.Viewport />', () => {
@@ -44,7 +44,7 @@ describe('<Menu.Viewport />', () => {
     expect(currentContainer!.textContent).toBe('Content');
   });
 
-  it('should remount the `current` container when the active trigger changes', async () => {
+  it('should remount the content and clear the highlight when the active trigger changes', async () => {
     const { user } = await render(
       <Menu.Root>
         {({ payload }) => (
@@ -57,13 +57,19 @@ describe('<Menu.Viewport />', () => {
             </Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner>
-                <Menu.Popup>
+                <Menu.Popup data-testid="popup">
                   <Menu.Viewport>
                     {payload === 'first' ? (
-                      <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+                      <React.Fragment>
+                        <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+                        <Menu.Item>First item</Menu.Item>
+                      </React.Fragment>
                     ) : null}
                     {payload === 'second' ? (
-                      <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+                      <React.Fragment>
+                        <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+                        <Menu.Item>Second item</Menu.Item>
+                      </React.Fragment>
                     ) : null}
                   </Menu.Viewport>
                 </Menu.Popup>
@@ -83,6 +89,14 @@ describe('<Menu.Viewport />', () => {
     const firstContainer = firstImage.closest('[data-current]');
     expect(firstContainer).not.toBe(null);
 
+    await act(async () => screen.getByTestId('popup').focus());
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'First item' })).toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
     await user.click(trigger2);
 
     await waitFor(() => {
@@ -91,15 +105,194 @@ describe('<Menu.Viewport />', () => {
       expect(secondContainer).not.toBe(null);
       expect(secondContainer).not.toBe(firstContainer);
     });
+    expect(trigger2).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Second item' })).not.toHaveAttribute(
+      'data-highlighted',
+    );
   });
 
-  describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
+  it('should reset the highlight and focus the popup when the transition key changes', async () => {
+    function TestComponent({ view }: { view: 'main' | 'more' }) {
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="popup">
+                <Menu.Viewport data-testid="viewport" transitionKey={view}>
+                  {view === 'main' ? (
+                    <React.Fragment>
+                      <Menu.Item>New window</Menu.Item>
+                      <Menu.Item>More tools</Menu.Item>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Menu.Item>Back</Menu.Item>
+                      <Menu.Item>Developer tools</Menu.Item>
+                    </React.Fragment>
+                  )}
+                </Menu.Viewport>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<TestComponent view="main" />);
+
+    const popup = screen.getByTestId('popup');
+    await act(async () => popup.focus());
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
+
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await waitFor(() => {
+      expect(moreTools).toHaveFocus();
+    });
+    await waitFor(() => {
+      expect(moreTools).toHaveAttribute('data-highlighted');
+    });
+
+    const firstContainer = moreTools.closest('[data-current]');
+    expect(firstContainer).not.toBe(null);
+    await setProps({ view: 'more' });
+
+    const back = screen.getByRole('menuitem', { name: 'Back' });
+    const developerTools = screen.getByRole('menuitem', { name: 'Developer tools' });
+    expect(back.closest('[data-current]')).not.toBe(firstContainer);
+    await waitFor(() => {
+      expect(popup).toHaveFocus();
+    });
+    expect(back).not.toHaveAttribute('data-highlighted');
+    expect(developerTools).not.toHaveAttribute('data-highlighted');
+    expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-activation-direction');
+
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(back).toHaveFocus();
+    });
+    await waitFor(() => {
+      expect(back).toHaveAttribute('data-highlighted');
+    });
+  });
+
+  it('should clear the highlight without moving focus when focus was outside the swapped content', async () => {
+    function TestComponent({ view }: { view: 'main' | 'more' }) {
+      return (
+        <React.Fragment>
+          <button type="button">Outside</button>
+          <Menu.Root open>
+            <Menu.Trigger>Trigger</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Viewport transitionKey={view}>
+                    <Menu.Item>{view === 'main' ? 'More tools' : 'Back'}</Menu.Item>
+                  </Menu.Viewport>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { setProps, user } = await render(<TestComponent view="main" />);
+
+    await act(async () => screen.getByTestId('popup').focus());
+    await user.keyboard('{ArrowDown}');
+
+    const moreTools = screen.getByRole('menuitem', { name: 'More tools' });
+    await waitFor(() => {
+      expect(moreTools).toHaveAttribute('data-highlighted');
+    });
+
+    const outside = screen.getByRole('button', { name: 'Outside' });
+    await act(async () => outside.focus());
+    await setProps({ view: 'more' });
+
+    expect(outside).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Back' })).not.toHaveAttribute('data-highlighted');
+  });
+
+  describe.skipIf(isJSDOM)('morphing containers', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     });
 
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('should create morphing containers and resize when the transition key changes', async () => {
+      function TestComponent() {
+        const [view, setView] = React.useState(0);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous],
+                [data-transitioning] [data-current] {
+                  transition: opacity 0.3s linear;
+                }
+                [data-previous][data-ending-style],
+                [data-current][data-starting-style] {
+                  opacity: 0;
+                }
+              `}
+            </style>
+            <button type="button" onClick={() => setView(1)}>
+              Change view
+            </button>
+            <Menu.Root open>
+              <Menu.Trigger>Trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Viewport data-testid="viewport" transitionKey={view}>
+                      <div style={{ width: view === 0 ? 100 : 200 }}>Content {view}</div>
+                    </Menu.Viewport>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.getPropertyValue('--popup-width')).toBe('auto');
+
+      act(() => screen.getByRole('button', { name: 'Change view' }).click());
+
+      const previousContainer = document.querySelector<HTMLElement>('[data-previous]');
+      const currentContainer = document.querySelector<HTMLElement>('[data-current]');
+      expect(previousContainer).not.toBe(null);
+      expect(previousContainer).toHaveAttribute('inert');
+      expect(previousContainer).toHaveTextContent('Content 0');
+      expect(currentContainer).toHaveTextContent('Content 1');
+      expect(currentContainer).toHaveAttribute('data-starting-style');
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-activation-direction');
+
+      await waitFor(() => {
+        expect(popup.style.getPropertyValue('--popup-width')).toMatch(/px$/);
+      });
+      await waitFor(() => {
+        expect(parseFloat(popup.style.getPropertyValue('--popup-width'))).toBeGreaterThanOrEqual(
+          200,
+        );
+      });
+      await waitFor(() => {
+        expect(previousContainer).toHaveAttribute('data-ending-style');
+      });
+
+      expect(previousContainer!.getAnimations().length).toBeGreaterThan(0);
+      expect(currentContainer!.getAnimations().length).toBeGreaterThan(0);
     });
 
     it('should create morphing containers during transitions', async () => {

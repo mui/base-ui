@@ -1,15 +1,19 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
+function focusPopup(_container: HTMLElement, popup: HTMLElement | null) {
+  popup?.focus({ preventScroll: true });
+}
+
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content
- * changes based on the trigger, and switching between them is animated.
+ * Use this component when the popup's content changes while open and the change should be animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
@@ -18,22 +22,29 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   componentProps: MenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, ...elementProps } = componentProps;
+  const { render, className, style, children, transitionKey, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side } = useMenuPositionerContext();
 
   const instantType = store.useState('instantType');
 
+  // The item list is rebuilt when the content swaps, so clear the previous highlight index.
+  const handleContentSwap = useStableCallback(() => {
+    store.set('activeIndex', null);
+  });
+
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side,
     children,
+    transitionKey,
+    onContentSwap: handleContentSwap,
+    onFocusRecovery: focusPopup,
   });
 
   const state: MenuViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
+    ...viewportState,
     instant: instantType,
   };
 
@@ -65,6 +76,12 @@ export interface MenuViewportProps extends BaseUIComponentProps<'div', MenuViewp
    * The content to render inside the transition container.
    */
   children?: React.ReactNode;
+  /**
+   * A key that identifies the current content. When it changes, the viewport animates to the new
+   * content and clears the highlight, since the item list is rebuilt. If remounting the content
+   * drops focus, focus moves to the popup.
+   */
+  transitionKey?: React.Key | undefined;
 }
 
 export namespace MenuViewport {

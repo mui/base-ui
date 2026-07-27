@@ -1,0 +1,159 @@
+.Positioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+}
+
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  outline: none;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: var(--transform-origin);
+
+  /* These are required to make the size animations work */
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  transition:
+    width var(--animation-duration) var(--easing),
+    height var(--animation-duration) var(--easing),
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.Viewport {
+  --viewport-padding: 0.75rem;
+
+  box-sizing: border-box;
+  /* Required to clip the overflowing content during the cross-fade */
+  position: relative;
+  overflow: clip;
+  width: 100%;
+  height: 100%;
+  padding: var(--viewport-padding);
+
+  [data-previous],
+  [data-current] {
+    /* Freeze each container to its own content width while transitioning */
+    width: calc(var(--popup-width) - 2 * var(--viewport-padding));
+    opacity: 1;
+    transition: opacity calc(var(--animation-duration) / 2) var(--easing);
+  }
+
+  [data-previous][data-ending-style],
+  [data-current][data-starting-style] {
+    opacity: 0;
+  }
+}
+
+.Content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 18rem;
+}
+
+.Tabs {
+  display: flex;
+  gap: 0.25rem;
+  align-self: stretch;
+}
+
+.Tab,
+.TabActive {
+  box-sizing: border-box;
+  flex: 1;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.TabActive {
+  background-color: oklch(14.5% 0 0deg);
+  color: white;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+    color: oklch(14.5% 0 0deg);
+  }
+}
+
+.Summary {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.Stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  align-self: stretch;
+}
+
+.Stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.StatLabel {
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.StatValue {
+  margin: 0;
+}

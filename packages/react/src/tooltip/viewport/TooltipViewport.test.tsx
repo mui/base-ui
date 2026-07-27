@@ -121,6 +121,85 @@ describe('<Tooltip.Viewport />', () => {
     });
   });
 
+  describe('transition key', () => {
+    it('should remount the `current` container when the transition key changes', async () => {
+      function TestComponent() {
+        const [step, setStep] = React.useState(0);
+        return (
+          <React.Fragment>
+            <button type="button" data-testid="advance" onClick={() => setStep(1)}>
+              advance
+            </button>
+            <Tooltip.Root open>
+              <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>
+                    <Tooltip.Viewport transitionKey={step}>
+                      <span data-testid={`content-${step}`}>Content {step}</span>
+                    </Tooltip.Viewport>
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const firstContainer = screen.getByTestId('content-0').closest('[data-current]');
+      expect(firstContainer).not.toBe(null);
+
+      await user.click(screen.getByTestId('advance'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('content-1')).toBeVisible();
+      });
+      const secondContainer = screen.getByTestId('content-1').closest('[data-current]');
+      expect(secondContainer).not.toBe(null);
+      expect(secondContainer).not.toBe(firstContainer);
+    });
+
+    it('should not move focus when the swap drops it', async () => {
+      function TestComponent() {
+        const [step, setStep] = React.useState(0);
+        return (
+          <Tooltip.Root open>
+            <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="popup">
+                  <Tooltip.Viewport transitionKey={step}>
+                    {step === 0 ? (
+                      <button type="button" data-testid="inside" onClick={() => setStep(1)}>
+                        advance
+                      </button>
+                    ) : (
+                      <span data-testid="static">static content</span>
+                    )}
+                  </Tooltip.Viewport>
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const inside = screen.getByTestId('inside');
+      await act(async () => inside.focus());
+      await user.click(inside);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('static')).toBeVisible();
+      });
+      expect(screen.getByTestId('popup')).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
+    });
+  });
+
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

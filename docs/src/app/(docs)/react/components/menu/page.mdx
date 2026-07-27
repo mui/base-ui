@@ -340,6 +340,20 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+#### Content changes in place
+
+To animate content that changes in place, such as a nested view that slides in, pass a `transitionKey` and update it whenever the content changes.
+
+When the key changes, the viewport clears the highlight because the item list is rebuilt.
+If remounting the content drops focus, focus moves to the popup.
+
+The viewport does not infer a navigation direction.
+This demo passes its own `data-view-direction` attribute based on the current view, then uses it with `[data-current][data-starting-style]` and `[data-previous][data-ending-style]` to slide the incoming and outgoing content.
+
+import { DemoMenuTransitionKey } from './demos/transition-key';
+
+<DemoMenuTransitionKey />
+
 ## API reference
 
 import { TypesMenu } from './types';
@@ -372,7 +386,9 @@ import { TypesMenu } from './types';
 
 <TypesMenu.Viewport />
 
-The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
+Use the `Viewport` to animate the popup's content when it changes while open. When one popup is opened by several triggers, it morphs between each trigger's content automatically.
+
+To animate content that changes in place under a single trigger, pass a `transitionKey` and update it whenever the content changes, such as `transitionKey={view}`. Either way, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box stays fixed during the transition; without it, resizing can make the popup thrash or flip to another side.
 
 ### Arrow
 
