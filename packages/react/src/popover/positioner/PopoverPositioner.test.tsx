@@ -4,7 +4,13 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  waitForPositioned,
+  waitSingleFrame,
+} from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
@@ -344,20 +350,18 @@ describe('<Popover.Positioner />', () => {
     }
 
     const { unmount } = await render(<App />);
-    await act(async () => {
-      setOpen(true);
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    await act(async () => setOpen(true));
 
     const positioner = screen.getByTestId('positioner');
-    expect(positioner).toHaveAttribute('data-side', 'top');
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'top');
+    });
 
     // The preferred-side bias used by flip() must not leak into the resting position:
     // the popup should sit exactly `collisionPadding` away from the top edge, not +1px.
-    expect(Math.round(positioner.getBoundingClientRect().top)).toBe(collisionPadding);
+    await waitFor(() => {
+      expect(Math.round(positioner.getBoundingClientRect().top)).toBe(collisionPadding);
+    });
 
     unmount();
   });
@@ -547,52 +551,41 @@ describe('<Popover.Positioner />', () => {
   );
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    let unmount = () => {};
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
-    await act(async () => {
-      ({ unmount } = await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner data-testid="positioner">
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      ));
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    const { unmount } = await render(
+      <Popover.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Popover.Portal>
+          <Popover.Positioner data-testid="positioner">
+            <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
 
-    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
     unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    let unmount = () => {};
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
-    await act(async () => {
-      ({ unmount } = await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner data-testid="positioner">
-              <Popover.Popup style={popupStyle}>
-                <Popover.Viewport>Popup</Popover.Viewport>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      ));
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    const { unmount } = await render(
+      <Popover.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Popover.Portal>
+          <Popover.Positioner data-testid="positioner">
+            <Popover.Popup style={popupStyle}>
+              <Popover.Viewport>Popup</Popover.Viewport>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
 
-    expect(screen.getByTestId('positioner').style.transform).toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
     unmount();
   });
 });

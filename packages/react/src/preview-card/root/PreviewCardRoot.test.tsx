@@ -3,7 +3,7 @@ import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { advanceReactClock, createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
@@ -15,11 +15,7 @@ describe('<PreviewCard.Root />', () => {
   const { render, clock } = createRenderer();
 
   async function tick(ms: number) {
-    await flushMicrotasks();
-    await act(async () => {
-      await clock.tickAsync(ms);
-    });
-    await flushMicrotasks();
+    await advanceReactClock(clock, ms);
   }
 
   popupConformanceTests({

@@ -1,7 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  enterWithMouse,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 import {
   act,
   fireEvent,
@@ -13,6 +19,8 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
@@ -154,9 +162,7 @@ describe('<Popover.Trigger />', () => {
     }
 
     function hoverTrigger(trigger: HTMLElement) {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+      enterWithMouse(trigger);
     }
 
     // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay

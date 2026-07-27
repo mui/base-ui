@@ -14,11 +14,21 @@ import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  moveMouse,
+  popupConformanceTests,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -2022,9 +2032,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
@@ -2042,19 +2050,13 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
         });
 
-        fireEvent.pointerLeave(trigger, {
-          pointerType: 'mouse',
-          relatedTarget: document.body,
-        });
-        fireEvent.mouseLeave(trigger);
+        moveMouse(trigger, document.body);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);

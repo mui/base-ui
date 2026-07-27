@@ -5,7 +5,13 @@ import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils'
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
+import {
+  describeConformance,
+  createRenderer,
+  isJSDOM,
+  resetBrowserPointer,
+  waitForPositioned,
+} from '#test-utils';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -31,6 +37,8 @@ const Trigger = React.forwardRef(function Trigger(
 });
 
 describe('<Menu.Positioner />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -812,52 +820,41 @@ describe('<Menu.Positioner />', () => {
   });
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    let unmount = () => {};
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
-    await act(async () => {
-      ({ unmount } = await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="positioner">
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      ));
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    const { unmount } = await render(
+      <Menu.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Menu.Portal>
+          <Menu.Positioner data-testid="positioner">
+            <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
 
-    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
     unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    let unmount = () => {};
-    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
-    await act(async () => {
-      ({ unmount } = await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="positioner">
-              <Menu.Popup style={popupStyle}>
-                <Menu.Viewport>Popup</Menu.Viewport>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      ));
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    const { unmount } = await render(
+      <Menu.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Menu.Portal>
+          <Menu.Positioner data-testid="positioner">
+            <Menu.Popup style={popupStyle}>
+              <Menu.Viewport>Popup</Menu.Viewport>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
 
-    expect(screen.getByTestId('positioner').style.transform).toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
     unmount();
   });
 });

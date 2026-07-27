@@ -1,18 +1,14 @@
 import { expect } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { advanceReactClock, createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Tooltip.Provider />', () => {
   const { render, clock } = createRenderer();
 
   async function tick(ms: number) {
-    await flushMicrotasks();
-    await act(async () => {
-      await clock.tickAsync(ms);
-    });
-    await flushMicrotasks();
+    await advanceReactClock(clock, ms);
   }
 
   describe('prop: delay', () => {

@@ -1,14 +1,21 @@
 import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
 
 describe('<Menubar />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await resetBrowserPointer();
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
@@ -254,8 +261,7 @@ describe('<Menubar />', () => {
 
         // Now hover over the edit menubar trigger
         const editTrigger = screen.getByTestId('edit-trigger');
-        fireEvent.mouseEnter(editTrigger);
-        fireEvent.mouseMove(editTrigger);
+        await user.hover(editTrigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('edit-menu')).not.toBe(null);
