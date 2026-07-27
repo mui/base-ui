@@ -160,6 +160,37 @@ describe('<Combobox.Virtualizer />', () => {
     await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
   });
 
+  it.skipIf(!isJSDOM)(
+    'updates estimated size when an estimate callback changes behavior',
+    async () => {
+      const items = createItems(3);
+
+      function Test(props: { estimatedItemHeight: number }) {
+        return (
+          <Combobox.Root defaultOpen items={items}>
+            <Combobox.List>
+              <Combobox.Virtualizer
+                estimatedItemHeight={() => props.estimatedItemHeight}
+                render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
+              >
+                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+              </Combobox.Virtualizer>
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test estimatedItemHeight={20} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+
+      await rerender(<Test estimatedItemHeight={40} />);
+
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
+    },
+  );
+
   it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {
     vi.restoreAllMocks();
 
@@ -945,7 +976,7 @@ describe('<Combobox.Virtualizer />', () => {
     expect(renderItem).not.toHaveBeenCalled();
   });
 
-  it('does not rebuild rows when inline configuration callbacks change identity', async () => {
+  it('reuses rows when inline configuration callbacks return the same values', async () => {
     type Item = { id: string; label: string; size: number };
     const items: Item[] = Array.from({ length: 10 }, (_, index) => ({
       id: String(index),
@@ -955,6 +986,11 @@ describe('<Combobox.Virtualizer />', () => {
     const handleGetItemKey = vi.fn();
     const handleEstimatedItemHeight = vi.fn();
     const itemToStringLabel = (item: Item) => item.label;
+    const renderItem = vi.fn((item: Item) => (
+      <Combobox.Item value={item} style={{ height: item.size }}>
+        {item.label}
+      </Combobox.Item>
+    ));
 
     function Test() {
       return (
@@ -971,11 +1007,7 @@ describe('<Combobox.Virtualizer />', () => {
               }}
               render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
             >
-              {(item: Item) => (
-                <Combobox.Item value={item} style={{ height: item.size }}>
-                  {item.label}
-                </Combobox.Item>
-              )}
+              {renderItem}
             </Combobox.Virtualizer>
           </Combobox.List>
         </Combobox.Root>
@@ -990,11 +1022,13 @@ describe('<Combobox.Virtualizer />', () => {
     );
     handleGetItemKey.mockClear();
     handleEstimatedItemHeight.mockClear();
+    renderItem.mockClear();
 
     await rerender(<Test />);
 
-    expect(handleGetItemKey).not.toHaveBeenCalled();
+    expect(handleGetItemKey).toHaveBeenCalledTimes(items.length);
     expect(handleEstimatedItemHeight.mock.calls.length).toBeLessThan(items.length);
+    expect(renderItem).not.toHaveBeenCalled();
   });
 
   it('does not remount items when the built-in virtualizer takes over', async () => {

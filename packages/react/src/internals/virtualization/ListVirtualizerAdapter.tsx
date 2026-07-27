@@ -150,13 +150,6 @@ export function useListVirtualizerAdapter<Value, Item>(
   } = parameters;
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
-  // These callbacks run during render, so use render-safe refs to keep their wrappers stable.
-  const getItemKeyRef = React.useRef(getItemKey);
-  getItemKeyRef.current = getItemKey;
-  const getItemKeyStable = React.useCallback((item: Item) => getItemKeyRef.current?.(item), []);
-  const getItemValueRef = React.useRef(getItemValue);
-  getItemValueRef.current = getItemValue;
-  const getItemValueStable = React.useCallback((item: Item) => getItemValueRef.current(item), []);
   const hasGetItemKey = getItemKey != null;
   const estimatedItemHeightFunctionRef = React.useRef<
     ((item: Item, index: number) => number) | undefined
@@ -164,12 +157,17 @@ export function useListVirtualizerAdapter<Value, Item>(
   estimatedItemHeightFunctionRef.current =
     typeof estimatedItemHeight === 'function' ? estimatedItemHeight : undefined;
 
+  // A new callback can either be an equivalent inline function or resolve different keys.
+  // Re-evaluate it, then retain the row array when the resolved identity is unchanged.
+  const rowsCacheRef = React.useRef<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[] | null>(
+    null,
+  );
   const rows = React.useMemo<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
-    return items.map((item, itemIndex) => {
-      const itemValue = getItemValueStable(item);
-      const rawKey = hasGetItemKey ? getItemKeyStable(item) : undefined;
+    const nextRows = items.map((item, itemIndex) => {
+      const itemValue = getItemValue(item);
+      const rawKey = hasGetItemKey ? getItemKey(item) : undefined;
       const key = hasGetItemKey
         ? normalizeItemKey(rawKey)
         : getDefaultItemKey(itemValue, objectKeyRegistry);
@@ -198,14 +196,15 @@ export function useListVirtualizerAdapter<Value, Item>(
         },
       };
     });
-  }, [
-    componentName,
-    getItemKeyStable,
-    getItemValueStable,
-    hasGetItemKey,
-    items,
-    objectKeyRegistry,
-  ]);
+
+    const previousRows = rowsCacheRef.current;
+    if (previousRows != null && areListVirtualizerRowsEqual(previousRows, nextRows)) {
+      return previousRows;
+    }
+
+    rowsCacheRef.current = nextRows;
+    return nextRows;
+  }, [componentName, getItemKey, getItemValue, hasGetItemKey, items, objectKeyRegistry]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
 
@@ -337,6 +336,24 @@ export function useNonVirtualizedItemRegistration(
  * Shared public state exposed by flat collection virtualizer adapters.
  */
 export type ListVirtualizerAdapterState = ListVirtualizerState;
+
+function areListVirtualizerRowsEqual<Item>(
+  previous: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
+  next: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
+) {
+  if (previous.length !== next.length) {
+    return false;
+  }
+
+  return previous.every((previousRow, index) => {
+    const nextRow = next[index];
+    return (
+      previousRow.id === nextRow.id &&
+      previousRow.model.item === nextRow.model.item &&
+      previousRow.model.itemIndex === nextRow.model.itemIndex
+    );
+  });
+}
 
 /**
  * Shared public props for flat collection virtualizer adapters.

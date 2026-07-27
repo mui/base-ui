@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { Select } from '@base-ui/react/select';
+import { Select, type SelectItemData } from '@base-ui/react/select';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -108,7 +108,7 @@ describe('<Select.Virtualizer />', () => {
     expect(firstItem).toHaveAttribute('data-index', '0');
   });
 
-  it('does not rebuild rows when inline configuration callbacks change identity', async () => {
+  it('reuses rows when inline configuration callbacks return the same values', async () => {
     type Value = { id: string; size: number };
     const items = Array.from({ length: 10 }, (_, index) => ({
       value: { id: String(index), size: 20 },
@@ -116,6 +116,11 @@ describe('<Select.Virtualizer />', () => {
     }));
     const handleGetItemKey = vi.fn();
     const handleEstimatedItemHeight = vi.fn();
+    const renderItem = vi.fn((item: SelectItemData<Value>) => (
+      <Select.Item value={item.value} style={{ height: item.value.size }}>
+        {item.label}
+      </Select.Item>
+    ));
 
     function Test() {
       return (
@@ -134,11 +139,7 @@ describe('<Select.Virtualizer />', () => {
                   }}
                   render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
                 >
-                  {(item) => (
-                    <Select.Item value={item.value} style={{ height: item.value.size }}>
-                      {item.label}
-                    </Select.Item>
-                  )}
+                  {renderItem}
                 </Select.Virtualizer>
               </Select.List>
             </Select.Popup>
@@ -155,11 +156,62 @@ describe('<Select.Virtualizer />', () => {
     );
     handleGetItemKey.mockClear();
     handleEstimatedItemHeight.mockClear();
+    renderItem.mockClear();
 
     await rerender(<Test />);
 
-    expect(handleGetItemKey).not.toHaveBeenCalled();
+    expect(handleGetItemKey).toHaveBeenCalledTimes(items.length);
     expect(handleEstimatedItemHeight.mock.calls.length).toBeLessThan(items.length);
+    expect(renderItem).not.toHaveBeenCalled();
+  });
+
+  it('updates row identity when a key callback changes behavior', async () => {
+    type Value = { id: string; slug: string };
+    type Item = SelectItemData<Value>;
+    const items: Item[] = Array.from({ length: 3 }, (_, index) => ({
+      value: { id: `id-${index}`, slug: `slug-${index}` },
+      label: `Item ${index}`,
+    }));
+    const handleMount = vi.fn();
+
+    function Item(props: { item: Item }) {
+      React.useEffect(() => {
+        handleMount();
+      }, []);
+
+      return <Select.Item value={props.item.value}>{props.item.label}</Select.Item>;
+    }
+
+    const renderItem = (item: Item) => <Item item={item} />;
+
+    function Test(props: { keyBySlug: boolean }) {
+      return (
+        <Select.Root defaultOpen items={items}>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.List>
+                <Select.Virtualizer<Value>
+                  estimatedItemHeight={20}
+                  getItemKey={(item) => (props.keyBySlug ? item.value.slug : item.value.id)}
+                  render={<div ref={setElementClientHeight(60)} />}
+                >
+                  {renderItem}
+                </Select.Virtualizer>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<Test keyBySlug={false} />);
+
+    await waitFor(() => expect(handleMount).toHaveBeenCalledTimes(items.length));
+    handleMount.mockClear();
+
+    await rerender(<Test keyBySlug />);
+
+    await waitFor(() => expect(handleMount).toHaveBeenCalledTimes(items.length));
   });
 
   it('navigates to and selects offscreen items', async () => {
