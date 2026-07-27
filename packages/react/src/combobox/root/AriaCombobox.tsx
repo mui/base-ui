@@ -1236,10 +1236,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
   );
 
-  const popupProps = dismiss.floating ?? EMPTY_OBJECT;
+  const popupProps = React.useMemo(
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
+  );
 
   const listProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, role.floating),
+    () => mergeProps(listNavigation.floating, role.floating),
     [listNavigation.floating, role.floating],
   );
 

@@ -90,7 +90,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       {
         id: popupId,
         role: inputInsidePopup ? 'dialog' : 'presentation',
-        tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
           if (
