@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
-import type { ComboboxItemCollection, ItemCollection } from '../../combobox/items/itemCollection';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
-import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -21,18 +20,17 @@ export function AutocompleteRoot<Items extends readonly { items: readonly any[] 
     items: Items;
   },
 ): React.JSX.Element;
-export function AutocompleteRoot<ItemValue, Item = ItemValue>(
-  props: Omit<AutocompleteRoot.Props<ItemValue, Item>, 'items'> & {
+export function AutocompleteRoot<ItemValue>(
+  props: Omit<AutocompleteRoot.Props<ItemValue>, 'items'> & {
     /**
      * The items to be displayed in the list.
-     * Can be a flat array of items, an array of groups with items, or a collection created
-     * by the `useItems()` hook.
+     * Can be either a flat array of items or an array of groups with items.
      */
-    items?: readonly ItemValue[] | ComboboxItemCollection<Item, ItemValue> | undefined;
+    items?: readonly ItemValue[] | undefined;
   },
 ): React.JSX.Element;
-export function AutocompleteRoot<ItemValue, Item = ItemValue>(
-  props: AutocompleteRoot.Props<ItemValue, Item>,
+export function AutocompleteRoot<ItemValue>(
+  props: AutocompleteRoot.Props<ItemValue>,
 ): React.JSX.Element {
   const {
     openOnInputClick = false,
@@ -46,8 +44,6 @@ export function AutocompleteRoot<ItemValue, Item = ItemValue>(
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
-  const collection =
-    other.items && !Array.isArray(other.items) ? (other.items as unknown as ItemCollection) : null;
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
@@ -117,7 +113,7 @@ export function AutocompleteRoot<ItemValue, Item = ItemValue>(
 
     setInlineInputValue(
       enableInline && highlightedValue != null
-        ? stringifyAsLabel(highlightedValue, itemToStringValue ?? collection?.label)
+        ? stringifyAsLabel(highlightedValue, itemToStringValue)
         : '',
     );
   }
@@ -153,8 +149,8 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-export interface AutocompleteRootProps<ItemValue, Item = ItemValue> extends Omit<
-  AriaCombobox.Props<ItemValue, 'none', Item>,
+export interface AutocompleteRootProps<ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none'>,
   | 'selectionMode'
   | 'selectedValue'
   | 'defaultSelectedValue'
@@ -178,12 +174,23 @@ export interface AutocompleteRootProps<ItemValue, Item = ItemValue> extends Omit
   | 'onOpenChange'
   | 'openOnInputClick'
   | 'form'
+  | 'items'
+  | 'filter'
 > {
   /**
    * Identifies the form that owns the internal input.
    * Useful when the autocomplete is rendered outside the form.
    */
   form?: string | undefined;
+  /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   */
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filter function used to match items against the input query.
+   */
+  filter?: AriaCombobox.Props<ItemValue, 'none'>['filter'] | undefined;
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
@@ -285,7 +292,7 @@ export interface AutocompleteRootProps<ItemValue, Item = ItemValue> extends Omit
 }
 
 export namespace AutocompleteRoot {
-  export type Props<ItemValue, Item = ItemValue> = AutocompleteRootProps<ItemValue, Item>;
+  export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
   export type State = AutocompleteRootState;
   export type Actions = AutocompleteRootActions;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;
