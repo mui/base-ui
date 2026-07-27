@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tooltip.Trigger />', () => {
@@ -63,16 +63,13 @@ describe('<Tooltip.Trigger />', () => {
 
     fireEvent.mouseEnter(trigger);
     fireEvent.mouseMove(trigger);
-    await waitFor(() => {
-      expect(trigger).toHaveAttribute('data-popup-open');
-    });
-    await screen.findByText('Content');
+    await act(async () => flushMicrotasks());
+    expect(trigger).toHaveAttribute('data-popup-open');
+    expect(screen.getByText('Content')).not.toBe(null);
 
     fireEvent.mouseLeave(trigger);
-    await waitFor(() => {
-      expect(trigger).not.toHaveAttribute('data-popup-open');
-    });
-
+    await act(async () => flushMicrotasks());
+    expect(trigger).not.toHaveAttribute('data-popup-open');
     expect(screen.getByText('Content')).not.toBe(null);
   });
 

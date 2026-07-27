@@ -259,9 +259,9 @@ describe('<ScrollArea.Viewport />', () => {
 
       expect(viewport).not.toHaveAttribute('data-scrolling');
 
-      // A mouse pointerdown on the root (not the viewport, whose own
+      // A mouse pointermove on the root (not the viewport, whose own
       // handlers mark user interaction) switches back to mouse modality.
-      fireEvent.pointerDown(root, { pointerType: 'mouse' });
+      fireEvent.pointerMove(root, { pointerType: 'mouse' });
       fireEvent.scroll(viewport, { target: { scrollTop: 2 } });
 
       expect(viewport).not.toHaveAttribute('data-scrolling');

@@ -87,12 +87,17 @@ function App({
         data-testid="reference"
         ref={refs.setReference}
         {...referenceProps}
-        style={{ width: 0, height: 0 }}
+        style={{ width: 0, height: 0, pointerEvents: 'none' }}
       >
         Reference
       </div>
       {isOpen && (
-        <div data-testid="floating" ref={refs.setFloating} {...getFloatingProps()}>
+        <div
+          data-testid="floating"
+          ref={refs.setFloating}
+          {...getFloatingProps()}
+          style={{ pointerEvents: 'none' }}
+        >
           Floating
         </div>
       )}
@@ -375,6 +380,8 @@ test('removes window listener when cursor lands on floating element', async () =
     }),
   );
 
+  await act(async () => flushMicrotasks());
+
   fireEvent(
     document.body,
     new MouseEvent('mousemove', {
@@ -385,7 +392,6 @@ test('removes window listener when cursor lands on floating element', async () =
   );
 
   expectLocation({ x: 500, y: 500 });
-  await act(async () => flushMicrotasks());
 });
 
 test('reattaches window listener after cursor returns from floating element to reference', async () => {
@@ -410,6 +416,8 @@ test('reattaches window listener after cursor returns from floating element to r
       clientY: 500,
     }),
   );
+
+  await act(async () => flushMicrotasks());
 
   fireEvent(
     document.body,
@@ -454,8 +462,8 @@ test('reattaches window listener after cursor returns from floating element to r
     }),
   );
 
-  expectLocation({ x: 100, y: 200 });
   await act(async () => flushMicrotasks());
+  expectLocation({ x: 100, y: 200 });
 });
 
 test('restores the DOM reference when opened by a non-mouse event', async () => {

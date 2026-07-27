@@ -12,6 +12,7 @@ describe('<Tooltip.Provider />', () => {
     await act(async () => {
       await clock.tickAsync(ms);
     });
+    await flushMicrotasks();
   }
 
   describe('prop: delay', () => {
