@@ -22,11 +22,7 @@ export default function ExampleVirtualizedSelect() {
           >
             <Select.Popup className={styles.Popup}>
               <Select.List className={styles.List}>
-                <Select.Virtualizer<string>
-                  className={styles.Scroller}
-                  estimatedItemHeight={32}
-                  overscanPx={640}
-                >
+                <Select.Virtualizer<string> className={styles.Scroller} overscanPx={640}>
                   {(item) => (
                     <Select.Item value={item.value} className={styles.Item}>
                       <Select.ItemIndicator className={styles.ItemIndicator}>

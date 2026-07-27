@@ -62,9 +62,9 @@ function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
             <Combobox.List className={styles.BuiltInList}>
               <Combobox.Virtualizer
                 className={`${styles.Scroller} ${styles.BuiltInScroller}`}
-                estimatedItemHeight={32}
+                estimatedItemHeight={12}
                 getItemKey={(item) => item.id}
-                overscanPx={640}
+                overscanPx={40}
               >
                 {(item: VirtualizedItem) => (
                   <VirtualizedItemRow item={item} varyingHeights={props.varyingHeights} />

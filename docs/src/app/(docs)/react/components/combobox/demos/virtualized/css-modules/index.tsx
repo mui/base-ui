@@ -20,7 +20,6 @@ export default function ExampleVirtualizedCombobox() {
             <Combobox.List className={styles.List}>
               <Combobox.Virtualizer
                 className={styles.Scroller}
-                estimatedItemHeight={32}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >

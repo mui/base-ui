@@ -19,6 +19,8 @@ import type {
 type ComponentName = 'Combobox' | 'Select';
 type VirtualizerItemKey = string;
 
+const DEFAULT_ESTIMATED_ITEM_HEIGHT = 32;
+
 /**
  * Row model shared by flat collection virtualizers.
  */
@@ -120,7 +122,7 @@ export interface UseListVirtualizerAdapterParameters<Value, Item> {
   activeIndex: number | null;
   children: (item: Item, index: number) => React.ReactElement;
   componentName: ComponentName;
-  estimatedItemHeight: number | ((item: Item, index: number) => number);
+  estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
   getItemKey: ((item: Item) => string | number) | undefined;
   getItemValue: (item: Item) => Value;
   items: ReadonlyArray<Item>;
@@ -156,12 +158,11 @@ export function useListVirtualizerAdapter<Value, Item>(
   getItemValueRef.current = getItemValue;
   const getItemValueStable = React.useCallback((item: Item) => getItemValueRef.current(item), []);
   const hasGetItemKey = getItemKey != null;
-  const estimatedItemHeightFunctionRef = React.useRef(
-    typeof estimatedItemHeight === 'function' ? estimatedItemHeight : undefined,
-  );
-  if (typeof estimatedItemHeight === 'function') {
-    estimatedItemHeightFunctionRef.current = estimatedItemHeight;
-  }
+  const estimatedItemHeightFunctionRef = React.useRef<
+    ((item: Item, index: number) => number) | undefined
+  >(undefined);
+  estimatedItemHeightFunctionRef.current =
+    typeof estimatedItemHeight === 'function' ? estimatedItemHeight : undefined;
 
   const rows = React.useMemo<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
@@ -230,7 +231,9 @@ export function useListVirtualizerAdapter<Value, Item>(
     [],
   );
   const resolvedEstimatedItemHeight =
-    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : estimateRowHeight;
+    typeof estimatedItemHeight === 'function'
+      ? estimateRowHeight
+      : (estimatedItemHeight ?? DEFAULT_ESTIMATED_ITEM_HEIGHT);
 
   const apiRef = React.useRef<ListVirtualizerHandle | null>(null);
   const getRowMetrics = useStableCallback(
@@ -344,8 +347,13 @@ export interface ListVirtualizerAdapterProps<
 > extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
   /** Renders exactly one item for the given value and logical index. */
   children: (item: Item, index: number) => React.ReactElement;
-  /** Estimated item height in CSS pixels used before item elements have been measured. */
-  estimatedItemHeight: number | ((item: Item, index: number) => number);
+  /**
+   * Estimated item height in CSS pixels used before item elements have been measured.
+   * A static number is automatically refined with the running average of measured items.
+   * Provide a function to keep full control over per-item estimates.
+   * @default 32
+   */
+  estimatedItemHeight?: number | ((item: Item, index: number) => number) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
    * Defaults to the larger of 150px and the estimated size of the first item. The render buffer

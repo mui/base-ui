@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Select.Virtualizer />', () => {
   const { render } = createRenderer();
@@ -26,7 +26,7 @@ describe('<Select.Virtualizer />', () => {
 
     try {
       await renderVirtualizedSelect({ items: createItems(100) });
-      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(5));
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(isJSDOM ? 3 : 5));
 
       expect(
         warnSpy.mock.calls.some(([message]) =>
@@ -41,15 +41,22 @@ describe('<Select.Virtualizer />', () => {
   it('only renders the visible select items', async () => {
     await renderVirtualizedSelect({ items: createItems(100) });
 
-    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(5));
+    const expectedRenderedCount = isJSDOM ? 3 : 5;
+    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(expectedRenderedCount));
 
     expect(screen.getByRole('option', { name: 'Item 1' })).not.toBe(null);
-    expect(screen.getByRole('option', { name: 'Item 5' })).not.toBe(null);
+    expect(screen.getByRole('option', { name: `Item ${expectedRenderedCount}` })).not.toBe(null);
     expect(screen.queryByRole('option', { name: 'Item 20' })).toBe(null);
 
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
-    expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
+    if (isJSDOM) {
+      expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px');
+    } else {
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px'),
+      );
+    }
   });
 
   it('exposes imperative scrolling by logical item index', async () => {
@@ -424,7 +431,6 @@ function VirtualizedSelect(props: VirtualizedSelectProps) {
         <Select.Popup>
           <Select.List>
             <Select.Virtualizer<string>
-              estimatedItemHeight={20}
               overscanPx={props.overscanPx ?? 20}
               render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
             >

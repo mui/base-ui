@@ -28,7 +28,6 @@ export default function ExampleVirtualizedSelect() {
               <Select.List className="py-1">
                 <Select.Virtualizer<string>
                   className="box-border h-[min(22rem,var(--total-size))] max-h-[calc(var(--available-height)-0.5rem)] overflow-auto overscroll-contain scroll-py-1"
-                  estimatedItemHeight={32}
                   overscanPx={640}
                 >
                   {(item) => (

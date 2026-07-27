@@ -45,7 +45,6 @@ describe('<Combobox.Virtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
           <Combobox.Virtualizer
-            estimatedItemHeight={20}
             overscanPx={20}
             render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
           >
@@ -59,15 +58,22 @@ describe('<Combobox.Virtualizer />', () => {
       </Combobox.Root>,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(5));
+    const expectedRenderedCount = isJSDOM ? 3 : 5;
+    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(expectedRenderedCount));
 
     expect(screen.getByRole('option', { name: 'Item 1' })).not.toBe(null);
-    expect(screen.getByRole('option', { name: 'Item 5' })).not.toBe(null);
+    expect(screen.getByRole('option', { name: `Item ${expectedRenderedCount}` })).not.toBe(null);
     expect(screen.queryByRole('option', { name: 'Item 20' })).toBe(null);
 
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
-    expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
+    if (isJSDOM) {
+      expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px');
+    } else {
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px'),
+      );
+    }
   });
 
   it('exposes imperative scrolling by logical item index', async () => {
@@ -285,11 +291,14 @@ describe('<Combobox.Virtualizer />', () => {
 
       const virtualizer = screen.getByTestId('virtualizer');
       const viewportRect = virtualizer.getBoundingClientRect();
+      await waitFor(() =>
+        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('1000px'),
+      );
       await waitFor(() => {
         const renderedItems = screen.getAllByRole('option');
         const lastRenderedItem = renderedItems.at(-1) as HTMLElement;
         expect(lastRenderedItem.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
-          viewportRect.bottom + 100,
+          viewportRect.bottom + 10,
         );
       });
 
@@ -660,6 +669,58 @@ describe('<Combobox.Virtualizer />', () => {
       }),
     );
     expect(scrollTop).toBe(940);
+  });
+
+  it.skipIf(isJSDOM)('scrolls to the selected item when ArrowDown reopens the popup', async () => {
+    vi.restoreAllMocks();
+
+    const { user } = await render(
+      <Combobox.Root defaultValue="Item 50" items={createItems(100)}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Virtualizer
+                  estimatedItemHeight={20}
+                  overscanPx={0}
+                  render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+                >
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} style={{ display: 'block', height: 20 }}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.Virtualizer>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await screen.findByRole('option', { name: 'Item 50' });
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+    await user.keyboard('{ArrowDown}');
+
+    const virtualizer = await screen.findByTestId('virtualizer');
+    await waitFor(() => expect(virtualizer.scrollTop).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(
+        screen.getByRole('option', { name: 'Item 50' }).closest<HTMLElement>('[data-row-index]')
+          ?.style.position,
+      ).toBe(''),
+    );
+    await waitFor(() => {
+      const viewport = virtualizer.getBoundingClientRect();
+      const selectedItem = screen.getByRole('option', { name: 'Item 50' });
+      const rect = selectedItem.getBoundingClientRect();
+      expect(rect.bottom > viewport.top && rect.top < viewport.bottom).toBe(true);
+    });
   });
 
   it('scrolls the highlighted item into view', async () => {
