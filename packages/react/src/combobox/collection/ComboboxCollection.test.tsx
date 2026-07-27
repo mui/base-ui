@@ -56,7 +56,7 @@ describe('<Combobox.Collection />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(items[1]);
   });
 
-  it('prefers an explicit item value over the source item', async () => {
+  it('keeps the source item authoritative when an item also has an explicit value', async () => {
     const items = ['alpha', 'beta'];
     const onValueChange = vi.fn();
     const { user } = await render(
@@ -74,7 +74,7 @@ describe('<Combobox.Collection />', () => {
 
     await user.click(screen.getByRole('option', { name: 'beta' }));
 
-    expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-beta');
+    expect(onValueChange.mock.lastCall?.[0]).toBe('beta');
   });
 
   it('keeps an omitted value on a static item using the existing null fallback', async () => {

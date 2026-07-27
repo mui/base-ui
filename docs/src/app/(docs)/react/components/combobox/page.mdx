@@ -96,6 +96,11 @@ import { DemoComboboxUseItems } from './demos/use-items';
 
 <DemoComboboxUseItems />
 
+With async data, prefer item objects as values so the selected label survives result changes;
+compare them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data`
+or resolve every ID from a cache with `itemToStringLabel`, which replaces the collection's `label`
+accessor.
+
 ### Multiple select
 
 The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.

@@ -252,6 +252,51 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('Alicia');
     });
 
+    it('resolves a label-only collection value using the root equality comparer', async () => {
+      const selectedUser = { id: 2, name: 'Stale Bob' };
+
+      function App() {
+        const items = Combobox.useItems(users, {
+          label: getUserName,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            defaultValue={selectedUser}
+            isItemEqualToValue={(item, value) => item.id === value.id}
+          >
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Bob');
+    });
+
+    it('resolves a derived value label using the root equality comparer', async () => {
+      function App() {
+        const items = Combobox.useItems(users, {
+          value: (user) => user.name.toLowerCase(),
+          label: getUserName,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            defaultValue="BOB"
+            isItemEqualToValue={(item, value) => item.toLowerCase() === value.toLowerCase()}
+          >
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Bob');
+    });
+
     it('passes source items to a custom root filter', async () => {
       const filter = vi.fn((user: User) => user.id === 2);
 
@@ -334,14 +379,14 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('99');
     });
 
-    it('uses the default object label fallback outside the collection', async () => {
+    it('uses the default label fallback outside the collection', async () => {
       function App() {
-        const items = Combobox.useItems<User, number | { label: string }>(users, {
+        const items = Combobox.useItems<User, number | string>(users, {
           value: getUserId,
           label: getUserName,
         });
         return (
-          <Combobox.Root items={items} defaultValue={{ label: 'New tag' }}>
+          <Combobox.Root items={items} defaultValue="New tag">
             <Combobox.Input data-testid="input" />
           </Combobox.Root>
         );
@@ -468,16 +513,32 @@ describe('Combobox.useItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(1);
     });
 
-    it('resolves a virtualized item index from the derived value after filtering', async () => {
+    it('resolves externally virtualized item indexes and callbacks in the derived value domain', async () => {
       const onValueChange = vi.fn();
+      const onItemHighlighted = vi.fn();
+
+      function VirtualizedItems() {
+        const filteredItems = Combobox.useFilteredItems<User>();
+        return filteredItems.slice(0, 1).map((user) => (
+          <Combobox.Item key={user.id} value={user.id}>
+            {user.name}
+          </Combobox.Item>
+        ));
+      }
 
       function App() {
         const items = useUserItems();
         return (
-          <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
+          <Combobox.Root
+            items={items}
+            virtualized
+            defaultOpen
+            onValueChange={onValueChange}
+            onItemHighlighted={onItemHighlighted}
+          >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              <VirtualizedItems />
             </Combobox.List>
           </Combobox.Root>
         );
@@ -487,6 +548,9 @@ describe('Combobox.useItems', () => {
 
       await user.type(screen.getByTestId('input'), 'bo');
       await user.keyboard('{ArrowDown}');
+
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(2);
+
       await user.keyboard('{Enter}');
 
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);

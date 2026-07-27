@@ -1,9 +1,10 @@
 import type { Group } from '../../internals/resolveValueLabel';
+import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
 /**
  * Normalized items created by `useItems()`, accepted by the root's `items` prop.
  */
-export declare class ComboboxItemCollection<Item, Value = Item> {
+export declare class ComboboxItemCollection<in out Item, Value = Item> {
   private constructor();
   private readonly __itemCollectionBrand: (item: Item) => Value;
 }
@@ -18,5 +19,8 @@ export interface ItemCollection<Item = any, Value = any> {
   /** Labels a source item. Used while filtering, which runs on source items. */
   itemLabel: (item: Item) => string;
   /** Labels a selected value, which may be unmounted or outside the current items. */
-  label: (valueOrItem: any) => string;
+  label: (
+    valueOrItem: Value,
+    isItemEqualToValue?: ItemEqualityComparer<Value> | undefined,
+  ) => string;
 }

@@ -63,13 +63,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const itemToValue = useStore(store, selectors.itemToValue);
 
   const hasCollectionItemValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE;
-  const itemValue =
-    hasCollectionItemValue && (itemToValue || valueProp === undefined)
-      ? collectionItemValue
-      : (valueProp ?? null);
+  const itemValue = hasCollectionItemValue ? collectionItemValue : (valueProp ?? null);
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
@@ -316,11 +312,10 @@ export interface ComboboxItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item. When omitted inside a collection, the
-   * collection-provided value is used. This is the source item for ordinary collections and the
-   * `value` accessor result for collections created by `useItems()`.
-   *
-   * Collections created by `useItems()` always use their derived value.
+   * A unique value that identifies this item.
+   * Inside a collection, the collection-provided value is always used instead. This is the source
+   * item for ordinary collections and the `value` accessor result for collections created by
+   * `useItems()`.
    */
   value?: any;
   /**

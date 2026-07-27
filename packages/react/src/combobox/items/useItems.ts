@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { compareItemEquality, type ItemEqualityComparer } from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
 /**
@@ -21,7 +22,35 @@ export type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<ItemOrGroup>>(
+export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
+  data: readonly { items: readonly Item[] }[],
+  options: UseComboboxItemsOptions<Item, Value> & {
+    value: (item: Item) => Value;
+  },
+): ComboboxItemCollection<Item, Value>;
+
+export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
+  data: readonly Item[],
+  options: UseComboboxItemsOptions<Item, Value> & {
+    value: (item: Item) => Value;
+  },
+): ComboboxItemCollection<Item, Value>;
+
+export function useComboboxItems<Item>(
+  data: readonly { items: readonly Item[] }[],
+  options?: Omit<UseComboboxItemsOptions<Item, Item>, 'value'> & {
+    value?: undefined;
+  },
+): ComboboxItemCollection<Item, Item>;
+
+export function useComboboxItems<Item>(
+  data: readonly Item[],
+  options?: Omit<UseComboboxItemsOptions<Item, Item>, 'value'> & {
+    value?: undefined;
+  },
+): ComboboxItemCollection<Item, Item>;
+
+export function useComboboxItems<ItemOrGroup, Value>(
   data: readonly ItemOrGroup[],
   options: UseComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> = {},
 ): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value> {
@@ -41,17 +70,33 @@ export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<Ite
       data,
       value: itemToValue,
       itemLabel: itemToLabel,
-      label: (itemValue: Value) => {
+      label: (itemValue: Value, isItemEqualToValue?: ItemEqualityComparer<Value> | undefined) => {
         while (!labels.has(itemValue) && indexedItems < leafItems.length) {
           const item = leafItems[indexedItems];
           indexedItems += 1;
           labels.set(itemToValue(item), itemToLabel(item));
         }
-        return labels.get(itemValue) ?? stringifyAsLabel(itemValue);
+
+        const exactLabel = labels.get(itemValue);
+        if (exactLabel !== undefined) {
+          return exactLabel;
+        }
+
+        if (isItemEqualToValue) {
+          for (const [valueToCompare, itemLabel] of labels) {
+            if (compareItemEquality(valueToCompare, itemValue, isItemEqualToValue)) {
+              return itemLabel;
+            }
+          }
+        }
+
+        return stringifyAsLabel(itemValue);
       },
     };
   }, [data, value, label]) as unknown as ComboboxItemCollection<Item, Value>;
 }
+
+export type ComboboxPrimitiveValue = string | number | bigint | boolean | symbol;
 
 export interface UseComboboxItemsOptions<Item, Value = Item> {
   /**
@@ -59,12 +104,14 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * selection value.
    * By default, the item itself is used as the value.
    * `null` and `undefined` are reserved for no selection.
+   * Prefer stable IDs from your application data.
    * Keep this function reference stable to preserve collection memoization.
    */
   value?: ((item: Item) => Value) | undefined;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop takes precedence.
+   * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
+   * and must handle every possible selected value.
    * By default, the item's derived value is stringified.
    * Keep this function reference stable to preserve collection memoization.
    */

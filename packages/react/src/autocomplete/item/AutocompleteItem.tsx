@@ -35,8 +35,8 @@ export interface AutocompleteItemProps
    */
   index?: number | undefined;
   /**
-   * A unique value that identifies this item. When omitted inside a collection, the
-   * collection-provided item is used.
+   * A unique value that identifies this item.
+   * Inside a collection, the collection-provided item is always used instead.
    * @default null
    */
   value?: any;

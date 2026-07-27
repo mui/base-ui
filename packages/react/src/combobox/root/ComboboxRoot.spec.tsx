@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Combobox } from '@base-ui/react/combobox';
+import { Combobox, type ComboboxItemCollection } from '@base-ui/react/combobox';
 import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
@@ -305,20 +305,53 @@ function UseItemsApp() {
     value: (item) => item.id,
     label: (item) => item.name,
   });
+  const objectValueCollection = Combobox.useItems(userItems, {
+    // @ts-expect-error Explicit projections must return a non-null primitive.
+    value: (item) => item,
+  });
+  const labelOnlyCollection = Combobox.useItems(userItems, {
+    label: (item) => item.name,
+  });
 
   // @ts-expect-error A collection exposes no data-manipulation methods.
   collection.each;
 
   // @ts-expect-error Existing collections are passed directly to Root.
   Combobox.useItems(collection);
+  void objectValueCollection;
 
   return (
-    <Combobox.Root
-      items={collection}
-      defaultValue={1}
-      onValueChange={(value) => value?.toFixed()}
-    />
+    <React.Fragment>
+      <Combobox.Root
+        items={collection}
+        filteredItems={userItems}
+        defaultValue={1}
+        onValueChange={(value) => value?.toFixed()}
+      />
+      <Combobox.Root
+        items={collection}
+        // @ts-expect-error Filtered collection items stay in the source item domain.
+        filteredItems={[1, 2]}
+      />
+      <Combobox.Root
+        items={labelOnlyCollection}
+        defaultValue={userItems[0]}
+        onValueChange={(value) => value?.name}
+      />
+    </React.Fragment>
   );
+}
+
+function CollectionVarianceApp() {
+  const broadCollection = Combobox.useItems([{ id: 1 }], {
+    value: (item) => item.id,
+  });
+
+  // @ts-expect-error A collection with broader source items cannot be narrowed.
+  const narrowCollection: ComboboxItemCollection<{ id: number; name: string }, number> =
+    broadCollection;
+
+  return <Combobox.Root items={narrowCollection} />;
 }
 
 export function Wrapper<Value, Multiple extends boolean | undefined = false>(

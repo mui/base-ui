@@ -2023,9 +2023,7 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { label: string }) => (
-                    <Autocomplete.Item key={item.label} value={item}>
-                      {item.label}
-                    </Autocomplete.Item>
+                    <Autocomplete.Item key={item.label}>{item.label}</Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
@@ -2042,7 +2040,9 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).toHaveValue('Canada');
     });
 
     it('uses itemToStringValue when object lacks label', async () => {
@@ -2056,9 +2056,7 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { country: string }) => (
-                    <Autocomplete.Item key={item.country} value={item}>
-                      {item.country}
-                    </Autocomplete.Item>
+                    <Autocomplete.Item key={item.country}>{item.country}</Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
@@ -2075,7 +2073,10 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(input).toHaveValue('Canada');
     });
 
     it('filters and displays using value for {value} objects', async () => {
@@ -2089,9 +2090,7 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { value: string }) => (
-                    <Autocomplete.Item key={item.value} value={item}>
-                      {item.value}
-                    </Autocomplete.Item>
+                    <Autocomplete.Item key={item.value}>{item.value}</Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>

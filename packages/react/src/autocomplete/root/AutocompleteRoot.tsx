@@ -69,29 +69,9 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
-    if (other.filter !== undefined) {
-      return other.filter;
-    }
-    return collator.contains;
-  }, [other.filter, collator]);
-
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
-
-  // In "both", wrap filtering to use only the typed value, ignoring the inline value.
-  const resolvedFilter: typeof other.filter = React.useMemo(() => {
-    if (mode !== 'both') {
-      return staticItems ? null : baseFilter;
-    }
-
-    if (baseFilter === null) {
-      return null;
-    }
-
-    return (item, _query, toString) => {
-      return baseFilter(item, resolvedQuery, toString);
-    };
-  }, [baseFilter, mode, resolvedQuery, staticItems]);
+  const resolvedFilter =
+    staticItems || other.filter === null ? null : (other.filter ?? collator.contains);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
     setInlineInputValue('');

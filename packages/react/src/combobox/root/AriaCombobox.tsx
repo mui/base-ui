@@ -154,12 +154,22 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   // Plain items are arrays; normalized `useItems()` collections are objects.
   const collection =
-    itemsProp && !Array.isArray(itemsProp) ? (itemsProp as unknown as ItemCollection) : null;
+    itemsProp && !Array.isArray(itemsProp)
+      ? (itemsProp as unknown as ItemCollection<Item, Value>)
+      : null;
   const items = (collection ? collection.data : itemsProp) as
-    | readonly any[]
-    | readonly Group<any>[]
+    | readonly Item[]
+    | readonly Group<Item>[]
     | undefined;
-  const itemToStringLabel = itemToStringLabelProp ?? collection?.label;
+  const itemToStringLabel = React.useMemo(() => {
+    if (itemToStringLabelProp) {
+      return itemToStringLabelProp;
+    }
+    if (!collection) {
+      return undefined;
+    }
+    return (itemValue: Value) => collection.label(itemValue, isItemEqualToValue);
+  }, [collection, isItemEqualToValue, itemToStringLabelProp]);
   const stringifyItemLabel = React.useCallback(
     (item: any) => stringifyAsLabel(item, itemToStringLabel),
     [itemToStringLabel],
@@ -283,7 +293,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
-  const flatItems: readonly any[] = React.useMemo(() => {
+  const flatItems: readonly Item[] = React.useMemo(() => {
     if (!items) {
       return EMPTY_ARRAY;
     }
@@ -295,9 +305,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+  const filteredItems: Item[] | Group<Item>[] = React.useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
-      return filteredItemsProp as Value[] | Group<Value>[];
+      return filteredItemsProp as Item[] | Group<Item>[];
     }
 
     if (!items) {
@@ -306,7 +316,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
     if (isGrouped) {
       const groupedItems = items;
-      const resultingGroups: Group<Value>[] = [];
+      const resultingGroups: Group<Item>[] = [];
       let currentCount = 0;
 
       for (const group of groupedItems) {
@@ -347,10 +357,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // However, <Combobox.Item> can never mutate this value as the mutating effect
           // bails early when `items` is provided, and this is only ever returned
           // when `items` is provided due to the early return at the top of this hook.
-          (flatItems as Value[]);
+          (flatItems as Item[]);
     }
 
-    const limitedItems: Value[] = [];
+    const limitedItems: Item[] = [];
     for (const item of flatItems) {
       if (limit > -1 && limitedItems.length >= limit) {
         break;
@@ -373,12 +383,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatItems,
   ]);
 
-  const flatFilteredItems: Value[] = React.useMemo(() => {
+  const flatFilteredItems: Item[] = React.useMemo(() => {
     if (isGrouped) {
-      const groups = filteredItems as Group<Value>[];
+      const groups = filteredItems as Group<Item>[];
       return groups.flatMap((g) => g.items);
     }
-    return filteredItems as Value[];
+    return filteredItems as Item[];
   }, [filteredItems, isGrouped]);
 
   /**
@@ -1689,7 +1699,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: readonly any[] | readonly Group<any>[] | undefined;
+  filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;
   /**
    * Filter function used to match items vs input query.
    * Receives the source item, which is the derived value's item when `items` is a `useItems()`
