@@ -64,11 +64,42 @@ function findRepresentativeInput(
   return fallback;
 }
 
+/**
+ * Custom validity messages this hook set itself, so that clearing them doesn't wipe a message set
+ * by other code. Components can own a validity condition that no native constraint expresses (for
+ * example a date field whose sections spell out February 30th) and surface it through
+ * `setCustomValidity`, and the field must not silently drop it while revalidating.
+ */
+const ownedCustomValidity = new WeakMap<HTMLInputElement, string>();
+
+function setOwnCustomValidity(element: HTMLInputElement, message: string) {
+  element.setCustomValidity(message);
+  ownedCustomValidity.set(element, message);
+}
+
+function clearOwnCustomValidity(element: HTMLInputElement) {
+  const ownMessage = ownedCustomValidity.get(element);
+  if (ownMessage === undefined) {
+    return;
+  }
+
+  // `validationMessage` is empty on elements barred from constraint validation (disabled ones, for
+  // example), so the message can only be compared when the element is able to report it.
+  if (element.willValidate && element.validationMessage !== ownMessage) {
+    return;
+  }
+
+  element.setCustomValidity('');
+  ownedCustomValidity.delete(element);
+}
+
 function clearCustomValidity(element: HTMLInputElement | null, inputs: RegisteredInputs) {
   for (const input of inputs.keys()) {
-    input.setCustomValidity('');
+    clearOwnCustomValidity(input);
   }
-  element?.setCustomValidity('');
+  if (element) {
+    clearOwnCustomValidity(element);
+  }
 }
 
 export function useFieldValidation(
@@ -143,6 +174,14 @@ export function useFieldValidation(
     }
 
     function publishAllValid(input: HTMLInputElement | null, externalInvalid?: boolean) {
+      clearCustomValidity(input, registeredInputs);
+
+      if (input?.validity.customError) {
+        // A custom validity message set outside of this hook survived the clear, so the field is
+        // still invalid. Leave the published validity untouched instead of claiming validity.
+        return false;
+      }
+
       const nextValidityData = {
         value,
         state: { ...DEFAULT_VALIDITY_STATE, valid: true },
@@ -150,9 +189,9 @@ export function useFieldValidation(
         errors: [],
         initialValue: validityData.initialValue,
       };
-      clearCustomValidity(input, registeredInputs);
       updateRegisteredFieldValidity(nextValidityData, externalInvalid);
       setValidityData(nextValidityData);
+      return true;
     }
 
     // A field can own several inputs (such as a checkbox or radio group), but only the last-mounted
@@ -177,8 +216,9 @@ export function useFieldValidation(
         // Temporarily mark the field as valid for this onChange event.
         // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
         // The required value is now present; ignore stale external invalid state for this pass.
-        publishAllValid(element, false);
-        return;
+        if (publishAllValid(element, false)) {
+          return;
+        }
       }
 
       // Avoid surfacing another error during change revalidation while the required value is
@@ -275,16 +315,22 @@ export function useFieldValidation(
 
         if (Array.isArray(result)) {
           validationErrors = result;
-          element?.setCustomValidity(result.join('\n'));
+          if (element) {
+            setOwnCustomValidity(element, result.join('\n'));
+          }
         } else if (result) {
           validationErrors = [result];
-          element?.setCustomValidity(result);
+          if (element) {
+            setOwnCustomValidity(element, result);
+          }
         }
       } else if (isValidatingOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
         clearCustomValidity(element, registeredInputs);
-        nextState.customError = false;
+        // A custom validity message set outside of this hook survives the clear above, so read the
+        // remaining state off the element instead of assuming there is no custom error left.
+        nextState.customError = element?.validity.customError ?? false;
 
         if (element && element.validationMessage) {
           defaultValidationMessage = element.validationMessage;

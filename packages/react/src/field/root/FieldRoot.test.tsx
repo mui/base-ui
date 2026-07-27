@@ -827,6 +827,83 @@ describe('<Field.Root />', () => {
     });
   });
 
+  describe('external custom validity', () => {
+    // A control can own a validity condition that no native constraint expresses (for example a
+    // date field whose sections spell out February 30th) and surface it with `setCustomValidity`.
+    // Revalidation must not silently drop it, since the field would then report itself as valid.
+    function ExternallyInvalidControl({ message }: { message: string }) {
+      const ref = React.useRef<HTMLInputElement | null>(null);
+
+      React.useEffect(() => {
+        ref.current?.setCustomValidity(message);
+      }, [message]);
+
+      return <Field.Control ref={ref} />;
+    }
+
+    it('keeps a message set outside the field when submitting', async () => {
+      const onFormSubmit = vi.fn();
+      await render(
+        <Form onFormSubmit={onFormSubmit}>
+          <Field.Root name="field">
+            <ExternallyInvalidControl message="external error" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(control.validationMessage).toBe('external error');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
+    it('keeps a message set outside the field when revalidating on change', async () => {
+      await render(
+        <Field.Root name="field" validationMode="onChange">
+          <ExternallyInvalidControl message="external error" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'text' } });
+
+      expect(control.validationMessage).toBe('external error');
+      expect(control).toHaveAttribute('data-invalid', '');
+    });
+
+    it('clears the message it set itself', async () => {
+      let shouldFail = true;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'error' : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validationMessage).toBe('error');
+
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+  });
+
   describe('prop: validationMode', () => {
     describe('onSubmit', () => {
       it('should validate the field on submit', async () => {
