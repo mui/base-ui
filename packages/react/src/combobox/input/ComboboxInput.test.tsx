@@ -155,6 +155,32 @@ describe('<Combobox.Input />', () => {
       expect(input).toHaveAttribute('aria-expanded', 'true');
       expect(input).toHaveAttribute('aria-controls', listbox.id);
     });
+
+    // An inline list is exposed for as long as it's rendered, so a non-input control carries
+    // the combobox ARIA attributes from the start rather than waiting for the open state.
+    it('applies combobox aria attributes to an inline <textarea> before it is interacted with', async () => {
+      await render(
+        <Combobox.Root inline items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" render={<textarea />} />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      expect(input).toHaveAttribute('role', 'combobox');
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+      expect(input).toHaveAttribute('aria-haspopup', 'listbox');
+      expect(input).toHaveAttribute('aria-autocomplete', 'list');
+    });
   });
 
   describe('prop: readOnly', () => {

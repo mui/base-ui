@@ -1116,7 +1116,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // During SSR and initial hydration, the input ref is not available yet.
     // Assume an input-like control so combobox ARIA attributes are present.
     const shouldTreatAsInput = inputElement == null || isPlainInput;
-    const shouldApplyAria = shouldTreatAsInput || open;
+    // A non-input control only takes on combobox semantics while the list is exposed, which for
+    // an inline list is the whole time.
+    const shouldApplyAria = shouldTreatAsInput || expanded;
 
     const reference = shouldTreatAsInput
       ? ({
@@ -1139,7 +1141,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, open, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,
