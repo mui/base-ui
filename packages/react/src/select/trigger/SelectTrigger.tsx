@@ -23,6 +23,7 @@ import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
+import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 
 const SELECTED_DELAY = 400;
 
@@ -33,20 +34,14 @@ const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   value: () => null,
 };
 
-/**
- * A button that opens the select popup.
- * Renders a `<button>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectTrigger = React.forwardRef(function SelectTrigger(
+const SelectTriggerImpl = React.forwardRef(function SelectTriggerImpl(
   componentProps: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     render,
     className,
-    id: idProp,
+    id,
     disabled: disabledProp = false,
     nativeButton = true,
     style,
@@ -73,7 +68,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
-
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const value = useStore(store, selectors.value);
@@ -81,18 +75,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const popupSideValue = useStore(store, selectors.popupSide);
-  const rootId = useStore(store, selectors.id);
   const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
-
-  const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
   useLabelableId({ id: idProp });
 
   const positionerRef = useValueAsRef(positionerElement);
-
   const triggerRef = React.useRef<HTMLElement | null>(null);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -230,12 +220,44 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     placeholder: !hasSelectedValue,
   };
 
-  return useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef, buttonRef, setTriggerElement],
     state,
     stateAttributesMapping,
     props,
   });
+
+  return element;
+});
+
+/**
+ * A button that opens the select popup.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectTrigger = React.forwardRef(function SelectTrigger(
+  componentProps: SelectTrigger.Props,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const { store } = useSelectRootContext();
+  const filterable = useStore(store, selectors.filterable);
+  const rootId = useStore(store, selectors.id);
+  const id = componentProps.id ?? rootId;
+  const trigger = <SelectTriggerImpl id={id} {...componentProps} ref={forwardedRef} />;
+
+  return filterable ? (
+    // FilterDropdownTrigger composes onto SelectTriggerImpl so its implementation
+    // overrides SelectTriggerImpl's implementation.
+    <FilterDropdownTrigger
+      id={id}
+      disabled={componentProps.disabled}
+      nativeButton={componentProps.nativeButton}
+      render={trigger}
+    />
+  ) : (
+    trigger
+  );
 });
 
 export interface SelectTriggerState extends FieldRootState {

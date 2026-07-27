@@ -5,7 +5,7 @@ import type { Side, UseAnchorPositioningReturnValue } from '../../internals/useA
 export interface SelectPositionerContext extends Omit<UseAnchorPositioningReturnValue, 'side'> {
   side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
-  setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  setAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
   scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
 }
