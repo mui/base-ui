@@ -92,7 +92,7 @@ describe('<Progress.Root />', () => {
         expect(part).not.toHaveAttribute('data-complete');
       });
       expect(progressbar).toHaveAttribute('aria-valuenow', '50');
-      expect(value).toHaveTextContent(formatPercent(0.5));
+      expect(value.textContent).toBe(formatPercent(0.5));
       expect(indicator.style.width).toBe('50%');
 
       await setProps({ value: 100 });
@@ -102,7 +102,7 @@ describe('<Progress.Root />', () => {
         expect(part).toHaveAttribute('data-complete');
       });
       expect(progressbar).toHaveAttribute('aria-valuenow', '100');
-      expect(value).toHaveTextContent(formatPercent(1));
+      expect(value.textContent).toBe(formatPercent(1));
       expect(indicator.style.width).toBe('100%');
 
       await setProps({ value: null });
@@ -133,7 +133,7 @@ describe('<Progress.Root />', () => {
 
       const progressbar = screen.getByRole('progressbar');
       expect(screen.getByTestId('indicator').style.width).toBe('50%');
-      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('value').textContent).toBe(expected);
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
     });
 
@@ -153,7 +153,7 @@ describe('<Progress.Root />', () => {
       expect(progressbar).toHaveAttribute('aria-valuenow', '40');
       expect(progressbar).toHaveAttribute('aria-valuemax', '40');
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
-      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('value').textContent).toBe(expected);
       expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
 
@@ -173,7 +173,7 @@ describe('<Progress.Root />', () => {
       expect(progressbar).toHaveAttribute('aria-valuenow', '20');
       expect(progressbar).toHaveAttribute('aria-valuemin', '20');
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
-      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('value').textContent).toBe(expected);
       expect(screen.getByTestId('indicator').style.width).toBe('0%');
     });
 
@@ -204,7 +204,7 @@ describe('<Progress.Root />', () => {
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '5');
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
-      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('value').textContent).toBe(expected);
       expect(screen.getByTestId('indicator').style.width).toBe('0%');
     });
 
@@ -239,7 +239,7 @@ describe('<Progress.Root />', () => {
       const formattedValue = formatPercent(0.3);
       expect(getAriaValueText).toHaveBeenLastCalledWith(formattedValue, 30);
       expect(progressbar).toHaveAttribute('aria-valuetext', `${formattedValue} uploaded`);
-      expect(screen.getByTestId('value')).toHaveTextContent(formattedValue);
+      expect(screen.getByTestId('value').textContent).toBe(formattedValue);
 
       await setProps({ value: null });
 

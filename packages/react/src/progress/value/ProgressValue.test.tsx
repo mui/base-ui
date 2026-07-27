@@ -22,7 +22,7 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
+      expect(value.textContent).toBe((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
