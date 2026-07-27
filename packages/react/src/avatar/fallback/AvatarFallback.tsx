@@ -48,7 +48,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     ref: forwardedRef,
     props: elementProps,
     stateAttributesMapping: avatarStateAttributesMapping,
-    enabled: imageLoadingStatus !== 'loaded' && (delay === 0 || delayPassed),
+    enabled: imageLoadingStatus !== 'loaded' && delayPassed,
   });
 
   return element;

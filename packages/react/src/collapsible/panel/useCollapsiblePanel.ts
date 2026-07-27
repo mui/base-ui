@@ -80,8 +80,8 @@ export function useCollapsiblePanel(
   }
 
   const hidden = !open && !mounted;
-  const panelTransitionStatus =
-    forcePanelIdle && transitionStatus === 'starting' ? 'idle' : transitionStatus;
+  // The adjustment above guarantees a committed `forcePanelIdle` implies `starting`.
+  const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
   const shouldPreventOpenAnimation =
     open &&
     // These 2 refs are safe to read in render, they are only written from committed
