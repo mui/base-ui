@@ -9,6 +9,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -158,6 +159,53 @@ describe('<Collapsible.Panel />', () => {
         expect(panel).not.toHaveAttribute('data-ending-style');
       },
     );
+  });
+
+  it('unmounts a panel that mounts after the close has already entered the ending phase', async () => {
+    const renderedStatuses: Array<Collapsible.Panel.State['transitionStatus']> = [];
+
+    function PanelThatMountsDuringEnding({
+      open,
+      transitionStatus,
+      ...props
+    }: React.ComponentPropsWithRef<'div'> & {
+      open: boolean;
+      transitionStatus: Collapsible.Panel.State['transitionStatus'];
+    }) {
+      renderedStatuses.push(transitionStatus);
+
+      if (!open && transitionStatus !== 'ending') {
+        return null;
+      }
+
+      return <div {...props} />;
+    }
+
+    await render(
+      <Collapsible.Root defaultOpen>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+        <Collapsible.Panel
+          render={(props, state) => (
+            <PanelThatMountsDuringEnding
+              {...props}
+              open={state.open}
+              transitionStatus={state.transitionStatus}
+            />
+          )}
+        >
+          {PANEL_CONTENT}
+        </Collapsible.Panel>
+      </Collapsible.Root>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    await act(async () => {
+      await waitForAnimationFrame();
+    });
+
+    expect(renderedStatuses).toContain('ending');
+    expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
   });
 
   describe.skipIf(isJSDOM)('CSS transitions', () => {
@@ -421,6 +469,135 @@ describe('<Collapsible.Panel />', () => {
         expect(panel).toHaveAttribute('data-ending-style');
       });
       expect(screen.getByTestId('panel')).toBe(panel);
+    });
+
+    it('keeps the measured size when an open animation finishes during a close commit', async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const abortSpy = vi.spyOn(AbortController.prototype, 'abort').mockImplementation(() => {});
+      let animationStarted = false;
+      const animation = new Animation(new KeyframeEffect(null, [], 10_000), document.timeline);
+      animation.play();
+
+      function ResolveAnimationOnClose({ open }: { open: boolean }) {
+        useIsoLayoutEffect(() => {
+          if (!open && animationStarted) {
+            animation.finish();
+          }
+        }, [open]);
+
+        return null;
+      }
+
+      const setPanelRef = (node: HTMLDivElement | null) => {
+        if (node) {
+          node.getAnimations = () => {
+            if (node.hasAttribute('data-open')) {
+              animationStarted = true;
+              return [animation];
+            }
+
+            return [];
+          };
+        }
+      };
+
+      try {
+        await render(
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              ref={setPanelRef}
+              keepMounted
+              render={(props, state) => (
+                <div {...props}>
+                  <ResolveAnimationOnClose open={state.open} />
+                  {props.children}
+                </div>
+              )}
+              style={{ transition: 'height 10s linear' }}
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>,
+        );
+
+        const panel = screen.getByText(PANEL_CONTENT);
+
+        await act(async () => {
+          await waitForAnimationFrame();
+        });
+        expect(animationStarted).toBe(true);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+        await flushMicrotasks();
+
+        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toMatch(/px$/);
+      } finally {
+        animation.cancel();
+        abortSpy.mockRestore();
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
+    });
+
+    it('does not restart the entrance transition when a close animation finishes after reopening', async () => {
+      const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const abortSpy = vi.spyOn(AbortController.prototype, 'abort').mockImplementation(() => {});
+      let closeAnimationStarted = false;
+      const closeAnimation = new Animation(new KeyframeEffect(null, [], 10_000), document.timeline);
+      closeAnimation.play();
+
+      const setPanelRef = (node: HTMLDivElement | null) => {
+        if (node) {
+          node.getAnimations = () => {
+            if (node.hasAttribute('data-ending-style')) {
+              closeAnimationStarted = true;
+              return [closeAnimation];
+            }
+
+            return [];
+          };
+        }
+      };
+
+      try {
+        await render(
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel ref={setPanelRef} style={{ transition: 'height 10s linear' }}>
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const panel = screen.getByText(PANEL_CONTENT);
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(closeAnimationStarted).toBe(true);
+        });
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+        });
+        await waitFor(() => {
+          expect(panel).not.toHaveAttribute('data-starting-style');
+        });
+
+        closeAnimation.finish();
+        await flushMicrotasks();
+
+        expect(panel).toHaveAttribute('data-open');
+        expect(panel).not.toHaveAttribute('data-starting-style');
+        expect(screen.getByText(PANEL_CONTENT)).toBe(panel);
+      } finally {
+        closeAnimation.cancel();
+        abortSpy.mockRestore();
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+      }
     });
   });
 
