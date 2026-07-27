@@ -46,7 +46,7 @@
   "46": "Base UI: PopoverPositionerContext is missing. PopoverPositioner parts must be placed within <Popover.Positioner>.",
   "47": "Base UI: PopoverRootContext is missing. Popover parts must be placed within <Popover.Root>.",
   "48": "Base UI: <PreviewCard.Portal> is missing.",
-  "49": "Base UI: <PreviewCard.Popup> and <PreviewCard.Arrow> must be used within the <PreviewCard.Positioner> component",
+  "49": "Base UI: PreviewCardPositionerContext is missing. PreviewCardPositioner parts must be placed within <PreviewCard.Positioner>.",
   "50": "Base UI: PreviewCardRootContext is missing. PreviewCard parts must be placed within <PreviewCard.Root>.",
   "51": "Base UI: ProgressRootContext is missing. Progress parts must be placed within <Progress.Root>.",
   "52": "Base UI: RadioRootContext is missing. Radio parts must be placed within <Radio.Root>.",

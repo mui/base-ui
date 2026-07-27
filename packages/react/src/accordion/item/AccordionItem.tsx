@@ -55,19 +55,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = React.useMemo(() => {
-    if (!openValues) {
-      return false;
-    }
-
-    for (let i = 0; i < openValues.length; i += 1) {
-      if (openValues[i] === value) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [openValues, value]);
+  const isOpen = openValues.indexOf(value) !== -1;
 
   const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
@@ -117,14 +105,18 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 
   const defaultTriggerId = useBaseUiId();
-  const [triggerId, setTriggerId] = React.useState<string | undefined>();
+  // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.
+  const [registeredTriggerId, setTriggerId] = React.useState<string | null | undefined>();
+  const triggerId =
+    registeredTriggerId === null ? undefined : (registeredTriggerId ?? defaultTriggerId);
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
+      defaultTriggerId,
       open: isOpen,
       state,
       setTriggerId,
-      triggerId: triggerId ?? defaultTriggerId,
+      triggerId,
     }),
     [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );

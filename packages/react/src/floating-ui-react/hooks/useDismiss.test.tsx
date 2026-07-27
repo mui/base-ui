@@ -162,6 +162,71 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test.each([false, true])(
+      'clears the inside marker when the interaction owner unmounts (strict: %s)',
+      (strict) => {
+        function DismissInteraction({
+          context,
+          outsidePress,
+        }: {
+          context: ReturnType<typeof useFloating>['context'];
+          outsidePress: boolean;
+        }) {
+          const { getFloatingProps } = useTestInteractions([
+            useDismiss(context, { outsidePress, outsidePressEvent: 'sloppy' }),
+          ]);
+
+          return <button type="button" {...getFloatingProps()} />;
+        }
+
+        function PersistentRootApp({
+          interactionMounted,
+          outsidePress,
+        }: {
+          interactionMounted: boolean;
+          outsidePress: boolean;
+        }) {
+          const [open, setOpen] = React.useState(true);
+          const { context, refs } = useFloating({ open, onOpenChange: setOpen });
+
+          return (
+            open && (
+              <div role="tooltip" ref={refs.setFloating}>
+                {interactionMounted && (
+                  <DismissInteraction context={context} outsidePress={outsidePress} />
+                )}
+              </div>
+            )
+          );
+        }
+
+        function App({
+          interactionMounted,
+          outsidePress,
+        }: {
+          interactionMounted: boolean;
+          outsidePress: boolean;
+        }) {
+          const app = (
+            <PersistentRootApp
+              interactionMounted={interactionMounted}
+              outsidePress={outsidePress}
+            />
+          );
+          return strict ? <React.StrictMode>{app}</React.StrictMode> : app;
+        }
+
+        const { rerender } = render(<App interactionMounted outsidePress={false} />);
+
+        fireEvent.click(screen.getByRole('button'));
+        rerender(<App interactionMounted={false} outsidePress />);
+        rerender(<App interactionMounted outsidePress />);
+        fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      },
+    );
+
     test('dismisses with reference press', () => {
       render(<App referencePress={() => true} />);
       fireEvent.pointerDown(screen.getByRole('button'));
