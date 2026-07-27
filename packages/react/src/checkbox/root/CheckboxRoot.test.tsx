@@ -1623,6 +1623,72 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
+  // Association is re-checked whenever the control commits. Label changes that occur with no
+  // control rerender at all (e.g. next to a memoized control) are not tracked in v1.
+  describe('fallback `aria-labelledby` with an independently rendered label', () => {
+    it('tracks a label toggled in a different container than the wrapped control', async () => {
+      function WrappedTestCase() {
+        const [showLabel, setShowLabel] = React.useState(false);
+
+        return (
+          <div>
+            <div>{showLabel && <label htmlFor="checkbox-input">Label</label>}</div>
+            <div>
+              <Checkbox.Root id="checkbox-input" />
+            </div>
+            <button type="button" onClick={() => setShowLabel((prev) => !prev)}>
+              Toggle label
+            </button>
+          </div>
+        );
+      }
+
+      await render(<WrappedTestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle label' }));
+
+      await waitFor(() => {
+        expect(checkbox).toHaveAttribute('aria-labelledby', screen.getByText('Label').id);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle label' }));
+
+      await waitFor(() => {
+        expect(checkbox).not.toHaveAttribute('aria-labelledby');
+      });
+    });
+
+    it('tracks a label whose `htmlFor` is retargeted to the control', async () => {
+      function RetargetTestCase() {
+        const [target, setTarget] = React.useState('other-input');
+
+        return (
+          <div>
+            <label htmlFor={target}>Label</label>
+            <Checkbox.Root id="checkbox-input" />
+            <button type="button" onClick={() => setTarget('checkbox-input')}>
+              Retarget
+            </button>
+          </div>
+        );
+      }
+
+      await render(<RetargetTestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Retarget' }));
+
+      await waitFor(() => {
+        expect(checkbox).toHaveAttribute('aria-labelledby', screen.getByText('Label').id);
+      });
+    });
+  });
+
   it('can render a native button', async () => {
     const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
 
