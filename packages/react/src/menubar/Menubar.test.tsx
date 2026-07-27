@@ -254,7 +254,8 @@ describe('<Menubar />', () => {
 
         // Now hover over the edit menubar trigger
         const editTrigger = screen.getByTestId('edit-trigger');
-        await user.hover(editTrigger);
+        fireEvent.mouseEnter(editTrigger);
+        fireEvent.mouseMove(editTrigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('edit-menu')).not.toBe(null);
@@ -1002,48 +1003,55 @@ describe('<Menubar />', () => {
     it.skipIf(isJSDOM)(
       'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
       async () => {
-        const { user } = await render(<TestMenubar />);
+        const { userEvent: user } = await import('vitest/browser');
+        const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
-        const fileTrigger = screen.getByTestId('file-trigger');
-        const editTrigger = screen.getByTestId('edit-trigger');
-        await user.click(fileTrigger);
+        try {
+          await vbrRender(<TestMenubar />);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          const fileTrigger = screen.getByTestId('file-trigger');
+          const editTrigger = screen.getByTestId('edit-trigger');
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
 
-        await user.click(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(editTrigger);
 
-        await user.click(fileTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
+        } finally {
+          await cleanup();
+        }
       },
     );
 

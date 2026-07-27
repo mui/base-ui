@@ -1,8 +1,8 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
@@ -293,39 +293,55 @@ describe('<Tooltip.Positioner />', () => {
   });
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
-      <Tooltip.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner data-testid="positioner">
-            <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>,
-    );
+    let unmount = () => {};
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
+    await act(async () => {
+      ({ unmount } = await render(
+        <Tooltip.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      ));
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
 
     const positioner = screen.getByTestId('positioner');
     expect(positioner.style.transform).not.toBe('');
+    unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
-      <Tooltip.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner data-testid="positioner">
-            <Tooltip.Popup style={popupStyle}>
-              <Tooltip.Viewport>Popup</Tooltip.Viewport>
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>,
-    );
+    let unmount = () => {};
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- keep initial browser positioning work inside one act boundary
+    await act(async () => {
+      ({ unmount } = await render(
+        <Tooltip.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup style={popupStyle}>
+                <Tooltip.Viewport>Popup</Tooltip.Viewport>
+              </Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      ));
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
 
     const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).toBe('');
-    });
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 
   it.skipIf(isJSDOM)('updates positioning when Viewport mounts and unmounts', async () => {

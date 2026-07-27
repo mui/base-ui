@@ -1250,6 +1250,10 @@ describe('<Menu.Root />', () => {
 
             const dialogClose = await screen.findByTestId('dialog-close');
 
+            await waitFor(() => {
+              expect(frameCallbacks.size).toBeGreaterThan(0);
+            });
+
             act(() => {
               const callbacks = Array.from(frameCallbacks.values());
               frameCallbacks.clear();
@@ -2018,7 +2022,9 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
@@ -2036,13 +2042,19 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
         });
 
-        await userEvent.unhover(trigger);
+        fireEvent.pointerLeave(trigger, {
+          pointerType: 'mouse',
+          relatedTarget: document.body,
+        });
+        fireEvent.mouseLeave(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);

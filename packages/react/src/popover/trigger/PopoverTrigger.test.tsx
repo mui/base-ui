@@ -113,10 +113,22 @@ describe('<Popover.Trigger />', () => {
         <Popover.Root>
           {({ payload }) => (
             <React.Fragment>
-              <Popover.Trigger payload="One" openOnHover delay={0} closeDelay={0}>
+              <Popover.Trigger
+                payload="One"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
                 One
               </Popover.Trigger>
-              <Popover.Trigger payload="Two" openOnHover delay={0} closeDelay={0}>
+              <Popover.Trigger
+                payload="Two"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
                 Two
               </Popover.Trigger>
               <Popover.Portal>
@@ -132,27 +144,35 @@ describe('<Popover.Trigger />', () => {
       );
     }
 
-    function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
-      fireEvent.pointerDown(trigger, { pointerType });
-      fireEvent.mouseDown(trigger);
-      fireEvent.click(trigger, { detail: 1 });
+    async function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- flush the complete synthetic press before the browser can dispatch physical pointer movement
+      await act(async () => {
+        fireEvent.pointerDown(trigger, { pointerType });
+        fireEvent.mouseDown(trigger);
+        fireEvent.click(trigger, { detail: 1 });
+      });
+    }
+
+    function hoverTrigger(trigger: HTMLElement) {
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
     }
 
     // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
     // disarmed until the popover is reopened by some other means. Otherwise a stray hover over a
     // sibling trigger silently swaps the content the user just tapped for.
     it('keeps ownership on the tapped trigger when a sibling trigger is hovered', async () => {
-      const { user } = await render(<MultiTriggerPopover />);
+      await render(<MultiTriggerPopover />);
 
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
 
-      pressTrigger(one, 'touch');
-      await flushMicrotasks();
+      await pressTrigger(one, 'touch');
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 
-      await user.hover(two);
+      hoverTrigger(two);
       await flushMicrotasks();
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
@@ -162,17 +182,16 @@ describe('<Popover.Trigger />', () => {
     // The same hover must still take over when the popover was opened with a mouse, so the guard
     // above can't be a blanket disable.
     it('hands ownership to a hovered sibling trigger when opened by mouse', async () => {
-      const { user } = await render(<MultiTriggerPopover />);
+      await render(<MultiTriggerPopover />);
 
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
 
-      pressTrigger(one, 'mouse');
-      await flushMicrotasks();
+      await pressTrigger(one, 'mouse');
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 
-      await user.hover(two);
+      hoverTrigger(two);
       await flushMicrotasks();
 
       expect(screen.getByTestId('content')).toHaveTextContent('Two');
