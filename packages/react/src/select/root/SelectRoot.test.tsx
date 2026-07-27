@@ -1872,63 +1872,67 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('clears scroll arrow visibility when manually unmounted', async () => {
-      const actionsRef = {
-        current: {
-          unmount: vi.fn(),
-        },
-      };
+    it.each([false, true])(
+      'clears scroll arrow visibility when manually unmounted (strict: %s)',
+      async (strict) => {
+        const actionsRef = {
+          current: {
+            unmount: vi.fn(),
+          },
+        };
 
-      const { user } = await render(
-        <Select.Root actionsRef={actionsRef}>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup>
-                <Select.ScrollUpArrow keepMounted />
-                <Select.List
-                  ref={(node) => {
-                    if (!node) {
-                      return;
-                    }
-                    Object.defineProperties(node, {
-                      scrollTop: { configurable: true, value: 20, writable: true },
-                      scrollHeight: { configurable: true, value: 100 },
-                      clientHeight: { configurable: true, value: 50 },
-                    });
-                  }}
-                >
-                  <Select.Item value="one">One</Select.Item>
-                  <Select.Item value="two">Two</Select.Item>
-                </Select.List>
-                <Select.ScrollDownArrow keepMounted />
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+        const { user } = await render(
+          <Select.Root actionsRef={actionsRef}>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner alignItemWithTrigger={false}>
+                <Select.Popup>
+                  <Select.ScrollUpArrow keepMounted />
+                  <Select.List
+                    ref={(node) => {
+                      if (!node) {
+                        return;
+                      }
+                      Object.defineProperties(node, {
+                        scrollTop: { configurable: true, value: 20, writable: true },
+                        scrollHeight: { configurable: true, value: 100 },
+                        clientHeight: { configurable: true, value: 50 },
+                      });
+                    }}
+                  >
+                    <Select.Item value="one">One</Select.Item>
+                    <Select.Item value="two">Two</Select.Item>
+                  </Select.List>
+                  <Select.ScrollDownArrow keepMounted />
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+          { strict },
+        );
 
-      await user.click(screen.getByRole('combobox'));
+        await user.click(screen.getByRole('combobox'));
 
-      const list = await screen.findByRole('listbox');
-      fireEvent.scroll(list);
+        const list = await screen.findByRole('listbox');
+        fireEvent.scroll(list);
 
-      const upArrow = screen.getByText('▲');
-      const downArrow = screen.getByText('▼');
+        const upArrow = screen.getByText('▲');
+        const downArrow = screen.getByText('▼');
 
-      await waitFor(() => {
-        expect(upArrow).toHaveAttribute('data-visible');
-      });
-      await waitFor(() => {
-        expect(downArrow).toHaveAttribute('data-visible');
-      });
+        await waitFor(() => {
+          expect(upArrow).toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).toHaveAttribute('data-visible');
+        });
 
-      await user.click(screen.getByRole('combobox'));
-      await act(async () => actionsRef.current.unmount());
+        await user.click(screen.getByRole('combobox'));
+        await act(async () => actionsRef.current.unmount());
 
-      expect(upArrow).not.toHaveAttribute('data-visible');
-      expect(downArrow).not.toHaveAttribute('data-visible');
-    });
+        expect(upArrow).not.toHaveAttribute('data-visible');
+        expect(downArrow).not.toHaveAttribute('data-visible');
+      },
+    );
 
     it('does not leave a tabbable option while closed and kept mounted after tabbing out', async () => {
       const actionsRef = {

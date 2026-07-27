@@ -695,100 +695,103 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
-  it('snapshots swipeThreshold for the active gesture', async () => {
-    const onDismiss = vi.fn();
+  it.each([false, true])(
+    'snapshots swipeThreshold for the active gesture (strict: %s)',
+    async (strict) => {
+      const onDismiss = vi.fn();
 
-    function SwipeBoxThreshold({ swipeThreshold }: { swipeThreshold: number }) {
-      const ref = React.useRef<HTMLDivElement>(null);
-      const swipe = useSwipeDismiss({
-        enabled: true,
-        directions: ['down'],
-        elementRef: ref,
-        movementCssVars: { x: '--x', y: '--y' },
-        swipeThreshold,
-        onDismiss,
+      function SwipeBoxThreshold({ swipeThreshold }: { swipeThreshold: number }) {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          swipeThreshold,
+          onDismiss,
+        });
+
+        return (
+          <div
+            data-testid="el"
+            ref={ref}
+            style={swipe.getDragStyles()}
+            {...swipe.getPointerProps()}
+          />
+        );
+      }
+
+      const { setProps } = await render(<SwipeBoxThreshold swipeThreshold={50} />, { strict });
+      const element = screen.getByTestId('el');
+
+      fireEvent.pointerDown(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
       });
 
-      return (
-        <div
-          data-testid="el"
-          ref={ref}
-          style={swipe.getDragStyles()}
-          {...swipe.getPointerProps()}
-        />
-      );
-    }
+      await setProps({ swipeThreshold: 10 });
 
-    const { setProps } = await render(<SwipeBoxThreshold swipeThreshold={50} />);
-    const element = screen.getByTestId('el');
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+      fireEvent.pointerUp(element, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
 
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: 0,
-      clientY: 0,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-    fireEvent.pointerMove(element, {
-      pointerId: 1,
-      buttons: 1,
-      clientX: 0,
-      clientY: 0,
-      bubbles: true,
-    });
+      expect(onDismiss).not.toHaveBeenCalled();
 
-    await setProps({ swipeThreshold: 10 });
+      fireEvent.pointerDown(element, {
+        button: 0,
+        buttons: 1,
+        pointerId: 2,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 2,
+        buttons: 1,
+        clientX: 0,
+        clientY: 0,
+        bubbles: true,
+      });
+      fireEvent.pointerMove(element, {
+        pointerId: 2,
+        buttons: 1,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
+      fireEvent.pointerUp(element, {
+        pointerId: 2,
+        clientX: 0,
+        clientY: 20,
+        bubbles: true,
+      });
 
-    fireEvent.pointerMove(element, {
-      pointerId: 1,
-      buttons: 1,
-      clientX: 0,
-      clientY: 20,
-      bubbles: true,
-    });
-    fireEvent.pointerUp(element, {
-      pointerId: 1,
-      clientX: 0,
-      clientY: 20,
-      bubbles: true,
-    });
-
-    expect(onDismiss).not.toHaveBeenCalled();
-
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 2,
-      clientX: 0,
-      clientY: 0,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-    fireEvent.pointerMove(element, {
-      pointerId: 2,
-      buttons: 1,
-      clientX: 0,
-      clientY: 0,
-      bubbles: true,
-    });
-    fireEvent.pointerMove(element, {
-      pointerId: 2,
-      buttons: 1,
-      clientX: 0,
-      clientY: 20,
-      bubbles: true,
-    });
-    fireEvent.pointerUp(element, {
-      pointerId: 2,
-      clientX: 0,
-      clientY: 20,
-      bubbles: true,
-    });
-
-    expect(onDismiss).toHaveBeenCalledTimes(1);
-  });
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('fires onSwipingChange on start and end', async () => {
     const onSwipingChange = vi.fn();

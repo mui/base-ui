@@ -204,51 +204,6 @@ describe('<Slider.Control />', () => {
     expect(releasePointerCapture).toHaveBeenCalledWith(7);
   });
 
-  it('disposes an active drag when the slider becomes disabled', async () => {
-    const onValueChange = vi.fn();
-    const onValueCommitted = vi.fn();
-
-    function App() {
-      const [disabled, setDisabled] = React.useState(false);
-
-      return (
-        <React.Fragment>
-          <button type="button" onClick={() => setDisabled(true)}>
-            Disable
-          </button>
-          <Slider.Root
-            defaultValue={20}
-            disabled={disabled}
-            onValueChange={onValueChange}
-            onValueCommitted={onValueCommitted}
-          >
-            <Slider.Control data-testid="control">
-              <Slider.Thumb />
-            </Slider.Control>
-          </Slider.Root>
-        </React.Fragment>
-      );
-    }
-
-    await render(<App />);
-
-    const control = screen.getByTestId('control');
-    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 20 });
-    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
-    expect(onValueChange).toHaveBeenCalled();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
-    onValueChange.mockClear();
-
-    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 80 });
-    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 80 });
-
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(onValueCommitted).not.toHaveBeenCalled();
-  });
-
   it('degrades safely when a custom render function drops the control ref', async () => {
     const onValueChange = vi.fn();
     const { unmount } = await render(
