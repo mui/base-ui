@@ -419,6 +419,8 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 function DrawerProviderReporter() {
   const providerContext = useDrawerProviderContext();
   const store = useDialogRootContext(false);
+  const setDrawerOpen = providerContext?.setDrawerOpen;
+  const removeDrawer = providerContext?.removeDrawer;
 
   const open = store.useState('open');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
@@ -427,18 +429,18 @@ function DrawerProviderReporter() {
   const isTopmost = nestedOpenDialogCount === 0;
 
   useIsoLayoutEffect(() => {
-    if (!providerContext) {
+    if (!removeDrawer) {
       return undefined;
     }
 
     return () => {
-      providerContext.removeDrawer(store);
+      removeDrawer(store);
     };
-  }, [providerContext, store]);
+  }, [removeDrawer, store]);
 
   useIsoLayoutEffect(() => {
-    providerContext?.setDrawerOpen(store, open);
-  }, [open, providerContext, store]);
+    setDrawerOpen?.(store, open);
+  }, [open, setDrawerOpen, store]);
 
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).

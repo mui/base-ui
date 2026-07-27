@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
@@ -107,6 +107,22 @@ describe('<Drawer.Provider />', () => {
     await user.click(screen.getByRole('button', { name: 'Remove registered' }));
     await user.click(screen.getByRole('button', { name: 'Remove registered' }));
     expect(background).toHaveAttribute('data-inactive', '');
+  });
+
+  it('does not retain closed drawer registrations', async () => {
+    const onRender = vi.fn();
+    const { user } = await render(
+      <React.Profiler id="provider" onRender={onRender}>
+        <Drawer.Provider>
+          <ProviderControls />
+        </Drawer.Provider>
+      </React.Profiler>,
+    );
+
+    onRender.mockClear();
+    await user.click(screen.getByRole('button', { name: 'Register closed' }));
+
+    expect(onRender).not.toHaveBeenCalled();
   });
 
   it('synchronizes and restores visual state on Drawer.Indent', async () => {

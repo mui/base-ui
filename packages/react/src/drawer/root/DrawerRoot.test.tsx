@@ -1304,11 +1304,8 @@ describe('<Drawer.Root />', () => {
         const content = (
           <Drawer.Provider>
             {showDrawer && <PassiveEffectBoundary />}
-            {showDrawer && (
-              <Drawer.Root modal={false} {...rootProps}>
-                <ProviderMethodProbe />
-              </Drawer.Root>
-            )}
+            {showDrawer && <ProviderMethodProbe />}
+            {showDrawer && <Drawer.Root modal={false} {...rootProps} />}
             <Drawer.IndentBackground data-testid="background" />
           </Drawer.Provider>
         );

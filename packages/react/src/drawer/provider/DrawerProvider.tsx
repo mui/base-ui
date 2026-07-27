@@ -16,42 +16,30 @@ import {
 export function DrawerProvider(props: DrawerProvider.Props) {
   const { children } = props;
 
-  const [openByDrawer, setOpenByDrawer] = React.useState(() => new Map<object, boolean>());
+  const [openDrawers, setOpenDrawers] = React.useState(() => new Set<object>());
   const [visualStateStore] = React.useState(createVisualStateStore);
 
   const setDrawerOpen = useStableCallback((drawer: object, open: boolean) => {
-    setOpenByDrawer((prev) => {
-      const prevOpen = prev.get(drawer);
-      if (prevOpen === open) {
+    setOpenDrawers((prev) => {
+      if (prev.has(drawer) === open) {
         return prev;
       }
 
-      const next = new Map(prev);
-      next.set(drawer, open);
+      const next = new Set(prev);
+      if (open) {
+        next.add(drawer);
+      } else {
+        next.delete(drawer);
+      }
       return next;
     });
   });
 
   const removeDrawer = useStableCallback((drawer: object) => {
-    setOpenByDrawer((prev) => {
-      if (!prev.has(drawer)) {
-        return prev;
-      }
-
-      const next = new Map(prev);
-      next.delete(drawer);
-      return next;
-    });
+    setDrawerOpen(drawer, false);
   });
 
-  const active = React.useMemo(() => {
-    for (const open of openByDrawer.values()) {
-      if (open) {
-        return true;
-      }
-    }
-    return false;
-  }, [openByDrawer]);
+  const active = openDrawers.size > 0;
 
   const contextValue = React.useMemo(
     () => ({
