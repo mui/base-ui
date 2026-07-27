@@ -99,6 +99,211 @@ describe('<Field.Control />', () => {
     expect(screen.getByText('Required')).toBeInTheDocument();
   });
 
+  describe('filled state ownership', () => {
+    it('publishes an empty state when a filled control is replaced by a fresh one', async () => {
+      function TestCase() {
+        const [instance, setInstance] = React.useState(0);
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control key={instance} />
+            <button type="button" onClick={() => setInstance(1)}>
+              Replace
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Replace' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not let a superseded control clear the active control state', async () => {
+      function TestCase() {
+        const [value, setValue] = React.useState('a');
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control value={value} onValueChange={setValue} />
+            <Field.Control defaultValue="filled" />
+            <button type="button" onClick={() => setValue('')}>
+              Clear first
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear first' }));
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+    });
+
+    it('keeps the active control readable after a superseded control unmounts', async () => {
+      const validate = vi.fn<(value: unknown) => string | null>(() => null);
+
+      function TestCase() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        const [oldMounted, setOldMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Field.Root validate={validate} actionsRef={actionsRef}>
+              {oldMounted && <Field.Control key="old" defaultValue="old" />}
+              <Field.Control key="new" defaultValue="new" />
+            </Field.Root>
+            <button type="button" onClick={() => setOldMounted(false)}>
+              Unmount old
+            </button>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              Validate
+            </button>
+          </div>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Unmount old' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Validate' }));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe('new');
+    });
+
+    it('lets a remaining control publish after the owning control unmounts', async () => {
+      function TestCase() {
+        const [value, setValue] = React.useState('a');
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control value={value} onValueChange={setValue} />
+            {mounted && <Field.Control defaultValue="filled" />}
+            <button type="button" onClick={() => setMounted(false)}>
+              Unmount second
+            </button>
+            <button type="button" onClick={() => setValue('')}>
+              Clear first
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Unmount second' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Clear first' }));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('releases data-filled as soon as the filled owner unmounts', async () => {
+      function App(props: { showSecond?: boolean }) {
+        const { showSecond = true } = props;
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control />
+            {showSecond && <Field.Control defaultValue="filled" />}
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<App />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      await setProps({ showSecond: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('lets an uncontrolled survivor republish after the owner unmounts', async () => {
+      function App(props: { showSecond?: boolean }) {
+        const { showSecond = true } = props;
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control defaultValue="survivor" />
+            {showSecond && <Field.Control />}
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<App />);
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+
+      await setProps({ showSecond: false });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+    });
+  });
+
+  describe('focused state ownership', () => {
+    it('releases the focused state when the focused control unmounts', async () => {
+      function TestCase() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Field.Root data-testid="root">
+            {mounted && <Field.Control />}
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.focus(screen.getByRole('textbox'));
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+    });
+
+    it('does not let a blurred control release the focused state of another control', async () => {
+      function TestCase() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Field.Root data-testid="root">
+            {mounted && <Field.Control data-testid="first" />}
+            <Field.Control data-testid="second" />
+            <button type="button" onClick={() => setMounted(false)}>
+              Remove first
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.focus(screen.getByTestId('first'));
+      fireEvent.blur(screen.getByTestId('first'));
+      fireEvent.focus(screen.getByTestId('second'));
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Remove first' }));
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
+  });
+
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
     vi.spyOn(console, 'error')
       .mockName('console.error')

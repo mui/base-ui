@@ -72,22 +72,43 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const id = useLabelableId({ id: idProp });
 
-  useIsoLayoutEffect(() => {
-    const hasExternalValue = valueProp != null;
-    if (validation.inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
-      setFilled(true);
-    } else if (hasExternalValue && valueProp === '') {
-      setFilled(false);
-    }
-  }, [validation.inputRef, setFilled, valueProp]);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const inputRef = React.useRef<HTMLElement>(null);
+  // `filled` belongs to the last control to attach; a null ref means the owner unmounted.
+  useIsoLayoutEffect(() => {
+    if (validation.inputRef.current !== null && validation.inputRef.current !== inputRef.current) {
+      return;
+    }
+
+    validation.inputRef.current = inputRef.current;
+    setFilled(valueProp != null ? valueProp !== '' : Boolean(inputRef.current?.value));
+    // No dependency array: a sibling unmounting releases the shared ref without changing anything
+    // this control renders, and the survivor has to reclaim it on the render that follows.
+  });
+
+  const focusedRef = React.useRef(false);
+
+  const updateFocused = useStableCallback((focused: boolean) => {
+    focusedRef.current = focused;
+    setFocused(focused);
+  });
+
+  // A control removed while focused never fires blur, which would leave the field focused
+  // forever. Only release the state when this control is the one still holding it.
+  useIsoLayoutEffect(
+    () => () => {
+      if (focusedRef.current) {
+        setFocused(false);
+      }
+    },
+    [setFocused],
+  );
 
   useIsoLayoutEffect(() => {
     if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      setFocused(true);
+      updateFocused(true);
     }
-  }, [autoFocus, setFocused]);
+  }, [autoFocus, updateFocused]);
 
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -98,9 +119,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
-  const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
+  // Read this control's own element, not the mutable shared ref, so the active registration
+  // stays readable regardless of which control last touched the shared ref.
+  const getValueFromInput = useStableCallback(() => inputRef.current?.value);
 
-  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput, !disabled, nameProp);
+  useRegisterFieldControl(inputRef, id, value, getValueFromInput, !disabled, nameProp);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -128,11 +151,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
         onFocus() {
-          setFocused(true);
+          updateFocused(true);
         },
         onBlur(event) {
           setTouched(true);
-          setFocused(false);
+          updateFocused(false);
 
           if (validationMode === 'onBlur') {
             validation.commit(event.currentTarget.value);
