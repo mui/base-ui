@@ -1555,7 +1555,10 @@ describe('<OTPField.Root />', () => {
 
   it('warns with singular input wording when one input is rendered', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(
@@ -1567,7 +1570,7 @@ describe('<OTPField.Root />', () => {
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0]?.[0]).toContain('Received `length={2}` but rendered 1 input.');
     } finally {
-      ownerStackSpy.mockRestore();
+      ownerStackSpy?.mockRestore();
       warnSpy.mockRestore();
     }
   });
@@ -1576,7 +1579,10 @@ describe('<OTPField.Root />', () => {
     'warns when length is not a positive integer (%p)',
     async (invalidLength) => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+      const ownerStackSpy =
+        typeof SafeReact.captureOwnerStack === 'function'
+          ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+          : null;
 
       try {
         await render(<OTPFieldBase.Root length={invalidLength} />);
@@ -1586,7 +1592,7 @@ describe('<OTPField.Root />', () => {
           `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(invalidLength)}}\`.`,
         );
       } finally {
-        ownerStackSpy.mockRestore();
+        ownerStackSpy?.mockRestore();
         warnSpy.mockRestore();
       }
     },

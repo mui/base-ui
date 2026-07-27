@@ -530,7 +530,10 @@ describe('<OTPField.Input />', () => {
 
   it('warns in development when clipboard text cannot be read during paste handling', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(<OTPFieldTest defaultValue="12" />);
@@ -549,7 +552,7 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> could not read clipboard text during paste handling.',
       );
     } finally {
-      ownerStackSpy.mockRestore();
+      ownerStackSpy?.mockRestore();
       warnSpy.mockRestore();
     }
   });
@@ -811,7 +814,10 @@ describe('<OTPField.Input />', () => {
 
   it('warns when aria-label is provided on the first slot without an associated label', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
 
     try {
       await render(
@@ -830,7 +836,7 @@ describe('<OTPField.Input />', () => {
         'Base UI: <OTPField.Input> ignores `aria-label` on the first input.',
       );
     } finally {
-      ownerStackSpy.mockRestore();
+      ownerStackSpy?.mockRestore();
       warnSpy.mockRestore();
     }
   });
