@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 
 interface DemoFileSelectorProps {
-  files: Array<{ name: string; slug?: string; component: React.ReactNode }>;
-  selectedFileName: string | undefined;
+  files: Array<{ name: string; slug?: string }>;
+  selectedFileName: string | null;
   selectFileName: (fileName: string) => void;
   onTabChange?: () => void;
 }

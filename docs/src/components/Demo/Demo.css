@@ -364,6 +364,10 @@
     cursor: text;
     display: flex;
 
+    .DemoCodeBlockRoot:not([data-closed]) &[data-reserve-height] {
+      min-height: var(--demo-source-height);
+    }
+
     & pre {
       /* Different fonts may introduce vertical align issues */
       display: flex;

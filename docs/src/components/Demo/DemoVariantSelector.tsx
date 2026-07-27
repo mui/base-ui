@@ -13,31 +13,21 @@ const translations = {
 };
 
 export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
-  onVariantChange?: () => void;
+  onVariantChange?: (variantName: string | null) => void;
   variants: string[];
-  selectedVariant: string | null;
-  selectVariant: React.Dispatch<React.SetStateAction<string | null>>;
+  variant: string | null;
 }
 
 export function DemoVariantSelector({
   variants,
-  selectedVariant,
-  selectVariant,
+  variant: selectedVariant,
   onVariantChange,
 }: DemoVariantSelectorProps) {
-  const handleVariantChange = React.useCallback(
-    (value: string | null) => {
-      selectVariant(value);
-      onVariantChange?.();
-    },
-    [selectVariant, onVariantChange],
-  );
-
   return (
     <Select.Root
       items={translations.variants}
       value={selectedVariant}
-      onValueChange={handleVariantChange}
+      onValueChange={onVariantChange}
     >
       <Select.Trigger aria-label="Styling method" />
       <Select.Popup>

@@ -38,6 +38,7 @@
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
+@import '@mui/internal-docs-infra/syntax.css' layer(components);
 @import './syntax.css';
 
 @import './utilities/index.css';
