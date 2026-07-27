@@ -20,7 +20,7 @@ describe('<Combobox.ItemIndicator />', () => {
     const { user } = await render(
       <Combobox.Root defaultOpen defaultValue="apple">
         <Combobox.Input />
-        <Combobox.Portal>
+        <Combobox.Portal keepMounted>
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
