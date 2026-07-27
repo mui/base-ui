@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -52,6 +52,143 @@ describe('<Popover.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
+
+  it.skipIf(isJSDOM)('does not transition from the viewport origin on first open', async () => {
+    let transitionRuns = 0;
+
+    await render(
+      <React.Fragment>
+        <style>{`
+          .initial-position-transition-test {
+            transition: transform 200ms linear;
+          }
+        `}</style>
+        <Popover.Root>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              ref={(element) => {
+                element?.addEventListener('transitionrun', (event) => {
+                  if (event.propertyName === 'transform') {
+                    transitionRuns += 1;
+                  }
+                });
+              }}
+              className="initial-position-transition-test"
+              data-testid="positioner"
+            >
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </React.Fragment>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.opacity).toBe('');
+    });
+
+    await waitFor(() => {
+      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
+    });
+    expect(transitionRuns).toBe(0);
+  });
+
+  it.skipIf(isJSDOM)('preserves the popup starting-style animation on every open', async () => {
+    const mountSnapshots: Array<{
+      hasStartingStyle: boolean;
+      opacity: string;
+      transform: string;
+    }> = [];
+    const mountedElements = new WeakSet<HTMLDivElement>();
+
+    const setPopupElement = (element: HTMLDivElement | null) => {
+      if (!element || mountedElements.has(element)) {
+        return;
+      }
+
+      mountedElements.add(element);
+      const computedStyle = getComputedStyle(element);
+      mountSnapshots.push({
+        hasStartingStyle: element.hasAttribute('data-starting-style'),
+        opacity: computedStyle.opacity,
+        transform: computedStyle.transform,
+      });
+    };
+
+    await render(
+      <React.Fragment>
+        <style>{`
+          .popup-starting-style-test {
+            opacity: 1;
+            transform: scale(1);
+            transition:
+              opacity 200ms linear,
+              transform 200ms linear;
+          }
+
+          .popup-starting-style-test[data-starting-style] {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+        `}</style>
+        <Popover.Root>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup
+                ref={setPopupElement}
+                className="popup-starting-style-test"
+                data-testid="popup"
+                style={popupStyle}
+              >
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </React.Fragment>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(mountSnapshots).toHaveLength(1);
+    });
+    expect(mountSnapshots[0].hasStartingStyle).toBe(true);
+    expect(mountSnapshots[0].opacity).toBe('0');
+    expect(mountSnapshots[0].transform).not.toBe('none');
+
+    const firstPopup = screen.getByTestId('popup');
+    await waitFor(() => {
+      expect(Number.parseFloat(getComputedStyle(firstPopup).opacity)).toBeGreaterThan(0);
+    });
+    expect(getComputedStyle(firstPopup).transform).not.toBe(mountSnapshots[0].transform);
+
+    fireEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(trigger);
+    await waitFor(() => {
+      expect(mountSnapshots).toHaveLength(2);
+    });
+    expect(mountSnapshots[1].hasStartingStyle).toBe(true);
+    expect(mountSnapshots[1].opacity).toBe('0');
+    expect(mountSnapshots[1].transform).not.toBe('none');
+
+    const secondPopup = screen.getByTestId('popup');
+    await waitFor(() => {
+      expect(Number.parseFloat(getComputedStyle(secondPopup).opacity)).toBeGreaterThan(0);
+    });
+    expect(getComputedStyle(secondPopup).transform).not.toBe(mountSnapshots[1].transform);
+  });
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {

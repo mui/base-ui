@@ -1,4 +1,7 @@
 'use client';
+import * as React from 'react';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { popupStateMapping } from './popupStateMapping';
 import {
   useRenderElement,
@@ -9,6 +12,7 @@ import type { TransitionStatus } from '../internals/useTransitionStatus';
 
 interface UsePositionerOptions {
   styles: React.CSSProperties;
+  isPositioned: boolean;
   transitionStatus: TransitionStatus;
   props?: React.ComponentProps<'div'> | undefined;
   refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
@@ -23,9 +27,61 @@ interface UsePositionerOptions {
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  { styles, transitionStatus, props, refs, hidden, inert = false }: UsePositionerOptions,
+  {
+    styles,
+    isPositioned,
+    transitionStatus,
+    props,
+    refs,
+    hidden,
+    inert = false,
+  }: UsePositionerOptions,
 ) {
+  const initialPositioningCompleteRef = React.useRef(false);
+  const initialTransitionPropertyRef = React.useRef<string | null>(null);
+  const positionerElementRef = React.useRef<HTMLDivElement | null>(null);
+  const initialPositioningAnimationFrame = useAnimationFrame();
+
+  const setPositionerElement = React.useCallback((element: HTMLDivElement | null) => {
+    positionerElementRef.current = element;
+
+    if (!element || initialPositioningCompleteRef.current) {
+      return;
+    }
+
+    if (initialTransitionPropertyRef.current === null) {
+      initialTransitionPropertyRef.current = element.style.transitionProperty;
+    }
+    element.style.transitionProperty = 'none';
+  }, []);
+
+  // In React 17, the floating element can reach the positioning hook after the one-frame mount
+  // transition guard has ended. Keep transitions disabled until the positioned styles have been
+  // painted, then restore them without forcing synchronous layout.
+  useIsoLayoutEffect(() => {
+    if (!isPositioned || initialPositioningCompleteRef.current || !positionerElementRef.current) {
+      return undefined;
+    }
+
+    initialPositioningAnimationFrame.request(() => {
+      initialPositioningAnimationFrame.request(() => {
+        const element = positionerElementRef.current;
+        if (!element || initialPositioningCompleteRef.current) {
+          return;
+        }
+
+        initialPositioningCompleteRef.current = true;
+        element.style.transitionProperty = initialTransitionPropertyRef.current ?? '';
+      });
+    });
+
+    return initialPositioningAnimationFrame.cancel;
+  }, [initialPositioningAnimationFrame, isPositioned]);
+
   const style: React.CSSProperties = { ...styles };
+  const positionerRefs = Array.isArray(refs)
+    ? [...refs, setPositionerElement]
+    : [refs, setPositionerElement];
 
   if (inert) {
     style.pointerEvents = 'none';
@@ -33,7 +89,7 @@ export function usePositioner<State extends Record<string, any>>(
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: refs,
+    ref: positionerRefs,
     props: [
       { role: 'presentation', hidden, style },
       getDisabledMountTransitionStyles(transitionStatus),

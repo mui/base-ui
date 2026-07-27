@@ -47,6 +47,25 @@ function getBrowserConfig(): BrowserModeConfig {
 }
 
 const config: UserWorkspaceConfig = {
+  optimizeDeps:
+    process.env.REACT_17_TESTS === 'true'
+      ? {
+          noDiscovery: true,
+          include: [
+            '@mui/internal-test-utils',
+            '@mui/internal-test-utils/setupVitest',
+            '@testing-library/jest-dom/vitest',
+            '@testing-library/react',
+            'react',
+            'react/jsx-dev-runtime',
+            'react/jsx-runtime',
+            'react-dom',
+            'react-dom/test-utils',
+            'use-sync-external-store/shim',
+            'use-sync-external-store/shim/with-selector',
+          ],
+        }
+      : undefined,
   test: {
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
