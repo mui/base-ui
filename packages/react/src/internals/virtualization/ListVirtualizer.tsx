@@ -266,12 +266,35 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   });
   const measuredRowsRef = React.useRef(new Set<React.Key>());
   const adaptiveRowsRef = React.useRef(rows);
-  if (adaptiveRowsRef.current !== rows) {
+  const adaptiveEstimatedItemHeightRef = React.useRef(
+    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null,
+  );
+  // Filtering replaces the row array, but measurements from the same keyed collection remain
+  // useful when the full list returns. Reset only when the estimate or logical collection changes.
+  const adaptiveKnownRowIdsRef = React.useRef(new Set(rows.map((row) => row.id)));
+  const staticEstimatedItemHeight =
+    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null;
+  if (
+    adaptiveRowsRef.current !== rows ||
+    adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight
+  ) {
+    const knownRowIds = adaptiveKnownRowIdsRef.current;
+    const estimateChanged = adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight;
+    const collectionChanged =
+      rows.length > 0 && knownRowIds.size > 0 && !rows.some((row) => knownRowIds.has(row.id));
+
     adaptiveRowsRef.current = rows;
-    adaptiveEstimateRef.current = null;
-    adaptiveMeasurementsRef.current.heights.clear();
-    adaptiveMeasurementsRef.current.total = 0;
-    measuredRowsRef.current.clear();
+    adaptiveEstimatedItemHeightRef.current = staticEstimatedItemHeight;
+
+    if (estimateChanged || collectionChanged) {
+      adaptiveEstimateRef.current = null;
+      adaptiveMeasurementsRef.current.heights.clear();
+      adaptiveMeasurementsRef.current.total = 0;
+      measuredRowsRef.current.clear();
+      knownRowIds.clear();
+    }
+
+    rows.forEach((row) => knownRowIds.add(row.id));
   }
 
   const pendingScrollRowIndexRef = React.useRef<number | null>(null);

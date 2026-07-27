@@ -235,6 +235,41 @@ describe('<ListVirtualizer />', () => {
     expect(virtualizer.scrollHeight).toBeLessThanOrEqual(12100);
   });
 
+  it.skipIf(isJSDOM)(
+    'retains the refined estimate when a filtered collection expands around an offscreen target',
+    async () => {
+      vi.restoreAllMocks();
+      const rows = createRows(200);
+      const filteredRows = [rows[100]];
+
+      function Test(props: { filtered?: boolean; scrollToRowIndex?: number }) {
+        return (
+          <ListVirtualizer
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+            renderRow={renderTallRow}
+            rows={props.filtered ? filteredRows : rows}
+            scrollToRowIndex={props.scrollToRowIndex}
+          />
+        );
+      }
+
+      const { rerender } = await render(<Test />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(11900));
+
+      await rerender(<Test filtered />);
+      await rerender(<Test scrollToRowIndex={100} />);
+
+      // Filtering must not throw away the estimate learned from the same logical collection.
+      // Otherwise reopening at a distant selected item first paints the low estimated position,
+      // then visibly jumps when the running average is learned again.
+      expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(11900);
+    },
+  );
+
   it.skipIf(isJSDOM)('does not seed the estimate with transient mount measurements', async () => {
     vi.restoreAllMocks();
     const rows = createRows(200);
