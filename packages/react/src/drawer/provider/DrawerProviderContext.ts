@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export interface DrawerProviderContext {
-  setDrawerOpen: (drawerId: string, open: boolean) => void;
-  removeDrawer: (drawerId: string) => void;
+  setDrawerOpen: (drawer: object, open: boolean) => void;
+  removeDrawer: (drawer: object) => void;
   active: boolean;
   visualStateStore: DrawerVisualStateStore;
 }

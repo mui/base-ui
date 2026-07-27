@@ -54,7 +54,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on an `Accordion.Panel` is ignored when `hiddenUntilFound` is enabled on the panel or root, since the panel must remain mounted while closed.',
