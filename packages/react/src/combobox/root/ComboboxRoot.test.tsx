@@ -4810,6 +4810,84 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('Banana');
     });
 
+    it.each([false, true])(
+      'does not force-mount the list when controlled value changes externally (strict: %s)',
+      async (strict) => {
+        const items = ['apple', 'banana'];
+        const labels: Record<string, string> = {
+          apple: 'Apple',
+          banana: 'Banana',
+        };
+
+        function App() {
+          const [withItems, setWithItems] = React.useState<string | null>(null);
+          const [withoutItems, setWithoutItems] = React.useState<string | null>(null);
+
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setWithItems('banana');
+                  setWithoutItems('banana');
+                }}
+              >
+                Set
+              </button>
+              <Combobox.Root
+                items={items}
+                value={withItems}
+                onValueChange={setWithItems}
+                itemToStringLabel={(item) => labels[item]}
+              >
+                <Combobox.Input data-testid="items-input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {labels[item]}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <Combobox.Root
+                value={withoutItems}
+                onValueChange={setWithoutItems}
+                itemToStringLabel={(item) => labels[item]}
+              >
+                <Combobox.Input data-testid="plain-input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">Apple</Combobox.Item>
+                        <Combobox.Item value="banana">Banana</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />, { strict });
+
+        expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+
+        await user.click(screen.getByRole('button', { name: 'Set' }));
+
+        expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+        expect(screen.getByTestId('items-input')).toHaveValue('Banana');
+        expect(screen.getByTestId('plain-input')).toHaveValue('Banana');
+      },
+    );
+
     it('re-derives input when items array changes', async () => {
       const initialItems = [
         { value: 'a', label: 'Apple' },

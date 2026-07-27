@@ -485,14 +485,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
-  const initialSelectedValueRef = React.useRef(selectedValue);
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (selectedValue !== initialSelectedValueRef.current) {
-      forceMount();
-    }
-  }, [forceMount, selectedValue]);
-
   /**
    * Emits `onItemHighlighted` for the item at `index`, or clears the highlight when `index` is `-1`
    * (a no-op if nothing was highlighted). Keeps `lastHighlightRef` in sync with what was emitted.
@@ -864,7 +856,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // Without `items`, look the selection up in the live registry of mounted item
       // values (the list stays mounted while closed when closed-state features need
-      // it — trigger focus and programmatic value changes force-mount it). Mounted
+      // it — trigger interaction and rendered-label autofill force-mount it). Mounted
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
       // the index on the next open.
