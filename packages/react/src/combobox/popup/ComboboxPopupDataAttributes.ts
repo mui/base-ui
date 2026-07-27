@@ -28,11 +28,6 @@ export enum ComboboxPopupDataAttributes {
    */
   align = CommonPopupDataAttributes.align,
   /**
-   * Present if animations should be instant.
-   * @type {'click' | 'dismiss'}
-   */
-  instant = 'data-instant',
-  /**
    * Present when the items list is empty.
    */
   empty = 'data-empty',
