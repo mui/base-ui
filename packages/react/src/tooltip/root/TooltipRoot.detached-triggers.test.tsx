@@ -2,7 +2,14 @@ import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  fireEvent,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
   beforeEach(async () => {
@@ -313,12 +320,18 @@ describe('<Tooltip.Root />', () => {
       });
 
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <Tooltip.Root>
           <input type="text" aria-label="Initial focus" autoFocus />
-          <Tooltip.Trigger delay={0}>Trigger 1</Tooltip.Trigger>
-          <Tooltip.Trigger delay={0}>Trigger 2</Tooltip.Trigger>
-          <Tooltip.Trigger delay={0}>Trigger 3</Tooltip.Trigger>
+          <Tooltip.Trigger delay={0} style={{ pointerEvents: 'none' }}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger delay={0} style={{ pointerEvents: 'none' }}>
+            Trigger 2
+          </Tooltip.Trigger>
+          <Tooltip.Trigger delay={0} style={{ pointerEvents: 'none' }}>
+            Trigger 3
+          </Tooltip.Trigger>
 
           <Tooltip.Portal>
             <Tooltip.Positioner>
@@ -336,23 +349,26 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
@@ -361,9 +377,9 @@ describe('<Tooltip.Root />', () => {
     it('should open the tooltip with any trigger on focus', async () => {
       await render(
         <Tooltip.Root>
-          <Tooltip.Trigger>Trigger 1</Tooltip.Trigger>
-          <Tooltip.Trigger>Trigger 2</Tooltip.Trigger>
-          <Tooltip.Trigger>Trigger 3</Tooltip.Trigger>
+          <Tooltip.Trigger style={{ pointerEvents: 'none' }}>Trigger 1</Tooltip.Trigger>
+          <Tooltip.Trigger style={{ pointerEvents: 'none' }}>Trigger 2</Tooltip.Trigger>
+          <Tooltip.Trigger style={{ pointerEvents: 'none' }}>Trigger 3</Tooltip.Trigger>
 
           <Tooltip.Portal>
             <Tooltip.Positioner>
@@ -399,14 +415,14 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should set the payload and render content based on its value', async () => {
-      const { user } = await render(
+      await render(
         <Tooltip.Root>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
-              <Tooltip.Trigger payload={1} delay={0}>
+              <Tooltip.Trigger payload={1} delay={0} style={{ pointerEvents: 'none' }}>
                 Trigger 1
               </Tooltip.Trigger>
-              <Tooltip.Trigger payload={2} delay={0}>
+              <Tooltip.Trigger payload={2} delay={0} style={{ pointerEvents: 'none' }}>
                 Trigger 2
               </Tooltip.Trigger>
 
@@ -425,11 +441,13 @@ describe('<Tooltip.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       expect(screen.getByTestId('content').textContent).toBe('1');
 
-      await user.unhover(trigger1);
-      await user.hover(trigger2);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
@@ -438,13 +456,19 @@ describe('<Tooltip.Root />', () => {
         <Tooltip.Root>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
-              <Tooltip.Trigger payload={1} delay={0} closeDelay={0}>
+              <Tooltip.Trigger
+                payload={1}
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 1
               </Tooltip.Trigger>
               <Tooltip.Trigger
                 payload={2}
                 delay={0}
                 closeDelay={0}
+                style={{ pointerEvents: 'none' }}
                 render={<button id="custom-button" type="button" />}
               >
                 Trigger 2
@@ -682,11 +706,17 @@ describe('<Tooltip.Root />', () => {
 
       const { user } = await render(<Test />);
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).toBe('1');
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).toBe('2');
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).toBe(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
     });
 
     it('allows setting an initially open tooltip', async () => {
@@ -697,10 +727,15 @@ describe('<Tooltip.Root />', () => {
           {({ payload }: NumberPayload) => (
             <React.Fragment>
               <button type="button" aria-label="Initial focus" autoFocus />
-              <Tooltip.Trigger handle={testTooltip} payload={1}>
+              <Tooltip.Trigger handle={testTooltip} payload={1} style={{ pointerEvents: 'none' }}>
                 Trigger 1
               </Tooltip.Trigger>
-              <Tooltip.Trigger handle={testTooltip} payload={2} id={triggerId}>
+              <Tooltip.Trigger
+                handle={testTooltip}
+                payload={2}
+                id={triggerId}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 2
               </Tooltip.Trigger>
               <Tooltip.Portal>
@@ -727,16 +762,16 @@ describe('<Tooltip.Root />', () => {
     it('should open the tooltip with any trigger on hover', async () => {
       const testTooltip = Tooltip.createHandle();
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <Tooltip.Trigger handle={testTooltip} delay={0}>
+          <Tooltip.Trigger handle={testTooltip} delay={0} style={{ pointerEvents: 'none' }}>
             Trigger 1
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={testTooltip} delay={0}>
+          <Tooltip.Trigger handle={testTooltip} delay={0} style={{ pointerEvents: 'none' }}>
             Trigger 2
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={testTooltip} delay={0}>
+          <Tooltip.Trigger handle={testTooltip} delay={0} style={{ pointerEvents: 'none' }}>
             Trigger 3
           </Tooltip.Trigger>
 
@@ -758,29 +793,32 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger1);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger2);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger3);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
@@ -871,12 +909,22 @@ describe('<Tooltip.Root />', () => {
 
     it('should set the payload and render content based on its value', async () => {
       const testTooltip = Tooltip.createHandle<number>();
-      const { user } = await render(
+      await render(
         <div>
-          <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={1}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={testTooltip} payload={2} delay={0}>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={2}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </Tooltip.Trigger>
 
@@ -897,11 +945,13 @@ describe('<Tooltip.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       expect(screen.getByTestId('content').textContent).toBe('1');
 
-      await user.unhover(trigger1);
-      await user.hover(trigger2);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
@@ -958,12 +1008,22 @@ describe('<Tooltip.Root />', () => {
 
     it('should close when hovering a disabled trigger while another trigger is open', async () => {
       const testTooltip = Tooltip.createHandle<number>();
-      const { user } = await render(
+      await render(
         <div>
-          <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={1}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={testTooltip} payload={2} disabled>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={2}
+            disabled
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </Tooltip.Trigger>
 
@@ -984,12 +1044,15 @@ describe('<Tooltip.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId('content')).toBe(null);
       });
@@ -998,15 +1061,21 @@ describe('<Tooltip.Root />', () => {
 
     it('should switch to a rendered disabled button trigger when trigger hover is enabled', async () => {
       const testTooltip = Tooltip.createHandle<number>();
-      const { user } = await render(
+      await render(
         <div>
-          <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={1}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </Tooltip.Trigger>
           <Tooltip.Trigger
             handle={testTooltip}
             payload={2}
             delay={0}
+            style={{ pointerEvents: 'none' }}
             render={
               <button type="button" disabled>
                 Trigger 2
@@ -1031,16 +1100,21 @@ describe('<Tooltip.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
       });
-      expect(trigger2).toHaveAttribute('data-popup-open');
+      await waitFor(() => {
+        expect(trigger2).toHaveAttribute('data-popup-open');
+      });
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
@@ -1142,7 +1216,9 @@ describe('<Tooltip.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).toBe('1');
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
 
       await waitFor(() => {
         expect(
@@ -1154,7 +1230,9 @@ describe('<Tooltip.Root />', () => {
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).toBe('2');
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
       await waitFor(() => {
         expect(
           Math.abs(
@@ -1165,7 +1243,9 @@ describe('<Tooltip.Root />', () => {
       });
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).toBe(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
     });
 
     it('allows setting an initially open tooltip', async () => {
@@ -1174,10 +1254,15 @@ describe('<Tooltip.Root />', () => {
       await render(
         <React.Fragment>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <Tooltip.Trigger handle={testTooltip} payload={1}>
+          <Tooltip.Trigger handle={testTooltip} payload={1} style={{ pointerEvents: 'none' }}>
             Trigger 1
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={testTooltip} payload={2} id={triggerId}>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={2}
+            id={triggerId}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </Tooltip.Trigger>
 
@@ -1209,10 +1294,20 @@ describe('<Tooltip.Root />', () => {
         return (
           <React.Fragment>
             <button type="button" aria-label="Initial focus" autoFocus />
-            <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+            <Tooltip.Trigger
+              handle={testTooltip}
+              payload={1}
+              delay={0}
+              style={{ pointerEvents: 'none' }}
+            >
               Trigger 1
             </Tooltip.Trigger>
-            <Tooltip.Trigger handle={testTooltip} payload={2} delay={0}>
+            <Tooltip.Trigger
+              handle={testTooltip}
+              payload={2}
+              delay={0}
+              style={{ pointerEvents: 'none' }}
+            >
               Trigger 2
             </Tooltip.Trigger>
 
@@ -1233,20 +1328,22 @@ describe('<Tooltip.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
       // Open with Trigger 1
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       // Switch to Trigger 2
-      await user.unhover(trigger1);
-      await user.hover(trigger2);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
       });
@@ -1298,10 +1395,20 @@ describe('<Tooltip.Root />', () => {
       const tooltip = Tooltip.createHandle<number>();
       await render(
         <div>
-          <Tooltip.Trigger handle={tooltip} id="trigger1" payload={1}>
+          <Tooltip.Trigger
+            handle={tooltip}
+            id="trigger1"
+            payload={1}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </Tooltip.Trigger>
-          <Tooltip.Trigger handle={tooltip} id="trigger2" payload={2}>
+          <Tooltip.Trigger
+            handle={tooltip}
+            id="trigger2"
+            payload={2}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </Tooltip.Trigger>
           <Tooltip.Root handle={tooltip}>
@@ -1322,12 +1429,15 @@ describe('<Tooltip.Root />', () => {
 
       await act(() => tooltip.open('trigger2'));
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).not.toBe(null);
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
 
-      expect(screen.getByTestId('content').textContent).toBe('2');
-      expect(trigger2).toHaveAttribute('data-popup-open');
-      expect(trigger1).not.toHaveAttribute('data-popup-open');
+      await waitFor(() => {
+        expect(trigger2).toHaveAttribute('data-popup-open');
+      });
+      await waitFor(() => {
+        expect(trigger1).not.toHaveAttribute('data-popup-open');
+      });
 
       await act(() => tooltip.close());
       await waitFor(() => {

@@ -620,7 +620,7 @@ describe('<Combobox.Root />', () => {
   });
 
   it('does not navigate the list with arrow keys from portalled controls inside the popup', async () => {
-    const { user } = await render(
+    await render(
       <Combobox.Root defaultOpen>
         <Combobox.Trigger>Open</Combobox.Trigger>
         <ActiveIndexProbe />
@@ -641,8 +641,9 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Portalled control' }));
-    await user.keyboard('{ArrowDown}');
+    const portalledControl = screen.getByRole('button', { name: 'Portalled control' });
+    portalledControl.focus();
+    fireEvent.keyDown(portalledControl, { key: 'ArrowDown' });
 
     expect(screen.getByTestId('active-index')).toHaveTextContent('null');
   });
