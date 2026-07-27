@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -93,7 +92,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       const element = triggerElementRef.current;
       if (element && isElementDisabled(element) && !disabled) {
         const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
