@@ -482,7 +482,7 @@ describe('Combobox.createItems', () => {
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
           expect.stringContaining(
-            'Base UI: the `value` prop of <Combobox.Item> did not match any value derived by the `items` collection',
+            'Base UI: The `value` prop of <Combobox.Item> did not match any value derived by the `items` collection',
           ),
         );
       });

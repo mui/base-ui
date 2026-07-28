@@ -17,11 +17,13 @@ export declare class ComboboxItemCollection<in out Item, Value = Item> {
  * their values and resolve a selected value back to its label while items are unmounted.
  */
 export interface ItemCollection<Item = any, Value = any> {
+  /** Source items, preserving their flat or grouped structure for collection rendering. */
   data: readonly Item[] | readonly Group<Item>[];
+  /** Projects a source item to the value used by selection APIs. */
   value: (item: Item) => Value;
-  /** Labels a source item. Used while filtering, which runs on source items. */
+  /** Resolves a source item's label while filtering in the source-item domain. */
   itemLabel: (item: Item) => string;
-  /** Labels a selected value, which may be unmounted or outside the current items. */
+  /** Resolves a selected value's label, including values outside the mounted items. */
   label: (
     valueOrItem: Value,
     isItemEqualToValue?: ItemEqualityComparer<Value> | undefined,

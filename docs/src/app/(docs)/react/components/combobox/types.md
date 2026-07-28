@@ -1197,8 +1197,10 @@ type CreateComboboxItemsOptions<
   /**
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
-   * `null` and `undefined` are reserved for no selection.
-   * Prefer stable IDs from your application data.
+   *
+   * `null` and `undefined` are reserved for no selection. Prefer stable IDs from your
+   * application data.
+   *
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
    */
@@ -1207,7 +1209,9 @@ type CreateComboboxItemsOptions<
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
    * and must handle every possible selected value.
+   *
    * By default, the item's derived value is stringified.
+   *
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
    */

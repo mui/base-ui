@@ -7,11 +7,44 @@ import {
 } from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
-type ComboboxGroup = { items: ReadonlyArray<unknown> };
+export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
 type ComboboxItemsData<Item> =
-  | (Extract<Item, ComboboxGroup> extends never ? readonly Item[] : never)
+  | (Extract<Item, { items: ReadonlyArray<unknown> }> extends never ? readonly Item[] : never)
   | readonly { items: ReadonlyArray<Item> }[];
+
+interface CreateComboboxItemsIdentityOptions<Item> {
+  getValue?: undefined;
+  getLabel?: ((item: Item) => string) | undefined;
+}
+
+export interface CreateComboboxItemsOptions<
+  Item,
+  Value extends ComboboxPrimitiveValue = ComboboxPrimitiveValue,
+> {
+  /**
+   * Projects an item to the primitive value that identifies it, used as the item's
+   * selection value.
+   *
+   * `null` and `undefined` are reserved for no selection. Prefer stable IDs from your
+   * application data.
+   *
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
+   */
+  getValue: (item: Item) => Value;
+  /**
+   * Projects an item to the label string that represents it in the input and, by default,
+   * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
+   * and must handle every possible selected value.
+   *
+   * By default, the item's derived value is stringified.
+   *
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
+   */
+  getLabel?: ((item: Item) => string) | undefined;
+}
 
 /**
  * Normalizes items into a collection for the root's `items` prop, deriving each item's
@@ -57,10 +90,12 @@ export function createComboboxItems<Item, Value>(
 
   const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
   const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
+
   const leafItems = isGroupedItems(resolvedData)
     ? (resolvedData as readonly Group<Item>[]).flatMap((group) => group.items)
     : (resolvedData as readonly Item[]);
   const labels = new Map<Value, string>();
+
   for (const item of leafItems) {
     const derivedValue = itemToValue(item);
     // First occurrence wins, so a duplicated derived value resolves to one stable label.
@@ -92,37 +127,6 @@ export function createComboboxItems<Item, Value>(
       return stringifyAsLabel(itemValue);
     },
   } as unknown as ComboboxItemCollection<Item, Value>;
-}
-
-export type ComboboxPrimitiveValue = string | number | bigint | boolean;
-
-interface CreateComboboxItemsIdentityOptions<Item> {
-  getValue?: undefined;
-  getLabel?: ((item: Item) => string) | undefined;
-}
-
-export interface CreateComboboxItemsOptions<
-  Item,
-  Value extends ComboboxPrimitiveValue = ComboboxPrimitiveValue,
-> {
-  /**
-   * Projects an item to the primitive value that identifies it, used as the item's
-   * selection value.
-   * `null` and `undefined` are reserved for no selection.
-   * Prefer stable IDs from your application data.
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
-   */
-  getValue: (item: Item) => Value;
-  /**
-   * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
-   * and must handle every possible selected value.
-   * By default, the item's derived value is stringified.
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
-   */
-  getLabel?: ((item: Item) => string) | undefined;
 }
 
 export type { ComboboxItemCollection } from './itemCollection';

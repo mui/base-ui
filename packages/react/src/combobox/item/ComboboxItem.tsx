@@ -41,7 +41,7 @@ function useDerivedValueDevWarning(
 
     if (findItemIndex(allValues, itemValue, isItemEqualToValue) === -1) {
       error(
-        'the `value` prop of <Combobox.Item> did not match any value derived by the `items` ' +
+        'The `value` prop of <Combobox.Item> did not match any value derived by the `items` ' +
           'collection, so the item can never be selected or resolved back to its label. ' +
           'When `items` comes from createItems() with a `getValue` accessor, pass the derived ' +
           'value (the `getValue` result) to <Combobox.Item>, not the source item.',
