@@ -5562,6 +5562,241 @@ describe('<Combobox.Root />', () => {
       expect(ariaMutations).toHaveLength(0);
     });
 
+    it('keeps the filter text when the "item-press" close is canceled (input outside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          onOpenChange={(open, eventDetails) => {
+            if (!open && eventDetails.reason === REASONS.itemPress) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('keeps the filter text when the selection clear is canceled (input inside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          defaultOpen
+          onInputValueChange={(value, eventDetails) => {
+            if (
+              eventDetails.reason === REASONS.inputClear &&
+              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
+            ) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+    });
+
+    it('keeps the filter text in an inline list when the selection clear is canceled', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          inline
+          open
+          onInputValueChange={(value, eventDetails) => {
+            if (
+              eventDetails.reason === REASONS.inputClear &&
+              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
+            ) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Item value="apple">apple</Combobox.Item>
+            <Combobox.Item value="apricot">apricot</Combobox.Item>
+            <Combobox.Item value="banana">banana</Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('still clears the kept filter text once the popup closes', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          onInputValueChange={(value, eventDetails) => {
+            if (
+              eventDetails.reason === REASONS.inputClear &&
+              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
+            ) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      await user.type(await screen.findByTestId('input'), 'app');
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('input')).toHaveValue('app');
+
+      // The cleanup clear that runs after the popup closes carries no event, so the recipe
+      // doesn't cancel it and the next open starts with a fresh filter.
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+      await user.click(trigger);
+
+      expect(await screen.findByTestId('input')).toHaveValue('');
+    });
+
+    it('clears the input with the "input-clear" reason and the item click event on pointer selection', async () => {
+      const onInputValueChange = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen onInputValueChange={onInputValueChange}>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.type(screen.getByTestId('input'), 'app');
+      onInputValueChange.mockClear();
+
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(onInputValueChange).toHaveBeenCalledWith(
+        '',
+        expect.objectContaining({ reason: REASONS.inputClear }),
+      );
+      expect(onInputValueChange.mock.lastCall?.[1].event?.type).toBe('click');
+    });
+
+    it('clears the input with the "input-clear" reason and the originating keydown event on keyboard selection', async () => {
+      const onInputValueChange = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen onInputValueChange={onInputValueChange}>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await screen.findByRole('option', { name: 'apple' });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute('data-highlighted'),
+      );
+
+      onInputValueChange.mockClear();
+      await user.keyboard('{Enter}');
+      await flushMicrotasks();
+
+      expect(onInputValueChange).toHaveBeenCalledWith(
+        '',
+        expect.objectContaining({ reason: REASONS.inputClear }),
+      );
+      // Keyboard activation synthesizes a click on the highlighted item, but the details carry the
+      // originating keydown so consumers see the real user gesture.
+      expect(onInputValueChange.mock.lastCall?.[1].event?.type).toBe('keydown');
+    });
+
     it('does not close popup when filtering with input inside popup in multiple mode', async () => {
       const items = ['apple', 'apricot', 'banana'];
       const { user } = await render(
