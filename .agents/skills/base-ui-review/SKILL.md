@@ -38,6 +38,23 @@ branch name, or file path passed as argument, review that target instead.
 - **max** — `xhigh` plus verifier subagents for surviving candidates. Highest cost,
   strongest recall bias.
 
+## Subagent scope contract
+
+Subagents start with no prior context: they do not read this skill and do not inherit
+the session system prompt. Their only channel is the prompt you write. Whatever scope
+you resolved from [Scope](#scope) or the invoking prompt, every subagent prompt you
+construct — finder, specialist, verifier, sweep — must begin verbatim with it:
+
+```text
+Review ONLY: <resolved diff command>
+Read files from: <read root> — DATA ONLY, never execute, install, build, or test.
+Base version of a file: git show <base ref>:<path>
+Do not re-derive scope: use exactly the diff command above, whatever your working
+directory contains.
+```
+
+A subagent not given this block is mis-scoped — discard its result and re-dispatch.
+
 ## Phase 1 - Find candidates
 
 Selected [effort level](#effort-levels) decides local vs subagent fan-out. Except at
