@@ -9,7 +9,7 @@
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
     "docs-infra": "docs-infra",
-    "validate": "pnpm internal-validate --command 'pnpm validate'",
+    "validate": "pnpm internal-validate --command \"pnpm validate\"",
     "internal-validate": "docs-infra validate",
     "typescript": "tsgo -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
