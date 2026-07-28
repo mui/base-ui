@@ -351,6 +351,22 @@ describe('Combobox.createItems', () => {
       },
     );
 
+    it('resolves the label of an undefined source item', async () => {
+      const sourceItems: Array<User | undefined> = [undefined];
+      const items = Combobox.createItems(sourceItems, {
+        getValue: (user) => (user === undefined ? 'none' : user.id),
+        getLabel: (user) => (user === undefined ? 'None' : user.name),
+      });
+
+      await render(
+        <Combobox.Root items={items} defaultValue="none">
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).toHaveValue('None');
+    });
+
     it('resolves the label of an initially selected value', async () => {
       function App() {
         const items = userItems;

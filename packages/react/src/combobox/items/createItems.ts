@@ -137,9 +137,8 @@ export function createComboboxItems<Item, Value>(
     label: (itemValue: Value, isItemEqualToValue?: ItemEqualityComparer<Value> | undefined) => {
       const { valueToItem } = ensureDerived();
 
-      const exactItem = valueToItem.get(itemValue);
-      if (exactItem !== undefined) {
-        return itemToLabel(exactItem);
+      if (valueToItem.has(itemValue)) {
+        return itemToLabel(valueToItem.get(itemValue)!);
       }
 
       // The exact lookup above already covers identity, so only a custom comparer can still
