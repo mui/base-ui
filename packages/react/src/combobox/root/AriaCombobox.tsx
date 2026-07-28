@@ -314,7 +314,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     collatorFilter.contains(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
-  const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
+  const shouldIgnoreExternalFiltering =
+    hasItems &&
+    hasFilteredItemsProp &&
+    shouldBypassFiltering &&
+    isGroupedItems(filteredItemsProp) === isGrouped;
 
   const flatItems: readonly Item[] = React.useMemo(() => {
     if (!items) {
@@ -929,18 +933,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
       // the index on the next open.
-      // A collection's source items are projected lazily by the search itself, so a match near
-      // the front of a long list doesn't pay for projecting the whole list.
-      const registry: readonly any[] = hasItems ? flatItems : valuesRef.current;
+      // Keep the selected index in the coordinates of the list that is actually rendered.
+      const registry: readonly any[] = hasItems ? flatFilteredValues : valuesRef.current;
 
       setIndices({
-        selectedIndex: findSelectionIndex(
-          registry,
-          selectedValue,
-          isItemEqualToValue,
-          multiple,
-          hasItems ? itemToValue : undefined,
-        ),
+        selectedIndex: findSelectionIndex(registry, selectedValue, isItemEqualToValue, multiple),
       });
     },
     [
@@ -949,8 +946,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       selectionMode,
       multiple,
       hasItems,
-      flatItems,
-      itemToValue,
+      flatFilteredValues,
       isItemEqualToValue,
       setIndices,
     ],

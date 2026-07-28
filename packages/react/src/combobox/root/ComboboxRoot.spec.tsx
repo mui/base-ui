@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { Combobox, type ComboboxItemCollection } from '@base-ui/react/combobox';
+import {
+  Combobox,
+  type ComboboxItemCollection,
+  type CreateComboboxItemsOptions,
+} from '@base-ui/react/combobox';
 import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
@@ -295,11 +299,14 @@ mergeProps<typeof Combobox.Root<any>>(
   {},
 );
 
-function CreateItemsApp() {
+function CreateItemsApp(props: {
+  getValue?: ((item: { id: number; name: string }) => number) | undefined;
+}) {
   const userItems = [
     { id: 1, name: 'Alice' },
     { id: 2, name: 'Bob' },
   ];
+  type UserItem = (typeof userItems)[number];
 
   const collection = Combobox.createItems(userItems, {
     getValue: (item) => item.id,
@@ -316,6 +323,32 @@ function CreateItemsApp() {
   const labelOnlyCollection = Combobox.createItems(userItems, {
     getLabel: (item) => item.name,
   });
+  Combobox.createItems(userItems, {
+    // @ts-expect-error A conditional getValue cannot declare a derived value that may not exist.
+    getValue: props.getValue,
+    getLabel: (item) => item.name,
+  });
+  // @ts-expect-error An explicit derived value type requires getValue.
+  Combobox.createItems<UserItem, number>(userItems, {
+    getLabel: (item) => item.name,
+  });
+  // @ts-expect-error Typed derived-value options require getValue.
+  const optionsWithoutGetValue: CreateComboboxItemsOptions<UserItem, number> = {
+    getLabel: (item) => item.name,
+  };
+  void optionsWithoutGetValue;
+
+  // @ts-expect-error Collection data cannot mix groups and ungrouped items.
+  Combobox.createItems([{ value: 'Group', items: [userItems[0]] }, userItems[1]], {
+    getValue: (item: UserItem) => item.id,
+    getLabel: (item: UserItem) => item.name,
+  });
+  // @ts-expect-error Collection data cannot mix ungrouped items and groups.
+  Combobox.createItems([userItems[1], { value: 'Group', items: [userItems[0]] }], {
+    getValue: (item: UserItem) => item.id,
+    getLabel: (item: UserItem) => item.name,
+  });
+
   // Data that has not loaded yet: the item type comes from the accessors instead.
   const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,

@@ -1045,8 +1045,8 @@ Create the collection at module scope when the data is static.
 
 | Parameter | Type                                                       | Default | Description |
 | :-------- | :--------------------------------------------------------- | :------ | :---------- |
-| data      | `(Item \| { items: Item[] })[] \| undefined`               | -       | -           |
-| options?  | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
+| data      | `ComboboxItemsData<Item> \| undefined`                     | -       | -           |
+| options   | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
 
 **Return Value:**
 
@@ -1054,7 +1054,7 @@ A collection whose selection value is the source item when `getValue` is omitted
 or the accessor's return value when it is provided.
 
 ```tsx
-type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean>;
+type ReturnValue = ComboboxItemCollection<Item, ComboboxPrimitiveValue>;
 ```
 
 ### InputGroup
@@ -1190,17 +1190,19 @@ type ComboboxPrimitiveValue = string | number | bigint | boolean;
 ### CreateComboboxItemsOptions
 
 ```typescript
-type CreateComboboxItemsOptions<Item, Value = Item> = {
+type CreateComboboxItemsOptions<
+  Item,
+  Value extends ComboboxPrimitiveValue = ComboboxPrimitiveValue,
+> = {
   /**
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
-   * By default, the item itself is used as the value.
    * `null` and `undefined` are reserved for no selection.
    * Prefer stable IDs from your application data.
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
    */
-  getValue?: (item: Item) => Value;
+  getValue: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver

@@ -15,6 +15,39 @@ const users: User[] = [
   { id: 3, name: 'Carol' },
 ];
 
+interface ApiUser {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+}
+
+interface AssignmentResponse {
+  users: ApiUser[];
+  assigneeId: string | null;
+}
+
+const apiUsers: ApiUser[] = [
+  {
+    id: 'user-1',
+    name: 'Alice',
+    role: 'Engineer',
+    email: 'alice@example.com',
+  },
+  {
+    id: 'user-2',
+    name: 'Bob',
+    role: 'Product manager',
+    email: 'bob@example.com',
+  },
+  {
+    id: 'user-3',
+    name: 'Carol',
+    role: 'Designer',
+    email: 'carol@example.com',
+  },
+];
+
 const getUserId = (user: User) => user.id;
 const getUserName = (user: User) => user.name;
 const getTypeaheadLabel = (user: User) => (user.id === 2 ? 'Zebra' : 'Yak');
@@ -119,6 +152,163 @@ describe('Combobox.createItems', () => {
 
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Bob');
+    });
+
+    // Closes the use case from https://github.com/mui/base-ui/issues/5228
+    it('supports rich API-loaded items with primitive ID values end to end', async () => {
+      let resolveAssignment = (_response: AssignmentResponse) => {};
+      const assignmentRequest = new Promise<AssignmentResponse>((resolve) => {
+        resolveAssignment = resolve;
+      });
+      const api = {
+        loadAssignment: vi.fn(() => assignmentRequest),
+        saveAssignee: vi.fn(async (_assigneeId: string | null) => {}),
+      };
+
+      function App() {
+        const [assignment, setAssignment] = React.useState<AssignmentResponse>();
+
+        React.useEffect(() => {
+          let cancelled = false;
+          void api.loadAssignment().then((response) => {
+            if (!cancelled) {
+              setAssignment(response);
+            }
+          });
+
+          return () => {
+            cancelled = true;
+          };
+        }, []);
+
+        const items = React.useMemo(
+          () =>
+            Combobox.createItems(assignment?.users, {
+              getValue: (user) => user.id,
+              getLabel: (user) => user.name,
+            }),
+          [assignment?.users],
+        );
+
+        return (
+          <Combobox.Root
+            items={items}
+            value={assignment?.assigneeId ?? null}
+            onValueChange={(assigneeId) => {
+              setAssignment((current) => (current ? { ...current, assigneeId } : current));
+              void api.saveAssignee(assigneeId);
+            }}
+            defaultOpen
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: ApiUser) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        <strong>{user.name}</strong>
+                        <span>{user.role}</span>
+                        <span>{user.email}</span>
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      expect(screen.queryByRole('option')).toBe(null);
+
+      await act(async () => {
+        resolveAssignment({
+          users: apiUsers,
+          assigneeId: 'user-2',
+        });
+      });
+
+      const bob = await screen.findByRole('option', { name: /Bob/ });
+
+      expect(input).toHaveValue('Bob');
+      expect(bob).toHaveAttribute('aria-selected', 'true');
+      expect(bob).toHaveTextContent('Product manager');
+      expect(bob).toHaveTextContent('bob@example.com');
+
+      await user.clear(input);
+      await user.type(input, 'car');
+
+      const carol = screen.getByRole('option', { name: /Carol/ });
+      expect(screen.queryByRole('option', { name: /Bob/ })).toBe(null);
+      expect(carol).toHaveTextContent('Designer');
+      expect(carol).toHaveTextContent('carol@example.com');
+
+      await user.click(carol);
+
+      expect(api.saveAssignee).toHaveBeenCalledWith('user-3');
+      expect(input).toHaveValue('Carol');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+      await user.click(input);
+
+      expect(await screen.findByRole('option', { name: /Carol/ })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('falls back to the raw selected ID when API results are cleared', async () => {
+      function App() {
+        const [results, setResults] = React.useState<ApiUser[] | undefined>(apiUsers);
+        const [assigneeId, setAssigneeId] = React.useState<string | null>(null);
+        const items = React.useMemo(
+          () =>
+            Combobox.createItems(results, {
+              getValue: (user) => user.id,
+              getLabel: (user) => user.name,
+            }),
+          [results],
+        );
+
+        return (
+          <Combobox.Root
+            items={items}
+            value={assigneeId}
+            onValueChange={(nextAssigneeId) => {
+              setAssigneeId(nextAssigneeId);
+              setResults(undefined);
+            }}
+            defaultOpen
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: ApiUser) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByRole('combobox');
+
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(input).toHaveValue('user-3');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
     });
 
     it.each(['pointer', 'keyboard'] as const)(
@@ -857,9 +1047,51 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
+    it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {
+      const onItemHighlighted = vi.fn();
+
+      function App() {
+        const items = userItems;
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[users[2], users[0]]}
+            multiple
+            defaultValue={[1]}
+            onItemHighlighted={onItemHighlighted}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('combobox'));
+
+      const alice = await screen.findByRole('option', { name: 'Alice' });
+      const carol = screen.getByRole('option', { name: 'Carol' });
+      await waitFor(() => expect(alice).toHaveAttribute('data-highlighted'));
+      expect(carol).not.toHaveAttribute('data-highlighted');
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(1);
+    });
+
     it('projects externally filtered groups when the source collection is flat', async () => {
       const onValueChange = vi.fn();
-      const filteredGroups = [{ value: 'Result', items: [users[2]] }];
+      const filteredGroups = [{ value: 'Result', items: [users[2], users[0]] }];
 
       function App() {
         const items = Combobox.createItems(users, {
@@ -870,32 +1102,59 @@ describe('Combobox.createItems', () => {
           <Combobox.Root
             items={items}
             filteredItems={filteredGroups}
-            defaultOpen
+            defaultValue="3"
             onValueChange={onValueChange}
           >
             <Combobox.Input />
-            <Combobox.List>
-              {(group: (typeof filteredGroups)[number], index: number) => (
-                <Combobox.Group key={index} items={group.items}>
-                  <Combobox.Collection>
-                    {(user: User) => (
-                      <Combobox.Item key={user.id} value={user.id.toString()}>
-                        {user.name}
-                      </Combobox.Item>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(group: (typeof filteredGroups)[number], index: number) => (
+                      <Combobox.Group key={index} items={group.items}>
+                        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                        <Combobox.Collection>
+                          {(user: User) => (
+                            <Combobox.Item key={user.id} value={user.id.toString()}>
+                              {user.name}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.Collection>
+                      </Combobox.Group>
                     )}
-                  </Combobox.Collection>
-                </Combobox.Group>
-              )}
-            </Combobox.List>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
           </Combobox.Root>
         );
       }
 
       const { user } = await render(<App />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
 
-      await user.click(screen.getByRole('option', { name: 'Carol' }));
+      expect(input).toHaveValue('Carol');
+      await user.click(input);
 
-      expect(onValueChange.mock.lastCall?.[0]).toBe('3');
+      expect(await screen.findAllByRole('option')).toHaveLength(2);
+      expect(screen.getByRole('option', { name: 'Carol' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Alice' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe('1');
+      expect(input).toHaveValue('Alice');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+      await user.click(input);
+
+      expect(await screen.findAllByRole('option')).toHaveLength(2);
+      expect(screen.getByRole('option', { name: 'Alice' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
     });
 
     it('resolves virtualized collection items to their derived value', async () => {
@@ -1223,6 +1482,7 @@ describe('Combobox.createItems', () => {
 
     it('projects externally filtered flat items when the source collection is grouped', async () => {
       const onValueChange = vi.fn();
+      const filteredUsers = [users[2], users[0]];
 
       function App() {
         const items = Combobox.createItems(teams, {
@@ -1232,27 +1492,53 @@ describe('Combobox.createItems', () => {
         return (
           <Combobox.Root
             items={items}
-            filteredItems={[users[2]]}
-            defaultOpen
+            filteredItems={filteredUsers}
+            defaultValue={3}
             onValueChange={onValueChange}
           >
             <Combobox.Input />
-            <Combobox.List>
-              {(user: User, index: number) => (
-                <Combobox.Item key={index} value={user.id}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
           </Combobox.Root>
         );
       }
 
       const { user } = await render(<App />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
 
-      await user.click(screen.getByRole('option', { name: 'Carol' }));
+      expect(input).toHaveValue('Carol');
+      await user.click(input);
 
-      expect(onValueChange.mock.lastCall?.[0]).toBe(3);
+      expect(await screen.findAllByRole('option')).toHaveLength(2);
+      expect(screen.getByRole('option', { name: 'Carol' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Alice' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(1);
+      expect(input).toHaveValue('Alice');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+
+      await user.click(input);
+
+      expect(await screen.findAllByRole('option')).toHaveLength(2);
+      expect(screen.getByRole('option', { name: 'Alice' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
     });
 
     it('only applies accessors to group items', async () => {

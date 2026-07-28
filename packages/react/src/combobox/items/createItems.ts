@@ -7,15 +7,11 @@ import {
 } from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
-/**
- * Resolves the individual item type of a `createItems()` data array: the group's item type when
- * the array is grouped, otherwise the array element itself.
- */
-type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
-  items: ReadonlyArray<infer Item>;
-}
-  ? Item
-  : ItemOrGroup;
+type ComboboxGroup = { items: ReadonlyArray<unknown> };
+
+type ComboboxItemsData<Item> =
+  | (Extract<Item, ComboboxGroup> extends never ? readonly Item[] : never)
+  | readonly { items: ReadonlyArray<Item> }[];
 
 /**
  * Normalizes items into a collection for the root's `items` prop, deriving each item's
@@ -31,19 +27,26 @@ type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
  * @returns A collection whose selection value is the source item when `getValue` is omitted,
  * or the accessor's return value when it is provided.
  */
-export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue = never>(
-  data: readonly (Item | { items: ReadonlyArray<Item> })[] | undefined,
-  options?: CreateComboboxItemsOptions<Item, Value>,
-): ComboboxItemCollection<Item, [Value] extends [never] ? Item : Value>;
+export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
+  data: ComboboxItemsData<Item> | undefined,
+  options: CreateComboboxItemsOptions<Item, Value>,
+): ComboboxItemCollection<Item, Value>;
 
-export function createComboboxItems<ItemOrGroup, Value>(
-  data: readonly ItemOrGroup[] | undefined,
-  options: CreateComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> = {},
-): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value> {
-  type Item = ComboboxCollectionItem<ItemOrGroup>;
+export function createComboboxItems<Item>(
+  data: ComboboxItemsData<Item> | undefined,
+  options?: CreateComboboxItemsIdentityOptions<Item>,
+): ComboboxItemCollection<Item, Item>;
+
+export function createComboboxItems<Item, Value>(
+  data: readonly (Item | { items: ReadonlyArray<Item> })[] | undefined,
+  options: {
+    getValue?: ((item: Item) => Value) | undefined;
+    getLabel?: ((item: Item) => string) | undefined;
+  } = {},
+): ComboboxItemCollection<Item, Value> {
   const { getValue, getLabel } = options;
 
-  const resolvedData = data ?? (EMPTY_ARRAY as readonly ItemOrGroup[]);
+  const resolvedData = data ?? (EMPTY_ARRAY as readonly (Item | { items: ReadonlyArray<Item> })[]);
 
   // Without accessors the collection would resolve every item to itself, which is exactly what
   // a plain array already does. Handing the array back keeps `items` on its original code path,
@@ -93,17 +96,24 @@ export function createComboboxItems<ItemOrGroup, Value>(
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
-export interface CreateComboboxItemsOptions<Item, Value = Item> {
+interface CreateComboboxItemsIdentityOptions<Item> {
+  getValue?: undefined;
+  getLabel?: ((item: Item) => string) | undefined;
+}
+
+export interface CreateComboboxItemsOptions<
+  Item,
+  Value extends ComboboxPrimitiveValue = ComboboxPrimitiveValue,
+> {
   /**
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
-   * By default, the item itself is used as the value.
    * `null` and `undefined` are reserved for no selection.
    * Prefer stable IDs from your application data.
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
    */
-  getValue?: ((item: Item) => Value) | undefined;
+  getValue: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
