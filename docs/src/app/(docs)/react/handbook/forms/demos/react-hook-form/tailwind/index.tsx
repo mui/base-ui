@@ -162,7 +162,7 @@ function ReactHookForm() {
                     <Autocomplete.List>
                       {(image: Image) => {
                         return (
-                          <Autocomplete.Item key={image.url} value={image}>
+                          <Autocomplete.Item key={image.url}>
                             <span>{image.name}</span>
                             <span className="font-mono whitespace-nowrap text-xs opacity-80">
                               {image.url}

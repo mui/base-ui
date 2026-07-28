@@ -96,6 +96,17 @@ import { DemoComboboxUseItems } from './demos/use-items';
 
 <DemoComboboxUseItems />
 
+Each API then sits on one side of the source item / value split:
+
+| Receives the source item                          | Receives the derived value                                         |
+| :------------------------------------------------ | :----------------------------------------------------------------- |
+| `<List>` and `<Collection>` function children     | `value`, `defaultValue`, and `onValueChange`                       |
+| `useFilteredItems()` and `filteredItems`          | `isItemEqualToValue`, `itemToStringValue`, and `itemToStringLabel` |
+| The `value` and `label` accessors of `useItems()` | `onItemHighlighted` and `<Combobox.Value>` children                |
+| The root `filter` function                        |                                                                    |
+
+Because filtering runs on source items, a custom `filter` can match any source field.
+
 With async data, prefer item objects as values so the selected label survives result changes;
 compare them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data`
 or resolve every ID from a cache with `itemToStringLabel`, which replaces the collection's `label`

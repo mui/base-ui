@@ -56,7 +56,7 @@ describe('<Combobox.Collection />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(items[1]);
   });
 
-  it('keeps the source item authoritative when an item also has an explicit value', async () => {
+  it('keeps an explicit item value authoritative over the source item', async () => {
     const items = ['alpha', 'beta'];
     const onValueChange = vi.fn();
     const { user } = await render(
@@ -74,7 +74,85 @@ describe('<Combobox.Collection />', () => {
 
     await user.click(screen.getByRole('option', { name: 'beta' }));
 
-    expect(onValueChange.mock.lastCall?.[0]).toBe('beta');
+    expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-beta');
+  });
+
+  it('does not leak the row into its cells in grid mode', async () => {
+    const rows = [
+      ['1', '2'],
+      ['3', '4'],
+    ];
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Combobox.Root grid items={rows} defaultOpen onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List>
+          {(row: string[], index: number) => (
+            <Combobox.Row key={index}>
+              {row.map((cell) => (
+                <Combobox.Item key={cell} value={cell}>
+                  {cell}
+                </Combobox.Item>
+              ))}
+            </Combobox.Row>
+          )}
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('gridcell', { name: '4' }));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe('4');
+  });
+
+  it('does not treat groups supplied through filteredItems as item values', async () => {
+    const groups = [
+      { value: 'Fruits', items: ['a', 'b'] },
+      { value: 'Vegetables', items: ['c'] },
+    ];
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Combobox.Root filteredItems={groups} defaultOpen onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List>
+          {(group: { value: string; items: string[] }) => (
+            <React.Fragment key={group.value}>
+              <div>{group.value}</div>
+              {group.items.map((item) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              ))}
+            </React.Fragment>
+          )}
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('option', { name: 'a' }));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe('a');
+  });
+
+  it('keeps an explicit value on an item rendered beside the collection item', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Combobox.Root items={['alpha']} defaultOpen onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List>
+          {(item: string) => (
+            <React.Fragment key={item}>
+              <Combobox.Item>{item}</Combobox.Item>
+              <Combobox.Item value="extra">Extra</Combobox.Item>
+            </React.Fragment>
+          )}
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('option', { name: 'Extra' }));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe('extra');
   });
 
   it('keeps an omitted value on a static item using the existing null fallback', async () => {

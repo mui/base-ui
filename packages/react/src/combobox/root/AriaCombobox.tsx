@@ -157,10 +157,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     itemsProp && !Array.isArray(itemsProp)
       ? (itemsProp as unknown as ItemCollection<Item, Value>)
       : null;
+  if (collection && typeof collection.value !== 'function') {
+    throw new Error(
+      'Base UI: the `items` prop received an object that is not a collection, ' +
+        'so its items cannot be read. Pass an array of items, an array of groups with items, ' +
+        'or the result of `useItems()`. ' +
+        'See https://base-ui.com/react/components/combobox#useitems',
+    );
+  }
   const items = (collection ? collection.data : itemsProp) as
     | readonly Item[]
     | readonly Group<Item>[]
     | undefined;
+  const itemToValue = collection?.value;
   const itemToStringLabel = React.useMemo(() => {
     if (itemToStringLabelProp) {
       return itemToStringLabelProp;
@@ -170,10 +179,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
     return (itemValue: Value) => collection.label(itemValue, isItemEqualToValue);
   }, [collection, isItemEqualToValue, itemToStringLabelProp]);
-  const stringifyItemLabel = React.useCallback(
-    (item: any) => stringifyAsLabel(item, itemToStringLabel),
-    [itemToStringLabel],
-  );
+  function stringifyItemLabel(item: any) {
+    return stringifyAsLabel(item, itemToStringLabel);
+  }
 
   // Filtering runs on source items, while `itemToStringLabel` labels selection values. The two
   // domains only differ for a collection, where the item is projected before the prop sees it.
@@ -184,7 +192,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (!itemToStringLabelProp) {
       return collection.itemLabel;
     }
-    return (item: any) => itemToStringLabelProp(collection.value(item));
+    // Routed through `stringifyAsLabel` so the prop keeps its guarantee of never receiving a
+    // nullish value, which a projection can still produce from a non-null source item.
+    return (item: any) => stringifyAsLabel(collection.value(item), itemToStringLabelProp);
   }, [collection, itemToStringLabel, itemToStringLabelProp]);
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
@@ -383,24 +393,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatItems,
   ]);
 
-  const flatFilteredItems: Item[] = React.useMemo(() => {
-    if (isGrouped) {
-      const groups = filteredItems as Group<Item>[];
-      return groups.flatMap((g) => g.items);
-    }
-    return filteredItems as Item[];
-  }, [filteredItems, isGrouped]);
-
   /**
-   * `flatFilteredItems` projected to their selection values: identical for plain arrays,
-   * mapped through the collection's value projection when `items` is a `useItems()` collection.
+   * The filtered items flattened across groups and projected to their selection values: the items
+   * themselves for plain arrays, mapped through the collection's projection for a `useItems()`
+   * collection.
    */
   const flatFilteredValues: any[] = React.useMemo(() => {
-    if (!collection) {
-      return flatFilteredItems;
-    }
-    return flatFilteredItems.map(collection.value);
-  }, [collection, flatFilteredItems]);
+    const flat = isGrouped
+      ? (filteredItems as Group<Item>[]).flatMap((group) => group.items)
+      : (filteredItems as Item[]);
+    return itemToValue ? flat.map((item) => itemToValue(item)) : flat;
+  }, [filteredItems, isGrouped, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
@@ -425,7 +428,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       selectedValue,
       open,
       items: collection ? undefined : items,
-      itemToValue: collection?.value,
       selectionMode,
       listRef,
       labelsRef,
@@ -671,7 +673,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       if (
         eventDetails.reason === REASONS.escapeKey &&
         hasItems &&
-        flatFilteredItems.length === 0 &&
+        flatFilteredValues.length === 0 &&
         !emptyRef.current
       ) {
         eventDetails.allowPropagation();
@@ -916,7 +918,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // the index on the next open.
       let registry: readonly any[] = valuesRef.current;
       if (hasItems) {
-        registry = collection ? flatItems.map(collection.value) : flatItems;
+        registry = itemToValue ? flatItems.map((item) => itemToValue(item)) : flatItems;
       }
 
       setIndices({
@@ -930,7 +932,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       multiple,
       hasItems,
       flatItems,
-      collection,
+      itemToValue,
       isItemEqualToValue,
       setIndices,
     ],
@@ -1080,10 +1082,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
   React.useEffect(() => {
-    if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
+    if (hasItems && autoHighlightMode && flatFilteredValues.length === 0) {
       setIndices({ activeIndex: null });
     }
-  }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
+  }, [hasItems, autoHighlightMode, flatFilteredValues.length, setIndices]);
 
   function isSelectedValueDirty(value: Value | Value[] | null) {
     const initialValue = validityData.initialValue;
@@ -1104,10 +1106,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setQueryChangedAfterOpen(true);
   });
 
+  // A selection change usually changes the resolved label too, so both syncs below can land in
+  // the same commit. The second one would still see the pre-commit `inputValue` and write again,
+  // firing `onInputValueChange` twice, so the pending write is recorded until it lands.
+  const pendingSyncedLabelRef = React.useRef<string | undefined>(undefined);
+
   function syncInputToSelectedLabel() {
     const nextInputValue = stringifyItemLabel(selectedValue);
 
-    if (inputValue !== nextInputValue) {
+    if (inputValue !== nextInputValue && pendingSyncedLabelRef.current !== nextInputValue) {
+      pendingSyncedLabelRef.current = nextInputValue;
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
     }
   }
@@ -1128,6 +1136,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   useValueChanged(inputValue, () => {
+    // Any observed input change means the pending write has either landed or been superseded.
+    pendingSyncedLabelRef.current = undefined;
+
     if (selectionMode !== 'none') {
       return;
     }
@@ -1337,7 +1348,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       mounted,
       transitionStatus,
       items: collection ? undefined : items,
-      itemToValue: collection?.value,
       inline: inlineProp,
       popupProps,
       listProps,
@@ -1402,12 +1412,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       query,
       hasItems,
       filteredItems,
-      flatFilteredItems,
       flatFilteredValues,
-      isGrouped,
-      itemToValue: collection?.value,
+      itemToValue,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems, flatFilteredValues, isGrouped, collection],
+    [query, hasItems, filteredItems, flatFilteredValues, itemToValue],
   );
 
   const serializedValue = React.useMemo(() => {

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxRowContext } from './ComboboxRowContext';
+import { ComboboxItemValueContext, NO_COMBOBOX_ITEM_VALUE } from '../item/ComboboxItemValueContext';
 
 /**
  * Displays a single row of items in a grid list.
@@ -22,7 +23,13 @@ export const ComboboxRow = React.forwardRef(function ComboboxRow(
     props: [{ role: 'row' }, elementProps],
   });
 
-  return <ComboboxRowContext.Provider value>{element}</ComboboxRowContext.Provider>;
+  // A row is a container, not a selectable item, so its cells must not inherit the collection
+  // value that was supplied for the row itself.
+  return (
+    <ComboboxItemValueContext.Provider value={NO_COMBOBOX_ITEM_VALUE}>
+      <ComboboxRowContext.Provider value>{element}</ComboboxRowContext.Provider>
+    </ComboboxItemValueContext.Provider>
+  );
 });
 
 export interface ComboboxRowState {}

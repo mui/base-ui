@@ -47,6 +47,10 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     ...elementProps
   } = componentProps;
 
+  const collectionItemValue = useComboboxItemValueContext();
+  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
+  const itemValue = valueProp !== undefined ? valueProp : fallbackValue;
+
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
     guess: true,
@@ -57,15 +61,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
-  const collectionItemValue = useComboboxItemValueContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-
-  const hasCollectionItemValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE;
-  const itemValue = hasCollectionItemValue ? collectionItemValue : (valueProp ?? null);
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
@@ -231,10 +231,9 @@ function ComboboxItemVirtualizedIndex(props: {
   const { flatFilteredValues } = useComboboxDerivedItemsContext();
   const collectionItemValue = useComboboxItemValueContext();
 
-  // Inside a collection the source item's value is the positional identity, regardless of
-  // any explicit `value` prop.
+  // Inside a collection the source item is the positional identity when `value` is omitted.
   const lookupValue =
-    collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
+    componentProps.value === undefined && collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
       ? collectionItemValue
       : (componentProps.value ?? null);
   const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
@@ -313,9 +312,10 @@ export interface ComboboxItemProps
   index?: number | undefined;
   /**
    * A unique value that identifies this item.
-   * Inside a collection, the collection-provided value is always used instead. This is the source
-   * item for ordinary collections and the `value` accessor result for collections created by
-   * `useItems()`.
+   * Defaults to the collection-provided value when rendered by a collection function child: the
+   * source item for ordinary collections, or the `value` accessor result for collections created
+   * by `useItems()`.
+   * @default null
    */
   value?: any;
   /**

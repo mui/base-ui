@@ -7,9 +7,7 @@ export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
   filteredItems: any[];
-  flatFilteredItems: any[];
   flatFilteredValues: any[];
-  isGrouped: boolean;
   itemToValue: ((item: any) => any) | undefined;
 }
 

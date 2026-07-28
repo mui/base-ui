@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
-import { compareItemEquality, type ItemEqualityComparer } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  defaultItemEquality,
+  type ItemEqualityComparer,
+} from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
 /**
@@ -22,33 +26,20 @@ export type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
-  data: readonly { items: readonly Item[] }[],
-  options: UseComboboxItemsOptions<Item, Value> & {
-    value: (item: Item) => Value;
+export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<ItemOrGroup>>(
+  data: readonly ItemOrGroup[],
+  options?: UseComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> & {
+    /**
+     * Repeated so that a projection returning a non-primitive is rejected after `Value` has been
+     * inferred from the accessor above, rather than constraining it before inference runs.
+     */
+    value?:
+      | ((
+          item: ComboboxCollectionItem<ItemOrGroup>,
+        ) => Value extends ComboboxPrimitiveValue ? Value : ComboboxPrimitiveValue)
+      | undefined;
   },
-): ComboboxItemCollection<Item, Value>;
-
-export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
-  data: readonly Item[],
-  options: UseComboboxItemsOptions<Item, Value> & {
-    value: (item: Item) => Value;
-  },
-): ComboboxItemCollection<Item, Value>;
-
-export function useComboboxItems<Item>(
-  data: readonly { items: readonly Item[] }[],
-  options?: Omit<UseComboboxItemsOptions<Item, Item>, 'value'> & {
-    value?: undefined;
-  },
-): ComboboxItemCollection<Item, Item>;
-
-export function useComboboxItems<Item>(
-  data: readonly Item[],
-  options?: Omit<UseComboboxItemsOptions<Item, Item>, 'value'> & {
-    value?: undefined;
-  },
-): ComboboxItemCollection<Item, Item>;
+): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value>;
 
 export function useComboboxItems<ItemOrGroup, Value>(
   data: readonly ItemOrGroup[],
@@ -58,6 +49,13 @@ export function useComboboxItems<ItemOrGroup, Value>(
   const { value, label } = options;
 
   return React.useMemo(() => {
+    // Without accessors the collection would resolve every item to itself, which is exactly what
+    // a plain array already does. Handing the array back keeps `items` on its original code path,
+    // preserving React node labels and the null item's placeholder override.
+    if (!value && !label) {
+      return data;
+    }
+
     const itemToValue = value ?? ((item: Item) => item as unknown as Value);
     const itemToLabel = label ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
     const leafItems = isGroupedItems(data)
@@ -74,7 +72,12 @@ export function useComboboxItems<ItemOrGroup, Value>(
         while (!labels.has(itemValue) && indexedItems < leafItems.length) {
           const item = leafItems[indexedItems];
           indexedItems += 1;
-          labels.set(itemToValue(item), itemToLabel(item));
+          const derivedValue = itemToValue(item);
+          // First occurrence wins, so a duplicated derived value resolves to one stable label
+          // rather than one that depends on how far the lazy index happened to advance.
+          if (!labels.has(derivedValue)) {
+            labels.set(derivedValue, itemToLabel(item));
+          }
         }
 
         const exactLabel = labels.get(itemValue);
@@ -82,7 +85,10 @@ export function useComboboxItems<ItemOrGroup, Value>(
           return exactLabel;
         }
 
-        if (isItemEqualToValue) {
+        // The exact lookup above already covers identity, so only a custom comparer can still
+        // match. Skipping the scan for the default keeps a missing value off an O(n) path that
+        // runs on every render.
+        if (isItemEqualToValue && isItemEqualToValue !== defaultItemEquality) {
           for (const [valueToCompare, itemLabel] of labels) {
             if (compareItemEquality(valueToCompare, itemValue, isItemEqualToValue)) {
               return itemLabel;

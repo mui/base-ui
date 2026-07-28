@@ -40,6 +40,69 @@ describe('Combobox.useItems', () => {
 
       expect(result.current).toBe(first);
     });
+
+    it('is rebuilt when the source data changes', async () => {
+      const { result, rerender } = renderHook(
+        (props: { data: User[] }) =>
+          Combobox.useItems(props.data, { value: getUserId, label: getUserName }),
+        { initialProps: { data: users } },
+      );
+      const first = result.current;
+
+      rerender({ data: [...users] });
+
+      expect(result.current).not.toBe(first);
+    });
+
+    it('passes the data through unchanged when no accessors are given', () => {
+      const { result } = renderHook(() => Combobox.useItems(users));
+
+      expect(result.current).toBe(users);
+    });
+  });
+
+  describe('no accessors', () => {
+    const labeledItems = [
+      { value: 'a', label: <b>Apple</b> },
+      { value: 'b', label: 'Banana' },
+    ];
+
+    it('keeps React node labels resolvable through Combobox.Value', async () => {
+      function App() {
+        const items = Combobox.useItems(labeledItems);
+        return (
+          <Combobox.Root items={items} defaultValue={labeledItems[0]}>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('value').querySelector('b')).not.toBe(null);
+      expect(screen.getByTestId('value')).toHaveTextContent('Apple');
+    });
+
+    it("keeps a null item's label overriding the placeholder", async () => {
+      const withNullItem = [{ value: null, label: 'None' }, ...labeledItems];
+
+      function App() {
+        const items = Combobox.useItems(withNullItem);
+        return (
+          <Combobox.Root items={items}>
+            <span data-testid="value">
+              <Combobox.Value placeholder="Pick one" />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('value')).toHaveTextContent('None');
+    });
   });
 
   describe('integration', () => {
@@ -488,6 +551,137 @@ describe('Combobox.useItems', () => {
       expect(screen.getByDisplayValue('2')).toHaveAttribute('name', 'users');
     });
 
+    it('serializes a derived value in single mode', async () => {
+      function App() {
+        const items = useUserItems();
+        return <Combobox.Root items={items} name="user" defaultValue={2} />;
+      }
+
+      await render(<App />);
+
+      expect(screen.getByDisplayValue('2')).toHaveAttribute('name', 'user');
+    });
+
+    it('renders every selected label via Combobox.Value in multiple mode', async () => {
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} multiple defaultValue={[1, 2]}>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Alice, Bob');
+    });
+
+    it('projects externally filtered source items into the derived value domain', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[users[2]]}
+            defaultOpen
+            onValueChange={onValueChange}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(3);
+    });
+
+    it('resolves virtualized collection items that omit an explicit value', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('option', { name: 'Bob' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
+    });
+
+    it('resolves a falsy derived value as a selection rather than as no selection', async () => {
+      const zeroUsers = [
+        { id: 0, name: 'Zero' },
+        { id: 1, name: 'One' },
+      ];
+
+      function App() {
+        const items = Combobox.useItems(zeroUsers, { value: getUserId, label: getUserName });
+        return (
+          <Combobox.Root items={items} defaultValue={0} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <span data-testid="value">
+              <Combobox.Value placeholder="Pick one" />
+            </span>
+            <Combobox.List>
+              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Zero');
+      expect(screen.getByTestId('value')).toHaveTextContent('Zero');
+      expect(screen.getByRole('option', { name: 'Zero' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('resolves a duplicated derived value to the same label regardless of lookup order', async () => {
+      const duplicated = [
+        { id: 1, name: 'First' },
+        { id: 2, name: 'Bob' },
+        { id: 1, name: 'Clone' },
+      ];
+
+      function App(props: { value: number }) {
+        const items = Combobox.useItems(duplicated, { value: getUserId, label: getUserName });
+        return (
+          <Combobox.Root items={items} value={props.value}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      // Resolving a value that is absent first forces the lazy label index to run to completion,
+      // which must not change what the duplicated value resolves to.
+      const { setProps } = await render(<App value={99} />);
+      await setProps({ value: 1 });
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('First');
+    });
+
     it('selects the derived value with the keyboard', async () => {
       const onValueChange = vi.fn();
 
@@ -556,7 +750,7 @@ describe('Combobox.useItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
-    it('uses the derived value when an item also has an explicit value', async () => {
+    it('lets an explicit item value override the derived value', async () => {
       const onValueChange = vi.fn();
 
       function App() {
@@ -579,7 +773,7 @@ describe('Combobox.useItems', () => {
 
       await user.click(screen.getByRole('option', { name: 'Bob' }));
 
-      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-2');
     });
 
     it('stops filtering when the limit is reached', async () => {
@@ -709,10 +903,15 @@ describe('Combobox.useItems', () => {
         );
       }
 
-      await render(<App />);
+      const { user } = await render(<App />);
 
-      expect(getValue.mock.calls.every(([item]) => !('items' in item))).toBe(true);
-      expect(getLabel.mock.calls.every(([item]) => !('items' in item))).toBe(true);
+      // Resolving a selection forces both accessors to run over the collection.
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(new Set(getValue.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
+      expect(new Set(getLabel.mock.calls.map(([item]) => item.name))).toEqual(
+        new Set(['Alice', 'Bob', 'Carol']),
+      );
     });
   });
 });

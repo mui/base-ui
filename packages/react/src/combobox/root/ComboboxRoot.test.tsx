@@ -5039,6 +5039,25 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('Ambrosia');
     });
 
+    it('reports a single input value change when the controlled value changes', async () => {
+      const onInputValueChange = vi.fn();
+      const items = [
+        { value: 'a', label: 'Apple' },
+        { value: 'b', label: 'Banana' },
+      ];
+
+      const { setProps } = await render(
+        <Combobox.Root items={items} value={items[0]} onInputValueChange={onInputValueChange}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      await setProps({ value: items[1] });
+
+      expect(screen.getByRole<HTMLInputElement>('combobox')).toHaveValue('Banana');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+    });
+
     it('restores derived input after items load asynchronously', async () => {
       const { setProps } = await render(
         <Combobox.Root items={[]} value="banana">

@@ -2105,7 +2105,9 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).toHaveValue('Canada');
     });
   });
 
