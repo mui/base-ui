@@ -72,27 +72,60 @@ function findRepresentativeInput(
  */
 const ownedCustomValidity = new WeakMap<HTMLInputElement, string>();
 
+/**
+ * Messages set by other code that an owned message overwrote. Restoring one when the owned message
+ * is cleared keeps a condition this hook doesn't know about from disappearing behind a validator
+ * error that has since been resolved.
+ */
+const displacedCustomValidity = new WeakMap<HTMLInputElement, string>();
+
+/**
+ * Browsers normalize line breaks in custom validity messages — Chromium reports `\r\n` and `\r` as
+ * `\n` — so ownership has to be matched on normalized text. Comparing raw text would read a
+ * multi-line owned message back as foreign and strand it on the control.
+ */
+function normalizeValidationMessage(message: string) {
+  return message.replace(/\r\n?/g, '\n');
+}
+
+function hasOwnCustomValidity(element: HTMLInputElement) {
+  const ownMessage = ownedCustomValidity.get(element);
+  if (ownMessage === undefined) {
+    return false;
+  }
+  // Elements barred from constraint validation (disabled ones, for example) report an empty
+  // `validationMessage`, so there is nothing to compare and the recorded message stands.
+  return (
+    !element.willValidate || normalizeValidationMessage(element.validationMessage) === ownMessage
+  );
+}
+
 function setOwnCustomValidity(element: HTMLInputElement, message: string) {
+  if (element.willValidate && element.validity.customError && !hasOwnCustomValidity(element)) {
+    displacedCustomValidity.set(element, element.validationMessage);
+  }
+
   element.setCustomValidity(message);
-  ownedCustomValidity.set(element, message);
+  ownedCustomValidity.set(element, normalizeValidationMessage(message));
 }
 
 function clearOwnCustomValidity(element: HTMLInputElement) {
-  const ownMessage = ownedCustomValidity.get(element);
-  if (ownMessage === undefined) {
+  if (!ownedCustomValidity.has(element)) {
     return;
   }
 
-  // Another message replaced the owned one, so it is no longer this hook's to clear. Elements
-  // barred from constraint validation (disabled ones, for example) report an empty
-  // `validationMessage`, so the comparison is skipped there and the clear proceeds.
-  if (element.willValidate && element.validationMessage !== ownMessage) {
+  if (!hasOwnCustomValidity(element)) {
+    // Another message replaced the owned one, so it is no longer this hook's to clear — and it
+    // superseded whatever that owned message had displaced.
     ownedCustomValidity.delete(element);
+    displacedCustomValidity.delete(element);
     return;
   }
 
-  element.setCustomValidity('');
+  // Hand the control back to the message the owned one overwrote, if there was one.
+  element.setCustomValidity(displacedCustomValidity.get(element) ?? '');
   ownedCustomValidity.delete(element);
+  displacedCustomValidity.delete(element);
 }
 
 function clearCustomValidity(element: HTMLInputElement | null, inputs: RegisteredInputs) {
@@ -190,10 +223,13 @@ export function useFieldValidation(
     // A field can own several inputs (such as a checkbox or radio group), but only the last-mounted
     // one wins the shared `inputRef`. Validate against the registry instead so every input counts;
     // `inputRef` is the fallback only when no inputs are registered.
-    const element =
-      registeredInputs.size > 0
+    function resolveRepresentativeInput() {
+      return registeredInputs.size > 0
         ? findRepresentativeInput(registeredInputs, elementRef.current)
         : inputRef.current;
+    }
+
+    const element = resolveRepresentativeInput();
     // A field with no eligible input has no native constraint, but its custom validator still
     // applies to the logical value at the configured validation boundary.
 
@@ -336,18 +372,20 @@ export function useFieldValidation(
       } else if (isValidatingOnChange) {
         // The validate function returned no errors, so clear the custom validity this hook set.
         clearCustomValidity(element, registeredInputs);
-        // A message set outside of this hook survives the clear above and may even have appeared
-        // while an async `validate` was pending, after `nextState` was snapshotted, so read the
-        // remaining custom error off the element and re-derive `valid` with it.
-        nextState.customError = element?.validity.customError ?? false;
-        if (nextState.customError) {
-          nextState.valid = false;
-        }
 
-        if (element && element.validationMessage) {
-          defaultValidationMessage = element.validationMessage;
-          validationErrors = [element.validationMessage];
-        } else if ((!element || element.validity.valid) && !nextState.valid) {
+        // Clearing can hand representative status to another registered input that kept a message
+        // of its own, and an awaited `validate` may have let the DOM move on since `nextState` was
+        // snapshotted, so resolve the representative again and read the state off it.
+        const currentElement = resolveRepresentativeInput();
+        Object.assign(
+          nextState,
+          currentElement ? getState(currentElement) : { ...DEFAULT_VALIDITY_STATE, valid: true },
+        );
+
+        if (currentElement && currentElement.validationMessage) {
+          defaultValidationMessage = currentElement.validationMessage;
+          validationErrors = [currentElement.validationMessage];
+        } else if ((!currentElement || currentElement.validity.valid) && !nextState.valid) {
           nextState.valid = true;
         }
       }

@@ -987,6 +987,74 @@ describe('<Field.Root />', () => {
       expect(screen.queryByTestId('error')).toBe(null);
     });
 
+    it('restores a message its own error overwrote', async () => {
+      let shouldFail = false;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'own error' : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      control.setCustomValidity('external error');
+
+      shouldFail = true;
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validationMessage).toBe('own error');
+
+      // The external condition still applies once the field's own error is resolved.
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('external error');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
+    it('keeps a message set outside the field on another input of the group', async () => {
+      let shouldFail = true;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'own error' : null)}
+        >
+          <CheckboxGroup>
+            <Field.Item>
+              <Checkbox.Root value="a" data-testid="a" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="b" data-testid="b" />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const [first, second] = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      expect(first.validationMessage).toBe('own error');
+
+      second.setCustomValidity('external error');
+
+      // The field's own error resolves, but the group is still invalid through the other input.
+      shouldFail = false;
+      fireEvent.click(screen.getByTestId('b'));
+
+      expect(first.validationMessage).toBe('');
+      expect(second.validationMessage).toBe('external error');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
     it('clears a multi-line message it set itself', async () => {
       let shouldFail = true;
       await render(
@@ -1004,6 +1072,32 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 'a' } });
       expect(control.validationMessage).toBe('error one\nerror two');
+
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'ab' } });
+
+      expect(control.validationMessage).toBe('');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('clears a message it set itself with CRLF line breaks', async () => {
+      // Chromium reports `\r\n` back as `\n`, so ownership has to survive that normalization.
+      let shouldFail = true;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'error one\r\nerror two' : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validity.customError).toBe(true);
 
       shouldFail = false;
       fireEvent.change(control, { target: { value: 'ab' } });
