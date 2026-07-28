@@ -90,39 +90,40 @@ export function createComboboxItems<Item, Value>(
 
   const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
 
-  let itemValues: Map<Item, Value> | null = null;
-  let valueToItem: Map<Value, Item> | null = null;
+  let derived: { itemValues: Map<Item, Value>; valueToItem: Map<Value, Item> } | null = null;
 
   // Both caches are filled by a single pass, so the accessors never run before a root consumes
   // the collection and `getValue` never runs more than once per item.
   function ensureDerived() {
-    if (itemValues !== null) {
-      return;
-    }
+    if (derived === null) {
+      const itemValues = new Map<Item, Value>();
+      const valueToItem = new Map<Value, Item>();
 
-    itemValues = new Map<Item, Value>();
-    valueToItem = new Map<Value, Item>();
+      const leafItems = isGroupedItems(resolvedData)
+        ? (resolvedData as readonly Group<Item>[]).flatMap((group) => group.items)
+        : (resolvedData as readonly Item[]);
 
-    const leafItems = isGroupedItems(resolvedData)
-      ? (resolvedData as readonly Group<Item>[]).flatMap((group) => group.items)
-      : (resolvedData as readonly Item[]);
-
-    for (const item of leafItems) {
-      const derivedValue = itemToValue(item);
-      itemValues.set(item, derivedValue);
-      // First occurrence wins, so a duplicated derived value resolves to one stable label.
-      if (!valueToItem.has(derivedValue)) {
-        valueToItem.set(derivedValue, item);
+      for (const item of leafItems) {
+        const derivedValue = itemToValue(item);
+        itemValues.set(item, derivedValue);
+        // First occurrence wins, so a duplicated derived value resolves to one stable label.
+        if (!valueToItem.has(derivedValue)) {
+          valueToItem.set(derivedValue, item);
+        }
       }
+
+      derived = { itemValues, valueToItem };
     }
+
+    return derived;
   }
 
   // The root feeds this function to memos and effects, so its identity must stay stable.
   function value(item: Item): Value {
-    ensureDerived();
-    // Externally filtered items may be absent from the data, and a derived value can be nullish,
-    // so presence decides whether the cache applies rather than the cached value itself.
-    return itemValues!.has(item) ? itemValues!.get(item)! : itemToValue(item);
+    const cached = ensureDerived().itemValues.get(item);
+    // Externally filtered items may be absent from the data, so a miss recomputes. An item whose
+    // cached value is `undefined` also recomputes, which the accessor's purity makes equivalent.
+    return cached === undefined ? itemToValue(item) : cached;
   }
 
   // Routed through the cached projection so filtering with the default label spends no extra
@@ -134,16 +135,17 @@ export function createComboboxItems<Item, Value>(
     value,
     itemLabel: itemToLabel,
     label: (itemValue: Value, isItemEqualToValue?: ItemEqualityComparer<Value> | undefined) => {
-      ensureDerived();
+      const { valueToItem } = ensureDerived();
 
-      if (valueToItem!.has(itemValue)) {
-        return itemToLabel(valueToItem!.get(itemValue)!);
+      const exactItem = valueToItem.get(itemValue);
+      if (exactItem !== undefined) {
+        return itemToLabel(exactItem);
       }
 
       // The exact lookup above already covers identity, so only a custom comparer can still
       // match. Skipping the scan for the default keeps the O(n) comparison off the common path.
       if (isItemEqualToValue && isItemEqualToValue !== defaultItemEquality) {
-        for (const [valueToCompare, item] of valueToItem!) {
+        for (const [valueToCompare, item] of valueToItem) {
           if (compareItemEquality(valueToCompare, itemValue, isItemEqualToValue)) {
             return itemToLabel(item);
           }
