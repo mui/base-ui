@@ -124,6 +124,31 @@ describe.skipIf(!isJSDOM)('useClick', () => {
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
   });
 
+  test('cancels a pending mousedown open when Escape is pressed', async () => {
+    const frameCallbacks: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.push(callback);
+      return frameCallbacks.length;
+    });
+    const onOpenChange = vi.fn();
+
+    render(<App event="mousedown" onOpenChange={onOpenChange} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.pointerDown(button, { pointerType: 'mouse' });
+    fireEvent.mouseDown(button);
+    act(() => button.focus());
+    fireEvent.keyDown(button, { key: 'Escape' });
+
+    await act(async () => {
+      frameCallbacks.forEach((callback) => callback(0));
+    });
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   test('closes from the mousedown event path', async () => {
     render(<App event="mousedown" initialOpen />);
 
@@ -174,6 +199,27 @@ describe.skipIf(!isJSDOM)('useClick', () => {
     });
 
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
+  });
+
+  test('cancels a delayed touch open when Escape is pressed', async () => {
+    vi.useFakeTimers();
+    const onOpenChange = vi.fn();
+
+    render(<App touchOpenDelay={100} onOpenChange={onOpenChange} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button);
+    act(() => button.focus());
+    fireEvent.keyDown(button, { key: 'Escape' });
+
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   test('delays touch opening from the deferred mousedown event path', async () => {
