@@ -28,6 +28,10 @@ export enum ComboboxPopupDataAttributes {
    */
   align = CommonPopupDataAttributes.align,
   /**
+   * Present when the anchor is hidden.
+   */
+  anchorHidden = CommonPopupDataAttributes.anchorHidden,
+  /**
    * Present when the items list is empty.
    */
   empty = 'data-empty',

@@ -563,6 +563,7 @@ Renders a `<div>` element.
 | :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
+| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
