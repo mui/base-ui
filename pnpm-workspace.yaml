@@ -12,6 +12,10 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
+# Screen recording is not needed for the tests and pulls in ffmpeg-static.
+overrides:
+  '@guidepup/setup>@guidepup/record': '-'
+
 engineStrict: true
 updateNotifier: false
 blockExoticSubdeps: true
