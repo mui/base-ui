@@ -554,7 +554,7 @@ function useMenuRootStore<Payload>(initialState: Partial<MenuStoreState<Payload>
   // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
   // Default values are only initial values; controlled values and root state are synced after creation.
   // Unlike other popups, Menu wires its floating root context separately (it relays open changes
-  // through an event), so it only borrows the shared handle-attachment behavior here.
+  // through an event).
   const store = useRefWithInit(() => new MenuStore<Payload>(initialState)).current;
 
   return store;
