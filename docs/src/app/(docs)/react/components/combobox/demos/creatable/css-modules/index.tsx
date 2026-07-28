@@ -169,14 +169,14 @@ export default function ExampleCreatableCombobox() {
               <Combobox.List>
                 {(item: LabelItem) =>
                   item.creatable ? (
-                    <Combobox.Item key={item.id} className={styles.Item}>
+                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
                       <span className={styles.ItemIndicator}>
                         <PlusIcon />
                       </span>
                       <span className={styles.ItemText}>Create "{item.creatable}"</span>
                     </Combobox.Item>
                   ) : (
-                    <Combobox.Item key={item.id} className={styles.Item}>
+                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
                       <Combobox.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon />
                       </Combobox.ItemIndicator>

@@ -428,6 +428,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       selectedValue,
       open,
       items: collection ? undefined : items,
+      itemToValue,
       selectionMode,
       listRef,
       labelsRef,
@@ -1348,6 +1349,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       mounted,
       transitionStatus,
       items: collection ? undefined : items,
+      itemToValue,
       inline: inlineProp,
       popupProps,
       listProps,
@@ -1381,6 +1383,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     transitionStatus,
     items,
     collection,
+    itemToValue,
     popupProps,
     listProps,
     inputProps,
@@ -1413,9 +1416,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       hasItems,
       filteredItems,
       flatFilteredValues,
-      itemToValue,
     }),
-    [query, hasItems, filteredItems, flatFilteredValues, itemToValue],
+    [query, hasItems, filteredItems, flatFilteredValues],
   );
 
   const serializedValue = React.useMemo(() => {

@@ -16,7 +16,17 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
-import { NO_COMBOBOX_ITEM_VALUE, useComboboxItemValueContext } from './ComboboxItemValueContext';
+
+/**
+ * Projects an item's `value` through the collection, keeping the item its own value when there
+ * isn't one.
+ */
+function resolveItemValue(value: any, itemToValue: ((item: any) => any) | undefined) {
+  if (value == null) {
+    return null;
+  }
+  return itemToValue ? itemToValue(value) : value;
+}
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -47,10 +57,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     ...elementProps
   } = componentProps;
 
-  const collectionItemValue = useComboboxItemValueContext();
-  const fallbackValue = collectionItemValue !== NO_COMBOBOX_ITEM_VALUE ? collectionItemValue : null;
-  const itemValue = valueProp !== undefined ? valueProp : fallbackValue;
-
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
     guess: true,
@@ -66,6 +72,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const itemToValue = useStore(store, selectors.itemToValue);
+
+  const itemValue = resolveItemValue(valueProp, itemToValue);
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
@@ -228,14 +237,10 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const itemToValue = useStore(store, selectors.itemToValue);
   const { flatFilteredValues } = useComboboxDerivedItemsContext();
-  const collectionItemValue = useComboboxItemValueContext();
 
-  // Inside a collection the source item is the positional identity when `value` is omitted.
-  const lookupValue =
-    componentProps.value === undefined && collectionItemValue !== NO_COMBOBOX_ITEM_VALUE
-      ? collectionItemValue
-      : (componentProps.value ?? null);
+  const lookupValue = resolveItemValue(componentProps.value, itemToValue);
   const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
@@ -312,9 +317,8 @@ export interface ComboboxItemProps
   index?: number | undefined;
   /**
    * A unique value that identifies this item.
-   * Defaults to the collection-provided value when rendered by a collection function child: the
-   * source item for ordinary collections, or the `value` accessor result for collections created
-   * by `useItems()`.
+   * With a `useItems()` collection, pass the item itself; its `value` accessor derives the
+   * selection value.
    * @default null
    */
   value?: any;

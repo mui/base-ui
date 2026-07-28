@@ -113,7 +113,7 @@ function ReactHookForm() {
                     <Combobox.List>
                       {(region: string) => {
                         return (
-                          <Combobox.Item key={region}>
+                          <Combobox.Item key={region} value={region}>
                             <Combobox.ItemIndicator>
                               <CheckIcon />
                             </Combobox.ItemIndicator>
@@ -162,7 +162,7 @@ function ReactHookForm() {
                     <Autocomplete.List>
                       {(image: Image) => {
                         return (
-                          <Autocomplete.Item key={image.url}>
+                          <Autocomplete.Item key={image.url} value={image}>
                             <span>{image.name}</span>
                             <span className="font-mono whitespace-nowrap text-xs opacity-80">
                               {image.url}

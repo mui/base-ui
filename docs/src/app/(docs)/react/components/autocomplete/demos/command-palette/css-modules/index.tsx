@@ -59,6 +59,7 @@ export default function ExampleAutocompleteCommandPalette() {
                             {(item: Item) => (
                               <Autocomplete.Item
                                 key={item.value}
+                                value={item}
                                 className={styles.Item}
                                 onClick={handleItemClick}
                               >

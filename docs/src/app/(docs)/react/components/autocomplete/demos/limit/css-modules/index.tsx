@@ -36,7 +36,7 @@ export default function ExampleAutocompleteLimit() {
 
             <Autocomplete.List>
               {(tag: Tag) => (
-                <Autocomplete.Item key={tag.id} className={styles.Item}>
+                <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                   {tag.value}
                 </Autocomplete.Item>
               )}

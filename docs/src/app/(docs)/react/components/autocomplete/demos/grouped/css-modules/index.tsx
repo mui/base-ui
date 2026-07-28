@@ -24,7 +24,7 @@ export default function ExampleGroupAutocomplete() {
                   </Autocomplete.GroupLabel>
                   <Autocomplete.Collection>
                     {(tag: Tag) => (
-                      <Autocomplete.Item key={tag.id} className={styles.Item}>
+                      <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                         {tag.label}
                       </Autocomplete.Item>
                     )}

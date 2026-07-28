@@ -2023,7 +2023,9 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { label: string }) => (
-                    <Autocomplete.Item key={item.label}>{item.label}</Autocomplete.Item>
+                    <Autocomplete.Item key={item.label} value={item}>
+                      {item.label}
+                    </Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
@@ -2056,7 +2058,9 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { country: string }) => (
-                    <Autocomplete.Item key={item.country}>{item.country}</Autocomplete.Item>
+                    <Autocomplete.Item key={item.country} value={item}>
+                      {item.country}
+                    </Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
@@ -2090,7 +2094,9 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Popup>
                 <Autocomplete.List>
                   {(item: { value: string }) => (
-                    <Autocomplete.Item key={item.value}>{item.value}</Autocomplete.Item>
+                    <Autocomplete.Item key={item.value} value={item}>
+                      {item.value}
+                    </Autocomplete.Item>
                   )}
                 </Autocomplete.List>
               </Autocomplete.Popup>

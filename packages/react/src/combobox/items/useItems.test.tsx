@@ -115,7 +115,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -136,7 +140,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} defaultValue={3}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -157,7 +165,11 @@ describe('Combobox.useItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -200,7 +212,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -221,7 +237,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} itemToStringLabel={(id: number) => `User ${id}`} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -271,7 +291,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} locale="tr" defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(city: string) => <Combobox.Item key={city}>{city}</Combobox.Item>}
+              {(city: string) => (
+                <Combobox.Item key={city} value={city}>
+                  {city}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -369,7 +393,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} filter={filter} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -410,7 +438,11 @@ describe('Combobox.useItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(contact: Contact) => <Combobox.Item key={contact.id}>{contact.name}</Combobox.Item>}
+              {(contact: Contact) => (
+                <Combobox.Item key={contact.id} value={contact}>
+                  {contact.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -475,7 +507,11 @@ describe('Combobox.useItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -593,7 +629,11 @@ describe('Combobox.useItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -608,7 +648,7 @@ describe('Combobox.useItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
-    it('resolves virtualized collection items that omit an explicit value', async () => {
+    it('resolves virtualized collection items to their derived value', async () => {
       const onValueChange = vi.fn();
 
       function App() {
@@ -617,7 +657,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -645,7 +689,11 @@ describe('Combobox.useItems', () => {
               <Combobox.Value placeholder="Pick one" />
             </span>
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -691,7 +739,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -714,7 +766,7 @@ describe('Combobox.useItems', () => {
       function VirtualizedItems() {
         const filteredItems = Combobox.useFilteredItems<User>();
         return filteredItems.slice(0, 1).map((user) => (
-          <Combobox.Item key={user.id} value={user.id}>
+          <Combobox.Item key={user.id} value={user}>
             {user.name}
           </Combobox.Item>
         ));
@@ -750,7 +802,7 @@ describe('Combobox.useItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
-    it('lets an explicit item value override the derived value', async () => {
+    it('projects the source item of individually rendered items', async () => {
       const onValueChange = vi.fn();
 
       function App() {
@@ -759,11 +811,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input />
             <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={`explicit-${user.id}`}>
+              {users.map((user) => (
+                <Combobox.Item key={user.id} value={user}>
                   {user.name}
                 </Combobox.Item>
-              )}
+              ))}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -773,7 +825,7 @@ describe('Combobox.useItems', () => {
 
       await user.click(screen.getByRole('option', { name: 'Bob' }));
 
-      expect(onValueChange.mock.lastCall?.[0]).toBe('explicit-2');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
     it('stops filtering when the limit is reached', async () => {
@@ -789,7 +841,11 @@ describe('Combobox.useItems', () => {
           <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -829,7 +885,11 @@ describe('Combobox.useItems', () => {
               <Combobox.Group key={group.value} items={group.items}>
                 <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
                 <Combobox.Collection>
-                  {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                  {(user: User) => (
+                    <Combobox.Item key={user.id} value={user}>
+                      {user.name}
+                    </Combobox.Item>
+                  )}
                 </Combobox.Collection>
               </Combobox.Group>
             )}
@@ -894,7 +954,11 @@ describe('Combobox.useItems', () => {
               {(group: Team) => (
                 <Combobox.Group key={group.value} items={group.items}>
                   <Combobox.Collection>
-                    {(user: User) => <Combobox.Item key={user.id}>{user.name}</Combobox.Item>}
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
                   </Combobox.Collection>
                 </Combobox.Group>
               )}

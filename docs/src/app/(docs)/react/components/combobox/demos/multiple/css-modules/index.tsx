@@ -52,7 +52,7 @@ export default function ExampleMultipleCombobox() {
             </Combobox.Empty>
             <Combobox.List>
               {(language: ProgrammingLanguage) => (
-                <Combobox.Item key={language.id} className={styles.Item}>
+                <Combobox.Item key={language.id} className={styles.Item} value={language}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>
