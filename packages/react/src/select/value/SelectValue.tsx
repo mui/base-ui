@@ -51,7 +51,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     children = childrenProp(value);
   } else if (childrenProp != null) {
     children = childrenProp;
-  } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+  } else if (shouldCheckNullItemLabel && !hasNullLabel) {
     children = placeholder;
   } else if (Array.isArray(value)) {
     children = resolveMultipleLabels(value, items, itemToStringLabel);

@@ -3,10 +3,7 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
-import {
-  IndexGuessBehavior,
-  useCompositeListItem,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -65,9 +62,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     value,
   } = useOTPFieldRootContext();
 
-  const { ref: listItemRef, index } = useCompositeListItem({
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
-  });
+  const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const direction = useDirection();
 
@@ -77,6 +72,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inheritedLabel = externalAriaLabelledBy ?? inputAriaLabelledBy;
   const ariaLabel = index === 0 ? undefined : slotAriaLabel;
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -280,6 +276,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       try {
         rawValue = event.clipboardData?.getData('text/plain') ?? '';
       } catch {
+        /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           warn(
@@ -348,7 +345,11 @@ export interface OTPFieldInputState extends Omit<OTPFieldRootState, 'filled' | '
   value: string;
 }
 
-export interface OTPFieldInputProps extends BaseUIComponentProps<'input', OTPFieldInputState> {}
+export interface OTPFieldInputProps extends BaseUIComponentProps<
+  'input',
+  OTPFieldInputState,
+  React.ComponentPropsWithRef<'input'>
+> {}
 
 export namespace OTPFieldInput {
   export type State = OTPFieldInputState;

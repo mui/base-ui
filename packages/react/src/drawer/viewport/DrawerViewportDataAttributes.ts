@@ -10,7 +10,7 @@ export enum DrawerViewportDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the drawer is animating in.
+   * Present when the drawer begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

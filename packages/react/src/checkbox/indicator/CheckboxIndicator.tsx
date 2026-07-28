@@ -2,14 +2,13 @@
 import * as React from 'react';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import type { CheckboxRootState } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
 /**
  * Indicates whether the checkbox is ticked.
@@ -46,12 +45,11 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     },
   });
 
-  const baseStateAttributesMapping = useStateAttributesMapping(rootState);
+  const baseStateAttributesMapping = getCheckboxStateAttributesMapping(rootState);
 
   const stateAttributesMapping: StateAttributesMapping<CheckboxIndicatorState> = {
     ...baseStateAttributesMapping,
     ...transitionStatusMapping,
-    ...fieldValidityMapping,
   };
 
   const shouldRender = keepMounted || mounted;

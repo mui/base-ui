@@ -149,6 +149,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     setFilled(filled);
   }, [filled, setFilled]);
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useOTPFieldRootDevWarnings({
@@ -171,6 +172,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   function requestSubmit() {
+    // The hidden validation input only renders for a valid `length`, but the slots always do,
+    // so fall back to the owning form of the first slot.
     let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
@@ -199,16 +202,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     validation.change(value);
 
-    const pendingCompleteValue = pendingCompleteValueRef.current;
-
-    if (pendingCompleteValue != null) {
-      pendingCompleteValueRef.current = null;
-
-      if (pendingCompleteValue.value === value) {
-        completeValue(value, pendingCompleteValue.eventDetails);
-      }
-    }
-
     const pendingFocus = pendingFocusRef.current;
 
     if (pendingFocus != null) {
@@ -218,15 +211,28 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         focusInput(pendingFocus.index);
       }
     }
+
+    const pendingCompleteValue = pendingCompleteValueRef.current;
+
+    if (pendingCompleteValue != null) {
+      pendingCompleteValueRef.current = null;
+
+      if (pendingCompleteValue.value === value) {
+        completeValue(value, pendingCompleteValue.eventDetails);
+      }
+    }
   });
 
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
+      const canComplete =
+        details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste;
       const completeEventDetails =
+        canComplete &&
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
-          ? getCompleteEventDetails(details)
+          ? createGenericEventDetails(details.reason, details.event)
           : null;
 
       if (normalizedValue === valueRef.current) {
@@ -452,14 +458,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     </CompositeList>
   );
 });
-
-function getCompleteEventDetails(details: OTPFieldRoot.ChangeEventDetails) {
-  if (details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste) {
-    return createGenericEventDetails(details.reason, details.event);
-  }
-
-  return null;
-}
 
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,

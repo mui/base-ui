@@ -58,7 +58,9 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
     id: defaultLabelId,
     fallbackControlId: localControlId,
     setLabelId(nextLabelId) {
-      store.set('labelId', nextLabelId);
+      const resolvedLabelId =
+        typeof nextLabelId === 'function' ? nextLabelId(store.state.labelId) : nextLabelId;
+      store.set('labelId', resolvedLabelId);
     },
   });
 
@@ -70,10 +72,10 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
   });
 });
 
-export type ComboboxLabelState = FieldRoot.State;
+export interface ComboboxLabelState extends FieldRoot.State {}
 
 export interface ComboboxLabelProps extends Omit<
-  BaseUIComponentProps<'div', ComboboxLabel.State>,
+  BaseUIComponentProps<'div', ComboboxLabelState>,
   'id'
 > {}
 

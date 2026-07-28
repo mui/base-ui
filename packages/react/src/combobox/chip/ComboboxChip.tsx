@@ -13,6 +13,7 @@ import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { getChipNavigationKeys, getIndexAfterChipRemoval } from '../utils/parts';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -38,9 +39,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     let nextIndex: number | undefined = index;
-    const isRtl = direction === 'rtl';
-    const previousChipKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
-    const nextChipKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
+    const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
 
     if (event.key === previousChipKey) {
       event.preventDefault();
@@ -57,9 +56,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         nextIndex = undefined;
       }
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
-      const computedNextIndex =
-        index >= selectedValue.length - 1 ? selectedValue.length - 2 : index;
-      nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
+      nextIndex = getIndexAfterChipRemoval(index, selectedValue.length);
 
       stopEvent(event);
 

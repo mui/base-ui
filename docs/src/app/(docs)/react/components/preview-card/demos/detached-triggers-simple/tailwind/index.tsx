@@ -6,7 +6,7 @@ const demoPreviewCard = PreviewCard.createHandle();
 export default function PreviewCardDetachedTriggersSimpleDemo() {
   return (
     <div>
-      <p className="m-0 text-base text-neutral-950 text-balance dark:text-white">
+      <p className="text-base text-neutral-950 text-balance dark:text-white">
         The principles of good{' '}
         <PreviewCard.Trigger
           className="text-neutral-950 underline decoration-neutral-950/60 decoration-1 underline-offset-2 outline-0 hover:decoration-neutral-950 data-popup-open:decoration-neutral-950 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-neutral-950 dark:text-white dark:decoration-white/60 dark:hover:decoration-white dark:data-popup-open:decoration-white dark:focus-visible:outline-white"
@@ -31,7 +31,7 @@ export default function PreviewCardDetachedTriggersSimpleDemo() {
                   src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
                   alt="Station Hofplein signage in Rotterdam, Netherlands"
                 />
-                <p className="m-0 text-sm text-pretty">
+                <p className="text-sm">
                   <strong>Typography</strong> is the art and science of arranging type to make
                   written language clear, visually appealing, and effective in communication.
                 </p>

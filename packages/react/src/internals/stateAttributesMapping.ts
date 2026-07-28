@@ -3,7 +3,7 @@ import type { StateAttributesMapping } from './getStateAttributesProps';
 
 export enum TransitionStatusDataAttributes {
   /**
-   * Present when the component is animating in.
+   * Present when the component begins animating in.
    */
   startingStyle = 'data-starting-style',
   /**
@@ -12,8 +12,8 @@ export enum TransitionStatusDataAttributes {
   endingStyle = 'data-ending-style',
 }
 
-const STARTING_HOOK = { [TransitionStatusDataAttributes.startingStyle]: '' };
-const ENDING_HOOK = { [TransitionStatusDataAttributes.endingStyle]: '' };
+const STARTING_HOOK = { 'data-starting-style': '' };
+const ENDING_HOOK = { 'data-ending-style': '' };
 
 export const transitionStatusMapping = {
   transitionStatus(value): Record<string, string> | null {

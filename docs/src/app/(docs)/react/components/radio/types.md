@@ -97,7 +97,7 @@ Renders a `<span>` element.
 | data-touched        | -    | Present when the radio has been touched (when wrapped in Field.Root).       |
 | data-filled         | -    | Present when the radio is checked (when wrapped in Field.Root).             |
 | data-focused        | -    | Present when the radio is focused (when wrapped in Field.Root).             |
-| data-starting-style | -    | Present when the radio indicator is animating in.                           |
+| data-starting-style | -    | Present when the radio indicator begins animating in.                       |
 | data-ending-style   | -    | Present when the radio indicator is animating out.                          |
 
 ### Indicator.Props

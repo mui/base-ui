@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -73,6 +73,47 @@ describe('<Combobox.Positioner />', () => {
       );
     },
   }));
+
+  // https://github.com/mui/base-ui/issues/5118
+  it.skipIf(isJSDOM)(
+    'keeps the popup on the preferred side when its capped height fits below tall content',
+    async () => {
+      const items = Array.from({ length: 40 }, (_, index) => `item-${index}`);
+
+      await render(
+        // Anchor fixed near the bottom of the viewport: less room below than above,
+        // but still more than the List's capped height.
+        <div style={{ position: 'fixed', bottom: 120, left: 100 }}>
+          <Combobox.Root open items={items}>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner data-testid="positioner" side="bottom" sideOffset={0}>
+                <Combobox.Popup>
+                  <Combobox.List
+                    style={{ maxHeight: 'min(80px, var(--available-height))', overflowY: 'auto' }}
+                  >
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item} style={{ height: 30 }}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </div>,
+      );
+
+      // The 40-item list (~1200px) overflows the room below the anchor, but the List is
+      // capped to 80px which fits. The `--available-height` var must be seeded before
+      // `size()` runs, otherwise `min(80px, var(--available-height))` is invalid on the
+      // first `flip()` pass, the list is measured at full height, and the popup flips up.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'bottom');
+      });
+    },
+  );
 
   describe.skipIf(isJSDOM)('default anchor', () => {
     it('uses the input when input group is absent', async () => {

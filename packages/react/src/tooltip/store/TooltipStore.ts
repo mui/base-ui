@@ -1,19 +1,20 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { NullStore } from '../../utils/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
-  attachPreventUnmountOnClose,
+  applyPopupOpenChange,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setPopupOpenState,
-  usePopupStore,
+  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -25,7 +26,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeOnClick: boolean;
   closeDelay: number;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -34,40 +35,47 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  disabled: createSelector((state: State<unknown>) => state.disabled),
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  isInstantPhase: createSelector((state: State<unknown>) => state.isInstantPhase),
-  trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
-  disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
-  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  disabled: (state: State<unknown>) => state.disabled,
+  instantType: (state: State<unknown>) => state.instantType,
+  isInstantPhase: (state: State<unknown>) => state.isInstantPhase,
+  trackCursorAxis: (state: State<unknown>) => state.trackCursorAxis,
+  disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
+  lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
+  closeOnClick: (state: State<unknown>) => state.closeOnClick,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
 };
+
+type Selectors = typeof selectors;
+
+/**
+ * The store view that detached handle-backed triggers read from. Both the real `TooltipStore` and
+ * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
+ * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
+ * `setOpen`/`cancelPendingOpen` (called directly by the trigger) and `useSyncedValue` — so the
+ * exposed surface can't bypass the open-change pipeline; on the detached fallback store every one of
+ * these mutations is a no-op.
+ */
+export type TooltipHandleStore<Payload> = Pick<
+  TooltipStore<Payload>,
+  PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
+>;
 
 export class TooltipStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
   Context,
-  typeof selectors
+  Selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>>,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = { ...createInitialState<Payload>(), ...initialState };
-
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
-
     super(
-      state,
-      {
-        popupRef: React.createRef<HTMLElement | null>(),
-        onOpenChange: undefined,
-        onOpenChangeComplete: undefined,
-        triggerElements,
-      },
+      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
+      createInitialContext(triggerElements),
       selectors,
     );
   }
@@ -76,53 +84,12 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    const reason = eventDetails.reason;
-
-    const isHover = reason === REASONS.triggerHover;
-    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-    const isDismissClose =
-      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
-
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+    applyPopupOpenChange<State<Payload>, TooltipRoot.ChangeEventDetails>(
+      this,
+      nextOpen,
       eventDetails as TooltipRoot.ChangeEventDetails,
+      { extraState: { openChangeReason: eventDetails.reason } },
     );
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as TooltipRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const changeState = () => {
-      const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
-
-      if (isFocusOpen) {
-        updatedState.instantType = 'focus';
-      } else if (isDismissClose) {
-        updatedState.instantType = 'dismiss';
-      } else if (reason === REASONS.triggerHover) {
-        updatedState.instantType = undefined;
-      }
-
-      setPopupOpenState(
-        updatedState,
-        nextOpen,
-        eventDetails.trigger,
-        shouldPreventUnmountOnClose(),
-      );
-
-      this.update(updatedState);
-    };
-
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
@@ -132,24 +99,33 @@ export class TooltipStore<Payload> extends ReactStore<
       createChangeEventDetails(REASONS.triggerPress, event),
     );
   }
-
-  static useStore<Payload>(
-    externalStore: TooltipStore<Payload> | undefined,
-    initialState?: Partial<State<Payload>>,
-  ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
-
-    return store;
-  }
 }
 
-function createInitialState<Payload>(): State<Payload> {
-  return {
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no `Tooltip.Root`
+ * is attached. It preserves a tooltip-specific trigger registry in context so detached triggers can
+ * register before migrating to the live root store. `setOpen`/`cancelPendingOpen` are no-ops
+ * (matching the inert reads/writes of `NullStore`), so a trigger can call them from hover/click
+ * handlers while detached without any effect.
+ */
+export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
+
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
+    selectors,
+  );
+  return Object.assign(store, { setOpen: NOOP, cancelPendingOpen: NOOP });
+}
+
+function createInitialState<Payload>(
+  initialState: Partial<State<Payload>> | undefined,
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+): State<Payload> {
+  const state: State<Payload> = {
     ...createInitialPopupStoreState<Payload>(),
     disabled: false,
     instantType: undefined,
@@ -159,6 +135,20 @@ function createInitialState<Payload>(): State<Payload> {
     openChangeReason: null,
     closeOnClick: true,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
+    ...initialState,
+  };
+
+  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
+  return state;
+}
+
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
+  return {
+    popupRef: React.createRef<HTMLElement | null>(),
+    onOpenChange: undefined,
+    onOpenChangeComplete: undefined,
+    triggerElements,
   };
 }

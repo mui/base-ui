@@ -103,7 +103,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const keyboardActiveRef = store.state.keyboardActiveRef;
+          const type = store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer';
 
           store.state.setInputValue(
             '',
@@ -115,16 +115,11 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
               Array.isArray(selectedValue) ? [] : null,
               createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
-            store.state.setIndices({
-              activeIndex: null,
-              selectedIndex: null,
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
+            // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
+            // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
+            store.state.setIndices({ activeIndex: null, selectedIndex: null, type });
           } else {
-            store.state.setIndices({
-              activeIndex: null,
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
+            store.state.setIndices({ activeIndex: null, type });
           }
 
           store.state.inputRef.current?.focus();

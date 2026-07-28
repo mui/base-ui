@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Select.Trigger />', () => {
   const { render } = createRenderer();
@@ -13,6 +13,93 @@ describe('<Select.Trigger />', () => {
       return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Select.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Select.Trigger />)).rejects.toThrow(
+        'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'closes an aligned popup when focus lands on the trigger so it is not obscured',
+    async () => {
+      // Focusing the trigger starts its deferred `forceMount` timer, which settles after the
+      // assertions below.
+      ignoreActWarnings();
+      const onOpenChange = vi.fn();
+
+      await render(
+        <div style={{ paddingTop: 200, minHeight: 600 }}>
+          <Select.Root defaultOpen defaultValue="a" onOpenChange={onOpenChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner" alignItemWithTrigger>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      // `data-side="none"` proves the popup is still item-aligned over the trigger.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+      });
+
+      fireEvent.focus(trigger);
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      expect(onOpenChange).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    },
+  );
+
+  it('keeps a non-aligned popup open when focus lands on the trigger', async () => {
+    // Focusing the trigger starts its deferred `forceMount` timer, which settles after the
+    // assertions below.
+    ignoreActWarnings();
+    const onOpenChange = vi.fn();
+
+    await render(
+      <Select.Root defaultOpen onOpenChange={onOpenChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.focus(trigger);
+
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
 
   describe('disabled state', () => {
     it('cannot be focused when disabled', async () => {

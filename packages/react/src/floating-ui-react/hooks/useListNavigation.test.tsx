@@ -770,7 +770,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).toHaveFocus();
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
@@ -783,7 +783,7 @@ describe('useListNavigation', () => {
       render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
 
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
 
       expect(screen.getByTestId('item-1')).toHaveFocus();
       expect(spy).toHaveBeenCalledWith(1);
@@ -794,7 +794,7 @@ describe('useListNavigation', () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
       fireEvent.click(screen.getByRole('button'));
-      fireEvent.mouseMove(screen.getByTestId('item-1'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'), { movementX: 10, movementY: 10 });
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
@@ -840,7 +840,7 @@ describe('useListNavigation', () => {
         },
       });
 
-      fireEvent.mouseMove(item);
+      fireEvent.mouseMove(item, { movementX: 10, movementY: 10 });
 
       await waitFor(() => {
         expect(item).toHaveFocus();
@@ -1455,7 +1455,6 @@ describe('useListNavigation', () => {
   );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
     function App() {
       const [open, setOpen] = React.useState(false);
       const listRef = React.useRef<Array<HTMLLIElement | null>>([]);

@@ -10,7 +10,7 @@ export enum SelectBackdropDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the select is animating in.
+   * Present when the select begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

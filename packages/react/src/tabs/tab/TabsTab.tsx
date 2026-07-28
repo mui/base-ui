@@ -2,12 +2,14 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
+import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -40,18 +42,15 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const {
     value: activeTabValue,
     getTabPanelIdByValue,
+    onValueChange,
     orientation,
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const {
-    activateOnFocus,
-    highlightedTabIndex,
-    onTabActivation,
-    registerTabResizeObserverElement,
-    setHighlightedTabIndex,
-    tabsListElement,
-  } = useTabsListContext();
+  const { activateOnFocus, registerTabResizeObserverElement, tabsListElement } =
+    useTabsListContext();
+
+  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
 
   const id = useBaseUiId(idProp);
 
@@ -70,16 +69,14 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
-  const tabElementRef = React.useRef<HTMLElement | null>(null);
+  const unobserveTabElementRef = React.useRef<(() => void) | null>(null);
 
-  useIsoLayoutEffect(() => {
-    const tabElement = tabElementRef.current;
-    if (!tabElement) {
-      return undefined;
-    }
-
-    return registerTabResizeObserverElement(tabElement);
-  }, [registerTabResizeObserverElement]);
+  // Registered from the ref callback rather than an effect so the observer
+  // follows the rendered element when the `render` prop swaps the host element.
+  const observeTabElement = useStableCallback((element: HTMLElement | null) => {
+    unobserveTabElementRef.current?.();
+    unobserveTabElementRef.current = element ? registerTabResizeObserverElement(element) : null;
+  });
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
@@ -89,7 +86,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (!(active && index > -1 && highlightedTabIndex !== index)) {
+    if (!(active && index > -1 && highlightedIndex !== index)) {
       return;
     }
 
@@ -107,9 +104,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
     // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
     // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
     if (!disabled) {
-      setHighlightedTabIndex(index);
+      onHighlightedIndexChange(index);
     }
-  }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
+  }, [active, index, highlightedIndex, onHighlightedIndexChange, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -122,12 +119,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
-  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (active || disabled) {
-      return;
-    }
-
-    onTabActivation(
+  // Both callers guard on `!active`, so the current value is never re-committed.
+  function activate(event: React.SyntheticEvent) {
+    onValueChange(
       value,
       createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
@@ -135,31 +129,25 @@ export const TabsTab = React.forwardRef(function TabsTab(
     );
   }
 
-  function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-    if (active) {
+  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
+    if (active || disabled) {
       return;
     }
 
-    // Only highlight enabled tabs when focused (disabled tabs remain focusable via focusableWhenDisabled).
-    if (index > -1 && !disabled) {
-      setHighlightedTabIndex(index);
-    }
+    activate(event);
+  }
 
-    if (disabled) {
+  function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
+    if (active || disabled) {
       return;
     }
 
     if (
       activateOnFocus &&
       (!isPressingRef.current || // keyboard or touch focus
-        (isPressingRef.current && isMainButtonRef.current)) // mouse focus
+        isMainButtonRef.current) // main mouse button focus
     ) {
-      onTabActivation(
-        value,
-        createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
-          activationDirection: 'none',
-        }),
-      );
+      activate(event);
     }
   }
 
@@ -169,18 +157,23 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     isPressingRef.current = true;
+    // Secondary presses (context menu, middle click) may focus the tab, but
+    // must not activate it with `activateOnFocus`.
+    isMainButtonRef.current = event.button === 0;
 
-    function handlePointerUp() {
+    // Registered for every button so a secondary press doesn't leave the tab
+    // stuck in the pressing state, which would suppress later focus activation.
+    const doc = ownerDocument(event.currentTarget);
+
+    function handlePointerEnd() {
       isPressingRef.current = false;
       isMainButtonRef.current = false;
+      doc.removeEventListener('pointerup', handlePointerEnd);
+      doc.removeEventListener('pointercancel', handlePointerEnd);
     }
 
-    if (!event.button || event.button === 0) {
-      isMainButtonRef.current = true;
-
-      const doc = ownerDocument(event.currentTarget);
-      doc.addEventListener('pointerup', handlePointerUp, { once: true });
-    }
+    doc.addEventListener('pointerup', handlePointerEnd);
+    doc.addEventListener('pointercancel', handlePointerEnd);
   }
 
   const state: TabsTabState = {
@@ -192,7 +185,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeRef, tabElementRef],
+    ref: [forwardedRef, buttonRef, compositeRef, observeTabElement],
     props: [
       compositeProps,
       {

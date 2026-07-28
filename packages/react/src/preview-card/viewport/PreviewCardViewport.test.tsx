@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
@@ -22,6 +22,26 @@ describe('<PreviewCard.Viewport />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <PreviewCard.Positioner>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <PreviewCard.Root open>
+            <PreviewCard.Portal>
+              <PreviewCard.Viewport />
+            </PreviewCard.Portal>
+          </PreviewCard.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: PreviewCardPositionerContext is missing. PreviewCardPositioner parts must be placed within <PreviewCard.Positioner>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('should render children in the `current` container by default', async () => {
     await render(

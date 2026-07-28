@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
@@ -9,9 +10,9 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import {
-  FOCUSABLE_POPUP_PROPS,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
   type PayloadChildRenderFunction,
@@ -45,14 +46,19 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     children,
   } = props;
 
-  const store = TooltipStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
+  const store = usePopupRootStore(
+    (floatingId, nested) =>
+      new TooltipStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -70,9 +76,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   store.useSyncedValues({
     trackCursorAxis,
     disableHoverablePopup,
+    disabled,
   });
-
-  store.useSyncedValue('disabled', disabled);
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
@@ -119,20 +124,20 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
   );
 
   const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
+      <PopupHandleAttachment handle={handle} store={store} />
       {shouldRenderInteractions && (
         <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
       )}
@@ -258,23 +263,16 @@ function TooltipInteractions<Payload>({
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const activeTriggerProps = React.useMemo(
+  // Both hooks return `trigger: reference` (same object identity), so the active and
+  // inactive trigger props can never differ. `useClientPoint` has no floating-side props.
+  const triggerProps = React.useMemo(
     () => mergeProps(clientPoint.reference, dismiss.reference),
     [clientPoint.reference, dismiss.reference],
   );
-  const inactiveTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.trigger, dismiss.trigger),
-    [clientPoint.trigger, dismiss.trigger],
-  );
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, clientPoint.floating, dismiss.floating),
-    [clientPoint.floating, dismiss.floating],
-  );
-
   usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
+    activeTriggerProps: triggerProps,
+    inactiveTriggerProps: triggerProps,
+    popupProps: dismiss.floating ?? EMPTY_OBJECT,
   });
 
   return null;

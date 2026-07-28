@@ -47,6 +47,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
+  const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -81,8 +82,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    addEventListener(
-      doc,
+    // Abort a listener from a previous trigger that never saw its mouseup, and scope this
+    // one to a fresh controller so it's removed on unmount if the mouseup never arrives.
+    mouseUpAbortControllerRef.current?.abort();
+    const mouseUpAbortController = new AbortController();
+    mouseUpAbortControllerRef.current = mouseUpAbortController;
+    doc.addEventListener(
       'mouseup',
       (mouseEvent) => {
         allowMouseUpTriggerRef.current = false;
@@ -109,33 +114,42 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
         );
       },
-      { once: true },
+      { once: true, signal: mouseUpAbortController.signal },
     );
+  }
+
+  function cancelLongPress() {
+    longPressTimeout.clear();
+    touchPositionRef.current = null;
   }
 
   function handleTouchStart(event: React.TouchEvent) {
     if (disabled) {
+      cancelLongPress();
       return;
     }
     allowMouseUpTriggerRef.current = false;
-    if (event.touches.length === 1) {
-      event.stopPropagation();
-      const touch = event.touches[0];
-      touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
-      longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        if (touchPositionRef.current) {
-          handleLongPress(
-            touchPositionRef.current.x,
-            touchPositionRef.current.y,
-            event.nativeEvent,
-          );
-        }
-      });
+    if (event.touches.length !== 1) {
+      cancelLongPress();
+      return;
     }
+
+    event.stopPropagation();
+    const touch = event.touches[0];
+    const touchPosition = { x: touch.clientX, y: touch.clientY };
+    touchPositionRef.current = touchPosition;
+    longPressTimeout.start(LONG_PRESS_DELAY, () => {
+      handleLongPress(touchPosition.x, touchPosition.y, event.nativeEvent);
+    });
   }
 
   function handleTouchMove(event: React.TouchEvent) {
-    if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
+    if (event.touches.length !== 1) {
+      cancelLongPress();
+      return;
+    }
+
+    if (longPressTimeout.isStarted() && touchPositionRef.current) {
       const touch = event.touches[0];
       const moveThreshold = 10;
 
@@ -143,15 +157,18 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       const deltaY = Math.abs(touch.clientY - touchPositionRef.current.y);
 
       if (deltaX > moveThreshold || deltaY > moveThreshold) {
-        longPressTimeout.clear();
+        cancelLongPress();
       }
     }
   }
 
-  function handleTouchEnd() {
-    longPressTimeout.clear();
-    touchPositionRef.current = null;
-  }
+  React.useEffect(
+    () => () => {
+      // Abort a pending mouseup listener if the trigger unmounts before it fires.
+      mouseUpAbortControllerRef.current?.abort();
+    },
+    [],
+  );
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
@@ -186,8 +203,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         onContextMenu: handleContextMenu,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
-        onTouchCancel: handleTouchEnd,
+        onTouchEnd: cancelLongPress,
+        onTouchCancel: cancelLongPress,
         style: {
           WebkitTouchCallout: 'none',
         },

@@ -85,7 +85,8 @@ export interface NavigationMenuLinkState {
 
 export interface NavigationMenuLinkProps extends BaseUIComponentProps<
   'a',
-  NavigationMenuLinkState
+  NavigationMenuLinkState,
+  React.ComponentPropsWithRef<'a'>
 > {
   /**
    * Whether the link is the currently active page.

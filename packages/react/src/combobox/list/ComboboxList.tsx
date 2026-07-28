@@ -14,6 +14,7 @@ import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { clickHighlightedItem } from '../utils/parts';
 
 /**
  * A list container for the items.
@@ -34,8 +35,9 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
-  const popupProps = useStore(store, selectors.popupProps);
+  const listProps = useStore(store, selectors.listProps);
   const virtualized = useStore(store, selectors.virtualized);
+  const forceMounted = useStore(store, selectors.forceMounted);
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -50,7 +52,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
-  // Ensures this component's `popupProps` subscription does not cause <Combobox.Item>
+  // Ensures this component's `listProps` subscription does not cause <Combobox.Item>
   // to re-render on every active index change.
   const resolvedChildren = React.useMemo(() => {
     if (typeof children === 'function') {
@@ -69,7 +71,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     state,
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
-      popupProps,
+      listProps,
       {
         children: resolvedChildren,
         tabIndex: -1,
@@ -90,15 +92,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
             }
 
             stopEvent(event);
-
-            const nativeEvent = event.nativeEvent;
-            const listItem = store.state.listRef.current[activeIndex];
-
-            if (listItem) {
-              store.state.selectionEventRef.current = nativeEvent;
-              listItem.click();
-              store.state.selectionEventRef.current = null;
-            }
+            clickHighlightedItem(store, activeIndex, event.nativeEvent);
           }
         },
         onKeyDownCapture() {
@@ -116,11 +110,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return element;
   }
 
+  // With the `items` prop, typeahead labels are derived from the items so they survive the list
+  // unmounting (unmounting clears the registered labels). Rendered labels only need to be
+  // registered when the list is force-mounted to match browser autofill against rendered text.
+  const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
+
   return (
-    <CompositeList
-      elementsRef={store.state.listRef}
-      labelsRef={hasItems ? undefined : store.state.labelsRef}
-    >
+    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
       {element}
     </CompositeList>
   );

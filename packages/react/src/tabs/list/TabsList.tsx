@@ -4,11 +4,10 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
+import type { TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 /**
@@ -30,8 +29,7 @@ export const TabsList = React.forwardRef(function TabsList(
     ...elementProps
   } = componentProps;
 
-  const { onValueChange, orientation, value, setTabMap, tabActivationDirection } =
-    useTabsRootContext();
+  const { orientation, setTabMap, tabActivationDirection } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
@@ -83,14 +81,6 @@ export const TabsList = React.forwardRef(function TabsList(
     };
   });
 
-  const onTabActivation = useStableCallback(
-    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
-      if (newValue !== value) {
-        onValueChange(newValue, eventDetails);
-      }
-    },
-  );
-
   const state: TabsListState = {
     orientation,
     tabActivationDirection,
@@ -104,20 +94,14 @@ export const TabsList = React.forwardRef(function TabsList(
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
-      highlightedTabIndex,
       registerIndicatorUpdateListener,
       registerTabResizeObserverElement,
-      onTabActivation,
-      setHighlightedTabIndex,
       tabsListElement,
     }),
     [
       activateOnFocus,
-      highlightedTabIndex,
       registerIndicatorUpdateListener,
       registerTabResizeObserverElement,
-      onTabActivation,
-      setHighlightedTabIndex,
       tabsListElement,
     ],
   );

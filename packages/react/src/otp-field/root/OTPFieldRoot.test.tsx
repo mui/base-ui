@@ -1,13 +1,14 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
+import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<OTPFieldPreview />', () => {
+describe('<OTPField.Root />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
@@ -677,6 +678,38 @@ describe('<OTPFieldPreview />', () => {
       expect(group).toHaveAttribute('aria-labelledby', label.id);
       expect(group).toHaveAttribute('aria-describedby', `external-description ${description.id}`);
     });
+
+    it('validates the latest value only after focus leaves the OTP field in onBlur mode', async () => {
+      const validate = vi.fn(() => null);
+
+      await render(
+        <React.Fragment>
+          <Form>
+            <Field.Root name="otp" validationMode="onBlur" validate={validate}>
+              <OTPField validationType="none" />
+            </Field.Root>
+          </Form>
+          <button type="button">Outside</button>
+        </React.Fragment>,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[0].focus();
+      });
+      fireEvent.change(inputs[0], { target: { value: '1' } });
+
+      fireEvent.blur(inputs[1], { relatedTarget: inputs[2] });
+      expect(validate).not.toHaveBeenCalled();
+
+      fireEvent.blur(inputs[1], {
+        relatedTarget: screen.getByRole('button', { name: 'Outside' }),
+      });
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.calls[0]).toEqual(['1', { otp: '1' }]);
+    });
   });
 
   describe('accessibility', () => {
@@ -1000,6 +1033,48 @@ describe('<OTPFieldPreview />', () => {
       expect(document.querySelector('input[name="otp"]')).not.toBeNull();
     });
 
+    it('redirects hidden validation input focus to the first visible slot', async () => {
+      await render(<OTPField name="otp" />);
+
+      const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      await act(async () => {
+        hiddenInput!.focus();
+      });
+
+      expect(firstInput).toHaveFocus();
+    });
+
+    it('accepts valid hidden-input autofill and preserves focus when autofill is cleared', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+
+      await render(
+        <OTPField name="otp" onValueChange={onValueChange} onValueInvalid={onValueInvalid} />,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: '123456' } });
+
+      expect(getValues()).toBe('123456');
+      expect(inputs[5]).toHaveFocus();
+      expect(onValueInvalid).not.toHaveBeenCalled();
+
+      fireEvent.change(hiddenInput!, { target: { value: '' } });
+
+      expect(getValues()).toBe('');
+      expect(inputs[5]).toHaveFocus();
+      expect(onValueChange.mock.calls.map((call) => call[0])).toEqual(['123456', '']);
+      expect(onValueInvalid).not.toHaveBeenCalled();
+    });
+
     it('handles password manager autofill through the hidden input', async () => {
       const onValueChange = vi.fn();
       const onValueInvalid = vi.fn();
@@ -1191,6 +1266,29 @@ describe('<OTPFieldPreview />', () => {
         expect(handleSubmit).toHaveBeenCalledTimes(1);
       });
 
+      it('keeps the completed value when the owning form has no requestSubmit method', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const onValueComplete = vi.fn();
+
+        await render(
+          <form aria-label="verification" onSubmit={handleSubmit}>
+            <OTPField name="otp" autoSubmit onValueComplete={onValueComplete} />
+          </form>,
+        );
+
+        const form = screen.getByRole<HTMLFormElement>('form', { name: 'verification' });
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        Object.defineProperty(form, 'requestSubmit', { configurable: true, value: undefined });
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(getValues()).toBe('123456');
+        expect(onValueComplete).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).not.toHaveBeenCalled();
+      });
+
       it('does not call flushSync inside a layout effect when auto-submitting a Base UI Form', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -1247,6 +1345,31 @@ describe('<OTPFieldPreview />', () => {
         }
       });
 
+      it('keeps focus on the first invalid field when auto-submit is blocked', async () => {
+        await render(
+          <Form>
+            <Field.Root name="email" validate={() => 'Required'}>
+              <Field.Label>Email</Field.Label>
+              <Field.Control />
+              <Field.Error />
+            </Field.Root>
+            <Field.Root name="otp">
+              <OTPField autoSubmit />
+            </Field.Root>
+          </Form>,
+        );
+
+        const emailInput = screen.getByRole('textbox', { name: 'Email' });
+        const otpInputs = screen
+          .getAllByRole<HTMLInputElement>('textbox')
+          .filter((input) => input !== emailInput);
+
+        fireEvent.change(otpInputs[0], { target: { value: '123456' } });
+
+        expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+        expect(emailInput).toHaveFocus();
+      });
+
       it('does not submit the owning form before the OTP becomes complete when enabled', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -1292,9 +1415,52 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('123456');
         expect(handleSubmit).toHaveBeenCalledTimes(1);
       });
+
+      it('does not submit an ancestor form when the explicit form id is not a form', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(
+          <React.Fragment>
+            <div id="verification-form" />
+            <form onSubmit={handleSubmit}>
+              <OTPField form="verification-form" name="otp" autoSubmit />
+            </form>
+          </React.Fragment>,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(getValues()).toBe('123456');
+        expect(handleSubmit).not.toHaveBeenCalled();
+      });
     });
 
     describe('server-side rendering', () => {
+      it('renders visible inputs with unique IDs', () => {
+        renderToString(
+          <OTPFieldBase.Root data-testid="root" id="verification-code" length={OTP_LENGTH}>
+            {Array.from({ length: OTP_LENGTH }, (_, index) => (
+              <OTPFieldBase.Input key={index} />
+            ))}
+          </OTPFieldBase.Root>,
+        );
+
+        const inputs = screen.getByTestId('root').querySelectorAll('input');
+
+        expect(Array.from(inputs, (input) => input.id)).toEqual([
+          'verification-code',
+          'verification-code-2',
+          'verification-code-3',
+          'verification-code-4',
+          'verification-code-5',
+          'verification-code-6',
+        ]);
+      });
+
       it('renders a hidden validation input with the provided length', () => {
         renderToString(
           <OTPFieldBase.Root name="otp" required length={OTP_LENGTH}>
@@ -1387,10 +1553,36 @@ describe('<OTPFieldPreview />', () => {
     warnSpy.mockRestore();
   });
 
+  it('warns with singular input wording when one input is rendered', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
+
+    try {
+      await render(
+        <OTPFieldBase.Root length={2}>
+          <OTPFieldBase.Input />
+        </OTPFieldBase.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain('Received `length={2}` but rendered 1 input.');
+    } finally {
+      ownerStackSpy?.mockRestore();
+      warnSpy.mockRestore();
+    }
+  });
+
   it.each([0, -1, 3.7, Number.NaN, Number.POSITIVE_INFINITY])(
     'warns when length is not a positive integer (%p)',
     async (invalidLength) => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const ownerStackSpy =
+        typeof SafeReact.captureOwnerStack === 'function'
+          ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+          : null;
 
       try {
         await render(<OTPFieldBase.Root length={invalidLength} />);
@@ -1400,6 +1592,7 @@ describe('<OTPFieldPreview />', () => {
           `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(invalidLength)}}\`.`,
         );
       } finally {
+        ownerStackSpy?.mockRestore();
         warnSpy.mockRestore();
       }
     },

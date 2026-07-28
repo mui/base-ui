@@ -1,3 +1,4 @@
+import { expect, vi } from 'vitest';
 import { Switch } from '@base-ui/react/switch';
 import { createRenderer, describeConformance } from '#test-utils';
 import { SwitchRootContext } from '../root/SwitchRootContext';
@@ -25,4 +26,16 @@ describe('<Switch.Thumb />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Switch.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Switch.Thumb />)).rejects.toThrow(
+        'Base UI: SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

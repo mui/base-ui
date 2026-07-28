@@ -66,11 +66,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     }
   }, [dirtyProp]);
 
-  const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
-  const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
-    registeredFieldIdRef.current = id;
-  }, []);
-
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
       return;
@@ -108,7 +103,10 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     initialValue: null,
   });
 
-  const valid = disabled ? null : !invalid && validityData.state.valid;
+  // App-controlled invalidity (the `invalid` prop and `<Form>` errors) keeps the field marked
+  // invalid even while disabled. Only computed validity (native constraints and `validate`)
+  // is suppressed when disabled, matching `:disabled` not participating in constraint validation.
+  const valid = !invalid && (disabled ? null : validityData.state.valid);
 
   const state: FieldRootState = React.useMemo(
     () => ({
@@ -131,7 +129,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     markedDirtyRef,
     state,
     shouldValidateOnChange,
-    getRegisteredFieldId,
+    registeredFieldIdRef,
   });
 
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
@@ -140,7 +138,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     markedDirtyRef,
     name,
     setRegisteredFieldName,
-    setRegisteredFieldId,
+    registeredFieldIdRef,
     setValidityData,
     validityData,
   });
@@ -156,20 +154,13 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validityData,
       setValidityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
-      markedDirtyRef,
       registerFieldControl,
       validation,
     }),
@@ -178,17 +169,11 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       effectiveName,
       validityData,
       disabled,
-      touched,
       setTouched,
-      dirty,
       setDirty,
-      filled,
       setFilled,
-      focused,
       setFocused,
-      validate,
       validationMode,
-      validationDebounceTime,
       shouldValidateOnChange,
       state,
       registerFieldControl,

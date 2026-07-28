@@ -12,7 +12,6 @@ import { useRegisterFieldControl } from '../internals/field-register-control/use
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
-import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
@@ -52,19 +51,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     validityData,
   } = useFieldRootContext();
   const { labelId, getDescriptionProps } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
 
-  const defaultValue = React.useMemo<string[] | undefined>(() => {
-    if (externalValue === undefined) {
-      return defaultValueProp ?? [];
-    }
+  const defaultValue = defaultValueProp ?? (EMPTY_ARRAY as string[]);
 
-    return undefined;
-  }, [externalValue, defaultValueProp]);
-
-  const [value, setValueUnwrapped] = useControlled<string[]>({
+  // A controlled value can still be `undefined` at runtime even though `useControlled`'s
+  // generic return type says otherwise. Keep the fallback to prevent group consumers from crashing.
+  const [value = EMPTY_ARRAY as string[], setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
     default: defaultValue,
     name: 'CheckboxGroup',
@@ -90,20 +85,41 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   });
 
   const id = useBaseUiId(idProp);
+  const getInputControl = validation.getInputControl;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
 
-  const registerControlRef = React.useCallback((element: HTMLButtonElement | null) => {
-    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
-      controlRef.current = element;
+  const getFormValue = useStableCallback(() => {
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return value;
     }
-  }, []);
 
-  useRegisterFieldControl(controlRef, id, value, undefined, !!fieldName && !disabled, fieldName);
+    const successfulValues = new Set<string>();
+    for (const [input, registration] of validation.registeredInputs) {
+      if (
+        registration.value !== undefined &&
+        input.checked &&
+        !input.matches(':disabled') &&
+        input.form === formElement
+      ) {
+        successfulValues.add(registration.value);
+      }
+    }
 
-  const resolvedValue = value ?? EMPTY_ARRAY;
+    return value.filter((inputValue) => successfulValues.has(inputValue));
+  });
 
-  useValueChanged(resolvedValue, () => {
+  useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
+
+  useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
     }
@@ -112,10 +128,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(resolvedValue.length > 0);
-    setDirty(!areArraysEqual(resolvedValue, initialValue));
+    setFilled(value.length > 0);
+    setDirty(!areArraysEqual(value, initialValue));
 
-    validation.change(resolvedValue);
+    validation.change(value);
   });
 
   const state: CheckboxGroupState = {
@@ -127,14 +143,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     () => ({
       allValues,
       value,
-      defaultValue,
       setValue,
       parent,
       disabled,
       validation,
-      registerControlRef,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
+    [allValues, value, setValue, parent, disabled, validation],
   );
 
   const element = useRenderElement('div', componentProps, {

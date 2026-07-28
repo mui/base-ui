@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
@@ -29,6 +30,56 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
+  it('does not render without a value by default', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Clear data-testid="clear" />
+      </Combobox.Root>,
+    );
+
+    expect(screen.queryByTestId('clear')).toBe(null);
+  });
+
+  it('renders and clears the typed value in no-selection mode', async () => {
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="apple">
+        <Autocomplete.Input />
+        <Autocomplete.Clear data-testid="clear" />
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('combobox');
+    expect(input.value).toBe('apple');
+
+    await user.click(screen.getByTestId('clear'));
+
+    expect(input.value).toBe('');
+    expect(input).toHaveFocus();
+  });
+
+  it('renders and clears chips in multiple mode', async () => {
+    const { user } = await render(
+      <Combobox.Root multiple defaultValue={['apple']}>
+        <Combobox.Chips>
+          <Combobox.Value>
+            {(value: string[]) =>
+              value.map((item) => <Combobox.Chip key={item}>{item}</Combobox.Chip>)
+            }
+          </Combobox.Value>
+          <Combobox.Input />
+        </Combobox.Chips>
+        <Combobox.Clear data-testid="clear" />
+      </Combobox.Root>,
+    );
+
+    expect(screen.getByText('apple')).not.toBe(null);
+
+    await user.click(screen.getByTestId('clear'));
+
+    expect(screen.queryByText('apple')).toBe(null);
+  });
+
   it('click clears selected value and focuses input', async () => {
     const { user } = await render(
       <Combobox.Root defaultValue="a">
@@ -51,6 +102,20 @@ describe('<Combobox.Clear />', () => {
 
     expect(screen.queryByTestId('clear')).toBe(null);
     expect(document.activeElement).toBe(input);
+  });
+
+  it('clears after pointer interaction marks keyboard navigation inactive', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultValue="a">
+        <Combobox.Input data-testid="input" />
+        <Combobox.Clear data-testid="clear" />
+      </Combobox.Root>,
+    );
+
+    fireEvent.pointerMove(screen.getByTestId('input'));
+    await user.click(screen.getByTestId('clear'));
+
+    expect(screen.queryByTestId('clear')).toBe(null);
   });
 
   it('does not dismiss the popup on click (outsidePress is blocked)', async () => {
@@ -76,6 +141,40 @@ describe('<Combobox.Clear />', () => {
     await user.click(screen.getByTestId('clear'));
 
     expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
+  it('does not dismiss a popup input when the clear button is rendered outside it', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['a', 'b']} defaultValue="a">
+        <Combobox.Trigger>
+          <Combobox.Value />
+        </Combobox.Trigger>
+        <Combobox.Clear data-testid="clear" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('combobox'));
+    await waitFor(() => expect(screen.getByTestId('input')).toHaveFocus());
+
+    await user.click(screen.getByTestId('clear'));
+
+    expect(screen.getByRole('dialog')).not.toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('aria-selected', 'false');
   });
 
   it('is disabled when root disabled and does nothing on click', async () => {
@@ -107,14 +206,16 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
-  it('exposes visible state to Combobox.Clear render props when rendered inside the popup', async () => {
+  it('clears selection without closing and restores popup input focus', async () => {
     const { user } = await render(
       <Combobox.Root defaultValue="a">
-        <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        <Combobox.Trigger data-testid="trigger">
+          <Combobox.Value placeholder="None" />
+        </Combobox.Trigger>
         <Combobox.Portal>
           <Combobox.Positioner data-testid="positioner">
             <Combobox.Popup>
-              <Combobox.Input />
+              <Combobox.Input data-testid="input" />
               <Combobox.Clear
                 keepMounted
                 data-testid="clear"
@@ -145,6 +246,10 @@ describe('<Combobox.Clear />', () => {
       expect(clear).toHaveClass('hidden');
       expect(clear).not.toHaveAttribute('data-visible');
     });
+    expect(screen.getByRole('dialog')).not.toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.getByTestId('trigger')).toHaveTextContent('None');
+    expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('aria-selected', 'false');
   });
 
   describe.skipIf(isJSDOM)('animations', () => {

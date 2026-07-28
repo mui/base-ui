@@ -51,6 +51,38 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
+  it.skipIf(!isJSDOM)('shows the fallback when a loaded image is unmounted', async () => {
+    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
+
+    function Test() {
+      const [showImage, setShowImage] = React.useState(true);
+
+      return (
+        <div>
+          <button onClick={() => setShowImage(false)}>Hide image</button>
+          <Avatar.Root>
+            {showImage && <Avatar.Image data-testid="image" src="avatar.png" />}
+            <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
+          </Avatar.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('fallback')).toBe(null);
+    });
+    expect(screen.getByTestId('image')).not.toBe(null);
+
+    await user.click(screen.getByText('Hide image'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fallback')).not.toBe(null);
+    });
+    expect(screen.queryByTestId('image')).toBe(null);
+  });
+
   describe.skipIf(!isJSDOM)('prop: delay', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 
@@ -68,6 +100,88 @@ describe('<Avatar.Fallback />', () => {
 
       clock.tick(100);
 
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('shows the fallback immediately when delay is 0', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      await renderFakeTimers(
+        <Avatar.Root>
+          <Avatar.Image />
+          <Avatar.Fallback delay={0}>AC</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // No timers are advanced: `delay={0}` must render synchronously on mount.
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('shows the fallback when delay changes to 0', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      function Test(props: { delay?: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test delay={100} />);
+
+      expect(screen.queryByText('AC')).toBe(null);
+
+      await setProps({ delay: 0 });
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('keeps the fallback visible when delay changes from undefined to a number', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      function Test(props: { delay?: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test />);
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+
+      await setProps({ delay: 100 });
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('keeps the fallback visible across a number -> undefined -> number delay change', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      function Test(props: { delay?: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test delay={100} />);
+
+      // Fallback is hidden until the delay elapses.
+      expect(screen.queryByText('AC')).toBe(null);
+
+      // Removing the delay before it elapses shows the fallback immediately.
+      await setProps({ delay: undefined });
+      expect(screen.queryByText('AC')).not.toBe(null);
+
+      // Restoring the delay must not re-hide the already-visible fallback.
+      await setProps({ delay: 100 });
       expect(screen.queryByText('AC')).not.toBe(null);
     });
   });

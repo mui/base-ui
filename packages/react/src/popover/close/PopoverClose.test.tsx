@@ -1,7 +1,8 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -111,6 +112,73 @@ describe('<Popover.Close />', () => {
     expect(handleOpenChange.mock.calls[0][0]).toBe(false);
     expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.closePress);
     expect(handleOpenChange.mock.calls[0][1].trigger?.id).toBe('trigger-1');
+  });
+
+  // `triggerId` can point at a trigger that isn't mounted (for example while a controlled id is
+  // being handed over), but the popup is still anchored to the element it opened against, so the
+  // close event has to report that element rather than nothing.
+  it('falls back to the active trigger element when the active trigger id is unregistered', async () => {
+    const handleOpenChange = vi.fn();
+    let repoint: () => void = () => {};
+
+    function App() {
+      const [triggerId, setTriggerId] = React.useState<string | null>('trigger-1');
+      repoint = () => setTriggerId('unregistered');
+
+      return (
+        <Popover.Root open triggerId={triggerId} onOpenChange={handleOpenChange}>
+          <Popover.Trigger id="trigger-1">Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                Content
+                <Popover.Close data-testid="close" />
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    await render(<App />);
+
+    await act(async () => {
+      repoint();
+    });
+
+    fireEvent.click(screen.getByTestId('close'));
+
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.closePress);
+    expect(handleOpenChange.mock.calls[0][1].trigger).toBe(
+      screen.getByRole('button', {
+        name: 'Trigger',
+      }),
+    );
+  });
+
+  it('reports no trigger when the active trigger id has no mounted trigger', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Popover.Root defaultOpen defaultTriggerId="never-mounted" onOpenChange={handleOpenChange}>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              Content
+              <Popover.Close data-testid="close" />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    fireEvent.click(screen.getByTestId('close'));
+
+    expect(screen.queryByText('Content')).toBe(null);
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.closePress);
+    expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
   });
 
   it('enables modal focus management when `modal=true` and close is rendered', async () => {

@@ -39,7 +39,7 @@
     }
   }
 
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -120,7 +120,7 @@
     }
   }
 
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {

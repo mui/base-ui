@@ -18,7 +18,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
   const { controlId: contextControlId, setLabelId: setContextLabelId } = useLabelableContext();
 
-  const syncLabelId = useStableCallback((nextLabelId: string | undefined) => {
+  const syncLabelId = useStableCallback((nextLabelId: React.SetStateAction<string | undefined>) => {
     setContextLabelId(nextLabelId);
     setLabelIdProp?.(nextLabelId);
   });
@@ -90,7 +90,7 @@ export interface UseLabelParameters {
   /**
    * Additional callback to sync the current label id with local component state/store.
    */
-  setLabelId?: ((nextLabelId: string | undefined) => void) | undefined;
+  setLabelId?: React.Dispatch<React.SetStateAction<string | undefined>> | undefined;
   /**
    * Custom focus handler for non-native labels.
    * If omitted, focus behavior targets the resolved control id.

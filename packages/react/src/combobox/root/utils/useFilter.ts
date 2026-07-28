@@ -44,12 +44,5 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
     [coreFilter, value, multiple],
   );
 
-  return React.useMemo(
-    () => ({
-      contains,
-      startsWith: coreFilter.startsWith,
-      endsWith: coreFilter.endsWith,
-    }),
-    [contains, coreFilter],
-  );
+  return React.useMemo(() => ({ ...coreFilter, contains }), [contains, coreFilter]);
 }

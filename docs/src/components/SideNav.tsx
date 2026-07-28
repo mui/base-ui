@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { HEADER_HEIGHT } from './Header';
+import { HEADER_HEIGHT_DESKTOP } from './Header';
 import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
@@ -31,6 +31,10 @@ export function Heading(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('SideNavHeading', props.className)} />;
 }
 
+export function Separator(props: React.ComponentProps<'hr'>) {
+  return <hr {...props} className={clsx('SideNavSeparator', props.className)} />;
+}
+
 export function List(props: React.ComponentProps<'ul'>) {
   return <ul {...props} className={clsx('SideNavList', props.className)} />;
 }
@@ -44,12 +48,13 @@ interface ItemProps extends React.ComponentProps<'li'> {
   href: string;
   isNew?: boolean;
   external?: boolean;
+  icon?: React.ReactNode;
 }
 
 const SCROLL_MARGIN = 48;
 
 export function Item(props: ItemProps) {
-  const { children, className, href, external, ...other } = props;
+  const { children, className, href, external, icon, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
@@ -62,7 +67,7 @@ export function Item(props: ItemProps) {
   React.useEffect(() => {
     if (ref.current && active) {
       const scrollMargin = (SCROLL_MARGIN * rem.current) / 16;
-      const headerHeight = (HEADER_HEIGHT * rem.current) / 16;
+      const headerHeight = (HEADER_HEIGHT_DESKTOP * rem.current) / 16;
       const viewport = document.querySelector('[data-side-nav-viewport]');
 
       if (!viewport) {
@@ -103,7 +108,14 @@ export function Item(props: ItemProps) {
             }
           : {})}
       >
-        {children}
+        {icon ? (
+          <div className="SideNavLinkIconContainer">
+            {icon}
+            {children}
+          </div>
+        ) : (
+          children
+        )}
       </LinkComponent>
     </li>
   );

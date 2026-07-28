@@ -1,6 +1,37 @@
 import kebabCase from 'es-toolkit/compat/kebabCase';
 
-export const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/HEAD';
+let warned: Set<string>;
+if (process.env.NODE_ENV !== 'production') {
+  warned = new Set();
+}
+
+function warnInDevelopment(message: string, error?: unknown) {
+  if (process.env.NODE_ENV !== 'production' && !warned.has(message)) {
+    warned.add(message);
+    if (error == null) {
+      console.warn(message);
+    } else {
+      console.warn(message, error);
+    }
+  }
+}
+
+function getGitHubBaseUrl() {
+  const sourceCodeRepo = process.env.SOURCE_CODE_REPO;
+  const sourceCodeRef = process.env.LIB_VERSION ? `v${process.env.LIB_VERSION}` : undefined;
+
+  if (!sourceCodeRepo || !sourceCodeRef) {
+    warnInDevelopment(
+      [
+        'Base UI: Demo source links cannot be generated because SOURCE_CODE_REPO or LIB_VERSION is missing.',
+        'Ensure docs/next.config.mjs injects both values.',
+      ].join(' '),
+    );
+    return null;
+  }
+
+  return `${sourceCodeRepo}/tree/${sourceCodeRef}`;
+}
 
 /**
  * Converts a file:// URL from import.meta.url to a GitHub source URL
@@ -36,8 +67,15 @@ export function getGitHubDemoUrl(
       dirPath += `/${kebabCase(selectedVariant)}`;
     }
 
-    return `${GITHUB_BASE}/${dirPath}`;
-  } catch {
+    const githubBase = getGitHubBaseUrl();
+
+    if (githubBase == null) {
+      return null;
+    }
+
+    return `${githubBase}/${dirPath}`;
+  } catch (error) {
+    warnInDevelopment('Base UI: Demo source link could not be generated.', error);
     return null;
   }
 }

@@ -23,7 +23,6 @@ export interface ScrollAreaRootContext {
   scrollingY: boolean;
   setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
-  rootRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
   scrollbarXRef: React.RefObject<HTMLDivElement | null>;
@@ -33,6 +32,7 @@ export interface ScrollAreaRootContext {
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
   handleScroll: (scrollPosition: Coords) => void;
+  disableViewportSnap: () => void;
   rootId: string | undefined;
   hiddenState: HiddenState;
   setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;

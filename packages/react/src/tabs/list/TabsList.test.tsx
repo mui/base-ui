@@ -106,6 +106,57 @@ describe('<Tabs.List />', () => {
     });
   });
 
+  describe('keyboard navigation', () => {
+    it('moves focus to a tab disabled with the `disabled` prop', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} disabled />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, disabledTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        firstTab.focus();
+      });
+
+      fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(disabledTab).toHaveFocus();
+    });
+
+    it('skips a natively disabled tab in a single keypress', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} render={<button type="button" disabled />} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, , lastTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        firstTab.focus();
+      });
+
+      fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(lastTab).toHaveFocus();
+
+      fireEvent.keyDown(lastTab, { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(firstTab).toHaveFocus();
+    });
+  });
+
   it('can be named via `aria-label`', async () => {
     await render(
       <Tabs.Root defaultValue={0}>

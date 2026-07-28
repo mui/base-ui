@@ -21,6 +21,18 @@ describe('<Menu.Item />', () => {
     },
   }));
 
+  it('throws when rendered outside Menu.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.Item />)).rejects.toThrow(
+        'Base UI: MenuRootContext is missing. Menu parts must be placed within <Menu.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('calls the onClick handler when clicked', async () => {
     const onClick = vi.fn();
     const { user } = await render(
@@ -252,6 +264,39 @@ describe('<Menu.Item />', () => {
       expect(handleKeyDown.mock.calls.length).toBe(0);
       expect(handleKeyUp.mock.calls.length).toBe(0);
       expect(handleClick.mock.calls.length).toBe(0);
+    });
+
+    it('skips a natively disabled item during keyboard navigation', async () => {
+      const { user } = await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.Item nativeButton render={<button type="button" disabled />}>
+                  2
+                </Menu.Item>
+                <Menu.Item>3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const [firstItem, , lastItem] = screen.getAllByRole('menuitem');
+      await act(async () => {
+        firstItem.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(lastItem).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
     });
   });
 });

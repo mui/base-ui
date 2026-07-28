@@ -2,11 +2,9 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -42,11 +40,10 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     ...elementProps
   } = componentProps;
 
-  const direction = useDirection();
-
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
@@ -130,12 +127,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        dir: direction,
-      },
-      elementProps,
-    ],
+    props: elementProps,
     stateAttributesMapping: rootStateAttributesMapping,
   });
 

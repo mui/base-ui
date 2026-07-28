@@ -1,7 +1,9 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 describe('<Combobox.Item />', () => {
   const { render } = createRenderer();
@@ -388,6 +390,311 @@ describe('<Combobox.Item />', () => {
 
       await waitFor(() => expect(input.value).toBe('one'));
       expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
+
+  // Virtualized items without an explicit `index` resolve their index from the filtered set
+  // (via the dedicated `ComboboxItemVirtualizedIndex` subscriber). Filtering must keep that
+  // index fresh, otherwise keyboard highlight/Enter selection targets the wrong filtered item.
+  describe('virtualized without explicit index', () => {
+    function VirtualizedItems() {
+      const items = Combobox.useFilteredItems<string>();
+      return items.map((item) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+    }
+
+    function VirtualizedCombobox() {
+      return (
+        <Combobox.Root virtualized items={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <VirtualizedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('selects the highlighted filtered item with the keyboard after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      // Narrows the list to items containing "f" ("four", "five"), which sat at full-list
+      // indices 3 and 4. The first filtered item is now "four", not "one".
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+      expect(screen.getByRole('option', { name: 'four' })).not.toBe(null);
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(input).toHaveValue('four'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('selects the clicked filtered item after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+
+      await user.click(screen.getByRole('option', { name: 'five' }));
+
+      await waitFor(() => expect(input).toHaveValue('five'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('registers a rendered window at its filtered indexes', async () => {
+      function ListRefProbe() {
+        const store = useComboboxRootContext();
+        const [snapshot, setSnapshot] = React.useState('');
+
+        return (
+          <button
+            type="button"
+            data-testid="refresh-list-ref"
+            onClick={() => {
+              const list = store.state.listRef.current;
+              setSnapshot(
+                Array.from(
+                  { length: list.length },
+                  (_, index) => list[index]?.textContent ?? '',
+                ).join('|'),
+              );
+            }}
+          >
+            {snapshot}
+          </button>
+        );
+      }
+
+      function WindowedItems() {
+        const items = Combobox.useFilteredItems<string>();
+        return items.slice(2, 4).map((item) => (
+          <Combobox.Item key={item} value={item}>
+            {item}
+          </Combobox.Item>
+        ));
+      }
+
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <ListRefProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <WindowedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      fireEvent.click(screen.getByTestId('refresh-list-ref'));
+
+      expect(screen.getByTestId('refresh-list-ref')).toHaveTextContent('||three|four|');
+    });
+
+    it('does not register an item missing from the filtered values', async () => {
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one']} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item>missing value</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const item = screen.getByRole('option', { name: 'missing value' });
+
+      await user.hover(item);
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(item).not.toHaveAttribute('data-highlighted');
+      expect(item).not.toHaveAttribute('id');
+    });
+  });
+
+  describe('virtualized with explicit index', () => {
+    function VirtualizedItems() {
+      const items = Combobox.useFilteredItems<string>();
+      return items.map((item, index) => (
+        <Combobox.Item key={item} value={item} index={index}>
+          {item}
+        </Combobox.Item>
+      ));
+    }
+
+    it('selects the highlighted filtered item with the keyboard after filtering', async () => {
+      const { user } = await render(
+        <Combobox.Root virtualized items={['one', 'two', 'three']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <VirtualizedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.type(input, 't');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(input).toHaveValue('two'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
+
+  // A keystroke that doesn't change which items match must not re-render the items that stay
+  // mounted. Items used to re-render on every keystroke because they subscribed to the
+  // derived-items context, whose identity changes per keystroke. This guards the split that keeps
+  // the common (non-virtualized) path off that context so `React.memo` on `<Combobox.Item>` can
+  // bail.
+  describe('item re-renders on keystroke', () => {
+    it('does not re-render still-mounted items when filtering keeps the same membership', async () => {
+      const items = ['apple', 'apricot', 'avocado'];
+      const renderSpy = vi.fn();
+
+      const LoggingItem = React.forwardRef(function LoggingItem(
+        props: any,
+        ref: React.ForwardedRef<HTMLDivElement>,
+      ) {
+        const { state, ...other } = props;
+        renderSpy();
+        return <div {...other} ref={ref} />;
+      });
+
+      // Stable `render` element per item so `React.memo` can bail: a fresh element each render
+      // would change the `render` prop identity and force a re-render regardless of the
+      // optimization under test (`value` and the string children are already stable).
+      const renderByItem = new Map(items.map((item) => [item, <LoggingItem />] as const));
+
+      await render(
+        <Combobox.Root items={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} render={renderByItem.get(item)}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      renderSpy.mockClear();
+
+      // "a" matches all three items, so the filtered set is unchanged and every item stays mounted.
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'a' } });
+
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveValue('a'));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      expect(renderSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prop: index', () => {
+    // Regression test for https://github.com/mui/base-ui/issues/4657 — explicitly
+    // indexed items in a non-virtualized list previously skipped CompositeList
+    // registration, so hover could not resolve the item in `listRef` and
+    // `data-highlighted` stayed on the previous item.
+    it('updates the highlight on hover in a non-virtualized list', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+      const { user } = await render(
+        <Combobox.Root items={items} defaultOpen autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item, index) => (
+                    <Combobox.Item key={item} value={item} index={index}>
+                      {item}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await user.hover(banana);
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      await user.hover(cherry);
+      await waitFor(() => {
+        expect(cherry).toHaveAttribute('data-highlighted');
+      });
+      expect(banana).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('does not assign an id to an explicitly unregistered item', async () => {
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.List>
+            <Combobox.Item value="orphan" index={-1}>
+              orphan
+            </Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('option', { name: 'orphan' })).not.toHaveAttribute('id');
     });
   });
 });

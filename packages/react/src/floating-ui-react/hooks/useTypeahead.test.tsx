@@ -155,45 +155,51 @@ describe('useTypeahead', () => {
     expect(spy).toHaveBeenCalledWith(0);
   });
 
-  it('starts from the current activeIndex and correctly loops', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />);
+  it.each([false, true])(
+    'starts from the current activeIndex and correctly loops (strict: %s)',
+    async (strict) => {
+      const spy = vi.fn();
+      const combobox = (
+        <Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />
+      );
+      render(strict ? <React.StrictMode>{combobox}</React.StrictMode> : combobox);
 
-    await userEvent.click(screen.getByRole('combobox'));
+      await userEvent.click(screen.getByRole('combobox'));
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
 
-    spy.mockReset();
+      spy.mockReset();
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).not.toHaveBeenCalled();
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(1);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(1);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(2);
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(2);
 
-    vi.advanceTimersByTime(750);
+      vi.advanceTimersByTime(750);
 
-    await userEvent.keyboard('t');
-    await userEvent.keyboard('o');
-    await userEvent.keyboard('y');
-    expect(spy).toHaveBeenCalledWith(0);
-  });
+      await userEvent.keyboard('t');
+      await userEvent.keyboard('o');
+      await userEvent.keyboard('y');
+      expect(spy).toHaveBeenCalledWith(0);
+    },
+  );
 
   it('capslock characters continue to match', async () => {
     const spy = vi.fn();
@@ -203,6 +209,27 @@ describe('useTypeahead', () => {
 
     await userEvent.keyboard('{CapsLock}t');
     expect(spy).toHaveBeenCalledWith(1);
+  });
+
+  it('does not depend on locale-sensitive lowercasing', async () => {
+    const toLocaleLowerCase = String.prototype.toLocaleLowerCase;
+    const toLocaleLowerCaseSpy = vi
+      .spyOn(String.prototype, 'toLocaleLowerCase')
+      .mockImplementation(function lowerWithTurkishLocale(this: string) {
+        return toLocaleLowerCase.call(this, 'tr');
+      });
+
+    try {
+      const spy = vi.fn();
+      render(<Combobox onMatch={spy} list={['Istanbul']} />);
+
+      await userEvent.click(screen.getByRole('combobox'));
+
+      await userEvent.keyboard('i');
+      expect(spy).toHaveBeenCalledWith(0);
+    } finally {
+      toLocaleLowerCaseSpy.mockRestore();
+    }
   });
 
   function App1(props: Pick<UseTypeaheadProps, 'onMatch'> & { list: Array<string> }) {
@@ -285,6 +312,25 @@ describe('useTypeahead', () => {
 
     await userEvent.keyboard('a');
     expect(spy).toHaveBeenCalledWith(1);
+  });
+
+  it('does not let hidden double-letter items block rapid cycling with elementsRef', async () => {
+    const spy = vi.fn();
+    render(
+      <ComboboxWithElementsRef
+        onMatch={spy}
+        list={['aaron', 'apple', 'avocado']}
+        hiddenIndices={[0]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('combobox'));
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenLastCalledWith(1);
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenLastCalledWith(2);
   });
 
   it('skips visibility:hidden items when matching with elementsRef', async () => {

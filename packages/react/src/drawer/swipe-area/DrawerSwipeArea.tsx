@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -52,7 +54,7 @@ const stateAttributesMapping: StateAttributesMapping<DrawerSwipeAreaState> = {
     return value ? SWIPE_AREA_SWIPING_HOOK : null;
   },
   swipeDirection(value) {
-    return value ? { [DrawerSwipeAreaDataAttributes.swipeDirection]: value } : null;
+    return { [DrawerSwipeAreaDataAttributes.swipeDirection]: value };
   },
   disabled(value) {
     return value ? SWIPE_AREA_DISABLED_HOOK : null;
@@ -89,20 +91,22 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     ...elementProps
   } = componentProps;
 
-  const { store } = useDialogRootContext();
-  const { swipeDirection, frontmostHeight } = useDrawerRootContext();
-  const providerContext = useDrawerProviderContext(true);
+  const store = useDialogRootContext();
+  const { swipeDirection, frontmostHeight, swipeAreaActiveRef } = useDrawerRootContext();
+  const providerContext = useDrawerProviderContext();
 
   const [swipeActive, setSwipeActive] = React.useState(false);
 
-  const releaseDismissTimeout = useTimeout();
   const swipeAreaRef = React.useRef<HTMLDivElement>(null);
   const swipeStartEventRef = React.useRef<PointerEvent | TouchEvent | null>(null);
   const openedBySwipeRef = React.useRef(false);
   const dragDeltaRef = React.useRef({ x: 0, y: 0 });
   const closedOffsetRef = React.useRef<number | null>(null);
   const appliedSwipeStylesRef = React.useRef(false);
+  const swipePopupElementRef = React.useRef<HTMLElement | null>(null);
+  const swipeBackdropElementRef = React.useRef<HTMLElement | null>(null);
   const popupTransitionRef = React.useRef<string | null>(null);
+  const releaseGuardCleanupRef = React.useRef<() => void>(NOOP);
 
   const swipeAreaId = useBaseUiId(componentProps.id);
   const registerTrigger = useTriggerRegistration(swipeAreaId, store);
@@ -119,24 +123,36 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const enabled = !disabled && (!open || swipeActive);
 
   function disableDismissForSwipe() {
-    releaseDismissTimeout.clear();
+    releaseGuardCleanupRef.current();
     store.context.outsidePressEnabledRef.current = false;
   }
 
   function enableDismissAfterRelease() {
-    // Safari can dispatch outside-press for the same swipe-open gesture
-    // after release, so defer re-enabling dismissal to the next macrotask.
-    releaseDismissTimeout.start(0, () => {
-      store.context.outsidePressEnabledRef.current = true;
-    });
-  }
+    releaseGuardCleanupRef.current();
 
-  function resolvePopupSize() {
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      return null;
+    const doc = ownerDocument(swipeAreaRef.current);
+
+    function restore() {
+      releaseGuardCleanupRef.current = NOOP;
+      doc.removeEventListener('pointerdown', restore, true);
+      store.context.outsidePressEnabledRef.current = true;
     }
 
+    // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
+    // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
+    // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
+    // dismissal disabled until the next *fresh* pointer interaction: the synthesized click has no
+    // pointerdown of its own, so it is ignored, while a deliberate outside press always starts with
+    // a pointerdown and re-enables dismissal in time to close the drawer. This is deterministic,
+    // unlike re-enabling on a timer that can race the synthesized click and dismiss at random.
+    //
+    // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
+    // happens on the event target, after capture), so the triggering press still dismisses.
+    releaseGuardCleanupRef.current = restore;
+    doc.addEventListener('pointerdown', restore, true);
+  }
+
+  function getPopupSize(popupElement: HTMLElement) {
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
     const size = isHorizontal ? popupElement.offsetWidth : popupElement.offsetHeight;
     if (size <= 0) {
@@ -146,15 +162,15 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     return size;
   }
 
-  function resolveClosedOffset() {
-    const offset = resolvePopupSize();
+  function resolvePopupSize() {
+    const popupElement = store.context.popupRef.current;
+    return popupElement ? getPopupSize(popupElement) : null;
+  }
+
+  function resolveClosedOffset(popupElement: HTMLElement) {
+    const offset = getPopupSize(popupElement);
     if (offset == null) {
       return null;
-    }
-
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      return offset;
     }
 
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
@@ -177,10 +193,6 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   }
 
   function applySwipeMovement() {
-    if (!swipeActive) {
-      return;
-    }
-
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
       return;
@@ -191,11 +203,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     }
 
     if (closedOffsetRef.current == null) {
-      closedOffsetRef.current = resolveClosedOffset();
+      closedOffsetRef.current = resolveClosedOffset(popupElement);
     }
 
     const closedOffset = closedOffsetRef.current;
-    if (!closedOffset || !Number.isFinite(closedOffset) || closedOffset <= 0) {
+    if (closedOffset === null) {
       return;
     }
 
@@ -218,6 +230,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementX, `${movementX}px`);
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementY, `${movementY}px`);
     popupElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
+    swipePopupElementRef.current = popupElement;
     if (popupTransitionRef.current === null) {
       popupTransitionRef.current = popupElement.style.transition;
     }
@@ -226,6 +239,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const backdropElement = store.context.backdropRef.current;
     if (backdropElement) {
       backdropElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
+      swipeBackdropElementRef.current = backdropElement;
       backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${backdropProgress}`);
       if (openProgress > 0 && frontmostHeight > 0) {
         backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
@@ -239,11 +253,12 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       frontmostHeight: openProgress > 0 ? frontmostHeight : 0,
     });
     appliedSwipeStylesRef.current = true;
+    swipeAreaActiveRef.current = true;
   }
 
   const clearSwipeStyles = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
-    if (popupElement && appliedSwipeStylesRef.current) {
+    const popupElement = swipePopupElementRef.current;
+    if (popupElement) {
       popupElement.style.removeProperty(DrawerPopupCssVars.swipeMovementX);
       popupElement.style.removeProperty(DrawerPopupCssVars.swipeMovementY);
       popupElement.removeAttribute(DrawerPopupDataAttributes.swiping);
@@ -254,7 +269,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       popupTransitionRef.current = null;
     }
 
-    const backdropElement = store.context.backdropRef.current;
+    const backdropElement = swipeBackdropElementRef.current;
     if (backdropElement) {
       backdropElement.removeAttribute(DrawerPopupDataAttributes.swiping);
       backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, '0');
@@ -263,27 +278,18 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
     providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
     appliedSwipeStylesRef.current = false;
+    swipePopupElementRef.current = null;
+    swipeBackdropElementRef.current = null;
+    swipeAreaActiveRef.current = false;
   });
 
   function openDrawer(event?: PointerEvent | TouchEvent) {
-    if (store.select('open')) {
-      return;
-    }
     openedBySwipeRef.current = true;
-    store.setOpen(
-      true,
-      createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current ?? undefined),
-    );
+    store.setOpen(true, createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current!));
   }
 
   function closeDrawer(event?: PointerEvent | TouchEvent) {
-    if (!store.select('open')) {
-      return;
-    }
-    store.setOpen(
-      false,
-      createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current ?? undefined),
-    );
+    store.setOpen(false, createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current!));
   }
 
   function resetSwipeInteractionState() {
@@ -333,12 +339,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       }
 
       const displacement = getDisplacement(resolvedSwipeDirection, details.deltaX, details.deltaY);
-
-      if (displacement < MIN_SWIPE_START_DISTANCE && !openedBySwipeRef.current) {
+      if (!openedBySwipeRef.current && displacement < MIN_SWIPE_START_DISTANCE) {
         return;
       }
 
-      if (!openedBySwipeRef.current) {
+      if (!openedBySwipeRef.current && !store.select('open')) {
         openDrawer(swipeStartEventRef.current);
       }
 
@@ -352,10 +357,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
         releaseVelocityY,
       );
       const threshold = resolveSwipeOpenThreshold();
-      const hasEnoughDistance = threshold != null && displacement >= threshold;
+      const hasEnoughDistance = displacement >= threshold;
       const hasEnoughVelocity = releaseVelocity >= VELOCITY_THRESHOLD;
       const shouldOpen =
-        threshold != null &&
         direction === resolvedSwipeDirection &&
         (hasEnoughDistance || hasEnoughVelocity) &&
         !disabled;
@@ -364,7 +368,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
         if (!store.select('open')) {
           openDrawer(event);
         }
-      } else if (openedBySwipeRef.current) {
+      } else if (openedBySwipeRef.current && store.select('open')) {
         closeDrawer(event);
       }
 
@@ -379,7 +383,16 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
 
-  React.useEffect(() => {
+  // The commit that opens the drawer re-renders the popup, resetting `--swipe-movement-*` to `0px`
+  // (the viewport isn't swiping). Re-assert after the DOM mutation but before paint. No deps: must
+  // run on every commit the swipe area participates in.
+  useIsoLayoutEffect(() => {
+    if (swipeActive && appliedSwipeStylesRef.current) {
+      applySwipeMovement();
+    }
+  });
+
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       resetSwipe();
       resetDragDelta();
@@ -390,6 +403,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   React.useEffect(() => {
     return () => {
+      releaseGuardCleanupRef.current();
       store.context.outsidePressEnabledRef.current = true;
     };
   }, [store]);

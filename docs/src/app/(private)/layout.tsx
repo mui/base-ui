@@ -3,7 +3,7 @@ import { Metadata, Viewport } from 'next';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
+    // Use suppressHydrationWarning to avoid https://github.com/react/react/issues/24430
     <html lang="en">
       <body suppressHydrationWarning>{children}</body>
     </html>

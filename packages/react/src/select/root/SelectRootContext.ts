@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
+import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
@@ -8,7 +8,7 @@ import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
-  name: string | undefined;
+  floatingContext: FloatingRootContext;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
@@ -19,10 +19,9 @@ export interface SelectRootContext {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
-  handleScrollArrowVisibility: () => void;
+  handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
   itemProps: HTMLProps;
-  events: FloatingEvents;
   valueRef: React.RefObject<HTMLSpanElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
@@ -36,29 +35,17 @@ export interface SelectRootContext {
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
-  keyboardActiveRef: React.RefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   initialValueRef: React.RefObject<any>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
-export const SelectFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
     throw new Error(
       'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
-    );
-  }
-  return context;
-}
-
-export function useSelectFloatingContext() {
-  const context = React.useContext(SelectFloatingContext);
-  if (context === null) {
-    throw new Error(
-      'Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
   return context;

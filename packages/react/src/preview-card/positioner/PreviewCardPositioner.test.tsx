@@ -1,8 +1,8 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitForPositioned } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: PreviewCard.Trigger.Props,
@@ -21,10 +21,21 @@ type RectLike = {
 };
 
 const multilineWrapperStyle = { width: 140 };
-const multilineTriggerStyle = { display: 'inline', lineHeight: '20px' };
+// These tests dispatch pointer coordinates directly. Exclude the real browser cursor so it cannot
+// generate a competing hover event over a different inline line.
+const multilineTriggerStyle: React.CSSProperties = {
+  display: 'inline',
+  lineHeight: '20px',
+  pointerEvents: 'none',
+};
 
 function expectWithin(actual: number, expected: number, tolerance = 2) {
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
+}
+
+function hoverAt(element: Element, clientX: number, clientY: number) {
+  fireEvent.mouseEnter(element, { clientX, clientY });
+  fireEvent.mouseMove(element, { clientX, clientY });
 }
 
 // These overrides are safe because each test renders fresh trigger elements before mocking them.
@@ -60,7 +71,7 @@ function mockClientRects(element: Element, rects: RectLike[]) {
 }
 
 describe('<PreviewCard.Positioner />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   describeConformance(<PreviewCard.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -72,6 +83,22 @@ describe('<PreviewCard.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <PreviewCard.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <PreviewCard.Root open>
+            <PreviewCard.Positioner />
+          </PreviewCard.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <PreviewCard.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;
@@ -313,7 +340,7 @@ describe('<PreviewCard.Positioner />', () => {
   });
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <PreviewCard.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <PreviewCard.Portal>
@@ -325,11 +352,14 @@ describe('<PreviewCard.Positioner />', () => {
     );
 
     const positioner = screen.getByTestId('positioner');
-    expect(positioner.style.transform).not.toBe('');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+    unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <PreviewCard.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <PreviewCard.Portal>
@@ -343,9 +373,9 @@ describe('<PreviewCard.Positioner />', () => {
     );
 
     const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).toBe('');
-    });
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {
@@ -358,7 +388,7 @@ describe('<PreviewCard.Positioner />', () => {
     });
 
     it('positions the popup relative to the hovered line of a multiline trigger', async () => {
-      const { user } = await render(
+      await render(
         <div style={multilineWrapperStyle}>
           <PreviewCard.Root>
             <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
@@ -385,13 +415,7 @@ describe('<PreviewCard.Positioner />', () => {
       const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
       const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
-        },
-      ]);
+      hoverAt(trigger, secondLineCenterX, secondLineCenterY);
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {
@@ -413,59 +437,54 @@ describe('<PreviewCard.Positioner />', () => {
       expect(positionerX).toBeLessThanOrEqual(secondLineRect.right + 10);
     });
 
-    it('uses the latest hovered line when opening after a delay', async () => {
-      const { user } = await render(
-        <div style={multilineWrapperStyle}>
-          <PreviewCard.Root>
-            <PreviewCard.Trigger delay={100} data-testid="trigger" style={multilineTriggerStyle}>
-              This is a long text that will wrap across multiple lines in the trigger element
-            </PreviewCard.Trigger>
-            <PreviewCard.Portal>
-              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
-                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
-                  Preview Content
-                </PreviewCard.Popup>
-              </PreviewCard.Positioner>
-            </PreviewCard.Portal>
-          </PreviewCard.Root>
-        </div>,
-      );
+    describe('with delayed opening', () => {
+      clock.withFakeTimers();
 
-      const trigger = screen.getByTestId('trigger');
-      const triggerRects = trigger.getClientRects();
+      it('uses the latest hovered line', async () => {
+        await render(
+          <div style={multilineWrapperStyle}>
+            <PreviewCard.Root>
+              <PreviewCard.Trigger delay={100} data-testid="trigger" style={multilineTriggerStyle}>
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                  <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>,
+        );
 
-      expect(triggerRects.length).toBeGreaterThan(2);
+        const trigger = screen.getByTestId('trigger');
+        const triggerRects = trigger.getClientRects();
 
-      const firstLineRect = triggerRects[0];
-      const secondLineRect = triggerRects[1];
+        expect(triggerRects.length).toBeGreaterThan(2);
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: firstLineRect.left + firstLineRect.width / 2,
-            clientY: firstLineRect.top + firstLineRect.height / 2,
-          },
-        },
-      ]);
+        const firstLineRect = triggerRects[0];
+        const secondLineRect = triggerRects[1];
 
-      await user.pointer([
-        {
-          target: trigger,
-          coords: {
-            clientX: secondLineRect.left + secondLineRect.width / 2,
-            clientY: secondLineRect.top + secondLineRect.height / 2,
-          },
-        },
-      ]);
+        fireEvent.mouseEnter(trigger, {
+          clientX: firstLineRect.left + firstLineRect.width / 2,
+          clientY: firstLineRect.top + firstLineRect.height / 2,
+        });
+        fireEvent.mouseMove(trigger, {
+          clientX: firstLineRect.left + firstLineRect.width / 2,
+          clientY: firstLineRect.top + firstLineRect.height / 2,
+        });
+        fireEvent.mouseMove(trigger, {
+          clientX: secondLineRect.left + secondLineRect.width / 2,
+          clientY: secondLineRect.top + secondLineRect.height / 2,
+        });
 
-      const positioner = await screen.findByTestId('positioner');
-      await waitFor(() => {
-        expect(positioner).toBeVisible();
-      });
+        expect(screen.queryByTestId('positioner')).toBe(null);
 
-      await waitFor(() => {
+        await clock.tickAsync(100);
+        await clock.tickAsync(16);
+
+        const positioner = screen.getByTestId('positioner');
         expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + 5);
       });
     });
@@ -475,7 +494,7 @@ describe('<PreviewCard.Positioner />', () => {
       document.body.style.height = '4000px';
       document.body.style.margin = '0';
 
-      const { user } = await render(
+      await render(
         <div>
           <div style={{ height: 1200 }} />
           <div style={multilineWrapperStyle}>
@@ -511,13 +530,7 @@ describe('<PreviewCard.Positioner />', () => {
       const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
       const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
-        },
-      ]);
+      hoverAt(trigger, secondLineCenterX, secondLineCenterY);
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {
@@ -537,7 +550,7 @@ describe('<PreviewCard.Positioner />', () => {
 
     it('stays anchored to the opened line while already open', async () => {
       let positionUpdateCount = 0;
-      const { user } = await render(
+      await render(
         <div style={multilineWrapperStyle}>
           <PreviewCard.Root>
             <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
@@ -569,16 +582,11 @@ describe('<PreviewCard.Positioner />', () => {
       const firstLineRect = triggerRects[0];
       const secondLineRect = triggerRects[1];
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: firstLineRect.left + firstLineRect.width / 2,
-            clientY: firstLineRect.top + firstLineRect.height / 2,
-          },
-        },
-      ]);
+      hoverAt(
+        trigger,
+        firstLineRect.left + firstLineRect.width / 2,
+        firstLineRect.top + firstLineRect.height / 2,
+      );
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {
@@ -586,16 +594,12 @@ describe('<PreviewCard.Positioner />', () => {
       });
       const positionUpdateCountBeforeReentry = positionUpdateCount;
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: secondLineRect.left + secondLineRect.width / 2,
-            clientY: secondLineRect.top + secondLineRect.height / 2,
-          },
-        },
-      ]);
+      fireEvent.mouseLeave(trigger);
+      hoverAt(
+        trigger,
+        secondLineRect.left + secondLineRect.width / 2,
+        secondLineRect.top + secondLineRect.height / 2,
+      );
 
       window.dispatchEvent(new Event('resize'));
       await waitFor(() => {
@@ -613,16 +617,21 @@ describe('<PreviewCard.Positioner />', () => {
           to { opacity: 0.01; }
         }
         [data-testid="popup"][data-ending-style] {
-          animation: preview-card-inline-reentry-close-transition 50ms linear forwards;
+          animation: preview-card-inline-reentry-close-transition 1000ms linear forwards;
         }
       `;
 
-      const { user } = await render(
+      await render(
         <React.Fragment>
           <style>{style}</style>
           <div style={multilineWrapperStyle}>
             <PreviewCard.Root>
-              <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
+              <PreviewCard.Trigger
+                delay={0}
+                closeDelay={0}
+                data-testid="trigger"
+                style={multilineTriggerStyle}
+              >
                 This is a long text that will wrap across multiple lines in the trigger element
               </PreviewCard.Trigger>
               <PreviewCard.Portal>
@@ -645,36 +654,30 @@ describe('<PreviewCard.Positioner />', () => {
       const firstLineRect = triggerRects[0];
       const secondLineRect = triggerRects[1];
 
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: firstLineRect.left + firstLineRect.width / 2,
-            clientY: firstLineRect.top + firstLineRect.height / 2,
-          },
-        },
-      ]);
+      hoverAt(
+        trigger,
+        firstLineRect.left + firstLineRect.width / 2,
+        firstLineRect.top + firstLineRect.height / 2,
+      );
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + 5);
       });
 
-      await user.pointer([{ target: document.body, coords: { clientX: 300, clientY: 300 } }]);
+      fireEvent.mouseLeave(trigger);
       await waitFor(() => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
       });
 
-      await user.pointer([
-        {
-          target: trigger,
-          coords: {
-            clientX: secondLineRect.left + secondLineRect.width / 2,
-            clientY: secondLineRect.top + secondLineRect.height / 2,
-          },
-        },
-      ]);
+      fireEvent.mouseMove(trigger, {
+        clientX: secondLineRect.left + secondLineRect.width / 2,
+        clientY: secondLineRect.top + secondLineRect.height / 2,
+      });
+      fireEvent.mouseEnter(trigger, {
+        clientX: secondLineRect.left + secondLineRect.width / 2,
+        clientY: secondLineRect.top + secondLineRect.height / 2,
+      });
 
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + 5);
@@ -782,35 +785,30 @@ describe('<PreviewCard.Positioner />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       const trigger = screen.getByTestId('trigger');
       const triggerRects = trigger.getClientRects();
 
       expect(triggerRects.length).toBeGreaterThan(2);
 
       const secondLineRect = triggerRects[1];
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: secondLineRect.left + secondLineRect.width / 2,
-            clientY: secondLineRect.top + secondLineRect.height / 2,
-          },
-        },
-      ]);
+      hoverAt(
+        trigger,
+        secondLineRect.left + secondLineRect.width / 2,
+        secondLineRect.top + secondLineRect.height / 2,
+      );
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + sideOffset);
       });
 
-      await user.click(screen.getByRole('button', { name: 'Close' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => {
         expect(positioner).toHaveAttribute('hidden');
       });
 
-      await user.click(screen.getByRole('button', { name: 'Open' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Open' }));
 
       const targetRect = triggerRects[triggerRects.length - 1];
       await waitFor(() => {
@@ -842,7 +840,7 @@ describe('<PreviewCard.Positioner />', () => {
                 id="trigger-1"
                 data-testid="trigger-1"
                 delay={0}
-                style={{ display: 'inline' }}
+                style={{ display: 'inline', pointerEvents: 'none' }}
               >
                 Trigger 1
               </PreviewCard.Trigger>
@@ -851,7 +849,7 @@ describe('<PreviewCard.Positioner />', () => {
                 id="trigger-2"
                 data-testid="trigger-2"
                 delay={0}
-                style={{ display: 'inline' }}
+                style={{ display: 'inline', pointerEvents: 'none' }}
               >
                 Trigger 2
               </PreviewCard.Trigger>
@@ -877,7 +875,7 @@ describe('<PreviewCard.Positioner />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       const trigger1 = screen.getByTestId('trigger-1');
       const trigger2 = screen.getByTestId('trigger-2');
 
@@ -890,16 +888,13 @@ describe('<PreviewCard.Positioner />', () => {
         { left: 100, top: 120, right: 160, bottom: 130, width: 60, height: 10 },
       ]);
 
-      await user.pointer([
-        { target: document.body },
-        { target: trigger1, coords: { clientX: 200, clientY: 5 } },
-      ]);
+      hoverAt(trigger1, 200, 5);
 
       await waitFor(() => {
         expect(screen.getByTestId('positioner')).toBeVisible();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Switch' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Switch' }));
 
       const positioner = screen.getByTestId('positioner');
 
@@ -923,7 +918,13 @@ describe('<PreviewCard.Positioner />', () => {
           <div>
             <div ref={setPortalContainer} data-testid="portal-container" />
             <PreviewCard.Root>
-              <PreviewCard.Trigger ref={triggerRef} href="#" delay={0} data-testid="trigger">
+              <PreviewCard.Trigger
+                ref={triggerRef}
+                href="#"
+                delay={0}
+                data-testid="trigger"
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger
               </PreviewCard.Trigger>
               <PreviewCard.Portal keepMounted container={portalContainer}>
@@ -945,7 +946,7 @@ describe('<PreviewCard.Positioner />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       const portalContainer = screen.getByTestId('portal-container');
       const trigger = screen.getByTestId('trigger');
       const positioner = screen.getByTestId('positioner');
@@ -955,10 +956,7 @@ describe('<PreviewCard.Positioner />', () => {
         { left: 0, top: 100, right: 60, bottom: 110, width: 60, height: 10 },
       ]);
 
-      await user.pointer([
-        { target: document.body },
-        { target: trigger, coords: { clientX: 30, clientY: 105 } },
-      ]);
+      hoverAt(trigger, 30, 105);
 
       await waitFor(() => {
         expect(positioner).toBeVisible();
@@ -1073,16 +1071,11 @@ describe('<PreviewCard.Positioner />', () => {
       expect(triggerRects.length).toBeGreaterThan(2);
 
       const secondLineRect = triggerRects[1];
-      await user.pointer([
-        { target: document.body },
-        {
-          target: trigger,
-          coords: {
-            clientX: secondLineRect.left + secondLineRect.width / 2,
-            clientY: secondLineRect.top + secondLineRect.height / 2,
-          },
-        },
-      ]);
+      hoverAt(
+        trigger,
+        secondLineRect.left + secondLineRect.width / 2,
+        secondLineRect.top + secondLineRect.height / 2,
+      );
 
       const targetRect = triggerRects[0];
       const expectedY = targetRect.top - inlinePopupHeight - sideOffset;
@@ -1099,5 +1092,44 @@ describe('<PreviewCard.Positioner />', () => {
         expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
     });
+  });
+
+  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
+    const { unmount } = await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+    unmount();
+  });
+
+  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
+    const { unmount } = await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>
+              <PreviewCard.Viewport>Popup</PreviewCard.Viewport>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 });

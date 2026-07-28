@@ -62,7 +62,7 @@ export function DemoFileSelector({
   }
 
   return (
-    <Tabs.Root value={selectedFileName} onValueChange={onValueChange}>
+    <Tabs.Root className="DemoTabsRoot" value={selectedFileName} onValueChange={onValueChange}>
       <Tabs.List className="DemoTabsList" aria-label="Files">
         {tabs.map((tab: Tab) => (
           <Tabs.Tab
