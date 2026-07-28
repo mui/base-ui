@@ -29,15 +29,12 @@ export default function ExampleDialog() {
             <Fieldset.Root className={styles.Fieldset}>
               <Field.Root className={styles.Field}>
                 <Field.Label className={styles.Label}>Full name</Field.Label>
-                <Field.Control
-                  ref={initialFocusRef}
-                  placeholder="Enter your name"
-                  className={styles.Input}
-                />
+                <Field.Control placeholder="Enter your name" className={styles.Input} />
               </Field.Root>
               <Field.Root className={styles.Field}>
                 <Field.Label className={styles.Label}>Feedback</Field.Label>
                 <Field.Control
+                  ref={initialFocusRef}
                   required
                   placeholder="Enter your feedback"
                   className={styles.Input}

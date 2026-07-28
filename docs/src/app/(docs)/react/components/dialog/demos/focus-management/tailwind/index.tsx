@@ -31,7 +31,6 @@ export default function ExampleDialog() {
               <Field.Root className="flex flex-col items-start gap-1">
                 <Field.Label className="text-sm font-normal">Full name</Field.Label>
                 <Field.Control
-                  ref={initialFocusRef}
                   placeholder="Enter your name"
                   className="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
                 />
@@ -39,6 +38,7 @@ export default function ExampleDialog() {
               <Field.Root className="flex flex-col items-start gap-1">
                 <Field.Label className="text-sm font-normal">Feedback</Field.Label>
                 <Field.Control
+                  ref={initialFocusRef}
                   required
                   placeholder="Enter your feedback"
                   className="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
