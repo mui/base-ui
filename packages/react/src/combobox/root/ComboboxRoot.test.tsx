@@ -5044,6 +5044,7 @@ describe('<Combobox.Root />', () => {
       const items = [
         { value: 'a', label: 'Apple' },
         { value: 'b', label: 'Banana' },
+        { value: 'c', label: 'Cherry' },
       ];
 
       const { setProps } = await render(
@@ -5052,10 +5053,121 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
       await setProps({ value: items[1] });
 
-      expect(screen.getByRole<HTMLInputElement>('combobox')).toHaveValue('Banana');
+      expect(input).toHaveValue('Banana');
       expect(onInputValueChange).toHaveBeenCalledTimes(1);
+
+      await setProps({ value: items[2] });
+
+      expect(input).toHaveValue('Cherry');
+      expect(onInputValueChange).toHaveBeenCalledTimes(2);
+
+      await setProps({ value: items[0] });
+
+      expect(input).toHaveValue('Apple');
+      expect(onInputValueChange).toHaveBeenCalledTimes(3);
+    });
+
+    it('syncs again after a canceled sync to the same label', async () => {
+      let cancelSync = false;
+
+      function App(props: { value: string }) {
+        return (
+          <Combobox.Root
+            items={['One', 'Two']}
+            value={props.value}
+            onInputValueChange={(_, eventDetails) => {
+              if (cancelSync && eventDetails.reason === 'none') {
+                eventDetails.cancel();
+              }
+            }}
+          >
+            <Combobox.Input />
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App value="One" />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      expect(input).toHaveValue('One');
+
+      cancelSync = true;
+      await setProps({ value: 'Two' });
+
+      expect(input).toHaveValue('One');
+
+      // The input already matches this label, so nothing is written and nothing observes a change.
+      cancelSync = false;
+      await setProps({ value: 'One' });
+
+      expect(input).toHaveValue('One');
+
+      await setProps({ value: 'Two' });
+
+      expect(input).toHaveValue('Two');
+    });
+
+    it('reports a single input value change when the selection is remapped', async () => {
+      const onInputValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState('Apple');
+        return (
+          <Combobox.Root
+            items={['Apple', 'Banana', 'Cherry']}
+            value={value}
+            onValueChange={(next) => setValue(next === 'Banana' ? 'Cherry' : (next ?? ''))}
+            onInputValueChange={onInputValueChange}
+            defaultOpen
+          >
+            <Combobox.Input />
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(screen.getByRole<HTMLInputElement>('combobox')).toHaveValue('Cherry');
+      expect(
+        onInputValueChange.mock.calls.map(([next, details]) => [next, details.reason]),
+      ).toEqual([
+        ['Banana', 'item-press'],
+        ['Cherry', 'none'],
+      ]);
+    });
+
+    it('re-syncs the input when the resolved label of an unchanged value changes', async () => {
+      function App(props: { itemToStringLabel: (value: string) => string }) {
+        return (
+          <Combobox.Root items={['a', 'b']} value="b" itemToStringLabel={props.itemToStringLabel}>
+            <Combobox.Input />
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App itemToStringLabel={(value) => value} />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      expect(input).toHaveValue('b');
+
+      await setProps({
+        itemToStringLabel: (value: string) => (value === 'b' ? 'Banana' : value),
+      });
+
+      expect(input).toHaveValue('Banana');
     });
 
     it('restores derived input after items load asynchronously', async () => {

@@ -1026,7 +1026,10 @@ type ComboboxItemIndicatorState = {
 
 ### ComboboxItemCollection
 
-Normalized items created by `useItems()`, accepted by the root's `items` prop.
+An opaque handle to the normalized items created by `useItems()`.
+It carries the source item type and the derived value type, which is how the root infers what
+the list renders and what selection receives. It exposes no members of its own: the only valid
+use is passing it to the root's `items` prop.
 
 ### InputGroup
 
@@ -1124,12 +1127,14 @@ Normalizes items into a collection for the root's `items` prop, deriving each it
 selection value and label before rendering.
 Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
 accessors always receive individual items, never groups.
+An item must not itself have an `items` array property: such an entry is read as a group,
+both in the types and at runtime.
 
 **Parameters:**
 
 | Parameter | Type                                                    | Default | Description |
 | :-------- | :------------------------------------------------------ | :------ | :---------- |
-| data      | `(Item \| { items: Item[] })[]`                         | -       | -           |
+| data      | `(Item \| { items: Item[] })[] \| undefined`            | -       | -           |
 | options?  | `UseComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
 
 **Return Value:**
@@ -1191,6 +1196,8 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * By default, the item itself is used as the value.
    * `null` and `undefined` are reserved for no selection.
    * Prefer stable IDs from your application data.
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
    * Keep this function reference stable to preserve collection memoization.
    */
   getValue?: (item: Item) => Value;
@@ -1199,6 +1206,8 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
    * and must handle every possible selected value.
    * By default, the item's derived value is stringified.
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
    * Keep this function reference stable to preserve collection memoization.
    */
   getLabel?: (item: Item) => string;

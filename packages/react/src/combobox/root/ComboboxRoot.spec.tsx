@@ -312,6 +312,12 @@ function UseItemsApp() {
   const labelOnlyCollection = Combobox.useItems(userItems, {
     getLabel: (item) => item.name,
   });
+  // Data that has not loaded yet: the item type comes from the accessors instead.
+  const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.useItems(
+    undefined as { id: number }[] | undefined,
+    { getValue: (item) => item.id },
+  );
+  void pendingCollection;
 
   // @ts-expect-error A collection exposes no data-manipulation methods.
   collection.each;

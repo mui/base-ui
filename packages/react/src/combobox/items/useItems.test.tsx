@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
-import { act, screen, renderHook } from '@mui/internal-test-utils';
+import { act, screen, renderHook, waitFor } from '@mui/internal-test-utils';
 
 interface User {
   id: number;
@@ -41,7 +41,7 @@ describe('Combobox.useItems', () => {
       expect(result.current).toBe(first);
     });
 
-    it('is rebuilt when the source data changes', async () => {
+    it('is rebuilt when the source data changes', () => {
       const { result, rerender } = renderHook(
         (props: { data: User[] }) =>
           Combobox.useItems(props.data, { getValue: getUserId, getLabel: getUserName }),
@@ -54,10 +54,40 @@ describe('Combobox.useItems', () => {
       expect(result.current).not.toBe(first);
     });
 
+    it('rejects an items object that is not a collection', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        await expect(render(<Combobox.Root items={{ a: 'A' } as any} />)).rejects.toThrow(
+          /not a collection/,
+        );
+      } finally {
+        errorSpy.mockRestore();
+      }
+    });
+
     it('passes the data through unchanged when no accessors are given', () => {
       const { result } = renderHook(() => Combobox.useItems(users));
 
       expect(result.current).toBe(users);
+    });
+
+    it('is referentially stable across re-renders while the data is undefined', () => {
+      const { result, rerender } = renderHook(() =>
+        Combobox.useItems(undefined, { getValue: getUserId, getLabel: getUserName }),
+      );
+      const first = result.current;
+
+      rerender();
+
+      expect(result.current).toBe(first);
+    });
+
+    it('shares one empty array between accessor-less hooks with undefined data', () => {
+      const { result: first } = renderHook(() => Combobox.useItems(undefined));
+      const { result: second } = renderHook(() => Combobox.useItems(undefined));
+
+      expect(first.current).toBe(second.current);
     });
   });
 
@@ -191,6 +221,149 @@ describe('Combobox.useItems', () => {
       await render(<App />);
 
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Carol');
+    });
+
+    it('renders an empty list while the data is undefined and fills in once it loads', async () => {
+      function App(props: { data: User[] | undefined }) {
+        const items = Combobox.useItems(props.data, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App data={undefined} />);
+
+      expect(screen.queryAllByRole('option')).toHaveLength(0);
+
+      await setProps({ data: users });
+
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+    });
+
+    it('resolves and degrades the selected label as the data loads and shrinks', async () => {
+      function App(props: { data: User[] | undefined }) {
+        const items = Combobox.useItems(props.data, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App data={undefined} />);
+
+      expect(screen.getByTestId('input')).toHaveValue('3');
+
+      await setProps({ data: users });
+
+      expect(screen.getByTestId('input')).toHaveValue('Carol');
+
+      await setProps({ data: [users[0]] });
+
+      expect(screen.getByTestId('input')).toHaveValue('3');
+    });
+
+    it('labels items by their derived value when no label accessor is given', async () => {
+      function App() {
+        const items = Combobox.useItems(users, { getValue: getUserId });
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.type(input, '2');
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
+
+      await user.click(screen.getByRole('option', { name: 'Bob' }));
+
+      expect(input).toHaveValue('2');
+    });
+
+    it('warns when an item value is a source item rather than a derived value', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining(
+            'Base UI: the `value` prop of <Combobox.Item> did not match any value derived by the `items` collection',
+          ),
+        );
+      });
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('does not warn when item values are derived values', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} defaultOpen>
+            <Combobox.Input />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
     });
 
     it('highlights an initially selected derived value when opened', async () => {
@@ -636,6 +809,44 @@ describe('Combobox.useItems', () => {
       expect(screen.getByDisplayValue('2')).toHaveAttribute('name', 'user');
     });
 
+    it('serializes the derived value with itemToStringValue', async () => {
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root
+            items={items}
+            name="user"
+            defaultValue={2}
+            itemToStringValue={(id) => `user-${id}`}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByDisplayValue('user-2')).toHaveAttribute('name', 'user');
+    });
+
+    it('passes the derived value to the Combobox.Value render prop', async () => {
+      const renderValue = vi.fn((itemValue: number | null) => String(itemValue));
+
+      function App() {
+        const items = useUserItems();
+        return (
+          <Combobox.Root items={items} defaultValue={2}>
+            <span data-testid="value">
+              <Combobox.Value>{renderValue}</Combobox.Value>
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(renderValue).toHaveBeenCalledWith(2);
+      expect(screen.getByTestId('value')).toHaveTextContent('2');
+    });
+
     it('renders every selected label via Combobox.Value in multiple mode', async () => {
       function App() {
         const items = useUserItems();
@@ -766,8 +977,8 @@ describe('Combobox.useItems', () => {
         );
       }
 
-      // Resolving a value that is absent first forces the lazy label index to run to completion,
-      // which must not change what the duplicated value resolves to.
+      // Resolving an absent value first exercises the fallback path, which must not change what
+      // the duplicated value resolves to: the first occurrence always wins.
       const { setProps } = await render(<App value={99} />);
       await setProps({ value: 1 });
 
@@ -980,6 +1191,33 @@ describe('Combobox.useItems', () => {
       expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
       expect(filter.mock.calls.every(([item]) => 'name' in item)).toBe(true);
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
+    });
+
+    it('applies the limit across groups and drops the emptied ones', async () => {
+      await render(<GroupedApp defaultOpen limit={1} />);
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      expect(screen.getByText('Engineering')).not.toBe(null);
+      expect(screen.queryByText('Design')).toBe(null);
+    });
+
+    it('projects externally filtered grouped source items into the derived value domain', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <GroupedApp
+          defaultOpen
+          filteredItems={[{ value: 'Design', items: [users[2]] }]}
+          onValueChange={onValueChange}
+        />,
+      );
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
     it('only applies accessors to group items', async () => {

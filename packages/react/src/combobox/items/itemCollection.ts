@@ -2,7 +2,10 @@ import type { Group } from '../../internals/resolveValueLabel';
 import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
 /**
- * Normalized items created by `useItems()`, accepted by the root's `items` prop.
+ * An opaque handle to the normalized items created by `useItems()`.
+ * It carries the source item type and the derived value type, which is how the root infers what
+ * the list renders and what selection receives. It exposes no members of its own: the only valid
+ * use is passing it to the root's `items` prop.
  */
 export declare class ComboboxItemCollection<in out Item, Value = Item> {
   private constructor();

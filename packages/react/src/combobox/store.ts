@@ -12,6 +12,13 @@ export type State = {
   labelId: string | undefined;
 
   items: readonly any[] | undefined;
+  /**
+   * Development only: every value the active `useItems()` collection derives, unfiltered.
+   * Lets an item check its `value` prop against the derived value domain. Kept on the store
+   * rather than on the derived-items context so items don't subscribe to a value that changes
+   * on every keystroke. Never written in production builds.
+   */
+  collectionValues?: any[] | undefined;
 
   selectedValue: any;
 
@@ -96,6 +103,7 @@ export const selectors = {
   labelId: (state: State) => state.labelId,
 
   items: (state: State) => state.items,
+  collectionValues: (state: State) => state.collectionValues,
 
   selectedValue: (state: State) => state.selectedValue,
   hasSelectionChips: (state: State) => {

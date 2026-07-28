@@ -170,6 +170,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     | readonly Group<Item>[]
     | undefined;
   const itemToValue = collection?.value;
+  // A collection's items live in the source domain rather than the selection-value domain, so
+  // they are withheld from the store: `itemToStringLabel` already resolves a selected value
+  // through the collection, and matching it against source items would resolve nothing.
+  const storeItems = collection ? undefined : items;
   const itemToStringLabel = React.useMemo(() => {
     if (itemToStringLabelProp) {
       return itemToStringLabelProp;
@@ -291,7 +295,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? String(inputValue).trim();
 
-  const selectedLabelString = single ? stringifyItemLabel(selectedValue) : '';
+  // Memoized so the collection's comparer scan for an out-of-collection value only runs when the
+  // selection or the label resolver changes, rather than on every render.
+  const selectedLabelString = React.useMemo(
+    () => (single ? stringifyAsLabel(selectedValue, itemToStringLabel) : ''),
+    [single, selectedValue, itemToStringLabel],
+  );
 
   const shouldBypassFiltering =
     single &&
@@ -362,7 +371,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return limit > -1
         ? flatItems.slice(0, limit)
         : // The cast here is done as `flatItems` is readonly.
-          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
+          // valuesRef.current, a mutable ref, can be set to `flatFilteredValues`, which may
           // reference this exact readonly value, creating a mutation risk.
           // However, <Combobox.Item> can never mutate this value as the mutating effect
           // bails early when `items` is provided, and this is only ever returned
@@ -427,7 +436,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       labelId: undefined,
       selectedValue,
       open,
-      items: collection ? undefined : items,
+      items: storeItems,
       selectionMode,
       listRef,
       labelsRef,
@@ -916,13 +925,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
       // the index on the next open.
-      let registry: readonly any[] = valuesRef.current;
-      if (hasItems) {
-        registry = itemToValue ? flatItems.map((item) => itemToValue(item)) : flatItems;
-      }
+      // A collection's source items are projected lazily by the search itself, so a match near
+      // the front of a long list doesn't pay for projecting the whole list.
+      const registry: readonly any[] = hasItems ? flatItems : valuesRef.current;
 
       setIndices({
-        selectedIndex: findSelectionIndex(registry, selectedValue, isItemEqualToValue, multiple),
+        selectedIndex: findSelectionIndex(
+          registry,
+          selectedValue,
+          isItemEqualToValue,
+          multiple,
+          hasItems ? itemToValue : undefined,
+        ),
       });
     },
     [
@@ -944,6 +958,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       listRef.current.length = flatFilteredValues.length;
     }
   }, [items, flatFilteredValues]);
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
+  if (process.env.NODE_ENV !== 'production') {
+    // Published so that each item can check its `value` prop against the values the collection
+    // actually derives. Only changes with the collection, so items are not woken per keystroke.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      store.set(
+        'collectionValues',
+        itemToValue ? flatItems.map((item) => itemToValue(item)) : undefined,
+      );
+    }, [store, flatItems, itemToValue]);
+  }
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -1109,14 +1136,27 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // A selection change usually changes the resolved label too, so both syncs below can land in
   // the same commit. The second one would still see the pre-commit `inputValue` and write again,
   // firing `onInputValueChange` twice, so the pending write is recorded until it lands.
+  // The marker is cleared by the `inputValue` hook, which must therefore stay declared after both
+  // syncs: layout effects run in declaration order, so an earlier clear would drop the marker
+  // between the two syncs and let the duplicate write through.
   const pendingSyncedLabelRef = React.useRef<string | undefined>(undefined);
 
   function syncInputToSelectedLabel() {
-    const nextInputValue = stringifyItemLabel(selectedValue);
+    if (
+      inputValue === selectedLabelString ||
+      pendingSyncedLabelRef.current === selectedLabelString
+    ) {
+      return;
+    }
 
-    if (inputValue !== nextInputValue && pendingSyncedLabelRef.current !== nextInputValue) {
-      pendingSyncedLabelRef.current = nextInputValue;
-      setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
+    pendingSyncedLabelRef.current = selectedLabelString;
+    const eventDetails = createChangeEventDetails(REASONS.none);
+    setInputValue(selectedLabelString, eventDetails);
+
+    // A canceled write never lands, so nothing will ever clear the marker; releasing it here keeps
+    // a later sync to the same label from being suppressed forever.
+    if (eventDetails.isCanceled) {
+      pendingSyncedLabelRef.current = undefined;
     }
   }
 
@@ -1135,6 +1175,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
+  // Keyed on the resolved label rather than the items identity: the sync only has an effect
+  // when the label of the current selection changes, and a `useItems()` collection built with
+  // inline accessors is a new object on every render despite resolving the same label.
+  useValueChanged(selectedLabelString, () => {
+    if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
+      return;
+    }
+
+    syncInputToSelectedLabel();
+  });
+
   useValueChanged(inputValue, () => {
     // Any observed input change means the pending write has either landed or been superseded.
     pendingSyncedLabelRef.current = undefined;
@@ -1147,17 +1198,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setDirty(inputValue !== validityData.initialValue);
 
     validation.change(inputValue);
-  });
-
-  // Keyed on the resolved label rather than the items identity: the sync only has an effect
-  // when the label of the current selection changes, and a `useItems()` collection built with
-  // inline accessors is a new object on every render despite resolving the same label.
-  useValueChanged(selectedLabelString, () => {
-    if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
-      return;
-    }
-
-    syncInputToSelectedLabel();
   });
 
   const floatingRootContext = useFloatingRootContext({
@@ -1347,7 +1387,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       open,
       mounted,
       transitionStatus,
-      items: collection ? undefined : items,
+      items: storeItems,
       inline: inlineProp,
       popupProps,
       listProps,
@@ -1379,8 +1419,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     open,
     mounted,
     transitionStatus,
-    items,
-    collection,
+    storeItems,
     popupProps,
     listProps,
     inputProps,

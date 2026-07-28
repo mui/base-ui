@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
@@ -23,6 +24,8 @@ type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
  * selection value and label before rendering.
  * Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
  * accessors always receive individual items, never groups.
+ * An item must not itself have an `items` array property: such an entry is read as a group,
+ * both in the types and at runtime.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
@@ -30,57 +33,55 @@ type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
  * or the accessor's return value when it is provided.
  */
 export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue = never>(
-  data: readonly (Item | { items: ReadonlyArray<Item> })[],
+  data: readonly (Item | { items: ReadonlyArray<Item> })[] | undefined,
   options?: UseComboboxItemsOptions<Item, Value>,
 ): ComboboxItemCollection<Item, [Value] extends [never] ? Item : Value>;
 
 export function useComboboxItems<ItemOrGroup, Value>(
-  data: readonly ItemOrGroup[],
+  data: readonly ItemOrGroup[] | undefined,
   options: UseComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> = {},
 ): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value> {
   type Item = ComboboxCollectionItem<ItemOrGroup>;
   const { getValue, getLabel } = options;
 
   return React.useMemo(() => {
+    // Data that has not loaded yet resolves to a shared empty array so the collection keeps a
+    // stable identity, which callers would otherwise lose to a fresh `[]` fallback per render.
+    const resolvedData = data ?? (EMPTY_ARRAY as readonly ItemOrGroup[]);
+
     // Without accessors the collection would resolve every item to itself, which is exactly what
     // a plain array already does. Handing the array back keeps `items` on its original code path,
     // preserving React node labels and the null item's placeholder override.
     if (!getValue && !getLabel) {
-      return data;
+      return resolvedData;
     }
 
     const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
     const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
-    const leafItems = isGroupedItems(data)
-      ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
-      : (data as readonly Item[]);
+    const leafItems = isGroupedItems(resolvedData)
+      ? (resolvedData as readonly Group<Item>[]).flatMap((group) => group.items)
+      : (resolvedData as readonly Item[]);
     const labels = new Map<Value, string>();
-    let indexedItems = 0;
+    for (const item of leafItems) {
+      const derivedValue = itemToValue(item);
+      // First occurrence wins, so a duplicated derived value resolves to one stable label.
+      if (!labels.has(derivedValue)) {
+        labels.set(derivedValue, itemToLabel(item));
+      }
+    }
 
     return {
-      data,
+      data: resolvedData,
       value: itemToValue,
       itemLabel: itemToLabel,
       label: (itemValue: Value, isItemEqualToValue?: ItemEqualityComparer<Value> | undefined) => {
-        while (!labels.has(itemValue) && indexedItems < leafItems.length) {
-          const item = leafItems[indexedItems];
-          indexedItems += 1;
-          const derivedValue = itemToValue(item);
-          // First occurrence wins, so a duplicated derived value resolves to one stable label
-          // rather than one that depends on how far the lazy index happened to advance.
-          if (!labels.has(derivedValue)) {
-            labels.set(derivedValue, itemToLabel(item));
-          }
-        }
-
         const exactLabel = labels.get(itemValue);
         if (exactLabel !== undefined) {
           return exactLabel;
         }
 
         // The exact lookup above already covers identity, so only a custom comparer can still
-        // match. Skipping the scan for the default keeps a missing value off an O(n) path that
-        // runs on every render.
+        // match. Skipping the scan for the default keeps the O(n) comparison off the common path.
         if (isItemEqualToValue && isItemEqualToValue !== defaultItemEquality) {
           for (const [valueToCompare, itemLabel] of labels) {
             if (compareItemEquality(valueToCompare, itemValue, isItemEqualToValue)) {
@@ -104,6 +105,8 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * By default, the item itself is used as the value.
    * `null` and `undefined` are reserved for no selection.
    * Prefer stable IDs from your application data.
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
    * Keep this function reference stable to preserve collection memoization.
    */
   getValue?: ((item: Item) => Value) | undefined;
@@ -112,6 +115,8 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
    * and must handle every possible selected value.
    * By default, the item's derived value is stringified.
+   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
+   * when the data can contain them.
    * Keep this function reference stable to preserve collection memoization.
    */
   getLabel?: ((item: Item) => string) | undefined;
