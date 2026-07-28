@@ -253,19 +253,19 @@ describe('<Combobox.Collection />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(groups[0].items[1]);
   });
 
-  it('passes the source value through custom item components', async () => {
+  it('passes the source value through custom item components with a value prop', async () => {
     const items = [{ id: 1, label: 'alpha' }];
     const onValueChange = vi.fn();
 
-    function CustomItem(props: { item: (typeof items)[number] }) {
-      return <Combobox.Item>{props.item.label}</Combobox.Item>;
+    function CustomItem(props: { value: (typeof items)[number] }) {
+      return <Combobox.Item>{props.value.label}</Combobox.Item>;
     }
 
     const { user } = await render(
       <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
         <Combobox.Input />
         <Combobox.List>
-          {(item: (typeof items)[number]) => <CustomItem key={item.id} item={item} />}
+          {(item: (typeof items)[number]) => <CustomItem key={item.id} value={item} />}
         </Combobox.List>
       </Combobox.Root>,
     );

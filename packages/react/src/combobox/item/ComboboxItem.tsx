@@ -16,7 +16,11 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
-import { NO_COMBOBOX_ITEM_VALUE, useComboboxItemValueContext } from './ComboboxItemValueContext';
+import {
+  COMBOBOX_ITEM_IDENTIFIER,
+  NO_COMBOBOX_ITEM_VALUE,
+  useComboboxItemValueContext,
+} from './ComboboxItemValueContext';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -280,6 +284,10 @@ export const ComboboxItem = React.memo(
     );
   }),
 );
+
+(ComboboxItem as typeof ComboboxItem & { [COMBOBOX_ITEM_IDENTIFIER]: true })[
+  COMBOBOX_ITEM_IDENTIFIER
+] = true;
 
 export interface ComboboxItemState {
   /**

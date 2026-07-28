@@ -3,7 +3,10 @@ import * as React from 'react';
 import { isGroupedItems } from '../../internals/resolveValueLabel';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
-import { ComboboxItemValueContext } from '../item/ComboboxItemValueContext';
+import {
+  COMBOBOX_ITEM_IDENTIFIER,
+  ComboboxItemValueContext,
+} from '../item/ComboboxItemValueContext';
 
 /**
  * Renders filtered list items.
@@ -53,7 +56,13 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
 }
 
 function hasExplicitValue(child: React.ReactNode) {
-  return React.isValidElement<{ value?: unknown }>(child) && child.props.value !== undefined;
+  return (
+    React.isValidElement<{ value?: unknown }>(child) &&
+    child.props.value !== undefined &&
+    (child.type as { [COMBOBOX_ITEM_IDENTIFIER]?: boolean | undefined })[
+      COMBOBOX_ITEM_IDENTIFIER
+    ] === true
+  );
 }
 
 export interface ComboboxCollectionState {}

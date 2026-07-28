@@ -8,6 +8,11 @@ import * as React from 'react';
 export const NO_COMBOBOX_ITEM_VALUE = Symbol();
 
 /**
+ * Identifies Base UI combobox item components without importing their implementation.
+ */
+export const COMBOBOX_ITEM_IDENTIFIER = Symbol();
+
+/**
  * Holds the source item for each child rendered by `Combobox.Collection`, letting
  * `Combobox.Item` default its `value` to the item it was rendered from.
  */
