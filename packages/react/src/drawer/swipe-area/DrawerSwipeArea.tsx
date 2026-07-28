@@ -103,6 +103,8 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const dragDeltaRef = React.useRef({ x: 0, y: 0 });
   const closedOffsetRef = React.useRef<number | null>(null);
   const appliedSwipeStylesRef = React.useRef(false);
+  const swipePopupElementRef = React.useRef<HTMLElement | null>(null);
+  const swipeBackdropElementRef = React.useRef<HTMLElement | null>(null);
   const popupTransitionRef = React.useRef<string | null>(null);
   const releaseGuardCleanupRef = React.useRef<() => void>(NOOP);
 
@@ -228,6 +230,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementX, `${movementX}px`);
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementY, `${movementY}px`);
     popupElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
+    swipePopupElementRef.current = popupElement;
     if (popupTransitionRef.current === null) {
       popupTransitionRef.current = popupElement.style.transition;
     }
@@ -236,6 +239,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const backdropElement = store.context.backdropRef.current;
     if (backdropElement) {
       backdropElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
+      swipeBackdropElementRef.current = backdropElement;
       backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${backdropProgress}`);
       if (openProgress > 0 && frontmostHeight > 0) {
         backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
@@ -253,8 +257,8 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   }
 
   const clearSwipeStyles = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
-    if (popupElement && appliedSwipeStylesRef.current) {
+    const popupElement = swipePopupElementRef.current;
+    if (popupElement) {
       popupElement.style.removeProperty(DrawerPopupCssVars.swipeMovementX);
       popupElement.style.removeProperty(DrawerPopupCssVars.swipeMovementY);
       popupElement.removeAttribute(DrawerPopupDataAttributes.swiping);
@@ -265,7 +269,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       popupTransitionRef.current = null;
     }
 
-    const backdropElement = store.context.backdropRef.current;
+    const backdropElement = swipeBackdropElementRef.current;
     if (backdropElement) {
       backdropElement.removeAttribute(DrawerPopupDataAttributes.swiping);
       backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, '0');
@@ -274,6 +278,8 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
     providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
     appliedSwipeStylesRef.current = false;
+    swipePopupElementRef.current = null;
+    swipeBackdropElementRef.current = null;
     swipeAreaActiveRef.current = false;
   });
 
@@ -386,7 +392,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     }
   });
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       resetSwipe();
       resetDragDelta();

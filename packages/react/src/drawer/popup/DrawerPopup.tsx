@@ -267,7 +267,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     };
   }, [nestedSwipeProgressStore, popupRef]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open) {
       return undefined;
     }
@@ -279,7 +279,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     };
   }, [frontmostHeight, open, notifyParentFrontmostHeight]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!notifyParentHasNestedDrawer) {
       return undefined;
     }

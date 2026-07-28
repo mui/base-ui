@@ -72,6 +72,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inheritedLabel = externalAriaLabelledBy ?? inputAriaLabelledBy;
   const ariaLabel = index === 0 ? undefined : slotAriaLabel;
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -275,6 +276,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       try {
         rawValue = event.clipboardData?.getData('text/plain') ?? '';
       } catch {
+        /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           warn(

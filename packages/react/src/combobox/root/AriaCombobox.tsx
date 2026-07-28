@@ -406,6 +406,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       activeIndex: null,
       selectedIndex: initialSelectedIndex,
       popupProps: {},
+      listProps: {},
       inputProps: {},
       triggerProps: {},
       itemProps: EMPTY_OBJECT,
@@ -484,14 +485,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       store.set('forceMounted', true);
     }
   });
-
-  const initialSelectedValueRef = React.useRef(selectedValue);
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (selectedValue !== initialSelectedValueRef.current) {
-      forceMount();
-    }
-  }, [forceMount, selectedValue]);
 
   /**
    * Emits `onItemHighlighted` for the item at `index`, or clears the highlight when `index` is `-1`
@@ -864,7 +857,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // Without `items`, look the selection up in the live registry of mounted item
       // values (the list stays mounted while closed when closed-state features need
-      // it — trigger focus and programmatic value changes force-mount it). Mounted
+      // it — trigger interaction and rendered-label autofill force-mount it). Mounted
       // items re-assert the index themselves when their registration moves; when
       // nothing is mounted the lookup resolves to `null` and each item re-registers
       // the index on the next open.
@@ -1105,19 +1098,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  let ariaHasPopup: 'grid' | 'listbox' | undefined;
-  let ariaExpanded: 'true' | 'false' | undefined;
-  if (!inline) {
-    ariaHasPopup = grid ? 'grid' : 'listbox';
-    ariaExpanded = open ? 'true' : 'false';
-  }
+  const ariaHasPopup = grid ? 'grid' : 'listbox';
+  // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
+  // combobox is permanently expanded even while the internal open state is `false`.
+  const expanded = open || inline;
+  const ariaExpanded = expanded ? 'true' : 'false';
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
     // During SSR and initial hydration, the input ref is not available yet.
     // Assume an input-like control so combobox ARIA attributes are present.
     const shouldTreatAsInput = inputElement == null || isPlainInput;
-    const shouldApplyAria = shouldTreatAsInput || open;
+    // A non-input control only takes on combobox semantics while the list is exposed, which for
+    // an inline list is the whole time.
+    const shouldApplyAria = shouldTreatAsInput || expanded;
 
     const reference = shouldTreatAsInput
       ? ({
@@ -1132,7 +1126,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       reference.role = 'combobox';
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
-      reference['aria-controls'] = open ? listElement?.id : undefined;
+      reference['aria-controls'] = expanded ? listElement?.id : undefined;
       reference['aria-autocomplete'] = autoComplete;
     }
 
@@ -1140,7 +1134,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,
@@ -1236,9 +1230,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const popupProps = React.useMemo(
-    () =>
-      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
-    [listNavigation.floating, dismiss.floating, role.floating],
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
+  );
+
+  const listProps = React.useMemo(
+    () => mergeProps(listNavigation.floating, role.floating),
+    [listNavigation.floating, role.floating],
   );
 
   const itemProps = React.useMemo<HTMLProps>(() => {
@@ -1256,6 +1254,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store.update({
       inline: inlineProp,
       popupProps,
+      listProps,
       inputProps,
       triggerProps,
       itemProps,
@@ -1280,6 +1279,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       items,
       inline: inlineProp,
       popupProps,
+      listProps,
       inputProps,
       triggerProps,
       openMethod,
@@ -1310,6 +1310,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     transitionStatus,
     items,
     popupProps,
+    listProps,
     inputProps,
     itemProps,
     openMethod,

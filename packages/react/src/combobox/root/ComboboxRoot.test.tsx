@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -17,6 +18,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
+import { Popover } from '@base-ui/react/popover';
 import { useStore } from '@base-ui/utils/store';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
@@ -592,6 +594,121 @@ describe('<Combobox.Root />', () => {
     await waitFor(() => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
+  });
+
+  it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              {ReactDOM.createPortal(<div>Portalled content</div>, document.body)}
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByText('Portalled content'));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
+  it('does not navigate the list with arrow keys from portalled controls inside the popup', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <ActiveIndexProbe />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              {ReactDOM.createPortal(
+                <button type="button">Portalled control</button>,
+                document.body,
+              )}
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const portalledControl = screen.getByRole('button', { name: 'Portalled control' });
+    portalledControl.focus();
+    fireEvent.keyDown(portalledControl, { key: 'ArrowDown' });
+
+    expect(screen.getByTestId('active-index')).toHaveTextContent('null');
+  });
+
+  it('does not dismiss when pressing content inside a nested popover', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+              <Popover.Root>
+                <Popover.Trigger>Open nested popover</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup>
+                      <button type="button">Nested focusable content</button>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open nested popover' }));
+
+    await user.click(await screen.findByRole('button', { name: 'Nested focusable content' }));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
+  it('wraps modal focus from popup controls back to the input', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen modal>
+        <Combobox.Trigger>Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <button type="button">Extra control</button>
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const extraControl = screen.getByRole('button', { name: 'Extra control' });
+
+    input.focus();
+    await user.tab();
+    expect(extraControl).toHaveFocus();
+
+    await user.tab();
+    await waitFor(() => expect(input).toHaveFocus());
   });
 
   it('does not cause infinite re-renders when items becomes undefined', async () => {
@@ -3312,6 +3429,66 @@ describe('<Combobox.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('sets aria-expanded on the input when rendered inline and open', async () => {
+      await render(
+        <Combobox.Root inline open>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      expect(input).toHaveAttribute('role', 'combobox');
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+    });
+
+    it('sets the popup type on the input when rendered inline as a grid', async () => {
+      await render(
+        <Combobox.Root inline open grid>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const grid = screen.getByRole('grid');
+
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-haspopup', 'grid');
+      expect(input).toHaveAttribute('aria-controls', grid.id);
+    });
+
+    it('keeps the input expanded when rendered inline without the `open` prop', async () => {
+      const { user } = await render(
+        <Combobox.Root inline items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const listbox = screen.getByRole('listbox');
+
+      // The list renders regardless of the internal open state, so the input must not claim
+      // to be collapsed before it's interacted with.
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+
+      await user.click(input);
+
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+    });
+
     it('sets correct attributes on the item when highlighted', async () => {
       const { user } = await render(
         <Combobox.Root defaultOpen>
@@ -4749,6 +4926,84 @@ describe('<Combobox.Root />', () => {
 
       expect(input).toHaveValue('Banana');
     });
+
+    it.each([false, true])(
+      'does not force-mount the list when controlled value changes externally (strict: %s)',
+      async (strict) => {
+        const items = ['apple', 'banana'];
+        const labels: Record<string, string> = {
+          apple: 'Apple',
+          banana: 'Banana',
+        };
+
+        function App() {
+          const [withItems, setWithItems] = React.useState<string | null>(null);
+          const [withoutItems, setWithoutItems] = React.useState<string | null>(null);
+
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setWithItems('banana');
+                  setWithoutItems('banana');
+                }}
+              >
+                Set
+              </button>
+              <Combobox.Root
+                items={items}
+                value={withItems}
+                onValueChange={setWithItems}
+                itemToStringLabel={(item) => labels[item]}
+              >
+                <Combobox.Input data-testid="items-input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {labels[item]}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+              <Combobox.Root
+                value={withoutItems}
+                onValueChange={setWithoutItems}
+                itemToStringLabel={(item) => labels[item]}
+              >
+                <Combobox.Input data-testid="plain-input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">Apple</Combobox.Item>
+                        <Combobox.Item value="banana">Banana</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />, { strict });
+
+        expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+
+        await user.click(screen.getByRole('button', { name: 'Set' }));
+
+        expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+        expect(screen.getByTestId('items-input')).toHaveValue('Banana');
+        expect(screen.getByTestId('plain-input')).toHaveValue('Banana');
+      },
+    );
 
     it('re-derives input when items array changes', async () => {
       const initialItems = [
