@@ -58,14 +58,10 @@ export interface PopupRootStoreHandle<Store> {
 }
 
 /**
- * Creates and owns a popup store on behalf of a Root part. The store is created exactly once — the
- * Root owns it for its lifetime, so swapping the handle re-attaches rather than recreating state —
- * with controlled props and root state synced separately after creation. Sets up the synced
- * floating root context and, when a handle is provided, attaches the store to it so detached
- * triggers migrate onto the live store. Returns the store.
+ * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
+ * controlled props and root state synced separately after creation. Sets up the synced floating
+ * root context and returns the store.
  *
- * @param handle The handle to attach the store to, or `undefined` when the Root is used without one.
- * While attached, detached triggers sharing the handle read from and register into this store.
  * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
  * and whether the popup is nested inside another floating element, both resolved on the first render.
  * @param treatPopupAsFloatingElement Whether the popup element is passed to Floating UI as the
@@ -76,7 +72,6 @@ export function usePopupRootStore<
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
   Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
 >(
-  handle: PopupRootStoreHandle<Store> | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
 ): Store {
@@ -94,20 +89,23 @@ export function usePopupRootStore<
     onOpenChange: store.setOpen,
   });
 
-  useAttachHandle(handle, store);
-
   return store;
 }
 
 /**
- * Attaches a Root's store to a handle for the lifetime of the effect, detaching on cleanup. No-op
- * when no handle is provided. Used by every popup Root so detached triggers can follow the store
- * pointer as roots mount and unmount.
+ * Attaches a Root's store to a handle for this component's committed lifetime. Popup Roots render
+ * it before their interactions and user children so its layout effect runs before descendant layout
+ * effects. This lets descendants call the handle during the Root's initial commit without attaching
+ * during render, which would leak suspended or abandoned stores. Store subscribers are notified by
+ * `attachStore` in this ordinary layout phase, where React permits synchronous updates.
  */
-export function useAttachHandle<Store>(
-  handle: PopupRootStoreHandle<Store> | undefined,
-  store: Store,
-) {
+export function PopupHandleAttachment<Store>({
+  handle,
+  store,
+}: {
+  handle: PopupRootStoreHandle<Store> | undefined;
+  store: Store;
+}) {
   useIsoLayoutEffect(() => {
     if (!handle) {
       return undefined;
@@ -115,6 +113,8 @@ export function useAttachHandle<Store>(
 
     return handle.attachStore(store);
   }, [handle, store]);
+
+  return null;
 }
 
 /**
