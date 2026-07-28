@@ -248,6 +248,69 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('uses shadow-root hit testing for touch swipe targets', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const originalDocumentElementFromPoint = document.elementFromPoint;
+    const originalShadowElementFromPoint = shadowRoot.elementFromPoint;
+
+    try {
+      await render(
+        <Drawer.Root open>
+          <Drawer.Portal container={shadowRoot}>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <div data-testid="target">Target</div>
+                <div data-base-ui-swipe-ignore data-testid="ignored">
+                  Ignore
+                </div>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const target = shadowRoot.querySelector<HTMLElement>('[data-testid="target"]');
+      const ignored = shadowRoot.querySelector<HTMLElement>('[data-testid="ignored"]');
+      const backdrop = shadowRoot.querySelector<HTMLElement>('[data-testid="backdrop"]');
+      expect(target).not.toBeNull();
+      expect(ignored).not.toBeNull();
+      expect(backdrop).not.toBeNull();
+      if (!target || !ignored || !backdrop) {
+        return;
+      }
+
+      document.elementFromPoint = () => host;
+      shadowRoot.elementFromPoint = () => ignored;
+
+      fireEvent.touchStart(ignored, {
+        touches: [createTouch(ignored, { clientX: 0, clientY: 0 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      fireEvent.touchEnd(ignored, {
+        changedTouches: [createTouch(ignored, { clientX: 0, clientY: 0 })],
+      });
+      shadowRoot.elementFromPoint = () => target;
+
+      fireEvent.touchStart(target, {
+        touches: [createTouch(target, { clientX: 0, clientY: 0 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalDocumentElementFromPoint;
+      shadowRoot.elementFromPoint = originalShadowElementFromPoint;
+      host.remove();
+    }
+  });
+
   it('clears the backdrop data-swiping attribute when the drawer unmounts mid-swipe', async () => {
     const { unmount } = await render(
       <Drawer.Root open>

@@ -1,3 +1,9 @@
-export function getElementAtPoint(doc: Document | null | undefined, x: number, y: number) {
-  return typeof doc?.elementFromPoint === 'function' ? doc.elementFromPoint(x, y) : null;
+type ElementFromPointRoot = Node & Partial<Pick<Document, 'elementFromPoint'>>;
+
+export function getElementAtPoint(
+  root: ElementFromPointRoot | null | undefined,
+  x: number,
+  y: number,
+) {
+  return typeof root?.elementFromPoint === 'function' ? root.elementFromPoint(x, y) : null;
 }
