@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isGroupedItems } from '../../internals/resolveValueLabel';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 import { ComboboxItemValueContext } from '../item/ComboboxItemValueContext';
@@ -19,11 +20,23 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
   const groupContext = useGroupCollectionContext();
 
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
+  // Groups are containers rather than selectable leaf items, so they never supply a value to
+  // what they render. Derived from the rendered items so that groups reaching the list through
+  // the `filteredItems` prop are recognized too, not just those coming from `items`.
+  const rendersGroups = groupContext == null && isGroupedItems(itemsToRender);
 
   return (
     <React.Fragment>
       {itemsToRender.map((item, index) => {
         const child = children(item, index);
+
+        // An explicit `value` already wins over the collection value, so the provider is only
+        // needed for items that omit one. Skipping it keeps lists that pass an explicit value at
+        // their previous render cost.
+        if (rendersGroups || hasExplicitValue(child)) {
+          return child;
+        }
+
         return (
           <ComboboxItemValueContext.Provider
             // `undefined` rather than the index when the child is an unkeyed element, so React
@@ -37,6 +50,10 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
       })}
     </React.Fragment>
   );
+}
+
+function hasExplicitValue(child: React.ReactNode) {
+  return React.isValidElement<{ value?: unknown }>(child) && child.props.value !== undefined;
 }
 
 export interface ComboboxCollectionState {}

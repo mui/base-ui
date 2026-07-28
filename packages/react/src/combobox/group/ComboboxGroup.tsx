@@ -4,6 +4,7 @@ import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
+import { ComboboxItemValueContext, NO_COMBOBOX_ITEM_VALUE } from '../item/ComboboxItemValueContext';
 
 /**
  * Groups related items with the corresponding label.
@@ -39,8 +40,12 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
     ],
   });
 
+  // A group is a container, not a selectable item, so anything it renders directly must not
+  // inherit the collection value that was supplied for the group itself.
   const wrappedElement = (
-    <ComboboxGroupContext.Provider value={contextValue}>{element}</ComboboxGroupContext.Provider>
+    <ComboboxItemValueContext.Provider value={NO_COMBOBOX_ITEM_VALUE}>
+      <ComboboxGroupContext.Provider value={contextValue}>{element}</ComboboxGroupContext.Provider>
+    </ComboboxItemValueContext.Provider>
   );
 
   if (items) {
