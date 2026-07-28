@@ -195,6 +195,9 @@ describe('<NumberField.ScrubArea />', () => {
     const scaleGetter = vi.spyOn(visualViewport, 'scale', 'get').mockImplementation(() => scale);
     const addEventListener = vi.spyOn(window, 'addEventListener');
     const removeEventListener = vi.spyOn(window, 'removeEventListener');
+    const pointerLock = vi
+      .spyOn(document.body, 'requestPointerLock')
+      .mockImplementation(() => Promise.resolve());
 
     try {
       await render(
@@ -245,6 +248,7 @@ describe('<NumberField.ScrubArea />', () => {
       scaleGetter.mockRestore();
       addEventListener.mockRestore();
       removeEventListener.mockRestore();
+      pointerLock.mockRestore();
     }
   });
 

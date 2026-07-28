@@ -12,6 +12,7 @@ import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
@@ -33,7 +34,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   } = props;
 
   const store = usePopupRootStore(
-    handle,
     (floatingId, nested) =>
       new PreviewCardStore<Payload>(
         {
@@ -84,6 +84,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      <PopupHandleAttachment handle={handle} store={store} />
       {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>

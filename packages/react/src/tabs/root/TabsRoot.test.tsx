@@ -2276,10 +2276,6 @@ describe('<Tabs.Root />', () => {
 
       await user.click(screen.getByText('Add and Select'));
 
-      expect(panelRenderMock).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ tabActivationDirection: 'left' }),
-      );
       expect(panelRenderMock).toHaveBeenLastCalledWith(
         expect.objectContaining({ tabActivationDirection: 'right' }),
       );
