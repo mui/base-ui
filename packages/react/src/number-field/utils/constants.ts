@@ -1,0 +1,2 @@
+export const CHANGE_VALUE_TICK_DELAY = 60;
+export const START_AUTO_CHANGE_DELAY = 400;
