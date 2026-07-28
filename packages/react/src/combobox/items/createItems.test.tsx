@@ -1376,6 +1376,81 @@ describe('Combobox.createItems', () => {
     });
   });
 
+  describe('lazy normalization', () => {
+    it('does not call the accessors when creating a flat collection', () => {
+      const getValue = vi.fn(getUserId);
+      const getLabel = vi.fn(getUserName);
+
+      Combobox.createItems(users, { getValue, getLabel });
+
+      expect(getValue).not.toHaveBeenCalled();
+      expect(getLabel).not.toHaveBeenCalled();
+    });
+
+    it('does not call the accessors when creating a grouped collection', () => {
+      const getValue = vi.fn(getUserId);
+      const getLabel = vi.fn(getUserName);
+
+      const groups = [{ value: 'Team', items: users }];
+      Combobox.createItems(groups, { getValue, getLabel });
+
+      expect(getValue).not.toHaveBeenCalled();
+      expect(getLabel).not.toHaveBeenCalled();
+    });
+
+    it('derives each value at most once across renders', async () => {
+      const getValue = vi.fn(getUserId);
+      const getLabel = vi.fn(getUserName);
+      const collection = Combobox.createItems(users, { getValue, getLabel });
+
+      function App() {
+        return (
+          <Combobox.Root items={collection} defaultValue={3} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Carol');
+      expect(getValue.mock.calls.length).toBeLessThanOrEqual(users.length);
+
+      await user.clear(screen.getByTestId('input'));
+      await user.type(screen.getByTestId('input'), 'car');
+
+      expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
+      expect(getValue.mock.calls.length).toBeLessThanOrEqual(users.length);
+    });
+
+    it('resolves labels only for the values that need them', async () => {
+      const getValue = vi.fn(getUserId);
+      const getLabel = vi.fn(getUserName);
+      const collection = Combobox.createItems(users, { getValue, getLabel });
+
+      function App() {
+        return (
+          <Combobox.Root items={collection} defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Carol');
+      expect(new Set(getLabel.mock.calls.map(([item]) => item))).toEqual(new Set([users[2]]));
+    });
+  });
+
   describe('grouped items', () => {
     interface Team {
       value: string;
@@ -1572,7 +1647,8 @@ describe('Combobox.createItems', () => {
 
       const { user } = await render(<App />);
 
-      // Resolving a selection forces both accessors to run over the collection.
+      // Filtering and resolving a selection force both accessors over the collection's leaves.
+      await user.type(screen.getByRole('combobox'), 'a');
       await user.click(screen.getByRole('option', { name: 'Carol' }));
 
       expect(new Set(getValue.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
