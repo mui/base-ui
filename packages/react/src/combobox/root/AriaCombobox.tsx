@@ -529,13 +529,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
-
       props.onInputValueChange?.(next, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
+
+      // Record only committed clears, so that a canceled clear (such as one kept by an
+      // `onInputValueChange` handler preserving the filter) cannot suppress the cleanup
+      // clear once the popup closes.
+      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
@@ -637,7 +640,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setCloseQuery(null);
 
         if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          // This clear stands in for the unmount cleanup, so like it, it carries no event:
+          // clears caused directly by a gesture (selecting an item) carry one, letting
+          // `onInputValueChange` handlers cancel those without affecting cleanup.
+          setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       }
 
