@@ -26,7 +26,7 @@ To see the latest updates, check out the [releases](https://base-ui.com/react/ov
 
 - **Colm Tuite** [@colmtuite](https://x.com/colmtuite)
 - **Marija Najdova** [@marijanajdova](https://x.com/marijanajdova)
-- **Flavien Delangle**
+- **Flavien Delangle** [@flaviendelangle](https://github.com/flaviendelangle)
 - **James Nelson** [@atomiksdev](https://x.com/atomiksdev)
 - **Jenna Smith** [@jjenzz](https://x.com/jjenzz)
 - **Michał Dudak** [@michaldudak](https://x.com/michaldudak)
