@@ -36,7 +36,6 @@ export interface AutocompleteItemProps
   index?: number | undefined;
   /**
    * A unique value that identifies this item.
-   * Defaults to the collection-provided item when rendered by a collection function child.
    * @default null
    */
   value?: any;

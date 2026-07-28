@@ -302,15 +302,15 @@ function UseItemsApp() {
   ];
 
   const collection = Combobox.useItems(userItems, {
-    value: (item) => item.id,
-    label: (item) => item.name,
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
   });
   const objectValueCollection = Combobox.useItems(userItems, {
     // @ts-expect-error Explicit projections must return a non-null primitive.
-    value: (item) => item,
+    getValue: (item) => item,
   });
   const labelOnlyCollection = Combobox.useItems(userItems, {
-    label: (item) => item.name,
+    getLabel: (item) => item.name,
   });
 
   // @ts-expect-error A collection exposes no data-manipulation methods.
@@ -344,7 +344,7 @@ function UseItemsApp() {
 
 function CollectionVarianceApp() {
   const broadCollection = Combobox.useItems([{ id: 1 }], {
-    value: (item) => item.id,
+    getValue: (item) => item.id,
   });
 
   // @ts-expect-error A collection with broader source items cannot be narrowed.
@@ -375,12 +375,12 @@ function CollectionInferenceApp() {
   const teams = [{ value: 'Engineering', items: users }];
 
   const collection = Combobox.useItems(users, {
-    value: (item) => item.id,
-    label: (item) => item.name,
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
   });
   const groupedCollection = Combobox.useItems(teams, {
-    value: (item) => item.id,
-    label: (item) => item.name,
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
   });
 
   return (
@@ -425,8 +425,8 @@ function FilterArgumentApp() {
   ];
 
   const collection = Combobox.useItems(users, {
-    value: (item) => item.id,
-    label: (item) => item.name,
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
   });
 
   return (

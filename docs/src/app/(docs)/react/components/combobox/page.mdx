@@ -106,25 +106,30 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false, 
 
 ### Value selection with IDs
 
-When your app stores IDs rather than item objects, use `Combobox.useItems` to derive each item's selection value and display label. Selection props and events use the derived IDs, while list rendering continues to receive the original items. The label is also used for filtering and typeahead.
+When your app stores IDs rather than item objects, use `Combobox.useItems` with `getValue` and `getLabel` to derive each item's selection value and display label. Selection props and events use the derived IDs, while list rendering continues to receive the original items. Pass the same derived ID to the `value` prop of `<Combobox.Item>`. The derived label is also used for filtering and typeahead.
 
 import { DemoComboboxUseItems } from './demos/use-items';
 
 <DemoComboboxUseItems />
 
-Each API then sits on one side of the source item / value split:
+The APIs fall into two domains:
 
-| Receives the source item                          | Receives the derived value                                         |
-| :------------------------------------------------ | :----------------------------------------------------------------- |
-| `<List>` and `<Collection>` function children     | `value`, `defaultValue`, and `onValueChange`                       |
-| The `value` prop of `<Combobox.Item>`             |                                                                    |
-| `useFilteredItems()` and `filteredItems`          | `isItemEqualToValue`, `itemToStringValue`, and `itemToStringLabel` |
-| The `value` and `label` accessors of `useItems()` | `onItemHighlighted` and `<Combobox.Value>` children                |
-| The root `filter` function                        |                                                                    |
+#### Receives the source item
+
+- Rendering: `<List>` and `<Collection>` function children
+- Filtering: `useFilteredItems()`, `filteredItems`, and the root `filter` function
+- Accessors: the `getValue` and `getLabel` options of `useItems()`
+
+#### Receives the derived value
+
+- Selection: `value`, `defaultValue`, and `onValueChange`
+- Item identity: the `value` prop of `<Combobox.Item>`
+- Comparison and serialization: `isItemEqualToValue`, `itemToStringValue`, and `itemToStringLabel`
+- Callbacks and rendering: `onItemHighlighted` and `<Combobox.Value>` children
 
 Because filtering runs on source items, a custom `filter` can match any source field.
 
-With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data` or resolve every ID from a cache with `itemToStringLabel`, which replaces the collection's `label` accessor.
+With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data` or resolve every ID from a cache with `itemToStringLabel`, which replaces the collection's `getLabel` accessor.
 
 ### Multiple select
 

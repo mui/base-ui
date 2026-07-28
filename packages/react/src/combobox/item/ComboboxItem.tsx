@@ -17,17 +17,6 @@ import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
-/**
- * Projects an item's `value` through the collection, keeping the item its own value when there
- * isn't one.
- */
-function resolveItemValue(value: any, itemToValue: ((item: any) => any) | undefined) {
-  if (value == null) {
-    return null;
-  }
-  return itemToValue ? itemToValue(value) : value;
-}
-
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
@@ -50,7 +39,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     render,
     className,
     style,
-    value: valueProp,
+    value: itemValue = null,
     index: indexProp,
     disabled: disabledProp = false,
     nativeButton = false,
@@ -72,9 +61,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const itemToValue = useStore(store, selectors.itemToValue);
-
-  const itemValue = resolveItemValue(valueProp, itemToValue);
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
@@ -237,10 +223,9 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const itemToValue = useStore(store, selectors.itemToValue);
   const { flatFilteredValues } = useComboboxDerivedItemsContext();
 
-  const lookupValue = resolveItemValue(componentProps.value, itemToValue);
+  const lookupValue = componentProps.value ?? null;
   const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
@@ -317,8 +302,6 @@ export interface ComboboxItemProps
   index?: number | undefined;
   /**
    * A unique value that identifies this item.
-   * With a `useItems()` collection, pass the item itself; its `value` accessor derives the
-   * selection value.
    * @default null
    */
   value?: any;

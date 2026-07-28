@@ -21,8 +21,8 @@ const getTypeaheadLabel = (user: User) => (user.id === 2 ? 'Zebra' : 'Yak');
 
 function useUserItems() {
   return Combobox.useItems(users, {
-    value: getUserId,
-    label: getUserName,
+    getValue: getUserId,
+    getLabel: getUserName,
   });
 }
 
@@ -32,7 +32,7 @@ describe('Combobox.useItems', () => {
   describe('collection', () => {
     it('is referentially stable across re-renders with stable options', () => {
       const { result, rerender } = renderHook(() =>
-        Combobox.useItems(users, { value: getUserId, label: getUserName }),
+        Combobox.useItems(users, { getValue: getUserId, getLabel: getUserName }),
       );
       const first = result.current;
 
@@ -44,7 +44,7 @@ describe('Combobox.useItems', () => {
     it('is rebuilt when the source data changes', async () => {
       const { result, rerender } = renderHook(
         (props: { data: User[] }) =>
-          Combobox.useItems(props.data, { value: getUserId, label: getUserName }),
+          Combobox.useItems(props.data, { getValue: getUserId, getLabel: getUserName }),
         { initialProps: { data: users } },
       );
       const first = result.current;
@@ -116,7 +116,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -133,6 +133,44 @@ describe('Combobox.useItems', () => {
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Bob');
     });
 
+    it.each(['pointer', 'keyboard'] as const)(
+      'projects a null source item with the %s',
+      async (interaction) => {
+        const sourceItems: Array<User | null> = [null, users[0]];
+        const onValueChange = vi.fn();
+
+        function App() {
+          const items = Combobox.useItems(sourceItems, {
+            getValue: (user) => (user === null ? 'none' : user.id),
+            getLabel: (user) => (user === null ? 'None' : user.name),
+          });
+          return (
+            <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
+              <Combobox.Input />
+              <Combobox.List>
+                {(user: User | null) => (
+                  <Combobox.Item key={user?.id ?? 'none'} value={user === null ? 'none' : user.id}>
+                    {user?.name ?? 'None'}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        if (interaction === 'pointer') {
+          await user.click(screen.getByRole('option', { name: 'None' }));
+        } else {
+          await user.click(screen.getByRole('combobox'));
+          await user.keyboard('{ArrowDown}{Enter}');
+        }
+
+        expect(onValueChange.mock.lastCall?.[0]).toBe('none');
+      },
+    );
+
     it('resolves the label of an initially selected value', async () => {
       function App() {
         const items = useUserItems();
@@ -141,7 +179,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -166,7 +204,7 @@ describe('Combobox.useItems', () => {
                 <Combobox.Popup>
                   <Combobox.List>
                     {(user: User) => (
-                      <Combobox.Item key={user.id} value={user}>
+                      <Combobox.Item key={user.id} value={user.id}>
                         {user.name}
                       </Combobox.Item>
                     )}
@@ -213,7 +251,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -238,7 +276,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -309,14 +347,14 @@ describe('Combobox.useItems', () => {
       expect(screen.getByRole('option', { name: 'İzmir' })).not.toBe(null);
     });
 
-    it('updates selected labels when the label accessor changes', async () => {
+    it('updates selected labels when the getLabel accessor changes', async () => {
       const getEnglishName = (user: User) => user.name;
       const getSpanishName = (user: User) => (user.id === 1 ? 'Alicia' : user.name);
 
       function App(props: { getLabel: (user: User) => string }) {
         const items = Combobox.useItems(users, {
-          value: getUserId,
-          label: props.getLabel,
+          getValue: getUserId,
+          getLabel: props.getLabel,
         });
         return (
           <Combobox.Root items={items} defaultValue={1}>
@@ -344,7 +382,7 @@ describe('Combobox.useItems', () => {
 
       function App() {
         const items = Combobox.useItems(users, {
-          label: getUserName,
+          getLabel: getUserName,
         });
         return (
           <Combobox.Root
@@ -365,8 +403,8 @@ describe('Combobox.useItems', () => {
     it('resolves a derived value label using the root equality comparer', async () => {
       function App() {
         const items = Combobox.useItems(users, {
-          value: (user) => user.name.toLowerCase(),
-          label: getUserName,
+          getValue: (user) => user.name.toLowerCase(),
+          getLabel: getUserName,
         });
         return (
           <Combobox.Root
@@ -394,7 +432,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -427,8 +465,8 @@ describe('Combobox.useItems', () => {
 
       function App() {
         const items = Combobox.useItems(contacts, {
-          value: (contact) => contact.id,
-          label: (contact) => contact.name,
+          getValue: (contact) => contact.id,
+          getLabel: (contact) => contact.name,
         });
         return (
           <Combobox.Root
@@ -439,7 +477,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(contact: Contact) => (
-                <Combobox.Item key={contact.id} value={contact}>
+                <Combobox.Item key={contact.id} value={contact.id}>
                   {contact.name}
                 </Combobox.Item>
               )}
@@ -459,8 +497,8 @@ describe('Combobox.useItems', () => {
     it('labels a selected value that is not in the collection as itself', async () => {
       function App() {
         const items = Combobox.useItems(users, {
-          value: getUserId,
-          label: (user) => user.name.toUpperCase(),
+          getValue: getUserId,
+          getLabel: (user) => user.name.toUpperCase(),
         });
         return (
           <Combobox.Root items={items} defaultValue={99}>
@@ -477,8 +515,8 @@ describe('Combobox.useItems', () => {
     it('uses the default label fallback outside the collection', async () => {
       function App() {
         const items = Combobox.useItems<User, number | string>(users, {
-          value: getUserId,
-          label: getUserName,
+          getValue: getUserId,
+          getLabel: getUserName,
         });
         return (
           <Combobox.Root items={items} defaultValue="New tag">
@@ -495,8 +533,8 @@ describe('Combobox.useItems', () => {
     it('uses derived labels for closed trigger typeahead', async () => {
       function App() {
         const items = Combobox.useItems(users, {
-          value: getUserId,
-          label: getTypeaheadLabel,
+          getValue: getUserId,
+          getLabel: getTypeaheadLabel,
         });
         return (
           <Combobox.Root items={items}>
@@ -508,7 +546,7 @@ describe('Combobox.useItems', () => {
                 <Combobox.Popup>
                   <Combobox.List>
                     {(user: User) => (
-                      <Combobox.Item key={user.id} value={user}>
+                      <Combobox.Item key={user.id} value={user.id}>
                         {user.name}
                       </Combobox.Item>
                     )}
@@ -554,8 +592,8 @@ describe('Combobox.useItems', () => {
 
       function App() {
         const items = Combobox.useItems(sourceItems, {
-          value: (item) => item.id,
-          label: (item) => item.label,
+          getValue: (item) => item.id,
+          getLabel: (item) => item.label,
         });
         return (
           <Combobox.Root items={items}>
@@ -630,7 +668,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -658,7 +696,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -681,7 +719,10 @@ describe('Combobox.useItems', () => {
       ];
 
       function App() {
-        const items = Combobox.useItems(zeroUsers, { value: getUserId, label: getUserName });
+        const items = Combobox.useItems(zeroUsers, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
         return (
           <Combobox.Root items={items} defaultValue={0} defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -690,7 +731,7 @@ describe('Combobox.useItems', () => {
             </span>
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -714,7 +755,10 @@ describe('Combobox.useItems', () => {
       ];
 
       function App(props: { value: number }) {
-        const items = Combobox.useItems(duplicated, { value: getUserId, label: getUserName });
+        const items = Combobox.useItems(duplicated, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
         return (
           <Combobox.Root items={items} value={props.value}>
             <Combobox.Input data-testid="input" />
@@ -740,7 +784,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -766,7 +810,7 @@ describe('Combobox.useItems', () => {
       function VirtualizedItems() {
         const filteredItems = Combobox.useFilteredItems<User>();
         return filteredItems.slice(0, 1).map((user) => (
-          <Combobox.Item key={user.id} value={user}>
+          <Combobox.Item key={user.id} value={user.id}>
             {user.name}
           </Combobox.Item>
         ));
@@ -802,7 +846,7 @@ describe('Combobox.useItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
-    it('projects the source item of individually rendered items', async () => {
+    it('uses explicit item values in the derived value domain', async () => {
       const onValueChange = vi.fn();
 
       function App() {
@@ -812,7 +856,7 @@ describe('Combobox.useItems', () => {
             <Combobox.Input />
             <Combobox.List>
               {users.map((user) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               ))}
@@ -834,15 +878,15 @@ describe('Combobox.useItems', () => {
 
       function App() {
         const items = Combobox.useItems(manyUsers, {
-          value: getUserId,
-          label: getUserName,
+          getValue: getUserId,
+          getLabel: getUserName,
         });
         return (
           <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
+                <Combobox.Item key={user.id} value={user.id}>
                   {user.name}
                 </Combobox.Item>
               )}
@@ -874,8 +918,8 @@ describe('Combobox.useItems', () => {
 
     function GroupedApp(props: Partial<Combobox.Root.Props<number, false, User>>) {
       const items = Combobox.useItems(teams, {
-        value: getUserId,
-        label: getUserName,
+        getValue: getUserId,
+        getLabel: getUserName,
       });
       return (
         <Combobox.Root items={items} {...props}>
@@ -886,7 +930,7 @@ describe('Combobox.useItems', () => {
                 <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
                 <Combobox.Collection>
                   {(user: User) => (
-                    <Combobox.Item key={user.id} value={user}>
+                    <Combobox.Item key={user.id} value={user.id}>
                       {user.name}
                     </Combobox.Item>
                   )}
@@ -944,8 +988,8 @@ describe('Combobox.useItems', () => {
 
       function App() {
         const items = Combobox.useItems(teams, {
-          value: getValue,
-          label: getLabel,
+          getValue,
+          getLabel,
         });
         return (
           <Combobox.Root items={items} defaultOpen>
@@ -955,7 +999,7 @@ describe('Combobox.useItems', () => {
                 <Combobox.Group key={group.value} items={group.items}>
                   <Combobox.Collection>
                     {(user: User) => (
-                      <Combobox.Item key={user.id} value={user}>
+                      <Combobox.Item key={user.id} value={user.id}>
                         {user.name}
                       </Combobox.Item>
                     )}

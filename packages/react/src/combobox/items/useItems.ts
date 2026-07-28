@@ -12,7 +12,7 @@ import type { ComboboxItemCollection } from './itemCollection';
  * Resolves the individual item type of a `useItems()` data array: the group's item type when
  * the array is grouped, otherwise the array element itself.
  */
-export type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
+type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
   items: ReadonlyArray<infer Item>;
 }
   ? Item
@@ -21,43 +21,36 @@ export type ComboboxCollectionItem<ItemOrGroup> = ItemOrGroup extends {
 /**
  * Normalizes items into a collection for the root's `items` prop, deriving each item's
  * selection value and label before rendering.
- * Accepts a flat array of items or an array of groups with items; the `value` and `label`
+ * Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
  * accessors always receive individual items, never groups.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ *
+ * @returns A collection whose selection value is the source item when `getValue` is omitted,
+ * or the accessor's return value when it is provided.
  */
-export function useComboboxItems<ItemOrGroup, Value = ComboboxCollectionItem<ItemOrGroup>>(
-  data: readonly ItemOrGroup[],
-  options?: UseComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> & {
-    /**
-     * Repeated so that a projection returning a non-primitive is rejected after `Value` has been
-     * inferred from the accessor above, rather than constraining it before inference runs.
-     */
-    value?:
-      | ((
-          item: ComboboxCollectionItem<ItemOrGroup>,
-        ) => Value extends ComboboxPrimitiveValue ? Value : ComboboxPrimitiveValue)
-      | undefined;
-  },
-): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value>;
+export function useComboboxItems<Item, Value extends ComboboxPrimitiveValue = never>(
+  data: readonly (Item | { items: ReadonlyArray<Item> })[],
+  options?: UseComboboxItemsOptions<Item, Value>,
+): ComboboxItemCollection<Item, [Value] extends [never] ? Item : Value>;
 
 export function useComboboxItems<ItemOrGroup, Value>(
   data: readonly ItemOrGroup[],
   options: UseComboboxItemsOptions<ComboboxCollectionItem<ItemOrGroup>, Value> = {},
 ): ComboboxItemCollection<ComboboxCollectionItem<ItemOrGroup>, Value> {
   type Item = ComboboxCollectionItem<ItemOrGroup>;
-  const { value, label } = options;
+  const { getValue, getLabel } = options;
 
   return React.useMemo(() => {
     // Without accessors the collection would resolve every item to itself, which is exactly what
     // a plain array already does. Handing the array back keeps `items` on its original code path,
     // preserving React node labels and the null item's placeholder override.
-    if (!value && !label) {
+    if (!getValue && !getLabel) {
       return data;
     }
 
-    const itemToValue = value ?? ((item: Item) => item as unknown as Value);
-    const itemToLabel = label ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
+    const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
+    const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(itemToValue(item)));
     const leafItems = isGroupedItems(data)
       ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
       : (data as readonly Item[]);
@@ -99,7 +92,7 @@ export function useComboboxItems<ItemOrGroup, Value>(
         return stringifyAsLabel(itemValue);
       },
     };
-  }, [data, value, label]) as unknown as ComboboxItemCollection<Item, Value>;
+  }, [data, getValue, getLabel]) as unknown as ComboboxItemCollection<Item, Value>;
 }
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean | symbol;
@@ -113,7 +106,7 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * Prefer stable IDs from your application data.
    * Keep this function reference stable to preserve collection memoization.
    */
-  value?: ((item: Item) => Value) | undefined;
+  getValue?: ((item: Item) => Value) | undefined;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
@@ -121,7 +114,7 @@ export interface UseComboboxItemsOptions<Item, Value = Item> {
    * By default, the item's derived value is stringified.
    * Keep this function reference stable to preserve collection memoization.
    */
-  label?: ((item: Item) => string) | undefined;
+  getLabel?: ((item: Item) => string) | undefined;
 }
 
 export type { ComboboxItemCollection } from './itemCollection';

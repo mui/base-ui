@@ -5,7 +5,10 @@ import styles from './index.module.css';
 
 export default function ExampleUseItemsCombobox() {
   const id = React.useId();
-  const items = Combobox.useItems(fruits, { value: getFruitId, label: getFruitName });
+  const items = Combobox.useItems(fruits, {
+    getValue: getFruitId,
+    getLabel: getFruitName,
+  });
 
   return (
     <Combobox.Root items={items} defaultValue="banana">
@@ -32,7 +35,7 @@ export default function ExampleUseItemsCombobox() {
             </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: Fruit) => (
-                <Combobox.Item key={item.id} value={item} className={styles.Item}>
+                <Combobox.Item key={item.id} value={getFruitId(item)} className={styles.Item}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>

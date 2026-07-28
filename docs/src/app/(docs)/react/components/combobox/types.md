@@ -644,7 +644,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                             |
 | :----------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                                       | `null`  | A unique value that identifies this item.&#xA;With a `useItems()` collection, pass the item itself; its `value` accessor derives the&#xA;selection value.                                                                               |
+| value        | `any`                                                                                       | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`              | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
 | index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
 | nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
@@ -1122,20 +1122,23 @@ type ReturnValue = T[];
 
 Normalizes items into a collection for the root's `items` prop, deriving each item's
 selection value and label before rendering.
-Accepts a flat array of items or an array of groups with items; the `value` and `label`
+Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
 accessors always receive individual items, never groups.
 
 **Parameters:**
 
-| Parameter | Type                                                                                                                          | Default | Description |
-| :-------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :---------- |
-| data      | `ItemOrGroup[]`                                                                                                               | -       | -           |
-| options?  | `{ value?: ((item: Item \| ItemOrGroup) => ComboboxPrimitiveValue \| any); label?: ((item: Item \| ItemOrGroup) => string) }` | -       | -           |
+| Parameter | Type                                                    | Default | Description |
+| :-------- | :------------------------------------------------------ | :------ | :---------- |
+| data      | `(Item \| { items: Item[] })[]`                         | -       | -           |
+| options?  | `UseComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
 
 **Return Value:**
 
+A collection whose selection value is the source item when `getValue` is omitted,
+or the accessor's return value when it is provided.
+
 ```tsx
-type ReturnValue = ComboboxItemCollection<Item | ItemOrGroup, Value>;
+type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean | symbol>;
 ```
 
 ## Additional Types
@@ -1190,7 +1193,7 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * Prefer stable IDs from your application data.
    * Keep this function reference stable to preserve collection memoization.
    */
-  value?: (item: Item) => Value;
+  getValue?: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and, by default,
    * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
@@ -1198,7 +1201,7 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * By default, the item's derived value is stringified.
    * Keep this function reference stable to preserve collection memoization.
    */
-  label?: (item: Item) => string;
+  getLabel?: (item: Item) => string;
 };
 ```
 
