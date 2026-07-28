@@ -68,7 +68,7 @@
     margin-bottom: calc(-1 * var(--mobile-nav-bleed));
     border-top-left-radius: var(--radius-36); /* Mimic iOS bottom sheets */
     border-top-right-radius: var(--radius-36); /* Mimic iOS bottom sheets */
-    background-color: var(--color-popup);
+    background-color: var(--surface);
     color: var(--gray-t3);
     outline: 0;
     touch-action: none;

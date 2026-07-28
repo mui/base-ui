@@ -1,5 +1,6 @@
 .page {
   padding: var(--space-40);
+  background-color: var(--canvas);
   color: var(--gray-t3);
   font-family: var(--font-sans);
 }
@@ -231,12 +232,7 @@
   height: 5rem;
   margin-top: var(--space-12);
   border-radius: var(--radius-4);
-  background: var(--gray-s1);
-
-  /* Hack to make the surface visible in dark mode since there are no shadows in dark mode */
-  @media (prefers-color-scheme: dark) {
-    background: var(--gray-s2);
-  }
+  background: var(--surface);
 }
 
 @media (max-width: 48rem) {

@@ -58,7 +58,7 @@
   }
 
   .TypeRefArrowFill {
-    fill: var(--color-popup);
+    fill: var(--surface);
   }
 
   .TypeRefArrowStroke {

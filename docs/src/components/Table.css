@@ -6,6 +6,7 @@
     border: 1px solid var(--gray-c3);
     border-collapse: separate;
     border-radius: var(--radius-12);
+    background-color: var(--panel);
     white-space: nowrap;
     overflow: hidden;
   }
@@ -29,7 +30,7 @@
     text-align: initial;
     font-weight: var(--font-weight-400);
     color: var(--gray-t3);
-    background-color: var(--gray-s2);
+    background-color: var(--panel);
     background-clip: padding-box;
     border-bottom: 1px solid var(--gray-c3);
   }
@@ -54,7 +55,7 @@
         bottom: 1px;
         right: -1px; /* Browsers may miss half a pixel due to subpixel table cell widths */
         width: 1.25rem;
-        background-image: linear-gradient(to right, transparent, var(--gray-s1));
+        background-image: linear-gradient(to right, transparent, var(--panel));
         animation: table-cell-overscroll-overlay 500ms;
       }
 

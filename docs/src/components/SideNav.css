@@ -154,7 +154,7 @@
       border: none;
       padding-block: var(--side-nav-item-padding-y);
       padding-inline: var(--side-nav-link-padding-x);
-      background-color: var(--gray-s2);
+      background-color: var(--surface);
       outline: 1px solid var(--gray-c3);
       outline-offset: -1px;
       font-weight: var(--font-weight-400);

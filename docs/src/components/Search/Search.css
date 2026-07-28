@@ -178,7 +178,7 @@
     max-height: min(29.5rem, calc(100vh - 6rem));
     width: min(34rem, calc(100vw - 2rem));
     border-radius: 1rem;
-    background: var(--color-popup);
+    background: var(--surface);
     color: var(--gray-t3);
     /* Alpha outline stays crisp over the dimmed backdrop; opaque c3 would read lighter than it */
     outline: 1px solid var(--gray-a2);

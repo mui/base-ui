@@ -56,7 +56,7 @@
     border: none;
     outline: none;
     text-align: left;
-    background-color: var(--gray-s1);
+    background-color: var(--panel);
 
     /* remove default disclosure triangle  */
     &::-webkit-details-marker {
@@ -66,7 +66,7 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--gray-s2);
+        background-color: var(--gray-s1);
         cursor: default;
       }
     }
@@ -93,7 +93,7 @@
 
     [open] & {
       box-shadow:
-        0 2px 4px -3px color-mix(in oklch, var(--gray-s1), black 7%),
+        0 2px 4px -3px color-mix(in oklch, var(--panel), black 7%),
         inset 0 -1px 1px transparent;
     }
 
@@ -182,6 +182,10 @@
       @media (hover: hover) {
         .AccordionTrigger:hover &::after {
           background-image: linear-gradient(to right, transparent, var(--gray-s2));
+
+          @media (prefers-color-scheme: dark) {
+            background-image: linear-gradient(to right, transparent, var(--gray-c1));
+          }
         }
       }
     }

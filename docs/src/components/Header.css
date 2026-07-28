@@ -23,7 +23,7 @@
     position: fixed;
     top: 0;
     inset-inline: 0;
-    background: var(--gray-s1);
+    background: var(--canvas);
     z-index: 2;
 
     @media (--show-side-nav) {

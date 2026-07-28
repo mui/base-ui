@@ -13,7 +13,7 @@
     max-width: var(--available-width);
     max-height: var(--available-height);
     border-radius: var(--radius-8);
-    background-color: var(--color-popup);
+    background-color: var(--surface);
     overflow: hidden;
     cursor: default;
     -webkit-user-select: none;

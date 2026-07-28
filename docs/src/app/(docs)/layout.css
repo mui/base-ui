@@ -10,7 +10,7 @@
     min-width: 320px;
     line-height: 1.5;
     /* It's also the iOS footer overscroll background */
-    background-color: var(--gray-s1);
+    background-color: var(--canvas);
     color: var(--gray-t3);
   }
 }
@@ -46,7 +46,6 @@
     display: flex;
     flex-grow: 1;
     flex-direction: column;
-    background-color: var(--gray-s1);
   }
 
   .ContentLayoutRoot {

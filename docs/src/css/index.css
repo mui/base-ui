@@ -130,11 +130,11 @@
     --gray-t1: oklch(61% 0 0deg);
     --gray-t2: oklch(53% 0 0deg);
     --gray-t3: oklch(30% 0 0deg);
-    --gray-a1: oklch(0% 0 0deg / 4%);
-    --gray-a2: oklch(0% 0 0deg / 8%);
-    --gray-a3: oklch(0% 0 0deg / 12%);
-    --gray-a4: oklch(0% 0 0deg / 24%);
-    --gray-a5: oklch(0% 0 0deg / 60%);
+    --gray-a1: oklch(0% 0 0deg / 0.04);
+    --gray-a2: oklch(0% 0 0deg / 0.08);
+    --gray-a3: oklch(0% 0 0deg / 0.12);
+    --gray-a4: oklch(0% 0 0deg / 0.24);
+    --gray-a5: oklch(0% 0 0deg / 0.6);
     --gray-contrast: white;
 
     --indigo-s1: hsl(204deg 100% 98.75%);
@@ -160,7 +160,11 @@
     --color-red: oklch(50% 55% 31deg);
 
     /* Functional colors */
-    --color-popup: var(--gray-s1);
+    /* `canvas` is the page plane. `panel` shares it because embedded containers
+       are defined by their borders, while `surface` floats above it. */
+    --canvas: white;
+    --surface: white;
+    --panel: white;
     --color-selection: var(--gray-c2);
     --color-line-highlight: hsl(205deg 100% 96%);
     --color-line-highlight-strong: hsl(205deg 100% 90%);
@@ -249,19 +253,23 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --gray-s1: oklch(17% 0 0deg);
-      --gray-s2: oklch(22% 0 0deg);
+      --gray-s1: oklch(23% 0 0deg);
+      --gray-s2: oklch(25% 0 0deg);
       --gray-c1: oklch(30% 0 0deg);
-      --gray-c2: oklch(37.75% 0 0deg);
-      --gray-c3: oklch(43.25% 0 0deg);
+      --gray-c2: oklch(34% 0 0deg);
+      --gray-c3: oklch(37% 0 0deg);
+      --gray-p1: oklch(73% 0 0deg);
+      --gray-p2: oklch(67% 0 0deg);
+      --gray-p3: oklch(64% 0 0deg);
+      --gray-p4: oklch(62.5% 0 0deg);
       --gray-t1: oklch(75% 0 0deg);
       --gray-t2: oklch(80% 0 0deg);
       --gray-t3: oklch(93% 0 0deg);
-      --gray-a1: oklch(100% 0 0deg / 7.7%);
-      --gray-a2: oklch(100% 0 0deg / 17.1%);
-      --gray-a3: oklch(100% 0 0deg / 23.2%);
-      --gray-a4: oklch(100% 0 0deg / 33.8%);
-      --gray-a5: oklch(100% 0 0deg / 64.1%);
+      --gray-a1: oklch(100% 0 0deg / 0.077);
+      --gray-a2: oklch(100% 0 0deg / 0.171);
+      --gray-a3: oklch(100% 0 0deg / 0.232);
+      --gray-a4: oklch(100% 0 0deg / 0.338);
+      --gray-a5: oklch(100% 0 0deg / 0.641);
 
       --indigo-s1: hsl(223deg 38% 10%);
       --indigo-s2: hsl(223deg 42% 12%);
@@ -285,7 +293,9 @@
       --color-red: oklch(80% 55% 31deg);
 
       /* Functional colors */
-      --color-popup: var(--gray-s2);
+      --canvas: oklch(21% 0 0deg);
+      --surface: var(--gray-s2);
+      --panel: var(--gray-s2);
       --color-selection: var(--gray-c3);
       --color-line-highlight: hsl(205deg 45% 12%);
       --color-line-highlight-strong: hsl(205deg 55% 16%);
@@ -371,7 +381,9 @@
     --space-40: initial;
     --space-48: initial;
 
-    --color-popup: initial;
+    --canvas: initial;
+    --surface: initial;
+    --panel: initial;
     --color-line-highlight: initial;
     --color-line-highlight-strong: initial;
     --color-line-highlight-strong-mark: initial;
