@@ -147,11 +147,13 @@ describe('Combobox.createItems', () => {
         }
 
         const { user } = await render(<App />);
+        const input = screen.getByRole('combobox');
 
+        await user.type(input, 'none');
+        expect(screen.getByRole('option', { name: 'None' })).not.toBe(null);
         if (interaction === 'pointer') {
           await user.click(screen.getByRole('option', { name: 'None' }));
         } else {
-          await user.click(screen.getByRole('combobox'));
           await user.keyboard('{ArrowDown}{Enter}');
         }
 
@@ -855,6 +857,47 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
+    it('projects externally filtered groups when the source collection is flat', async () => {
+      const onValueChange = vi.fn();
+      const filteredGroups = [{ value: 'Result', items: [users[2]] }];
+
+      function App() {
+        const items = Combobox.createItems(users, {
+          getValue: (user) => user.id.toString(),
+          getLabel: (user) => user.name,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={filteredGroups}
+            defaultOpen
+            onValueChange={onValueChange}
+          >
+            <Combobox.Input />
+            <Combobox.List>
+              {(group: (typeof filteredGroups)[number], index: number) => (
+                <Combobox.Group key={index} items={group.items}>
+                  <Combobox.Collection>
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user.id.toString()}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.Collection>
+                </Combobox.Group>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe('3');
+    });
+
     it('resolves virtualized collection items to their derived value', async () => {
       const onValueChange = vi.fn();
 
@@ -1172,6 +1215,40 @@ describe('Combobox.createItems', () => {
       );
 
       expect(screen.getAllByRole('option')).toHaveLength(1);
+
+      await user.click(screen.getByRole('option', { name: 'Carol' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(3);
+    });
+
+    it('projects externally filtered flat items when the source collection is grouped', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const items = Combobox.createItems(teams, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[users[2]]}
+            defaultOpen
+            onValueChange={onValueChange}
+          >
+            <Combobox.Input />
+            <Combobox.List>
+              {(user: User, index: number) => (
+                <Combobox.Item key={index} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
 
       await user.click(screen.getByRole('option', { name: 'Carol' }));
 

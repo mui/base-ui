@@ -309,6 +309,10 @@ function CreateItemsApp() {
     // @ts-expect-error Explicit projections must return a non-null primitive.
     getValue: (item) => item,
   });
+  const symbolValueCollection = Combobox.createItems(userItems, {
+    // @ts-expect-error Symbols are not supported as derived values.
+    getValue: (item) => Symbol(item.id),
+  });
   const labelOnlyCollection = Combobox.createItems(userItems, {
     getLabel: (item) => item.name,
   });
@@ -325,6 +329,7 @@ function CreateItemsApp() {
   // @ts-expect-error Existing collections are passed directly to Root.
   Combobox.createItems(collection);
   void objectValueCollection;
+  void symbolValueCollection;
 
   return (
     <React.Fragment>

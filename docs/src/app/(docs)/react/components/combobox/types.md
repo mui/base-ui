@@ -1054,7 +1054,7 @@ A collection whose selection value is the source item when `getValue` is omitted
 or the accessor's return value when it is provided.
 
 ```tsx
-type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean | symbol>;
+type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean>;
 ```
 
 ### InputGroup
@@ -1184,7 +1184,7 @@ type ComboboxFilterOptions = {
 ### ComboboxPrimitiveValue
 
 ```typescript
-type ComboboxPrimitiveValue = string | number | bigint | boolean | symbol;
+type ComboboxPrimitiveValue = string | number | bigint | boolean;
 ```
 
 ### CreateComboboxItemsOptions

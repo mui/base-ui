@@ -91,7 +91,7 @@ export function createComboboxItems<ItemOrGroup, Value>(
   } as unknown as ComboboxItemCollection<Item, Value>;
 }
 
-export type ComboboxPrimitiveValue = string | number | bigint | boolean | symbol;
+export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
 export interface CreateComboboxItemsOptions<Item, Value = Item> {
   /**

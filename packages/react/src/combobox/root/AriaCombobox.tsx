@@ -261,10 +261,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (filterProp !== undefined) {
       return filterProp;
     }
+    if (collection && filterItemToString) {
+      return (item: any, currentQuery: string) =>
+        collatorFilter.contains(filterItemToString(item), currentQuery);
+    }
     // `shouldBypassFiltering` already empties the query whenever a single selection's label
     // matches it exactly, so the filter never needs a selection-aware variant here.
     return createCollatorItemFilter(collatorFilter, filterItemToString);
-  }, [filterProp, collatorFilter, filterItemToString]);
+  }, [collection, filterProp, collatorFilter, filterItemToString]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -408,11 +412,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * collection.
    */
   const flatFilteredValues: any[] = React.useMemo(() => {
-    const flat = isGrouped
+    const flat = isGroupedItems(filteredItems)
       ? (filteredItems as Group<Item>[]).flatMap((group) => group.items)
       : (filteredItems as Item[]);
     return itemToValue ? flat.map((item) => itemToValue(item)) : flat;
-  }, [filteredItems, isGrouped, itemToValue]);
+  }, [filteredItems, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
