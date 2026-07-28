@@ -2,12 +2,8 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export default function ExampleUseItemsCombobox() {
+export default function ExampleCreateItemsCombobox() {
   const id = React.useId();
-  const items = Combobox.useItems(fruits, {
-    getValue: getFruitId,
-    getLabel: getFruitName,
-  });
 
   return (
     <Combobox.Root items={items} defaultValue="banana">
@@ -45,10 +41,10 @@ export default function ExampleUseItemsCombobox() {
               </div>
             </Combobox.Empty>
             <Combobox.List className="max-h-[min(22.5rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0">
-              {(item: Fruit) => (
+              {(item) => (
                 <Combobox.Item
                   key={item.id}
-                  value={getFruitId(item)}
+                  value={item.id}
                   className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                 >
                   <Combobox.ItemIndicator className="col-start-1">
@@ -119,14 +115,6 @@ interface Fruit {
   name: string;
 }
 
-function getFruitId(fruit: Fruit) {
-  return fruit.id;
-}
-
-function getFruitName(fruit: Fruit) {
-  return fruit.name;
-}
-
 const fruits: Fruit[] = [
   { id: 'apple', name: 'Apple' },
   { id: 'banana', name: 'Banana' },
@@ -145,3 +133,8 @@ const fruits: Fruit[] = [
   { id: 'kiwi', name: 'Kiwi' },
   { id: 'watermelon', name: 'Watermelon' },
 ];
+
+const items = Combobox.createItems(fruits, {
+  getValue: (fruit) => fruit.id,
+  getLabel: (fruit) => fruit.name,
+});

@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
-import { act, screen, renderHook, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 
 interface User {
   id: number;
@@ -19,41 +19,15 @@ const getUserId = (user: User) => user.id;
 const getUserName = (user: User) => user.name;
 const getTypeaheadLabel = (user: User) => (user.id === 2 ? 'Zebra' : 'Yak');
 
-function useUserItems() {
-  return Combobox.useItems(users, {
-    getValue: getUserId,
-    getLabel: getUserName,
-  });
-}
+const userItems = Combobox.createItems(users, {
+  getValue: (user) => user.id,
+  getLabel: (user) => user.name,
+});
 
-describe('Combobox.useItems', () => {
+describe('Combobox.createItems', () => {
   const { render } = createRenderer();
 
   describe('collection', () => {
-    it('is referentially stable across re-renders with stable options', () => {
-      const { result, rerender } = renderHook(() =>
-        Combobox.useItems(users, { getValue: getUserId, getLabel: getUserName }),
-      );
-      const first = result.current;
-
-      rerender();
-
-      expect(result.current).toBe(first);
-    });
-
-    it('is rebuilt when the source data changes', () => {
-      const { result, rerender } = renderHook(
-        (props: { data: User[] }) =>
-          Combobox.useItems(props.data, { getValue: getUserId, getLabel: getUserName }),
-        { initialProps: { data: users } },
-      );
-      const first = result.current;
-
-      rerender({ data: [...users] });
-
-      expect(result.current).not.toBe(first);
-    });
-
     it('rejects an items object that is not a collection', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -67,27 +41,11 @@ describe('Combobox.useItems', () => {
     });
 
     it('passes the data through unchanged when no accessors are given', () => {
-      const { result } = renderHook(() => Combobox.useItems(users));
-
-      expect(result.current).toBe(users);
+      expect(Combobox.createItems(users)).toBe(users);
     });
 
-    it('is referentially stable across re-renders while the data is undefined', () => {
-      const { result, rerender } = renderHook(() =>
-        Combobox.useItems(undefined, { getValue: getUserId, getLabel: getUserName }),
-      );
-      const first = result.current;
-
-      rerender();
-
-      expect(result.current).toBe(first);
-    });
-
-    it('shares one empty array between accessor-less hooks with undefined data', () => {
-      const { result: first } = renderHook(() => Combobox.useItems(undefined));
-      const { result: second } = renderHook(() => Combobox.useItems(undefined));
-
-      expect(first.current).toBe(second.current);
+    it('shares one empty array between accessor-less calls with undefined data', () => {
+      expect(Combobox.createItems(undefined)).toBe(Combobox.createItems(undefined));
     });
   });
 
@@ -99,7 +57,7 @@ describe('Combobox.useItems', () => {
 
     it('keeps React node labels resolvable through Combobox.Value', async () => {
       function App() {
-        const items = Combobox.useItems(labeledItems);
+        const items = Combobox.createItems(labeledItems);
         return (
           <Combobox.Root items={items} defaultValue={labeledItems[0]}>
             <span data-testid="value">
@@ -119,7 +77,7 @@ describe('Combobox.useItems', () => {
       const withNullItem = [{ value: null, label: 'None' }, ...labeledItems];
 
       function App() {
-        const items = Combobox.useItems(withNullItem);
+        const items = Combobox.createItems(withNullItem);
         return (
           <Combobox.Root items={items}>
             <span data-testid="value">
@@ -140,7 +98,7 @@ describe('Combobox.useItems', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
@@ -170,7 +128,7 @@ describe('Combobox.useItems', () => {
         const onValueChange = vi.fn();
 
         function App() {
-          const items = Combobox.useItems(sourceItems, {
+          const items = Combobox.createItems(sourceItems, {
             getValue: (user) => (user === null ? 'none' : user.id),
             getLabel: (user) => (user === null ? 'None' : user.name),
           });
@@ -203,7 +161,7 @@ describe('Combobox.useItems', () => {
 
     it('resolves the label of an initially selected value', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultValue={3}>
             <Combobox.Input data-testid="input" />
@@ -225,7 +183,7 @@ describe('Combobox.useItems', () => {
 
     it('renders an empty list while the data is undefined and fills in once it loads', async () => {
       function App(props: { data: User[] | undefined }) {
-        const items = Combobox.useItems(props.data, {
+        const items = Combobox.createItems(props.data, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -254,7 +212,7 @@ describe('Combobox.useItems', () => {
 
     it('resolves and degrades the selected label as the data loads and shrinks', async () => {
       function App(props: { data: User[] | undefined }) {
-        const items = Combobox.useItems(props.data, {
+        const items = Combobox.createItems(props.data, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -280,7 +238,7 @@ describe('Combobox.useItems', () => {
 
     it('labels items by their derived value when no label accessor is given', async () => {
       function App() {
-        const items = Combobox.useItems(users, { getValue: getUserId });
+        const items = Combobox.createItems(users, { getValue: getUserId });
         return (
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -312,7 +270,7 @@ describe('Combobox.useItems', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input />
@@ -344,7 +302,7 @@ describe('Combobox.useItems', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input />
@@ -368,7 +326,7 @@ describe('Combobox.useItems', () => {
 
     it('highlights an initially selected derived value when opened', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultValue={3}>
             <Combobox.Input data-testid="input" />
@@ -400,7 +358,7 @@ describe('Combobox.useItems', () => {
 
     it('renders the selected label via Combobox.Value', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultValue={1}>
             <Combobox.Input />
@@ -418,7 +376,7 @@ describe('Combobox.useItems', () => {
 
     it('filters items by their derived labels', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -443,7 +401,7 @@ describe('Combobox.useItems', () => {
 
     it('uses the root label stringifier for filtering', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} itemToStringLabel={(id: number) => `User ${id}`} defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -472,7 +430,7 @@ describe('Combobox.useItems', () => {
       const labelCache = new Map([[99, 'Archived user']]);
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root
             items={items}
@@ -497,7 +455,7 @@ describe('Combobox.useItems', () => {
       const cities = ['Isparta', 'İzmir'];
 
       function App() {
-        const items = Combobox.useItems(cities);
+        const items = Combobox.createItems(cities);
         return (
           <Combobox.Root items={items} locale="tr" defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -525,7 +483,7 @@ describe('Combobox.useItems', () => {
       const getSpanishName = (user: User) => (user.id === 1 ? 'Alicia' : user.name);
 
       function App(props: { getLabel: (user: User) => string }) {
-        const items = Combobox.useItems(users, {
+        const items = Combobox.createItems(users, {
           getValue: getUserId,
           getLabel: props.getLabel,
         });
@@ -554,7 +512,7 @@ describe('Combobox.useItems', () => {
       const selectedUser = { id: 2, name: 'Stale Bob' };
 
       function App() {
-        const items = Combobox.useItems(users, {
+        const items = Combobox.createItems(users, {
           getLabel: getUserName,
         });
         return (
@@ -575,7 +533,7 @@ describe('Combobox.useItems', () => {
 
     it('resolves a derived value label using the root equality comparer', async () => {
       function App() {
-        const items = Combobox.useItems(users, {
+        const items = Combobox.createItems(users, {
           getValue: (user) => user.name.toLowerCase(),
           getLabel: getUserName,
         });
@@ -599,7 +557,7 @@ describe('Combobox.useItems', () => {
       const filter = vi.fn((user: User) => user.id === 2);
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} filter={filter} defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -637,7 +595,7 @@ describe('Combobox.useItems', () => {
       ];
 
       function App() {
-        const items = Combobox.useItems(contacts, {
+        const items = Combobox.createItems(contacts, {
           getValue: (contact) => contact.id,
           getLabel: (contact) => contact.name,
         });
@@ -669,7 +627,7 @@ describe('Combobox.useItems', () => {
 
     it('labels a selected value that is not in the collection as itself', async () => {
       function App() {
-        const items = Combobox.useItems(users, {
+        const items = Combobox.createItems(users, {
           getValue: getUserId,
           getLabel: (user) => user.name.toUpperCase(),
         });
@@ -687,7 +645,7 @@ describe('Combobox.useItems', () => {
 
     it('uses the default label fallback outside the collection', async () => {
       function App() {
-        const items = Combobox.useItems<User, number | string>(users, {
+        const items = Combobox.createItems<User, number | string>(users, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -705,7 +663,7 @@ describe('Combobox.useItems', () => {
 
     it('uses derived labels for closed trigger typeahead', async () => {
       function App() {
-        const items = Combobox.useItems(users, {
+        const items = Combobox.createItems(users, {
           getValue: getUserId,
           getLabel: getTypeaheadLabel,
         });
@@ -745,7 +703,7 @@ describe('Combobox.useItems', () => {
 
     it('does not stringify null when no value is selected', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} itemToStringLabel={(id) => `User ${id}`}>
             <span data-testid="value">
@@ -764,7 +722,7 @@ describe('Combobox.useItems', () => {
       const sourceItems = [{ id: 1, value: null, label: 'No discount' }];
 
       function App() {
-        const items = Combobox.useItems(sourceItems, {
+        const items = Combobox.createItems(sourceItems, {
           getValue: (item) => item.id,
           getLabel: (item) => item.label,
         });
@@ -788,7 +746,7 @@ describe('Combobox.useItems', () => {
 
     it('serializes derived values in multiple mode', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return <Combobox.Root items={items} multiple name="users" defaultValue={[1, 2]} />;
       }
 
@@ -800,7 +758,7 @@ describe('Combobox.useItems', () => {
 
     it('serializes a derived value in single mode', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return <Combobox.Root items={items} name="user" defaultValue={2} />;
       }
 
@@ -811,7 +769,7 @@ describe('Combobox.useItems', () => {
 
     it('serializes the derived value with itemToStringValue', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root
             items={items}
@@ -831,7 +789,7 @@ describe('Combobox.useItems', () => {
       const renderValue = vi.fn((itemValue: number | null) => String(itemValue));
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultValue={2}>
             <span data-testid="value">
@@ -849,7 +807,7 @@ describe('Combobox.useItems', () => {
 
     it('renders every selected label via Combobox.Value in multiple mode', async () => {
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} multiple defaultValue={[1, 2]}>
             <span data-testid="value">
@@ -868,7 +826,7 @@ describe('Combobox.useItems', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root
             items={items}
@@ -901,7 +859,7 @@ describe('Combobox.useItems', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
@@ -930,7 +888,7 @@ describe('Combobox.useItems', () => {
       ];
 
       function App() {
-        const items = Combobox.useItems(zeroUsers, {
+        const items = Combobox.createItems(zeroUsers, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -966,7 +924,7 @@ describe('Combobox.useItems', () => {
       ];
 
       function App(props: { value: number }) {
-        const items = Combobox.useItems(duplicated, {
+        const items = Combobox.createItems(duplicated, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -989,7 +947,7 @@ describe('Combobox.useItems', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
@@ -1028,7 +986,7 @@ describe('Combobox.useItems', () => {
       }
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root
             items={items}
@@ -1061,7 +1019,7 @@ describe('Combobox.useItems', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const items = useUserItems();
+        const items = userItems;
         return (
           <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input />
@@ -1088,7 +1046,7 @@ describe('Combobox.useItems', () => {
       const filter = vi.fn((user: User) => user.id >= 0);
 
       function App() {
-        const items = Combobox.useItems(manyUsers, {
+        const items = Combobox.createItems(manyUsers, {
           getValue: getUserId,
           getLabel: getUserName,
         });
@@ -1128,7 +1086,7 @@ describe('Combobox.useItems', () => {
     ];
 
     function GroupedApp(props: Partial<Combobox.Root.Props<number, false, User>>) {
-      const items = Combobox.useItems(teams, {
+      const items = Combobox.createItems(teams, {
         getValue: getUserId,
         getLabel: getUserName,
       });
@@ -1225,7 +1183,7 @@ describe('Combobox.useItems', () => {
       const getLabel = vi.fn((user: User) => user.name);
 
       function App() {
-        const items = Combobox.useItems(teams, {
+        const items = Combobox.createItems(teams, {
           getValue,
           getLabel,
         });

@@ -13,7 +13,7 @@ export type State = {
 
   items: readonly any[] | undefined;
   /**
-   * Development only: every value the active `useItems()` collection derives, unfiltered.
+   * Development only: every value the active `createItems()` collection derives, unfiltered.
    * Lets an item check its `value` prop against the derived value domain. Kept on the store
    * rather than on the derived-items context so items don't subscribe to a value that changes
    * on every keystroke. Never written in production builds.

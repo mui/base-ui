@@ -9,7 +9,7 @@ export interface ComboboxDerivedItemsContext {
   filteredItems: any[];
   /**
    * `filteredItems` flattened across groups and projected to selection values. Identical to the
-   * items themselves unless `items` is a `useItems()` collection.
+   * items themselves unless `items` is a `createItems()` collection.
    */
   flatFilteredValues: any[];
 }

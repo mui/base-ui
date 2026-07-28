@@ -106,7 +106,7 @@ const groupItemsReadonly = [
 />;
 
 function CollectionApp() {
-  const collection = Combobox.useItems(objectItems, {
+  const collection = Combobox.createItems(objectItems, {
     getValue: (item) => item.value,
     getLabel: (item) => item.label,
   });

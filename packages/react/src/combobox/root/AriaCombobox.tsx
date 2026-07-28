@@ -152,7 +152,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
-  // Plain items are arrays; normalized `useItems()` collections are objects.
+  // Plain items are arrays; normalized `createItems()` collections are objects.
   const collection =
     itemsProp && !Array.isArray(itemsProp)
       ? (itemsProp as unknown as ItemCollection<Item, Value>)
@@ -161,8 +161,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     throw new Error(
       'Base UI: the `items` prop received an object that is not a collection, ' +
         'so its items cannot be read. Pass an array of items, an array of groups with items, ' +
-        'or the result of `useItems()`. ' +
-        'See https://base-ui.com/react/components/combobox#useitems',
+        'or the result of `createItems()`. ' +
+        'See https://base-ui.com/react/components/combobox#createitems',
     );
   }
   const items = (collection ? collection.data : itemsProp) as
@@ -404,7 +404,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   /**
    * The filtered items flattened across groups and projected to their selection values: the items
-   * themselves for plain arrays, mapped through the collection's projection for a `useItems()`
+   * themselves for plain arrays, mapped through the collection's projection for a `createItems()`
    * collection.
    */
   const flatFilteredValues: any[] = React.useMemo(() => {
@@ -1176,8 +1176,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   // Keyed on the resolved label rather than the items identity: the sync only has an effect
-  // when the label of the current selection changes, and a `useItems()` collection built with
-  // inline accessors is a new object on every render despite resolving the same label.
+  // when the label of the current selection changes, and a `createItems()` collection built
+  // during render is a new object on every render despite resolving the same label.
   useValueChanged(selectedLabelString, () => {
     if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
@@ -1733,7 +1733,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   /**
    * The items to be displayed in the list.
    * Can be a flat array of items, an array of groups with items, or a collection created by
-   * the `useItems()` hook, which derives each item's selection value and label.
+   * the `createItems()` function, which derives each item's selection value and label.
    */
   items?:
     | readonly any[]
@@ -1748,7 +1748,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;
   /**
    * Filter function used to match items vs input query.
-   * Receives the source item, which is the derived value's item when `items` is a `useItems()`
+   * Receives the source item, which is the derived value's item when `items` is a `createItems()`
    * collection, and the item itself otherwise.
    */
   filter?:

@@ -27,7 +27,7 @@ Doesn't render its own HTML element.
 | highlightItemOnHover | `boolean`                                                                                             | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
 | actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                      | -       | A ref to imperative actions. `unmount`: Manually unmounts the combobox.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | autoComplete         | `string`                                                                                              | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| filter               | `((item: Item, query: string, itemToString?: ((item: Item) => string)) => boolean) \| null`           | -       | ComboboxFilter function used to match items vs input query.&#xA;Receives the source item, which is the derived value's item when `items` is a `useItems()`&#xA;collection, and the item itself otherwise.                                                                                                                                                                                                                                                                                                                                                             |
+| filter               | `((item: Item, query: string, itemToString?: ((item: Item) => string)) => boolean) \| null`           | -       | ComboboxFilter function used to match items vs input query.&#xA;Receives the source item, which is the derived value's item when `items` is a `createItems()`&#xA;collection, and the item itself otherwise.                                                                                                                                                                                                                                                                                                                                                          |
 | filteredItems        | `Item[] \| Group<Item>[]`                                                                             | -       | Filtered items to display in the list.&#xA;When provided, the list will use these items instead of filtering the `items` prop internally.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                                                                                                    |
 | form                 | `string`                                                                                              | -       | Identifies the form that owns the internal input.&#xA;Useful when the combobox is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | grid                 | `boolean`                                                                                             | `false` | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -35,7 +35,7 @@ Doesn't render its own HTML element.
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                       | -       | Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                    |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                      | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                    |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                      | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                         |
-| items                | `any[] \| Group[] \| ComboboxItemCollection<Item, Value>`                                             | -       | The items to be displayed in the list.&#xA;Can be a flat array of items, an array of groups with items, or a collection created by&#xA;the `useItems()` hook, which derives each item's selection value and label.                                                                                                                                                                                                                                                                                                                                                    |
+| items                | `any[] \| Group[] \| ComboboxItemCollection<Item, Value>`                                             | -       | The items to be displayed in the list.&#xA;Can be a flat array of items, an array of groups with items, or a collection created by&#xA;the `createItems()` function, which derives each item's selection value and label.                                                                                                                                                                                                                                                                                                                                             |
 | limit                | `number`                                                                                              | `-1`    | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | locale               | `Intl.LocalesArgument`                                                                                | -       | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | loopFocus            | `boolean`                                                                                             | `true`  | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp. |
@@ -1026,10 +1026,36 @@ type ComboboxItemIndicatorState = {
 
 ### ComboboxItemCollection
 
-An opaque handle to the normalized items created by `useItems()`.
+An opaque handle to the normalized items created by `createItems()`.
 It carries the source item type and the derived value type, which is how the root infers what
 the list renders and what selection receives. It exposes no members of its own: the only valid
 use is passing it to the root's `items` prop.
+
+### createItems
+
+Normalizes items into a collection for the root's `items` prop, deriving each item's
+selection value and label before rendering.
+Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
+accessors always receive individual items, never groups.
+An item must not itself have an `items` array property: such an entry is read as a group,
+both in the types and at runtime.
+Create the collection at module scope when the data is static.
+
+**Parameters:**
+
+| Parameter | Type                                                       | Default | Description |
+| :-------- | :--------------------------------------------------------- | :------ | :---------- |
+| data      | `(Item \| { items: Item[] })[] \| undefined`               | -       | -           |
+| options?  | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
+
+**Return Value:**
+
+A collection whose selection value is the source item when `getValue` is omitted,
+or the accessor's return value when it is provided.
+
+```tsx
+type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean | symbol>;
+```
 
 ### InputGroup
 
@@ -1121,31 +1147,6 @@ Returns the internally filtered items.
 type ReturnValue = T[];
 ```
 
-### useItems
-
-Normalizes items into a collection for the root's `items` prop, deriving each item's
-selection value and label before rendering.
-Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
-accessors always receive individual items, never groups.
-An item must not itself have an `items` array property: such an entry is read as a group,
-both in the types and at runtime.
-
-**Parameters:**
-
-| Parameter | Type                                                    | Default | Description |
-| :-------- | :------------------------------------------------------ | :------ | :---------- |
-| data      | `(Item \| { items: Item[] })[] \| undefined`            | -       | -           |
-| options?  | `UseComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | -           |
-
-**Return Value:**
-
-A collection whose selection value is the source item when `getValue` is omitted,
-or the accessor's return value when it is provided.
-
-```tsx
-type ReturnValue = ComboboxItemCollection<Item, Item | string | number | bigint | boolean | symbol>;
-```
-
 ## Additional Types
 
 ### ComboboxFilter
@@ -1186,10 +1187,10 @@ type ComboboxFilterOptions = {
 type ComboboxPrimitiveValue = string | number | bigint | boolean | symbol;
 ```
 
-### UseComboboxItemsOptions
+### CreateComboboxItemsOptions
 
 ```typescript
-type UseComboboxItemsOptions<Item, Value = Item> = {
+type CreateComboboxItemsOptions<Item, Value = Item> = {
   /**
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
@@ -1198,7 +1199,6 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * Prefer stable IDs from your application data.
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
-   * Keep this function reference stable to preserve collection memoization.
    */
   getValue?: (item: Item) => Value;
   /**
@@ -1208,7 +1208,6 @@ type UseComboboxItemsOptions<Item, Value = Item> = {
    * By default, the item's derived value is stringified.
    * Receives every entry of the data array, including nullish ones, so guard inside the accessor
    * when the data can contain them.
-   * Keep this function reference stable to preserve collection memoization.
    */
   getLabel?: (item: Item) => string;
 };
@@ -1281,8 +1280,8 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Combobox.useItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxPrimitiveValue`, `UseComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Combobox.createItems`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 

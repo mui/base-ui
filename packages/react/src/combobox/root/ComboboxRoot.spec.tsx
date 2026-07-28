@@ -295,25 +295,25 @@ mergeProps<typeof Combobox.Root<any>>(
   {},
 );
 
-function UseItemsApp() {
+function CreateItemsApp() {
   const userItems = [
     { id: 1, name: 'Alice' },
     { id: 2, name: 'Bob' },
   ];
 
-  const collection = Combobox.useItems(userItems, {
+  const collection = Combobox.createItems(userItems, {
     getValue: (item) => item.id,
     getLabel: (item) => item.name,
   });
-  const objectValueCollection = Combobox.useItems(userItems, {
+  const objectValueCollection = Combobox.createItems(userItems, {
     // @ts-expect-error Explicit projections must return a non-null primitive.
     getValue: (item) => item,
   });
-  const labelOnlyCollection = Combobox.useItems(userItems, {
+  const labelOnlyCollection = Combobox.createItems(userItems, {
     getLabel: (item) => item.name,
   });
   // Data that has not loaded yet: the item type comes from the accessors instead.
-  const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.useItems(
+  const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,
     { getValue: (item) => item.id },
   );
@@ -323,7 +323,7 @@ function UseItemsApp() {
   collection.each;
 
   // @ts-expect-error Existing collections are passed directly to Root.
-  Combobox.useItems(collection);
+  Combobox.createItems(collection);
   void objectValueCollection;
 
   return (
@@ -349,7 +349,7 @@ function UseItemsApp() {
 }
 
 function CollectionVarianceApp() {
-  const broadCollection = Combobox.useItems([{ id: 1 }], {
+  const broadCollection = Combobox.createItems([{ id: 1 }], {
     getValue: (item) => item.id,
   });
 
@@ -380,11 +380,11 @@ function CollectionInferenceApp() {
   ];
   const teams = [{ value: 'Engineering', items: users }];
 
-  const collection = Combobox.useItems(users, {
+  const collection = Combobox.createItems(users, {
     getValue: (item) => item.id,
     getLabel: (item) => item.name,
   });
-  const groupedCollection = Combobox.useItems(teams, {
+  const groupedCollection = Combobox.createItems(teams, {
     getValue: (item) => item.id,
     getLabel: (item) => item.name,
   });
@@ -430,7 +430,7 @@ function FilterArgumentApp() {
     { id: 2, name: 'Bob' },
   ];
 
-  const collection = Combobox.useItems(users, {
+  const collection = Combobox.createItems(users, {
     getValue: (item) => item.id,
     getLabel: (item) => item.name,
   });

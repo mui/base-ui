@@ -35,5 +35,5 @@ export type {
 export type {
   ComboboxItemCollection,
   ComboboxPrimitiveValue,
-  UseComboboxItemsOptions,
-} from './items/useItems';
+  CreateComboboxItemsOptions,
+} from './items/createItems';
