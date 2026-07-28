@@ -1768,6 +1768,7 @@ export namespace AriaCombobox {
 
   export type ChangeEventReason =
     | typeof REASONS.triggerPress
+    | typeof REASONS.inputPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
     | typeof REASONS.closePress
