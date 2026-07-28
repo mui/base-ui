@@ -1034,7 +1034,7 @@ use is passing it to the root's `items` prop.
 ### createItems
 
 Normalizes items into a collection for the root's `items` prop, deriving each item's
-selection value and label before rendering.
+selection value and label when a root first consumes the collection.
 Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
 accessors always receive individual items, never groups.
 An item must not itself have an `items` array property: such an entry is read as a group,
