@@ -378,7 +378,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
     onTyping(typing) {
