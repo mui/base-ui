@@ -184,7 +184,7 @@ interface UsePopupAutoResizeParameters {
   direction: 'ltr' | 'rtl';
 }
 
-export function getPopupAnchoringStyles(side: Side, direction: 'ltr' | 'rtl'): React.CSSProperties {
+function getPopupAnchoringStyles(side: Side, direction: 'ltr' | 'rtl'): React.CSSProperties {
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
   const isPhysicalTop = side === 'top';
   const isPhysicalLeft =
