@@ -1274,6 +1274,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       if (!entry.needsFirstMeasurement && !measurements.heights.has(rowId)) {
         entry.content = average;
         entry.needsFirstMeasurement = true;
+        // A demoted row's real height is no longer part of the geometry. Leaving it marked as
+        // measured would let a remeasurement commit that height mid-drag, moving the scrollbar
+        // under the pointer — the drag deferral trusts this set to skip already-settled rows.
+        measuredRowsRef.current.delete(rowId as React.Key);
       }
     }
 
@@ -1284,6 +1288,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     adaptiveMeasurementRevision,
     adaptiveMeasurementsRef,
     defaultEstimatedItemHeight,
+    measuredRowsRef,
     rows.length,
     rowsMeta,
     scrollIdleRevision,

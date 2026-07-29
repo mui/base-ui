@@ -397,6 +397,102 @@ describe('<ListVirtualizer />', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'keeps geometry frozen when re-dragging through rows demoted by an estimate refresh',
+    async () => {
+      vi.restoreAllMocks();
+
+      // Three height bands: the middle band is measured mid-drag and later demoted, and its real
+      // height must differ from the average the collection settles on, so a stale remeasurement
+      // produces an observable geometry change.
+      const renderBandedRow = (params: ListVirtualizerRenderRowParameters<TestRowModel>) => {
+        let height = 20;
+        if (params.rowIndex >= 50) {
+          height = params.rowIndex < 100 ? 100 : 40;
+        }
+        return (
+          <div role="listitem" style={{ height }}>
+            {params.row.model.label}
+          </div>
+        );
+      };
+
+      await render(
+        <ListVirtualizer
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          renderRow={renderBandedRow}
+          rows={createRows(300)}
+        />,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeLessThan(6500));
+      const initialScrollHeight = virtualizer.scrollHeight;
+
+      // First drag: measure the 100px band around one window, then move past it so those rows
+      // unmount before release. Their deferred heights commit on release, and the estimate
+      // refresh that follows demotes them: they are not part of the settled sample, which the
+      // 40px band around the release position dominates.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = 1500;
+      fireEvent.scroll(virtualizer);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          }),
+      );
+      virtualizer.scrollTop = 3500;
+      fireEvent.scroll(virtualizer);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          }),
+      );
+      fireEvent.mouseUp(virtualizer);
+
+      await waitFor(() =>
+        expect(virtualizer.scrollHeight).toBeGreaterThan(initialScrollHeight + 1000),
+      );
+      // Let the post-release estimate refresh, including its demotions, settle.
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 400);
+          }),
+      );
+
+      // Second drag: sweep back through the demoted band. Remeasuring those rows mid-drag must
+      // defer like any first measurement instead of committing and moving the scrollbar range.
+      const settledScrollHeight = virtualizer.scrollHeight;
+      fireEvent.mouseDown(virtualizer);
+      for (const row of [60, 72, 84]) {
+        virtualizer.scrollTop = Math.round((settledScrollHeight / 300) * row);
+        fireEvent.scroll(virtualizer);
+        // eslint-disable-next-line no-await-in-loop
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 120);
+            }),
+        );
+      }
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 150);
+          }),
+      );
+
+      expect(Math.abs(virtualizer.scrollHeight - settledScrollHeight)).toBeLessThanOrEqual(1);
+
+      fireEvent.mouseUp(virtualizer);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps the viewport pinned to the bottom when the final rows change the total size',
     async () => {
       vi.restoreAllMocks();
