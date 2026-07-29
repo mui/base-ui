@@ -63,7 +63,7 @@
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.2",
+    "@arethetypeswrong/cli": "0.18.5",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
     "@microsoft/api-extractor": "7.58.9",
