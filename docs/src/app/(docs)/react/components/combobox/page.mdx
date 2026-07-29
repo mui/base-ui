@@ -133,18 +133,24 @@ const CHIP_LIMIT = 3;
 
 #### Keeping the filter after selection
 
-In `multiple` mode, selecting an item clears the typed filter, and closes the popup when the input is rendered outside it. Cancel those requests to let the user pick several results of one query, as in a labels picker.
+In `multiple` mode, selecting an item clears the typed filter, and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel those events.
 
-```jsx title="Keeping the filter after selecting an item"
+```jsx title="Input outside the popup"
 <Combobox.Root
   multiple
-  // Input outside the popup: keep the popup open with the filter intact.
   onOpenChange={(open, eventDetails) => {
     if (!open && eventDetails.reason === 'item-press') {
       eventDetails.cancel();
     }
   }}
-  // Input inside the popup (or an `inline` list): keep the filter.
+>
+  {/* ... */}
+</Combobox.Root>
+```
+
+```jsx title="Input inside the popup"
+<Combobox.Root
+  multiple
   // The click or keydown event identifies the selection-triggered clear.
   onInputValueChange={(value, eventDetails) => {
     const isSelectionGesture =
