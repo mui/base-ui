@@ -413,6 +413,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     activeIndex,
     selectedIndex,
     disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
+    // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
+    // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
+    // the scroll position away from where the virtualizer just placed it.
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizers.size === 0,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {

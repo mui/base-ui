@@ -888,6 +888,62 @@ describe('<Combobox.Virtualizer />', () => {
     expect(scrollTop).toBe(20);
   });
 
+  it.skipIf(isJSDOM)('does not scroll keyboard highlights through DOM scrollIntoView', async () => {
+    vi.restoreAllMocks();
+    const scrollIntoViewSpy = vi
+      .spyOn(HTMLElement.prototype, 'scrollIntoView')
+      .mockImplementation(() => {});
+
+    try {
+      const { user } = await render(
+        <Combobox.Root defaultOpen items={createItems(1000)}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimatedItemHeight={20}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} style={{ height: 20 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      for (let index = 0; index < 10; index += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.keyboard('{ArrowDown}');
+      }
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      // The virtualizer itself brings the highlighted row into view.
+      await waitFor(() => expect(virtualizer.scrollTop).toBeGreaterThan(0));
+
+      // Wait out the frame-deferred list-navigation scroll before asserting.
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 60);
+          }),
+      );
+      // A DOM scrollIntoView runs a frame late against a potentially stale window layout and can
+      // drag the scroll position away from where the virtualizer just placed it, stranding the
+      // highlight offscreen. It must stay disabled while the virtualizer owns scrolling.
+      expect(
+        scrollIntoViewSpy.mock.contexts.filter((element) =>
+          virtualizer.contains(element as HTMLElement),
+        ),
+      ).toHaveLength(0);
+    } finally {
+      vi.restoreAllMocks();
+    }
+  });
+
   it('uses computed CSS scroll padding when scrolling the highlighted item', async () => {
     let scrollTop = 0;
     const handleScrollTo = vi.fn((options: ScrollToOptions) => {

@@ -1235,6 +1235,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     rtl: direction === 'rtl',
     disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
     grid: grid ? gridNavigation : undefined,
+    // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
+    // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
+    // the scroll position away from where the virtualizer just placed it.
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizers.size === 0,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
