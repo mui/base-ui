@@ -51,7 +51,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled: groupDisabled,
   } = useMenuRadioGroupContext();
 
-  const disabled = groupDisabled || disabledProp;
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || groupDisabled || rootDisabled;
   const checked = selectedValue === value;
 
   const { getItemProps, itemRef } = useMenuItem({
