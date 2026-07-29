@@ -281,7 +281,10 @@ describe('<Drawer.Viewport />', () => {
         return;
       }
 
-      document.elementFromPoint = () => host;
+      // Returning an in-popup element from the document hit test would start the swipe if the
+      // shadow root were not consulted, so this pins the shadow-root lookup rather than the
+      // `contains()` rejection that a retargeted host would also trigger.
+      document.elementFromPoint = () => target;
       shadowRoot.elementFromPoint = () => ignored;
 
       fireEvent.touchStart(ignored, {
