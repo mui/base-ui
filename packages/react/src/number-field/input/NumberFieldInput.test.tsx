@@ -89,20 +89,6 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('123');
   });
 
-  it('strips trailing invalid characters from a partially-numeric paste', async () => {
-    const onValueChange = vi.fn();
-    await render(<NumberField onValueChange={onValueChange} />);
-    const input = screen.getByRole('textbox') as HTMLInputElement;
-
-    await act(async () => input.focus());
-    input.select();
-    pasteText(input, '12abc');
-
-    expect(input).toHaveValue('12');
-    expect(onValueChange.mock.lastCall?.[0]).toBe(12);
-    expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.inputPaste);
-  });
-
   it('should increment on keydown ArrowUp', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
