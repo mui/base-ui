@@ -435,6 +435,58 @@ describe('<ListVirtualizer />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'keeps the final row flush with the scrollport while a scrollbar drag holds the bottom',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <ListVirtualizer
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          renderRow={renderMixedRow}
+          rows={createRows(300)}
+        />,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeLessThan(6500));
+
+      // A native scrollbar drag pinned at the very bottom: the browser maps the thumb to the
+      // maximum position of the frozen estimate-based geometry.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+
+      await screen.findByText('Item 300');
+
+      // Real tail rows are taller than their frozen estimates. Without bottom anchoring the
+      // final row would extend past the scrollport and appear clipped while the button is held.
+      await waitFor(() =>
+        expect(
+          Math.abs(
+            screen.getByText('Item 300').getBoundingClientRect().bottom -
+              virtualizer.getBoundingClientRect().bottom,
+          ),
+        ).toBeLessThanOrEqual(1),
+      );
+
+      fireEvent.mouseUp(virtualizer);
+
+      // Committing the deferred measurements after release must keep the bottom edge flush.
+      await waitFor(() =>
+        expect(
+          Math.abs(
+            screen.getByText('Item 300').getBoundingClientRect().bottom -
+              virtualizer.getBoundingClientRect().bottom,
+          ),
+        ).toBeLessThanOrEqual(1),
+      );
+    },
+  );
+
   it('scrolls to an index with the requested alignment', async () => {
     const apiRef = React.createRef<ListVirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();

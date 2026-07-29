@@ -260,6 +260,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
   const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
   const renderZoneOffsetTopRef = React.useRef(0);
+  /**
+   * Virtual position of the end of the rendered range when it includes the final row, or `null`
+   * otherwise. Anchors the rendered tail to the virtual content end.
+   */
+  const renderZoneVirtualEndRef = React.useRef<number | null>(null);
   const scrollTopRef = React.useRef(0);
   const muiApiRef = React.useRef<Virtualizer['api'] | null>(null);
 
@@ -327,7 +332,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   /** Timestamp of the last wheel/touch input on the scroller. */
   const lastDirectInputTimeRef = React.useRef(Number.NEGATIVE_INFINITY);
-  /** Whether a mouse button is currently held down, tracked on the owner document. */
+  /** Whether a pointer or mouse button is currently pressed, tracked on the owner document. */
   const pointerDownRef = React.useRef(false);
   /**
    * Whether the current scroll burst arrives without wheel/touch input while a mouse button is
@@ -337,6 +342,43 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const isScrollbarDragRef = React.useRef(false);
   const deferredRowHeightsRef = React.useRef(new Map<React.Key, number>());
   const releaseScrollbarDragFrame = useAnimationFrame();
+
+  /**
+   * Positions the render zone for the scroll position last processed by the engine. Rows are
+   * normally stacked downward from the estimated position of the first rendered row, but rows
+   * carry their real DOM heights, so accumulated estimate error would misplace the end of the
+   * collection: at the maximum scroll position a taller-than-estimated tail clips the final row
+   * against the scrollport while a shorter one detaches it from the bottom edge. When the
+   * rendered range includes the final row, anchor it to the virtual content end instead so the
+   * bottom edge is exact wherever estimate error still exists (primarily while a scrollbar drag
+   * defers measurements).
+   */
+  const updateRenderZoneTransform = useStableCallback(() => {
+    const renderZone = renderZoneRef.current;
+
+    if (!renderZone) {
+      return;
+    }
+
+    const scrollTop = scrollTopRef.current;
+    const stacked = renderZoneOffsetTopRef.current - scrollTop;
+    let translate = stacked;
+    const virtualEnd = renderZoneVirtualEndRef.current;
+
+    if (virtualEnd != null) {
+      const anchored = virtualEnd - scrollTop - renderZone.offsetHeight;
+      translate =
+        anchored <= stacked
+          ? // The real tail is taller than estimated. Pulling it up cannot uncover the scrollport's
+            // top edge: the extra real height always reaches at least as far down as before.
+            anchored
+          : // The real tail is shorter than estimated. Push it down to the virtual end, but never
+            // below the scrollport's top edge, which would uncover rows above the rendered range.
+            Math.max(stacked, Math.min(anchored, 0));
+    }
+
+    renderZone.style.transform = `translate3d(0, ${translate}px, 0)`;
+  });
 
   // The browser moves a native scrollport before dispatching its scroll event. Keep the existing
   // rows pinned in a sticky viewport during that interval, then move the render zone once
@@ -373,13 +415,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     }
 
     scrollTopRef.current = scrollPosition.top;
-
-    if (renderZoneRef.current) {
-      renderZoneRef.current.style.transform = getRenderZoneTransform(
-        renderZoneOffsetTopRef.current,
-        scrollPosition.top,
-      );
-    }
+    updateRenderZoneTransform();
   });
 
   React.useEffect(() => {
@@ -406,7 +442,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       lastDirectInputTimeRef.current = performance.now();
       commitScrollbarDrag();
     };
-    const onMouseDown = () => {
+    const onPressStart = () => {
       pointerDownRef.current = true;
     };
     const endScrollbarDrag = () => {
@@ -417,14 +453,24 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     const options: AddEventListenerOptions = { passive: true };
     scrollElement.addEventListener('wheel', onDirectInput, options);
     scrollElement.addEventListener('touchmove', onDirectInput, options);
-    doc.addEventListener('mousedown', onMouseDown, options);
+    // Pointer and compat mouse events complement each other: list items cancel `pointerdown` to
+    // protect the anchor's focus, which suppresses the compat `mousedown`/`mouseup` for that
+    // press, while native scrollbar presses may dispatch only mouse events. Setting the shared
+    // flag twice for the same press is harmless.
+    doc.addEventListener('pointerdown', onPressStart, options);
+    doc.addEventListener('mousedown', onPressStart, options);
+    doc.addEventListener('pointerup', endScrollbarDrag, options);
+    doc.addEventListener('pointercancel', endScrollbarDrag, options);
     doc.addEventListener('mouseup', endScrollbarDrag, options);
     // A drag can end outside the window; treat losing focus as releasing the button.
     win.addEventListener('blur', endScrollbarDrag);
     return () => {
       scrollElement.removeEventListener('wheel', onDirectInput, options);
       scrollElement.removeEventListener('touchmove', onDirectInput, options);
-      doc.removeEventListener('mousedown', onMouseDown, options);
+      doc.removeEventListener('pointerdown', onPressStart, options);
+      doc.removeEventListener('mousedown', onPressStart, options);
+      doc.removeEventListener('pointerup', endScrollbarDrag, options);
+      doc.removeEventListener('pointercancel', endScrollbarDrag, options);
       doc.removeEventListener('mouseup', endScrollbarDrag, options);
       win.removeEventListener('blur', endScrollbarDrag);
     };
@@ -635,6 +681,13 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   overscannedRenderContextRef.current = overscannedRenderContext;
   const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
   renderZoneOffsetTopRef.current = renderZoneOffsetTop;
+  // When the whole collection is rendered, the first row's exact position (zero) takes priority
+  // over the estimated content end, so tail anchoring must stay off.
+  renderZoneVirtualEndRef.current =
+    overscannedRenderContext.firstRowIndex > 0 &&
+    overscannedRenderContext.lastRowIndex >= rows.length
+      ? rowsMeta.currentPageTotalHeight
+      : null;
 
   const resetScroll = useStableCallback(() => {
     programmaticScrollTopRef.current = 0;
@@ -1003,13 +1056,17 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     const scrollElement = scrollElementRef.current;
     const renderZone = renderZoneRef.current;
 
-    if (
-      !enabled ||
-      scrollElement == null ||
-      renderZone == null ||
-      // A pending scrollToIndex request repositions absolutely from the fresh geometry instead.
-      pendingScrollRowIndexRef.current != null
-    ) {
+    if (!enabled || scrollElement == null || renderZone == null) {
+      scrollAnchorRef.current = null;
+      return;
+    }
+
+    // The inline render style stacks rows from the top without DOM knowledge. Re-anchor the
+    // rendered tail before any measurement below so anchor snapshots see final positions.
+    updateRenderZoneTransform();
+
+    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead.
+    if (pendingScrollRowIndexRef.current != null) {
       scrollAnchorRef.current = null;
       return;
     }
