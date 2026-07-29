@@ -687,6 +687,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  // A reopen that interrupts the close transition supersedes the exit, so the query frozen
+  // for the exit animation must not keep filtering the reopened popup. `handleUnmount`
+  // never runs to clear it when the popup is reopened before the exit completes.
+  useValueChanged(open, (previousOpen) => {
+    if (open && !previousOpen && closeQuery !== null) {
+      setCloseQuery(null);
+    }
+  });
+
   const setSelectedValue = useStableCallback(
     (nextValue: Value | Value[] | null, eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
