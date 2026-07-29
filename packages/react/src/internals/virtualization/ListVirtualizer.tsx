@@ -722,13 +722,16 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       if (
         enabled &&
         rows.length >= 100 &&
+        // Row metadata updates after the row collection. Ignore geometry retained from the
+        // previous collection while the virtualizer hydrates the new rows.
+        rowsMeta.positions.length === rows.length &&
         element &&
-        totalSize > 0 &&
-        element.clientHeight >= totalSize
+        rowsMeta.currentPageTotalHeight > 0 &&
+        element.clientHeight >= rowsMeta.currentPageTotalHeight
       ) {
         onUnconstrainedHeight?.();
       }
-    }, [enabled, onUnconstrainedHeight, rows.length, totalSize]);
+    }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta]);
   }
 
   const pendingVirtualizationUpdateRef = React.useRef(false);

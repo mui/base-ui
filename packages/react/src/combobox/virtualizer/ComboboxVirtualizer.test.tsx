@@ -1761,6 +1761,79 @@ describe('<Combobox.Virtualizer />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'does not warn while an animated narrow filtered list closes',
+    async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      onTestFinished(() => warnSpy.mockRestore());
+
+      const style = `
+        @keyframes combobox-virtualizer-close-test {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-popup[data-ending-style] {
+          animation: combobox-virtualizer-close-test 100ms linear;
+        }
+      `;
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root items={createItems(100)}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    <Combobox.Virtualizer
+                      estimatedItemHeight={20}
+                      render={
+                        <div
+                          style={{
+                            height: 'min(80px, var(--total-size))',
+                            maxHeight: 80,
+                          }}
+                        />
+                      }
+                    >
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item} style={{ height: 20 }}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.Virtualizer>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.type(input, '100');
+      await user.click(await screen.findByRole('option', { name: 'Item 100' }));
+      await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
+
+      expect(
+        warnSpy.mock.calls.some(([message]) =>
+          String(message).includes('must have a constrained height or maximum height'),
+        ),
+      ).toBe(false);
+    },
+  );
+
   it('cleans up its list registration when unmounted', async () => {
     function Test(props: { enabled: boolean }) {
       return (
