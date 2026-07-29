@@ -31,8 +31,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const committedDimensionsRef = React.useRef<Dimensions | null>(null);
   const isInitialRenderRef = React.useRef(true);
 
-  const restoreAnchoringStylesRef = React.useRef(NOOP);
-
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
 
@@ -57,10 +55,19 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       : EMPTY_OBJECT;
   }, [side, direction]);
 
+  // Apply the anchoring styles in a separate effect so that a rendered side change
+  // (e.g. a flip from `top` to `bottom`) doesn't restart the measurement effect below,
+  // which would cancel an in-flight size transition and snap to the new dimensions.
+  useIsoLayoutEffect(() => {
+    if (!mounted || !popupElement) {
+      return undefined;
+    }
+    return applyElementStyles(popupElement, anchoringStyles as Record<string, string>);
+  }, [mounted, popupElement, anchoringStyles]);
+
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
     if (!mounted) {
-      restoreAnchoringStylesRef.current = NOOP;
       isInitialRenderRef.current = true;
       committedDimensionsRef.current = null;
       return undefined;
@@ -69,11 +76,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     if (!popupElement || !positionerElement) {
       return undefined;
     }
-
-    restoreAnchoringStylesRef.current = applyElementStyles(
-      popupElement,
-      anchoringStyles as Record<string, string>,
-    );
 
     // Measure the rendered size to enable transitions:
     setPopupCssSize(popupElement, 'auto');
@@ -113,10 +115,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
       isInitialRenderRef.current = false;
 
-      return () => {
-        restoreAnchoringStylesRef.current();
-        restoreAnchoringStylesRef.current = NOOP;
-      };
+      return undefined;
     }
 
     // Subsequent renders while open (when `content` changes).
@@ -148,8 +147,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     return () => {
       abortController.abort();
       animationFrame.cancel();
-      restoreAnchoringStylesRef.current();
-      restoreAnchoringStylesRef.current = NOOP;
     };
   }, [
     content,
@@ -160,7 +157,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     mounted,
     onMeasureLayout,
     onMeasureLayoutComplete,
-    anchoringStyles,
   ]);
 }
 
