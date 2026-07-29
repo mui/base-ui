@@ -14,11 +14,21 @@ import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  moveMouse,
+  popupConformanceTests,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -1272,6 +1282,10 @@ describe('<Menu.Root />', () => {
 
             const dialogClose = await screen.findByTestId('dialog-close');
 
+            await waitFor(() => {
+              expect(frameCallbacks.size).toBeGreaterThan(0);
+            });
+
             act(() => {
               const callbacks = Array.from(frameCallbacks.values());
               frameCallbacks.clear();
@@ -2040,7 +2054,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
@@ -2058,13 +2072,13 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
         });
 
-        await userEvent.unhover(trigger);
+        moveMouse(trigger, document.body);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);

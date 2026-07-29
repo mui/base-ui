@@ -1,11 +1,15 @@
 import { expect } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { advanceReactClock, createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Tooltip.Provider />', () => {
   const { render, clock } = createRenderer();
+
+  async function tick(ms: number) {
+    await advanceReactClock(clock, ms);
+  }
 
   describe('prop: delay', () => {
     clock.withFakeTimers();
@@ -29,15 +33,15 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).toBe(null);
-
-      clock.tick(1_000);
-
-      expect(screen.queryByText('Content')).toBe(null);
-
-      clock.tick(9_000);
-
       await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await tick(1_000);
+
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await tick(9_000);
 
       expect(screen.queryByText('Content')).not.toBe(null);
     });
@@ -61,7 +65,9 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(0);
+      await flushMicrotasks();
+
+      await tick(0);
 
       expect(screen.queryByText('Content')).not.toBe(null);
     });
@@ -85,15 +91,15 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).toBe(null);
-
-      clock.tick(99);
-
-      expect(screen.queryByText('Content')).toBe(null);
-
-      clock.tick(1);
-
       await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await tick(99);
+
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await tick(1);
 
       expect(screen.queryByText('Content')).not.toBe(null);
     });
@@ -121,19 +127,21 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(OPEN_DELAY);
-
       await flushMicrotasks();
+
+      await tick(OPEN_DELAY);
 
       expect(screen.queryByText('Content')).not.toBe(null);
 
       fireEvent.mouseLeave(trigger);
 
-      clock.tick(300);
+      await flushMicrotasks();
+
+      await tick(300);
 
       expect(screen.queryByText('Content')).not.toBe(null);
 
-      clock.tick(300);
+      await tick(300);
 
       expect(screen.queryByText('Content')).toBe(null);
     });
@@ -161,9 +169,9 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      clock.tick(OPEN_DELAY);
-
       await flushMicrotasks();
+
+      await tick(OPEN_DELAY);
 
       expect(screen.queryByText('Content')).not.toBe(null);
 
@@ -171,11 +179,13 @@ describe('<Tooltip.Provider />', () => {
 
       fireEvent.mouseLeave(trigger);
 
-      clock.tick(999);
+      await flushMicrotasks();
+
+      await tick(999);
 
       expect(screen.queryByText('Content')).not.toBe(null);
 
-      clock.tick(1);
+      await tick(1);
 
       expect(screen.queryByText('Content')).toBe(null);
     });
@@ -209,18 +219,16 @@ describe('<Tooltip.Provider />', () => {
 
       fireEvent.mouseEnter(first);
       fireEvent.mouseMove(first);
-      await act(async () => {
-        clock.tick(100);
-      });
+      await flushMicrotasks();
+      await tick(100);
 
       expect(screen.queryByText('Content One')).not.toBe(null);
 
       fireEvent.mouseLeave(first);
       fireEvent.mouseEnter(second);
       fireEvent.mouseMove(second);
-      await act(async () => {
-        clock.tick(0);
-      });
+      await flushMicrotasks();
+      await tick(0);
 
       expect(screen.queryByText('Content Two')).not.toBe(null);
       expect(screen.queryByText('Content One')).toBe(null);
@@ -234,14 +242,14 @@ describe('<Tooltip.Provider />', () => {
 
       fireEvent.mouseEnter(first);
       fireEvent.mouseMove(first);
-      clock.tick(100);
       await flushMicrotasks();
+      await tick(100);
 
       expect(screen.queryByText('Content One')).not.toBe(null);
 
       fireEvent.mouseLeave(first);
-      clock.tick(400);
       await flushMicrotasks();
+      await tick(400);
 
       fireEvent.mouseEnter(second);
       fireEvent.mouseMove(second);
@@ -249,8 +257,7 @@ describe('<Tooltip.Provider />', () => {
 
       expect(screen.queryByText('Content Two')).toBe(null);
 
-      clock.tick(100);
-      await flushMicrotasks();
+      await tick(100);
 
       expect(screen.queryByText('Content Two')).not.toBe(null);
     });

@@ -1,10 +1,15 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
 
 describe('<Drawer.Viewport />', () => {
   beforeAll(function beforeHook() {
@@ -3632,6 +3637,319 @@ describe('<Drawer.Viewport />', () => {
       expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('publishes resting snap progress before descendant layout effects', async () => {
+    let snapPointPassiveEffectFlushed = false;
+    let appliedBeforePassiveEffect: boolean | null = null;
+
+    function PassiveEffectBoundary({ snapPoint }: { snapPoint: string }) {
+      useIsoLayoutEffect(() => {
+        snapPointPassiveEffectFlushed = false;
+      });
+
+      React.useEffect(() => {
+        if (snapPoint === '200px') {
+          snapPointPassiveEffectFlushed = true;
+        }
+      }, [snapPoint]);
+
+      return null;
+    }
+
+    function TestCase({ snapPoint }: { snapPoint: string }) {
+      return (
+        <Drawer.Root open modal={false} snapPoints={['100px', '200px']} snapPoint={snapPoint}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetHeight', {
+                    configurable: true,
+                    value: 200,
+                  });
+                }
+              }}
+            >
+              <PassiveEffectBoundary snapPoint={snapPoint} />
+              <Drawer.Popup
+                ref={(element) => {
+                  if (element) {
+                    Object.defineProperty(element, 'offsetHeight', {
+                      configurable: true,
+                      value: 200,
+                    });
+                  }
+                }}
+              >
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase snapPoint="100px" />);
+    const backdrop = screen.getByTestId('backdrop');
+    const originalSetProperty = backdrop.style.setProperty.bind(backdrop.style);
+    const setPropertySpy = vi
+      .spyOn(backdrop.style, 'setProperty')
+      .mockImplementation((name, value, priority) => {
+        if (
+          name === '--drawer-swipe-progress' &&
+          value === '0' &&
+          appliedBeforePassiveEffect === null
+        ) {
+          appliedBeforePassiveEffect = !snapPointPassiveEffectFlushed;
+        }
+        originalSetProperty(name, value, priority);
+      });
+
+    try {
+      await setProps({ snapPoint: '200px' });
+      expect(appliedBeforePassiveEffect).toBe(true);
+      expect(backdrop.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+    } finally {
+      setPropertySpy.mockRestore();
+    }
+  });
+
+  it('clears kept-mounted swipe state before descendant layout effects on reopen', async () => {
+    let openPassiveEffectFlushed = false;
+    let resetBeforePassiveEffect: boolean | null = null;
+
+    function PassiveEffectBoundary({ open }: { open: boolean }) {
+      useDialogRootContext().useState('open');
+
+      useIsoLayoutEffect(() => {
+        openPassiveEffectFlushed = false;
+      });
+
+      React.useEffect(() => {
+        if (open) {
+          openPassiveEffectFlushed = true;
+        }
+      }, [open]);
+
+      return null;
+    }
+
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open} modal={false}>
+          <Drawer.Portal keepMounted>
+            <Drawer.Viewport>
+              <PassiveEffectBoundary open={open} />
+              <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase open={false} />);
+    const popup = screen.getByTestId('popup');
+    popup.style.setProperty('--drawer-swipe-movement-y', '50px');
+    popup.setAttribute('data-swipe-dismiss', '');
+    const originalToggleAttribute = popup.toggleAttribute.bind(popup);
+    const toggleAttributeSpy = vi
+      .spyOn(popup, 'toggleAttribute')
+      .mockImplementation((name, force) => {
+        if (name === 'data-swipe-dismiss' && force === false && resetBeforePassiveEffect === null) {
+          resetBeforePassiveEffect = !openPassiveEffectFlushed;
+        }
+        return originalToggleAttribute(name, force);
+      });
+
+    try {
+      await setProps({ open: true });
+      expect(resetBeforePassiveEffect).toBe(true);
+      expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+      expect(popup).not.toHaveAttribute('data-swipe-dismiss');
+    } finally {
+      toggleAttributeSpy.mockRestore();
+    }
+  });
+
+  it('clears nested progress before descendant layout effects when the child closes', async () => {
+    let closePassiveEffectFlushed = false;
+    let clearedBeforePassiveEffect: boolean | null = null;
+
+    function NestedProgressControl() {
+      const { onNestedSwipeProgressChange } = useDrawerRootContext();
+
+      return <button onClick={() => onNestedSwipeProgressChange(0.5)}>Set nested progress</button>;
+    }
+
+    function PassiveEffectBoundary({ childOpen }: { childOpen: boolean }) {
+      useDialogRootContext().useState('open');
+      closePassiveEffectFlushed = false;
+
+      useIsoLayoutEffect(
+        () => () => {
+          closePassiveEffectFlushed = false;
+        },
+        [],
+      );
+
+      React.useEffect(
+        () => () => {
+          if (childOpen) {
+            closePassiveEffectFlushed = true;
+          }
+        },
+        [childOpen],
+      );
+
+      return null;
+    }
+
+    function TestCase({ childOpen }: { childOpen: boolean }) {
+      return (
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="parent-popup">
+                <Drawer.Root open={childOpen} modal={false}>
+                  <Drawer.Portal keepMounted>
+                    <Drawer.Viewport>
+                      <PassiveEffectBoundary childOpen={childOpen} />
+                      <Drawer.Popup>Child drawer</Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                  <NestedProgressControl />
+                </Drawer.Root>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<TestCase childOpen />);
+
+    await user.click(screen.getByRole('button', { name: 'Set nested progress' }));
+    expect(
+      screen.getByTestId('parent-popup').style.getPropertyValue('--drawer-swipe-progress'),
+    ).toBe('0.5');
+    const parentPopup = screen.getByTestId('parent-popup');
+    const originalSetProperty = parentPopup.style.setProperty.bind(parentPopup.style);
+    const setPropertySpy = vi
+      .spyOn(parentPopup.style, 'setProperty')
+      .mockImplementation((name, value, priority) => {
+        if (
+          name === '--drawer-swipe-progress' &&
+          value === '0' &&
+          clearedBeforePassiveEffect === null
+        ) {
+          clearedBeforePassiveEffect = !closePassiveEffectFlushed;
+        }
+        originalSetProperty(name, value, priority);
+      });
+
+    try {
+      await setProps({ childOpen: false });
+      expect(clearedBeforePassiveEffect).toBe(true);
+      expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+    } finally {
+      setPropertySpy.mockRestore();
+    }
+  });
+
+  it('clears provider and backdrop swipe state during layout teardown', async () => {
+    let teardownPassiveEffectFlushed = false;
+    let clearedBeforePassiveEffect: boolean | null = null;
+
+    function ProviderStateControl() {
+      const providerContext = useDrawerProviderContext();
+
+      return (
+        <button
+          onClick={() => {
+            providerContext?.visualStateStore.set({
+              swipeProgress: 0.5,
+              frontmostHeight: 100,
+            });
+          }}
+        >
+          Set provider state
+        </button>
+      );
+    }
+
+    function PassiveEffectBoundary() {
+      useIsoLayoutEffect(
+        () => () => {
+          teardownPassiveEffectFlushed = false;
+        },
+        [],
+      );
+
+      React.useEffect(
+        () => () => {
+          teardownPassiveEffectFlushed = true;
+        },
+        [],
+      );
+
+      return null;
+    }
+
+    function TestCase({ showViewport }: { showViewport: boolean }) {
+      return (
+        <Drawer.Provider>
+          <Drawer.Indent data-testid="indent" />
+          <ProviderStateControl />
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Backdrop data-testid="backdrop" />
+              {showViewport && (
+                <React.Fragment>
+                  <PassiveEffectBoundary />
+                  <Drawer.Viewport>
+                    <Drawer.Popup>Drawer</Drawer.Popup>
+                  </Drawer.Viewport>
+                </React.Fragment>
+              )}
+            </Drawer.Portal>
+          </Drawer.Root>
+        </Drawer.Provider>
+      );
+    }
+
+    const { setProps, user } = await render(<TestCase showViewport />);
+
+    await user.click(screen.getByRole('button', { name: 'Set provider state' }));
+    const indent = screen.getByTestId('indent');
+    const backdrop = screen.getByTestId('backdrop');
+    backdrop.setAttribute('data-swiping', '');
+    expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0.5');
+    expect(indent.style.getPropertyValue('--drawer-height')).toBe('100px');
+    const originalSetProperty = indent.style.setProperty.bind(indent.style);
+    const setPropertySpy = vi
+      .spyOn(indent.style, 'setProperty')
+      .mockImplementation((name, value, priority) => {
+        if (
+          name === '--drawer-swipe-progress' &&
+          value === '0' &&
+          clearedBeforePassiveEffect === null
+        ) {
+          clearedBeforePassiveEffect = !teardownPassiveEffectFlushed;
+        }
+        originalSetProperty(name, value, priority);
+      });
+
+    try {
+      await setProps({ showViewport: false });
+      expect(clearedBeforePassiveEffect).toBe(true);
+      expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+      expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    } finally {
+      setPropertySpy.mockRestore();
     }
   });
 

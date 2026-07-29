@@ -69,6 +69,7 @@ type AutocompleteRootActions = { unmount: () => void };
 ```typescript
 type AutocompleteRootChangeEventReason =
   | 'trigger-press'
+  | 'input-press'
   | 'outside-press'
   | 'item-press'
   | 'close-press'
@@ -88,6 +89,7 @@ type AutocompleteRootChangeEventReason =
 type AutocompleteRootChangeEventDetails = (
   | { reason: 'none'; event: Event }
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }

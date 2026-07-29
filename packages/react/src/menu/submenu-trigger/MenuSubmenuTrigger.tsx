@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -16,6 +16,9 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { REASONS } from '../../internals/reasons';
+
+const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
 /**
  * A menu item that opens a submenu.
@@ -93,7 +96,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       const element = triggerElementRef.current;
       if (element && isElementDisabled(element) && !disabled) {
         const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
@@ -164,6 +167,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
+  const openMethod = store.useState('openMethod');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  // Arrow keys open the submenu through list navigation without dispatching a click, so
+  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
+  const openedByKeyboard =
+    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+  const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
+
   const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: triggerOpenStateMapping,
@@ -172,6 +183,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       hoverProps,
       rootTriggerProps,
       itemProps,
+      // Opening a submenu changes the trigger's expanded state while the trigger still holds
+      // focus, and VoiceOver announces that state change instead of the submenu item that focus
+      // moves to a moment later, so the first item is never announced. Dropping the state while
+      // the submenu is open avoids the announcement without claiming the submenu is collapsed;
+      // `aria-haspopup` still conveys that the item opens a submenu.
+      shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,

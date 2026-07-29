@@ -1,9 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { useDrawerProviderContext } from './DrawerProviderContext';
+
+const manualDrawer = {};
+const missingDrawer = {};
 
 function ProviderControls() {
   const context = useDrawerProviderContext();
@@ -14,10 +17,10 @@ function ProviderControls() {
 
   return (
     <React.Fragment>
-      <button onClick={() => context.setDrawerOpen('manual', true)}>Register open</button>
-      <button onClick={() => context.setDrawerOpen('manual', false)}>Register closed</button>
-      <button onClick={() => context.removeDrawer('manual')}>Remove registered</button>
-      <button onClick={() => context.removeDrawer('missing')}>Remove missing</button>
+      <button onClick={() => context.setDrawerOpen(manualDrawer, true)}>Register open</button>
+      <button onClick={() => context.setDrawerOpen(manualDrawer, false)}>Register closed</button>
+      <button onClick={() => context.removeDrawer(manualDrawer)}>Remove registered</button>
+      <button onClick={() => context.removeDrawer(missingDrawer)}>Remove missing</button>
       <button
         onClick={() => context.visualStateStore.set({ swipeProgress: 0.5, frontmostHeight: 120 })}
       >
@@ -104,6 +107,22 @@ describe('<Drawer.Provider />', () => {
     await user.click(screen.getByRole('button', { name: 'Remove registered' }));
     await user.click(screen.getByRole('button', { name: 'Remove registered' }));
     expect(background).toHaveAttribute('data-inactive', '');
+  });
+
+  it('does not retain closed drawer registrations', async () => {
+    const onRender = vi.fn();
+    const { user } = await render(
+      <React.Profiler id="provider" onRender={onRender}>
+        <Drawer.Provider>
+          <ProviderControls />
+        </Drawer.Provider>
+      </React.Profiler>,
+    );
+
+    onRender.mockClear();
+    await user.click(screen.getByRole('button', { name: 'Register closed' }));
+
+    expect(onRender).not.toHaveBeenCalled();
   });
 
   it('synchronizes and restores visual state on Drawer.Indent', async () => {
