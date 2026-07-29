@@ -238,13 +238,6 @@ export function useTypeahead(
     }
   }, [open, selectedIndex, timeout]);
 
-  useIsoLayoutEffect(() => {
-    // Sync arrow key navigation but not typeahead navigation.
-    if (open && stringRef.current === '') {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
-    }
-  }, [open, selectedIndex, activeIndex]);
-
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 
   return React.useMemo(

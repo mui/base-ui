@@ -1,4 +1,4 @@
-import { createSelector, type ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
@@ -142,16 +142,14 @@ export type PopupStoreContext<ChangeEventDetails> = {
 
 type S = PopupStoreState<unknown>;
 
-const activeTriggerIdSelector = createSelector(
-  (state: S) => state.triggerIdProp ?? state.activeTriggerId,
-);
+const activeTriggerIdSelector = (state: S) => state.triggerIdProp ?? state.activeTriggerId;
 
-const openSelector = createSelector((state: S) => state.openProp ?? state.open);
+const openSelector = (state: S) => state.openProp ?? state.open;
 
-const popupIdSelector = createSelector((state: S) => {
+const popupIdSelector = (state: S) => {
   const popupId = state.popupElement?.id ?? state.floatingId;
   return popupId || undefined;
-});
+};
 
 function triggerOwnsOpenPopup(state: S, triggerId: string | undefined) {
   return (
@@ -174,51 +172,42 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
 
 export const popupStoreSelectors = {
   open: openSelector,
-  mounted: createSelector((state: S) => state.mounted),
-  transitionStatus: createSelector((state: S) => state.transitionStatus),
-  floatingRootContext: createSelector((state: S) => state.floatingRootContext),
-  triggerCount: createSelector((state: S) => state.triggerCount),
-  preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
-  payload: createSelector((state: S) => state.payload),
+  mounted: (state: S) => state.mounted,
+  transitionStatus: (state: S) => state.transitionStatus,
+  floatingRootContext: (state: S) => state.floatingRootContext,
+  triggerCount: (state: S) => state.triggerCount,
+  preventUnmountingOnClose: (state: S) => state.preventUnmountingOnClose,
+  payload: (state: S) => state.payload,
 
   activeTriggerId: activeTriggerIdSelector,
-  activeTriggerElement: createSelector((state: S) =>
-    state.mounted ? state.activeTriggerElement : null,
-  ),
+  activeTriggerElement: (state: S) => (state.mounted ? state.activeTriggerElement : null),
   popupId: popupIdSelector,
   /**
    * Whether the trigger with the given ID was used to open the popup.
    */
-  isTriggerActive: createSelector(
-    (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId,
-  ),
+  isTriggerActive: (state: S, triggerId: string | undefined) =>
+    triggerId !== undefined && activeTriggerIdSelector(state) === triggerId,
   /**
    * Whether the popup is open and was activated by a trigger with the given ID.
    */
-  isOpenedByTrigger: createSelector((state: S, triggerId: string | undefined) =>
+  isOpenedByTrigger: (state: S, triggerId: string | undefined) =>
     triggerOwnsOpenPopup(state, triggerId),
-  ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.
    */
-  isMountedByTrigger: createSelector(
-    (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
-  ),
-  triggerProps: createSelector((state: S, isActive: boolean) =>
+  isMountedByTrigger: (state: S, triggerId: string | undefined) =>
+    triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
+  triggerProps: (state: S, isActive: boolean) =>
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
-  ),
   /**
    * Popup id for the trigger that currently owns the open popup.
    */
-  triggerPopupId: createSelector((state: S, triggerId: string | undefined) =>
+  triggerPopupId: (state: S, triggerId: string | undefined) =>
     triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId) ? popupIdSelector(state) : undefined,
-  ),
-  popupProps: createSelector((state: S) => state.popupProps),
+  popupProps: (state: S) => state.popupProps,
 
-  popupElement: createSelector((state: S) => state.popupElement),
-  positionerElement: createSelector((state: S) => state.positionerElement),
+  popupElement: (state: S) => state.popupElement,
+  positionerElement: (state: S) => state.positionerElement,
 };
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;

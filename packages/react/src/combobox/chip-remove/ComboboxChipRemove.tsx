@@ -68,7 +68,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     if (removedIndex !== -1 && activeIndex === removedIndex) {
       store.state.setIndices({
         activeIndex: null,
-        type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+        type: store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
       });
     }
   }

@@ -4,7 +4,13 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  waitForPositioned,
+  waitSingleFrame,
+} from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
@@ -311,31 +317,40 @@ describe('<Popover.Positioner />', () => {
   // https://github.com/mui/base-ui/issues/5131
   it.skipIf(isJSDOM)('rests exactly at collisionPadding from the colliding edge', async () => {
     const collisionPadding = 12;
+    let setOpen!: React.Dispatch<React.SetStateAction<boolean>>;
 
-    await render(
-      // Anchor pinned near the bottom so the bottom-side popup flips to the top and
-      // collides with the top viewport edge.
-      <div style={{ position: 'fixed', bottom: 8, left: 16 }}>
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              data-testid="positioner"
-              side="bottom"
-              sideOffset={8}
-              collisionPadding={collisionPadding}
-              collisionAvoidance={{ fallbackAxisSide: 'none' }}
-            >
-              <Popover.Popup
-                style={{ width: 200, height: 1000, maxHeight: 'var(--available-height)' }}
+    function App() {
+      const [open, setOpenState] = React.useState(false);
+      setOpen = setOpenState;
+
+      return (
+        // Anchor pinned near the bottom so the bottom-side popup flips to the top and
+        // collides with the top viewport edge.
+        <div style={{ position: 'fixed', bottom: 8, left: 16 }}>
+          <Popover.Root open={open}>
+            <Trigger style={triggerStyle}>Trigger</Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                data-testid="positioner"
+                side="bottom"
+                sideOffset={8}
+                collisionPadding={collisionPadding}
+                collisionAvoidance={{ fallbackAxisSide: 'none' }}
               >
-                Popup
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      </div>,
-    );
+                <Popover.Popup
+                  style={{ width: 200, height: 1000, maxHeight: 'var(--available-height)' }}
+                >
+                  Popup
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+      );
+    }
+
+    const { unmount } = await render(<App />);
+    await act(async () => setOpen(true));
 
     const positioner = screen.getByTestId('positioner');
     await waitFor(() => {
@@ -344,9 +359,11 @@ describe('<Popover.Positioner />', () => {
 
     // The preferred-side bias used by flip() must not leak into the resting position:
     // the popup should sit exactly `collisionPadding` away from the top edge, not +1px.
-    expect(Math.round(screen.getByTestId('positioner').getBoundingClientRect().top)).toBe(
-      collisionPadding,
-    );
+    await waitFor(() => {
+      expect(Math.round(positioner.getBoundingClientRect().top)).toBe(collisionPadding);
+    });
+
+    unmount();
   });
 
   it.skipIf(isJSDOM)('remains anchored if keepMounted=false', async () => {
@@ -534,7 +551,7 @@ describe('<Popover.Positioner />', () => {
   );
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Popover.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Popover.Portal>
@@ -545,11 +562,15 @@ describe('<Popover.Positioner />', () => {
       </Popover.Root>,
     );
 
-    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+    unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Popover.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Popover.Portal>
@@ -562,8 +583,9 @@ describe('<Popover.Positioner />', () => {
       </Popover.Root>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).toBe('');
-    });
+    const positioner = screen.getByTestId('positioner');
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 });

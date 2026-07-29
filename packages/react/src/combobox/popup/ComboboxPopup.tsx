@@ -10,13 +10,13 @@ import { useComboboxFloatingContext, useComboboxRootContext } from '../root/Comb
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';
@@ -45,6 +45,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const mounted = useStore(store, selectors.mounted);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
+  const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
@@ -85,10 +86,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     state,
     ref: [forwardedRef, store.state.popupRef],
     props: [
+      popupProps,
       {
         id: popupId,
         role: inputInsidePopup ? 'dialog' : 'presentation',
-        tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
           if (

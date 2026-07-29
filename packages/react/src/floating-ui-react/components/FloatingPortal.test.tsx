@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
-import { FloatingPortal, useFloating } from '../index';
+import { FloatingFocusManager, FloatingPortal, useFloating } from '../index';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';
 
@@ -136,6 +136,25 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
     expect(portal).not.toBeNull();
     expect(portal).toHaveClass('closed');
     expect(portal).toHaveAttribute('data-base-ui-portal');
+  });
+
+  test('uses the rendered portal ID for the aria-owns relationship', async () => {
+    function Test() {
+      const { context, refs } = useFloating({ open: true });
+
+      return (
+        <FloatingPortal id="custom-portal">
+          <FloatingFocusManager context={context} modal={false}>
+            <div ref={refs.setFloating} />
+          </FloatingFocusManager>
+        </FloatingPortal>
+      );
+    }
+
+    render(<Test />);
+    await flushMicrotasks();
+
+    expect(document.querySelector('[aria-owns]')).toHaveAttribute('aria-owns', 'custom-portal');
   });
 
   test('FloatingPortalLite forwards HTML props to the portal element', async () => {

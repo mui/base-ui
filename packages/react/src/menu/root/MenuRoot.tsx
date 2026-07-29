@@ -38,7 +38,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   setPopupOpenState,
-  useAttachHandle,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -105,7 +105,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     };
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
-  const store = useMenuRootStore(handle, {
+  const store = useMenuRootStore<Payload>({
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
@@ -536,6 +536,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
+      <PopupHandleAttachment handle={handle} store={store} />
       {typeof children === 'function' ? children({ payload }) : children}
     </MenuRootContext.Provider>
   );
@@ -548,18 +549,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   return content;
 });
 
-function useMenuRootStore<Payload>(
-  handle: MenuHandle<Payload> | undefined,
-  initialState: Partial<MenuStoreState<Payload>>,
-) {
+function useMenuRootStore<Payload>(initialState: Partial<MenuStoreState<Payload>>) {
   // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
   // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
   // Default values are only initial values; controlled values and root state are synced after creation.
   // Unlike other popups, Menu wires its floating root context separately (it relays open changes
-  // through an event), so it only borrows the shared handle-attachment behavior here.
+  // through an event).
   const store = useRefWithInit(() => new MenuStore<Payload>(initialState)).current;
-
-  useAttachHandle(handle, store);
 
   return store;
 }

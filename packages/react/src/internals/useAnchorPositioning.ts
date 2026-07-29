@@ -26,10 +26,10 @@ import {
   type FloatingTreeStore,
 } from '../floating-ui-react';
 import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
-import { useDirection } from '../internals/direction-context/DirectionContext';
+import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginConstants';
+import { hide } from '../utils/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';
@@ -474,9 +474,18 @@ export function useAnchorPositioningWithHook(
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
-    const base: React.CSSProperties & Record<string, unknown> = adaptiveOrigin
-      ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
-      : { position: resolvedPosition, ...originalFloatingStyles };
+    let base: React.CSSProperties & Record<string, unknown>;
+    if (!isPositioned) {
+      // Until a position for the current open is computed, ignore any coordinates retained from a
+      // previous open (or from a pass that measured the hidden popup as 0x0). Rendering the
+      // full-size popup at such stale coordinates can overflow the layout viewport, which makes
+      // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
+      base = { position: resolvedPosition, top: 0, left: 0 };
+    } else if (adaptiveOrigin) {
+      base = { position: resolvedPosition, [sideX]: x, [sideY]: y };
+    } else {
+      base = { ...originalFloatingStyles, position: resolvedPosition };
+    }
 
     // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
     // resolve to a valid length on the first positioning pass, before `size()` writes the real
