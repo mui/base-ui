@@ -62,7 +62,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
 
     // Without a viewport there is nothing to scroll, so the drag never consumes the move.
     expect(thumb).not.toHaveAttribute('data-scrolling');
@@ -103,7 +103,9 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    expect(() => fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 })).not.toThrow();
+    expect(() =>
+      fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 }),
+    ).not.toThrow();
 
     expect(screen.queryByTestId('scrollbar')).toBe(null);
     expect(viewport.scrollTop).toBe(0);
@@ -292,7 +294,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
 
     await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
 
@@ -300,6 +302,55 @@ describe('<ScrollArea.Thumb />', () => {
 
     await waitFor(() => expect(scrollbar).not.toHaveAttribute('data-scrolling'));
   });
+
+  it.skipIf(isJSDOM)(
+    'ends a drag whose release was missed instead of scrolling on hover',
+    async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 200, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            keepMounted
+            style={{ width: 10, height: 200 }}
+          >
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetHeight).toBeGreaterThan(0));
+
+      // The missed-release scenario means no capture is ever in effect.
+      Object.defineProperties(thumb, {
+        setPointerCapture: {
+          configurable: true,
+          value: () => {},
+        },
+        hasPointerCapture: {
+          configurable: true,
+          value: () => false,
+        },
+      });
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+      const scrolled = viewport.scrollTop;
+
+      // The release never arrived (e.g. pointer capture was lost mid-drag), so
+      // the first buttonless move must end the drag rather than scroll.
+      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 1, buttons: 0 });
+      expect(viewport.scrollTop).toBe(scrolled);
+
+      fireEvent.pointerMove(thumb, { clientY: 100, pointerId: 1, buttons: 0 });
+      expect(viewport.scrollTop).toBe(scrolled);
+    },
+  );
 
   it('clears horizontal scrolling state on pointer cancel', async () => {
     await render(
@@ -362,7 +413,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientX: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientX: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientX: 20, pointerId: 1, buttons: 1 });
 
     await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
 

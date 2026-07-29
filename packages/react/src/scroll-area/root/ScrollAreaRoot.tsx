@@ -143,8 +143,37 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     thumb?.setPointerCapture(event.pointerId);
   });
 
+  const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
+    thumbDraggingRef.current = false;
+
+    if (savedSnapTypeRef.current !== null) {
+      if (viewportRef.current) {
+        viewportRef.current.style.scrollSnapType = savedSnapTypeRef.current;
+      }
+      savedSnapTypeRef.current = null;
+    }
+
+    const thumb =
+      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+    // `pointercancel` releases capture implicitly, so guard against releasing a
+    // capture we no longer hold (which would throw).
+    if (thumb?.hasPointerCapture(event.pointerId)) {
+      thumb.releasePointerCapture(event.pointerId);
+    }
+  });
+
   const handlePointerMove = useStableCallback((event: React.PointerEvent) => {
     if (!thumbDraggingRef.current) {
+      return;
+    }
+
+    // The release can go missing entirely (e.g. the browser drops pointer
+    // capture while the scrollbar is hidden mid-drag), leaving the drag
+    // latched so a buttonless hover over the thumb scrolls the viewport.
+    // Treat a move without the primary button held (`buttons` bit 1 unset)
+    // as the missed release.
+    if (event.buttons % 2 === 0) {
+      handlePointerUp(event);
       return;
     }
 
@@ -185,25 +214,6 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     event.preventDefault();
 
     startScrolling(vertical);
-  });
-
-  const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
-    thumbDraggingRef.current = false;
-
-    if (savedSnapTypeRef.current !== null) {
-      if (viewportRef.current) {
-        viewportRef.current.style.scrollSnapType = savedSnapTypeRef.current;
-      }
-      savedSnapTypeRef.current = null;
-    }
-
-    const thumb =
-      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
-    // `pointercancel` releases capture implicitly, so guard against releasing a
-    // capture we no longer hold (which would throw).
-    if (thumb?.hasPointerCapture(event.pointerId)) {
-      thumb.releasePointerCapture(event.pointerId);
-    }
   });
 
   function handleTouchModalityChange(event: React.PointerEvent) {
