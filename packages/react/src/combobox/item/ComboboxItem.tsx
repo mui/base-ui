@@ -22,7 +22,10 @@ import {
   type ComboboxVirtualItemMetadata,
 } from '../virtualizer/ComboboxVirtualItemContext';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
-import { useNonVirtualizedItemRegistration } from '../../internals/virtualization/ListVirtualizerAdapter';
+import {
+  useNonVirtualizedItemRegistration,
+  useVirtualItemDiagnostics,
+} from '../../internals/virtualization/ListVirtualizerAdapter';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -99,21 +102,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
-  if (process.env.NODE_ENV !== 'production') {
-    // The build-time environment never changes during a component's lifetime.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      if (virtualItem != null && disabledProp && !isItemDisabled) {
-        warn(
-          'A virtualized <Combobox.Item> is disabled, but <Combobox.Root> does not have an ' +
-            '`isItemDisabled` prop. The disabled state will be unavailable while the item is ' +
-            'unmounted. Pass `isItemDisabled` to <Combobox.Root> so keyboard navigation can skip it.',
-        );
-      }
-    }, [disabledProp, isItemDisabled, virtualItem]);
-  }
+  useVirtualItemDiagnostics({
+    componentName: 'Combobox',
+    disabledProp,
+    hasIsItemDisabled: isItemDisabled != null,
+    virtualItem,
+  });
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;

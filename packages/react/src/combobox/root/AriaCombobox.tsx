@@ -589,9 +589,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
 
-          const builtInVirtualizer = store.state.virtualizationRegistry.virtualizers
-            .values()
-            .next().value;
+          const builtInVirtualizer = store.state.virtualizationRegistry.virtualizer;
 
           if (builtInVirtualizer) {
             builtInVirtualizer.resetScroll();
@@ -1238,7 +1236,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
     // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
     // the scroll position away from where the virtualizer just placed it.
-    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizers.size === 0,
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer == null,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
@@ -1571,7 +1569,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                     // collection without ever disabling its virtual window.
                     mountRenderedLabels(false);
 
-                    if (store.state.virtualizationRegistry.virtualizers.size > 0) {
+                    if (store.state.virtualizationRegistry.virtualizer != null) {
                       warnAboutLargeVirtualizedCollection();
                     } else {
                       // Static lists retain their legacy rendered-label matching regardless of
@@ -1635,12 +1633,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 }
 
-function updateActiveIndexState(
-  store: Store<StoreState>,
-  activeIndex: number | null,
-  highlightType: AriaCombobox.HighlightEventReason = 'none',
-) {
-  store.update({ activeIndex, highlightType });
+function updateActiveIndexState(store: Store<StoreState>, activeIndex: number | null) {
+  store.update({ activeIndex, highlightType: 'none' });
 }
 
 type SelectionMode = 'single' | 'multiple' | 'none';

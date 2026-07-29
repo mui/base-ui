@@ -10,7 +10,6 @@ import {
   type ListVirtualizerAdapterState,
   type ListVirtualizerKeyProps,
 } from '../../internals/virtualization/ListVirtualizerAdapter';
-import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 import {
   useComboboxDerivedItemsContext,
   useComboboxRootContext,
@@ -52,7 +51,6 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   const grid = useStore(store, selectors.grid);
   const highlightType = useStore(store, selectors.highlightType);
   const virtualizationState = useStore(store, selectors.virtualizationState);
-  const insideList = useVirtualizationListContext();
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill). Keep that mode reactive even if it begins before the virtualizer
@@ -65,6 +63,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     onUnconstrainedHeight: handleUnconstrainedHeight,
     renderRow,
     rows,
+    scrollToRowIndex,
   } = useListVirtualizerAdapter<Value, Value>({
     actionsRef,
     activeIndex,
@@ -73,6 +72,9 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     estimatedItemHeight,
     getItemKey,
     getItemValue: getComboboxItemValue,
+    hasItems,
+    highlightType,
+    isGrouped,
     items: flatFilteredItems as ReadonlyArray<Value>,
     registry: store.state.virtualizationRegistry,
     virtualItemContext: ComboboxVirtualItemContext,
@@ -81,22 +83,10 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (!hasItems) {
-        warn('<Combobox.Virtualizer> requires the `items` prop on <Combobox.Root>.');
-      }
-      if (!insideList) {
-        warn('<Combobox.Virtualizer> must be placed inside <Combobox.List>.');
-      }
       if (externallyVirtualized) {
         warn(
           '<Combobox.Root> must not use the `virtualized` prop together with ' +
             '<Combobox.Virtualizer>. The prop is only for external virtualization.',
-        );
-      }
-      if (isGrouped) {
-        warn(
-          '<Combobox.Virtualizer> does not currently support grouped collections. ' +
-            'Render a flat item collection instead.',
         );
       }
       if (grid) {
@@ -105,10 +95,8 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
             'Use a flat listbox instead.',
         );
       }
-    }, [externallyVirtualized, grid, hasItems, insideList, isGrouped]);
+    }, [externallyVirtualized, grid]);
   }
-
-  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
 
   return (
     <ListVirtualizer

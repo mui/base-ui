@@ -213,13 +213,13 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * Whether to scroll the active item into view when navigating. A function form is evaluated
-   * when a scroll would occur. Disable this when an external mechanism owns the scroll position
-   * of the list (such as a virtualizer): the DOM scroll here is asynchronous, so it can operate
-   * on a stale layout and drag the scroll position away from where that mechanism placed it.
-   * @default true
+   * Whether to scroll the active item into view when navigating, evaluated when a scroll would
+   * occur. Return `false` when an external mechanism owns the scroll position of the list (such
+   * as a virtualizer): the DOM scroll here is asynchronous, so it can operate on a stale layout
+   * and drag the scroll position away from where that mechanism placed it.
+   * @default undefined (scrolls into view)
    */
-  scrollItemIntoView?: boolean | (() => boolean) | undefined;
+  scrollItemIntoView?: (() => boolean) | undefined;
   /**
    * External FloatingTree to use when the one provided by context can't be used.
    */
@@ -258,7 +258,7 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
-    scrollItemIntoView = true,
+    scrollItemIntoView,
     externalTree,
     grid: navigateGrid,
   } = props;
@@ -359,7 +359,7 @@ export function useListNavigation(
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         item &&
         (forceScrollIntoView || !isPointerModalityRef.current) &&
-        (typeof scrollItemIntoView === 'function' ? scrollItemIntoView() : scrollItemIntoView);
+        (scrollItemIntoView?.() ?? true);
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported

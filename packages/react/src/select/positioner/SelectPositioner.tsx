@@ -155,11 +155,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const onMapChange = useStableCallback(
     (map: Map<Element, SelectItemMetadata & { index: number }>) => {
-      if (process.env.NODE_ENV !== 'production' && mounted && hasItems) {
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        mounted &&
+        hasItems &&
+        // A registered virtualizer intentionally renders a window of the collection.
+        store.state.virtualizationRegistry.virtualizer == null
+      ) {
         const renderedItems = Array.from(map.values());
-        const hasVirtualizer =
-          store.state.virtualizationRegistry.virtualizers.size > 0 ||
-          renderedItems.some((item) => item.virtualized);
+        const hasVirtualizer = renderedItems.some((item) => item.virtualized);
 
         if (!hasVirtualizer && renderedItems.length !== flatItems.length) {
           warn(

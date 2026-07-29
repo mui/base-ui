@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
-import { warn } from '@base-ui/utils/warn';
 import {
   useSelectDerivedItemsContext,
   useSelectRootContext,
@@ -25,7 +24,10 @@ import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { useSelectVirtualItemContext } from '../virtualizer/SelectVirtualItemContext';
 import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
-import { useNonVirtualizedItemRegistration } from '../../internals/virtualization/ListVirtualizerAdapter';
+import {
+  useNonVirtualizedItemRegistration,
+  useVirtualItemDiagnostics,
+} from '../../internals/virtualization/ListVirtualizerAdapter';
 
 /**
  * An individual option in the select popup.
@@ -99,21 +101,12 @@ export const SelectItem = React.memo(
       virtualized,
     });
 
-    if (process.env.NODE_ENV !== 'production') {
-      // The build-time environment never changes during a component's lifetime.
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useIsoLayoutEffect(() => {
-        if (virtualItem != null && disabledProp && !isItemDisabled) {
-          warn(
-            'A virtualized <Select.Item> is disabled, but <Select.Root> does not have an ' +
-              '`isItemDisabled` prop. The disabled state will be unavailable while the item is ' +
-              'unmounted. Pass `isItemDisabled` to <Select.Root> so keyboard navigation can skip it.',
-          );
-        }
-      }, [disabledProp, isItemDisabled, virtualItem]);
-    }
+    useVirtualItemDiagnostics({
+      componentName: 'Select',
+      disabledProp,
+      hasIsItemDisabled: isItemDisabled != null,
+      virtualItem,
+    });
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 

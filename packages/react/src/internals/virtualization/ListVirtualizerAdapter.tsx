@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
+import { areArraysEqual } from '../areArraysEqual';
 import type { BaseUIComponentProps, HTMLProps } from '../types';
 import type {
   ListVirtualizerRenderRowParameters,
@@ -15,6 +16,7 @@ import type {
   ListVirtualizerHandle,
   ListVirtualizerScrollToIndexOptions,
 } from './ListVirtualizationRegistry';
+import { useVirtualizationListContext } from './VirtualizationListContext';
 
 type ComponentName = 'Combobox' | 'Select';
 type VirtualizerItemKey = string;
@@ -125,6 +127,9 @@ export interface UseListVirtualizerAdapterParameters<Value, Item> {
   estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
   getItemKey: ((item: Item) => string | number) | undefined;
   getItemValue: (item: Item) => Value;
+  hasItems: boolean;
+  highlightType: 'none' | 'keyboard' | 'pointer';
+  isGrouped: boolean;
   items: ReadonlyArray<Item>;
   registry: ListVirtualizationRegistry;
   virtualItemContext: React.Context<ListVirtualizerItemMetadata | undefined>;
@@ -144,10 +149,36 @@ export function useListVirtualizerAdapter<Value, Item>(
     estimatedItemHeight,
     getItemKey,
     getItemValue,
+    hasItems,
+    highlightType,
+    isGrouped,
     items,
     registry,
     virtualItemContext,
   } = parameters;
+
+  const insideList = useVirtualizationListContext();
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!hasItems) {
+        warn(
+          `<${componentName}.Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`,
+        );
+      }
+      if (!insideList) {
+        warn(`<${componentName}.Virtualizer> must be placed inside <${componentName}.List>.`);
+      }
+      if (isGrouped) {
+        warn(
+          `<${componentName}.Virtualizer> does not currently support grouped collections. ` +
+            'Render a flat item collection instead.',
+        );
+      }
+    }, [componentName, hasItems, insideList, isGrouped]);
+  }
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
   const hasGetItemKey = getItemKey != null;
@@ -207,6 +238,8 @@ export function useListVirtualizerAdapter<Value, Item>(
   }, [componentName, getItemKey, getItemValue, hasGetItemKey, items, objectKeyRegistry]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
+  // Pointer highlights follow the cursor; scrolling to them would move the list under it.
+  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
 
   const renderRow = React.useCallback(
     (params: ListVirtualizerRenderRowParameters<ListVirtualizerItemRowModel<Item>>) => (
@@ -247,11 +280,10 @@ export function useListVirtualizerAdapter<Value, Item>(
     () => ({ getRowMetrics, resetScroll, scrollToIndex }),
     [getRowMetrics, resetScroll, scrollToIndex],
   );
-  const virtualizerId = useRefWithInit(() => Symbol('Base UI list virtualizer')).current;
 
   useIsoLayoutEffect(() => {
     if (process.env.NODE_ENV !== 'production') {
-      if (registry.virtualizers.size > 0) {
+      if (registry.virtualizer != null) {
         warn(
           `<${componentName}.Root> must not contain more than one <${componentName}.Virtualizer>.`,
         );
@@ -261,11 +293,13 @@ export function useListVirtualizerAdapter<Value, Item>(
       }
     }
 
-    registry.virtualizers.set(virtualizerId, virtualizerHandle);
+    registry.virtualizer = virtualizerHandle;
     return () => {
-      registry.virtualizers.delete(virtualizerId);
+      if (registry.virtualizer === virtualizerHandle) {
+        registry.virtualizer = null;
+      }
     };
-  }, [componentName, registry, virtualizerHandle, virtualizerId]);
+  }, [componentName, registry, virtualizerHandle]);
 
   const onUnconstrainedHeight = useStableCallback(() => {
     warn(
@@ -283,6 +317,7 @@ export function useListVirtualizerAdapter<Value, Item>(
     onUnconstrainedHeight,
     renderRow,
     rows,
+    scrollToRowIndex,
   };
 }
 
@@ -294,6 +329,37 @@ export interface ListVirtualizerAdapterActions {
    * Scrolls an item into view by its logical collection index.
    */
   scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
+}
+
+export interface UseVirtualItemDiagnosticsParameters {
+  componentName: ComponentName;
+  disabledProp: boolean;
+  hasIsItemDisabled: boolean;
+  virtualItem: ListVirtualizerItemMetadata | undefined;
+}
+
+/**
+ * Development-only diagnostics for an item rendered through a built-in list virtualizer.
+ */
+export function useVirtualItemDiagnostics(parameters: UseVirtualItemDiagnosticsParameters) {
+  const { componentName, disabledProp, hasIsItemDisabled, virtualItem } = parameters;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (virtualItem != null && disabledProp && !hasIsItemDisabled) {
+        warn(
+          `A virtualized <${componentName}.Item> is disabled, but <${componentName}.Root> does ` +
+            'not have an `isItemDisabled` prop. The disabled state will be unavailable while ' +
+            `the item is unmounted. Pass \`isItemDisabled\` to <${componentName}.Root> so ` +
+            'keyboard navigation can skip it.',
+        );
+      }
+    }, [componentName, disabledProp, hasIsItemDisabled, virtualItem]);
+  }
 }
 
 export interface UseNonVirtualizedItemRegistrationParameters {
@@ -321,7 +387,7 @@ export function useNonVirtualizedItemRegistration(
 
       registry.nonVirtualItemCount += 1;
 
-      if (registry.virtualizers.size > 0) {
+      if (registry.virtualizer != null) {
         warnAboutStaticItems(componentName);
       }
 
@@ -341,18 +407,14 @@ function areListVirtualizerRowsEqual<Item>(
   previous: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
   next: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
 ) {
-  if (previous.length !== next.length) {
-    return false;
-  }
-
-  return previous.every((previousRow, index) => {
-    const nextRow = next[index];
-    return (
+  return areArraysEqual(
+    previous,
+    next,
+    (previousRow, nextRow) =>
       previousRow.id === nextRow.id &&
       previousRow.model.item === nextRow.model.item &&
-      previousRow.model.itemIndex === nextRow.model.itemIndex
-    );
-  });
+      previousRow.model.itemIndex === nextRow.model.itemIndex,
+  );
 }
 
 /**

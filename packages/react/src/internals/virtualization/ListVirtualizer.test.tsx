@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, createDOMRect, setElementClientHeight } from '#test-utils';
 import {
   ListVirtualizer,
   type ListVirtualizerRenderRowParameters,
@@ -629,40 +629,4 @@ function renderMixedRow(params: ListVirtualizerRenderRowParameters<TestRowModel>
       {params.row.model.label}
     </div>
   );
-}
-
-function setElementClientHeight(clientHeight: number) {
-  return (element: HTMLDivElement | null) => {
-    if (!element) {
-      return;
-    }
-
-    element.style.height = `${clientHeight}px`;
-    Object.defineProperty(element, 'clientHeight', {
-      configurable: true,
-      value: clientHeight,
-    });
-    Object.defineProperty(element, 'scrollTo', {
-      configurable: true,
-      value: (options: ScrollToOptions) => {
-        element.scrollTop = options.top ?? element.scrollTop;
-      },
-    });
-  };
-}
-
-function createDOMRect(rect: Partial<DOMRectInit>) {
-  return {
-    x: rect.x ?? 0,
-    y: rect.y ?? 0,
-    width: rect.width ?? 0,
-    height: rect.height ?? 0,
-    top: rect.y ?? 0,
-    left: rect.x ?? 0,
-    right: (rect.x ?? 0) + (rect.width ?? 0),
-    bottom: (rect.y ?? 0) + (rect.height ?? 0),
-    toJSON() {
-      return this;
-    },
-  } as DOMRect;
 }

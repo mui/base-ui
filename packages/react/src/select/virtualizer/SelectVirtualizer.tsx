@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { warn } from '@base-ui/utils/warn';
 import { ListVirtualizer } from '../../internals/virtualization/ListVirtualizer';
 import {
   useListVirtualizerAdapter,
@@ -11,7 +10,6 @@ import {
   type ListVirtualizerAdapterState,
   type ListVirtualizerKeyProps,
 } from '../../internals/virtualization/ListVirtualizerAdapter';
-import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
 import { useSelectDerivedItemsContext, useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
 import type { SelectItemData } from '../utils/resolveSelectItems';
@@ -46,7 +44,6 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
   const { flatItems, hasItems, isGrouped } = useSelectDerivedItemsContext();
   const activeIndex = useStore(store, selectors.activeIndex);
   const highlightType = useStore(store, selectors.highlightType);
-  const insideList = useVirtualizationListContext();
   const {
     apiRef: listVirtualizerRef,
     estimatedItemHeight: resolvedEstimatedItemHeight,
@@ -54,6 +51,7 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
     onUnconstrainedHeight: handleUnconstrainedHeight,
     renderRow,
     rows,
+    scrollToRowIndex,
   } = useListVirtualizerAdapter<Value, SelectItemData<Value>>({
     actionsRef,
     activeIndex,
@@ -62,29 +60,13 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
     estimatedItemHeight,
     getItemKey,
     getItemValue: getSelectItemValue,
+    hasItems,
+    highlightType,
+    isGrouped,
     items: flatItems as ReadonlyArray<SelectItemData<Value>>,
     registry: store.state.virtualizationRegistry,
     virtualItemContext: SelectVirtualItemContext,
   });
-
-  if (process.env.NODE_ENV !== 'production') {
-    // The build-time environment never changes during a component's lifetime.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (!hasItems) {
-        warn('<Select.Virtualizer> requires the `items` prop on <Select.Root>.');
-      }
-      if (!insideList) {
-        warn('<Select.Virtualizer> must be placed inside <Select.List>.');
-      }
-      if (isGrouped) {
-        warn(
-          '<Select.Virtualizer> does not currently support grouped collections. ' +
-            'Render a flat item collection instead.',
-        );
-      }
-    }, [hasItems, insideList, isGrouped]);
-  }
 
   const setVirtualizerElement = store.useStateSetter('virtualizerElement');
   const mergedRef = useMergedRefs(forwardedRef, setVirtualizerElement);
@@ -96,7 +78,6 @@ export const SelectVirtualizer = React.forwardRef(function SelectVirtualizer<Val
     },
     elementProps,
   );
-  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
 
   return (
     <ListVirtualizer

@@ -37,6 +37,7 @@ import {
   compareItemEquality,
   defaultItemEquality,
   findItemIndex,
+  findSelectionIndex,
 } from '../../internals/itemEquality';
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -400,7 +401,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       );
     }
 
-    if (resolvedItems.hasItems || store.state.virtualizationRegistry.virtualizers.size > 0) {
+    if (resolvedItems.hasItems || store.state.virtualizationRegistry.virtualizer != null) {
       return itemElement != null && isElementDisabled(itemElement);
     }
 
@@ -416,7 +417,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
     // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
     // the scroll position away from where the virtualizer just placed it.
-    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizers.size === 0,
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer == null,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -664,22 +665,12 @@ function getInitialSelectedIndex<Value>(
     return null;
   }
 
-  let selectedValue = value;
-  if (multiple) {
-    const selectedValues = Array.isArray(value) ? value : [];
-    if (selectedValues.length === 0) {
-      return null;
-    }
-    selectedValue = selectedValues[selectedValues.length - 1];
-  }
-  const index = resolvedItems.flatItems.findIndex((item) => {
-    if (item.value === undefined) {
-      return false;
-    }
-    return compareItemEquality(item.value, selectedValue as Value, isItemEqualToValue);
-  });
-
-  return index === -1 ? null : index;
+  return findSelectionIndex(
+    resolvedItems.flatItems.map((item) => item.value),
+    value as Value | readonly Value[] | null | undefined,
+    isItemEqualToValue,
+    multiple,
+  );
 }
 
 function getHighlightType(

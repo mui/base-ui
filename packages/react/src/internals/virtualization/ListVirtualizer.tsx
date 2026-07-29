@@ -17,6 +17,8 @@ import {
   type RenderContext,
   type Virtualizer,
 } from '@mui/x-virtualizer';
+import { getMaxScrollOffset } from '../../utils/scrollEdges';
+import { clamp } from '../clamp';
 import type { StateAttributesMapping } from '../getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../types';
 import { useRenderElement } from '../useRenderElement';
@@ -44,10 +46,6 @@ export interface ListVirtualizerRow<RowModel extends MuiVirtualizerRow> {
  * Parameters provided when rendering a row.
  */
 export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtualizerRow> {
-  /**
-   * Whether this is an offscreen copy retained to preserve focus semantics.
-   */
-  isVirtualFocusRow: boolean;
   /**
    * The row being rendered.
    */
@@ -104,7 +102,6 @@ function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
   }, [apiRef, isVirtualFocusRow, rowIndex]);
 
   const content = renderRow({
-    isVirtualFocusRow,
     row,
     rowIndex,
   });
@@ -270,18 +267,18 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   const useAdaptiveEstimate = typeof estimatedItemHeight === 'number';
   const adaptiveEstimateRef = React.useRef<number | null>(null);
-  const adaptiveMeasurementsRef = React.useRef({
+  const adaptiveMeasurementsRef = useRefWithInit(() => ({
     heights: new Map<React.Key, number>(),
     total: 0,
-  });
-  const measuredRowsRef = React.useRef(new Set<React.Key>());
+  }));
+  const measuredRowsRef = useRefWithInit(() => new Set<React.Key>());
   const adaptiveRowsRef = React.useRef(rows);
   const adaptiveEstimatedItemHeightRef = React.useRef(
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null,
   );
   // Filtering replaces the row array, but measurements from the same keyed collection remain
   // useful when the full list returns. Reset only when the estimate or logical collection changes.
-  const adaptiveKnownRowIdsRef = React.useRef(new Set(rows.map((row) => row.id)));
+  const adaptiveKnownRowIdsRef = useRefWithInit(() => new Set(rows.map((row) => row.id)));
   const staticEstimatedItemHeight =
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null;
   if (
@@ -340,7 +337,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
    * anchoring corrections and estimate refreshes are suspended until release.
    */
   const isScrollbarDragRef = React.useRef(false);
-  const deferredRowHeightsRef = React.useRef(new Map<React.Key, number>());
+  const deferredRowHeightsRef = useRefWithInit(() => new Map<React.Key, number>());
   const releaseScrollbarDragFrame = useAnimationFrame();
 
   /**
@@ -474,7 +471,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       doc.removeEventListener('mouseup', endScrollbarDrag, options);
       win.removeEventListener('blur', endScrollbarDrag);
     };
-  }, [releaseScrollbarDragFrame]);
+  }, [deferredRowHeightsRef, releaseScrollbarDragFrame]);
   const [virtualizationRevision, bumpVirtualizationRevision] = React.useReducer(
     (value) => value + 1,
     0,
@@ -605,7 +602,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       }
       entry.content = estimatedHeight;
     },
-    [getEstimatedRowHeight],
+    [deferredRowHeightsRef, getEstimatedRowHeight, measuredRowsRef],
   );
   const range = React.useMemo(
     () =>
@@ -922,11 +919,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       }
 
       if (nextScrollTop != null) {
-        const maxScrollTop = Math.max(
-          0,
-          currentRowsMeta.currentPageTotalHeight - scrollElement.clientHeight,
+        const maxScrollTop = getMaxScrollOffset(
+          currentRowsMeta.currentPageTotalHeight,
+          scrollElement.clientHeight,
         );
-        const clampedScrollTop = Math.max(0, Math.min(nextScrollTop, maxScrollTop));
+        const clampedScrollTop = clamp(nextScrollTop, 0, maxScrollTop);
         programmaticScrollTopRef.current = clampedScrollTop;
         scrollElement.scrollTo({
           behavior: 'instant' as ScrollBehavior,
@@ -953,6 +950,21 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         pendingScrollRequiresMeasurementRef.current = true;
       }
 
+      if (!measured) {
+        return false;
+      }
+
+      // A distant row measured while the collection was filtered can make the estimate-based first
+      // pass look complete even though the expanded collection retained it only as an offscreen
+      // focus proxy. Keep that request pending until the static estimate settles and the real row
+      // is visible; otherwise the first refinement can move it back out of view.
+      if (!pendingScrollRequiresAdaptiveEstimateRef.current) {
+        return true;
+      }
+      if (adaptiveEstimateRef.current == null) {
+        return false;
+      }
+
       const renderedRow = Array.from(renderZoneRef.current?.children ?? []).find(
         (element) =>
           Number((element as HTMLElement).dataset.rowIndex) === rowIndex &&
@@ -960,19 +972,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       );
       const renderedRowRect = renderedRow?.getBoundingClientRect();
       const scrollElementRect = scrollElement.getBoundingClientRect();
-      const renderedRowIsVisible =
+      return (
         renderedRowRect != null &&
         renderedRowRect.bottom > scrollElementRect.top &&
-        renderedRowRect.top < scrollElementRect.bottom;
-      const requiresAdaptiveEstimate = pendingScrollRequiresAdaptiveEstimateRef.current;
-
-      // A distant row measured while the collection was filtered can make the estimate-based first
-      // pass look complete even though the expanded collection retained it only as an offscreen
-      // focus proxy. Keep that request pending until the static estimate settles and the real row
-      // is visible; otherwise the first refinement can move it back out of view.
-      return (
-        measured &&
-        (!requiresAdaptiveEstimate || (adaptiveEstimateRef.current != null && renderedRowIsVisible))
+        renderedRowRect.top < scrollElementRect.bottom
       );
     },
   );
@@ -1080,9 +1083,9 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     const scrollerRect = scrollElement.getBoundingClientRect();
     const scrollerTop = scrollerRect.top;
     let scrollTop = scrollElement.scrollTop;
-    const maxScrollTop = Math.max(
-      0,
-      latestRowsMeta.currentPageTotalHeight - scrollElement.clientHeight,
+    const maxScrollTop = getMaxScrollOffset(
+      latestRowsMeta.currentPageTotalHeight,
+      scrollElement.clientHeight,
     );
     const shouldPinToBottom =
       previous !== null &&
@@ -1123,7 +1126,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       if (shouldPinToBottom || Math.abs(shift) >= 1) {
         const nextScrollTop = shouldPinToBottom
           ? maxScrollTop
-          : Math.max(0, Math.min(scrollTop + shift, maxScrollTop));
+          : clamp(scrollTop + shift, 0, maxScrollTop);
 
         if (Math.abs(nextScrollTop - scrollTop) >= 1) {
           scrollTop = nextScrollTop;
@@ -1276,6 +1279,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   }, [
     adaptiveEstimateTimeout,
     adaptiveMeasurementRevision,
+    adaptiveMeasurementsRef,
     defaultEstimatedItemHeight,
     rows.length,
     rowsMeta,
@@ -1487,10 +1491,6 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
 
 export namespace ListVirtualizer {
   export type Props<RowModel extends MuiVirtualizerRow> = ListVirtualizerProps<RowModel>;
-  export type RenderRowParameters<RowModel extends MuiVirtualizerRow> =
-    ListVirtualizerRenderRowParameters<RowModel>;
-  export type Row<RowModel extends MuiVirtualizerRow> = ListVirtualizerRow<RowModel>;
-  export type State = ListVirtualizerState;
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {

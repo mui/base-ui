@@ -2,7 +2,14 @@ import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  createDOMRect,
+  setElementClientHeight,
+  setElementScrollState,
+} from '#test-utils';
 
 describe('<Combobox.Virtualizer />', () => {
   const { render } = createRenderer();
@@ -2159,52 +2166,6 @@ function createItems(count: number) {
   return Array.from({ length: count }, (_, index) => `Item ${index + 1}`);
 }
 
-function setElementClientHeight(clientHeight: number) {
-  return (element: HTMLDivElement | null) => {
-    if (!element) {
-      return;
-    }
-
-    element.style.height = `${clientHeight}px`;
-    Object.defineProperty(element, 'clientHeight', {
-      configurable: true,
-      value: clientHeight,
-    });
-    Object.defineProperty(element, 'scrollTo', {
-      configurable: true,
-      value: (options: ScrollToOptions) => {
-        element.scrollTop = options.top ?? element.scrollTop;
-      },
-    });
-  };
-}
-
-function setElementScrollState(options: {
-  clientHeight: number;
-  getScrollTop: () => number;
-  scrollTo: (options: ScrollToOptions) => void;
-}) {
-  return (element: HTMLDivElement | null) => {
-    if (!element) {
-      return;
-    }
-
-    element.style.height = `${options.clientHeight}px`;
-    Object.defineProperty(element, 'clientHeight', {
-      configurable: true,
-      value: options.clientHeight,
-    });
-    Object.defineProperty(element, 'scrollTop', {
-      configurable: true,
-      get: options.getScrollTop,
-    });
-    Object.defineProperty(element, 'scrollTo', {
-      configurable: true,
-      value: options.scrollTo,
-    });
-  };
-}
-
 function mockResizeObserver() {
   const originalResizeObserver = window.ResizeObserver;
   const observers = new Set<TestResizeObserver>();
@@ -2257,20 +2218,4 @@ function mockResizeObserver() {
       window.ResizeObserver = originalResizeObserver;
     },
   };
-}
-
-function createDOMRect(rect: Partial<DOMRectInit>) {
-  return {
-    x: rect.x ?? 0,
-    y: rect.y ?? 0,
-    width: rect.width ?? 0,
-    height: rect.height ?? 0,
-    top: rect.y ?? 0,
-    left: rect.x ?? 0,
-    right: (rect.x ?? 0) + (rect.width ?? 0),
-    bottom: (rect.y ?? 0) + (rect.height ?? 0),
-    toJSON() {
-      return this;
-    },
-  } as DOMRect;
 }

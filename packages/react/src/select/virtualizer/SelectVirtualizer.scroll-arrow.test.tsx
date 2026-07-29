@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, createDOMRect } from '#test-utils';
 
 describe('<Select.Virtualizer /> scroll arrows', () => {
   const { render } = createRenderer();
@@ -82,19 +82,3 @@ describe('<Select.Virtualizer /> scroll arrows', () => {
     }
   });
 });
-
-function createDOMRect(rect: Partial<DOMRectInit>) {
-  return {
-    x: rect.x ?? 0,
-    y: rect.y ?? 0,
-    width: rect.width ?? 0,
-    height: rect.height ?? 0,
-    top: rect.y ?? 0,
-    left: rect.x ?? 0,
-    right: (rect.x ?? 0) + (rect.width ?? 0),
-    bottom: (rect.y ?? 0) + (rect.height ?? 0),
-    toJSON() {
-      return this;
-    },
-  } as DOMRect;
-}

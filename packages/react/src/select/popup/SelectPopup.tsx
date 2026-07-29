@@ -323,7 +323,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const valueRect = normalizeRect(valueElement.getBoundingClientRect(), scale);
         const measuredTextRect = normalizeRect(textElement.getBoundingClientRect(), scale);
         const itemElement = textIndex == null ? null : listRef.current[textIndex];
-        const virtualizer = store.state.virtualizationRegistry.virtualizers.values().next().value;
+        const virtualizer = store.state.virtualizationRegistry.virtualizer;
         const rowMetrics =
           virtualizerElement && textIndex != null
             ? virtualizer?.getRowMetrics(textIndex)

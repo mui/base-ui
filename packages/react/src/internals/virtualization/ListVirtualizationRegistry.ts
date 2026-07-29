@@ -47,9 +47,10 @@ export interface ListVirtualizationRegistry {
    */
   nonVirtualItemCount: number;
   /**
-   * Imperative handles for the virtualizers currently registered with the list.
+   * Imperative handle of the registered virtualizer. A list supports at most one; the adapter
+   * warns when more than one registers.
    */
-  virtualizers: Map<symbol, ListVirtualizerHandle>;
+  virtualizer: ListVirtualizerHandle | null;
 }
 
 /**
@@ -58,6 +59,6 @@ export interface ListVirtualizationRegistry {
 export function createListVirtualizationRegistry(): ListVirtualizationRegistry {
   return {
     nonVirtualItemCount: 0,
-    virtualizers: new Map(),
+    virtualizer: null,
   };
 }
