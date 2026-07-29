@@ -184,12 +184,6 @@ interface UsePopupAutoResizeParameters {
   direction: 'ltr' | 'rtl';
 }
 
-/**
- * Computes the styles that pin a popup to the edge touching its anchor so it resizes/animates from
- * the correct origin. Only the "flipped" sides need this: `top` (grows upward, pin `bottom`) and
- * physical-`left` (grows leftward, pin `right`), plus their logical equivalents per `direction`.
- * Every other side keeps the default top-left origin and needs no styles.
- */
 export function getPopupAnchoringStyles(side: Side, direction: 'ltr' | 'rtl'): React.CSSProperties {
   let isOriginSide = side === 'top';
   let isPhysicalLeft = side === 'left';
