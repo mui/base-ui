@@ -133,7 +133,9 @@ const CHIP_LIMIT = 3;
 
 #### Keeping the filter after selection
 
-In `multiple` mode, selecting an item clears the typed filter, and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel those events.
+In `multiple` mode, selecting an item clears the typed filter and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel the relevant change request.
+
+Which request to cancel depends on the input's placement. When the input is outside the popup, cancel the close request in `onOpenChange`; when it is inside, cancel the clear request in `onInputValueChange`.
 
 ```jsx title="Input outside the popup"
 <Combobox.Root
