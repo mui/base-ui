@@ -113,7 +113,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     onMatch(index) {
       const nextSelectedValue = store.state.valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
     },
   });
@@ -230,7 +230,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            store.state.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+            store.state.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (inputInsidePopup) {
