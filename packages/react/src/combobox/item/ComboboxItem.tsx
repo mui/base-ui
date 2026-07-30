@@ -86,10 +86,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const hasItems = useComboboxHasItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
+  const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemDisabled = useStore(store, selectors.isItemDisabled);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
+  const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
   const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = index !== -1;

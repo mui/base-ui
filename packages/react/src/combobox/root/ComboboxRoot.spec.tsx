@@ -222,6 +222,9 @@ function App() {
         details.event,
       );
     }
+    if (details.reason === REASONS.cancelOpen) {
+      expectType<MouseEvent, typeof details.event>(details.event);
+    }
   }}
 />;
 
