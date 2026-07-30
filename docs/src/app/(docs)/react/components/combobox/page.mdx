@@ -135,13 +135,13 @@ const CHIP_LIMIT = 3;
 
 In `multiple` mode, selecting an item clears the typed filter and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel the relevant change request.
 
-Every change request caused by pressing an item is marked with `eventDetails.isItemPress`. Which one to cancel depends on the input's placement: cancel the close request in `onOpenChange` when the input is outside the popup, and the clear request in `onInputValueChange` when it is inside.
+Which request to cancel depends on the input's placement, and each callback has its own discriminator. When the input is outside the popup, cancel the close request in `onOpenChange`, identified by its `item-press` reason. When the input is inside, cancel the clear request in `onInputValueChange`: its reason stays `input-clear`, so selecting an item is marked with `eventDetails.isItemPress` instead.
 
 ```jsx title="Input outside the popup"
 <Combobox.Root
   multiple
   onOpenChange={(open, eventDetails) => {
-    if (!open && eventDetails.isItemPress) {
+    if (!open && eventDetails.reason === 'item-press') {
       eventDetails.cancel();
     }
   }}

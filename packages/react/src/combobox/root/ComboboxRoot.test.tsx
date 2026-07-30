@@ -5562,12 +5562,12 @@ describe('<Combobox.Root />', () => {
       expect(ariaMutations).toHaveLength(0);
     });
 
-    it('keeps the filter text when the item-press close is canceled (input outside popup)', async () => {
+    it('keeps the filter text when the "item-press" close is canceled (input outside popup)', async () => {
       const { user } = await render(
         <Combobox.Root
           multiple
           onOpenChange={(open, eventDetails) => {
-            if (!open && eventDetails.isItemPress) {
+            if (!open && eventDetails.reason === REASONS.itemPress) {
               eventDetails.cancel();
             }
           }}
@@ -5641,7 +5641,7 @@ describe('<Combobox.Root />', () => {
 
       expect(input).toHaveValue('');
       expect(onInputValueChange.mock.calls.find((call) => call[0] === '')?.[1].isItemPress).toBe(
-        undefined,
+        false,
       );
     });
 
@@ -5763,15 +5763,9 @@ describe('<Combobox.Root />', () => {
 
     it('clears the input with the "input-clear" reason and the item click event on pointer selection', async () => {
       const onInputValueChange = vi.fn();
-      const onValueChange = vi.fn();
 
       const { user } = await render(
-        <Combobox.Root
-          multiple
-          defaultOpen
-          onInputValueChange={onInputValueChange}
-          onValueChange={onValueChange}
-        >
+        <Combobox.Root multiple defaultOpen onInputValueChange={onInputValueChange}>
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
@@ -5799,9 +5793,6 @@ describe('<Combobox.Root />', () => {
       );
       expect(onInputValueChange.mock.lastCall?.[1].event?.type).toBe('click');
       expect(onInputValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
-      // The flag marks the value change too, not only the clear it triggers.
-      expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
-      expect(onValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
     });
 
     it('clears the input with the "input-clear" reason and the originating keydown event on keyboard selection', async () => {

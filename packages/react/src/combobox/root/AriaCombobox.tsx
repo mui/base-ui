@@ -673,7 +673,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             setInputValue(
               '',
               createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
-                isItemPress: eventDetails.isItemPress,
+                isItemPress: eventDetails.reason === REASONS.itemPress,
               }),
             );
           }
@@ -717,9 +717,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (shouldFillInput) {
         setInputValue(
           stringifyAsLabel(nextValue, itemToStringLabel),
-          createChangeEventDetails(eventDetails.reason, eventDetails.event, undefined, {
-            isItemPress: eventDetails.isItemPress,
-          }),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
     },
@@ -730,9 +728,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
-      const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent, undefined, {
-        isItemPress: true,
-      });
+      const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -1806,9 +1802,9 @@ export namespace AriaCombobox {
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**
      * Whether pressing an item caused the change.
-     * Set on the requests that pressing an item produces — the value change, the close
-     * request, and the resulting `input-clear` request — and absent from automatic cleanup
-     * clears, letting handlers cancel selection-caused requests without affecting cleanup.
+     * Set on the `input-clear` requests that selecting an item produces, letting handlers
+     * cancel them to keep the filter without affecting automatic cleanup clears, which
+     * don't set it.
      */
     isItemPress?: boolean | undefined;
   };

@@ -113,9 +113,9 @@ type AutocompleteRootChangeEventDetails = (
   trigger: Element | undefined;
   /**
    * Whether pressing an item caused the change.
-   * Set on the requests that pressing an item produces — the value change, the close
-   * request, and the resulting `input-clear` request — and absent from automatic cleanup
-   * clears, letting handlers cancel selection-caused requests without affecting cleanup.
+   * Set on the `input-clear` requests that selecting an item produces, letting handlers
+   * cancel them to keep the filter without affecting automatic cleanup clears, which
+   * don't set it.
    */
   isItemPress?: boolean;
 };
