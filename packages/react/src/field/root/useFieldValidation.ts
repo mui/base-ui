@@ -101,8 +101,18 @@ function hasOwnCustomValidity(element: HTMLInputElement) {
 }
 
 function setOwnCustomValidity(element: HTMLInputElement, message: string) {
-  if (element.willValidate && element.validity.customError && !hasOwnCustomValidity(element)) {
-    displacedCustomValidity.set(element, element.validationMessage);
+  // Elements barred from constraint validation (disabled ones, for example) report an empty
+  // `validationMessage`, so a message set on them by other code can neither be recognized nor
+  // remembered, and installing an owned message overwrites it without a record.
+  if (element.willValidate) {
+    if (!element.validity.customError) {
+      // Nothing is set on the control, so whatever an owned message had displaced was withdrawn in
+      // the meantime — clearing a custom validity wipes the single slot both messages share. Drop
+      // the stale record so it can't be restored as a condition that no longer applies.
+      displacedCustomValidity.delete(element);
+    } else if (!hasOwnCustomValidity(element)) {
+      displacedCustomValidity.set(element, element.validationMessage);
+    }
   }
 
   element.setCustomValidity(message);
@@ -243,7 +253,11 @@ export function useFieldValidation(
       if (!currentNativeValidity.valueMissing) {
         clearCustomValidity(element, registeredInputs);
 
-        if (!element.validity.customError) {
+        // Clearing an owned message can hand representative status to another registered input that
+        // kept a message of its own, so resolve it again before reading the remaining state.
+        const currentElement = resolveRepresentativeInput() ?? element;
+
+        if (!currentElement.validity.customError) {
           // The 'valueMissing' (required) condition has been resolved by the user typing.
           // Temporarily mark the field as valid for this onChange event.
           // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
@@ -253,12 +267,13 @@ export function useFieldValidation(
         }
 
         // A message set outside of this hook survived the clear, so the field is still invalid.
-        // Publish the element's actual state so the resolved `valueMissing` error doesn't linger.
+        // Publish that surviving error alone: the resolved `valueMissing` one must not linger, and
+        // co-occurring native errors stay deferred to the blur or submit boundary as above.
         const nextValidityData = {
           value,
-          state: getState(element),
-          error: element.validationMessage,
-          errors: [element.validationMessage],
+          state: { ...DEFAULT_VALIDITY_STATE, valid: false, customError: true },
+          error: currentElement.validationMessage,
+          errors: [currentElement.validationMessage],
           initialValue: validityData.initialValue,
         };
         updateRegisteredFieldValidity(nextValidityData, false);
@@ -385,8 +400,6 @@ export function useFieldValidation(
         if (currentElement && currentElement.validationMessage) {
           defaultValidationMessage = currentElement.validationMessage;
           validationErrors = [currentElement.validationMessage];
-        } else if ((!currentElement || currentElement.validity.valid) && !nextState.valid) {
-          nextState.valid = true;
         }
       }
     }

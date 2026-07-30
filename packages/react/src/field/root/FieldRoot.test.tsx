@@ -1017,6 +1017,42 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('external error');
     });
 
+    it('does not restore a message the outside code withdrew while its own error was displayed', async () => {
+      let shouldFail = false;
+      await render(
+        <Field.Root
+          name="field"
+          validationMode="onChange"
+          validate={() => (shouldFail ? 'own error' : null)}
+        >
+          <Field.Control />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      control.setCustomValidity('external error');
+
+      shouldFail = true;
+      fireEvent.change(control, { target: { value: 'a' } });
+      expect(control.validationMessage).toBe('own error');
+
+      // The outside code withdraws its condition while the field's own error still applies. Both
+      // messages share one slot, so the own error is reinstalled on the next commit.
+      control.setCustomValidity('');
+      fireEvent.change(control, { target: { value: 'ab' } });
+      expect(control.validationMessage).toBe('own error');
+
+      // Nothing is left to restore: the withdrawn message must not come back with the field valid.
+      shouldFail = false;
+      fireEvent.change(control, { target: { value: 'abc' } });
+
+      expect(control.validationMessage).toBe('');
+      expect(control).not.toHaveAttribute('data-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
     it('keeps a message set outside the field on another input of the group', async () => {
       let shouldFail = true;
       await render(
@@ -1053,6 +1089,76 @@ describe('<Field.Root />', () => {
       expect(first.validationMessage).toBe('');
       expect(second.validationMessage).toBe('external error');
       expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
+    it('keeps a message set outside the field on another input of the group when revalidating on change', async () => {
+      const handleValidity = vi.fn();
+      await render(
+        <Field.Root name="field" validationMode="onBlur" validate={() => 'own error'}>
+          <CheckboxGroup>
+            <Field.Item>
+              <Checkbox.Root value="a" data-testid="a" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="b" data-testid="b" />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error data-testid="error" />
+          <Field.Validity>{handleValidity}</Field.Validity>
+        </Field.Root>,
+      );
+
+      const [first, second] = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+      );
+
+      fireEvent.blur(screen.getByTestId('a'));
+      expect(first.validationMessage).toBe('own error');
+
+      second.setCustomValidity('external error');
+
+      // Change revalidation drops the field's own error until the next blur, but the group is still
+      // invalid through the other input.
+      fireEvent.click(screen.getByTestId('b'));
+
+      expect(first.validationMessage).toBe('');
+      expect(second.validationMessage).toBe('external error');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+    });
+
+    it('keeps other native errors deferred while a message set outside the field survives', async () => {
+      const handleValidity = vi.fn();
+      await render(
+        <Field.Root name="field" validationMode="onBlur">
+          <Field.Control type="email" required />
+          <Field.Error match="typeMismatch" data-testid="type-mismatch">
+            invalid email
+          </Field.Error>
+          <Field.Validity>{handleValidity}</Field.Validity>
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      // The field only publishes `valueMissing` once dirtied.
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+      expect(control).toHaveAttribute('data-invalid', '');
+
+      control.setCustomValidity('external error');
+
+      fireEvent.change(control, { target: { value: 'abc' } });
+
+      // Native errors other than the resolved `valueMissing` one wait for the blur or submit
+      // boundary, whether or not an outside message keeps the field invalid in the meantime.
+      expect(screen.queryByTestId('type-mismatch')).toBe(null);
+      expect(handleValidity.mock.lastCall?.[0].validity.typeMismatch).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
     });
 
     it('clears a multi-line message it set itself', async () => {
