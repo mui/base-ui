@@ -159,6 +159,36 @@ describe('<Combobox.Item />', () => {
     expect(input).toHaveValue('');
   });
 
+  it('inherits the disabled state from the root', async () => {
+    const handleClick = vi.fn();
+
+    const { user } = await render(
+      <Combobox.Root defaultOpen disabled>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="one" onClick={handleClick}>
+                  one
+                </Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const item = screen.getByRole('option', { name: 'one' });
+    expect(item).toHaveAttribute('data-disabled');
+
+    await user.click(item);
+    await flushMicrotasks();
+
+    expect(handleClick).not.toHaveBeenCalled();
+    expect(screen.getByTestId('input')).toHaveValue('');
+  });
+
   it('Enter selects highlighted item', async () => {
     const { user } = await render(
       <Combobox.Root>
