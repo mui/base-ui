@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import {
@@ -297,6 +297,8 @@ export function useDismiss(
 
     const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
+    const doc = ownerDocument(floatingElement);
+    const supportsPointerEvents = typeof ownerWindow(floatingElement).PointerEvent !== 'undefined';
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -561,7 +563,9 @@ export function useDismiss(
 
     function handleTouchStartCapture(event: TouchEvent) {
       currentPointerTypeRef.current = 'touch';
-      sawPressWhileOpenRef.current = true;
+      if (!supportsPointerEvents) {
+        sawPressWhileOpenRef.current = true;
+      }
       addTargetEventListenerOnce(event, handleTouchStart);
     }
 
@@ -569,7 +573,11 @@ export function useDismiss(
       cancelDismissOnEndTimeout.clear();
 
       // This handler only receives `click`, `pointerdown`, and `mousedown`.
-      if (event.type !== 'click') {
+      // In Pointer Events browsers, `mousedown` is a compatibility event that
+      // follows `pointerdown`. If the pointerdown opened the floating element,
+      // attributing its mousedown to the new open session would make the
+      // gesture's trailing click look like a new outside press.
+      if (event.type === 'pointerdown' || (event.type === 'mousedown' && !supportsPointerEvents)) {
         sawPressWhileOpenRef.current = true;
 
         if (event.type === 'pointerdown') {
@@ -690,7 +698,6 @@ export function useDismiss(
       addTargetEventListenerOnce(event, handleTouchEnd);
     }
 
-    const doc = ownerDocument(floatingElement);
     const unsubscribe = mergeCleanups(
       escapeKey &&
         mergeCleanups(

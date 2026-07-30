@@ -20,7 +20,7 @@ export default function ExampleDialog() {
               <Menu.Separator className="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
               {/* Open the dialog when the menu item is clicked */}
               <Menu.Item className={itemClass} onClick={() => setDialogOpen(true)}>
-                Delete…
+                Details…
               </Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
@@ -33,14 +33,13 @@ export default function ExampleDialog() {
           <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
           <Dialog.Popup className="fixed top-1/2 left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <div className="flex flex-col gap-1">
-              <Dialog.Title className="text-base font-bold">Delete playlist</Dialog.Title>
+              <Dialog.Title className="text-base font-bold">Playlist details</Dialog.Title>
               <Dialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-                This will permanently delete the playlist. This action cannot be undone.
+                This playlist contains 24 songs and was last updated today.
               </Dialog.Description>
             </div>
             <div className="flex justify-end gap-3">
-              <Dialog.Close className={buttonClass}>Cancel</Dialog.Close>
-              <Dialog.Close className={buttonClass}>Delete</Dialog.Close>
+              <Dialog.Close className={buttonClass}>Close</Dialog.Close>
             </div>
           </Dialog.Popup>
         </Dialog.Portal>

@@ -21,7 +21,7 @@ export default function ExampleDialog() {
               <Menu.Separator className={styles.Separator} />
               {/* Open the dialog when the menu item is clicked */}
               <Menu.Item className={styles.MenuItem} onClick={() => setDialogOpen(true)}>
-                Delete…
+                Details…
               </Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
@@ -34,14 +34,13 @@ export default function ExampleDialog() {
           <Dialog.Backdrop className={styles.Backdrop} />
           <Dialog.Popup className={styles.DialogPopup}>
             <div className={styles.Intro}>
-              <Dialog.Title className={styles.Title}>Delete playlist</Dialog.Title>
+              <Dialog.Title className={styles.Title}>Playlist details</Dialog.Title>
               <Dialog.Description className={styles.Description}>
-                This will permanently delete the playlist. This action cannot be undone.
+                This playlist contains 24 songs and was last updated today.
               </Dialog.Description>
             </div>
             <div className={styles.Actions}>
-              <Dialog.Close className={styles.Button}>Cancel</Dialog.Close>
-              <Dialog.Close className={styles.Button}>Delete</Dialog.Close>
+              <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>
           </Dialog.Popup>
         </Dialog.Portal>
