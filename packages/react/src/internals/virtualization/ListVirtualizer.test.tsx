@@ -583,6 +583,208 @@ describe('<ListVirtualizer />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'keeps the scrollport covered while post-release geometry rewrites re-pin the bottom',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <ListVirtualizer
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          renderRow={renderMixedRow}
+          rows={createRows(300)}
+        />,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeLessThan(6500));
+      const initialScrollHeight = virtualizer.scrollHeight;
+
+      // A native scrollbar drag to the very bottom: a scroll burst with a held mouse button.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+      await screen.findByText('Item 300');
+
+      // Release commits the deferred drag measurements and the estimate refresh follows; both
+      // rewrite the virtual geometry and re-pin the viewport to a new maximum scroll position.
+      // Watch every DOM state committed along the way: none may leave part of the scrollport
+      // without rows, which the user would see as the list blinking out for a frame.
+      const uncoveredStates: string[] = [];
+      const observer = new MutationObserver(() => {
+        const scrollerRect = virtualizer.getBoundingClientRect();
+        let coveredTop = Number.POSITIVE_INFINITY;
+        let coveredBottom = Number.NEGATIVE_INFINITY;
+        for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
+          if (rowElement.style.position === 'absolute') {
+            continue;
+          }
+          const rect = rowElement.getBoundingClientRect();
+          if (rect.height > 0) {
+            coveredTop = Math.min(coveredTop, rect.top);
+            coveredBottom = Math.max(coveredBottom, rect.bottom);
+          }
+        }
+        if (coveredTop > scrollerRect.top + 1 || coveredBottom < scrollerRect.bottom - 1) {
+          uncoveredStates.push(
+            `covered [${coveredTop.toFixed(1)}, ${coveredBottom.toFixed(1)}] of ` +
+              `[${scrollerRect.top.toFixed(1)}, ${scrollerRect.bottom.toFixed(1)}] ` +
+              `at scrollTop ${virtualizer.scrollTop.toFixed(1)}`,
+          );
+        }
+      });
+      observer.observe(virtualizer, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style'],
+      });
+
+      try {
+        fireEvent.mouseUp(virtualizer);
+
+        await waitFor(() =>
+          expect(virtualizer.scrollHeight).toBeGreaterThan(initialScrollHeight + 100),
+        );
+        // Let any follow-up estimate refresh and its own re-pin settle as well.
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 400);
+            }),
+        );
+      } finally {
+        observer.disconnect();
+      }
+
+      expect(uncoveredStates).toEqual([]);
+      expect(
+        Math.abs(virtualizer.scrollTop - (virtualizer.scrollHeight - virtualizer.clientHeight)),
+      ).toBeLessThanOrEqual(1);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the content anchored when an estimate refresh shrinks the total above the bottom',
+    async () => {
+      vi.restoreAllMocks();
+
+      // Tall rows up front seed a high estimate; the short remainder keeps lowering the average
+      // as it is measured, so each refresh shrinks the virtual total.
+      const renderShrinkingRow = (params: ListVirtualizerRenderRowParameters<TestRowModel>) => (
+        <div role="listitem" style={{ height: params.rowIndex < 10 ? 100 : 20 }}>
+          {params.row.model.label}
+        </div>
+      );
+
+      await render(
+        <ListVirtualizer
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          renderRow={renderShrinkingRow}
+          rows={createRows(300)}
+        />,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(20000));
+
+      // Scrollbar-drag to the very bottom, release, and let the first refresh settle pinned.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+      await screen.findByText('Item 300');
+      fireEvent.mouseUp(virtualizer);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 600);
+          }),
+      );
+
+      // Scroll up a little; the rows this mounts measure short, so the next idle refresh shrinks
+      // the total below the current scroll position and the browser clamps `scrollTop`.
+      virtualizer.scrollTop -= 240;
+      fireEvent.scroll(virtualizer);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 50);
+          }),
+      );
+
+      const getTopVisibleRow = () => {
+        const scrollerRect = virtualizer.getBoundingClientRect();
+        let topRow: { index: number; offset: number } | null = null;
+        for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
+          if (rowElement.style.position === 'absolute') {
+            continue;
+          }
+          const rect = rowElement.getBoundingClientRect();
+          if (rect.height > 0 && rect.bottom > scrollerRect.top && rect.top < scrollerRect.bottom) {
+            if (topRow === null || rect.top < topRow.offset) {
+              topRow = { index: Number(rowElement.dataset.rowIndex), offset: rect.top };
+            }
+          }
+        }
+        return topRow;
+      };
+
+      const tracked = getTopVisibleRow();
+      expect(tracked).not.toBe(null);
+      const trackedElement = virtualizer.querySelector<HTMLElement>(
+        `[data-row-index="${tracked!.index}"]`,
+      );
+      expect(trackedElement).not.toBe(null);
+
+      // Watch every committed state until the refresh settles: the row the user is looking at
+      // must not move on screen even though the geometry rewrite clamps the scroll position.
+      const disturbances: string[] = [];
+      const observer = new MutationObserver(() => {
+        const element = virtualizer.querySelector<HTMLElement>(
+          `[data-row-index="${tracked!.index}"]`,
+        );
+        if (element === null || element.style.position === 'absolute') {
+          disturbances.push(`row ${tracked!.index} left the window`);
+          return;
+        }
+        const offset = element.getBoundingClientRect().top;
+        if (Math.abs(offset - tracked!.offset) > 2) {
+          disturbances.push(
+            `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+          );
+        }
+      });
+      observer.observe(virtualizer, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style'],
+      });
+
+      const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
+      try {
+        // The refresh fires after the idle window; wait long enough for it and its follow-ups.
+        await waitFor(() =>
+          expect(virtualizer.scrollHeight).toBeLessThan(scrollHeightBeforeRefresh - 500),
+        );
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 400);
+            }),
+        );
+      } finally {
+        observer.disconnect();
+      }
+
+      expect(disturbances).toEqual([]);
+    },
+  );
+
   it('scrolls to an index with the requested alignment', async () => {
     const apiRef = React.createRef<ListVirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();

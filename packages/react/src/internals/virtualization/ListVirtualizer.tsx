@@ -128,6 +128,25 @@ function getRenderZoneTransform(offsetTop: number, scrollTop: number) {
   return `translate3d(0, ${offsetTop - scrollTop}px, 0)`;
 }
 
+/**
+ * Index of the last row starting at or before the given virtual offset.
+ */
+function findRowIndexAtOffset(rowPositions: readonly number[], rowCount: number, offset: number) {
+  let low = 0;
+  let high = rowCount - 1;
+
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    if ((rowPositions[middle] ?? 0) <= offset) {
+      low = middle;
+    } else {
+      high = middle - 1;
+    }
+  }
+
+  return low;
+}
+
 function getOverscannedRenderContext(
   renderContext: RenderContext,
   rowPositions: readonly number[],
@@ -141,6 +160,21 @@ function getOverscannedRenderContext(
   let lastRowIndex = renderContext.lastRowIndex;
   const overscanStart = Math.max(0, scrollTop - overscanPx);
   const overscanEnd = scrollTop + viewportHeight + overscanPx;
+
+  // The engine only observes native scroll events, so a corrective scroll write can supersede
+  // the position its render context was computed for, leaving that window entirely outside the
+  // viewport until the event arrives a task later. Painting it would blank the scrollport, and
+  // the expansion below only widens windows, which would mount every row in between. Rebuild the
+  // window at the viewport instead.
+  if (rowCount > 0) {
+    const windowStart = rowPositions[firstRowIndex] ?? 0;
+    const windowEnd =
+      lastRowIndex >= rowCount ? Number.POSITIVE_INFINITY : (rowPositions[lastRowIndex] ?? 0);
+    if (windowEnd < overscanStart || windowStart > overscanEnd) {
+      firstRowIndex = findRowIndexAtOffset(rowPositions, rowCount, overscanStart);
+      lastRowIndex = firstRowIndex;
+    }
+  }
 
   while (firstRowIndex > 0 && (rowPositions[firstRowIndex] ?? 0) > overscanStart) {
     firstRowIndex -= 1;
@@ -320,6 +354,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const scrollIdleTimeout = useTimeout();
   const isScrollingRef = React.useRef(false);
   const [scrollIdleRevision, bumpScrollIdleRevision] = React.useReducer((value) => value + 1, 0);
+  // Forces the rendered window to recompute after a corrective scroll write moved the viewport
+  // beyond the rows the current commit mounted. Bumped from a layout effect, so the follow-up
+  // commit still lands before paint.
+  const [, bumpWindowRevision] = React.useReducer((value) => value + 1, 0);
+  const renderScrollTopRef = React.useRef(0);
   const adaptiveEstimateTimeout = useTimeout();
   const adaptiveRowsMetaRef = React.useRef<unknown>(null);
   const [adaptiveMeasurementRevision, bumpAdaptiveMeasurementRevision] = React.useReducer(
@@ -357,7 +396,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       return;
     }
 
-    const scrollTop = scrollTopRef.current;
+    // A geometry commit that shrinks the content makes the browser clamp the scroll position
+    // during layout, before any scroll event updates the engine's bookkeeping. The live DOM
+    // position is authoritative; the ref only bridges the moments without a scroll element.
+    const scrollTop = scrollElementRef.current?.scrollTop ?? scrollTopRef.current;
     const stacked = renderZoneOffsetTopRef.current - scrollTop;
     let translate = stacked;
     const virtualEnd = renderZoneVirtualEndRef.current;
@@ -621,6 +663,17 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   // than the real rows, even when the requested overscan is smaller.
   const renderBufferPx = Math.max(rowBufferPx, resolvedEstimatedItemHeight);
 
+  const scrollAnchorRef = React.useRef<{
+    element: HTMLElement;
+    rowIndex: number;
+    relativeTop: number;
+    maxScrollTop: number;
+    scrollTop: number;
+    virtualOffset: number | null;
+    rowsMeta: unknown;
+    rows: ListVirtualizerRow<RowModel>[];
+  } | null>(null);
+
   const virtualizer = useVirtualizer({
     layout,
     dimensions: {
@@ -664,18 +717,67 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const contentProps = virtualizer.store.use(LayoutList.selectors.contentProps);
   const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
   const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
-  const currentScrollTop = virtualizer.store.state.virtualization.scrollPosition.current.top;
+
+  // The engine publishes a recomputed render context inside the scroll event before this
+  // component's own scroll bookkeeping observes it, while corrective writes below move the
+  // scrollport before the engine hears about them. The live scroll position is the only basis
+  // consistent with both orderings.
+  const liveScrollTop = scrollElementRef.current?.scrollTop ?? 0;
+  const currentMaxScrollTop =
+    dimensions.viewportInnerSize.height > 0
+      ? getMaxScrollOffset(rowsMeta.currentPageTotalHeight, dimensions.viewportInnerSize.height)
+      : null;
+  // When a geometry rewrite shrinks the content below the current scroll position, the browser
+  // clamps `scrollTop` the moment the commit lays out — before any scroll event reports it.
+  // Target that inevitable position now so this commit's window and transform match what paints.
+  const clampedLiveScrollTop =
+    currentMaxScrollTop === null ? liveScrollTop : Math.min(liveScrollTop, currentMaxScrollTop);
+
+  // A geometry rewrite that lands while the viewport rests at the maximum scroll position is
+  // followed by a bottom pin in the scroll-anchoring effect below, within this same commit.
+  // The engine's render context was computed for the pre-rewrite scroll position, so the rows it
+  // mounts end short of the rewritten content end; painting that window at the pinned position
+  // would briefly blank the bottom of the scrollport. Render the window for the anticipated
+  // pinned position instead so the same commit that moves the viewport also covers it.
+  const scrollAnchor = scrollAnchorRef.current;
+  const anticipatedMaxScrollTop =
+    enabled &&
+    currentMaxScrollTop !== null &&
+    scrollAnchor !== null &&
+    scrollAnchor.rows === rows &&
+    scrollAnchor.rowsMeta !== rowsMeta &&
+    scrollAnchor.maxScrollTop > 0 &&
+    Math.abs(scrollAnchor.scrollTop - scrollAnchor.maxScrollTop) < 1 &&
+    !isScrollbarDragRef.current &&
+    pendingScrollRowIndexRef.current == null
+      ? currentMaxScrollTop
+      : null;
+  const anticipateBottomPin =
+    anticipatedMaxScrollTop !== null &&
+    scrollAnchor !== null &&
+    // Mirrors the effect's own takeover guard: the user has not scrolled away since the snapshot.
+    (Math.abs(liveScrollTop - scrollAnchor.scrollTop) < 1 ||
+      Math.abs(liveScrollTop - anticipatedMaxScrollTop) < 1);
+  const renderScrollTop =
+    anticipateBottomPin && anticipatedMaxScrollTop !== null
+      ? anticipatedMaxScrollTop
+      : clampedLiveScrollTop;
+
   const overscannedRenderContext = getOverscannedRenderContext(
-    renderContext,
+    anticipateBottomPin
+      ? // Seed the overscan expansion from the final row; it walks back to cover the new bottom.
+        { ...renderContext, firstRowIndex: rows.length - 1, lastRowIndex: rows.length }
+      : renderContext,
     rowsMeta.positions,
     rows.length,
     validPinnedRowIndex,
     renderBufferPx,
-    currentScrollTop,
+    renderScrollTop,
     dimensions.viewportInnerSize.height,
   );
   const overscannedRenderContextRef = React.useRef(overscannedRenderContext);
   overscannedRenderContextRef.current = overscannedRenderContext;
+  renderScrollTopRef.current = renderScrollTop;
   const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
   renderZoneOffsetTopRef.current = renderZoneOffsetTop;
   // When the whole collection is rendered, the first row's exact position (zero) takes priority
@@ -855,17 +957,6 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     totalSize,
     virtualizer.api,
   ]);
-
-  const scrollAnchorRef = React.useRef<{
-    element: HTMLElement;
-    rowIndex: number;
-    relativeTop: number;
-    maxScrollTop: number;
-    scrollTop: number;
-    virtualOffset: number | null;
-    rowsMeta: unknown;
-    rows: ListVirtualizerRow<RowModel>[];
-  } | null>(null);
 
   const scrollRowIntoView = useStableCallback(
     (
@@ -1116,13 +1207,20 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         const anchorTop = previous.element.getBoundingClientRect().top - scrollerTop;
         // How far the anchor actually moved on screen beyond what user scrolling accounts for.
         shift = anchorTop - previous.relativeTop + (scrollTop - previous.scrollTop);
-      } else if (Math.abs(scrollTop - previous.scrollTop) < 1 && previous.virtualOffset != null) {
-        // A geometry refresh can replace the entire render window before this effect runs. In that
-        // case the DOM anchor is gone, but the old row's virtual offset still tells us by how much
-        // content above it grew. Only use this fallback when the user did not scroll in between.
+      } else if (
+        previous.virtualOffset != null &&
+        // A geometry refresh can replace the entire render window before this effect runs. In
+        // that case the DOM anchor is gone, but the old row's virtual offset still tells us by
+        // how much the content above it moved. Use this fallback when the user did not scroll in
+        // between; a position at the new maximum is the browser's own clamp after the content
+        // shrank under the current scroll position, not user scrolling.
+        (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1)
+      ) {
         const currentVirtualOffset = latestRowsMeta.positions[previous.rowIndex];
         if (currentVirtualOffset != null) {
-          shift = currentVirtualOffset - previous.virtualOffset;
+          // Apply the geometry shift to the position the user last held; a browser clamp has
+          // already absorbed part of that shift into `scrollTop`.
+          shift = currentVirtualOffset - previous.virtualOffset - (scrollTop - previous.scrollTop);
         }
       }
 
@@ -1138,6 +1236,12 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           // Realign the mounted rows before paint. The engine observes the same value when the
           // asynchronous scroll event arrives, making this idempotent.
           handleScrollChange({ top: nextScrollTop });
+          // A correction that lands far from the position this commit's window was rendered for
+          // can move the viewport beyond the mounted rows. Re-render before paint so the window
+          // follows the corrected position.
+          if (Math.abs(nextScrollTop - renderScrollTopRef.current) >= renderBufferPx) {
+            bumpWindowRevision();
+          }
         }
       }
     }
@@ -1149,6 +1253,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           scrollAnchorRef.current = {
             ...previous,
             maxScrollTop,
+            // The element position was measured at the snapshot's scroll position. Keep the pair
+            // consistent while carrying the snapshot forward, or the next on-screen comparison
+            // double-counts the scrolling that happened in between as a geometry shift.
+            relativeTop: previous.relativeTop - (scrollTop - previous.scrollTop),
             scrollTop,
             virtualOffset,
             rowsMeta: latestRowsMeta,
@@ -1393,7 +1501,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
               ref={renderZoneRef}
               role="presentation"
               style={{
-                transform: getRenderZoneTransform(renderZoneOffsetTop, scrollTopRef.current),
+                transform: getRenderZoneTransform(renderZoneOffsetTop, renderScrollTop),
               }}
             >
               {renderedRows}
