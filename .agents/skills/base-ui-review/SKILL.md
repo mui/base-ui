@@ -417,7 +417,7 @@ comment mode:
   GitHub write access). The `=` is required: a bare token after `--comment` is a review
   target, never a path. This is the one comment mode with no GitHub PR requirement — the
   file is the whole deliverable, so finish by reporting the path rather than a comment
-  URL, never fall back to posting, and omit the closing footer (see [Output](#output)).
+  URL, and never fall back to posting.
 
 For `--comment inline`, include same severity marker in each inline comment
 body. Use latest PR head `commit_id`, `path`, `line`, `side`, post via
