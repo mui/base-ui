@@ -439,7 +439,7 @@ describe('<ScrollArea.Scrollbar />', () => {
       const scrollTopAfterTrackPress = viewport.scrollTop;
 
       fireEvent.pointerCancel(verticalScrollbar, { pointerId: 1 });
-      fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1, buttons: 1 });
 
       expect(viewport.scrollTop).toBe(scrollTopAfterTrackPress);
     });
@@ -612,7 +612,7 @@ describe('<ScrollArea.Scrollbar />', () => {
       // Park the scroll mid-range so an erroneous jump to an edge is detectable.
       viewport.scrollTop = 400;
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1, buttons: 1 });
 
       expect(viewport.scrollTop).toBe(400);
     });
@@ -622,7 +622,7 @@ describe('<ScrollArea.Scrollbar />', () => {
 
       viewport.scrollTop = 400;
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1, buttons: 1 });
 
       expect(viewport.scrollTop).toBe(400);
     });
