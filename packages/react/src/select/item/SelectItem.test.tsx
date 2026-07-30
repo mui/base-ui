@@ -268,6 +268,35 @@ describe('<Select.Item />', () => {
     expect(screen.getByTestId('value').textContent).toBe('');
   });
 
+  it('inherits the disabled state from the root', async () => {
+    const handleClick = vi.fn();
+
+    const { user } = await render(
+      <Select.Root open disabled>
+        <Select.Trigger>
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one" onClick={handleClick}>
+                one
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const item = screen.getByRole('option', { name: 'one' });
+    expect(item).toHaveAttribute('data-disabled');
+
+    await user.click(item);
+
+    expect(handleClick).not.toHaveBeenCalled();
+    expect(screen.getByTestId('value').textContent).toBe('');
+  });
+
   it('should call onClick exactly once for a regular click', async () => {
     const handleClick = vi.fn();
 

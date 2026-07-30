@@ -62,7 +62,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
 
     // Without a viewport there is nothing to scroll, so the drag never consumes the move.
     expect(thumb).not.toHaveAttribute('data-scrolling');
@@ -103,7 +103,9 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    expect(() => fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 })).not.toThrow();
+    expect(() =>
+      fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 }),
+    ).not.toThrow();
 
     expect(screen.queryByTestId('scrollbar')).toBe(null);
     expect(viewport.scrollTop).toBe(0);
@@ -292,7 +294,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
 
     await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
 
@@ -300,6 +302,74 @@ describe('<ScrollArea.Thumb />', () => {
 
     await waitFor(() => expect(scrollbar).not.toHaveAttribute('data-scrolling'));
   });
+
+  it.skipIf(isJSDOM)(
+    'ends a drag whose release was missed instead of scrolling on hover',
+    async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', scrollSnapType: 'y mandatory' }}
+          >
+            <div style={{ width: 200, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            keepMounted
+            style={{ width: 10, height: 200 }}
+          >
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetHeight).toBeGreaterThan(0));
+
+      // The missed-release scenario means no capture is ever in effect.
+      Object.defineProperties(thumb, {
+        setPointerCapture: {
+          configurable: true,
+          value: () => {},
+        },
+        hasPointerCapture: {
+          configurable: true,
+          value: () => false,
+        },
+      });
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+      const scrolled = viewport.scrollTop;
+
+      // A different pointer hovering over the thumb must not end the active drag.
+      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 2, buttons: 0 });
+      expect(viewport.scrollTop).toBe(scrolled);
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 1, buttons: 1 });
+      expect(viewport.scrollTop).toBeGreaterThan(scrolled);
+      const continuedScroll = viewport.scrollTop;
+      expect(thumb).toHaveAttribute('data-scrolling');
+
+      // The release never arrived (e.g. pointer capture was lost mid-drag), so
+      // the first buttonless move must end the drag rather than scroll. It must
+      // clear the scrolling state immediately like a real release, not leave it
+      // lingering until the scroll timeout fires.
+      fireEvent.pointerMove(thumb, { clientY: 100, pointerId: 1, buttons: 0 });
+      expect(viewport.scrollTop).toBe(continuedScroll);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+      expect(thumb).not.toHaveAttribute('data-scrolling');
+
+      fireEvent.pointerMove(thumb, { clientY: 140, pointerId: 1, buttons: 0 });
+      expect(viewport.scrollTop).toBe(continuedScroll);
+    },
+  );
 
   it('clears horizontal scrolling state on pointer cancel', async () => {
     await render(
@@ -362,7 +432,7 @@ describe('<ScrollArea.Thumb />', () => {
     });
 
     fireEvent.pointerDown(thumb, { button: 0, clientX: 0, pointerId: 1 });
-    fireEvent.pointerMove(thumb, { clientX: 20, pointerId: 1 });
+    fireEvent.pointerMove(thumb, { clientX: 20, pointerId: 1, buttons: 1 });
 
     await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
 
@@ -373,16 +443,32 @@ describe('<ScrollArea.Thumb />', () => {
 
   describe('scroll snap', () => {
     function defineThumbPointerCapture(thumb: HTMLElement) {
+      let capturedId: number | null = null;
       Object.defineProperties(thumb, {
         setPointerCapture: {
           configurable: true,
-          value: () => {},
+          value: (pointerId: number) => {
+            capturedId = pointerId;
+          },
         },
         hasPointerCapture: {
           configurable: true,
-          value: () => false,
+          value: (pointerId: number) => pointerId === capturedId,
+        },
+        releasePointerCapture: {
+          configurable: true,
+          value: (pointerId: number) => {
+            if (pointerId === capturedId) {
+              capturedId = null;
+            }
+          },
         },
       });
+      return {
+        dropCapture() {
+          capturedId = null;
+        },
+      };
     }
 
     function renderWithSnap() {
@@ -429,7 +515,7 @@ describe('<ScrollArea.Thumb />', () => {
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
     });
 
-    it('keeps the saved scroll snap value when a second pointer starts mid-drag', async () => {
+    it('ignores a second pointer while a drag is active', async () => {
       await renderWithSnap();
 
       const viewport = screen.getByTestId('viewport');
@@ -440,7 +526,30 @@ describe('<ScrollArea.Thumb />', () => {
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 2 });
       expect(viewport.style.scrollSnapType).toBe('none');
 
+      fireEvent.pointerUp(thumb, { pointerId: 2 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
       fireEvent.pointerUp(thumb, { pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
+    it('lets a new pointer take over when capture was silently dropped', async () => {
+      await renderWithSnap();
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      const capture = defineThumbPointerCapture(thumb);
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      // The browser dropped capture without delivering `pointerup` or
+      // `pointercancel`, and the contact's id never reappears (e.g. a lost
+      // touch), so a new pointer must be able to take over the latched drag.
+      capture.dropCapture();
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 2 });
+      fireEvent.pointerUp(thumb, { pointerId: 2 });
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
     });
 

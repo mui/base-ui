@@ -2844,6 +2844,31 @@ describe('<Menu.Root />', () => {
   });
 
   describe('prop: disabled', () => {
+    it('marks items as disabled when controlled open', async () => {
+      await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <React.Fragment>
+                <Menu.Item data-testid="item">Item</Menu.Item>
+                <Menu.CheckboxItem data-testid="checkbox-item">Checkbox item</Menu.CheckboxItem>
+                <Menu.RadioGroup>
+                  <Menu.RadioItem data-testid="radio-item" value="radio">
+                    Radio item
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </React.Fragment>
+            ),
+          }}
+        />,
+      );
+
+      expect(screen.getByTestId('item')).toHaveAttribute('data-disabled');
+      expect(screen.getByTestId('checkbox-item')).toHaveAttribute('data-disabled');
+      expect(screen.getByTestId('radio-item')).toHaveAttribute('data-disabled');
+    });
+
     it('does not highlight items with text navigation when controlled open', async () => {
       const { user } = await render(
         <TestMenuContents

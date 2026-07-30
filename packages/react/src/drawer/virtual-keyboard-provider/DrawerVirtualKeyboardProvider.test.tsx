@@ -1072,6 +1072,70 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'resolves the lift point through the shadow root when the drawer renders in one',
+    async () => {
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const originalDocumentElementFromPoint = document.elementFromPoint;
+      const originalShadowElementFromPoint = shadowRoot.elementFromPoint;
+      let focusSpy: ReturnType<typeof vi.spyOn> | undefined;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal container={shadowRoot}>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <input data-testid="input" type="text" />
+                    <button data-testid="button" type="button">
+                      Action
+                    </button>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const input = shadowRoot.querySelector<HTMLInputElement>('[data-testid="input"]');
+        const button = shadowRoot.querySelector<HTMLButtonElement>('[data-testid="button"]');
+        expect(input).not.toBeNull();
+        expect(button).not.toBeNull();
+        if (!input || !button) {
+          return;
+        }
+
+        focusSpy = vi.spyOn(input, 'focus');
+        // A real document hit test retargets shadow content to the host, so only the shadow
+        // root sees the button under the lift point. Resolving against the document would miss
+        // it and fall back to focusing the touchstart input.
+        document.elementFromPoint = () => host;
+        shadowRoot.elementFromPoint = () => button;
+
+        fireEvent.touchStart(input, {
+          touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, { clientX: 5, clientY: 5 });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(false);
+        expect(focusSpy).not.toHaveBeenCalled();
+      } finally {
+        document.elementFromPoint = originalDocumentElementFromPoint;
+        shadowRoot.elementFromPoint = originalShadowElementFromPoint;
+        host.remove();
+        focusSpy?.mockRestore();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)('preserves native taps on disabled inputs', async () => {
     await render(
       <Drawer.Root open modal={false}>
