@@ -1117,7 +1117,7 @@ type preventUnmountOnClose = () => void;
 ### InteractionType
 
 ```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'virtual' | '';
 ```
 
 ### OffsetFunction

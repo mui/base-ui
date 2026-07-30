@@ -234,6 +234,33 @@ describe('<Dialog.Popup />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)('passes virtual interaction type to initialFocus', async () => {
+      const initialFocus = vi.fn(() => false);
+
+      await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup initialFocus={initialFocus}>Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'touch',
+        width: 0.333,
+        height: 0.333,
+        pressure: 0,
+        detail: 0,
+      });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('virtual');
+      });
+    });
+
     it('focuses the popup itself rather than inner content when opened by touch', async () => {
       await render(
         <Dialog.Root modal={false}>

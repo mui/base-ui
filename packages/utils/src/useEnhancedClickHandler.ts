@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
+import { isVirtualPointerEvent } from './isVirtualPointerEvent';
 
-export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'virtual' | '';
 
 /**
  * Provides a cross-browser way to determine the type of the pointer used to click.
@@ -21,14 +22,23 @@ export function useEnhancedClickHandler(
         return;
       }
 
-      lastClickInteractionTypeRef.current = event.pointerType as InteractionType;
-      handler(event, event.pointerType as InteractionType);
+      const interactionType = isVirtualPointerEvent(event.nativeEvent)
+        ? 'virtual'
+        : (event.pointerType as InteractionType);
+      lastClickInteractionTypeRef.current = interactionType;
+      handler(event, interactionType);
     },
     [handler],
   );
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent | React.PointerEvent) => {
+      if (lastClickInteractionTypeRef.current === 'virtual') {
+        handler(event, 'virtual');
+        lastClickInteractionTypeRef.current = '';
+        return;
+      }
+
       // event.detail has the number of clicks performed on the element. 0 means it was triggered by the keyboard.
       if (event.detail === 0) {
         handler(event, 'keyboard');

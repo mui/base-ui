@@ -167,7 +167,7 @@ export interface FloatingFocusManagerProps {
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (first tabbable element or floating element).
    * - `RefObject`: Move focus to the ref element.
-   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, `keyboard`, or `virtual`).
    *   Return an element to focus, `true` to use default behavior, `null` to fallback to default behavior,
    *   or `false`/`undefined` to do nothing.
    * @default true

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect } from 'vitest';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
 // Kept in a separate file so the module mock doesn't leak into `MenuSubmenuTrigger.test.tsx`.
@@ -103,5 +103,28 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
 
     // Focus stays on the trigger, so there is no item announcement to talk over.
     expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it.skipIf(isJSDOM)('omits the expanded state when opened with a virtual pointer', async () => {
+    const { user } = await render(<Test />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+    fireEvent.pointerDown(submenuTrigger, {
+      pointerType: 'touch',
+      width: 0.333,
+      height: 0.333,
+      pressure: 0,
+      detail: 0,
+    });
+    fireEvent.mouseDown(submenuTrigger);
+
+    await screen.findByTestId('submenu');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
+    });
+
+    expect(submenuTrigger).not.toHaveAttribute('aria-expanded');
   });
 });

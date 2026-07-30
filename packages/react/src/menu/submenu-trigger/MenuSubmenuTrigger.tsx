@@ -170,10 +170,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Arrow keys open the submenu through list navigation without dispatching a click, so
-  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
-  const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
-  const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
+  // `openMethod` stays null there; Enter and Space report `keyboard`, while assistive
+  // technologies report `virtual`.
+  const focusMovesToSubmenuItem =
+    lastOpenChangeReason === REASONS.listNavigation ||
+    openMethod === 'keyboard' ||
+    openMethod === 'virtual';
+  const shouldOmitExpanded = open && focusMovesToSubmenuItem && platform.screenReader.voiceOver;
 
   const element = useRenderElement('div', componentProps, {
     state,

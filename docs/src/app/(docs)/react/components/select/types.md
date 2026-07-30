@@ -830,7 +830,7 @@ type OffsetFunction = (data: {
 ### InteractionType
 
 ```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'virtual' | '';
 ```
 
 ### Orientation

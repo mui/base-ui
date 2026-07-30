@@ -837,6 +837,64 @@ describe('<Menu.Root />', () => {
         },
       );
 
+      it.skipIf(isJSDOM)(
+        'focuses the first submenu item when opened by a virtual pointer',
+        async () => {
+          const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+
+          fireEvent.pointerDown(submenuTrigger, {
+            pointerType: 'touch',
+            width: 0.333,
+            height: 0.333,
+            pressure: 0,
+            detail: 0,
+          });
+          fireEvent.mouseDown(submenuTrigger);
+
+          await screen.findByTestId('submenu');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+        },
+      );
+
+      it.skipIf(isJSDOM)('focuses the first submenu item when opened with Enter', async () => {
+        const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await act(async () => {
+          submenuTrigger.focus();
+        });
+
+        await user.keyboard('[Enter]');
+
+        await screen.findByTestId('submenu');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
+      });
+
+      it.skipIf(isJSDOM)('keeps focus on a submenu trigger when opened by hover', async () => {
+        const { user } = await render(<TestMenu />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await act(async () => {
+          submenuTrigger.focus();
+        });
+
+        await user.hover(submenuTrigger);
+
+        await screen.findByTestId('submenu');
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveFocus();
+        });
+      });
+
       it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
