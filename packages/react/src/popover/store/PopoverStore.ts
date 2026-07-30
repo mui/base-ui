@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { NOOP } from '@base-ui/utils/empty';
-import { type OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
@@ -27,7 +27,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
   modal: boolean | 'trap-focus';
   focusManagerModal: boolean;
-  openMethod: OpenInteractionType | null;
+  openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
   titleElementId: string | undefined;

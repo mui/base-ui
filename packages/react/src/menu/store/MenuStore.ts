@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
-import type { OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
@@ -19,7 +19,8 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
-  openMethod: OpenInteractionType | null;
+  openMethod: InteractionType | null;
+  virtualPress: boolean;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
@@ -58,6 +59,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   openMethod: (state: State<unknown>) => state.openMethod,
+  virtualPress: (state: State<unknown>) => state.virtualPress,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -199,6 +201,7 @@ function createInitialState<Payload>(): State<Payload> {
     disabled: false,
     modal: true,
     openMethod: null,
+    virtualPress: false,
     allowMouseEnter: false,
     highlightItemOnHover: true,
     parent: {

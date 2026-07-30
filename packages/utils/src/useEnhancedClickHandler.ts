@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import { isVirtualPointerEvent } from './isVirtualPointerEvent';
 
 export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-export type OpenInteractionType = InteractionType | 'virtual';
 
 /**
  * Provides a cross-browser way to determine the type of the pointer used to click.
@@ -13,12 +11,9 @@ export type OpenInteractionType = InteractionType | 'virtual';
  * @param handler The function to be called when the button is clicked. The first parameter is the original event and the second parameter is the pointer type.
  */
 export function useEnhancedClickHandler(
-  handler: (
-    event: React.MouseEvent | React.PointerEvent,
-    interactionType: OpenInteractionType,
-  ) => void,
+  handler: (event: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => void,
 ) {
-  const lastClickInteractionTypeRef = React.useRef<OpenInteractionType>('');
+  const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
 
   const handlePointerDown = React.useCallback(
     (event: React.PointerEvent) => {
@@ -26,23 +21,14 @@ export function useEnhancedClickHandler(
         return;
       }
 
-      const interactionType = isVirtualPointerEvent(event.nativeEvent)
-        ? 'virtual'
-        : (event.pointerType as InteractionType);
-      lastClickInteractionTypeRef.current = interactionType;
-      handler(event, interactionType);
+      lastClickInteractionTypeRef.current = event.pointerType as InteractionType;
+      handler(event, event.pointerType as InteractionType);
     },
     [handler],
   );
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent | React.PointerEvent) => {
-      if (lastClickInteractionTypeRef.current === 'virtual') {
-        handler(event, 'virtual');
-        lastClickInteractionTypeRef.current = '';
-        return;
-      }
-
       // event.detail has the number of clicks performed on the element. 0 means it was triggered by the keyboard.
       if (event.detail === 0) {
         handler(event, 'keyboard');

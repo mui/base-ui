@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { InteractionType, OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -110,7 +110,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
   const computedDefaultInitialFocus = inputInsidePopup
-    ? (interactionType: OpenInteractionType) =>
+    ? (interactionType: InteractionType) =>
         interactionType === 'touch' ? store.state.popupRef.current : inputElement
     : false;
 
@@ -181,13 +181,13 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (first tabbable element or popup).
    * - `RefObject`: Move focus to the ref element.
-   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, `keyboard`, or `virtual`).
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: OpenInteractionType) => void | boolean | HTMLElement | null)
+    | ((openType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
   /**
    * Determines the element to focus when the popup is closed.

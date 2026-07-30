@@ -1,19 +1,16 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  OpenInteractionType,
-  useEnhancedClickHandler,
-} from '@base-ui/utils/useEnhancedClickHandler';
+import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { platform } from '@base-ui/utils/platform';
 import { useValueChanged } from '../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(
   open: boolean | (() => boolean),
-  setOpenMethod: (interactionType: OpenInteractionType | null) => void,
+  setOpenMethod: (interactionType: InteractionType | null) => void,
 ) {
   const handleTriggerClick = useStableCallback(
-    (_: React.MouseEvent, interactionType: OpenInteractionType) => {
+    (_: React.MouseEvent, interactionType: InteractionType) => {
       const isOpen = typeof open === 'function' ? open() : open;
 
       if (!isOpen) {
@@ -45,7 +42,7 @@ export function useOpenMethodTriggerProps(
  * @param open The open state of the component.
  */
 export function useOpenInteractionType(open: boolean) {
-  const [openMethod, setOpenMethod] = React.useState<OpenInteractionType | null>(null);
+  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
   const triggerProps = useOpenMethodTriggerProps(open, setOpenMethod);
 

@@ -6,6 +6,8 @@ import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -89,6 +91,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   store.useSyncedValue('closeDelay', closeDelay);
 
+  useValueChanged(open, (previousOpen) => {
+    if (previousOpen && !open) {
+      store.set('virtualPress', false);
+    }
+  });
+
   const parentMenuStore = submenuRootContext.parentMenu;
   const rootDisabled = store.useState('disabled');
   const parentDisabled = parentMenuStore.useState('disabled');
@@ -168,14 +176,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
   const openMethod = store.useState('openMethod');
+  const virtualPress = store.useState('virtualPress');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Arrow keys open the submenu through list navigation without dispatching a click, so
-  // `openMethod` stays null there; Enter and Space report `keyboard`, while assistive
-  // technologies report `virtual`.
+  // `openMethod` stays null there; Enter and Space report `keyboard`, while virtual (screen
+  // reader) presses report a physical pointer type and are tracked by `virtualPress`.
   const focusMovesToSubmenuItem =
-    lastOpenChangeReason === REASONS.listNavigation ||
-    openMethod === 'keyboard' ||
-    openMethod === 'virtual';
+    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard' || virtualPress;
   const shouldOmitExpanded = open && focusMovesToSubmenuItem && platform.screenReader.voiceOver;
 
   const element = useRenderElement('div', componentProps, {
@@ -195,6 +202,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
+        onPointerDown(event) {
+          store.set('virtualPress', isVirtualPointerEvent(event.nativeEvent));
+        },
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
