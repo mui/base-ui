@@ -148,6 +148,12 @@ export function useDismiss(
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
+  // Whether a press has started (anywhere) while the floating element was open.
+  // A `click` whose press began before the floating element opened must not count
+  // as an outside press: e.g. when a menu item activated by a press-drag-release
+  // gesture opens a dialog, the browser fires the gesture's click on the common
+  // ancestor of the mousedown and mouseup targets after the dialog is open.
+  const sawPressWhileOpenRef = React.useRef(false);
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -453,6 +459,17 @@ export function useDismiss(
         return;
       }
 
+      // In intentional mode, only a click whose press began while the floating
+      // element was open counts as an outside press. Keyboard-generated clicks
+      // (`detail === 0`) have no press and are still accepted.
+      if (
+        event.type === 'click' &&
+        (event as MouseEvent).detail !== 0 &&
+        !sawPressWhileOpenRef.current
+      ) {
+        return;
+      }
+
       // In intentional mode, a press that starts inside and ends outside gets
       // one suppressed outside click. Run this after inside-target checks so
       // inside clicks don't consume the one-shot suppression.
@@ -535,11 +552,16 @@ export function useDismiss(
 
     function handleTouchStartCapture(event: TouchEvent) {
       currentPointerTypeRef.current = 'touch';
+      sawPressWhileOpenRef.current = true;
       addTargetEventListenerOnce(event, handleTouchStart);
     }
 
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
       cancelDismissOnEndTimeout.clear();
+
+      if (event.type === 'pointerdown' || event.type === 'mousedown') {
+        sawPressWhileOpenRef.current = true;
+      }
 
       if (event.type === 'pointerdown') {
         currentPointerTypeRef.current = (event as PointerEvent).pointerType;
@@ -686,6 +708,7 @@ export function useDismiss(
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
+      sawPressWhileOpenRef.current = false;
       clearInsideReactTree();
     };
   }, [

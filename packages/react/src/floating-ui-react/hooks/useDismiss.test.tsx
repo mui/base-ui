@@ -1030,6 +1030,31 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('mouse click whose press started before open does not close', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Simulates the trailing click the browser fires after a press-drag-release
+      // gesture that began before the floating element opened (e.g. a menu item
+      // activated by drag-release opening a dialog): no pointerdown/mousedown
+      // was observed while open, and the gesture's click lands on the common
+      // ancestor of the mousedown and mouseup targets.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed while open still closes.
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('keyboard-generated outside click without a prior press closes', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Keyboard activations produce `detail: 0` clicks with no press.
+      fireEvent.click(document.body, { detail: 0 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
     test('inside click then programmatic outside click closes', async () => {
       render(<App outsidePressEvent="intentional" />);
       const insideInput = screen.getByRole('textbox');
