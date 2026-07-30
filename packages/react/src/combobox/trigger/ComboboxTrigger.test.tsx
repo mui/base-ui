@@ -654,8 +654,10 @@ describe('<Combobox.Trigger />', () => {
 
   describe('cancel-open', () => {
     it('closes the popup when mouseup occurs outside the trigger bounds', async () => {
+      const onOpenChange = vi.fn();
+
       await render(
-        <Combobox.Root>
+        <Combobox.Root onOpenChange={onOpenChange}>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -680,6 +682,8 @@ describe('<Combobox.Trigger />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+      expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.cancelOpen);
     });
 
     it('keeps the popup open when mouseup remains near the trigger bounds', async () => {
