@@ -308,7 +308,10 @@ describe('<ScrollArea.Thumb />', () => {
     async () => {
       await render(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
-          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', scrollSnapType: 'y mandatory' }}
+          >
             <div style={{ width: 200, height: 1000 }} />
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar
@@ -338,17 +341,29 @@ describe('<ScrollArea.Thumb />', () => {
       });
 
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
       fireEvent.pointerMove(thumb, { clientY: 20, pointerId: 1, buttons: 1 });
       expect(viewport.scrollTop).toBeGreaterThan(0);
       const scrolled = viewport.scrollTop;
 
+      // A different pointer hovering over the thumb must not end the active drag.
+      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 2, buttons: 0 });
+      expect(viewport.scrollTop).toBe(scrolled);
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 1, buttons: 1 });
+      expect(viewport.scrollTop).toBeGreaterThan(scrolled);
+      const continuedScroll = viewport.scrollTop;
+
       // The release never arrived (e.g. pointer capture was lost mid-drag), so
       // the first buttonless move must end the drag rather than scroll.
-      fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 1, buttons: 0 });
-      expect(viewport.scrollTop).toBe(scrolled);
-
       fireEvent.pointerMove(thumb, { clientY: 100, pointerId: 1, buttons: 0 });
-      expect(viewport.scrollTop).toBe(scrolled);
+      expect(viewport.scrollTop).toBe(continuedScroll);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+
+      fireEvent.pointerMove(thumb, { clientY: 140, pointerId: 1, buttons: 0 });
+      expect(viewport.scrollTop).toBe(continuedScroll);
     },
   );
 
@@ -480,7 +495,7 @@ describe('<ScrollArea.Thumb />', () => {
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
     });
 
-    it('keeps the saved scroll snap value when a second pointer starts mid-drag', async () => {
+    it('ignores a second pointer while a drag is active', async () => {
       await renderWithSnap();
 
       const viewport = screen.getByTestId('viewport');
@@ -489,6 +504,9 @@ describe('<ScrollArea.Thumb />', () => {
 
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 2 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      fireEvent.pointerUp(thumb, { pointerId: 2 });
       expect(viewport.style.scrollSnapType).toBe('none');
 
       fireEvent.pointerUp(thumb, { pointerId: 1 });

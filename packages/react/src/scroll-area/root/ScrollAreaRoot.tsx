@@ -68,7 +68,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const thumbXRef = React.useRef<HTMLDivElement | null>(null);
   const cornerRef = React.useRef<HTMLDivElement | null>(null);
 
-  const thumbDraggingRef = React.useRef(false);
+  const activePointerIdRef = React.useRef<number | null>(null);
   const startYRef = React.useRef(0);
   const startXRef = React.useRef(0);
   const startScrollTopRef = React.useRef(0);
@@ -117,11 +117,11 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   });
 
   const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
-    if (event.button !== 0) {
+    if (event.button !== 0 || activePointerIdRef.current !== null) {
       return;
     }
 
-    thumbDraggingRef.current = true;
+    activePointerIdRef.current = event.pointerId;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;
     // Literal instead of `ScrollAreaScrollbarDataAttributes.orientation`: referencing an
@@ -144,7 +144,11 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   });
 
   const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
-    thumbDraggingRef.current = false;
+    if (event.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
 
     if (savedSnapTypeRef.current !== null) {
       if (viewportRef.current) {
@@ -163,7 +167,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   });
 
   const handlePointerMove = useStableCallback((event: React.PointerEvent) => {
-    if (!thumbDraggingRef.current) {
+    if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
