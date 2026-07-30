@@ -386,10 +386,9 @@ Treat the output format as a hard contract. Before sending:
 - Use `# PR review`; start the summary with concrete risk, not target/base filler.
 - Use exact `## {Category} ({count})` headings for non-empty categories only.
 - Print each finding exactly once and verify every category count.
-- Use a separate `## Verdict` heading and the required closing footer.
+- Use a separate `## Verdict` heading.
 
 If any check fails, rewrite the output before sending.
-
 
 ## Posting to GitHub (--comment)
 
