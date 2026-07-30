@@ -31,7 +31,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = false,
     checked: checkedProp,
     defaultChecked,
@@ -45,6 +45,8 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
