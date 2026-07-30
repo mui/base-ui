@@ -95,7 +95,7 @@ function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
 
   useIsoLayoutEffect(() => {
     if (!isVirtualFocusRow) {
-      // Dynamic row measurement is incremental in MUI X Virtualizer. Mark real rows as measured so their
+      // Dynamic row measurement is incremental in MUI Virtualizer. Mark real rows as measured so their
       // metadata can advance the measured boundary; the zero-sized focus proxy must not count.
       apiRef.current?.rowsMeta.setLastMeasuredRowIndex(rowIndex);
     }
@@ -108,7 +108,7 @@ function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
 
   const style = isVirtualFocusRow ? focusProxyStyle : virtualRowStyle;
 
-  // MUI X Virtualizer can retain a focused row outside the visible range. Keep its semantic content mounted,
+  // MUI Virtualizer can retain a focused row outside the visible range. Keep its semantic content mounted,
   // but remove it from layout and measurement until the real row enters the rendered window.
   return (
     <div
@@ -153,7 +153,7 @@ function getOverscannedRenderContext(
     lastRowIndex += 1;
   }
 
-  // MUI X renders a half-open range but only retains a focused row when it is strictly beyond
+  // MUI Virtualizer renders a half-open range but only retains a focused row when it is strictly beyond
   // the end index. Include the pinned row when it lands exactly on that boundary.
   if (lastRowIndex === pinnedRowIndex) {
     lastRowIndex = Math.min(rowCount, lastRowIndex + 1);
@@ -379,7 +379,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   // The browser moves a native scrollport before dispatching its scroll event. Keep the existing
   // rows pinned in a sticky viewport during that interval, then move the render zone once
-  // MUI X Virtualizer has synchronously committed the next row window.
+  // MUI Virtualizer has synchronously committed the next row window.
   const handleScrollChange = useStableCallback((scrollPosition: { top: number }) => {
     // Scroll events matching the last position this component wrote are echoes of its own
     // corrective writes; only genuine user scrolling affects gesture state below.
@@ -554,7 +554,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     return map;
   }, [rows]);
 
-  // MUI X Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
+  // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
@@ -609,14 +609,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       rows.length === 0
         ? null
         : {
-            // MUI X Virtualizer ranges are half-open: the last row index is excluded.
+            // MUI Virtualizer ranges are half-open: the last row index is excluded.
             firstRowIndex: 0,
             lastRowIndex: rows.length,
           },
     [rows.length],
   );
   const rowBufferPx = Math.max(0, overscanPx ?? Math.max(150, resolvedEstimatedItemHeight));
-  // MUI X Virtualizer waits for one estimated row of accumulated scrolling before recomputing an unchanged
+  // MUI Virtualizer waits for one estimated row of accumulated scrolling before recomputing an unchanged
   // controlled range. Keep at least that much measured content mounted when an estimate is taller
   // than the real rows, even when the requested overscan is smaller.
   const renderBufferPx = Math.max(rowBufferPx, resolvedEstimatedItemHeight);
@@ -630,7 +630,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       rowHeight: resolvedEstimatedItemHeight,
     },
     virtualization: {
-      // Controlled range calculation avoids MUI X Virtualizer's fixed 15-row directional buffer. Base UI
+      // Controlled range calculation avoids MUI Virtualizer's fixed 15-row directional buffer. Base UI
       // applies the requested pixel buffer to the returned range below.
       layoutMode: 'controlled',
       rowBufferPx,
@@ -769,7 +769,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       restoreViewportRef.current = true;
     }
 
-    // Updating the store flag alone does not recompute the rendered range. Schedule the MUI X Virtualizer
+    // Updating the store flag alone does not recompute the rendered range. Schedule the MUI Virtualizer
     // render-context update before publishing the new virtualization mode.
     pendingVirtualizationUpdateRef.current = true;
     virtualizer.api.scheduleUpdateRenderContext();
@@ -779,7 +779,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       enabledForColumns: false,
       enabledForRows: enabled,
     });
-    // The mode fields are consumed inside the MUI X Virtualizer hook. Guarantee another render before forcing
+    // The mode fields are consumed inside the MUI Virtualizer hook. Guarantee another render before forcing
     // the update so the API closes over the new enabled state.
     bumpVirtualizationRevision();
   }, [enabled, virtualizer.api, virtualizer.store]);
@@ -809,7 +809,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       return;
     }
 
-    // MUI X Virtualizer stores the ResizeObserver content-box height. Preserve that same box model even if a
+    // MUI Virtualizer stores the ResizeObserver content-box height. Preserve that same box model even if a
     // preceding render-all pass temporarily expanded the observed content box.
     virtualizer.store.set('rootSize', {
       ...rootSize,
