@@ -161,6 +161,10 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
 
     activePointerIdRef.current = null;
+    // Clear the drag's scrolling state immediately rather than waiting for the
+    // `SCROLL_TIMEOUT` timer armed by the last drag move, so every release path
+    // (real, `pointercancel`, or the missed-release fallback) behaves the same.
+    (currentOrientationRef.current === 'vertical' ? setScrollingY : setScrollingX)(false);
 
     if (savedSnapTypeRef.current !== null) {
       if (viewportRef.current) {
@@ -297,9 +301,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       touchModality,
       cornerRef,
       scrollingX,
-      setScrollingX,
       scrollingY,
-      setScrollingY,
       hovering,
       setHovering,
       viewportRef,

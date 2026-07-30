@@ -355,12 +355,16 @@ describe('<ScrollArea.Thumb />', () => {
       fireEvent.pointerMove(thumb, { clientY: 60, pointerId: 1, buttons: 1 });
       expect(viewport.scrollTop).toBeGreaterThan(scrolled);
       const continuedScroll = viewport.scrollTop;
+      expect(thumb).toHaveAttribute('data-scrolling');
 
       // The release never arrived (e.g. pointer capture was lost mid-drag), so
-      // the first buttonless move must end the drag rather than scroll.
+      // the first buttonless move must end the drag rather than scroll. It must
+      // clear the scrolling state immediately like a real release, not leave it
+      // lingering until the scroll timeout fires.
       fireEvent.pointerMove(thumb, { clientY: 100, pointerId: 1, buttons: 0 });
       expect(viewport.scrollTop).toBe(continuedScroll);
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
+      expect(thumb).not.toHaveAttribute('data-scrolling');
 
       fireEvent.pointerMove(thumb, { clientY: 140, pointerId: 1, buttons: 0 });
       expect(viewport.scrollTop).toBe(continuedScroll);
