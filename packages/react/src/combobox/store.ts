@@ -66,7 +66,7 @@ export type State = {
   setIndices: (indices: {
     activeIndex?: number | null | undefined;
     selectedIndex?: number | null | undefined;
-    type?: 'keyboard' | 'pointer' | 'none' | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
   }) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
