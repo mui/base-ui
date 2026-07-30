@@ -66,10 +66,23 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const syncRefs = useStableCallback((items: readonly CompositeListItem<Metadata>[]) => {
     const nextMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const itemCount = items.reduce(
+      (count, item) => Math.max(count, item.index + 1),
+      itemCountProp ?? 0,
+    );
 
     elementsRef.current.length = 0;
     if (labelsRef) {
       labelsRef.current.length = 0;
+    }
+
+    if (itemCountProp !== undefined) {
+      elementsRef.current.length = itemCountProp;
+      elementsRef.current.fill(null);
+      if (labelsRef) {
+        labelsRef.current.length = itemCountProp;
+        labelsRef.current.fill(null);
+      }
     }
 
     items.forEach((item) => {
@@ -88,7 +101,6 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       }
     });
 
-    const itemCount = Math.max(itemCountProp ?? 0, elementsRef.current.length);
     elementsRef.current.length = itemCount;
     if (labelsRef) {
       labelsRef.current.length = itemCount;

@@ -740,11 +740,15 @@ describe('<CompositeList />', () => {
 
       expect(elementsRef.current).toHaveLength(5);
       expect(elementsRef.current[4]).toBe(screen.getByTestId('mounted'));
+      expect(labelsRef.current).toHaveLength(5);
+      expect(labelsRef.current[4]).toBe('mounted');
 
       await rerender(<App mounted={false} />);
 
       expect(elementsRef.current).toHaveLength(5);
       expect(elementsRef.current[4]).toBe(null);
+      expect(labelsRef.current).toHaveLength(5);
+      expect(labelsRef.current[4]).toBe(null);
     });
 
     it('keeps registered static items beyond the declared collection count', async () => {

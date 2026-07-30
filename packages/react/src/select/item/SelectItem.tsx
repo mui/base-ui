@@ -83,7 +83,6 @@ export const SelectItem = React.memo(
       readOnly,
     } = useSelectRootContext();
 
-    const disabled = selectDisabled || disabledProp;
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, itemValue);
@@ -93,7 +92,8 @@ export const SelectItem = React.memo(
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
-    const disabled = disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
+    const disabled =
+      selectDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
     useNonVirtualizedItemRegistration({
       componentName: 'Select',

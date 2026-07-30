@@ -91,11 +91,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isItemDisabled = useStore(store, selectors.isItemDisabled);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-  const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
   const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = index !== -1;
-  const disabled = disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
+  const disabled =
+    rootDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
   const rootId = useStore(store, selectors.id);
   const highlighted = useStore(store, selectors.isActive, index);

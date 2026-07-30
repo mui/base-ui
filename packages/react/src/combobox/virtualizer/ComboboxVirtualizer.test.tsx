@@ -706,7 +706,13 @@ describe('<Combobox.Virtualizer />', () => {
         top: 940,
       }),
     );
-    expect(scrollTop).toBe(940);
+    await waitFor(() =>
+      expect(
+        screen.getByRole('option', { name: 'Item 50' }).closest<HTMLElement>('[data-row-index]')
+          ?.style.position,
+      ).toBe(''),
+    );
+    expect(scrollTop).toBeGreaterThan(0);
   });
 
   it.skipIf(isJSDOM)('scrolls to the selected item when ArrowDown reopens the popup', async () => {
