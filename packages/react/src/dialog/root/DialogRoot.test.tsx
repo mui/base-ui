@@ -133,6 +133,10 @@ describe('<Dialog.Root />', () => {
         expect(compatibilityMouseDownWhileOpen).toBe(true);
         expect(trustedClick).not.toBe(undefined);
         expect(trustedClick?.target).not.toBe(openButton);
+        // The click must land outside the popup subtree so it is evaluated as
+        // an outside press; a click inside the popup would be ignored for a
+        // different reason and stop covering the press-observed guard.
+        expect(screen.getByTestId('popup').contains(trustedClick?.target as Node)).toBe(false);
         expect(screen.queryByTestId('popup')).not.toBe(null);
         expect(openChangeSpy).not.toHaveBeenCalledWith(false, REASONS.outsidePress);
       } finally {

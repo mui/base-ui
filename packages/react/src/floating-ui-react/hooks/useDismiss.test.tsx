@@ -1037,12 +1037,14 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     test('dragging outside the floating element then clicking outside closes with mouse clicks', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
+      fireEvent.pointerDown(floatingEl, { pointerType: 'mouse' });
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
 
-      // Real mouse clicks carry `detail: 1`, exercising the press-observed
-      // guard before the one-shot drag suppression. The gesture's own click
-      // is suppressed exactly once.
+      // Real mouse clicks carry `detail: 1`. The drag's pointerdown was
+      // observed while open, so the gesture's own click passes the
+      // press-observed guard and is consumed by the one-shot drag
+      // suppression, exactly once.
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
@@ -1152,6 +1154,22 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // A press observed in the new session still closes.
       fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
       fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press survives listener re-attachment while open', async () => {
+      const { rerender } = render(<App outsidePressEvent="intentional" />);
+
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // Changing a listener effect dependency mid-gesture detaches and
+      // re-attaches the document listeners. The press observed during the
+      // current gesture must survive the re-run, so the gesture's click can
+      // still dismiss.
+      rerender(<App outsidePressEvent="intentional" escapeKey={false} />);
+
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
