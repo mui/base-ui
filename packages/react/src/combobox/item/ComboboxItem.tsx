@@ -41,7 +41,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     style,
     value: itemValue = null,
     index: indexProp,
-    disabled = false,
+    disabled: disabledProp = false,
     nativeButton = false,
     ...elementProps
   } = componentProps;
@@ -58,9 +58,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const hasItems = useComboboxHasItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
+  const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
+  const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
   const index = indexProp ?? indexFromFilter ?? listItem.index;
   const hasRegistered = index !== -1;
