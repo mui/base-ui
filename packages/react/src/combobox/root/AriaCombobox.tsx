@@ -640,9 +640,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setCloseQuery(null);
 
         if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
-          // This clear stands in for the unmount cleanup, so like it, it carries no event:
-          // clears caused directly by a gesture (selecting an item) carry one, letting
-          // `onInputValueChange` handlers cancel those without affecting cleanup.
+          // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
+          // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
+          // selection clears to keep the filter don't cancel cleanup.
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       }
@@ -670,7 +670,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // if the input is outside the popup. When the input is inside the popup, defer the clear until
           // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
           if (!inputInsidePopup || inline) {
-            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+            setInputValue(
+              '',
+              createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
+                isItemPress: eventDetails.isItemPress,
+              }),
+            );
           }
         }
       }
@@ -712,7 +717,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (shouldFillInput) {
         setInputValue(
           stringifyAsLabel(nextValue, itemToStringLabel),
-          createChangeEventDetails(eventDetails.reason, eventDetails.event),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event, undefined, {
+            isItemPress: eventDetails.isItemPress,
+          }),
         );
       }
     },
@@ -723,7 +730,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
-      const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent);
+      const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent, undefined, {
+        isItemPress: true,
+      });
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -757,7 +766,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          setInputValue(
+            '',
+            createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
+              isItemPress: true,
+            }),
+          );
         } else {
           setOpen(false, eventDetails);
         }
@@ -1789,5 +1803,13 @@ export namespace AriaCombobox {
     | typeof REASONS.clearPress
     | typeof REASONS.chipRemovePress
     | typeof REASONS.none;
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
+    /**
+     * Whether pressing an item caused the change.
+     * Set on the requests that pressing an item produces — the value change, the close
+     * request, and the resulting `input-clear` request — and absent from automatic cleanup
+     * clears, letting handlers cancel selection-caused requests without affecting cleanup.
+     */
+    isItemPress?: boolean | undefined;
+  };
 }

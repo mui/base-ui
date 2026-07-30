@@ -135,13 +135,13 @@ const CHIP_LIMIT = 3;
 
 In `multiple` mode, selecting an item clears the typed filter and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel the relevant change request.
 
-Which request to cancel depends on the input's placement. When the input is outside the popup, cancel the close request in `onOpenChange`; when it is inside, cancel the clear request in `onInputValueChange`.
+Every change request caused by pressing an item is marked with `eventDetails.isItemPress`. Which one to cancel depends on the input's placement: cancel the close request in `onOpenChange` when the input is outside the popup, and the clear request in `onInputValueChange` when it is inside.
 
 ```jsx title="Input outside the popup"
 <Combobox.Root
   multiple
   onOpenChange={(open, eventDetails) => {
-    if (!open && eventDetails.reason === 'item-press') {
+    if (!open && eventDetails.isItemPress) {
       eventDetails.cancel();
     }
   }}
@@ -153,11 +153,8 @@ Which request to cancel depends on the input's placement. When the input is outs
 ```jsx title="Input inside the popup"
 <Combobox.Root
   multiple
-  // The click or keydown event identifies the selection-triggered clear.
   onInputValueChange={(value, eventDetails) => {
-    const isSelectionGesture =
-      eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown';
-    if (eventDetails.reason === 'input-clear' && isSelectionGesture) {
+    if (eventDetails.isItemPress) {
       eventDetails.cancel();
     }
   }}
@@ -165,6 +162,8 @@ Which request to cancel depends on the input's placement. When the input is outs
   {/* ... */}
 </Combobox.Root>
 ```
+
+The automatic clears that run when the popup closes or unmounts aren't marked, so they stay unaffected and the next open starts with a fresh filter.
 
 ### Input inside popup
 

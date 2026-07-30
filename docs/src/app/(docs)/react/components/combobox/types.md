@@ -119,6 +119,13 @@ type ComboboxRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+  /**
+   * Whether pressing an item caused the change.
+   * Set on the requests that pressing an item produces — the value change, the close
+   * request, and the resulting `input-clear` request — and absent from automatic cleanup
+   * clears, letting handlers cancel selection-caused requests without affecting cleanup.
+   */
+  isItemPress?: boolean;
 };
 ```
 

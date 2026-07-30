@@ -5562,12 +5562,12 @@ describe('<Combobox.Root />', () => {
       expect(ariaMutations).toHaveLength(0);
     });
 
-    it('keeps the filter text when the "item-press" close is canceled (input outside popup)', async () => {
+    it('keeps the filter text when the item-press close is canceled (input outside popup)', async () => {
       const { user } = await render(
         <Combobox.Root
           multiple
           onOpenChange={(open, eventDetails) => {
-            if (!open && eventDetails.reason === REASONS.itemPress) {
+            if (!open && eventDetails.isItemPress) {
               eventDetails.cancel();
             }
           }}
@@ -5600,16 +5600,58 @@ describe('<Combobox.Root />', () => {
       );
     });
 
+    it('marks the close-path clear as an item press only when an item press closed the popup (input outside popup)', async () => {
+      const onInputValueChange = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root multiple onInputValueChange={onInputValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      onInputValueChange.mockClear();
+
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange.mock.calls.find((call) => call[0] === '')?.[1].isItemPress).toBe(
+        true,
+      );
+
+      await user.type(input, 'app');
+      onInputValueChange.mockClear();
+
+      // Closing with the keyboard clears the same way, but no item was pressed.
+      await user.keyboard('{Escape}');
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange.mock.calls.find((call) => call[0] === '')?.[1].isItemPress).toBe(
+        undefined,
+      );
+    });
+
     it('keeps the filter text when the selection clear is canceled (input inside popup)', async () => {
       const { user } = await render(
         <Combobox.Root
           multiple
           defaultOpen
           onInputValueChange={(value, eventDetails) => {
-            if (
-              eventDetails.reason === REASONS.inputClear &&
-              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
-            ) {
+            if (eventDetails.isItemPress) {
               eventDetails.cancel();
             }
           }}
@@ -5645,10 +5687,7 @@ describe('<Combobox.Root />', () => {
           inline
           open
           onInputValueChange={(value, eventDetails) => {
-            if (
-              eventDetails.reason === REASONS.inputClear &&
-              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
-            ) {
+            if (eventDetails.isItemPress) {
               eventDetails.cancel();
             }
           }}
@@ -5679,10 +5718,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root
           multiple
           onInputValueChange={(value, eventDetails) => {
-            if (
-              eventDetails.reason === REASONS.inputClear &&
-              (eventDetails.event.type === 'click' || eventDetails.event.type === 'keydown')
-            ) {
+            if (eventDetails.isItemPress) {
               eventDetails.cancel();
             }
           }}
@@ -5706,14 +5742,17 @@ describe('<Combobox.Root />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      await user.type(await screen.findByTestId('input'), 'app');
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'app');
       await user.click(await screen.findByRole('option', { name: 'apple' }));
       await flushMicrotasks();
 
-      expect(screen.getByTestId('input')).toHaveValue('app');
+      expect(input).toHaveValue('app');
 
-      // The cleanup clear that runs after the popup closes carries no event, so the recipe
-      // doesn't cancel it and the next open starts with a fresh filter.
+      // The cleanup clear that runs after the popup closes doesn't carry `isItemPress`, so the
+      // recipe doesn't cancel it and the next open starts with a fresh filter.
       await user.keyboard('{Escape}');
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
 
@@ -5724,9 +5763,15 @@ describe('<Combobox.Root />', () => {
 
     it('clears the input with the "input-clear" reason and the item click event on pointer selection', async () => {
       const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
 
       const { user } = await render(
-        <Combobox.Root multiple defaultOpen onInputValueChange={onInputValueChange}>
+        <Combobox.Root
+          multiple
+          defaultOpen
+          onInputValueChange={onInputValueChange}
+          onValueChange={onValueChange}
+        >
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
@@ -5753,6 +5798,10 @@ describe('<Combobox.Root />', () => {
         expect.objectContaining({ reason: REASONS.inputClear }),
       );
       expect(onInputValueChange.mock.lastCall?.[1].event?.type).toBe('click');
+      expect(onInputValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
+      // The flag marks the value change too, not only the clear it triggers.
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+      expect(onValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
     });
 
     it('clears the input with the "input-clear" reason and the originating keydown event on keyboard selection', async () => {
@@ -5795,7 +5844,132 @@ describe('<Combobox.Root />', () => {
       // Keyboard activation synthesizes a click on the highlighted item, but the details carry the
       // originating keydown so consumers see the real user gesture.
       expect(onInputValueChange.mock.lastCall?.[1].event?.type).toBe('keydown');
+      expect(onInputValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
     });
+
+    it('keeps the filter text when a drag-select release commits the selection', async () => {
+      const onInputValueChange = vi.fn((_value, eventDetails: Combobox.Root.ChangeEventDetails) => {
+        if (eventDetails.isItemPress) {
+          eventDetails.cancel();
+        }
+      });
+
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen onInputValueChange={onInputValueChange}>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      fireEvent.mouseMove(apple, { pointerType: 'mouse' });
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+
+      // Press starts outside the item (drag-select), so the commit happens on mouseup.
+      fireEvent.mouseUp(apple, { button: 0 });
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+      expect(apple).toHaveAttribute('aria-selected', 'true');
+      expect(onInputValueChange.mock.lastCall?.[1].isItemPress).toBe(true);
+    });
+
+    it.skipIf(isJSDOM)(
+      'clears the pending filter with the "input-clear" reason when reopening interrupts the close animation',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 200ms linear;
+          }
+        `;
+
+        const onInputValueChange = vi.fn(
+          (_value, eventDetails: Combobox.Root.ChangeEventDetails) => {
+            if (eventDetails.isItemPress) {
+              eventDetails.cancel();
+            }
+          },
+        );
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root
+              multiple
+              items={['apple', 'apricot', 'banana']}
+              onInputValueChange={onInputValueChange}
+            >
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+
+        const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await user.type(input, 'app');
+        await user.keyboard('{Escape}');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+        const callsBeforeReopen = onInputValueChange.mock.calls.length;
+        await user.click(trigger);
+
+        await waitFor(() => expect(screen.getByTestId('input')).toHaveValue(''));
+
+        const cleanupCall = onInputValueChange.mock.calls
+          .slice(callsBeforeReopen)
+          .find((call) => call[0] === '');
+        expect(cleanupCall).not.toBe(undefined);
+        expect(cleanupCall?.[1].reason).toBe(REASONS.inputClear);
+        expect(cleanupCall?.[1].isItemPress).toBe(undefined);
+        // The synthetic placeholder event proves cleanup clears never carry the reopening gesture.
+        expect(cleanupCall?.[1].event.type).toBe('base-ui');
+      },
+    );
 
     it('does not close popup when filtering with input inside popup in multiple mode', async () => {
       const items = ['apple', 'apricot', 'banana'];
