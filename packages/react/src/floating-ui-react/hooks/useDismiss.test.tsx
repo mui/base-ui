@@ -1015,6 +1015,10 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
+      // The browser fires the gesture's click on the common ancestor of the
+      // mousedown and mouseup targets; the mouseup inside the floating element
+      // marks the React tree so this click must not dismiss.
+      fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
@@ -1027,6 +1031,24 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // A click event will have fired before the proper outside click.
       fireEvent.click(document.body);
       fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('dragging outside the floating element then clicking outside closes with mouse clicks', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const floatingEl = screen.getByRole('tooltip');
+      fireEvent.mouseDown(floatingEl);
+      fireEvent.mouseUp(document.body);
+
+      // Real mouse clicks carry `detail: 1`, exercising the press-observed
+      // guard before the one-shot drag suppression. The gesture's own click
+      // is suppressed exactly once.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The next press-backed mouse click closes.
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
@@ -1052,6 +1074,65 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       // Keyboard activations produce `detail: 0` clicks with no press.
       fireEvent.click(document.body, { detail: 0 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press seen in a previous open session does not leak into a reopen', async () => {
+      function ReopenApp() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button
+              {...getReferenceProps({ ref: refs.setReference, onClick: () => setOpen(true) })}
+            />
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<ReopenApp />);
+
+      // A genuine outside press closes and leaves a press on record.
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button'));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The reopened session must not inherit the previous session's press:
+      // a press-less trailing click still must not count as an outside press.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed in the new session still closes.
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('pointerdown-only press while open allows the outside click to close', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Pointer-event browsers may deliver `pointerdown` without a compat
+      // `mousedown`; it must count as an observed press on its own.
+      fireEvent.pointerDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('touchstart press while open allows the outside click to close', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // Touch interactions where compat mouse events are suppressed still
+      // dismiss via the tap's click; `touchstart` must count as an observed press.
+      fireEvent.touchStart(document.body);
+      fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
