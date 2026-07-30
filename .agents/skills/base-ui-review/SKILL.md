@@ -359,10 +359,6 @@ see.}
 ## Verdict
 
 **{Request changes | Approve after nits | Approve}** - {one clause on the deciding factor}.
-
----
-
-🤖 Review generated with {Claude Code | Codex}
 ````
 
 Same per-finding shape for Tests, Simplifications, Docs. For Tests,
@@ -381,7 +377,7 @@ related issues under one finding when they share same root cause.
 
 If nothing survives verification, omit all category headings and counts. Return
 `# PR review`, `No findings.`, a brief note of residual test gaps or risk,
-`## Verdict` with **Approve**, and the `🤖 Review generated with ...` footer.
+and `## Verdict` with **Approve**.
 
 ### Final output preflight
 
@@ -394,11 +390,6 @@ Treat the output format as a hard contract. Before sending:
 
 If any check fails, rewrite the output before sending.
 
-Always close review with `---` horizontal rule, blank line, then
-`🤖 Review generated with {Claude Code | Codex}`. Use **Claude Code** when this
-skill executed by Claude Code harness, **Codex** when executed by Codex harness.
-Exception: in `--comment=<path>` mode, omit this footer — whoever publishes the file
-owns the closing line, and a footer here would stack a second rule under theirs.
 
 ## Posting to GitHub (--comment)
 
@@ -412,12 +403,19 @@ comment mode:
 - `--comment inline` — post inline comments for findings mapping to PR diff
   lines, include all non-diff findings in top-level fallback comment.
 - `--comment=<path>` — do not touch GitHub at all: write the Markdown review to
-  `<path>`, exactly the body `--comment` would have posted. For callers that publish
+  `<path>`. For callers that publish
   the review themselves (a CI job holding the token, so the review session needs no
   GitHub write access). The `=` is required: a bare token after `--comment` is a review
   target, never a path. This is the one comment mode with no GitHub PR requirement — the
   file is the whole deliverable, so finish by reporting the path rather than a comment
   URL, and never fall back to posting.
+
+Attribution belongs to whoever posts, not to the review body. When this skill posts —
+`--comment`, or the top-level fallback comment for `--comment inline` — close that comment
+with a `---` horizontal rule, blank line, then `🤖 Review generated with {Claude Code |
+Codex}`: **Claude Code** under the Claude Code harness, **Codex** under Codex. In
+`--comment=<path>` mode the caller publishes the file and owns that line, so the file holds
+the review alone.
 
 For `--comment inline`, include same severity marker in each inline comment
 body. Use latest PR head `commit_id`, `path`, `line`, `side`, post via
