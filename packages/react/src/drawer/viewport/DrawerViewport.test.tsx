@@ -314,6 +314,58 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)('starts a swipe inside a shadow root using real hit testing', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+
+    try {
+      await render(
+        <Drawer.Root open swipeDirection="down">
+          <Drawer.Portal container={shadowRoot}>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup
+                data-testid="popup"
+                style={{ position: 'fixed', top: 0, left: 0, width: 200, height: 200 }}
+              >
+                Content
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = shadowRoot.querySelector<HTMLElement>('[data-testid="popup"]');
+      const backdrop = shadowRoot.querySelector<HTMLElement>('[data-testid="backdrop"]');
+      expect(popup).not.toBeNull();
+      expect(backdrop).not.toBeNull();
+      if (!popup || !backdrop) {
+        return;
+      }
+
+      // No `elementFromPoint` stubbing: a real document hit test retargets the popup content to
+      // the shadow host, which fails the `contains()` check in the swipe `canStart` guard, so
+      // this only engages when the hit test runs against the shadow root.
+      fireEvent.touchStart(popup, {
+        touches: [createTouch(popup, { clientX: 100, clientY: 100 })],
+      });
+
+      fireEvent.touchMove(popup, {
+        touches: [createTouch(popup, { clientX: 100, clientY: 125 })],
+      });
+
+      await waitFor(() => {
+        expect(backdrop).toHaveAttribute('data-swiping', '');
+      });
+
+      fireEvent.touchEnd(popup, {
+        changedTouches: [createTouch(popup, { clientX: 100, clientY: 125 })],
+      });
+    } finally {
+      host.remove();
+    }
+  });
+
   it('clears the backdrop data-swiping attribute when the drawer unmounts mid-swipe', async () => {
     const { unmount } = await render(
       <Drawer.Root open>

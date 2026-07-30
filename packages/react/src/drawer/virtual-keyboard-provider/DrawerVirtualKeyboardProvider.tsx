@@ -568,7 +568,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     const touch = event.changedTouches[0] ?? event.touches[0];
-    const root = event.currentTarget.getRootNode();
+    const root = rootElement.getRootNode();
     const nativeEventTarget = getTarget(event.nativeEvent);
     const pointTarget = touch
       ? resolveKeyboardTouchTargetFromPoint(root, touch.clientX, touch.clientY)
