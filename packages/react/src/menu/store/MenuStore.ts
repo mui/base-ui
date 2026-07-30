@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
@@ -19,7 +19,7 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
-  openMethod: InteractionType | null;
+  openMethod: OpenInteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;

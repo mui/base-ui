@@ -9,7 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { platform } from '@base-ui/utils/platform';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { InteractionType, OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -153,7 +153,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The interaction type used to open the floating element.
    */
-  openInteractionType?: InteractionType | null | undefined;
+  openInteractionType?: OpenInteractionType | null | undefined;
   /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
@@ -175,7 +175,7 @@ export interface FloatingFocusManagerProps {
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+    | ((openType: OpenInteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the floating element is closed.

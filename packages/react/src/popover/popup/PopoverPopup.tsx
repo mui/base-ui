@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { InteractionType, OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -162,7 +162,7 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+    | ((openType: OpenInteractionType) => void | boolean | HTMLElement | null)
     | undefined;
   /**
    * Determines the element to focus when the popover is closed.

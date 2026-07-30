@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { InteractionType, OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -110,7 +110,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
   const computedDefaultInitialFocus = inputInsidePopup
-    ? (interactionType: InteractionType) =>
+    ? (interactionType: OpenInteractionType) =>
         interactionType === 'touch' ? store.state.popupRef.current : inputElement
     : false;
 
@@ -187,7 +187,7 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+    | ((openType: OpenInteractionType) => void | boolean | HTMLElement | null)
     | undefined;
   /**
    * Determines the element to focus when the popup is closed.

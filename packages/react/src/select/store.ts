@@ -1,5 +1,5 @@
 import { ReactStore } from '@base-ui/utils/store';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { type OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
@@ -27,7 +27,7 @@ export type State = {
   mounted: boolean;
   forceMount: boolean;
   transitionStatus: TransitionStatus;
-  openMethod: InteractionType | null;
+  openMethod: OpenInteractionType | null;
 
   activeIndex: number | null;
   selectedIndex: number | null;

@@ -1,5 +1,5 @@
 import { Store } from '@base-ui/utils/store';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
@@ -39,7 +39,7 @@ export type State = {
   inputGroupElement: HTMLDivElement | null;
   popupSide: Side | null;
 
-  openMethod: InteractionType | null;
+  openMethod: OpenInteractionType | null;
 
   inputInsidePopup: boolean;
   inputOwnsFormValue: boolean;

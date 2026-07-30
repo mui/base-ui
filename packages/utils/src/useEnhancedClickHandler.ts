@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { isVirtualPointerEvent } from './isVirtualPointerEvent';
 
-export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'virtual' | '';
+export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+export type OpenInteractionType = InteractionType | 'virtual';
 
 /**
  * Provides a cross-browser way to determine the type of the pointer used to click.
@@ -12,9 +13,12 @@ export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'virtual'
  * @param handler The function to be called when the button is clicked. The first parameter is the original event and the second parameter is the pointer type.
  */
 export function useEnhancedClickHandler(
-  handler: (event: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => void,
+  handler: (
+    event: React.MouseEvent | React.PointerEvent,
+    interactionType: OpenInteractionType,
+  ) => void,
 ) {
-  const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
+  const lastClickInteractionTypeRef = React.useRef<OpenInteractionType>('');
 
   const handlePointerDown = React.useCallback(
     (event: React.PointerEvent) => {

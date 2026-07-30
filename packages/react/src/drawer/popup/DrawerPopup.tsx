@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { InteractionType, OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -421,7 +421,7 @@ export interface DrawerPopupProps extends BaseUIComponentProps<'div', DrawerPopu
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+    | ((openType: OpenInteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the drawer is closed.

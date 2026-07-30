@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { OpenInteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -38,7 +38,7 @@ export const FOCUSABLE_POPUP_PROPS = {
  * specifically; iOS handles this automatically). Otherwise it falls back to the default behavior.
  */
 export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement | null>) {
-  return (interactionType: InteractionType) =>
+  return (interactionType: OpenInteractionType) =>
     interactionType === 'touch' ? popupRef.current : true;
 }
 
@@ -539,7 +539,7 @@ export function usePopupInteractionProps<State extends PopupStoreState<unknown>>
 
 export function usePopupRootSync<
   State extends PopupStoreState<unknown> & {
-    openMethod: InteractionType | null;
+    openMethod: OpenInteractionType | null;
   },
 >(store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>, open: boolean) {
   useIsoLayoutEffect(() => {
