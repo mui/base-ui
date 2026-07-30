@@ -1,6 +1,6 @@
 ---
 name: base-ui-review
-description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post a top-level PR comment, --comment inline for inline PR comments, or --fix to apply findings.'
+description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use when the user asks to review changes, review a diff/branch/PR, or runs /base-ui-review. Pass --comment to post a top-level PR comment, --comment inline for inline PR comments, --comment <path> to write the review to that file instead of posting, or --fix to apply findings.'
 ---
 
 # Base UI Review
@@ -9,7 +9,7 @@ Review current diff. Find **regressions and correctness bugs** first. Also find
 **cleanup** (reuse / simplification / efficiency). Default effort: `medium`. See
 [Effort levels](#effort-levels) for depth and subagent fan-out.
 
-Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline]] [<target>]`
+Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline|<path>]] [<target>]`
 
 `medium` = **precision**. Every finding actionable. `high`, `xhigh`, `max` =
 **recall**. Missed bug ships. Keep uncertain findings when mechanism is real;
@@ -409,6 +409,13 @@ comment mode:
   `gh pr comment`.
 - `--comment inline` — post inline comments for findings mapping to PR diff
   lines, include all non-diff findings in top-level fallback comment.
+- `--comment <path>` — do not touch GitHub at all: write the Markdown review to
+  `<path>`, exactly the body `--comment` would have posted. For callers that publish
+  the review themselves (a CI job holding the token, so the review session needs no
+  GitHub write access). `inline` is reserved for the mode above; any other value is a
+  path. This is the one comment mode with no GitHub PR requirement — the file is the
+  whole deliverable, so finish by reporting the path rather than a comment URL, and
+  never fall back to posting.
 
 For `--comment inline`, include same severity marker in each inline comment
 body. Use latest PR head `commit_id`, `path`, `line`, `side`, post via
