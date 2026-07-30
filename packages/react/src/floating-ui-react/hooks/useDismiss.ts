@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import {
@@ -278,17 +278,17 @@ export function useDismiss(
     },
   );
 
-  // Reset per open session, not in the listener effect's cleanup: that cleanup
-  // also runs when its other dependencies change while the floating element
-  // stays open, which must not erase a press observed during the current gesture.
-  React.useEffect(() => {
-    if (open) {
-      sawPressWhileOpenRef.current = false;
-    }
-  }, [open]);
-
   React.useEffect(() => {
     if (!open || !enabled) {
+      // Reset per open session, in the effect body rather than the cleanup: the
+      // cleanup also runs when other dependencies change while the floating
+      // element stays open, which must not erase a press observed during the
+      // current gesture. The ref cannot change while closed (the listeners
+      // below are detached), so resetting on close is equivalent to resetting
+      // on open.
+      if (!open) {
+        sawPressWhileOpenRef.current = false;
+      }
       return clearInsideReactTree;
     }
 
@@ -298,7 +298,6 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
     const doc = ownerDocument(floatingElement);
-    const supportsPointerEvents = typeof ownerWindow(floatingElement).PointerEvent !== 'undefined';
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -563,9 +562,6 @@ export function useDismiss(
 
     function handleTouchStartCapture(event: TouchEvent) {
       currentPointerTypeRef.current = 'touch';
-      if (!supportsPointerEvents) {
-        sawPressWhileOpenRef.current = true;
-      }
       addTargetEventListenerOnce(event, handleTouchStart);
     }
 
@@ -573,16 +569,13 @@ export function useDismiss(
       cancelDismissOnEndTimeout.clear();
 
       // This handler only receives `click`, `pointerdown`, and `mousedown`.
-      // In Pointer Events browsers, `mousedown` is a compatibility event that
-      // follows `pointerdown`. If the pointerdown opened the floating element,
-      // attributing its mousedown to the new open session would make the
-      // gesture's trailing click look like a new outside press.
-      if (event.type === 'pointerdown' || (event.type === 'mousedown' && !supportsPointerEvents)) {
+      // Only `pointerdown` marks a press: `mousedown` is a compatibility event
+      // that follows `pointerdown`, so if the pointerdown opened the floating
+      // element, attributing its mousedown to the new open session would make
+      // the gesture's trailing click look like a new outside press.
+      if (event.type === 'pointerdown') {
         sawPressWhileOpenRef.current = true;
-
-        if (event.type === 'pointerdown') {
-          currentPointerTypeRef.current = (event as PointerEvent).pointerType;
-        }
+        currentPointerTypeRef.current = (event as PointerEvent).pointerType;
       }
 
       if (

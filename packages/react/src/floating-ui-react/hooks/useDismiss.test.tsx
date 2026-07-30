@@ -1072,12 +1072,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('compatibility events whose pointerdown opened the floating element do not count as a new press', async () => {
-      const pointerEventDescriptor = Object.getOwnPropertyDescriptor(window, 'PointerEvent');
-      Object.defineProperty(window, 'PointerEvent', {
-        configurable: true,
-        value: window.MouseEvent,
-      });
-
       function OpenOnPointerDownApp() {
         const [open, setOpen] = React.useState(false);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
@@ -1093,32 +1087,24 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         );
       }
 
-      try {
-        render(<OpenOnPointerDownApp />);
+      render(<OpenOnPointerDownApp />);
 
-        const openButton = screen.getByRole('button', { name: 'Open' });
-        fireEvent.pointerDown(openButton, { pointerType: 'mouse' });
-        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      const openButton = screen.getByRole('button', { name: 'Open' });
+      fireEvent.pointerDown(openButton, { pointerType: 'mouse' });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
-        // The pointerdown happened before the floating element opened. Its
-        // compatibility events arrive after opening but belong to the same press.
-        fireEvent.mouseDown(openButton);
-        fireEvent.mouseUp(document.body);
-        fireEvent.click(document.body, { detail: 1 });
-        expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      // The pointerdown happened before the floating element opened. Its
+      // compatibility events arrive after opening but belong to the same press.
+      fireEvent.mouseDown(openButton);
+      fireEvent.mouseUp(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
-        // A new pointer press that begins while open still dismisses.
-        fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
-        fireEvent.mouseDown(document.body);
-        fireEvent.click(document.body, { detail: 1 });
-        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      } finally {
-        if (pointerEventDescriptor) {
-          Object.defineProperty(window, 'PointerEvent', pointerEventDescriptor);
-        } else {
-          Reflect.deleteProperty(window, 'PointerEvent');
-        }
-      }
+      // A new pointer press that begins while open still dismisses.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
     test('keyboard-generated outside click without a prior press closes', async () => {
@@ -1178,52 +1164,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(document.body);
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-    });
-
-    test('mousedown press while open allows the outside click to close without Pointer Events', async () => {
-      const pointerEventDescriptor = Object.getOwnPropertyDescriptor(window, 'PointerEvent');
-      Object.defineProperty(window, 'PointerEvent', {
-        configurable: true,
-        value: undefined,
-      });
-
-      try {
-        render(<App outsidePressEvent="intentional" />);
-
-        fireEvent.mouseDown(document.body);
-        fireEvent.click(document.body, { detail: 1 });
-        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      } finally {
-        if (pointerEventDescriptor) {
-          Object.defineProperty(window, 'PointerEvent', pointerEventDescriptor);
-        } else {
-          Reflect.deleteProperty(window, 'PointerEvent');
-        }
-      }
-    });
-
-    test('touchstart press while open allows the outside click to close', async () => {
-      const pointerEventDescriptor = Object.getOwnPropertyDescriptor(window, 'PointerEvent');
-      Object.defineProperty(window, 'PointerEvent', {
-        configurable: true,
-        value: undefined,
-      });
-
-      try {
-        render(<App outsidePressEvent="intentional" />);
-
-        // Browsers without Pointer Events still need touchstart to establish
-        // the press when compatibility mouse events are suppressed.
-        fireEvent.touchStart(document.body);
-        fireEvent.click(document.body, { detail: 1 });
-        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      } finally {
-        if (pointerEventDescriptor) {
-          Object.defineProperty(window, 'PointerEvent', pointerEventDescriptor);
-        } else {
-          Reflect.deleteProperty(window, 'PointerEvent');
-        }
-      }
     });
 
     test('inside click then programmatic outside click closes', async () => {
