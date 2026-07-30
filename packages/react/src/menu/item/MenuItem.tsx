@@ -24,7 +24,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = true,
     style,
     ...elementProps
@@ -35,6 +35,8 @@ export const MenuItem = React.forwardRef(function MenuItem(
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 

@@ -346,8 +346,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   }
 
   function getTargetAtPoint(position: { x: number; y: number }, nativeEvent: Event) {
-    const doc = ownerDocument(elementRef.current);
-    const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
+    const root = elementRef.current?.getRootNode();
+    const elementAtPoint = getElementAtPoint(root, position.x, position.y);
     const target = elementAtPoint ?? getTarget(nativeEvent);
     return target as HTMLElement | null;
   }
