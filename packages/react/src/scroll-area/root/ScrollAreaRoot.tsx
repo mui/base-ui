@@ -117,8 +117,20 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   });
 
   const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
-    if (event.button !== 0 || activePointerIdRef.current !== null) {
+    if (event.button !== 0) {
       return;
+    }
+
+    if (activePointerIdRef.current !== null) {
+      const activeThumb =
+        currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+      // A live drag holds capture for the active pointer — ignore other pointers.
+      // No capture means the release went missing entirely (silent capture drop
+      // with an id that never reappears, e.g. a lost touch contact), so let the
+      // new pointer take over the latch instead of leaving dragging dead.
+      if (activeThumb?.hasPointerCapture(activePointerIdRef.current)) {
+        return;
+      }
     }
 
     activePointerIdRef.current = event.pointerId;

@@ -439,16 +439,32 @@ describe('<ScrollArea.Thumb />', () => {
 
   describe('scroll snap', () => {
     function defineThumbPointerCapture(thumb: HTMLElement) {
+      let capturedId: number | null = null;
       Object.defineProperties(thumb, {
         setPointerCapture: {
           configurable: true,
-          value: () => {},
+          value: (pointerId: number) => {
+            capturedId = pointerId;
+          },
         },
         hasPointerCapture: {
           configurable: true,
-          value: () => false,
+          value: (pointerId: number) => pointerId === capturedId,
+        },
+        releasePointerCapture: {
+          configurable: true,
+          value: (pointerId: number) => {
+            if (pointerId === capturedId) {
+              capturedId = null;
+            }
+          },
         },
       });
+      return {
+        dropCapture() {
+          capturedId = null;
+        },
+      };
     }
 
     function renderWithSnap() {
@@ -510,6 +526,26 @@ describe('<ScrollArea.Thumb />', () => {
       expect(viewport.style.scrollSnapType).toBe('none');
 
       fireEvent.pointerUp(thumb, { pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
+    it('lets a new pointer take over when capture was silently dropped', async () => {
+      await renderWithSnap();
+
+      const viewport = screen.getByTestId('viewport');
+      const thumb = screen.getByTestId('thumb');
+      const capture = defineThumbPointerCapture(thumb);
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      expect(viewport.style.scrollSnapType).toBe('none');
+
+      // The browser dropped capture without delivering `pointerup` or
+      // `pointercancel`, and the contact's id never reappears (e.g. a lost
+      // touch), so a new pointer must be able to take over the latched drag.
+      capture.dropCapture();
+
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 2 });
+      fireEvent.pointerUp(thumb, { pointerId: 2 });
       expect(viewport.style.scrollSnapType).toBe('y mandatory');
     });
 
