@@ -88,6 +88,7 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'cancel-open'
   | 'none';
 ```
 
@@ -108,6 +109,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
