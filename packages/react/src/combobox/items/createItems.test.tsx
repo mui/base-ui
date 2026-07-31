@@ -1632,6 +1632,20 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
+    it('resets an empty external result when reopening a grouped selection', async () => {
+      const { user } = await render(<GroupedApp defaultValue={3} filteredItems={[]} />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Carol');
+
+      await user.click(screen.getByTestId('input'));
+
+      expect(await screen.findAllByRole('option')).toHaveLength(3);
+      expect(screen.getByRole('option', { name: 'Carol' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
     it('projects externally filtered flat items when the source collection is grouped', async () => {
       const onValueChange = vi.fn();
       const filteredUsers = [users[2], users[0]];

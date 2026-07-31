@@ -318,7 +318,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     hasItems &&
     hasFilteredItemsProp &&
     shouldBypassFiltering &&
-    isGroupedItems(filteredItemsProp) === isGrouped;
+    (filteredItemsProp?.length === 0 || isGroupedItems(filteredItemsProp) === isGrouped);
 
   const flatItems: readonly Item[] = React.useMemo(() => {
     if (!items) {
