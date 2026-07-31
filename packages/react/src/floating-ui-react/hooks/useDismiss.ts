@@ -592,7 +592,12 @@ export function useDismiss(
       // element, attributing its mousedown to the new open session would make
       // the gesture's trailing click look like a new outside press.
       if (event.type === 'pointerdown') {
-        sawPressWhileOpenRef.current = true;
+        // Only a primary-button press can produce a `click`; a right- or
+        // middle-button press must not vouch for a later click it did not
+        // generate.
+        if (event.button === 0) {
+          sawPressWhileOpenRef.current = true;
+        }
         currentPointerTypeRef.current = (event as PointerEvent).pointerType;
       }
 
@@ -614,6 +619,14 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
+      // A cancelled gesture produces no click, so its press can no longer
+      // vouch for one; drop it so a later press-less click is not attributed
+      // to it. The latch is not cleared on `pointerup`: the gesture's click
+      // fires after it and must still find the press on record.
+      if (event.type === 'pointercancel') {
+        sawPressWhileOpenRef.current = false;
+      }
+
       if (!pressStartedInsideRef.current) {
         return;
       }

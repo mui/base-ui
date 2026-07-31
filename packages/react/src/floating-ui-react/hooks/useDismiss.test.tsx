@@ -1233,6 +1233,37 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('non-primary-button press does not count as an outside press', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // A right-button press produces `contextmenu`, not `click`, so it must
+      // not vouch for a later press-less click.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse', button: 2 });
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A primary-button press still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('cancelled press does not count as an outside press', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // A press whose gesture is cancelled produces no click, so it must not
+      // vouch for a later press-less click.
+      fireEvent.pointerDown(document.body, { pointerType: 'touch' });
+      fireEvent.pointerCancel(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A completed press still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
     test('inside click then programmatic outside click closes', async () => {
       render(<App outsidePressEvent="intentional" />);
       const insideInput = screen.getByRole('textbox');
