@@ -7,7 +7,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Root />', () => {
-  const { render, clock } = createRenderer();
+  const { render, renderToString, clock } = createRenderer();
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -15,6 +15,86 @@ describe('<Dialog.Root />', () => {
 
   describe('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
+
+    it('hydrates a detached trigger from the stable fallback store', async () => {
+      const handle = Dialog.createHandle();
+
+      const { hydrate } = renderToString(
+        <React.Fragment>
+          <Dialog.Root handle={handle} defaultOpen defaultTriggerId="trigger" />
+          <Dialog.Trigger handle={handle} id="trigger">
+            Trigger
+          </Dialog.Trigger>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('keeps the server snapshot stable when the root closes before a delayed trigger hydrates', async () => {
+      const handle = Dialog.createHandle();
+      let suspend = false;
+      let resume: (() => void) | undefined;
+      const hydrationGate = new Promise<void>((resolve) => {
+        resume = resolve;
+      });
+
+      function DelayedTrigger(): React.JSX.Element {
+        if (suspend) {
+          throw hydrationGate;
+        }
+
+        return (
+          <Dialog.Trigger handle={handle} id="trigger">
+            Trigger
+          </Dialog.Trigger>
+        );
+      }
+
+      function App() {
+        return (
+          <React.Fragment>
+            <Dialog.Root handle={handle} defaultOpen defaultTriggerId="trigger" />
+            <React.Suspense fallback="Loading">
+              <DelayedTrigger />
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      suspend = true;
+      hydrate();
+
+      await waitFor(() => {
+        expect(handle.isOpen).toBe(true);
+      });
+
+      act(() => handle.close());
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      suspend = false;
+      await act(async () => {
+        resume?.();
+        await hydrationGate;
+      });
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
 
     it('opens from a descendant layout effect on initial mount', async () => {
       const handle = Dialog.createHandle();
