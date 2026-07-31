@@ -60,10 +60,18 @@ function createToastMetadata(toasts: StoredToast[]) {
 
   // The frontmost toast of each group is the newest one that isn't animating
   // out: ending toasts have their height forced to 0, and the toast behind them
-  // is already the one collapsed stacks should size against.
+  // is already the one collapsed stacks should size against. Ending toasts
+  // instead size against the group's newest toast including ending ones — a
+  // dismissed frontmost toast then sees its own zeroed height (rendered as
+  // `initial`) and exits at its natural height rather than resizing to the
+  // next toast's.
   const frontmostHeights = new Map<string, number>();
+  const newestHeights = new Map<string, number>();
   for (const toast of toasts) {
     const group = toast.group ?? '';
+    if (!newestHeights.has(group)) {
+      newestHeights.set(group, toast.height || 0);
+    }
     if (!frontmostHeights.has(group) && toast.transitionStatus !== 'ending') {
       frontmostHeights.set(group, toast.height || 0);
     }
@@ -84,7 +92,7 @@ function createToastMetadata(toasts: StoredToast[]) {
       stackIndex: stack.stackIndex,
       visibleIndex: isEnding ? -1 : stack.visibleIndex,
       offsetY: stack.offsetY,
-      frontmostHeight: frontmostHeights.get(group) ?? 0,
+      frontmostHeight: (isEnding ? newestHeights : frontmostHeights).get(group) ?? 0,
     });
 
     stack.stackIndex += 1;
@@ -514,18 +522,28 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     const toasts = selectors.toasts(this.state);
     const currentIndex = selectors.toastIndex(this.state, toastId);
+    const currentGroup = toasts[currentIndex]?.group ?? '';
 
-    const scan = (from: number, step: number) => {
+    const scan = (from: number, step: number, sameGroup: boolean) => {
       for (let index = from; index >= 0 && index < toasts.length; index += step) {
-        if (toasts[index].transitionStatus !== 'ending') {
-          return toasts[index];
+        const candidate = toasts[index];
+        if (
+          candidate.transitionStatus !== 'ending' &&
+          (!sameGroup || (candidate.group ?? '') === currentGroup)
+        ) {
+          return candidate;
         }
       }
       return null;
     };
 
     // Try to find the next toast that isn't animating out, then fall back to the previous one.
-    const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
+    // Prefer toasts in the same group so focus stays in the same screen position.
+    const nextToast =
+      scan(currentIndex + 1, 1, true) ??
+      scan(currentIndex - 1, -1, true) ??
+      scan(currentIndex + 1, 1, false) ??
+      scan(currentIndex - 1, -1, false);
 
     if (nextToast) {
       nextToast.ref?.current?.focus();

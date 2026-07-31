@@ -275,6 +275,7 @@ function Toasts() {
 ```
 
 The provider's `limit` applies independently to each group.
+Each `<Toast.Root>` also sets the `--toast-frontmost-height` CSS variable to the height of its own group's frontmost toast, so styles that size collapsed toasts with it collapse each group independently.
 Hover or focus expansion and timeout pausing remain shared by all groups in the viewport.
 
 ### Undo action

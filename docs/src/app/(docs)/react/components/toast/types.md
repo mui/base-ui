@@ -495,9 +495,9 @@ Renders a `<div>` element.
 
 **Viewport CSS Variables:**
 
-| Variable                   | Type     | Description                                  |
-| :------------------------- | :------- | :------------------------------------------- |
-| `--toast-frontmost-height` | `number` | Indicates the height of the frontmost toast. |
+| Variable                   | Type     | Description                                                                                                                               |
+| :------------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| `--toast-frontmost-height` | `number` | Indicates the height of the frontmost toast.&#xA;Each `Toast.Root` shadows this value with the height of its own group's frontmost toast. |
 
 ### Viewport.Props
 

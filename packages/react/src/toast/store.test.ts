@@ -109,10 +109,25 @@ describe('ToastStore', () => {
     ]);
 
     // Closing the frontmost toast zeroes its height; the toast behind it is now
-    // the one collapsed stacks should size against.
+    // the one collapsed stacks should size against. The ending toast itself
+    // sees its own zeroed height so it exits at its natural height instead of
+    // resizing to the next toast's.
     store.closeToast('b');
     expect(selectors.toastFrontmostHeight(store.state, 'a')).toBe(30);
-    expect(selectors.toastFrontmostHeight(store.state, 'b')).toBe(30);
+    expect(selectors.toastFrontmostHeight(store.state, 'b')).toBe(0);
+  });
+
+  it('sizes a non-frontmost ending toast against the group frontmost toast', () => {
+    const store = createStore([
+      { id: 'c', height: 20, group: 'top' },
+      { id: 'b', height: 10, group: 'top' },
+      { id: 'a', height: 30, group: 'top' },
+    ]);
+
+    store.closeToast('b');
+    expect(selectors.toastFrontmostHeight(store.state, 'b')).toBe(20);
+    expect(selectors.toastFrontmostHeight(store.state, 'a')).toBe(20);
+    expect(selectors.toastFrontmostHeight(store.state, 'c')).toBe(20);
   });
 
   it('applies the limit per group', () => {

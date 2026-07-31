@@ -91,6 +91,13 @@ describe('Toast enum sync', () => {
             .style.getPropertyValue(ToastViewportCssVars.frontmostHeight),
         ).not.toBe(''),
       );
+
+      // The root shadows the viewport variable with its group-local value,
+      // which for a single toast is its own measured height.
+      const root = screen.getByTestId('root');
+      expect(root.style.getPropertyValue(ToastViewportCssVars.frontmostHeight)).toBe(
+        root.style.getPropertyValue(ToastRootCssVars.height),
+      );
     },
   );
 });
