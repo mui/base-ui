@@ -8,26 +8,20 @@ import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
-import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { REASONS } from '../../internals/reasons';
+import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
+import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
+import type { MenuStore } from '../store/MenuStore';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
-/**
- * A menu item that opens a submenu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
-  componentProps: MenuSubmenuTrigger.Props,
+const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
+  componentProps: MenuSubmenuTriggerImplProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -35,39 +29,33 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     className,
     style,
     label,
-    id: idProp,
+    id,
     nativeButton = false,
     openOnHover = true,
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
+    listItem,
+    parentMenuStore,
     ...elementProps
   } = componentProps;
 
-  const submenuRootContext = useMenuSubmenuRootContext();
-  if (!submenuRootContext?.parentMenu) {
-    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
-  }
-
-  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
 
-  const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const popupId = store.useState('triggerPopupId', thisTriggerId);
-
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+  const popupId = store.useState('triggerPopupId', id);
+  const baseRegisterTrigger = useTriggerRegistration(id, store);
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
       const cleanup = baseRegisterTrigger(element);
 
       if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
         store.update({
-          activeTriggerId: thisTriggerId ?? null,
+          activeTriggerId: id,
           activeTriggerElement: element,
           closeDelay,
         });
@@ -75,21 +63,20 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
       return cleanup;
     },
-    [baseRegisterTrigger, closeDelay, store, thisTriggerId],
+    [baseRegisterTrigger, closeDelay, store, id],
   );
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const handleTriggerElementRef = React.useCallback(
-    (el: HTMLElement | null) => {
-      triggerElementRef.current = el;
-      store.set('activeTriggerElement', el);
+    (element: HTMLElement | null) => {
+      triggerElementRef.current = element;
+      store.set('activeTriggerElement', element);
     },
     [store],
   );
 
   store.useSyncedValue('closeDelay', closeDelay);
 
-  const parentMenuStore = submenuRootContext.parentMenu;
   const rootDisabled = store.useState('disabled');
   const parentDisabled = parentMenuStore.useState('disabled');
   const disabled = disabledProp || rootDisabled || parentDisabled;
@@ -126,8 +113,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     closeOnClick: false,
     disabled,
     highlighted,
-    id: thisTriggerId,
+    id,
     store,
+    listStore: parentMenuStore,
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
@@ -167,12 +155,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
-  const openMethod = store.useState('openMethod');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  // Arrow keys open the submenu through list navigation without dispatching a click, so
-  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
-  const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+  const openedByKeyboard = store.useState('openedByKeyboard');
   const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
 
   const element = useRenderElement('div', componentProps, {
@@ -205,6 +188,85 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   });
 
   return element;
+});
+
+interface MenuSubmenuTriggerImplProps extends Omit<MenuSubmenuTrigger.Props, 'id'> {
+  id: string;
+  listItem: ReturnType<typeof useCompositeListItem>;
+  parentMenuStore: MenuStore<unknown>;
+}
+
+interface MenuSubmenuTriggerWithListItemProps extends MenuSubmenuTrigger.Props {
+  parentMenuStore: MenuStore<unknown>;
+}
+
+const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTriggerWithListItem(
+  props: MenuSubmenuTriggerWithListItemProps,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { parentMenuStore, ...componentProps } = props;
+  const { store } = useMenuRootContext();
+  const listItem = useCompositeListItem({ guess: true, label: componentProps.label });
+  const parentFloatingId = parentMenuStore.useState('floatingId');
+  // The trigger is an item in the parent menu, so its generated ID must match the parent's
+  // aria-activedescendant namespace rather than the submenu it opens.
+  const triggerId = componentProps.id ?? `${parentFloatingId}-${listItem.index}`;
+  // Child filterability controls trigger/dialog semantics; parent filterability controls whether
+  // this trigger participates in the parent's filtering.
+  const isSubmenuFilterable = store.select('filterable');
+  const isListItemFilterable = parentMenuStore.select('filterable');
+
+  const triggerElement = (
+    <MenuSubmenuTriggerImpl
+      {...componentProps}
+      id={triggerId}
+      listItem={listItem}
+      parentMenuStore={parentMenuStore}
+      ref={forwardedRef}
+    />
+  );
+
+  const trigger = isSubmenuFilterable ? (
+    <FilterDropdownTrigger
+      id={triggerId}
+      disabled={componentProps.disabled}
+      nativeButton={componentProps.nativeButton}
+      render={triggerElement}
+    />
+  ) : (
+    triggerElement
+  );
+
+  return isListItemFilterable ? (
+    <FilterDropdownItem label={componentProps.label} role="menuitem" render={trigger} />
+  ) : (
+    trigger
+  );
+});
+
+/**
+ * A menu item that opens a submenu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
+  componentProps: MenuSubmenuTrigger.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const context = useMenuRootContext(true);
+
+  if (context?.type !== 'submenu' || context.parent.type !== 'menu') {
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
+  }
+
+  return (
+    <MenuSubmenuTriggerWithListItem
+      {...componentProps}
+      parentMenuStore={context.parent.store}
+      ref={forwardedRef}
+    />
+  );
 });
 
 export interface MenuSubmenuTriggerState {

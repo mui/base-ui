@@ -18,6 +18,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     highlighted,
     id,
     store,
+    listStore,
     typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
@@ -39,6 +40,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     id,
     nodeId,
     store,
+    listStore,
     typingRef,
     itemRef,
     itemMetadata,
@@ -111,6 +113,11 @@ export interface UseMenuItemParameters {
    * The menu store.
    */
   store: MenuStore<any>;
+  /**
+   * The store for the list containing the item.
+   * @default store
+   */
+  listStore?: MenuStore<any> | undefined;
   /**
    * Whether a typeahead session is in progress.
    * @default store.context.typingRef

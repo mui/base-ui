@@ -7,6 +7,7 @@ import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTr
 import { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -19,12 +20,14 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
+  filterable: boolean;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  inputFocusVisible: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -32,6 +35,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
+  inputProps: HTMLProps;
+  listElement: HTMLElement | null;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
@@ -40,6 +45,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inputRef: React.RefObject<HTMLInputElement | null>;
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
@@ -57,7 +63,13 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
+  filterable: (state: State<unknown>) => state.filterable,
+  floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
+  // Arrow keys open submenus through list navigation without dispatching a click, so
+  // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
+  openedByKeyboard: (state: State<unknown>) =>
+    state.openChangeReason === REASONS.listNavigation || state.openMethod === 'keyboard',
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -70,6 +82,7 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
+  inputFocusVisible: (state: State<unknown>) => state.inputFocusVisible,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -84,6 +97,8 @@ const selectors = {
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
   floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
+  inputProps: (state: State<unknown>) => state.inputProps,
+  listElement: (state: State<unknown>) => state.listElement,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,
@@ -190,6 +205,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
+    inputRef: React.createRef<HTMLInputElement | null>(),
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
@@ -211,6 +227,7 @@ function createInitialState<Payload>(
     ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: true,
+    filterable: false,
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,
@@ -219,13 +236,16 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    inputFocusVisible: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
+    inputProps: EMPTY_OBJECT,
+    listElement: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

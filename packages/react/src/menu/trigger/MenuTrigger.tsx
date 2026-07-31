@@ -37,6 +37,67 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
+import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
+
+const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
+  componentProps: MenuTrigger.Props & MenuTriggerImplInternalProps,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp,
+    nativeButton,
+    id,
+    openOnHover,
+    delay,
+    closeDelay,
+    handle,
+    payload,
+    isInMenubar,
+    state,
+    refs,
+    props,
+    ...elementProps
+  } = componentProps;
+
+  const element = useRenderElement(
+    'button',
+    { render, className, style },
+    {
+      enabled: !isInMenubar,
+      stateAttributesMapping: pressableTriggerOpenStateMapping,
+      state,
+      ref: [forwardedRef, ...refs],
+      props: [...props, elementProps],
+    },
+  );
+
+  if (!isInMenubar) {
+    return element;
+  }
+
+  return (
+    <CompositeItem
+      tag="button"
+      render={render}
+      className={className}
+      style={style}
+      state={state}
+      refs={refs}
+      props={[...props, elementProps]}
+      stateAttributesMapping={pressableTriggerOpenStateMapping}
+    />
+  );
+});
+
+interface MenuTriggerImplInternalProps {
+  isInMenubar: boolean;
+  state: MenuTriggerState;
+  refs: React.Ref<HTMLElement | null>[];
+  props: Array<Record<string, any> | (() => Record<string, any>)>;
+}
 
 /**
  * A button that opens the menu.
@@ -46,12 +107,9 @@ import { mergeProps } from '../../merge-props';
  */
 export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
-    render,
-    className,
-    style,
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
@@ -60,12 +118,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
-    ...elementProps
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
   const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;
+
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
@@ -108,6 +166,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
+  const filterable = store.select('filterable');
+  const detached = store !== rootContext?.store;
   const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -223,7 +283,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
-      'aria-haspopup': 'menu' as const,
+      'aria-haspopup': filterable ? 'dialog' : 'menu',
       'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
@@ -242,31 +302,32 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     },
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
-    elementProps,
     getButtonProps,
   ];
 
-  const element = useRenderElement('button', componentProps, {
-    enabled: !isInMenubar,
-    stateAttributesMapping: pressableTriggerOpenStateMapping,
-    state,
-    ref,
-    props,
-  });
+  let trigger = (
+    <MenuTriggerImpl
+      {...componentProps}
+      isInMenubar={isInMenubar}
+      state={state}
+      refs={ref}
+      props={props}
+    />
+  );
 
-  if (isInMenubar) {
-    return (
-      <CompositeItem
-        tag="button"
-        render={render}
-        className={className}
-        style={style}
-        state={state}
-        refs={ref}
-        props={props}
-        stateAttributesMapping={pressableTriggerOpenStateMapping}
+  if (filterable) {
+    trigger = (
+      <FilterDropdownTrigger
+        id={thisTriggerId}
+        disabled={disabled}
+        detached={detached ? { open: isOpenedByThisTrigger, popupId } : undefined}
+        render={trigger}
       />
     );
+  }
+
+  if (isInMenubar) {
+    return trigger;
   }
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
@@ -280,7 +341,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
-        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        <React.Fragment key={thisTriggerId}>{trigger}</React.Fragment>
         <FocusGuard
           ref={store.context.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
@@ -290,12 +351,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  return <React.Fragment key={thisTriggerId}>{trigger}</React.Fragment>;
 }) as MenuTrigger;
 
 export interface MenuTrigger {
   <Payload>(
-    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
 }
 
