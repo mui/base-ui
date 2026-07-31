@@ -363,8 +363,10 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * unregisters, the default path preserves existing ownership so non-closing popup families do not
  * silently claim a different trigger while staying open.
  *
- * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
- * after a microtask so a same-tick replacement trigger with the same id can register first.
+ * If `closeOnActiveTriggerUnmount` is enabled, unregistering a previously resolved active trigger
+ * requests a close after a microtask so a same-tick replacement trigger with the same id can
+ * register first. An active trigger id that has not matched a registered trigger yet is treated as
+ * pending and does not request a close.
  *
  * This should be called on the Root part.
  *
@@ -378,14 +380,23 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   } = {},
 ) {
   const { closeOnActiveTriggerUnmount = false } = options;
+  // Distinguishes a trigger that unmounted from a new active trigger that has not hydrated yet.
+  const resolvedActiveTriggerIdRef = React.useRef<string | null>(null);
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
   // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
   const activeTriggerId = store.useState('activeTriggerId');
+  // Subscribe to the active trigger element so the reconciliation reruns when a pending active
+  // trigger registers in a commit where the trigger count nets out unchanged (registration
+  // forwards the element to the store when the registering trigger matches the active id).
+  // Without this, the id would never be marked resolved and a later genuine unmount would be
+  // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
+  const reactiveActiveTriggerElement = store.useState('activeTriggerElement');
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      resolvedActiveTriggerIdRef.current = null;
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
@@ -409,16 +420,26 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           if (triggerElement === store.state.activeTriggerElement) {
             stateUpdates.activeTriggerId = triggerId;
             stateUpdates.activeTriggerElement = triggerElement;
+            resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
         if (stateUpdates.activeTriggerId === undefined) {
-          lostActiveTriggerId = currentActiveTriggerId;
+          if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
+            lostActiveTriggerId = currentActiveTriggerId;
+          } else {
+            resolvedActiveTriggerIdRef.current = null;
+          }
         }
-      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
-        stateUpdates.activeTriggerElement = activeTriggerElement;
+      } else {
+        resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
+        if (activeTriggerElement !== store.state.activeTriggerElement) {
+          stateUpdates.activeTriggerElement = activeTriggerElement;
+        }
       }
+    } else {
+      resolvedActiveTriggerIdRef.current = null;
     }
 
     if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
@@ -427,6 +448,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
         stateUpdates.activeTriggerId = implicitTriggerId;
         stateUpdates.activeTriggerElement = implicitTriggerElement;
+        resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
@@ -461,7 +483,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+  }, [
+    open,
+    store,
+    reactiveTriggerCount,
+    activeTriggerId,
+    reactiveActiveTriggerElement,
+    closeOnActiveTriggerUnmount,
+  ]);
 }
 
 /**

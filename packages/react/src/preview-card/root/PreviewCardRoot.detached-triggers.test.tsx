@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import {
@@ -24,6 +25,66 @@ describe('<PreviewCard.Root />', () => {
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
+
+    it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
+      const handle = PreviewCard.createHandle();
+      const onOpenChange = vi.fn();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = ReactDOMClient.createRoot(container);
+
+      let isOpen = false;
+      let popupIsOpen = false;
+      let unexpectedErrors: unknown[][] = [];
+
+      try {
+        root.render(
+          <React.Fragment>
+            <PreviewCard.Root
+              handle={handle}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={onOpenChange}
+            >
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="default-open-content">Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+            <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+              Trigger
+            </PreviewCard.Trigger>
+          </React.Fragment>,
+        );
+
+        // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
+        // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
+        await waitFor(() => {
+          expect(screen.getByRole('link', { name: 'Trigger' })).toHaveAttribute('data-popup-open');
+        });
+
+        isOpen = handle.isOpen;
+        popupIsOpen =
+          document
+            .querySelector('[data-testid="default-open-content"]')
+            ?.hasAttribute('data-open') ?? false;
+      } finally {
+        root.unmount();
+        container.remove();
+        // The spy only exists to silence the act() warnings caused by rendering outside act.
+        unexpectedErrors = consoleError.mock.calls.filter(
+          (call) => !String(call[0]).includes('act(...)'),
+        );
+        consoleError.mockRestore();
+      }
+
+      expect(unexpectedErrors).toEqual([]);
+      expect(isOpen).toBe(true);
+      expect(popupIsOpen).toBe(true);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
 
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = PreviewCard.createHandle<number>();
