@@ -9,13 +9,11 @@ describe('<Field.Validity />', () => {
   ['onBlur', 'onSubmit'].forEach((validationMode) => {
     it(`surfaces valueMissing immediately after a stale custom error in ${validationMode} mode`, () => {
       const handleValidity = vi.fn();
+      const validate = vi.fn(() => 'custom error');
 
       render(
         <Form>
-          <Field.Root
-            validationMode={validationMode as 'onBlur' | 'onSubmit'}
-            validate={() => 'custom error'}
-          >
+          <Field.Root validationMode={validationMode as 'onBlur' | 'onSubmit'} validate={validate}>
             <Field.Control required />
             <Field.Error match="valueMissing">Required</Field.Error>
             <Field.Validity>{handleValidity}</Field.Validity>
@@ -41,9 +39,22 @@ describe('<Field.Validity />', () => {
       expect(handleValidity.mock.lastCall?.[0].value).toBe('invalid');
       expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+      expect(validate).toHaveBeenCalledTimes(1);
 
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: '' } });
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
+      expect(screen.getByText('Required')).toBeVisible();
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      if (validationMode === 'onBlur') {
+        fireEvent.blur(input);
+      } else {
+        fireEvent.click(screen.getByText('submit'));
+      }
 
       expect(handleValidity.mock.lastCall?.[0].value).toBe('');
       expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
