@@ -79,7 +79,7 @@ export interface UseDismissProps {
   outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean) | undefined;
   /**
    * The type of event to use to determine an outside "press".
-   * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
+   * - `intentional` dismisses on an outside `click` whose press was observed while the floating element was open; a trailing click from a press that began before it opened (such as the drag-release gesture that opened it) is ignored. Touch requires minimal `touchmove`s. Virtual clicks — keyboard and assistive technology activations as well as programmatic `element.click()` — are accepted without a press.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
