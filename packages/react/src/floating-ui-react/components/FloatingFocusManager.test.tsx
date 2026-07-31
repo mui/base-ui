@@ -1467,7 +1467,7 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
 
-      test('resets keyboard close modality between keep-mounted open sessions', async () => {
+      test('resets close modality between keep-mounted open sessions', async () => {
         const finalFocus = vi.fn((_closeType: InteractionType) => true);
 
         function App() {
@@ -1543,6 +1543,7 @@ describe('FloatingFocusManager', () => {
             expect(screen.getByTestId('child')).toHaveFocus();
           });
 
+          fireEvent.pointerDown(reference, { pointerType: 'mouse' });
           fireEvent.click(screen.getByTestId('controlled-close'));
 
           await waitFor(() => {
@@ -1552,6 +1553,24 @@ describe('FloatingFocusManager', () => {
             expect.objectContaining({ focusVisible: true }),
           );
           expect(finalFocus).toHaveBeenCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(reference, { detail: 0 });
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenCalledWith('keyboard');
         } finally {
           focusSpy.mockRestore();
         }

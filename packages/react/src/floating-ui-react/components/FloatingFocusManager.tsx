@@ -668,6 +668,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     closeTypeRef.current = '';
+    lastInteractionTypeRef.current = '';
 
     const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
