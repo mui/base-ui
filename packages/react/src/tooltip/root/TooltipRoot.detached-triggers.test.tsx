@@ -1,5 +1,7 @@
 import { vi, expect } from 'vitest';
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
+import * as ReactDOMServer from 'react-dom/server';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
 import {
@@ -26,10 +28,210 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  const { render, clock } = createRenderer();
+  const { render, renderToString, clock } = createRenderer();
+
+  it.skipIf(!isJSDOM)(
+    'keeps a default-open root open until its detached trigger hydrates',
+    async () => {
+      const handle = Tooltip.createHandle();
+      let suspend = false;
+      let resume: (() => void) | undefined;
+      const hydrationGate = new Promise<void>((resolve) => {
+        resume = resolve;
+      });
+
+      function DelayedTrigger(): React.JSX.Element {
+        if (suspend) {
+          throw hydrationGate;
+        }
+
+        return (
+          <Tooltip.Trigger handle={handle} id="trigger">
+            Trigger
+          </Tooltip.Trigger>
+        );
+      }
+
+      function App() {
+        return (
+          <React.Fragment>
+            <Tooltip.Root handle={handle} defaultOpen defaultTriggerId="trigger" />
+            <React.Suspense fallback="Loading">
+              <DelayedTrigger />
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      suspend = true;
+      hydrate();
+
+      try {
+        await waitFor(() => {
+          expect(handle.isOpen).toBe(true);
+        });
+        await flushMicrotasks();
+        expect(handle.isOpen).toBe(true);
+      } finally {
+        suspend = false;
+        await act(async () => {
+          resume?.();
+          await hydrationGate;
+        });
+      }
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+    },
+  );
+
+  it.skipIf(!isJSDOM)(
+    'keeps an open root open when ownership moves to a trigger that has not hydrated',
+    async () => {
+      const handle = Tooltip.createHandle();
+      const onOpenChange = vi.fn();
+
+      function TriggerB(): React.JSX.Element {
+        return (
+          <Tooltip.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Tooltip.Trigger>
+        );
+      }
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        const [activeTriggerId, setActiveTriggerId] = React.useState('trigger-a');
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setActiveTriggerId('trigger-b')}>
+              Switch to B
+            </button>
+            <Tooltip.Root
+              handle={handle}
+              open={open}
+              triggerId={activeTriggerId}
+              onOpenChange={(nextOpen, eventDetails) => {
+                onOpenChange(nextOpen, eventDetails);
+                setOpen(nextOpen);
+              }}
+            />
+            {activeTriggerId === 'trigger-a' && (
+              <Tooltip.Trigger handle={handle} id="trigger-a">
+                Trigger A
+              </Tooltip.Trigger>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<App />);
+      const triggerBContainer = document.createElement('div');
+      triggerBContainer.innerHTML = ReactDOMServer.renderToString(<TriggerB />);
+      document.body.appendChild(triggerBContainer);
+
+      let triggerBRoot: ReactDOMClient.Root | undefined;
+      try {
+        hydrate();
+
+        await waitFor(() => {
+          expect(handle.isOpen).toBe(true);
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Switch to B' }));
+        await flushMicrotasks();
+
+        expect(onOpenChange).not.toHaveBeenCalled();
+        expect(handle.isOpen).toBe(true);
+
+        await act(async () => {
+          triggerBRoot = ReactDOMClient.hydrateRoot(triggerBContainer, <TriggerB />);
+        });
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
+            'data-popup-open',
+          );
+        });
+      } finally {
+        await act(async () => {
+          triggerBRoot?.unmount();
+        });
+        triggerBContainer.remove();
+      }
+    },
+  );
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
+
+    it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
+      const handle = Tooltip.createHandle();
+      const onOpenChange = vi.fn();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = ReactDOMClient.createRoot(container);
+
+      let isOpen = false;
+      let popupIsOpen = false;
+      let unexpectedErrors: unknown[][] = [];
+
+      try {
+        root.render(
+          <React.Fragment>
+            <Tooltip.Root
+              handle={handle}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={onOpenChange}
+            >
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="default-open-content">Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+            <Tooltip.Trigger handle={handle} id="trigger">
+              Trigger
+            </Tooltip.Trigger>
+          </React.Fragment>,
+        );
+
+        // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
+        // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+            'data-popup-open',
+          );
+        });
+
+        isOpen = handle.isOpen;
+        popupIsOpen =
+          document
+            .querySelector('[data-testid="default-open-content"]')
+            ?.hasAttribute('data-open') ?? false;
+      } finally {
+        root.unmount();
+        container.remove();
+        // The spy only exists to silence the act() warnings caused by rendering outside act.
+        unexpectedErrors = consoleError.mock.calls.filter(
+          (call) => !String(call[0]).includes('act(...)'),
+        );
+        consoleError.mockRestore();
+      }
+
+      expect(unexpectedErrors).toEqual([]);
+      expect(isOpen).toBe(true);
+      expect(popupIsOpen).toBe(true);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
 
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Tooltip.createHandle<number>();

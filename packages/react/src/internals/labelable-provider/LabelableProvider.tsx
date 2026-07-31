@@ -6,9 +6,6 @@ import { HTMLProps } from '../types';
 import { useBaseUiId } from '../useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 
-/**
- * @internal
- */
 export const LabelableProvider: React.FC<LabelableProvider.Props> = function LabelableProvider(
   props,
 ) {

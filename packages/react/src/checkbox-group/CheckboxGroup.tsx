@@ -7,6 +7,7 @@ import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
@@ -107,8 +108,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       if (
         registration.value !== undefined &&
         input.checked &&
-        !input.matches(':disabled') &&
-        input.form === formElement
+        isEligibleInput(input, formElement)
       ) {
         successfulValues.add(registration.value);
       }

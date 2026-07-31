@@ -1683,7 +1683,7 @@ describe('<RadioGroup />', () => {
     });
 
     it.skipIf(isJSDOM)(
-      'omits a context-portaled radio without native form association',
+      'includes a context-portaled radio without native form association in onFormSubmit',
       async () => {
         const handleSubmit = vi.fn();
         const portalContainer = document.createElement('div');
@@ -1701,16 +1701,43 @@ describe('<RadioGroup />', () => {
         );
 
         const form = screen.getByTestId('form') as HTMLFormElement;
-        // The radio is portaled out of the form with no `form` association, so its value is not
-        // submitted, matching native successful-control semantics.
+        // Native submission omits the portaled radio since it has no DOM form association.
         expect(new FormData(form).getAll('choice')).toEqual([]);
 
         fireEvent.click(screen.getByText('Submit'));
 
-        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+        // Field registration is context-driven, so the portaled radio still projects its value
+        // into `onFormSubmit`, like other field controls.
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
         portalContainer.remove();
       },
     );
+
+    it('includes a group fully portaled outside the form element in onFormSubmit', async () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" />
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      portalContainer.remove();
+    });
 
     it.skipIf(isJSDOM)(
       'submits null when the selected radio in a required group is disabled, matching native validity',
