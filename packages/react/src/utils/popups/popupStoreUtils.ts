@@ -462,6 +462,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
         stateUpdates.activeTriggerId = implicitTriggerId;
         stateUpdates.activeTriggerElement = implicitTriggerElement;
+        resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 

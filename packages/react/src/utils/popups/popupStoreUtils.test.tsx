@@ -132,6 +132,39 @@ function CloseOnActiveTriggerUnmountTest({ store }: { store: TestStore }) {
   return null;
 }
 
+function HideOnLayout({
+  setVisible,
+}: {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  useIsoLayoutEffect(() => {
+    setVisible(false);
+  }, [setVisible]);
+  return null;
+}
+
+function ImplicitTriggerUnmountTest({
+  store,
+  element,
+}: {
+  store: TestStore;
+  element: HTMLElement;
+}) {
+  const [triggerVisible, setTriggerVisible] = React.useState(true);
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+
+  if (!triggerVisible) {
+    return null;
+  }
+
+  return (
+    <React.Fragment>
+      <TestTrigger id="trigger" store={store} element={element} />
+      <HideOnLayout setVisible={setTriggerVisible} />
+    </React.Fragment>
+  );
+}
+
 function PopupInteractionPropsTest({
   store,
   activeTriggerProps,
@@ -276,6 +309,24 @@ describe('useTriggerRegistration', () => {
     expect(store.state.triggerCount).toBe(1);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
+  });
+
+  it('closes when an implicitly claimed trigger unmounts during the claim commit', async () => {
+    const store = createStore();
+    const element = document.createElement('button');
+    store.set('open', true);
+
+    render(<ImplicitTriggerUnmountTest store={store} element={element} />);
+
+    await waitFor(() => {
+      expect(store.setOpen).toHaveBeenCalledTimes(1);
+    });
+
+    expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
   });
 
   it('closes when the active trigger unregisters while open', async () => {
