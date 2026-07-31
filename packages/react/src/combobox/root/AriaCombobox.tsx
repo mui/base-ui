@@ -531,6 +531,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
+      if (eventDetails.reason === REASONS.inputChange) {
+        inlineSelectionFrame.cancel();
+      }
+
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       props.onInputValueChange?.(next, eventDetails);
