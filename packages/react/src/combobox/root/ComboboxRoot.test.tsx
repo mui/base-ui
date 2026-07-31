@@ -3318,7 +3318,9 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId('input');
       await user.click(screen.getByRole('option', { name: 'Banana' }));
 
-      expect(input).toHaveValue('Banana');
+      await waitFor(() => {
+        expect(input).toHaveValue('Banana');
+      });
     });
 
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {
@@ -8549,12 +8551,24 @@ describe('<Combobox.Root />', () => {
       );
     }
 
-    function DialogSingleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
+    function DialogSingleCombobox({
+      defaultOpen = true,
+      onInputValueChange,
+    }: {
+      defaultOpen?: boolean;
+      onInputValueChange?: Combobox.Root.Props<string>['onInputValueChange'];
+    }) {
       const [open, setOpen] = React.useState(defaultOpen);
       const inputId = React.useId();
 
       return (
-        <Combobox.Root items={fruits} open={open} onOpenChange={setOpen} inline>
+        <Combobox.Root
+          items={fruits}
+          open={open}
+          onOpenChange={setOpen}
+          onInputValueChange={onInputValueChange}
+          inline
+        >
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger data-testid="dialog-trigger">
               <Combobox.Value>
@@ -8725,6 +8739,27 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(trigger).toHaveTextContent('Apple');
         });
+      });
+
+      it('does not fill the filter input when the dialog closes', async () => {
+        const onInputValueChange = vi.fn();
+        const { user } = await render(
+          <DialogSingleCombobox onInputValueChange={onInputValueChange} />,
+        );
+
+        const input = await screen.findByTestId('dialog-input');
+        await user.type(input, 'ap');
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+        expect(input).not.toHaveValue('Apple');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog', { name: 'Fruit chooser' })).toBe(null);
+        });
+
+        expect(onInputValueChange.mock.calls).not.toContainEqual([
+          'Apple',
+          expect.objectContaining({ reason: REASONS.itemPress }),
+        ]);
       });
 
       it('clears the filter input when re-opening after a selection', async () => {
