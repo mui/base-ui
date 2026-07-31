@@ -181,6 +181,7 @@ describe('<Tooltip.Root />', () => {
 
       let isOpen = false;
       let popupIsOpen = false;
+      let unexpectedErrors: unknown[][] = [];
 
       try {
         root.render(
@@ -219,9 +220,14 @@ describe('<Tooltip.Root />', () => {
       } finally {
         root.unmount();
         container.remove();
+        // The spy only exists to silence the act() warnings caused by rendering outside act.
+        unexpectedErrors = consoleError.mock.calls.filter(
+          (call) => !String(call[0]).includes('act(...)'),
+        );
         consoleError.mockRestore();
       }
 
+      expect(unexpectedErrors).toEqual([]);
       expect(isOpen).toBe(true);
       expect(popupIsOpen).toBe(true);
       expect(onOpenChange).not.toHaveBeenCalled();
