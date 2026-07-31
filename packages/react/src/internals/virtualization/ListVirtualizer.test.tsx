@@ -795,6 +795,7 @@ describe('<ListVirtualizer />', () => {
         apiRef={apiRef}
         estimatedItemHeight={20}
         overscanPx={0}
+        pinnedRowIndex={10}
         render={
           <div
             ref={(element) => {
@@ -829,12 +830,16 @@ describe('<ListVirtualizer />', () => {
     const renderZone = screen
       .getByTestId('virtualizer')
       .querySelector<HTMLElement>('[style*="translate3d"]');
+    const target = screen.getByText('Item 11').parentElement;
+    expect(target).toHaveStyle({ position: 'absolute' });
 
     act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
     expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    // The native scroll event arrives later; the sticky render zone must move with the immediate
-    // scroll write so the old window keeps covering the viewport in the meantime.
-    expect(renderZone?.style.transform).toContain('-200px');
+    // The native scroll event arrives later; the target window must already follow the immediate
+    // scroll write instead of leaving the viewport covered by the initial rows or nothing at all.
+    expect(screen.getByText('Item 11')).not.toBe(null);
+    expect(target).not.toHaveStyle({ position: 'absolute' });
+    expect(renderZone?.style.transform).toContain('-20px');
 
     act(() => apiRef.current?.scrollToIndex(10, { align: 'center' }));
     expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 160 });

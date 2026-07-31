@@ -706,14 +706,73 @@ describe('<Combobox.Virtualizer />', () => {
         top: 940,
       }),
     );
-    await waitFor(() =>
-      expect(
-        screen.getByRole('option', { name: 'Item 50' }).closest<HTMLElement>('[data-row-index]')
-          ?.style.position,
-      ).toBe(''),
-    );
+    expect(
+      screen.getByRole('option', { name: 'Item 50' }).closest<HTMLElement>('[data-row-index]')
+        ?.style.position,
+    ).toBe('');
     expect(scrollTop).toBeGreaterThan(0);
   });
+
+  it.skipIf(isJSDOM)(
+    'renders a distant selection immediately without changing its alignment',
+    async () => {
+      vi.restoreAllMocks();
+
+      function Test(props: { rowHeight: number }) {
+        return (
+          <Combobox.Root defaultValue="Item 4000" items={createItems(10000)}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Virtualizer
+                      estimatedItemHeight={32}
+                      overscanPx={640}
+                      render={<div data-testid="virtualizer" style={{ height: 352, width: 256 }} />}
+                    >
+                      {(item: string) => (
+                        <Combobox.Item
+                          value={item}
+                          style={{ display: 'block', height: props.rowHeight }}
+                        >
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.Virtualizer>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user, rerender } = await render(<Test rowHeight={33} />);
+
+      await user.click(screen.getByTestId('input'));
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      const selectedItem = screen.getByRole('option', { name: 'Item 4000' });
+      expect(selectedItem.closest<HTMLElement>('[data-row-index]')?.style.position).toBe('');
+      const viewport = virtualizer.getBoundingClientRect();
+      const selectedRect = selectedItem.getBoundingClientRect();
+      expect(selectedRect.bottom > viewport.top && selectedRect.top < viewport.bottom).toBe(true);
+      const initialBottomOffset = viewport.bottom - selectedRect.bottom;
+
+      await rerender(<Test rowHeight={32} />);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 250);
+          }),
+      );
+
+      const settledViewport = virtualizer.getBoundingClientRect();
+      const settledRect = selectedItem.getBoundingClientRect();
+      expect(settledViewport.bottom - settledRect.bottom).toBeCloseTo(initialBottomOffset);
+    },
+  );
 
   it.skipIf(isJSDOM)('scrolls to the selected item when ArrowDown reopens the popup', async () => {
     vi.restoreAllMocks();

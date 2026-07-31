@@ -999,6 +999,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       );
       const rowSize = end - start;
       let nextScrollTop: number | null = null;
+      let resolvedAlignment = align;
 
       if (align === 'start') {
         nextScrollTop = start - scrollPaddingStart;
@@ -1007,9 +1008,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       } else if (align === 'end') {
         nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
       } else if (rowSize > viewportSize || start < viewportStart) {
+        resolvedAlignment = 'start';
         nextScrollTop = start - scrollPaddingStart;
       } else if (end > viewportEnd) {
+        resolvedAlignment = 'end';
         nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
+      }
+
+      if (
+        align === 'auto' &&
+        resolvedAlignment !== 'auto' &&
+        pendingScrollRowIndexRef.current === rowIndex
+      ) {
+        // Measurements can move the requested row across the opposite viewport edge. Keep the
+        // edge chosen by the initial estimated pass so corrective retries do not visibly move a
+        // selected row from the bottom of the popup to the top (or vice versa).
+        pendingScrollAlignmentRef.current = resolvedAlignment;
       }
 
       if (nextScrollTop != null) {
@@ -1032,6 +1046,9 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
           // keyboard navigation cannot expose a blank edge or leave the highlighted row offscreen
           // for a frame while the virtual window catches up.
           handleScrollChange({ top: appliedScrollTop });
+          if (Math.abs(appliedScrollTop - renderScrollTopRef.current) >= renderBufferPx) {
+            bumpWindowRevision();
+          }
         } else {
           // A newly opened popup can run this before its full scroll range is laid out. The browser
           // then rejects the requested position. Keep the request pending for the rowsMeta retry
