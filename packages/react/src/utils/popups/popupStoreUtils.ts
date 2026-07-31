@@ -55,6 +55,7 @@ type PopupStoreWithOpen<
  */
 export interface PopupRootStoreHandle<Store> {
   attachStore(store: Store): () => void;
+  setServerStore?(store: Store): void;
 }
 
 /**
@@ -106,6 +107,8 @@ export function PopupHandleAttachment<Store>({
   handle: PopupRootStoreHandle<Store> | undefined;
   store: Store;
 }) {
+  handle?.setServerStore?.(store);
+
   useIsoLayoutEffect(() => {
     if (!handle) {
       return undefined;
@@ -375,9 +378,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
   options: {
     closeOnActiveTriggerUnmount?: boolean | undefined;
+    handle?: { getTriggerElement(triggerId: string): Element | undefined } | undefined;
   } = {},
 ) {
-  const { closeOnActiveTriggerUnmount = false } = options;
+  const { closeOnActiveTriggerUnmount = false, handle } = options;
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
@@ -403,7 +407,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     let lostActiveTriggerId: string | null = null;
 
     if (currentActiveTriggerId) {
-      const activeTriggerElement = store.context.triggerElements.getById(currentActiveTriggerId);
+      const activeTriggerElement =
+        store.context.triggerElements.getById(currentActiveTriggerId) ??
+        handle?.getTriggerElement(currentActiveTriggerId);
       if (!activeTriggerElement) {
         for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
           if (triggerElement === store.state.activeTriggerElement) {
@@ -445,7 +451,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           if (
             store.select('open') &&
             store.select('activeTriggerId') === lostActiveTriggerId &&
-            !store.context.triggerElements.getById(lostActiveTriggerId)
+            !store.context.triggerElements.getById(lostActiveTriggerId) &&
+            !handle?.getTriggerElement(lostActiveTriggerId)
           ) {
             const eventDetails = createChangeEventDetails(REASONS.none);
             store.setOpen(false, eventDetails);
@@ -461,7 +468,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount, handle]);
 }
 
 /**

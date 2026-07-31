@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import {
@@ -25,20 +26,69 @@ describe('<PreviewCard.Root />', () => {
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
-    it('ignores imperative handle calls made before a root is attached', async () => {
+    it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
+      const handle = PreviewCard.createHandle();
+      const onOpenChange = vi.fn();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = ReactDOMClient.createRoot(container);
+
+      let isOpen = false;
+      let popupIsOpen = false;
+
+      try {
+        root.render(
+          <React.Fragment>
+            <PreviewCard.Root
+              handle={handle}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={onOpenChange}
+            >
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="default-open-content">Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+            <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+              Trigger
+            </PreviewCard.Trigger>
+          </React.Fragment>,
+        );
+
+        // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
+        // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
+        await new Promise((resolve) => {
+          setTimeout(resolve, 50);
+        });
+
+        isOpen = handle.isOpen;
+        popupIsOpen =
+          document
+            .querySelector('[data-testid="default-open-content"]')
+            ?.hasAttribute('data-open') ?? false;
+      } finally {
+        root.unmount();
+        container.remove();
+        consoleError.mockRestore();
+      }
+
+      expect(isOpen).toBe(true);
+      expect(popupIsOpen).toBe(true);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('preserves missing-trigger safety before a root is attached', async () => {
       const handle = PreviewCard.createHandle<number>();
 
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      handle.open('trigger');
-      handle.close();
-      const detachedWarnings = consoleWarn.mock.calls.filter(
-        ([message]) =>
-          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      expect(() => handle.open('trigger')).toThrow(
+        'was called with the trigger id "trigger", but no matching trigger is registered',
       );
-      consoleWarn.mockRestore();
+      handle.close();
 
       expect(handle.isOpen).toBe(false);
-      expect(detachedWarnings).toHaveLength(2);
 
       await render(
         <div>
@@ -72,7 +122,7 @@ describe('<PreviewCard.Root />', () => {
       expect(trigger).toHaveAttribute('data-popup-open');
     });
 
-    it('ignores imperative handle calls made after the root is detached', async () => {
+    it('cancels a retained open when closed after the root is detached', async () => {
       const handle = PreviewCard.createHandle<number>();
 
       function App() {
@@ -123,17 +173,10 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('content')).toBe(null);
       });
 
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.close();
-      const detachedWarnings = consoleWarn.mock.calls.filter(
-        ([message]) =>
-          typeof message === 'string' && message.includes('no root using this handle is mounted'),
-      );
-      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
-      expect(detachedWarnings).toHaveLength(2);
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByTestId('content')).toBe(null);

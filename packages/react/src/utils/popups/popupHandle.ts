@@ -1,4 +1,5 @@
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { NOOP } from '@base-ui/utils/empty';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -19,6 +20,11 @@ export interface PopupHandleStoreProvider<HandleStore> {
    * Store currently exposed by the handle.
    */
   readonly store: HandleStore;
+
+  /**
+   * Stable store used to reproduce the server-rendered trigger snapshot during hydration.
+   */
+  readonly serverStore: HandleStore;
 
   /**
    * Subscribes to changes of the exposed store pointer.
@@ -73,9 +79,27 @@ export class BasePopupHandle<
 
   /**
    * Store of the root that currently controls the handle: the most recently attached one still
-   * mounted, or `null` when no root is attached. Imperative methods are no-ops while this is `null`.
+   * mounted, or `null` when no root is attached.
    */
   private attachedStoreValue: Store | null = null;
+
+  /**
+   * Last root store rendered before attachment. It is separate from `attachedStoreValue`: rendering
+   * a root must not make imperative calls target a store that may never commit.
+   */
+  private serverStoreValue: HandleStore;
+
+  private serverStoreSource: HandleStore | undefined;
+
+  /**
+   * Detached imperative open retained until a matching root commits.
+   */
+  private pendingOpen:
+    | {
+        triggerId: string | null | undefined;
+        prepareStore: ((store: Store) => void) | undefined;
+      }
+    | undefined;
 
   /**
    * Listeners notified when `attachedStore` changes, so detached triggers can follow the store pointer.
@@ -99,10 +123,16 @@ export class BasePopupHandle<
     protected readonly fallbackStore: HandleStore,
     private readonly componentName: string,
     private readonly throwOnMissingTrigger: boolean = true,
-  ) {}
+  ) {
+    this.serverStoreValue = fallbackStore;
+  }
 
   protected get attachedStore() {
     return this.attachedStoreValue;
+  }
+
+  protected get hasPendingOpen() {
+    return this.pendingOpen !== undefined;
   }
 
   /**
@@ -112,6 +142,38 @@ export class BasePopupHandle<
    */
   get store(): HandleStore {
     return this.attachedStoreValue ?? this.fallbackStore;
+  }
+
+  /**
+   * Store used by `useSyncExternalStore`'s server snapshot. Unlike `store`, it does not change when
+   * the root attaches during selective hydration.
+   * @internal
+   */
+  get serverStore(): HandleStore {
+    return this.serverStoreValue;
+  }
+
+  /**
+   * Records the declarative root snapshot during render without attaching it as an imperative
+   * target. Once a root commits, abandoned renders can no longer replace the hydration snapshot.
+   * @internal
+   */
+  setServerStore(store: HandleStore) {
+    if (this.attachedStoreValue === null && this.serverStoreSource !== store) {
+      this.serverStoreSource = store;
+
+      const source = store as HandleStore & { state: object };
+      const state = source.state;
+      const snapshot = Object.create(source);
+      Object.defineProperties(snapshot, {
+        state: { value: state },
+        subscribe: { value: () => NOOP },
+        getSnapshot: { value: () => state },
+        set: { value: NOOP },
+        update: { value: NOOP },
+      });
+      this.serverStoreValue = snapshot;
+    }
   }
 
   /**
@@ -136,6 +198,11 @@ export class BasePopupHandle<
   attachStore(newStore: Store) {
     this.attachedStores.push(newStore);
     this.setActiveStore(newStore);
+
+    const pendingOpen = this.pendingOpen;
+    if (pendingOpen && this.openStore(newStore, pendingOpen, false)) {
+      this.pendingOpen = undefined;
+    }
 
     if (process.env.NODE_ENV !== 'production') {
       if (this.attachedStores.length > 1) {
@@ -185,9 +252,9 @@ export class BasePopupHandle<
   }
 
   /**
-   * Opens the attached root's store and associates it with the trigger with the given id, or a
-   * no-op (with a dev warning) while no root is attached. Shared by every concrete handle's public
-   * `open()` method, which only narrows the parameter type.
+   * Opens the attached root's store and associates it with the trigger with the given id. While no
+   * root is attached, the operation is retained until the next matching root commits. Shared by
+   * every concrete handle's public `open()` method, which only narrows the parameter type.
    *
    * When a trigger id is given but no matching trigger is registered, anchored popups throw (see
    * `throwOnMissingTrigger`); Dialog opens unassociated with a dev warning instead.
@@ -196,20 +263,32 @@ export class BasePopupHandle<
    *
    * @param triggerId ID of the trigger to associate with the popup, or `null`/`undefined` to open
    * without associating any trigger.
+   * @param prepareStore Optional component-specific state update to apply immediately before opening.
    */
-  protected openByTrigger(triggerId: string | null | undefined) {
+  protected openByTrigger(
+    triggerId: string | null | undefined,
+    prepareStore?: (store: Store) => void,
+  ) {
     const attachedStore = this.attachedStore;
 
     if (attachedStore === null) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `Base UI: ${this.componentName}Handle.open() was called while no root using this handle is mounted. ` +
-            'The call was ignored; mount a root with this handle before opening it imperatively.',
-        );
+      if (triggerId && !this.getTriggerElement(triggerId) && this.throwOnMissingTrigger) {
+        this.throwMissingTriggerError(triggerId);
       }
+
+      this.pendingOpen = { triggerId, prepareStore };
       return;
     }
 
+    this.openStore(attachedStore, { triggerId, prepareStore }, true);
+  }
+
+  /**
+   * Finds a trigger registered anywhere this handle currently coordinates, including the fallback
+   * store used by a detached trigger before its external-store subscription becomes active.
+   * @internal
+   */
+  getTriggerElement(triggerId: string) {
     // Registered triggers normally live in the active root's store. During the commit in which a
     // root attaches, a still-mounted detached trigger has not re-registered into that store yet (it
     // migrates on its next render): it is still registered wherever it lived before — the fallback
@@ -218,21 +297,29 @@ export class BasePopupHandle<
     // (newest first) and the fallback map so an imperative open-by-id called in that commit (e.g.
     // from a layout effect) still resolves the trigger instead of treating it as missing.
     let triggerElement: Element | undefined;
-    if (triggerId) {
-      for (let i = this.attachedStores.length - 1; i >= 0 && !triggerElement; i -= 1) {
-        triggerElement = this.attachedStores[i].context.triggerElements.getById(triggerId);
-      }
-      triggerElement ??= this.fallbackStore.context.triggerElements.getById(triggerId);
+    for (let i = this.attachedStores.length - 1; i >= 0 && !triggerElement; i -= 1) {
+      triggerElement = this.attachedStores[i].context.triggerElements.getById(triggerId);
     }
+    return triggerElement ?? this.fallbackStore.context.triggerElements.getById(triggerId);
+  }
+
+  private openStore(
+    store: Store,
+    pendingOpen: {
+      triggerId: string | null | undefined;
+      prepareStore: ((store: Store) => void) | undefined;
+    },
+    throwIfMissing: boolean,
+  ) {
+    const { triggerId, prepareStore } = pendingOpen;
+    const triggerElement = triggerId ? this.getTriggerElement(triggerId) : undefined;
 
     if (triggerId && !triggerElement) {
       if (this.throwOnMissingTrigger) {
-        throw new Error(
-          `Base UI: ${this.componentName}Handle.open() was called with the trigger id "${triggerId}", ` +
-            'but no matching trigger is registered with this handle. ' +
-            'An anchored popup cannot open without a trigger to anchor to. ' +
-            `Pass the id of a mounted ${this.componentName}.Trigger that has this handle set on its "handle" prop.`,
-        );
+        if (throwIfMissing) {
+          this.throwMissingTriggerError(triggerId);
+        }
+        return false;
       }
 
       if (process.env.NODE_ENV !== 'production') {
@@ -243,15 +330,26 @@ export class BasePopupHandle<
       }
     }
 
-    attachedStore.setOpen(
+    prepareStore?.(store);
+    store.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
+    );
+    return true;
+  }
+
+  private throwMissingTriggerError(triggerId: string): never {
+    throw new Error(
+      `Base UI: ${this.componentName}Handle.open() was called with the trigger id "${triggerId}", ` +
+        'but no matching trigger is registered with this handle. ' +
+        'An anchored popup cannot open without a trigger to anchor to. ' +
+        `Pass the id of a mounted ${this.componentName}.Trigger that has this handle set on its "handle" prop.`,
     );
   }
 
   /**
-   * Closes the popup by setting the attached root's store to closed, or a no-op (with a dev warning)
-   * while no root is attached. Shared by every concrete handle's public `close()` method.
+   * Closes the popup by setting the attached root's store to closed. While no root is attached, it
+   * cancels any retained open. Shared by every concrete handle's public `close()` method.
    *
    * This method should only be called in an event handler or an effect (not during rendering).
    */
@@ -259,12 +357,7 @@ export class BasePopupHandle<
     const attachedStore = this.attachedStore;
 
     if (attachedStore === null) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `Base UI: ${this.componentName}Handle.close() was called while no root using this handle is mounted. ` +
-            'The call was ignored.',
-        );
-      }
+      this.pendingOpen = undefined;
       return;
     }
 

@@ -46,7 +46,7 @@ export class PreviewCardHandle<Payload> extends BasePopupHandle<
    * Whether the preview card is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
+    return this.attachedStore?.select('open') ?? this.hasPendingOpen;
   }
 }
 

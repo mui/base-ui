@@ -14,20 +14,15 @@ describe('<MenuRoot />', () => {
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
-    it('ignores imperative handle calls made before a root is attached', async () => {
+    it('preserves missing-trigger safety before a root is attached', async () => {
       const handle = Menu.createHandle<number>();
 
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      handle.open('trigger');
-      handle.close();
-      const detachedWarnings = consoleWarn.mock.calls.filter(
-        ([message]) =>
-          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      expect(() => handle.open('trigger')).toThrow(
+        'was called with the trigger id "trigger", but no matching trigger is registered',
       );
-      consoleWarn.mockRestore();
+      handle.close();
 
       expect(handle.isOpen).toBe(false);
-      expect(detachedWarnings).toHaveLength(2);
 
       const { user } = await render(
         <React.Fragment>
@@ -59,7 +54,7 @@ describe('<MenuRoot />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('1');
     });
 
-    it('ignores imperative handle calls made after the root is detached', async () => {
+    it('cancels a retained open when closed after the root is detached', async () => {
       const handle = Menu.createHandle<number>();
 
       function App() {
@@ -108,17 +103,10 @@ describe('<MenuRoot />', () => {
         expect(screen.queryByRole('menu')).toBe(null);
       });
 
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.close();
-      const detachedWarnings = consoleWarn.mock.calls.filter(
-        ([message]) =>
-          typeof message === 'string' && message.includes('no root using this handle is mounted'),
-      );
-      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
-      expect(detachedWarnings).toHaveLength(2);
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByRole('menu')).toBe(null);
