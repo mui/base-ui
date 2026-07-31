@@ -293,7 +293,7 @@ describe('useTriggerRegistration', () => {
       <React.Fragment>
         <TestTrigger key="first" id="first" store={store} element={first} />
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <CloseOnActiveTriggerUnmountTest store={store} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
       </React.Fragment>,
     );
 
@@ -304,7 +304,7 @@ describe('useTriggerRegistration', () => {
     rerender(
       <React.Fragment>
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <CloseOnActiveTriggerUnmountTest store={store} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
       </React.Fragment>,
     );
 

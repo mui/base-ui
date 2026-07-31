@@ -400,6 +400,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   } = {},
 ) {
   const { closeOnActiveTriggerUnmount = false } = options;
+  // Distinguishes a trigger that unmounted from a new active trigger that has not hydrated yet.
+  const resolvedActiveTriggerIdRef = React.useRef<string | null>(null);
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
@@ -408,6 +410,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      resolvedActiveTriggerIdRef.current = null;
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
@@ -431,18 +434,19 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           if (triggerElement === store.state.activeTriggerElement) {
             stateUpdates.activeTriggerId = triggerId;
             stateUpdates.activeTriggerElement = triggerElement;
+            resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
-        if (
-          stateUpdates.activeTriggerId === undefined &&
-          store.state.activeTriggerElement !== null
-        ) {
+        if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
           lostActiveTriggerId = currentActiveTriggerId;
         }
-      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
-        stateUpdates.activeTriggerElement = activeTriggerElement;
+      } else {
+        resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
+        if (activeTriggerElement !== store.state.activeTriggerElement) {
+          stateUpdates.activeTriggerElement = activeTriggerElement;
+        }
       }
     }
 

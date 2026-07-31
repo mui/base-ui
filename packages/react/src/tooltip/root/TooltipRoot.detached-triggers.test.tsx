@@ -89,6 +89,89 @@ describe('<Tooltip.Root />', () => {
     },
   );
 
+  it.skipIf(!isJSDOM)(
+    'keeps an open root open when ownership moves to a trigger that has not hydrated',
+    async () => {
+      const handle = Tooltip.createHandle();
+      const onOpenChange = vi.fn();
+      let suspendTriggerB = false;
+      let resumeTriggerB: (() => void) | undefined;
+      const triggerBHydrationGate = new Promise<void>((resolve) => {
+        resumeTriggerB = resolve;
+      });
+
+      function TriggerB(): React.JSX.Element {
+        if (suspendTriggerB) {
+          throw triggerBHydrationGate;
+        }
+
+        return (
+          <Tooltip.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Tooltip.Trigger>
+        );
+      }
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        const [activeTriggerId, setActiveTriggerId] = React.useState('trigger-a');
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setActiveTriggerId('trigger-b')}>
+              Switch to B
+            </button>
+            <Tooltip.Root
+              handle={handle}
+              open={open}
+              triggerId={activeTriggerId}
+              onOpenChange={(nextOpen, eventDetails) => {
+                onOpenChange(nextOpen, eventDetails);
+                setOpen(nextOpen);
+              }}
+            />
+            {activeTriggerId === 'trigger-a' && (
+              <Tooltip.Trigger handle={handle} id="trigger-a">
+                Trigger A
+              </Tooltip.Trigger>
+            )}
+            <React.Suspense fallback="Loading B">
+              <TriggerB />
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<App />);
+      suspendTriggerB = true;
+      hydrate();
+
+      await waitFor(() => {
+        expect(handle.isOpen).toBe(true);
+      });
+
+      try {
+        fireEvent.click(screen.getByRole('button', { name: 'Switch to B' }));
+        await flushMicrotasks();
+
+        expect(onOpenChange).not.toHaveBeenCalled();
+        expect(handle.isOpen).toBe(true);
+      } finally {
+        suspendTriggerB = false;
+        await act(async () => {
+          resumeTriggerB?.();
+          await triggerBHydrationGate;
+        });
+      }
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
+          'data-popup-open',
+        );
+      });
+    },
+  );
+
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
