@@ -409,6 +409,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
   // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
   const activeTriggerId = store.useState('activeTriggerId');
+  // Subscribe to the active trigger element so the reconciliation reruns when a pending active
+  // trigger registers in a commit where the trigger count nets out unchanged (registration
+  // forwards the element to the store when the registering trigger matches the active id).
+  // Without this, the id would never be marked resolved and a later genuine unmount would be
+  // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
+  const activeTriggerElement = store.useState('activeTriggerElement');
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -484,7 +490,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+  }, [
+    open,
+    store,
+    reactiveTriggerCount,
+    activeTriggerId,
+    activeTriggerElement,
+    closeOnActiveTriggerUnmount,
+  ]);
 }
 
 /**

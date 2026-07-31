@@ -425,6 +425,66 @@ describe('useTriggerRegistration', () => {
     },
   );
 
+  it('closes when the active trigger unmounts after registering in a count-neutral commit', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    store.update({
+      open: true,
+      // The `activeTriggerElement` selector resolves to null while unmounted, so reflect the
+      // real open-popup state for the element subscription to observe registration.
+      mounted: true,
+      activeTriggerId: 'first',
+      activeTriggerElement: first,
+    });
+
+    const { rerender } = render(
+      <React.Fragment>
+        <TestForwardedTrigger key="first" id="first" store={store} element={first} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
+      </React.Fragment>,
+    );
+
+    // Ownership moves to a trigger that has not registered yet: the popup stays open (pending).
+    act(() => {
+      store.update({ activeTriggerId: 'second', activeTriggerElement: null });
+    });
+
+    await flushMicrotasks();
+
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+
+    // Swap "first" out and "second" in within one commit, so the trigger count nets out
+    // unchanged and only the forwarded active trigger element reruns the reconciliation.
+    rerender(
+      <React.Fragment>
+        <TestForwardedTrigger key="second" id="second" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.context.triggerElements.getById('second')).toBe(second);
+    expect(store.state.activeTriggerElement).toBe(second);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+
+    // The now-registered active trigger genuinely unmounts: the popup must close.
+    rerender(<CloseOnActiveTriggerUnmountTest key="root" store={store} />);
+
+    await waitFor(() => {
+      expect(store.setOpen).toHaveBeenCalledTimes(1);
+    });
+
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+  });
+
   it('keeps the popup open when the active trigger is replaced with the same id', async () => {
     const store = createStore();
     const first = document.createElement('button');
