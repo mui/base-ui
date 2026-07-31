@@ -23,6 +23,7 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;
@@ -127,7 +128,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     store.context.outsidePressEnabledRef.current = false;
   }
 
-  function enableDismissAfterRelease(event?: PointerEvent | TouchEvent) {
+  const enableDismissAfterRelease = useStableCallback((event?: PointerEvent | TouchEvent) => {
     releaseGuardCleanupRef.current();
     store.context.outsidePressEnabledRef.current = true;
 
@@ -142,9 +143,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       doc.removeEventListener('click', handleReleaseEvent, true);
       doc.removeEventListener('pointerdown', handleReleaseEvent, true);
 
-      // A fresh physical interaction starts with `pointerdown`, while keyboard and assistive
-      // technology clicks have zero detail. Only the trailing release click reaches this branch.
-      if (clickEvent?.type !== 'click' || clickEvent.detail === 0) {
+      // A fresh physical interaction starts with `pointerdown`. Only the trailing physical release
+      // click should temporarily keep outside press dismissal disabled.
+      if (clickEvent?.type !== 'click' || clickEvent.detail === 0 || isVirtualClick(clickEvent)) {
         return;
       }
 
@@ -157,7 +158,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     releaseGuardCleanupRef.current = handleReleaseEvent;
     doc.addEventListener('click', handleReleaseEvent, true);
     doc.addEventListener('pointerdown', handleReleaseEvent, true);
-  }
+  });
 
   function getPopupSize(popupElement: HTMLElement) {
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
@@ -401,12 +402,22 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
+      if (swipeActive) {
+        enableDismissAfterRelease();
+      }
       resetSwipe();
       resetDragDelta();
       clearSwipeStyles();
       resetSwipeInteractionState();
     }
-  }, [clearSwipeStyles, enabled, resetDragDelta, resetSwipe]);
+  }, [
+    clearSwipeStyles,
+    enableDismissAfterRelease,
+    enabled,
+    resetDragDelta,
+    resetSwipe,
+    swipeActive,
+  ]);
 
   React.useEffect(() => {
     return () => {

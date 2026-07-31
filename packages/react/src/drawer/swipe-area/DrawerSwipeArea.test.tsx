@@ -10,6 +10,7 @@ import {
 } from '../provider/DrawerProviderContext';
 
 const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
+const eventUtilsMockState = vi.hoisted(() => ({ forceVirtualClick: false }));
 
 vi.mock('@base-ui/utils/useId', async () => {
   const actual =
@@ -19,6 +20,18 @@ vi.mock('@base-ui/utils/useId', async () => {
     useId(...args: Parameters<typeof actual.useId>) {
       const id = actual.useId(...args);
       return useIdMockState.returnUndefined ? undefined : id;
+    },
+  };
+});
+
+vi.mock('../../floating-ui-react/utils/event', async () => {
+  const actual = await vi.importActual<typeof import('../../floating-ui-react/utils/event')>(
+    '../../floating-ui-react/utils/event',
+  );
+  return {
+    ...actual,
+    isVirtualClick(...args: Parameters<typeof actual.isVirtualClick>) {
+      return eventUtilsMockState.forceVirtualClick || actual.isVirtualClick(...args);
     },
   };
 });
@@ -33,7 +46,7 @@ type SwipeInput = 'pointer' | 'touch';
 type SwipeOptions = {
   beforeRelease?: (() => Promise<unknown>) | (() => unknown);
   input?: SwipeInput;
-  pointerType?: 'mouse' | 'pen';
+  pointerType?: 'mouse' | 'pen' | 'touch';
   timeStepMs?: number;
   startTimeMs?: number;
 };
@@ -637,6 +650,12 @@ describe('<Drawer.SwipeArea />', () => {
       expect(cleanupPhases.at(-1)).toBe(true);
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
       expect(swipeArea).toHaveAttribute('data-disabled', '');
+
+      pressOutside();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
     } finally {
       providerContext!.visualStateStore.set = originalSetVisualState;
     }
@@ -837,7 +856,7 @@ describe('<Drawer.SwipeArea />', () => {
   it.each([
     { input: 'pointer' as const, pointerType: 'mouse' as const },
     { input: 'pointer' as const, pointerType: 'pen' as const },
-    { input: 'touch' as const, pointerType: 'mouse' as const },
+    { input: 'touch' as const, pointerType: 'touch' as const },
   ])(
     'does not dismiss from the $pointerType/$input click synthesized by the swipe-open release',
     async ({ input, pointerType }) => {
@@ -862,7 +881,9 @@ describe('<Drawer.SwipeArea />', () => {
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
 
       // Trailing synthesized click with no preceding fresh pointerdown.
-      fireEvent.click(document.body, { detail: 1 });
+      const releaseClick = new MouseEvent('click', { bubbles: true, detail: 1 });
+      Object.defineProperty(releaseClick, 'pointerType', { value: pointerType });
+      fireEvent(document.body, releaseClick);
 
       await act(async () => {
         await nextMacrotask();
@@ -897,6 +918,40 @@ describe('<Drawer.SwipeArea />', () => {
     expect(outside).toHaveFocus();
 
     await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+  });
+
+  it('allows a later pointerless virtual click to dismiss when the release has no click', async () => {
+    await render(
+      <React.Fragment>
+        <button type="button">Outside</button>
+        <Drawer.Root modal={false}>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup" initialFocus={false}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </React.Fragment>,
+    );
+
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 40, { input: 'touch' });
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    eventUtilsMockState.forceVirtualClick = true;
+    try {
+      const virtualClick = new MouseEvent('click', { bubbles: true, detail: 1 });
+      Object.defineProperty(virtualClick, 'pointerType', { value: '' });
+      fireEvent(screen.getByRole('button', { name: 'Outside' }), virtualClick);
+    } finally {
+      eventUtilsMockState.forceVirtualClick = false;
+    }
 
     await waitFor(() => {
       expect(screen.queryByTestId('popup')).toBe(null);
