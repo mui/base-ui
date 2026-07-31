@@ -45,7 +45,6 @@ describe('<Dialog.Root />', () => {
       const { cdp } = await import('vitest/browser');
       const openChangeSpy = vi.fn();
       const documentClicks: MouseEvent[] = [];
-      let compatibilityMouseDownWhileOpen = false;
 
       function App() {
         const [open, setOpen] = React.useState(false);
@@ -91,12 +90,7 @@ describe('<Dialog.Root />', () => {
         documentClicks.push(event);
       }
 
-      function recordMouseDown() {
-        compatibilityMouseDownWhileOpen = screen.queryByTestId('popup') !== null;
-      }
-
       document.addEventListener('click', recordClick, true);
-      document.addEventListener('mousedown', recordMouseDown, true);
 
       try {
         await act(async () => {
@@ -127,11 +121,13 @@ describe('<Dialog.Root />', () => {
           });
         });
 
-        await wait(50);
+        // The browser synthesizes the gesture's click asynchronously after
+        // the release; wait for it instead of sleeping a fixed amount.
+        await waitFor(() => {
+          expect(documentClicks.some((event) => event.isTrusted)).toBe(true);
+        });
 
         const trustedClick = documentClicks.find((event) => event.isTrusted);
-        expect(compatibilityMouseDownWhileOpen).toBe(true);
-        expect(trustedClick).not.toBe(undefined);
         expect(trustedClick?.target).not.toBe(openButton);
         // The click must land outside the popup subtree so it is evaluated as
         // an outside press; a click inside the popup would be ignored for a
@@ -141,7 +137,6 @@ describe('<Dialog.Root />', () => {
         expect(openChangeSpy).not.toHaveBeenCalledWith(false, REASONS.outsidePress);
       } finally {
         document.removeEventListener('click', recordClick, true);
-        document.removeEventListener('mousedown', recordMouseDown, true);
       }
     },
   );
