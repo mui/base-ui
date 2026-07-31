@@ -1,6 +1,7 @@
 import { vi, expect } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
+import * as ReactDOMServer from 'react-dom/server';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
 import {
@@ -94,17 +95,8 @@ describe('<Tooltip.Root />', () => {
     async () => {
       const handle = Tooltip.createHandle();
       const onOpenChange = vi.fn();
-      let suspendTriggerB = false;
-      let resumeTriggerB: (() => void) | undefined;
-      const triggerBHydrationGate = new Promise<void>((resolve) => {
-        resumeTriggerB = resolve;
-      });
 
       function TriggerB(): React.JSX.Element {
-        if (suspendTriggerB) {
-          throw triggerBHydrationGate;
-        }
-
         return (
           <Tooltip.Trigger handle={handle} id="trigger-b">
             Trigger B
@@ -135,40 +127,44 @@ describe('<Tooltip.Root />', () => {
                 Trigger A
               </Tooltip.Trigger>
             )}
-            <React.Suspense fallback="Loading B">
-              <TriggerB />
-            </React.Suspense>
           </React.Fragment>
         );
       }
 
       const { hydrate } = renderToString(<App />);
-      suspendTriggerB = true;
+      const triggerBContainer = document.createElement('div');
+      triggerBContainer.innerHTML = ReactDOMServer.renderToString(<TriggerB />);
+      document.body.appendChild(triggerBContainer);
+
       hydrate();
 
       await waitFor(() => {
         expect(handle.isOpen).toBe(true);
       });
 
+      let triggerBRoot: ReactDOMClient.Root | undefined;
       try {
         fireEvent.click(screen.getByRole('button', { name: 'Switch to B' }));
         await flushMicrotasks();
 
         expect(onOpenChange).not.toHaveBeenCalled();
         expect(handle.isOpen).toBe(true);
-      } finally {
-        suspendTriggerB = false;
-        await act(async () => {
-          resumeTriggerB?.();
-          await triggerBHydrationGate;
-        });
-      }
 
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
-          'data-popup-open',
-        );
-      });
+        await act(async () => {
+          triggerBRoot = ReactDOMClient.hydrateRoot(triggerBContainer, <TriggerB />);
+        });
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
+            'data-popup-open',
+          );
+        });
+      } finally {
+        await act(async () => {
+          triggerBRoot?.unmount();
+        });
+        triggerBContainer.remove();
+      }
     },
   );
 
