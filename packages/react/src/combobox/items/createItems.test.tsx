@@ -739,6 +739,25 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('Bob');
     });
 
+    it('labels an identity value outside the current data window from the value itself', async () => {
+      const selectedUser = { id: 42, name: 'Archived user' };
+
+      function App() {
+        const items = Combobox.createItems(users.slice(0, 1), {
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} value={selectedUser}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Archived user');
+    });
+
     it('resolves a derived value label using the root equality comparer', async () => {
       function App() {
         const items = Combobox.createItems(users, {
@@ -1061,6 +1080,48 @@ describe('Combobox.createItems', () => {
       await user.click(screen.getByRole('option', { name: 'Carol' }));
 
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
+    });
+
+    it('caches an externally filtered source item after projecting it', async () => {
+      const externalUser = { id: 99, name: 'External user' };
+      const getValue = vi.fn(getUserId);
+
+      function App(props: { tick: number }) {
+        const items = React.useMemo(
+          () =>
+            Combobox.createItems(users.slice(0, 1), {
+              getValue,
+              getLabel: getUserName,
+            }),
+          [],
+        );
+
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[externalUser]}
+            defaultOpen
+            data-tick={props.tick}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<App tick={0} />);
+
+      await setProps({ tick: 1 });
+      await user.click(screen.getByRole('option', { name: 'External user' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('External user');
+      expect(getValue.mock.calls.filter(([item]) => item === externalUser)).toHaveLength(1);
     });
 
     it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {

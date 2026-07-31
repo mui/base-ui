@@ -120,10 +120,20 @@ export function createComboboxItems<Item, Value>(
 
   // The root feeds this function to memos and effects, so its identity must stay stable.
   function value(item: Item): Value {
-    const cached = ensureDerived().itemValues.get(item);
-    // Externally filtered items may be absent from the data, so a miss recomputes. An item whose
-    // cached value is `undefined` also recomputes, which the accessor's purity makes equivalent.
-    return cached === undefined ? itemToValue(item) : cached;
+    const { itemValues, valueToItem } = ensureDerived();
+    const cachedValue = itemValues.get(item);
+    if (cachedValue !== undefined) {
+      return cachedValue;
+    }
+
+    // Externally filtered items may be absent from the data. Cache their projection and reverse
+    // lookup so selecting one preserves its label without repeating the accessor on every render.
+    const derivedValue = itemToValue(item);
+    itemValues.set(item, derivedValue);
+    if (!valueToItem.has(derivedValue)) {
+      valueToItem.set(derivedValue, item);
+    }
+    return derivedValue;
   }
 
   // Routed through the cached projection so filtering with the default label spends no extra
@@ -149,6 +159,12 @@ export function createComboboxItems<Item, Value>(
             return itemToLabel(item);
           }
         }
+      }
+
+      // Without a projection, the public value is itself a source item. This preserves its label
+      // when a selected object leaves the current async result window.
+      if (!getValue) {
+        return itemToLabel(itemValue as unknown as Item);
       }
 
       return stringifyAsLabel(itemValue);

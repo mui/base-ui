@@ -959,17 +959,22 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   }, [items, flatFilteredValues]);
 
+  const externalFilteredValues = hasFilteredItemsProp ? flatFilteredValues : undefined;
+
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
   if (process.env.NODE_ENV !== 'production') {
     // Published so that each item can check its `value` prop against the values the collection
-    // actually derives. Only changes with the collection, so items are not woken per keystroke.
+    // actually derives. Internal filtering only changes with the collection, so items are not
+    // woken per keystroke; externally supplied results are also valid collection values.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       store.set(
         'collectionValues',
-        itemToValue ? flatItems.map((item) => itemToValue(item)) : undefined,
+        itemToValue
+          ? [...flatItems.map((item) => itemToValue(item)), ...(externalFilteredValues ?? [])]
+          : undefined,
       );
-    }, [store, flatItems, itemToValue]);
+    }, [store, flatItems, externalFilteredValues, itemToValue]);
   }
 
   useIsoLayoutEffect(() => {
