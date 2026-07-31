@@ -46,9 +46,7 @@ function Test(props: { submenuTriggerProps?: React.ComponentProps<typeof Menu.Su
   );
 }
 
-// TalkBack in Chrome activates elements with a synthetic mouse press: a zero-pressure 1x1
-// `pointerdown` followed by `mousedown` and a `detail: 0` click.
-function fireTalkBackPress(element: Element) {
+function fireTalkBackMouseDown(element: Element) {
   fireEvent.pointerDown(element, {
     pointerType: 'mouse',
     width: 1,
@@ -57,6 +55,12 @@ function fireTalkBackPress(element: Element) {
     detail: 0,
   });
   fireEvent.mouseDown(element, { detail: 0 });
+}
+
+// TalkBack in Chrome activates elements with a synthetic mouse press: a zero-pressure 1x1
+// `pointerdown` followed by `mousedown` and a `detail: 0` click.
+function fireTalkBackPress(element: Element) {
+  fireTalkBackMouseDown(element);
   fireEvent.click(element, { detail: 0 });
 }
 
@@ -94,16 +98,13 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with TalkBack', () => {
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const submenuTrigger = await screen.findByTestId('submenu-trigger');
 
-    fireTalkBackPress(submenuTrigger);
+    fireTalkBackMouseDown(submenuTrigger);
 
     await screen.findByTestId('submenu');
 
     // The trailing click must not toggle the freshly opened submenu closed.
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 50);
-      });
-    });
+    fireEvent.click(submenuTrigger, { detail: 0 });
+    await waitForFrames();
 
     expect(screen.queryByTestId('submenu')).not.toBe(null);
   });
