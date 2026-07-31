@@ -8742,6 +8742,10 @@ describe('<Combobox.Root />', () => {
       });
 
       it('does not fill the filter input when the dialog closes', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
         const onInputValueChange = vi.fn();
         const { user } = await render(
           <DialogSingleCombobox onInputValueChange={onInputValueChange} />,
