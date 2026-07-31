@@ -34,13 +34,13 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
     },
   }));
 
-  it('has presentation role', async () => {
+  it('has role="none"', async () => {
     await render(
       <NumberField.Root>
         <NumberField.ScrubArea />
       </NumberField.Root>,
     );
-    expect(screen.queryByRole('presentation')).not.toBe(null);
+    expect(screen.queryByRole('none')).not.toBe(null);
   });
 
   it('throws a descriptive error when rendered outside <NumberField.ScrubArea>', async () => {
@@ -133,7 +133,7 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
       </NumberField.Root>,
     );
 
-    const scrubArea = screen.getByRole('presentation');
+    const scrubArea = screen.getByRole('none');
 
     await act(async () => {
       await user.pointer({ target: scrubArea, keys: '[TouchA>]', pointerName: 'touch' });
@@ -163,7 +163,7 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
         </NumberField.Root>,
       );
 
-      const scrubArea = screen.getByRole('presentation');
+      const scrubArea = screen.getByRole('none');
 
       await act(async () => {
         await user.pointer({ target: scrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });

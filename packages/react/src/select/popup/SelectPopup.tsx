@@ -451,7 +451,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const defaultProps: HTMLProps = {
     ...(listElement
       ? {
-          role: 'presentation',
+          role: 'none',
           'aria-orientation': undefined,
         }
       : {

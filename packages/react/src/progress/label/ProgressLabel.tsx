@@ -29,7 +29,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
     props: [
       {
         id,
-        role: 'presentation',
+        role: 'none',
       },
       elementProps,
     ],

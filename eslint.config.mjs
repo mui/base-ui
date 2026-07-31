@@ -131,6 +131,16 @@ export default defineConfig(
       'mui/add-undef-to-optional': 'error',
       'mui/disallow-react-api-in-server-components': 'error',
       'mui/no-floating-cleanup': 'error',
+      // `mui/no-presentation-role` only visits JSX attributes, but components mostly
+      // set the role through a props object, so guard that form here too.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "Property[key.name='role'][value.value='presentation']",
+          message:
+            "Use role: 'none' instead of role: 'presentation'. They are equivalent, but role=\"none\" is preferred.",
+        },
+      ],
     },
   },
   {
@@ -167,10 +177,6 @@ export default defineConfig(
           patterns: NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
         },
       ],
-      // `role="none"` is an alias for `role="presentation"`, but aria-query treats
-      // them differently and reports `aria-hidden` as unsupported on `none`.
-      // See https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1090
-      'jsx-a11y/role-supports-aria-props': 'off',
     },
   },
   {

@@ -698,7 +698,7 @@ describe('<AlertDialog.Root />', () => {
       popup = await screen.findByRole('alertdialog');
       expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
 
-      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await user.click(screen.getByRole('none', { hidden: true }));
       await flushMicrotasks();
 
       expect(screen.queryByRole('alertdialog')).not.toBe(null);
@@ -892,7 +892,7 @@ describe('<AlertDialog.Root />', () => {
       expect(await screen.findByRole('alertdialog')).not.toBe(null);
       expect(handle.isOpen).toBe(true);
 
-      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await user.click(screen.getByRole('none', { hidden: true }));
       await flushMicrotasks();
 
       expect(screen.queryByRole('alertdialog')).not.toBe(null);

@@ -1132,7 +1132,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     return {
       reference,
-      floating: { role: 'presentation' },
+      floating: { role: 'none' },
     };
   }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 

@@ -63,7 +63,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     stateAttributesMapping: scrollAreaStateAttributesMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         style: {
           minWidth: 'fit-content',
         },

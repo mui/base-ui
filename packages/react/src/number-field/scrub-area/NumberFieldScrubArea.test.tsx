@@ -67,13 +67,13 @@ describe('<NumberField.ScrubArea />', () => {
     },
   }));
 
-  it('has presentation role', async () => {
+  it('has role="none"', async () => {
     await render(
       <NumberField.Root>
         <NumberField.ScrubArea />
       </NumberField.Root>,
     );
-    expect(screen.queryByRole('presentation')).not.toBe(null);
+    expect(screen.queryByRole('none')).not.toBe(null);
   });
 
   describe('touch input', () => {
