@@ -487,24 +487,26 @@ export function useDismiss(
         return;
       }
 
-      // In intentional mode, only a click whose press began while the floating
-      // element was open counts as an outside press. Virtual clicks from the
-      // keyboard or assistive technology have no press and are still accepted.
-      if (
-        event.type === 'click' &&
-        !isVirtualClick(event as MouseEvent) &&
-        !sawPressWhileOpenRef.current
-      ) {
-        return;
-      }
+      // Only `click` events reach this point in intentional mode:
+      // `shouldIgnoreEvent` drops other event types in it, as well as clicks
+      // in sloppy mode.
+      if (getOutsidePressEvent() === 'intentional') {
+        // Only a click whose press began while the floating element was open
+        // counts as an outside press. Virtual clicks — keyboard and assistive
+        // technology activations as well as programmatic `element.click()` —
+        // have no press and are still accepted.
+        if (!isVirtualClick(event as MouseEvent) && !sawPressWhileOpenRef.current) {
+          return;
+        }
 
-      // In intentional mode, a press that starts inside and ends outside gets
-      // one suppressed outside click. Run this after inside-target checks so
-      // inside clicks don't consume the one-shot suppression.
-      if (getOutsidePressEvent() === 'intentional' && suppressNextOutsideClickRef.current) {
-        preventedPressSuppressionTimeout.clear();
-        suppressNextOutsideClickRef.current = false;
-        return;
+        // A press that starts inside and ends outside gets one suppressed
+        // outside click. Run this after inside-target checks so inside clicks
+        // don't consume the one-shot suppression.
+        if (suppressNextOutsideClickRef.current) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+          return;
+        }
       }
 
       if (typeof outsidePress === 'function' && !outsidePress(event)) {
