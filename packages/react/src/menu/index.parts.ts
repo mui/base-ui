@@ -4,8 +4,12 @@ export { MenuCheckboxItem as CheckboxItem } from './checkbox-item/MenuCheckboxIt
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-item-indicator/MenuCheckboxItemIndicator';
 export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
+export { MenuInput as Input } from './input/MenuInput';
+export { MenuClear as Clear } from './clear/MenuClear';
 export { MenuItem as Item } from './item/MenuItem';
 export { MenuLinkItem as LinkItem } from './link-item/MenuLinkItem';
+export { MenuList as List } from './list/MenuList';
+export { MenuEmpty as Empty } from './empty/MenuEmpty';
 export { MenuPopup as Popup } from './popup/MenuPopup';
 export { MenuPortal as Portal } from './portal/MenuPortal';
 export { MenuPositioner as Positioner } from './positioner/MenuPositioner';

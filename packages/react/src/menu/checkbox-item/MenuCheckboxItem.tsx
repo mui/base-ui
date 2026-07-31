@@ -7,21 +7,15 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
+import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
-/**
- * A menu item that toggles a setting on or off.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+const MenuCheckboxItemImpl = React.forwardRef(function MenuCheckboxItemImpl(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -42,9 +36,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId } = useMenuRootContext();
+  const id = idProp ?? `${floatingId}-${listItem.index}`;
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
@@ -109,6 +103,33 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   return (
     <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
+  );
+});
+
+/**
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+  componentProps: MenuCheckboxItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { store } = useMenuRootContext();
+  const filterable = store.select('filterable');
+  const menuCheckboxItem = <MenuCheckboxItemImpl {...componentProps} ref={forwardedRef} />;
+
+  return filterable ? (
+    // FilterDropdownItem composes onto MenuCheckboxItemImpl so its implementation
+    // overrides MenuCheckboxItemImpl's implementation.
+    <FilterDropdownItem
+      label={componentProps.label}
+      role="menuitemcheckbox"
+      render={menuCheckboxItem}
+    />
+  ) : (
+    menuCheckboxItem
   );
 });
 
