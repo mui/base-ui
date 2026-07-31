@@ -80,20 +80,12 @@ describe('<Field.Validity />', () => {
 
     const input = screen.getByRole<HTMLInputElement>('spinbutton');
 
-    await act(async () => {
-      await user.click(input);
-      await user.keyboard('1');
-      await user.tab();
-    });
+    await act(() => user.type(input, '1[Tab]'));
 
     expect(handleValidity.mock.lastCall?.[0].value).toBe('1');
     expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
 
-    await act(async () => {
-      await user.click(input);
-      await user.keyboard('{Control>}a{/Control}');
-      await user.keyboard('e');
-    });
+    await act(() => user.type(input, '{Control>}a{/Control}e'));
 
     expect(input.validity.valueMissing).toBe(true);
     expect(input.validity.badInput).toBe(true);
