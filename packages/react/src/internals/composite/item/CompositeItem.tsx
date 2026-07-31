@@ -6,9 +6,6 @@ import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../types';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
-/**
- * @internal
- */
 export function CompositeItem<Metadata, State extends Record<string, any>>(
   componentProps: CompositeItem.Props<Metadata, State>,
 ) {
