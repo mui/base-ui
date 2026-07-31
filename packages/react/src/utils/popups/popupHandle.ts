@@ -84,10 +84,6 @@ export class BasePopupHandle<
    */
   private attachedStoreValue: Store | null = null;
 
-  private serverStoreValue: HandleStore;
-
-  private serverStoreSource: HandleStore | undefined;
-
   /**
    * Detached imperative open retained until a matching root commits.
    */
@@ -117,9 +113,7 @@ export class BasePopupHandle<
     protected readonly fallbackStore: HandleStore,
     private readonly componentName: string,
     private readonly throwOnMissingTrigger: boolean = true,
-  ) {
-    this.serverStoreValue = fallbackStore;
-  }
+  ) {}
 
   protected get attachedStore() {
     return this.attachedStoreValue;
@@ -142,30 +136,12 @@ export class BasePopupHandle<
   }
 
   /**
-   * Stable snapshot of the last root store rendered before attachment. It is separate from
-   * `attachedStoreValue`, so rendering a root does not make imperative calls target a store that may
-   * never commit, and it does not change when the root attaches during selective hydration.
+   * Stable fallback store used for server rendering and hydration. Root stores cannot be recorded on
+   * the handle during render because a handle can be shared by concurrent server-rendered requests.
    * @internal
    */
   get serverStore(): HandleStore {
-    return this.serverStoreValue;
-  }
-
-  /**
-   * Records the declarative root snapshot during render without attaching it as an imperative
-   * target. Once a root commits, abandoned renders can no longer replace the hydration snapshot.
-   * @internal
-   */
-  setServerStore(store: HandleStore) {
-    if (this.attachedStoreValue === null && this.serverStoreSource !== store) {
-      this.serverStoreSource = store;
-
-      const state = (store as HandleStore & { state: object }).state;
-      this.serverStoreValue = Object.assign(Object.create(store), {
-        state,
-        getSnapshot: () => state,
-      });
-    }
+    return this.fallbackStore;
   }
 
   /**

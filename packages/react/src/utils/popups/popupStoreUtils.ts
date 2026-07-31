@@ -55,7 +55,6 @@ type PopupStoreWithOpen<
  */
 export interface PopupRootStoreHandle<Store> {
   attachStore(store: Store): () => void;
-  setServerStore?(store: Store): void;
 }
 
 /**
@@ -107,8 +106,6 @@ export function PopupHandleAttachment<Store>({
   handle: PopupRootStoreHandle<Store> | undefined;
   store: Store;
 }) {
-  handle?.setServerStore?.(store);
-
   useIsoLayoutEffect(() => {
     if (!handle) {
       return undefined;

@@ -16,10 +16,10 @@ describe('<Dialog.Root />', () => {
   describe('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
-    it('server-renders a detached trigger after its default-open root from the root snapshot', () => {
+    it('hydrates a detached trigger from the stable fallback store', async () => {
       const handle = Dialog.createHandle();
 
-      renderToString(
+      const { hydrate } = renderToString(
         <React.Fragment>
           <Dialog.Root handle={handle} defaultOpen defaultTriggerId="trigger" />
           <Dialog.Trigger handle={handle} id="trigger">
@@ -29,9 +29,82 @@ describe('<Dialog.Root />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Trigger' });
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
       expect(trigger).toHaveAttribute('data-popup-open');
     });
+
+    it.skipIf(!isJSDOM || React.version.startsWith('17'))(
+      'does not share a server snapshot between concurrent requests',
+      async () => {
+        const reactDOMServerModule = ['react-dom', 'server.browser'].join('/');
+        const { renderToReadableStream } = (await import(
+          /* @vite-ignore */ reactDOMServerModule
+        )) as typeof import('react-dom/server.browser');
+        const handle = Dialog.createHandle();
+        let releaseRequestA: (() => void) | undefined;
+        let requestAReleased = false;
+        let markRequestASuspended: (() => void) | undefined;
+        const requestAGate = new Promise<void>((resolve) => {
+          releaseRequestA = resolve;
+        });
+        const requestASuspended = new Promise<void>((resolve) => {
+          markRequestASuspended = resolve;
+        });
+
+        function DelayedRequestATrigger(): React.JSX.Element {
+          if (!requestAReleased) {
+            markRequestASuspended?.();
+            throw requestAGate;
+          }
+
+          return (
+            <Dialog.Trigger handle={handle} id="request-a-trigger">
+              Request A trigger
+            </Dialog.Trigger>
+          );
+        }
+
+        async function serializeStream(element: React.ReactNode) {
+          const view = await renderToReadableStream(element);
+          await view.allReady;
+          return new Response(view).text();
+        }
+
+        const requestAPromise = serializeStream(
+          <React.Fragment>
+            <Dialog.Root handle={handle} defaultOpen={false} />
+            <React.Suspense fallback={null}>
+              <DelayedRequestATrigger />
+            </React.Suspense>
+          </React.Fragment>,
+        );
+
+        await requestASuspended;
+
+        await serializeStream(
+          <React.Fragment>
+            <Dialog.Root handle={handle} defaultOpen defaultTriggerId="request-b-trigger" />
+            <Dialog.Trigger handle={handle} id="request-b-trigger">
+              Request B trigger
+            </Dialog.Trigger>
+          </React.Fragment>,
+        );
+
+        requestAReleased = true;
+        releaseRequestA?.();
+
+        const requestAHtml = await requestAPromise;
+        expect(requestAHtml).toContain('aria-expanded="false"');
+        expect(requestAHtml).not.toContain('data-popup-open');
+      },
+    );
 
     it('keeps the server snapshot stable when the root closes before a delayed trigger hydrates', async () => {
       const handle = Dialog.createHandle();
@@ -66,7 +139,7 @@ describe('<Dialog.Root />', () => {
 
       const { hydrate } = renderToString(<App />);
       const trigger = screen.getByRole('button', { name: 'Trigger' });
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
       suspend = true;
       hydrate();
@@ -76,7 +149,7 @@ describe('<Dialog.Root />', () => {
       });
 
       act(() => handle.close());
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
       suspend = false;
       await act(async () => {
