@@ -578,11 +578,6 @@
   clip-path: inset(0 0 0 0);
   pointer-events: auto;
 
-  .ChildPopup[data-side='top'] & {
-    display: flex;
-    flex-direction: column-reverse;
-  }
-
   .ChildPopup:is([data-starting-style], [data-ending-style]) & {
     clip-path: inset(0 0 100% 0);
   }
