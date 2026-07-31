@@ -314,6 +314,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
+  useIsoLayoutEffect(() => {
+    if (open) {
+      closeTypeRef.current = '';
+    }
+  }, [open]);
+
   const getTabbableContent = useStableCallback(
     (container: Element | null = floatingFocusElement) => {
       return container ? tabbable(container) : [];

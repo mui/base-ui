@@ -1465,6 +1465,73 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
 
+      test('resets keyboard close modality between keep-mounted open sessions', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="controlled-close" onClick={() => setIsOpen(false)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('{Escape}');
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+
+          focusSpy.mockClear();
+
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
       test('clears outside pointer state between keep-mounted open sessions', async () => {
         let readInsideReactTree = () => false;
 
