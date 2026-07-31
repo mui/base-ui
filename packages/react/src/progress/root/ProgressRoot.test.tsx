@@ -177,6 +177,41 @@ describe('<Progress.Root />', () => {
       expect(screen.getByTestId('indicator').style.width).toBe('0%');
     });
 
+    it.each([
+      { value: 50, expectedValue: 40 },
+      { value: 10, expectedValue: 20 },
+    ])(
+      'formats the clamped value $expectedValue when a custom-formatted value $value is outside the range',
+      async ({ value, expectedValue }) => {
+        const format: Intl.NumberFormatOptions = {
+          style: 'currency',
+          currency: 'USD',
+        };
+        const expected = new Intl.NumberFormat(undefined, format).format(expectedValue);
+        const getAriaValueText = vi.fn((formattedValue: string, rawValue: number | null) => {
+          return `${formattedValue} (raw: ${rawValue})`;
+        });
+
+        await render(
+          <Progress.Root
+            min={20}
+            max={40}
+            value={value}
+            format={format}
+            getAriaValueText={getAriaValueText}
+          >
+            <Progress.Value data-testid="value" />
+          </Progress.Root>,
+        );
+
+        const progressbar = screen.getByRole('progressbar');
+        expect(progressbar).toHaveAttribute('aria-valuenow', String(expectedValue));
+        expect(screen.getByTestId('value')).toHaveTextContent(expected);
+        expect(getAriaValueText).toHaveBeenLastCalledWith(expected, value);
+        expect(progressbar).toHaveAttribute('aria-valuetext', `${expected} (raw: ${value})`);
+      },
+    );
+
     it('reports complete when the value reaches or exceeds max', async () => {
       await render(
         <Progress.Root min={0} max={40} value={45}>

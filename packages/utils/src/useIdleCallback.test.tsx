@@ -1,16 +1,43 @@
 import * as React from 'react';
-import { createRenderer, waitFor } from '@mui/internal-test-utils';
+import { createRenderer } from '@mui/internal-test-utils';
 import { expect, vi } from 'vitest';
-import { IdleCallback, useIdleCallback } from './useIdleCallback';
 
-/**
- * Waits for the specified number of milliseconds.
- */
-async function wait(ms: number) {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+type IdleCallbackModule = typeof import('./useIdleCallback');
+
+let IdleCallback: IdleCallbackModule['IdleCallback'];
+let useIdleCallback: IdleCallbackModule['useIdleCallback'];
+
+const scheduledCallbacks = new Map<number, () => void>();
+let nextId = 0;
+
+function scheduleCallback(callback: () => void) {
+  nextId += 1;
+  scheduledCallbacks.set(nextId, callback);
+  return nextId;
 }
+
+function flushIdleCallbacks() {
+  const callbacks = Array.from(scheduledCallbacks.values());
+  scheduledCallbacks.clear();
+  callbacks.forEach((callback) => callback());
+}
+
+beforeAll(async () => {
+  vi.stubGlobal('requestIdleCallback', scheduleCallback);
+  vi.stubGlobal('cancelIdleCallback', (id: number) => {
+    scheduledCallbacks.delete(id);
+  });
+
+  ({ IdleCallback, useIdleCallback } = await import('./useIdleCallback'));
+});
+
+beforeEach(() => {
+  scheduledCallbacks.clear();
+});
+
+afterAll(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('IdleCallback', () => {
   describe('IdleCallback class', () => {
@@ -31,21 +58,22 @@ describe('IdleCallback', () => {
       // The callback runs asynchronously after the current task, not synchronously.
       expect(fn).not.toHaveBeenCalled();
 
-      await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+      flushIdleCallbacks();
+      expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('clear() cancels a pending callback', async () => {
+    it('clear() cancels a pending callback', () => {
       const idleCallback = IdleCallback.create();
       const fn = vi.fn();
 
       idleCallback.start(fn);
       idleCallback.clear();
 
-      await wait(50);
+      flushIdleCallbacks();
       expect(fn).not.toHaveBeenCalled();
     });
 
-    it('start() clears any previously scheduled callback', async () => {
+    it('start() clears any previously scheduled callback', () => {
       const idleCallback = IdleCallback.create();
       const first = vi.fn();
       const second = vi.fn();
@@ -53,25 +81,28 @@ describe('IdleCallback', () => {
       idleCallback.start(first);
       idleCallback.start(second);
 
-      await waitFor(() => expect(second).toHaveBeenCalledTimes(1));
+      flushIdleCallbacks();
+      expect(second).toHaveBeenCalledTimes(1);
       expect(first).not.toHaveBeenCalled();
     });
 
-    it('can be reused after the callback has run', async () => {
+    it('can be reused after the callback has run', () => {
       const idleCallback = IdleCallback.create();
       const fn = vi.fn();
 
       idleCallback.start(fn);
-      await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+      flushIdleCallbacks();
+      expect(fn).toHaveBeenCalledTimes(1);
 
       // The completed handle must be reset so a later `clear()` cannot cancel an unrelated callback.
       expect(idleCallback.currentId).toBe(null);
 
       idleCallback.start(fn);
-      await waitFor(() => expect(fn).toHaveBeenCalledTimes(2));
+      flushIdleCallbacks();
+      expect(fn).toHaveBeenCalledTimes(2);
     });
 
-    it('disposeEffect() returns the clear function', async () => {
+    it('disposeEffect() returns the clear function', () => {
       const idleCallback = IdleCallback.create();
       const fn = vi.fn();
 
@@ -81,7 +112,7 @@ describe('IdleCallback', () => {
 
       dispose();
 
-      await wait(50);
+      flushIdleCallbacks();
       expect(fn).not.toHaveBeenCalled();
     });
   });
@@ -90,7 +121,7 @@ describe('IdleCallback', () => {
     const { render } = createRenderer();
 
     it('returns a stable scheduler across re-renders', async () => {
-      let scheduler!: IdleCallback;
+      let scheduler!: ReturnType<IdleCallbackModule['useIdleCallback']>;
 
       function Test() {
         scheduler = useIdleCallback();
@@ -107,7 +138,7 @@ describe('IdleCallback', () => {
 
     it('cancels a pending callback on unmount', async () => {
       const fn = vi.fn();
-      let scheduler!: IdleCallback;
+      let scheduler!: ReturnType<IdleCallbackModule['useIdleCallback']>;
 
       function Test() {
         scheduler = useIdleCallback();
@@ -119,7 +150,7 @@ describe('IdleCallback', () => {
       scheduler.start(fn);
       unmount();
 
-      await wait(50);
+      flushIdleCallbacks();
       expect(fn).not.toHaveBeenCalled();
     });
   });
