@@ -50,13 +50,6 @@ export class DialogHandle<Payload> extends BasePopupHandle<
   close() {
     this.closePopup();
   }
-
-  /**
-   * Whether the dialog is currently open. Returns `false` while no root is attached to the handle.
-   */
-  get isOpen() {
-    return this.attachedStore?.select('open') ?? this.hasPendingOpen;
-  }
 }
 
 /**

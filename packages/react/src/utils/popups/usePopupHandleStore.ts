@@ -32,9 +32,5 @@ export function usePopupHandleStore<HandleStore>(
     return handle === undefined ? undefined : handle.store;
   }, [handle]);
 
-  const getServerSnapshot = React.useCallback(() => {
-    return handle === undefined ? undefined : handle.serverStore;
-  }, [handle]);
-
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, () => handle?.serverStore);
 }
