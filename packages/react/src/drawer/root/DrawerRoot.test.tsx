@@ -1054,11 +1054,18 @@ describe('<Drawer.Root />', () => {
     expect(handle.isOpen).toBe(false);
     expect(screen.queryByText('Drawer content')).toBe(null);
 
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     handle.openWithPayload(8);
     handle.open('trigger');
     handle.close();
+    const detachedWarnings = consoleWarn.mock.calls.filter(
+      ([message]) =>
+        typeof message === 'string' && message.includes('no root using this handle is mounted'),
+    );
+    consoleWarn.mockRestore();
 
     expect(handle.isOpen).toBe(false);
+    expect(detachedWarnings).toHaveLength(3);
 
     await user.click(screen.getByRole('button', { name: 'Remount root' }));
     expect(screen.getByTestId('payload').textContent).toBe('No payload');

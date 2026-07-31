@@ -162,99 +162,6 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('opens with a queued payload when the first matching root commits in Strict Mode', async () => {
-      const handle = Dialog.createHandle<number>();
-
-      handle.openWithPayload(8);
-
-      await render(
-        <React.StrictMode>
-          <Dialog.Root handle={handle}>
-            {({ payload }: NumberPayload) => (
-              <React.Fragment>
-                <span data-testid="payload">{payload ?? 'No payload'}</span>
-                <Dialog.Portal>
-                  <Dialog.Popup>Dialog Content</Dialog.Popup>
-                </Dialog.Portal>
-              </React.Fragment>
-            )}
-          </Dialog.Root>
-        </React.StrictMode>,
-      );
-
-      expect(handle.isOpen).toBe(true);
-      expect(screen.getByTestId('payload')).toHaveTextContent('8');
-      expect(screen.getByRole('dialog')).toHaveTextContent('Dialog Content');
-    });
-
-    it('does not consume a queued payload in an abandoned root render', async () => {
-      const handle = Dialog.createHandle<number>();
-      const abandonedRender = vi.fn();
-      const never = new Promise(() => {});
-
-      handle.openWithPayload(8);
-
-      function AbandonedRoot(): React.JSX.Element {
-        abandonedRender();
-        throw never;
-      }
-
-      function App() {
-        const [phase, setPhase] = React.useState<'empty' | 'abandoned' | 'committed'>('empty');
-        const [, startTransition] = React.useTransition();
-
-        return (
-          <React.Fragment>
-            <button
-              type="button"
-              onClick={() => {
-                startTransition(() => setPhase('abandoned'));
-              }}
-            >
-              Start abandoned root
-            </button>
-            <button type="button" onClick={() => setPhase('empty')}>
-              Cancel abandoned root
-            </button>
-            <button type="button" onClick={() => setPhase('committed')}>
-              Mount committed root
-            </button>
-            <React.Suspense fallback="Loading">
-              {phase === 'abandoned' && (
-                <Dialog.Root handle={handle}>
-                  <AbandonedRoot />
-                </Dialog.Root>
-              )}
-            </React.Suspense>
-            {phase === 'committed' && (
-              <Dialog.Root handle={handle}>
-                {({ payload }: NumberPayload) => (
-                  <React.Fragment>
-                    <span data-testid="payload">{payload ?? 'No payload'}</span>
-                    <Dialog.Portal>
-                      <Dialog.Popup>Dialog Content</Dialog.Popup>
-                    </Dialog.Portal>
-                  </React.Fragment>
-                )}
-              </Dialog.Root>
-            )}
-          </React.Fragment>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Start abandoned root' }));
-      expect(abandonedRender).toHaveBeenCalled();
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel abandoned root' }));
-
-      await user.click(screen.getByRole('button', { name: 'Mount committed root' }));
-
-      expect(handle.isOpen).toBe(true);
-      expect(screen.getByTestId('payload')).toHaveTextContent('8');
-      expect(screen.getByRole('dialog')).toHaveTextContent('Dialog Content');
-    });
-
     it('opens from a descendant layout effect on initial mount', async () => {
       const handle = Dialog.createHandle();
       const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -342,14 +249,21 @@ describe('<Dialog.Root />', () => {
       expect(handle.isOpen).toBe(false);
     });
 
-    it('cancels retained imperative opens when closed before a root is attached', async () => {
+    it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Dialog.createHandle<number>();
 
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.openWithPayload(8);
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(3);
 
       const { user } = await render(
         <React.Fragment>
@@ -390,7 +304,7 @@ describe('<Dialog.Root />', () => {
 
         handle.openWithPayload(8);
 
-        expect(handle.isOpen).toBe(true);
+        expect(handle.isOpen).toBe(false);
         expect(consoleWarn.mock.calls.length).toBe(0);
       } finally {
         process.env.NODE_ENV = originalEnvironment;
@@ -398,7 +312,7 @@ describe('<Dialog.Root />', () => {
       }
     });
 
-    it('cancels retained imperative opens when closed after the root is detached', async () => {
+    it('ignores imperative handle calls made after the root is detached', async () => {
       const handle = Dialog.createHandle<number>();
 
       function App() {
@@ -450,11 +364,18 @@ describe('<Dialog.Root />', () => {
       expect(handle.isOpen).toBe(false);
       expect(screen.queryByRole('dialog')).toBe(null);
 
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.openWithPayload(8);
       handle.open('trigger');
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(3);
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByRole('dialog')).toBe(null);

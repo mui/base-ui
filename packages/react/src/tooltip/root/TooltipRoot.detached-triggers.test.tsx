@@ -86,15 +86,39 @@ describe('<Tooltip.Root />', () => {
       expect(onOpenChange).not.toHaveBeenCalled();
     });
 
-    it('preserves missing-trigger safety before a root is attached', async () => {
+    it('closes when the configured initial trigger never registers', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <Tooltip.Root defaultOpen defaultTriggerId="missing" onOpenChange={onOpenChange}>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="missing-trigger-content">Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('missing-trigger-content')).toBe(null);
+      });
+      expect(onOpenChange).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    });
+
+    it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Tooltip.createHandle<number>();
 
-      expect(() => handle.open('trigger')).toThrow(
-        'was called with the trigger id "trigger", but no matching trigger is registered',
-      );
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
 
       await render(
         <div>
@@ -128,7 +152,7 @@ describe('<Tooltip.Root />', () => {
       expect(trigger).toHaveAttribute('data-popup-open');
     });
 
-    it('cancels a retained open when closed after the root is detached', async () => {
+    it('ignores imperative handle calls made after the root is detached', async () => {
       const handle = Tooltip.createHandle<number>();
 
       function App() {
@@ -179,10 +203,17 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByTestId('content')).toBe(null);
       });
 
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByTestId('content')).toBe(null);

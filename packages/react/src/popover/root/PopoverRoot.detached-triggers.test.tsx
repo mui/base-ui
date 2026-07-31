@@ -48,64 +48,20 @@ describe('<Popover.Root />', () => {
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 
-    it('opens a conditionally mounted root from a detached queued trigger association', async () => {
+    it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Popover.createHandle<number>();
 
-      function App() {
-        const [mounted, setMounted] = React.useState(false);
-
-        return (
-          <React.Fragment>
-            <Popover.Trigger handle={handle} id="trigger" payload={7}>
-              Trigger
-            </Popover.Trigger>
-            <button type="button" onClick={() => setMounted(true)}>
-              Mount root
-            </button>
-            {mounted && (
-              <Popover.Root handle={handle}>
-                {({ payload }: NumberPayload) => (
-                  <React.Fragment>
-                    <span data-testid="payload">{payload ?? 'No payload'}</span>
-                    <Popover.Portal>
-                      <Popover.Positioner>
-                        <Popover.Popup>Popover Content</Popover.Popup>
-                      </Popover.Positioner>
-                    </Popover.Portal>
-                  </React.Fragment>
-                )}
-              </Popover.Root>
-            )}
-          </React.Fragment>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      act(() => handle.open('trigger'));
-      expect(handle.isOpen).toBe(true);
-
-      await user.click(screen.getByRole('button', { name: 'Mount root' }));
-
-      await waitFor(() => {
-        expect(screen.getByText('Popover Content')).toBeVisible();
-      });
-      expect(screen.getByRole('button', { name: 'Trigger', hidden: true })).toHaveAttribute(
-        'aria-expanded',
-        'true',
-      );
-      expect(screen.getByTestId('payload')).toHaveTextContent('7');
-    });
-
-    it('preserves missing-trigger safety before a root is attached', async () => {
-      const handle = Popover.createHandle<number>();
-
-      expect(() => handle.open('trigger')).toThrow(
-        'was called with the trigger id "trigger", but no matching trigger is registered',
-      );
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
 
       const { user } = await render(
         <React.Fragment>
@@ -137,7 +93,7 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('payload').textContent).toBe('1');
     });
 
-    it('cancels a retained open when closed after the root is detached', async () => {
+    it('ignores imperative handle calls made after the root is detached', async () => {
       const handle = Popover.createHandle<number>();
 
       function App() {
@@ -191,10 +147,17 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByText('Popover Content')).toBe(null);
       });
 
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       handle.open('trigger');
       handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
 
       expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
 
       await user.click(screen.getByRole('button', { name: 'Remount root' }));
       expect(screen.queryByText('Popover Content')).toBe(null);

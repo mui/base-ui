@@ -351,6 +351,28 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
   payload: Payload | undefined;
 }) => React.ReactNode;
 
+function closeIfActiveTriggerMissing<State extends PopupStoreState<unknown>>(
+  store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
+  triggerId: string,
+) {
+  if (
+    store.select('open') &&
+    store.select('activeTriggerId') === triggerId &&
+    !store.context.triggerElements.getById(triggerId)
+  ) {
+    const eventDetails = createChangeEventDetails(REASONS.none);
+    store.setOpen(false, eventDetails);
+    // If closing is canceled, keep the previous active trigger ownership for the
+    // still-open popup instead of claiming another trigger implicitly.
+    if (!eventDetails.isCanceled) {
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+      } as Partial<State>);
+    }
+  }
+}
+
 /**
  * Keeps trigger registration state synchronized while the popup is open.
  *
@@ -445,26 +467,27 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (closeOnActiveTriggerUnmount) {
         // Defer so a same-tick replacement trigger with the same id can register first.
         queueMicrotask(() => {
-          if (
-            store.select('open') &&
-            store.select('activeTriggerId') === lostActiveTriggerId &&
-            !store.context.triggerElements.getById(lostActiveTriggerId)
-          ) {
-            const eventDetails = createChangeEventDetails(REASONS.none);
-            store.setOpen(false, eventDetails);
-            // If closing is canceled, keep the previous active trigger ownership for the
-            // still-open popup instead of claiming another trigger implicitly.
-            if (!eventDetails.isCanceled) {
-              store.update({
-                activeTriggerId: null,
-                activeTriggerElement: null,
-              } as Partial<State>);
-            }
-          }
+          closeIfActiveTriggerMissing(store, lostActiveTriggerId);
         });
       }
     }
   }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+
+  React.useEffect(() => {
+    if (
+      closeOnActiveTriggerUnmount &&
+      open &&
+      activeTriggerId &&
+      store.state.activeTriggerElement === null &&
+      !store.context.triggerElements.getById(activeTriggerId)
+    ) {
+      // Detached triggers subscribe in a passive effect. Wait until those subscriptions have had
+      // an opportunity to migrate before deciding that an initially configured trigger is missing.
+      queueMicrotask(() => {
+        closeIfActiveTriggerMissing(store, activeTriggerId);
+      });
+    }
+  }, [open, store, activeTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**

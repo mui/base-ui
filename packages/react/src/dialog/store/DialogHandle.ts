@@ -1,4 +1,6 @@
 import { DialogStore, createNullDialogStore, type DialogHandleStore } from './DialogStore';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**
@@ -37,9 +39,20 @@ export class DialogHandle<Payload> extends BasePopupHandle<
    * @param payload Payload to set when opening the dialog. It is exposed to the root's render-prop children.
    */
   openWithPayload(payload: Payload) {
-    this.openByTrigger(null, (store) => {
-      store.set('payload', payload);
-    });
+    const attachedStore = this.attachedStore;
+
+    if (attachedStore === null) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Base UI: DialogHandle.openWithPayload() was called while no root using this handle is mounted. ' +
+            'The call and its payload were ignored; mount a root with this handle before opening it imperatively.',
+        );
+      }
+      return;
+    }
+
+    attachedStore.set('payload', payload);
+    attachedStore.setOpen(true, createChangeEventDetails(REASONS.imperativeAction));
   }
 
   /**
@@ -55,7 +68,7 @@ export class DialogHandle<Payload> extends BasePopupHandle<
    * Whether the dialog is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return super.isOpen;
+    return this.attachedStore?.select('open') ?? false;
   }
 }
 
