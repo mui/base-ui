@@ -22,6 +22,7 @@ export interface PopupHandleStoreProvider<HandleStore> {
 
   /**
    * Stable store used to reproduce the server-rendered trigger snapshot during hydration.
+   * @internal
    */
   readonly serverStore: HandleStore;
 
@@ -83,13 +84,7 @@ export class BasePopupHandle<
    */
   private attachedStoreValue: Store | null = null;
 
-  /**
-   * Stable snapshot of the last root store rendered before attachment. It is separate from
-   * `attachedStoreValue`, so rendering a root does not make imperative calls target a store that may
-   * never commit, and it does not change when the root attaches during selective hydration.
-   * @internal
-   */
-  serverStore: HandleStore;
+  private serverStoreValue: HandleStore;
 
   private serverStoreSource: HandleStore | undefined;
 
@@ -123,7 +118,7 @@ export class BasePopupHandle<
     private readonly componentName: string,
     private readonly throwOnMissingTrigger: boolean = true,
   ) {
-    this.serverStore = fallbackStore;
+    this.serverStoreValue = fallbackStore;
   }
 
   protected get attachedStore() {
@@ -147,6 +142,16 @@ export class BasePopupHandle<
   }
 
   /**
+   * Stable snapshot of the last root store rendered before attachment. It is separate from
+   * `attachedStoreValue`, so rendering a root does not make imperative calls target a store that may
+   * never commit, and it does not change when the root attaches during selective hydration.
+   * @internal
+   */
+  get serverStore(): HandleStore {
+    return this.serverStoreValue;
+  }
+
+  /**
    * Records the declarative root snapshot during render without attaching it as an imperative
    * target. Once a root commits, abandoned renders can no longer replace the hydration snapshot.
    * @internal
@@ -156,7 +161,7 @@ export class BasePopupHandle<
       this.serverStoreSource = store;
 
       const state = (store as HandleStore & { state: object }).state;
-      this.serverStore = Object.assign(Object.create(store), {
+      this.serverStoreValue = Object.assign(Object.create(store), {
         state,
         getSnapshot: () => state,
       });

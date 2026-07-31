@@ -41,6 +41,13 @@ export class PreviewCardHandle<Payload> extends BasePopupHandle<
   close() {
     this.closePopup();
   }
+
+  /**
+   * Whether the preview card is currently open. Returns `false` while no root is attached to the handle.
+   */
+  get isOpen() {
+    return super.isOpen;
+  }
 }
 
 /**

@@ -37,6 +37,13 @@ export class TooltipHandle<Payload> extends BasePopupHandle<
   close() {
     this.closePopup();
   }
+
+  /**
+   * Whether the tooltip is currently open. Returns `false` while no root is attached to the handle.
+   */
+  get isOpen() {
+    return super.isOpen;
+  }
 }
 
 /**
