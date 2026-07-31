@@ -18,6 +18,7 @@ import {
   useClick,
 } from '../index';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
@@ -1148,6 +1149,54 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       // The reopened session must not inherit the previous session's press:
       // a press-less trailing click still must not count as an outside press.
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // A press observed in the new session still closes.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press seen before a same-batch close and reopen does not leak into the new session', async () => {
+      let context!: ReturnType<typeof useFloating>['context'];
+
+      function BatchReopenApp() {
+        const [open, setOpen] = React.useState(true);
+        const floating = useFloating({ open, onOpenChange: setOpen });
+        context = floating.context;
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: floating.refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: floating.refs.setFloating })} />
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<BatchReopenApp />);
+
+      // A press lands while the first session is open.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // Close and reopen in one batch: React never renders `open === false`,
+      // so only the store's `openchange` events can observe the session
+      // boundary.
+      act(() => {
+        context.rootStore.setOpen(false, createChangeEventDetails(REASONS.none));
+        context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
+      });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The gesture's trailing click belongs to the previous session and must
+      // not dismiss the reopened floating element.
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
 

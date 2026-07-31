@@ -132,7 +132,7 @@ export function useDismiss(
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
-  const { dataRef } = store.context;
+  const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -277,6 +277,24 @@ export function useDismiss(
       }
     },
   );
+
+  // A synchronous close+reopen pair (`setOpen(false); setOpen(true)`) never
+  // renders `open === false`, so the effect below cannot observe that session
+  // boundary. Every open change dispatched through the store emits
+  // `openchange` synchronously, including both halves of a same-batch pair,
+  // so the press latch is reset there as well. Controlled `open` flips that
+  // bypass the store entirely are only observable when they render, which the
+  // effect below covers.
+  React.useEffect(() => {
+    function handleOpenChange() {
+      sawPressWhileOpenRef.current = false;
+    }
+
+    events.on('openchange', handleOpenChange);
+    return () => {
+      events.off('openchange', handleOpenChange);
+    };
+  }, [events]);
 
   React.useEffect(() => {
     if (!open || !enabled) {
