@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import {
   act,
@@ -13,6 +14,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { platform } from '@base-ui/utils/platform';
 import userEvent from '@testing-library/user-event';
 import {
   createRenderer,
@@ -2741,6 +2743,138 @@ describe('<Menu.Root />', () => {
       expect(screen.getByTestId('menu')).not.toHaveAttribute('data-open');
     });
     expect(menuItem).toHaveAttribute('tabindex', '-1');
+  });
+
+  describe.skipIf(isJSDOM || !platform.engine.blink)('opening a dialog from an item', () => {
+    it('keeps the dialog open after a press-drag-release activation', async () => {
+      ignoreActWarnings();
+      const { cdp } = await import('vitest/browser');
+      const dialogOpenChangeSpy = vi.fn();
+      const documentClicks: MouseEvent[] = [];
+
+      function App() {
+        const [dialogOpen, setDialogOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Menu.Root>
+              <Menu.Trigger>Open menu</Menu.Trigger>
+              {/* `keepMounted` keeps the released item connected, like a real
+                  closing transition does: the browser only synthesizes the
+                  gesture's click on the common ancestor when the release
+                  target is still in the DOM. */}
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Dialog.Root
+              open={dialogOpen}
+              onOpenChange={(nextOpen, eventDetails) => {
+                dialogOpenChangeSpy(nextOpen, eventDetails.reason);
+                setDialogOpen(nextOpen);
+              }}
+            >
+              <Dialog.Portal>
+                <Dialog.Backdrop style={{ position: 'fixed', inset: 0 }} />
+                <Dialog.Popup data-testid="dialog-popup">Dialog</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const trigger = screen.getByRole('button', { name: 'Open menu' });
+      const frame = window.frameElement as HTMLIFrameElement | null;
+      const frameRect = frame?.getBoundingClientRect();
+      const frameOffset = {
+        x: (frameRect?.left ?? 0) + (frame?.clientLeft ?? 0),
+        y: (frameRect?.top ?? 0) + (frame?.clientTop ?? 0),
+      };
+
+      function centerOf(element: Element) {
+        const rect = element.getBoundingClientRect();
+        return {
+          x: frameOffset.x + rect.left + rect.width / 2,
+          y: frameOffset.y + rect.top + rect.height / 2,
+        };
+      }
+
+      const session = cdp() as CDPSession;
+
+      function recordClick(event: MouseEvent) {
+        documentClicks.push(event);
+      }
+
+      document.addEventListener('click', recordClick, true);
+
+      try {
+        const triggerCenter = centerOf(trigger);
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...triggerCenter,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...triggerCenter,
+            button: 'left',
+            buttons: 1,
+            clickCount: 1,
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        // Exceed the impatient-click threshold so releasing over the item
+        // activates it instead of being treated as part of a quick click.
+        await wait(200);
+
+        const item = screen.getByRole('menuitem', { name: 'Open dialog' });
+        const itemCenter = centerOf(item);
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...itemCenter,
+            buttons: 1,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...itemCenter,
+            button: 'left',
+            buttons: 0,
+            clickCount: 1,
+          });
+        });
+
+        // The item activates on release: the menu closes and the dialog opens.
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
+        });
+
+        // The browser fires the gesture's native click on the common ancestor
+        // of the press and release targets after the dialog is open. It must
+        // not be treated as an intentional outside press on the dialog.
+        await waitFor(() => {
+          expect(documentClicks.some((event) => event.isTrusted)).toBe(true);
+        });
+
+        expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
+        expect(dialogOpenChangeSpy).not.toHaveBeenCalledWith(false, REASONS.outsidePress);
+      } finally {
+        document.removeEventListener('click', recordClick, true);
+      }
+    });
   });
 
   describe('prop: highlightItemOnHover', () => {
