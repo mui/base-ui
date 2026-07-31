@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { isJSDOM } from '#test-utils';
 
 describe('<Field.Validity />', () => {
   const { render } = createRenderer();
@@ -61,6 +62,46 @@ describe('<Field.Validity />', () => {
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
       expect(screen.getByText('Required')).toBeVisible();
     });
+  });
+
+  it.skipIf(isJSDOM)('defers badInput during required change revalidation', async () => {
+    const { userEvent } = await import('vitest/browser');
+    const user = userEvent.setup();
+    const handleValidity = vi.fn();
+
+    await render(
+      <Field.Root validationMode="onBlur" validate={() => 'custom error'}>
+        <Field.Control type="number" required />
+        <Field.Error match="valueMissing">Required</Field.Error>
+        <Field.Error match="badInput">Invalid number</Field.Error>
+        <Field.Validity>{handleValidity}</Field.Validity>
+      </Field.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('spinbutton');
+
+    await act(async () => {
+      await user.click(input);
+      await user.keyboard('1');
+      await user.tab();
+    });
+
+    expect(handleValidity.mock.lastCall?.[0].value).toBe('1');
+    expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+
+    await act(async () => {
+      await user.click(input);
+      await user.keyboard('{Control>}a{/Control}');
+      await user.keyboard('e');
+    });
+
+    expect(input.validity.valueMissing).toBe(true);
+    expect(input.validity.badInput).toBe(true);
+    expect(handleValidity.mock.lastCall?.[0].value).toBe('1');
+    expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+    expect(handleValidity.mock.lastCall?.[0].validity.badInput).toBe(false);
+    expect(screen.queryByText('Required')).toBe(null);
+    expect(screen.queryByText('Invalid number')).toBe(null);
   });
 
   describe('validationMode=onSubmit', () => {

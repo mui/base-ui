@@ -182,6 +182,18 @@ export function useFieldValidation(
         return;
       }
 
+      // A stale custom error can coexist with valueMissing, but defer any other native errors.
+      for (const key of validityKeys) {
+        if (
+          key !== 'valid' &&
+          key !== 'valueMissing' &&
+          key !== 'customError' &&
+          currentNativeValidity[key]
+        ) {
+          return;
+        }
+      }
+
       // Value is still missing: publish the current native state so valueMissing and the changed
       // value are observable immediately. Full custom validation still waits for its boundary.
     }
