@@ -472,22 +472,6 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
   }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
-
-  React.useEffect(() => {
-    if (
-      closeOnActiveTriggerUnmount &&
-      open &&
-      activeTriggerId &&
-      store.state.activeTriggerElement === null &&
-      !store.context.triggerElements.getById(activeTriggerId)
-    ) {
-      // Detached triggers subscribe in a passive effect. Wait until those subscriptions have had
-      // an opportunity to migrate before deciding that an initially configured trigger is missing.
-      queueMicrotask(() => {
-        closeIfActiveTriggerMissing(store, activeTriggerId);
-      });
-    }
-  }, [open, store, activeTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**

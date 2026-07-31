@@ -27,7 +27,67 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  const { render, clock } = createRenderer();
+  const { render, renderToString, clock } = createRenderer();
+
+  it.skipIf(!isJSDOM)(
+    'keeps a default-open root open until its detached trigger hydrates',
+    async () => {
+      const handle = Tooltip.createHandle();
+      let suspend = false;
+      let resume: (() => void) | undefined;
+      const hydrationGate = new Promise<void>((resolve) => {
+        resume = resolve;
+      });
+
+      function DelayedTrigger(): React.JSX.Element {
+        if (suspend) {
+          throw hydrationGate;
+        }
+
+        return (
+          <Tooltip.Trigger handle={handle} id="trigger">
+            Trigger
+          </Tooltip.Trigger>
+        );
+      }
+
+      function App() {
+        return (
+          <React.Fragment>
+            <Tooltip.Root handle={handle} defaultOpen defaultTriggerId="trigger" />
+            <React.Suspense fallback="Loading">
+              <DelayedTrigger />
+            </React.Suspense>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      suspend = true;
+      hydrate();
+
+      try {
+        await waitFor(() => {
+          expect(handle.isOpen).toBe(true);
+        });
+        await flushMicrotasks();
+        expect(handle.isOpen).toBe(true);
+      } finally {
+        suspend = false;
+        await act(async () => {
+          resume?.();
+          await hydrationGate;
+        });
+      }
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+    },
+  );
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
@@ -84,25 +144,6 @@ describe('<Tooltip.Root />', () => {
       expect(isOpen).toBe(true);
       expect(popupIsOpen).toBe(true);
       expect(onOpenChange).not.toHaveBeenCalled();
-    });
-
-    it('closes when the configured initial trigger never registers', async () => {
-      const onOpenChange = vi.fn();
-
-      await render(
-        <Tooltip.Root defaultOpen defaultTriggerId="missing" onOpenChange={onOpenChange}>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup data-testid="missing-trigger-content">Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('missing-trigger-content')).toBe(null);
-      });
-      expect(onOpenChange).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
     });
 
     it('ignores imperative handle calls made before a root is attached', async () => {
