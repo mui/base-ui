@@ -320,9 +320,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight
   ) {
     const knownRowIds = adaptiveKnownRowIdsRef.current;
+    const nextRowIds = new Set(rows.map((row) => row.id));
     const estimateChanged = adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight;
+    const addsUnknownRows = rows.some((row) => !knownRowIds.has(row.id));
+    let omitsKnownRows = false;
+    for (const rowId of knownRowIds) {
+      if (!nextRowIds.has(rowId)) {
+        omitsKnownRows = true;
+        break;
+      }
+    }
+    // A subset is filtering and a superset is expansion. Adding and removing IDs in the same
+    // update is a partial replacement, even if a selected item keeps the collections overlapping.
     const collectionChanged =
-      rows.length > 0 && knownRowIds.size > 0 && !rows.some((row) => knownRowIds.has(row.id));
+      rows.length > 0 &&
+      knownRowIds.size > 0 &&
+      (!rows.some((row) => knownRowIds.has(row.id)) || (addsUnknownRows && omitsKnownRows));
 
     adaptiveRowsRef.current = rows;
     adaptiveEstimatedItemHeightRef.current = staticEstimatedItemHeight;

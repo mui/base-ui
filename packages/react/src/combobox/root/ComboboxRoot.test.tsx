@@ -6946,6 +6946,70 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
     });
 
+    it('highlights the first enabled matching item after typing', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={(item) => item === 'alpha'}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      const alpha = await screen.findByRole('option', { name: 'alpha' });
+      const alpine = screen.getByRole('option', { name: 'alpine' });
+      expect(alpha).toHaveAttribute('aria-disabled', 'true');
+      expect(input).toHaveAttribute('aria-activedescendant', alpine.id);
+    });
+
+    it('does not highlight an item when every match is disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={() => true}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      await screen.findByRole('option', { name: 'alpha' });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('highlights the first matching item after IME composition', async () => {
       await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight openOnInputClick={false}>

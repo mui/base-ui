@@ -554,6 +554,29 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  const isIndexDisabled = useStableCallback((index: number) => {
+    if (!hasItems && !(index in valuesRef.current)) {
+      return true;
+    }
+
+    const itemValue = hasItems ? flatFilteredItems[index] : valuesRef.current[index];
+    const itemElement = listRef.current[index];
+    return (
+      isItemDisabled?.(itemValue, index) === true ||
+      (itemElement != null && isElementDisabled(itemElement))
+    );
+  });
+
+  const getFirstEnabledIndex = useStableCallback((itemCount: number) => {
+    for (let index = 0; index < itemCount; index += 1) {
+      if (!isIndexDisabled(index)) {
+        return index;
+      }
+    }
+
+    return null;
+  });
+
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
@@ -622,7 +645,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             store.state.activeIndex == null &&
             (open || inline)
           ) {
-            updateActiveIndexState(store, 0);
+            const itemCount = hasItems ? flatFilteredItems.length : valuesRef.current.length;
+            updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
           }
         }
       } else if (
@@ -929,7 +953,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode && listIsNavigable) {
-          updateActiveIndexState(store, 0);
+          const itemCount = hasItems ? flatFilteredItems.length : valuesRef.current.length;
+          updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
         }
         pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
@@ -945,7 +970,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           ) {
             // There is no selection to restore in Autocomplete. Keep the first-item reset
             // synchronous so list navigation sees it before a directly rendered list closes.
-            updateActiveIndexState(store, 0);
+            const itemCount = hasItems ? flatFilteredItems.length : valuesRef.current.length;
+            updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
           }
 
           // Items re-mounted by the clear publish their composite indices in a follow-up
@@ -987,7 +1013,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                   : null,
               );
             } else if (autoHighlightMode === 'always') {
-              updateActiveIndexState(store, 0);
+              const itemCount =
+                hasItems || hasFilteredItemsProp
+                  ? flatFilteredItems.length
+                  : valuesRef.current.length;
+              updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
             }
           });
         }
@@ -1004,7 +1034,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex == null) {
       if (autoHighlightMode === 'always' && candidateItems.length > 0) {
-        updateActiveIndexState(store, 0);
+        updateActiveIndexState(store, getFirstEnabledIndex(candidateItems.length));
         return;
       }
       emitHighlight(undefined, -1, REASONS.none);
@@ -1037,6 +1067,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     hasFilteredItemsProp,
     hasItems,
     flatFilteredItems,
+    getFirstEnabledIndex,
     inline,
     open,
     store,
@@ -1201,19 +1232,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         !contains(inputGroupElement, target)
       );
     },
-  });
-
-  const isIndexDisabled = useStableCallback((index: number) => {
-    if (!hasItems && !(index in valuesRef.current)) {
-      return true;
-    }
-
-    const itemValue = hasItems ? flatFilteredItems[index] : valuesRef.current[index];
-    const itemElement = listRef.current[index];
-    return (
-      isItemDisabled?.(itemValue, index) === true ||
-      (itemElement != null && isElementDisabled(itemElement))
-    );
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {

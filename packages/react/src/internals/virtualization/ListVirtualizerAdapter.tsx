@@ -58,12 +58,12 @@ function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Ite
   const { children, componentName, itemCount, model, virtualItemContext } = props;
   const registeredItemCountRef = React.useRef(0);
 
-  const registerItem = React.useCallback(() => {
+  const registerItem = useStableCallback(() => {
     registeredItemCountRef.current += 1;
     return () => {
       registeredItemCountRef.current -= 1;
     };
-  }, []);
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -182,12 +182,6 @@ export function useListVirtualizerAdapter<Value, Item>(
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
   const hasGetItemKey = getItemKey != null;
-  const estimatedItemHeightFunctionRef = React.useRef<
-    ((item: Item, index: number) => number) | undefined
-  >(undefined);
-  estimatedItemHeightFunctionRef.current =
-    typeof estimatedItemHeight === 'function' ? estimatedItemHeight : undefined;
-
   // A new callback can either be an equivalent inline function or resolve different keys.
   // Re-evaluate it, then retain the row array when the resolved identity is unchanged.
   const rowsCacheRef = React.useRef<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[] | null>(
@@ -255,17 +249,47 @@ export function useListVirtualizerAdapter<Value, Item>(
     [children, componentName, items.length, virtualItemContext],
   );
 
-  const estimateRowHeight = React.useCallback(
-    (model: ListVirtualizerItemRowModel<Item>, rowIndex: number) => {
-      const estimate = estimatedItemHeightFunctionRef.current;
-      return estimate ? estimate(model.item, rowIndex) : 1;
-    },
-    [],
-  );
-  const resolvedEstimatedItemHeight =
-    typeof estimatedItemHeight === 'function'
-      ? estimateRowHeight
-      : (estimatedItemHeight ?? DEFAULT_ESTIMATED_ITEM_HEIGHT);
+  const estimatedItemHeightCacheRef = React.useRef<{
+    callback: (model: ListVirtualizerItemRowModel<Item>, rowIndex: number) => number;
+    source: (item: Item, index: number) => number;
+    rows: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[];
+    values: number[];
+  } | null>(null);
+
+  let resolvedEstimatedItemHeight:
+    | number
+    | ((model: ListVirtualizerItemRowModel<Item>, rowIndex: number) => number) =
+    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : DEFAULT_ESTIMATED_ITEM_HEIGHT;
+
+  if (typeof estimatedItemHeight === 'function') {
+    const cache = estimatedItemHeightCacheRef.current;
+    if (cache != null && cache.source === estimatedItemHeight && cache.rows === rows) {
+      resolvedEstimatedItemHeight = cache.callback;
+    } else {
+      const values = items.map((item, index) => estimatedItemHeight(item, index));
+      const cachedValues = cache?.values;
+      const valuesAreEqual =
+        cachedValues != null &&
+        cachedValues.length === values.length &&
+        values.every((value, index) => Object.is(value, cachedValues[index]));
+      const nextCache =
+        valuesAreEqual && cache != null
+          ? {
+              ...cache,
+              source: estimatedItemHeight,
+              rows,
+            }
+          : {
+              callback: (_model: ListVirtualizerItemRowModel<Item>, rowIndex: number) =>
+                values[rowIndex] ?? 1,
+              source: estimatedItemHeight,
+              rows,
+              values,
+            };
+      estimatedItemHeightCacheRef.current = nextCache;
+      resolvedEstimatedItemHeight = nextCache.callback;
+    }
+  }
 
   const apiRef = React.useRef<ListVirtualizerHandle | null>(null);
   const getRowMetrics = useStableCallback(

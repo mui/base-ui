@@ -270,6 +270,54 @@ describe('<ListVirtualizer />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'resets the refined estimate when a replacement collection partially overlaps',
+    async () => {
+      vi.restoreAllMocks();
+      const initialRows = createRows(200).map((row) => ({
+        ...row,
+        model: { label: `Tall ${row.model.label}` },
+      }));
+      const replacementRows = createRows(200).map((row, index) => ({
+        id: index === 0 ? initialRows[0].id : index + 1000,
+        model: { label: `Short ${row.model.label}` },
+      }));
+
+      function renderVariableRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
+        return (
+          <div
+            role="listitem"
+            style={{ height: params.row.model.label.startsWith('Tall') ? 60 : 20 }}
+          >
+            {params.row.model.label}
+          </div>
+        );
+      }
+
+      function Test(props: { replaced?: boolean }) {
+        return (
+          <ListVirtualizer
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+            renderRow={renderVariableRow}
+            rows={props.replaced ? replacementRows : initialRows}
+          />
+        );
+      }
+
+      const { rerender } = await render(<Test />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(11900));
+
+      await rerender(<Test replaced />);
+
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeLessThanOrEqual(4100));
+      expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(3900);
+    },
+  );
+
   it.skipIf(isJSDOM)('does not seed the estimate with transient mount measurements', async () => {
     vi.restoreAllMocks();
     const rows = createRows(200);

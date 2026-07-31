@@ -198,6 +198,34 @@ describe('<Combobox.Virtualizer />', () => {
     },
   );
 
+  it.skipIf(!isJSDOM)('updates cached estimates when later callback results change', async () => {
+    const items = createItems(3);
+
+    function Test(props: { laterItemHeight: number }) {
+      return (
+        <Combobox.Root defaultOpen items={items}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimatedItemHeight={(_, index) => (index === 0 ? 20 : props.laterItemHeight)}
+              render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
+            >
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>
+      );
+    }
+
+    const { rerender } = await render(<Test laterItemHeight={20} />);
+    const virtualizer = screen.getByTestId('virtualizer');
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+
+    await rerender(<Test laterItemHeight={40} />);
+
+    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('100px'));
+  });
+
   it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {
     vi.restoreAllMocks();
 
@@ -619,6 +647,40 @@ describe('<Combobox.Virtualizer />', () => {
       'aria-disabled',
       'true',
     );
+  });
+
+  it('auto-highlights the first enabled filtered item', async () => {
+    const { user } = await render(
+      <Combobox.Root
+        items={['alpha', 'alpine', 'beta']}
+        autoHighlight
+        isItemDisabled={(item) => item === 'alpha'}
+      >
+        <Combobox.Input />
+        <Combobox.List>
+          <Combobox.Virtualizer
+            estimatedItemHeight={20}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 60,
+                  getScrollTop: () => 0,
+                  scrollTo: () => {},
+                })}
+              />
+            }
+          >
+            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    await user.type(input, 'al');
+
+    const alpine = await screen.findByRole('option', { name: 'alpine' });
+    expect(input).toHaveAttribute('aria-activedescendant', alpine.id);
   });
 
   it('resets the virtual scroller when filtering without auto-highlight', async () => {
@@ -1242,7 +1304,7 @@ describe('<Combobox.Virtualizer />', () => {
     await rerender(<Test />);
 
     expect(handleGetItemKey).toHaveBeenCalledTimes(items.length);
-    expect(handleEstimatedItemHeight.mock.calls.length).toBeLessThan(items.length);
+    expect(handleEstimatedItemHeight).toHaveBeenCalledTimes(items.length);
     expect(renderItem).not.toHaveBeenCalled();
   });
 

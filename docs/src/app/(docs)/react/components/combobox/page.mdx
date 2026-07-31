@@ -65,13 +65,6 @@ import { Combobox } from '@base-ui/react/combobox';
 
           <Combobox.Collection />
         </Combobox.List>
-
-        {/* Alternatively, use Virtualizer as the only child of List for large flat collections. */}
-        <Combobox.List>
-          <Combobox.Virtualizer>
-            {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-          </Combobox.Virtualizer>
-        </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
   </Combobox.Portal>
