@@ -24,7 +24,7 @@ export default function ExampleVirtualizedCombobox() {
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >
-                {(item: VirtualizedItem) => (
+                {(item: DemoItem) => (
                   <Combobox.Item
                     value={item}
                     className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
@@ -60,16 +60,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-interface VirtualizedItem {
+interface DemoItem {
   id: string;
   name: string;
 }
 
-function getItemLabel(item: VirtualizedItem | null) {
+function getItemLabel(item: DemoItem | null) {
   return item ? item.name : '';
 }
 
-const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+const virtualizedItems: DemoItem[] = Array.from({ length: 10000 }, (_, index) => {
   const id = String(index + 1);
   const indexLabel = id.padStart(4, '0');
   return { id, name: `Item ${indexLabel}` };

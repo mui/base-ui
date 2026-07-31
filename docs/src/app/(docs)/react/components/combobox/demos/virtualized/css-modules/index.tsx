@@ -23,7 +23,7 @@ export default function ExampleVirtualizedCombobox() {
                 getItemKey={(item) => item.id}
                 overscanPx={640}
               >
-                {(item: VirtualizedItem) => (
+                {(item: DemoItem) => (
                   <Combobox.Item value={item} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon />
@@ -56,16 +56,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-interface VirtualizedItem {
+interface DemoItem {
   id: string;
   name: string;
 }
 
-function getItemLabel(item: VirtualizedItem | null) {
+function getItemLabel(item: DemoItem | null) {
   return item ? item.name : '';
 }
 
-const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+const virtualizedItems: DemoItem[] = Array.from({ length: 10000 }, (_, index) => {
   const id = String(index + 1);
   const indexLabel = id.padStart(4, '0');
   return { id, name: `Item ${indexLabel}` };

@@ -57,7 +57,7 @@ function VirtualizedList({
 }: {
   virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
-  const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
+  const filteredItems = Combobox.useFilteredItems<DemoItem>();
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
@@ -150,16 +150,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-interface VirtualizedItem {
+interface DemoItem {
   id: string;
   name: string;
 }
 
-function getItemLabel(item: VirtualizedItem | null) {
+function getItemLabel(item: DemoItem | null) {
   return item ? item.name : '';
 }
 
-const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+const virtualizedItems: DemoItem[] = Array.from({ length: 10000 }, (_, index) => {
   const id = String(index + 1);
   const indexLabel = id.padStart(4, '0');
   return { id, name: `Item ${indexLabel}` };
