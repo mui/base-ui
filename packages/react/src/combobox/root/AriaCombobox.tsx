@@ -701,7 +701,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       const shouldFillInput =
         (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
-        (single && !store.state.inputInsidePopup);
+        (single && (!store.state.inputInsidePopup || store.state.inline));
 
       if (shouldFillInput) {
         setInputValue(

@@ -3301,6 +3301,26 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('Ba');
     });
 
+    it('fills the input with the selected item when rendered inline', async () => {
+      const { user } = await render(
+        <Combobox.Root inline open items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(input).toHaveValue('Banana');
+    });
+
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {
       const onOuterKeyDown = vi.fn();
 
