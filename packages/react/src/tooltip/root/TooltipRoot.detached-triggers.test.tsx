@@ -136,14 +136,14 @@ describe('<Tooltip.Root />', () => {
       triggerBContainer.innerHTML = ReactDOMServer.renderToString(<TriggerB />);
       document.body.appendChild(triggerBContainer);
 
-      hydrate();
-
-      await waitFor(() => {
-        expect(handle.isOpen).toBe(true);
-      });
-
       let triggerBRoot: ReactDOMClient.Root | undefined;
       try {
+        hydrate();
+
+        await waitFor(() => {
+          expect(handle.isOpen).toBe(true);
+        });
+
         fireEvent.click(screen.getByRole('button', { name: 'Switch to B' }));
         await flushMicrotasks();
 
@@ -205,8 +205,10 @@ describe('<Tooltip.Root />', () => {
 
         // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
         // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
-        await new Promise((resolve) => {
-          setTimeout(resolve, 50);
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+            'data-popup-open',
+          );
         });
 
         isOpen = handle.isOpen;

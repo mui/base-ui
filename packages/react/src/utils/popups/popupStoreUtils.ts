@@ -385,8 +385,10 @@ function closeIfActiveTriggerMissing<State extends PopupStoreState<unknown>>(
  * unregisters, the default path preserves existing ownership so non-closing popup families do not
  * silently claim a different trigger while staying open.
  *
- * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
- * after a microtask so a same-tick replacement trigger with the same id can register first.
+ * If `closeOnActiveTriggerUnmount` is enabled, unregistering a previously resolved active trigger
+ * requests a close after a microtask so a same-tick replacement trigger with the same id can
+ * register first. An active trigger id that has not matched a registered trigger yet is treated as
+ * pending and does not request a close.
  *
  * This should be called on the Root part.
  *

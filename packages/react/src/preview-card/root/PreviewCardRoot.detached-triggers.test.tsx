@@ -60,8 +60,8 @@ describe('<PreviewCard.Root />', () => {
 
         // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
         // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
-        await new Promise((resolve) => {
-          setTimeout(resolve, 50);
+        await waitFor(() => {
+          expect(screen.getByRole('link', { name: 'Trigger' })).toHaveAttribute('data-popup-open');
         });
 
         isOpen = handle.isOpen;
