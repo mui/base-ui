@@ -4,7 +4,6 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
@@ -145,7 +144,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
-  const inlineSelectionFrame = useAnimationFrame();
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -531,10 +529,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      if (eventDetails.reason === REASONS.inputChange) {
-        inlineSelectionFrame.cancel();
-      }
-
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       props.onInputValueChange?.(next, eventDetails);
@@ -770,26 +764,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
         setOpen(false, eventDetails);
 
-        if (inline) {
-          // Fill the input when a value is selected but the combobox does not close.
-          const fillInput = () => {
-            setInputValue(
-              stringifyAsLabel(itemValue, itemToStringLabel),
-              createChangeEventDetails(eventDetails.reason, eventDetails.event),
-            );
-          };
+        const closeWasPrevented =
+          eventDetails.isCanceled || (openProp === true && props.onOpenChange === undefined);
 
-          if (eventDetails.isCanceled) {
-            // The selection was accepted, but closing was prevented.
-            fillInput();
-          } else {
-            // Check the controlled state after React flushes.
-            inlineSelectionFrame.request(() => {
-              if (store.state.open) {
-                fillInput();
-              }
-            });
-          }
+        if (inline && closeWasPrevented) {
+          // Fill the input when a value is selected but the combobox does not close.
+          setInputValue(
+            stringifyAsLabel(itemValue, itemToStringLabel),
+            createChangeEventDetails(eventDetails.reason, eventDetails.event),
+          );
         }
       }
     },

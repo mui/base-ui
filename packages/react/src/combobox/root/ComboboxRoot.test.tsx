@@ -3318,9 +3318,30 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId('input');
       await user.click(screen.getByRole('option', { name: 'Banana' }));
 
-      await waitFor(() => {
-        expect(input).toHaveValue('Banana');
-      });
+      expect(input).toHaveValue('Banana');
+    });
+
+    it('fills the inline input when closing is canceled', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          inline
+          open
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (!nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Item value="Banana">Banana</Combobox.Item>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('Banana');
     });
 
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {

@@ -1341,6 +1341,47 @@ describe('<Autocomplete.Root />', () => {
       expect(submitCount).toBe(1);
     });
 
+    it.each(['pointer', 'Enter'])(
+      'submits the selected value from an inline list with %s',
+      async (interaction) => {
+        let submitValue: string | null = null;
+
+        const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+          event.preventDefault();
+          submitValue = new FormData(event.currentTarget).get('q') as string;
+        };
+
+        const { user } = await render(
+          <form onSubmit={handleSubmit}>
+            <Field.Root name="q">
+              <Autocomplete.Root items={['alpha', 'alpine']} inline open submitOnItemClick>
+                <Autocomplete.Input />
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Root>
+            </Field.Root>
+          </form>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, 'al');
+
+        if (interaction === 'pointer') {
+          await user.click(screen.getByRole('option', { name: 'alpha' }));
+        } else {
+          await user.keyboard('{ArrowDown}{Enter}');
+        }
+
+        expect(submitValue).toBe('alpha');
+        expect(input).toHaveValue('alpha');
+      },
+    );
+
     it.skipIf(isJSDOM)(
       'when true, clicking with pointer submits an associated external form when `form` is provided',
       async () => {
